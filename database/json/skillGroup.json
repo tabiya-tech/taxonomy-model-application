@@ -1,0 +1,33 @@
+{
+  "ModelID": "0123456789abcdef01234567",
+  "ID": "0123456789abcdef01234567",
+  "UUID": "eff4f9ae-b4d9-4ae0-bffe-37c04bb88d17",
+  "OriginUUID": "eff4f9ae-b4d9-4ae0-bffe-37c04bb88d17",
+  "ESCOUri": "https://data .../{foo}",
+  "PreferredLabel": "name",
+  "AltLabels": [
+    "labelOne",
+    "label2"
+  ],
+  "ScopeNote": "scope",
+  "Description": "some text",
+  "Code": "S6.5.8",
+  "Parents": [
+    {
+      "ID": 4,
+      "UUID": "O",
+      "ObjectType": "Skill|SkillGroup",
+      "PreferredLabel": "name",
+      "Code": "S6.5.8"
+    }
+  ],
+  "Children": [
+    {
+      "ID": 4,
+      "UUID": "O",
+      "ObjectType": "Skill|SkillGroup",
+      "PreferredLabel": "name",
+      "Code": "S6.5.8"
+    }
+  ]
+}
