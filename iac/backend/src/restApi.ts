@@ -3,10 +3,11 @@ import * as pulumi from "@pulumi/pulumi";
 import {asset} from "@pulumi/pulumi";
 import {RestApi, Stage} from "@pulumi/aws/apigateway";
 import {randomUUID} from "crypto";
+import {publicApiRootPath, resourcesBaseUrl} from "./index";
 
 const buildFolderPath = "../../backend/build";
 
-export function setupBackendRESTApi(environment: string): { restApi: RestApi, stage: Stage } {
+export function setupBackendRESTApi(environment: string, config:{ resourcesBaseUrl: string }): { restApi: RestApi, stage: Stage } {
   /**
    * Lambda for api
    */
@@ -51,7 +52,8 @@ export function setupBackendRESTApi(environment: string): { restApi: RestApi, st
     runtime: 'nodejs16.x',
     environment: {
       variables: {
-        NODE_OPTIONS: '--enable-source-maps'
+        NODE_OPTIONS: '--enable-source-maps',
+        RESOURCES_BASE_URL: config.resourcesBaseUrl,
       },
     }
   });
@@ -85,13 +87,13 @@ export function setupBackendRESTApi(environment: string): { restApi: RestApi, st
   /**
    * setup method ANY
    */
-  // Create a new API Gateway method
+    // Create a new API Gateway method
   const anyApiMethod = new aws.apigateway.Method("model-api-method", {
-    authorization: "NONE",
-    httpMethod: "ANY",
-    resourceId: apiResource.id,
-    restApi: restApi.id,
-  }, {dependsOn: [apiResource, restApi]});
+      authorization: "NONE",
+      httpMethod: "ANY",
+      resourceId: apiResource.id,
+      restApi: restApi.id,
+    }, {dependsOn: [apiResource, restApi]});
 
   // Create a new Lambda proxy integration
   const lambdaAnyIntegration = new aws.apigateway.Integration("model-api-integration", {
@@ -106,13 +108,13 @@ export function setupBackendRESTApi(environment: string): { restApi: RestApi, st
   /**
    * setup method OPTIONS
    */
-  // Create a new API Gateway method
+    // Create a new API Gateway method
   const optionsApiMethod = new aws.apigateway.Method("model-api-method-OPTIONS", {
-    authorization: "NONE",
-    httpMethod: "OPTIONS",
-    resourceId: apiResource.id,
-    restApi: restApi.id,
-  }, {dependsOn: [apiResource, restApi]});
+      authorization: "NONE",
+      httpMethod: "OPTIONS",
+      resourceId: apiResource.id,
+      restApi: restApi.id,
+    }, {dependsOn: [apiResource, restApi]});
 
   // Create a new Lambda proxy integration
   const mockOptionsIntegration = new aws.apigateway.Integration("model-api-integration-OPTIONS", {
@@ -137,9 +139,7 @@ export function setupBackendRESTApi(environment: string): { restApi: RestApi, st
       "method.response.header.Access-Control-Allow-Headers": true,
       "method.response.header.Access-Control-Allow-Methods": true
     },
-    responseModels: {
-
-    }
+    responseModels: {}
   });
 
 
@@ -156,24 +156,24 @@ export function setupBackendRESTApi(environment: string): { restApi: RestApi, st
     responseTemplates: {
       "application/json": ""
     }
-  }, {dependsOn:[optionsApiMethodResponse]});
+  }, {dependsOn: [optionsApiMethodResponse]});
 
 
   /**
    * setup stage and deployment
    */
-  // Create a new API Gateway deployment
-  // @ts-ignore
+    // Create a new API Gateway deployment
+    // @ts-ignore
 
   const deployment = new aws.apigateway.Deployment("model-api-deployment", {
-    restApi: restApi.id,
-    triggers: {
-      // for now always redeploy
-      // TODO: redeploy only if a relevant API gateway resource will change
-      redeployment: randomUUID(),
-    }
-    // You can set the stage name and description as desired
-  }, {dependsOn: [restApi, lambdaAnyIntegration, anyApiMethod]});
+      restApi: restApi.id,
+      triggers: {
+        // for now always redeploy
+        // TODO: redeploy only if a relevant API gateway resource will change
+        redeployment: randomUUID(),
+      }
+      // You can set the stage name and description as desired
+    }, {dependsOn: [restApi, lambdaAnyIntegration, anyApiMethod]});
 
   // Create a new API Gateway stage
   const stage = new aws.apigateway.Stage("model-api-stage", {

@@ -4,10 +4,10 @@
     "noEmit": true
   },
   "include": [
-    "**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "**/__snapshots__/",
-    "**/*.test.ts"
+    "src/**/__snapshots__/",
+    "src/**/*.test.ts"
   ]
 }

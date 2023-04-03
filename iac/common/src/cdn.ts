@@ -64,10 +64,10 @@ function getFrontendNoCachingBehaviour(bucketArn: Output<string>, pathPattern: s
   });
 }
 
-export function setupCDN(frontendBucket: {
+export function setupCDN(frontendBucketOrigin: {
   arn: Output<string>,
   websiteEndpoint: Output<string>
-}, backendRestApi: {
+}, backendRestApiOrigin: {
   restApiArn: Output<string>,
   domainName: Output<string>,
   path: Output<string>
@@ -88,8 +88,8 @@ export function setupCDN(frontendBucket: {
     enabled: true,
     origins: [
       {
-        originId: frontendBucket.arn,
-        domainName: frontendBucket.websiteEndpoint,
+        originId: frontendBucketOrigin.arn,
+        domainName: frontendBucketOrigin.websiteEndpoint,
         customOriginConfig: {
           originProtocolPolicy: "http-only",
           httpPort: 80,
@@ -98,9 +98,9 @@ export function setupCDN(frontendBucket: {
         },
       },
       {
-        originId: backendRestApi.restApiArn,
-        domainName: backendRestApi.domainName,
-        originPath: backendRestApi.path,
+        originId: backendRestApiOrigin.restApiArn,
+        domainName: backendRestApiOrigin.domainName,
+        originPath: backendRestApiOrigin.path,
         customOriginConfig: {
           originProtocolPolicy: "https-only",
           httpPort: 80,
@@ -110,7 +110,7 @@ export function setupCDN(frontendBucket: {
       }
     ],
     defaultCacheBehavior: {
-      targetOriginId: frontendBucket.arn,
+      targetOriginId: frontendBucketOrigin.arn,
       compress: true,
       viewerProtocolPolicy: "redirect-to-https",
       allowedMethods: [
@@ -142,7 +142,7 @@ export function setupCDN(frontendBucket: {
     orderedCacheBehaviors: [
       // Ensure that some assets that are rebuild but do not change their name are always reloaded
       ...getFrontendNoCachingBehaviour(
-        frontendBucket.arn,
+        frontendBucketOrigin.arn,
         ["/", "/app/",
           "index.html", "/app/index.html",
           "/data/version.json", "/app/data/version.json"],
@@ -152,7 +152,7 @@ export function setupCDN(frontendBucket: {
         compress: true,
         allowedMethods: ["GET", "HEAD", "OPTIONS"],
         cachedMethods: ["GET", "HEAD", "OPTIONS"],
-        targetOriginId: frontendBucket.arn,
+        targetOriginId: frontendBucketOrigin.arn,
         pathPattern: "/app/*",
         responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
         cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
@@ -177,7 +177,7 @@ export function setupCDN(frontendBucket: {
         minTtl: 0,
         maxTtl: 0,
         defaultTtl: 0,
-        targetOriginId: backendRestApi.restApiArn,
+        targetOriginId: backendRestApiOrigin.restApiArn,
         pathPattern: "/api/*",
         functionAssociations: [
           {

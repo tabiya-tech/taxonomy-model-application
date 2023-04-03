@@ -17,7 +17,7 @@ jobs:
     needs: [ build-api-specs ]
     secrets: inherit
   deploy-backend:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build-backend ]
     uses: ./.github/workflows/deploy-backend.yml
     secrets: inherit
@@ -32,13 +32,14 @@ jobs:
       component: backend
       expected-version-info: ${{ needs.build-backend.outputs.version-info }}
       component-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}
+      resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
   # Frontend
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
     needs: [ build-api-specs ]
     secrets: inherit
   deploy-frontend:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build-frontend ]
     uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
@@ -60,7 +61,7 @@ jobs:
     secrets: inherit
   # Common Infrastructure
   deploy-common:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend ]
     uses: ./.github/workflows/deploy-common.yml
     secrets: inherit
@@ -77,10 +78,11 @@ jobs:
       expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
       component-url: ${{ needs.deploy-common.outputs.frontendURLBase }}
   smoke-test-backend-cdn:
-    needs: [ build-backend, deploy-common ]
+    needs: [ build-backend, deploy-backend, deploy-common ]
     uses: ./.github/workflows/smoke-test-version.yml
     secrets: inherit
     with:
       component: backend
       expected-version-info: ${{ needs.build-backend.outputs.version-info }}
       component-url: ${{ needs.deploy-common.outputs.backendURLBase }}
+      resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}

@@ -15,9 +15,10 @@
     "baseUrl": "src"
   },
   "include": [
-    "**/*.ts"
+    "src/**/*.ts",
+    "test/**/*.ts"
   ],
   "exclude": [
-    "**/__snapshots__/"
+    "src/**/__snapshots__/"
   ]
 }

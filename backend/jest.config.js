@@ -1,9 +1,10 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 const {compilerOptions} = require('./tsconfig.json')
-
+const mongodbPreset = require('@shelf/jest-mongodb/jest-preset')
 module.exports = {
-  modulePaths: ["<rootDir>/src"],
-  testPathIgnorePatterns : [
+
+  preset: '@shelf/jest-mongodb',
+  testPathIgnorePatterns: [
     "<rootDir>/build",
     "<rootDir>/coverage",
     "<rootDir>/deploy",
@@ -24,10 +25,12 @@ module.exports = {
   },
   testEnvironment: "node",
   collectCoverageFrom: [
-    "src/**/*.{ts,tsx}"
+    "src/**/*.{ts,tsx}",
+    "!src/_test_utilities/*"
   ],
   "coverageReporters": [
     ["lcov", {"projectRoot": "../"}],
     "text"
-  ]
+  ],
+  ...mongodbPreset,
 };

@@ -34,6 +34,9 @@ jobs:
           echo "version-info<<$EOF" >> "$GITHUB_OUTPUT"
           echo "$(cat ./backend/src/info/version.json)" >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"
+      - name: Lint
+        run: yarn run lint
+        working-directory: backend
       - name: Build
         run: yarn run build
         working-directory: backend
@@ -43,6 +46,11 @@ jobs:
           name: backend.build.folder
           path: backend/build/
           retention-days: 1
+      - name: Cache mongodb binaries
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: ${{ runner.os }}-mongodb-binaries
       - name: Test
         run: yarn run test
         working-directory: backend

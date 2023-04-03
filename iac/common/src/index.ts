@@ -4,8 +4,8 @@ import {Output} from "@pulumi/pulumi";
 import {setupDNS} from "./dns";
 import {setupCert} from "./cert";
 
-const environment = pulumi.getStack();
-const domainName = `${environment}.tabiya.tech`
+export const environment = pulumi.getStack();
+export const domainName = `${environment}.tabiya.tech`
 
 /**
  *  ROUTE 53
@@ -63,5 +63,18 @@ const frontendBucket = frontendStack.getOutput("frontendBucket").apply((t) => {
  *  Cloud Front
  */
 export const cdn = setupCDN(frontendBucket, backendRestApi, certificate, hostedZone, domainName);
-export const  backendURLBase = cdn.backendURLBase;
-export const  frontendURLBase = cdn.frontendURLBase;
+export const backendURLBase = cdn.backendURLBase;
+
+// The resources base URL is the base URL for accessing tabiya resources
+// This should be the same as the backend URL base
+
+const resourcesBaseUrl  = backendStack.getOutput("resourcesBaseUrl");
+pulumi.all([resourcesBaseUrl, backendURLBase]).apply(([resourcesBaseUrl, backendURLBase]) => {
+  if (resourcesBaseUrl !== backendURLBase) {
+    pulumi.log.warn(`The resourcesBaseURL:${resourcesBaseUrl} is not the same as the backendURLBase: ${backendURLBase}`);
+  }
+});
+
+export const resourcesBaseURL = resourcesBaseUrl;
+
+export const frontendURLBase = cdn.frontendURLBase;

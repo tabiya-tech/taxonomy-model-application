@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
         working-directory: api-specifications
-      - name: Link
+      - name: Lint
         run: yarn run lint
         working-directory: api-specifications
       - name: Build
