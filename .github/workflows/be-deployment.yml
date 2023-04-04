@@ -1,0 +1,29 @@
+name: deploy to lambda
+on: [push]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  release:
+    name: Deploy lambda function
+    runs-on: [ ubuntu-latest]
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: AKIATA6VVRGR2G3VXQ5D
+        aws-secret-access-key: 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
+        aws-region: eu-central-1
+        role-duration-seconds: 1200
+        role-session-name: MySessionName
+    - name: zip Lambda Function
+      run: |
+        zip index.zip index.js
+    - name: AWS Deploy
+      run: |
+        aws lambda update-function-code --function-name myFirstFunction --zip-file fileb://index.zip
