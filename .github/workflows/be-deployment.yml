@@ -16,8 +16,8 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: AKIATA6VVRGR2G3VXQ5D
-        aws-secret-access-key: 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
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
         role-duration-seconds: 1200
         role-session-name: MySessionName
