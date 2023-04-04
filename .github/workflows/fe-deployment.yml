@@ -7,6 +7,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    name: Getting info
+      run: |
+        echo $GITHUB_SHA   
+        # changing the verions    
+        sed -i -e "s|\###date###|$(date -u +%F' %T.%3N UTC')|g" app.html
+        sed -i -e "s|\###GITHUB_REF_NAME###|$GITHUB_REF_NAME|g" app.html
+        sed -i -e "s|\###GITHUB_RUN_NUMBER###|$GITHUB_RUN_NUMBER|g" app.html
+        sed -i -e "s|\###GITHUB_SHA###|$GITHUB_SHA|g" app.html
+    name: checkout
       - uses: actions/checkout@v2
       - uses: jakejarvis/s3-sync-action@master
         with:
@@ -16,4 +25,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'eu-central-1'
-          SOURCE_DIR: 'frontend/source' 
+          SOURCE_DIR: 'frontend/source'
