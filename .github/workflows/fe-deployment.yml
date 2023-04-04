@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-          uses: actions/checkout@v2
-          with:
-            ref: ${{ github.ref }}
-            path: 'frontend/source'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+          path: 'frontend/source'
       - name: Getting info
         run: |
           sed -i -e "s|\###date###|$(date -u +%F' %T.%3N UTC')|g" app.html
