@@ -1,3 +1,4 @@
+const version = require('./version.json');
 exports.handler = async ()=>{
-    return JSON.stringify({msg:"flight"})
+    return JSON.stringify(version)
 }

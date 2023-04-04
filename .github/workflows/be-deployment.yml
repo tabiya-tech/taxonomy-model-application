@@ -23,7 +23,12 @@ jobs:
         role-session-name: MySessionName
     - name: zip Lambda Function
       run: |
-        echo $GITHUB_SHA
+        echo $GITHUB_SHA   
+        # changing the verions    
+        sed -i -e "s|\###date###|$(date -u +%F' %T.%3N UTC')|g" version.json
+        sed -i -e "s|\###GITHUB_REF_NAME###|$GITHUB_REF_NAME|g" version.json
+        sed -i -e "s|\###GITHUB_RUN_NUMBER###|$GITHUB_RUN_NUMBER|g" version.json
+        sed -i -e "s|\###GITHUB_SHA###|$GITHUB_SHA|g" version.json
         zip index.zip index.js
     - name: AWS Deploy
       run: |
