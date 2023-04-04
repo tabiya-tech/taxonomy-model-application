@@ -1,0 +1,5 @@
+modelID,UUID,Name ,Locale,Description,Version,Released,Previous,ReleaseNotes,OriginURI
+1,e,My model,SA,Some text,v1.0.0,true,,Some text notes,https://tabiya.tech/e
+2,f,My model,SA,Some text,v1.1.0,true,e,Some text notes,https://tabiya.tech/e
+3,g,My model,SA,Some text,v1.1.0,false,f,,https://tabiya.tech/e
+4,h,,,,,,e,,
