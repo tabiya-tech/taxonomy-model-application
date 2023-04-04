@@ -23,6 +23,7 @@ jobs:
         role-session-name: MySessionName
     - name: zip Lambda Function
       run: |
+        echo $GITHUB_SHA
         zip index.zip index.js
     - name: AWS Deploy
       run: |
