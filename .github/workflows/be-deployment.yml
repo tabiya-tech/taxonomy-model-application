@@ -10,7 +10,6 @@ jobs:
     name: Deploy lambda function
     runs-on: [ ubuntu-latest]
     steps:
-
     - name: Checkout
       uses: actions/checkout@v2
     - name: Configure AWS Credentials
@@ -32,4 +31,4 @@ jobs:
         zip index.zip index.js
     - name: AWS Deploy
       run: |
-        aws lambda update-function-code --function-name myFirstFunction --zip-file fileb://index.zip
+        aws lambda update-function-code --function-name testtabiya --zip-file fileb://index.zip
