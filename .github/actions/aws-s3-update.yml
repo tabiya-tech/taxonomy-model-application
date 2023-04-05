@@ -1,0 +1,11 @@
+name: 'Update s3 bucket'
+description: 'Update a s3 bucket'
+inputs:
+  function-name:  # name of the s3 bucket
+    description: 'The name of the s3 bucket'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - id: AWS S3 Deploy
+      run: aws s3 sync ./frontend/source/. s3://tabiya-frontend-dev

@@ -12,11 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Getting info
-        run: |
-          sed -i -e "s|\###date###|$(date -u +%F' %T.%3N UTC')|g" frontend/source/app.html
-          sed -i -e "s|\###GITHUB_REF_NAME###|$GITHUB_REF_NAME|g" frontend/source/app.html
-          sed -i -e "s|\###GITHUB_RUN_NUMBER###|$GITHUB_RUN_NUMBER|g" frontend/source/app.html
-          sed -i -e "s|\###GITHUB_SHA###|$GITHUB_SHA|g" frontend/source/app.html
+        run: ./pipeline/setVersionInfo.sh frontend/source/version.json
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
