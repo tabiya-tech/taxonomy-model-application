@@ -8,7 +8,7 @@ permissions:
 jobs:
   release:
     name: Deploy lambda function
-    runs-on: [ ubuntu-latest]
+    runs-on: [ubuntu-latest]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -20,14 +20,15 @@ jobs:
         aws-region: eu-central-1
         role-duration-seconds: 1200
         role-session-name: MySessionName
-    - name: zip Lambda Function
+    - name: Extract Version Info
       run: |
-        echo $GITHUB_SHA   
         # changing the verions    
         sed -i -e "s|\###date###|$(date -u +%F' %T.%3N UTC')|g" version.json
         sed -i -e "s|\###GITHUB_REF_NAME###|$GITHUB_REF_NAME|g" version.json
         sed -i -e "s|\###GITHUB_RUN_NUMBER###|$GITHUB_RUN_NUMBER|g" version.json
         sed -i -e "s|\###GITHUB_SHA###|$GITHUB_SHA|g" version.json
+    - name: zip Lambda Function
+      run: |
         zip -r9 index.zip ./
     - name: AWS Deploy
       run: |
