@@ -13,6 +13,7 @@ runs:
   steps:
     - id: zip-lambda-function
       run: |
+        echo ${{ inputs.function-name }}
         zip -r9 ./backend/deploy/${{ inputs.function-name }}/index.zip ./backend/source/${{ inputs.function-name }}/
     - id: aws-deploy
       run: |
