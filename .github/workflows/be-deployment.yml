@@ -20,16 +20,17 @@ jobs:
         aws-region: eu-central-1
         role-duration-seconds: 1200
         role-session-name: MySessionName
-    - name: Extract Version Info
+    - name: Set Version Info
       run: |
-        # changing the verions    
-        sed -i -e "s|\###date###|$(date -u +%F' %T.%3N UTC')|g" version.json
-        sed -i -e "s|\###GITHUB_REF_NAME###|$GITHUB_REF_NAME|g" version.json
-        sed -i -e "s|\###GITHUB_RUN_NUMBER###|$GITHUB_RUN_NUMBER|g" version.json
-        sed -i -e "s|\###GITHUB_SHA###|$GITHUB_SHA|g" version.json
-    - name: zip Lambda Function
-      run: |
-        zip -r9 index.zip ./
-    - name: AWS Deploy
-      run: |
-        aws lambda update-function-code --function-name testtabiya --zip-file fileb://index.zip
+        ./pipeline/setVersionInfo.sh ./backend/source/info/version.json
+        cat ./backend/source/info/version.json
+    - name: Update Info Lambda Function
+      uses: ./.github/actions/aws-lambda-update
+      with:
+          function-name: info
+#    - name: zip Info Lambda Function
+#      run: |
+#        zip -r9 ./backend/deploy/info/index.zip ./backend/source/info/
+#    - name: AWS Deploy
+#      run: |
+#        aws lambda update-function-code --function-name info --zip-file fileb://backend/deploy/info/index.zip
