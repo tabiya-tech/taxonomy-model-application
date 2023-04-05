@@ -3,7 +3,7 @@ async function loadVersion() {
       // Make API calls concurrently
       const [feResponse, beResponse] = await Promise.all([
         fetch('version.json').then(response => response.json()),
-        fetch('version.json').then(response => response.json())
+        fetch('https://l0oh1b8olb.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json())
       ]);
   
       // Render frontend info
@@ -35,9 +35,9 @@ async function loadVersion() {
     // Create a new HTML element to display the data
     const html = `
       <ul>
-        <li>Date: ${data.date || "Loading..."}</li>
-        <li>Branch: ${data.branch || "Loading..."}</li>
-        <li>Build Number: ${data.buildNumber|| "Loading..."}</li>
+        <li>Date: ${data.date}</li>
+        <li>Branch: ${data.branch}</li>
+        <li>Build Number: ${data.buildNumber}</li>
         <li>GIT SHA: ${data.sha}</li>
       </ul>
     `;
