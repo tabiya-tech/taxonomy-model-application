@@ -24,6 +24,8 @@ jobs:
       run: |
         ./pipeline/setVersionInfo.sh ./backend/source/info/version.json
         cat ./backend/source/info/version.json
+    - name: Checkout Code
+      uses: actions/Update aws
     - name: Update Info Lambda Function
       uses: ./.github/actions/aws-lambda-update
       with:
