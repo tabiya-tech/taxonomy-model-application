@@ -26,7 +26,6 @@ fetch('https://l0oh1b8olb.execute-api.eu-central-1.amazonaws.com/dev/info')
   .then(data => {
     // Store the data in a variable
     const apiData = JSON.parse(data);
-    console.log(apiData)
     // Get the HTML element where you want to display the data
     const element = document.getElementById('info');
 
