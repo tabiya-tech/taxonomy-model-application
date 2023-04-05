@@ -1,0 +1,20 @@
+name: 'Update aws'
+description: 'Update a aws lambda-update'
+inputs:
+  function-name:  # name of the s3 bucket
+    description: 'The name of the lambda'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - id: zip-aws-lambda-deploy
+      shell: bash
+      run: |
+        echo ${{ inputs.function-name }}
+        mkdir -p ./backend/deploy/${{ inputs.function-name }}
+        zip -r9 ./backend/deploy/${{ inputs.function-name }}/index.zip ./backend/source/${{ inputs.function-name }}/
+    - id: aws-deploy
+      shell: bash
+      run: |
+        aws lambda update-function-code --function-name ${{ inputs.function-name }} --zip-file fileb://backend/deploy/${{ inputs.function-name }}/index.zip 
+        
