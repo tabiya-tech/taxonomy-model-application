@@ -1,28 +1,10 @@
-async function loadVersion() {
+async function loadInfo() {
     try {
       // Make API calls concurrently
-      const [feResponse, beResponse] = await Promise.all([
-        fetch('version.json').then(response => response.json()),
-        fetch('version.json').then(response => response.json())
-      ]);
-  
-      // Render frontend info
-      const feData = {
-        date: feResponse.date,
-        branch: feResponse.branch,
-        buildNumber: feResponse.buildNumber,
-        sha: feResponse.sha
-      };
-      renderInfo(feData, 'fe-info');
-  
-      // Render backend info
-      const beData = {
-        date: beResponse.date,
-        branch: beResponse.branch,
-        buildNumber: beResponse.buildNumber,
-        sha: beResponse.sha
-      };
-      renderInfo(beData, 'be-info');
+      let feResponse=await fetch('version.json').then(response => response.json())
+      let beResponse =await fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json())
+      renderInfo(feResponse, 'fe-info');
+      renderInfo(beResponse, 'be-info');
     } catch (error) {
       console.error(error);
     }
@@ -35,9 +17,9 @@ async function loadVersion() {
     // Create a new HTML element to display the data
     const html = `
       <ul>
-        <li>Date: ${data.date || "Loading..."}</li>
-        <li>Branch: ${data.branch || "Loading..."}</li>
-        <li>Build Number: ${data.buildNumber|| "Loading..."}</li>
+        <li>Date: ${data.date}</li>
+        <li>Branch: ${data.branch}</li>
+        <li>Build Number: ${data.buildNumber}</li>
         <li>GIT SHA: ${data.sha}</li>
       </ul>
     `;
