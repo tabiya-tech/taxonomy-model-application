@@ -25,7 +25,7 @@ jobs:
         ./pipeline/setVersionInfo.sh ./backend/source/info/version.json
         cat ./backend/source/info/version.json
     - name: Update Info Lambda Function
-      uses: ./.github/actions/
+      uses: ./.github/aws-lambda-actions/
       with:
           function-name: info
 #    - name: zip Info Lambda Function
