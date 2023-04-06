@@ -1,4 +1,4 @@
-async function loadVersion() {
+async function loadInfo() {
     try {
       // Make API calls concurrently
       const [feResponse, beResponse] = await Promise.all([
