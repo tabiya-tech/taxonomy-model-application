@@ -12,7 +12,7 @@ runs:
       run: |
         echo ${{ inputs.function-name }}
         mkdir -p ./backend/deploy/${{ inputs.function-name }}
-        zip -r9 ./backend/deploy/${{ inputs.function-name }}/index.zip ./backend/source/${{ inputs.function-name }}/
+        zip -jr9 ./backend/deploy/${{ inputs.function-name }}/index.zip ./backend/source/${{ inputs.function-name }}/
     - id: aws-deploy
       shell: bash
       run: |
