@@ -20,7 +20,7 @@ jobs:
           role-duration-seconds: 1200
           role-session-name: MySessionName
       - name: AWS S3 Deploy
-        uses: ./.github/actions/
+        uses: ./.github/aws-s3-actions/
         with:
           bucket-name: tabiya-frontend-dev
          
