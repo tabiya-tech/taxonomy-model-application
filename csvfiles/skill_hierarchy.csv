@@ -1,0 +1,5 @@
+ParentObjectType,ParentUUID,ChildUUID,ChildObjectType
+ESCO,O,S,ESCO
+Localized,OO,S,Localized
+Local,FF,GH,Local
+ISCOGroup,MS,UH,ISCOGroup
