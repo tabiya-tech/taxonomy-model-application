@@ -3,7 +3,7 @@ async function loadVersion() {
       // Make API calls concurrently
       const [feResponse, beResponse] = await Promise.all([
         fetch('version.json').then(response => response.json()),
-        fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/version').then(response => response.json())
+        fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json())
       ]);
   
       // Render frontend info
