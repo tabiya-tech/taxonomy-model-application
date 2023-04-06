@@ -7,6 +7,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: AWS S3 Deploy
+    - id: aws-deploy
       shell: bash
       run: aws s3 sync ./frontend/source/. s3://${{ inputs.bucket-name }}
