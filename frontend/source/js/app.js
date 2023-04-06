@@ -2,7 +2,7 @@ async function loadInfo() {
     try {
       // Make API calls concurrently
       let feResponse=await fetch('version.json').then(response => response.json())
-      let beResponse =JSON.parse(await fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json()))
+      let beResponse =await fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json())
       renderInfo(feResponse, 'fe-info');
       renderInfo(beResponse, 'be-info');
     } catch (error) {
