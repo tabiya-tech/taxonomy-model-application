@@ -1,11 +1,11 @@
 async function loadInfo() {
     try {
       // Make API calls concurrently
-      const [feResponse, beResponse] = await Promise.all([
+      let [feResponse, beResponse] = await Promise.all([
         fetch('version.json').then(response => response.json()),
         fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json())
       ]);
-  
+      beResponse=JSON.parse(beResponse)
       // Render frontend info
       const feData = {
         date: feResponse.date,
