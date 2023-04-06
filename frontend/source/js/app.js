@@ -1,28 +1,10 @@
 async function loadInfo() {
     try {
       // Make API calls concurrently
-      let [feResponse, beResponse] = await Promise.all([
-        fetch('version.json').then(response => response.json()),
-        fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json())
-      ]);
-      beResponse=JSON.parse(beResponse)
-      // Render frontend info
-      const feData = {
-        date: feResponse.date,
-        branch: feResponse.branch,
-        buildNumber: feResponse.buildNumber,
-        sha: feResponse.sha
-      };
-      renderInfo(feData, 'fe-info');
-  
-      // Render backend info
-      const beData = {
-        date: beResponse.date,
-        branch: beResponse.branch,
-        buildNumber: beResponse.buildNumber,
-        sha: beResponse.sha
-      };
-      renderInfo(beData, 'be-info');
+      let feResponse=await fetch('version.json').then(response => response.json())
+      let beResponse =JSON.parse(await fetch('https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev/info').then(response => response.json()))
+      renderInfo(feResponse, 'fe-info');
+      renderInfo(beResponse, 'be-info');
     } catch (error) {
       console.error(error);
     }
