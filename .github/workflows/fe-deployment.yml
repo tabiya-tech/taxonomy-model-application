@@ -2,7 +2,7 @@ name: taxonomy application model
 on:
   push:
     branches:
-      - "fe-deployment"
+      - "dev"
 jobs:
   build:
     runs-on: ubuntu-latest
