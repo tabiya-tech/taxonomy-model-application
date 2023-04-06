@@ -1,0 +1,26 @@
+name: taxonomy application model
+on:
+  push:
+    branches:
+      - "fe-deployment"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Getting info
+        run: ./pipeline/setVersionInfo.sh frontend/source/version.json
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+          role-duration-seconds: 1200
+          role-session-name: MySessionName
+      - name: AWS S3 Deploy
+        uses: ./.github/actions/
+        with:
+          bucket-name: tabiya-frontend-dev
+         
