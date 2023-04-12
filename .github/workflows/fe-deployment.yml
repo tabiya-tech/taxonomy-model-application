@@ -7,8 +7,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
       - name: Getting info
-        run: ./pipeline/setVersionInfo.sh frontend/source/version.json
+        run: ./pipeline/setVersionInfo.sh frontend/public/data/version.json
+      - name: Install dependencies
+        run: yarn install
+        working-directory: frontend
+      - name: Build
+        run: yarn run build
+        working-directory: frontend
+      - name: Test
+        run: yarn run test
+        working-directory: frontend
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:

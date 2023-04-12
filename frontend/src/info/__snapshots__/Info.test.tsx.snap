@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing Info component it should show frontend and backend info successfully: backend 1`] = `
+<div
+  data-testid="backend"
+  id="backend"
+>
+  <ul
+    class="info"
+  >
+    <li
+      class="title"
+    >
+      <p>
+        Backend
+      </p>
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        Date:
+      </p>
+       
+      fooBackend
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        Branch:
+      </p>
+       
+      barBackend
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        Build Number:
+      </p>
+      bazBackend
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        GIT SHA:
+      </p>
+       
+      gooBackend
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`Testing Info component it should show frontend and backend info successfully: frontend 1`] = `
+<div
+  data-testid="frontend"
+  id="frontend"
+>
+  <ul
+    class="info"
+  >
+    <li
+      class="title"
+    >
+      <p>
+        Frontend
+      </p>
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        Date:
+      </p>
+       
+      fooFrontend
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        Branch:
+      </p>
+       
+      barFrontend
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        Build Number:
+      </p>
+      bazFrontend
+    </li>
+    <li
+      class="entry"
+    >
+      <p>
+        GIT SHA:
+      </p>
+       
+      gooFrontend
+    </li>
+  </ul>
+</div>
+`;

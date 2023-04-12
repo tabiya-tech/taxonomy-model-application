@@ -1,0 +1,12 @@
+ul.info{
+    list-style: none;
+    text-align: left;
+}
+
+.info > .entry p{
+    font-weight: bold;
+}
+
+.info > .title p{
+    font-weight: bold;
+}
