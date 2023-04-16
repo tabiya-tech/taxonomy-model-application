@@ -9,4 +9,4 @@ runs:
   steps:
     - id: aws-deploy
       shell: bash
-      run: aws s3 sync ./frontend/source/. s3://${{ inputs.bucket-name }}
+      run: aws s3 sync ./frontend/build/. s3://${{ inputs.bucket-name }}

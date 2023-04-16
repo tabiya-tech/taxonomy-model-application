@@ -1,0 +1,44 @@
+.TaxonomyModelApp {
+  text-align: center;
+}
+
+.TaxonomyModelApp-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+p{
+  padding: 0px;  
+  margin: 0px;  
+  display: inline;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .TaxonomyModelApp-logo {
+    animation: TaxonomyModelApp-logo-spin infinite 20s linear;
+  }
+}
+
+.TaxonomyModelApp-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.TaxonomyModelApp-link {
+  color: #61dafb;
+}
+
+@keyframes TaxonomyModelApp-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
