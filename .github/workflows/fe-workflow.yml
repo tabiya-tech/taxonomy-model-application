@@ -27,7 +27,7 @@ jobs:
       - name: Set version info
         run: |
           ./pipeline/setVersionInfo.sh frontend/public/data/version.json
-          cat ./backend/source/info/version.json
+          cat frontend/public/data/version.json
       - name: Build
         run: yarn run build
         working-directory: frontend

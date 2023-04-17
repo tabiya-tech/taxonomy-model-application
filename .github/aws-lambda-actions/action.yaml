@@ -1,7 +1,7 @@
 name: 'Update aws'
 description: 'Update a aws lambda-update'
 inputs:
-  function-name:  # name of the s3 bucket
+  function-name:
     description: 'The name of the lambda'
     required: true
 runs:
@@ -11,10 +11,11 @@ runs:
       shell: bash
       run: |
         echo ${{ inputs.function-name }}
-        mkdir -p ./backend/deploy/${{ inputs.function-name }}
-        zip -jr9 ./backend/deploy/${{ inputs.function-name }}/index.zip ./backend/source/${{ inputs.function-name }}/
+        mkdir -p ./backend/deploy/
+        cd ./backend/build/
+        zip -r9 ../deploy/index.zip *
     - id: aws-deploy
       shell: bash
       run: |
-        aws lambda update-function-code --function-name ${{ inputs.function-name }} --zip-file fileb://backend/deploy/${{ inputs.function-name }}/index.zip 
+        aws lambda update-function-code --function-name ${{ inputs.function-name }} --zip-file fileb://backend/deploy/index.zip 
         
