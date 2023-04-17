@@ -10,15 +10,27 @@ on:
 
 jobs:
   build:
-    name: Deploy lambda function
+    name: Build and test the backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: backend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: backend
       - name: Set Version Info
         run: |
-          ./pipeline/setVersionInfo.sh ./backend/source/info/version.json
-          cat ./backend/source/info/version.json
+          ./pipeline/setVersionInfo.sh ./backend/src/info/version.json
+          cat ./backend/src/info/version.json
+      - name: Build
+        run: yarn run build
+        working-directory: backend
 
 ### TODO move to separate job with a dependency on the build job
 #### deploy_dev:

@@ -1,19 +1,19 @@
 {
-  "name": "taxonomy-model-application",
-  "version": "1.0.0",
-  "description": "",
-  "main": "source/info/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tabiya-tech/taxonomy-model-application.git"
-  },
-  "author": "",
+  "name": "frontend",
+  "version": "0.1.0",
+  "main": "index.js",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/tabiya-tech/taxonomy-model-application/issues"
+  "scripts": {
+    "clean": "rm -rf build",
+    "build": "tsc && cp ./package.json ./build/"
   },
-  "homepage": "https://github.com/tabiya-tech/taxonomy-model-application#readme"
+  "devDependencies": {
+    "@types/aws-lambda": "~8.10.114",
+    "@types/jest": "~29.5.0",
+    "jest": "~29.5.0",
+    "ts-jest": "~29.1.0"
+  },
+  "dependencies": {
+    "typescript": "~4.4.2"
+  }
 }
