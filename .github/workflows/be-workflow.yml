@@ -1,0 +1,37 @@
+name: Backend CI
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  build:
+    name: Deploy lambda function
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set Version Info
+        run: |
+          ./pipeline/setVersionInfo.sh ./backend/source/info/version.json
+          cat ./backend/source/info/version.json
+
+### TODO move to separate job with a dependency on the build job
+#### deploy_dev:
+####   name: Deploy lambda function
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+          role-duration-seconds: 1200
+          role-session-name: MySessionName
+      - name: Update Info Lambda Function
+        uses: ./.github/aws-lambda-actions/
+        with:
+          function-name: info

@@ -1,0 +1,10 @@
+name: Main CI
+on: [push]
+
+jobs:
+  build-frontend:
+    uses: ./.github/workflows/fe-workflow.yml
+    secrets: inherit
+  build-backend:
+    uses: ./.github/workflows/be-workflow.yml
+    secrets: inherit
