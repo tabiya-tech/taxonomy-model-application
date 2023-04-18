@@ -1,0 +1,47 @@
+openapi: 3.0.3
+info:
+  title: Tabiya Model - OpenAPI 3.0
+  description: |-
+    This is a tabiya  Server based on the OpenAPI 3.0 specification. 
+  contact:
+    email: support@tabiya.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+servers:
+  - url: https://tabiya.com/api/v1
+paths:
+  /models:
+    post:
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                Name:
+                   type: string
+                Locale:
+                    type: string
+                Description:
+                     type: string
+                csvFiles: 
+                     type: array
+                     items: string
+              required:
+                - name
+                - locale
+              additionalProperties: false
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                 type: object
+                 properties:
+                    status: bolean
+        '405':
+          description: Invalid input
