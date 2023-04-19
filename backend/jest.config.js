@@ -8,13 +8,13 @@ module.exports = {
     "<rootDir>/build",
     "<rootDir>/coverage",
     "<rootDir>/deploy",
-    "<rootDir>/test",
+    "<rootDir>/test"
   ],
   modulePathIgnorePatterns: ["<rootDir>/build"],
   moduleDirectories: ["node_modules", "<rootDir>/src"],
   transform: { // override default transform to use a custom inline tsconfig
     // process js/ts with `ts-jest`
-    '^.+\\.[tj]s$': [
+    '^.+\\.ts$': [
       'ts-jest', {
         tsconfig: {
           ...compilerOptions,

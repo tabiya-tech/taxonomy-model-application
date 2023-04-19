@@ -35,6 +35,7 @@ p,label{
     justify-content: center;
     align-items: flex-start;
     flex-direction: column;
+    font-family: 'Roboto Slab', serif !important;
 }
 
 .import-modal > .header{
@@ -97,10 +98,15 @@ p,label{
     gap: 5px;
     border: 1px solid var(--dark);
     border-radius: 2px;
-    font-style: italic;
     align-items: center;
     justify-content: flex-start;
     overflow: auto;
+}
+
+.files-pool > label{
+    font-family: 'Roboto Slab', serif !important;
+    width: 100%;
+    text-align: left;
 }
 
 .files-pool > p.file{
@@ -109,6 +115,7 @@ p,label{
     color: var(--dark);
     padding: 5px;
     max-width: 70px;
+    min-width: 70px;
     white-space: nowrap;
     overflow: hidden;
     font-style: italic;

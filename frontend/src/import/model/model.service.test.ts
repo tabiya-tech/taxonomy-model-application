@@ -3,8 +3,8 @@ import Ajv from 'ajv/dist/2020';
 
 import {getTestString} from "src/_test_utilities/specialCharacters";
 import {randomUUID} from "crypto";
-import ImportService, {INewModelSpecification} from "./import.service";
-import {ErrorCodes} from "../error/errorCodes";
+import ModelService, {INewModelSpecification} from "./model.service";
+import {ErrorCodes} from "src/error/errorCodes";
 
 import {
   IModelInfoResponse,
@@ -14,8 +14,9 @@ import {
   NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH, RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH
 } from "api-specifications/modelInfo";
 import addFormats from "ajv-formats";
-import {ServiceError} from "../error/error";
+import {ServiceError} from "src/error/error";
 import {StatusCodes} from "http-status-codes/";
+import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
 
 function getNewModelSpecMockData(): INewModelSpecification {
   return {
@@ -36,7 +37,7 @@ ajv.addSchema(ModelInfoRequestSchema);
 ajv.addSchema(ModelInfoResponseSchema);
 const validateResponse = ajv.compile(ModelInfoResponseSchema);
 
-function getModelInfoMockResponse():IModelInfoResponse {
+function getModelInfoMockResponse(): IModelInfoResponse {
   const givenResponse: IModelInfoResponse = {
     id: getTestString(24),
     originUUID: "",
@@ -69,29 +70,13 @@ describe("Test the service", () => {
     jest.restoreAllMocks();
   });
 
-  function setupFetchSpySuccessResponse(expectedResponseBody: any | string, contentType: "" | "application/json;charset=UTF-8"): jest.SpyInstance {
-    const responseBody = typeof expectedResponseBody ==='string'? expectedResponseBody : JSON.stringify(expectedResponseBody);
-    const expectedResponse = new Response(responseBody, {
-      status: 201,
-      headers: {"Content-Type": contentType}
-    });
-    return jest.spyOn(window, 'fetch').mockResolvedValue(expectedResponse);
-  }
-
-  function setupFetchSpyErrorResponse(expectedResponseBody: any): jest.SpyInstance {
-    const expectedResponse = new Response(JSON.stringify(expectedResponseBody), {
-      status: 400,
-      headers: {"Content-Type": "application/json"}
-    });
-    return jest.spyOn(window, 'fetch').mockResolvedValue(expectedResponse);
-  }
 
   test("should construct the service successfully", () => {
     // GIVEN an api server url
     const apiServerUrl = getTestString(10);
 
     // WHEN the service is constructed
-    const service = new ImportService(apiServerUrl);
+    const service = new ModelService(apiServerUrl);
 
     // THEN expect the service to be constructed successfully
     expect(service).toBeDefined();
@@ -108,10 +93,10 @@ describe("Test the service", () => {
     const givenModelSpec = getNewModelSpecMockData();
     // AND the create model REST API will respond with OK and some newly create model
     const givenResponse: IModelInfoResponse = getModelInfoMockResponse()
-    const fetchSpy = setupFetchSpySuccessResponse(givenResponse, "application/json;charset=UTF-8");
+    const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the createModel function is called with the given arguments (name, description, ...)
-    const service = new ImportService(givenApiServerUrl);
+    const service = new ModelService(givenApiServerUrl);
 
     await service.createModel(givenModelSpec);
     // THEN expect it to make a POST request
@@ -133,21 +118,21 @@ describe("Test the service", () => {
   });
 
   test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
-      // GIVEN fetch rejects with some unknown error
-      const givenFetchError = new Error();
-      jest.spyOn(window, 'fetch').mockRejectedValue(givenFetchError);
+    // GIVEN fetch rejects with some unknown error
+    const givenFetchError = new Error();
+    jest.spyOn(window, 'fetch').mockRejectedValue(givenFetchError);
 
-      // WHEN calling create model function
-      const service = new ImportService("/path/to/foo");
+    // WHEN calling create model function
+    const service = new ModelService("/path/to/foo");
 
-      // THEN expected it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(ImportService.name, "createModel", "POST", "/path/to/foo/models", 0, ErrorCodes.FAILED_TO_FETCH, "", ""),
-        message: expect.any(String),
-        details: expect.any(Error)
-      };
-      await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
-    });
+    // THEN expected it to reject with the error response
+    const expectedError = {
+      ...new ServiceError(ModelService.name, "createModel", "POST", "/path/to/foo/models", 0, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      message: expect.any(String),
+      details: expect.any(Error)
+    };
+    await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
+  });
 
   test.each([
     ["is a malformed json", '{'],
@@ -155,22 +140,22 @@ describe("Test the service", () => {
     ["is not conforming to ModelResponseSchema", {foo: "foo"}],
   ])
   ("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s", async (description, givenResponse) => {
-      // GIVEN a api server url
-      const givenApiServerUrl = "/path/to/api";
-      // AND the create model REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
-      setupFetchSpySuccessResponse(givenResponse, "application/json;charset=UTF-8");
+    // GIVEN a api server url
+    const givenApiServerUrl = "/path/to/api";
+    // AND the create model REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
+    setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
 
-      // WHEN the createModel function is called with the given arguments (name, description, ...)
-      const service = new ImportService(givenApiServerUrl);
+    // WHEN the createModel function is called with the given arguments (name, description, ...)
+    const service = new ModelService(givenApiServerUrl);
 
-      // THEN expected it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(ImportService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_BODY, "", ""),
-        message: expect.any(String),
-        details: expect.anything()
-      };
-      await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
-    });
+    // THEN expected it to reject with the error response
+    const expectedError = {
+      ...new ServiceError(ModelService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_BODY, "", ""),
+      message: expect.any(String),
+      details: expect.anything()
+    };
+    await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
+  });
 
   test("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
     // GIVEN a api server url
@@ -178,14 +163,14 @@ describe("Test the service", () => {
     // AND the create model REST API will respond with OK and some response
     // that conforms to the modelInfoResponseSchema
     // but the content-type is not application/json;charset=UTF-8
-    setupFetchSpySuccessResponse(getModelInfoMockResponse(), "");
+    setupFetchSpy(StatusCodes.CREATED, getModelInfoMockResponse(), "");
 
     // WHEN the createModel function is called with the given arguments (name, description, ...)
-    const service = new ImportService(givenApiServerUrl);
+    const service = new ModelService(givenApiServerUrl);
 
     // THEN expected it to reject with the error response
     const expectedError = {
-      ...new ServiceError(ImportService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_HEADER, "", ""),
+      ...new ServiceError(ModelService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_HEADER, "", ""),
       message: expect.any(String),
       details: expect.any(String)
     };
@@ -197,15 +182,15 @@ describe("Test the service", () => {
     const givenApiServerUrl = "/path/to/api";
     // AND the create model REST API will respond with NOT OK and some response body
     const givenResponse = {foo: "foo", bar: "bar"};
-    setupFetchSpyErrorResponse(givenResponse);
+    setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the createModel function is called with the given arguments (name, description, ...)
-    const service = new ImportService(givenApiServerUrl);
+    const service = new ModelService(givenApiServerUrl);
 
     // THEN expected it to reject with the error response
     const expectedError = {
-      ...new ServiceError(ImportService.name, "createModel", "POST", `${givenApiServerUrl}/models`, 0, ErrorCodes.API_ERROR, "", givenResponse),
-      statusCode:expect.any(Number),
+      ...new ServiceError(ModelService.name, "createModel", "POST", `${givenApiServerUrl}/models`, 0, ErrorCodes.API_ERROR, "", givenResponse),
+      statusCode: expect.any(Number),
       message: expect.any(String),
       details: givenResponse
     };

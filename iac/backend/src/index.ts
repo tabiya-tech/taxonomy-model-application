@@ -1,16 +1,31 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
-import {Stage} from "@pulumi/aws/apigateway";
-import {setupBackendRESTApi} from "./restApi";
+import {getRestApiDomainName, getRestApiPath, setupBackendRESTApi} from "./restApi";
+import {setupUploadBucket, setupUploadBucketPolicy} from "./uploadBucket";
 
 export const environment = pulumi.getStack();
 export const domainName = `${environment}.tabiya.tech`
 export const publicApiRootPath = "/api";
 export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
+
+export const currentRegion = pulumi.output(aws.getRegion()).name;
+
+/**
+ * Setup Upload Bucket
+ */
+const allowedOrigins = [`https://${domainName}`, (environment === "dev") ? "http://localhost:3000" : undefined].filter(Boolean) as string[];
+const uploadBucket = setupUploadBucket(allowedOrigins);
+export const uploadBucketName = uploadBucket.id;
+
 /**
  * Setup Backend Rest API
  */
-const {restApi, stage} = setupBackendRESTApi(environment, {mongodb_uri: process.env.MONGODB_URI ?? "", resourcesBaseUrl});
+const {restApi, stage, lambdaRole} = setupBackendRESTApi(environment, {
+  mongodb_uri: process.env.MONGODB_URI ?? "",
+  resourcesBaseUrl,
+  upload_bucket_name: uploadBucketName,
+  upload_bucket_region: currentRegion
+});
 
 export const backendRestApi = {
   restApiArn: restApi.arn,
@@ -21,13 +36,8 @@ export const backendRestApi = {
 // this is the base URL for the backend REST API
 export const backedRestApiURLBase = pulumi.interpolate`https://${backendRestApi.domainName}${backendRestApi.path}`;
 
-// this is the public url base for accessing tabiya resources
+/**
+ * Ensure lambda function of the backend rest api can access the upload bucket
+ */
 
-
-function getRestApiDomainName(stage: Stage) {
-  return pulumi.interpolate`${stage.restApi}.execute-api.${aws.getRegionOutput().name}.amazonaws.com`;
-}
-
-function getRestApiPath(stage: Stage) {
-  return pulumi.interpolate`/${stage.stageName}`;
-}
+setupUploadBucketPolicy(uploadBucket, lambdaRole);
