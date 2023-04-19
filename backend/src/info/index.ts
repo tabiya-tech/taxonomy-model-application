@@ -1,16 +1,14 @@
+import {Context, Callback, APIGatewayProxyEvent} from "aws-lambda";
+import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import version from './version.json';
-import {Handler, APIGatewayEvent} from "aws-lambda";
+import {HTTP_VERBS, response, STD_ERRORS_RESPONSES} from "httpUtils";
 
-export const handler: Handler = async (event: APIGatewayEvent, context, callback) => {
-  return {
-    isBase64Encoded: false,
-    headers: {
-      "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-    },
-    multiValueHeaders: {
-      "Access-Control-Allow-Methods": ["GET"]
-    },
-    statusCode: 200,
-    body: JSON.stringify(version)
-  };
+export const handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback)
+  => Promise<APIGatewayProxyResult>
+  = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
+
+  if (event?.httpMethod === HTTP_VERBS.GET) {
+    return response(200, version);
+  }
+  return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 }
