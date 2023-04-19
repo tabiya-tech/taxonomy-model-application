@@ -94,17 +94,10 @@ describe("test for model handler", () => {
       }
     }
 
-    // AND repository successfully creates a model
-    // error response status >=400 represents an error
-    const expectedErrorBody: IErrorResponse = {
-      "errorCode": ModelInfoResponseErrorCodes.DB_FAILED_TO_CREATE_MODEL,
-      "message": "Failed to create the model in the DB",
-      "details": "",
-    }
-
+    // AND repository fails to  create a model
     const modelInfoMock = {
       Model: undefined,
-      create: jest.fn().mockRejectedValue(expectedErrorBody),
+      create: jest.fn().mockRejectedValue(new Error("foo")),
       getModelById: jest.fn().mockResolvedValue(null),
       getModelByUUID: jest.fn().mockResolvedValue(null)
     };
@@ -119,6 +112,12 @@ describe("test for model handler", () => {
     //AND  expect response to be Created and the model
     expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
     // AND expect  created
+    // error response status >=400 represents an error
+    const expectedErrorBody: IErrorResponse = {
+      "errorCode": ModelInfoResponseErrorCodes.DB_FAILED_TO_CREATE_MODEL,
+      "message": "Failed to create the model in the DB",
+      "details": "",
+    }
     expect(JSON.parse(actualResponse.body)).toMatchObject(expectedErrorBody);
   });
 

@@ -16,6 +16,7 @@
     "postinstall": "run-script-os"
   },
   "devDependencies": {
+    "@aws-sdk/s3-presigned-post": "^3.328.0",
     "@types/aws-lambda": "~8.10.114",
     "@types/jest": "~29.5.0",
     "@types/mongodb": "^4.0.7",
@@ -37,6 +38,7 @@
   "dependencies": {
     "ajv": "^8.12.0",
     "ajv-formats": "~2.1.1",
+    "aws-sdk": "^2.1368.0",
     "mongoose": "^7.1.0"
   }
 }

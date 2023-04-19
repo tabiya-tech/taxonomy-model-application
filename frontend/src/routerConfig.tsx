@@ -1,5 +1,5 @@
 import Info from "./info/Info";
-import ImportModal, {DATA_TEST_ID} from "./import/ImportModel";
+import ImportModel, {DATA_TEST_ID} from "./import/ImportModel";
 
 export const routerPaths = {
   ROOT:"/",
@@ -20,7 +20,7 @@ export const routerConfig = [
   },
   {
     path: routerPaths.IMPORT,
-    element: <ImportModal/>,
+    element: <ImportModel/>,
     errorElement: <div>Sorry upload got wrong</div>
   }
 ];

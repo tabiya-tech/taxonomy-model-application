@@ -29,6 +29,7 @@ jest.mock("./server/init", () => {
 import * as MainHandler from "./index";
 import * as InfoHandler from "./info/index";
 import * as ModelHandler from "./modelInfo/index"
+import * as PresignedHandler from "./presigned/index";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {response, STD_ERRORS_RESPONSES} from "./server/httpUtils";
 import {initOnce} from "./server/init";
@@ -139,25 +140,50 @@ describe("test the handleRouteEvent function", () => {
     expect(actualResponse).toEqual(expectedResponse);
   });
 
-  test("should call Model handler if path is /models", async () => {
-    // GIVEN a path that is /info
+  test("should call presigned handler if path is /presigned", async () => {
+    // GIVEN a path that is /presigned
     // AND any method
     const expectedEvent = {
-      path: "/models",
+      path: "/presigned",
     }
-    // AND The Info Handler returns a response
-    const expectedResponse = {}
+    // AND The presigned Handler returns a response
+    const expectedResponse = {
+      foo: "bar"
+    }
     // WHEN the handleRouteEvent is called
     // @ts-ignore
-    const infoHandlerSpy = jest.spyOn(ModelHandler, "handler").mockImplementation(() => {
+    const presignedHandlerSpy = jest.spyOn(PresignedHandler, "handler").mockImplementation(() => {
         return Promise.resolve(expectedResponse);
       }
     );
     // @ts-ignore
     const actualResponse = await MainHandler.handleRouteEvent(expectedEvent, null, null);
 
-    // THEN expect Info handler to be called with event
-    expect(infoHandlerSpy).toBeCalledWith(expectedEvent);
+    // THEN expect Presigned handler to be called with event
+    expect(presignedHandlerSpy).toBeCalledWith(expectedEvent);
+    // AND the main handler to return the response from the Presigned handler
+    expect(actualResponse).toEqual(expectedResponse);
+  });
+
+  test("should call Model handler if path is /models", async () => {
+    // GIVEN a path that is /Model
+    // AND any method
+    const expectedEvent = {
+      path: "/models",
+    }
+    // AND The Model Handler returns a response
+    const expectedResponse = {}
+    // WHEN the handleRouteEvent is called
+    // @ts-ignore
+    const modelHandlerSpy = jest.spyOn(ModelHandler, "handler").mockImplementation(() => {
+        return Promise.resolve(expectedResponse);
+      }
+    );
+    // @ts-ignore
+    const actualResponse = await MainHandler.handleRouteEvent(expectedEvent, null, null);
+
+    // THEN expect Model handler to be called with event
+    expect(modelHandlerSpy).toBeCalledWith(expectedEvent);
     // AND the main handler to return the response
     expect(actualResponse).toBeDefined();
   });

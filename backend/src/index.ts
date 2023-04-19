@@ -2,6 +2,7 @@ import {Handler, APIGatewayProxyEvent, Context, Callback} from "aws-lambda";
 import {handler as InfoHandler} from "./info";
 import {handler as ModelHandler } from "./modelInfo";
 import {STD_ERRORS_RESPONSES} from "./server/httpUtils";
+import {handler as presignedHandler} from "./presigned";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {initOnce} from "server/init";
 
@@ -24,6 +25,8 @@ export const handleRouteEvent
     return InfoHandler(event, context, callback);
   } else if (event.path === "/models") {
     return ModelHandler(event);
+  } else if (event.path === "/presigned") {
+    return presignedHandler(event);
   }
   return STD_ERRORS_RESPONSES.NOT_FOUND;
 };

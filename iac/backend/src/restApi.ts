@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import {asset} from "@pulumi/pulumi";
+import {asset, Output} from "@pulumi/pulumi";
 import {RestApi, Stage} from "@pulumi/aws/apigateway";
 import {randomUUID} from "crypto";
 
@@ -8,7 +8,12 @@ const buildFolderPath = "../../backend/build";
 
 const LOG_RETENTION_IN_DAYS = 7;
 
-export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: string, resourcesBaseUrl: string }): { restApi: RestApi, stage: Stage } {
+export function setupBackendRESTApi(environment: string, config: {
+  mongodb_uri: string,
+  resourcesBaseUrl: string,
+  upload_bucket_name: Output<string>,
+  upload_bucket_region: Output<string>
+}): { restApi: RestApi, stage: Stage, lambdaRole: aws.iam.Role} {
   /**
    * Lambda for api
    */
@@ -56,7 +61,9 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
         NODE_OPTIONS: '--enable-source-maps',
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
         MONGODB_URI: config.mongodb_uri,
-      },
+        UPLOAD_BUCKET_NAME: config.upload_bucket_name,
+        UPLOAD_BUCKET_REGION: config.upload_bucket_region
+      }
     }
   });
 
@@ -116,13 +123,13 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
   /**
    * setup method OPTIONS
    */
-    // Create a new API Gateway method
+  // Create a new API Gateway method
   new aws.apigateway.Method("model-api-method-OPTIONS", {
-      authorization: "NONE",
-      httpMethod: "OPTIONS",
-      resourceId: apiResource.id,
-      restApi: restApi.id,
-    }, {dependsOn: [apiResource, restApi]});
+    authorization: "NONE",
+    httpMethod: "OPTIONS",
+    resourceId: apiResource.id,
+    restApi: restApi.id,
+  }, {dependsOn: [apiResource, restApi]});
 
   // Create a new Lambda proxy integration
   const mockOptionsIntegration = new aws.apigateway.Integration("model-api-integration-OPTIONS", {
@@ -191,6 +198,13 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
   }, {dependsOn: [restApi, deployment]});
 
   // @ts-ignore
-  return {restApi, stage};
+  return {restApi, stage, lambdaRole};
 }
 
+export function getRestApiDomainName(stage: Stage) {
+  return pulumi.interpolate`${stage.restApi}.execute-api.${aws.getRegionOutput().name}.amazonaws.com`;
+}
+
+export function getRestApiPath(stage: Stage) {
+  return pulumi.interpolate`/${stage.stageName}`;
+}

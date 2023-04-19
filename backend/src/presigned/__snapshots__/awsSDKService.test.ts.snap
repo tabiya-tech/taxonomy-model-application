@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test getPresignedPost() should call the S3Client with the correct parameters 1`] = `
+{
+  "Bucket": "bar",
+  "Conditions": [
+    {
+      "bucket": "bar",
+    },
+    {
+      "acl": "private",
+    },
+    [
+      "starts-with",
+      "$key",
+      "baz/",
+    ],
+    [
+      "content-length-range",
+      0,
+      100,
+    ],
+  ],
+  "Expires": 1000,
+  "Fields": {
+    "acl": "private",
+  },
+  "Key": "baz/\${filename}",
+}
+`;

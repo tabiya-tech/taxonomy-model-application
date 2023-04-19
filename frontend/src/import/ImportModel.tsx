@@ -1,11 +1,11 @@
-import react, {useState} from 'react';
-import {FormGroup, InputLabel} from '@mui/material';
-import './import.style.css';
+import react, {Dispatch, useState} from 'react';
+import {FormGroup, FormLabel} from '@mui/material';
+import './ImportModel.style.css';
 
-import ImportService from "./import.service";
+import ImportDirectorService from "./importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
-import {ServiceError} from "../error/error";
-import {writeServiceErrorToLog} from "../error/logger";
+import {ServiceError} from "src/error/error";
+import {writeServiceErrorToLog} from "src/error/logger";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -16,12 +16,27 @@ export const DATA_TEST_ID = {
   IMPORT_BUTTON: `import-button-${uniqueId}`,
   NAME_INPUT: `name-input-${uniqueId}`,
   DESC_INPUT: `desc-input-${uniqueId}`,
+  FILE_SELECTOR_PARENT: `file-selector-parent-${uniqueId}`,
+  FILE_SELECTOR_INPUT: `file-selector-input-${uniqueId}`,
+  FILE_SELECTOR_FLAG_LABEL: `file-selector-flag-label-${uniqueId}`,
+  FILE_SELECTOR_FILE_POOL: `file-selector-file-pool-${uniqueId}`
 }
 
-const ImportModal = () => {
+const elementUniqueUUID = "d2bc4d5d-7760-450d-bac6-a8857affeb89"
+export const HTML_ELEMENT_IDS = {
+  FILE_SELECTOR_PARENT: `file-selector-parent-${elementUniqueUUID}`,
+  FILE_SELECTOR_INPUT: `file-selector-input-${elementUniqueUUID}`,
+  FILE_SELECTOR_FLAG_LABEL: `file-selector-flag-label-${elementUniqueUUID}`,
+  FILE_SELECTOR_FILE_POOL: `file-selector-file-pool-${elementUniqueUUID}`,
+  MODEL_NAME: `model-name-${elementUniqueUUID}`,
+  MODEL_DESCRIPTION: `model-description-${elementUniqueUUID}`,
+}
+
+const ImportModel = () => {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const importService = new ImportService("https://dev.tabiya.tech/api");
+  const [files, setFiles] = useState<File[]>([]);
+  const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
   // if no uniqueId is passed in props, generate a unique id
 
   const handleImportButtonClick = async () => {
@@ -31,9 +46,10 @@ const ImportModal = () => {
       UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a"
     };
     try {
-      const modelID = await importService.createModel({
-        name, description, locale: demoLocale
-      });
+      const modelID = await importDirectorService.directImport(
+        name, description, demoLocale, files
+      );
+
       console.log("Created model: " + modelID);
     } catch (e) {
       if (e instanceof ServiceError) {
@@ -50,8 +66,9 @@ const ImportModal = () => {
         <p className="title">Import Model</p>
       </div>
       <div className='form'>
-        <ModelNameField value={name!} setValue={setName}/>
-        <ModelDescriptionField value={description!}
+        <ModelFilesLoader files={files} setFiles={setFiles}/>
+        <ModelNameField value={name} setValue={setName}/>
+        <ModelDescriptionField value={description}
                                setValue={setDescription}/>
         <FormGroup className='action-group'>
           <button onClick={handleImportButtonClick} data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</button>
@@ -69,9 +86,10 @@ const ModelNameField = ({value, setValue}: TextInputFieldProps) => {
   }
 
   return <FormGroup className='text-input-group'>
-    <InputLabel htmlFor="Name">Model Name</InputLabel>
+    <FormLabel htmlFor={HTML_ELEMENT_IDS.MODEL_NAME}>Model Name</FormLabel>
     <input name="Name" title='ModelName' data-testid={DATA_TEST_ID.NAME_INPUT}
            type='text' placeholder="enter model name" value={value}
+           id={HTML_ELEMENT_IDS.MODEL_NAME}
            onChange={handleTextInputChange}
     />
   </FormGroup>;
@@ -84,15 +102,43 @@ const ModelDescriptionField = ({value, setValue}: TextInputFieldProps) => {
   }
 
   return <FormGroup className='text-input-group' style={{height: "auto"}}>
-    <InputLabel htmlFor="Description">Model Description</InputLabel>
+    <FormLabel htmlFor={HTML_ELEMENT_IDS.MODEL_DESCRIPTION}>Model Description</FormLabel>
     <textarea placeholder="Enter Model Description" className='desc' name="Description"
               value={value} onChange={handleTextInputChange}
+              id={HTML_ELEMENT_IDS.MODEL_DESCRIPTION}
               data-testid={DATA_TEST_ID.DESC_INPUT}
     />
   </FormGroup>;
 };
 
-export default ImportModal;
+export const ModelFilesLoader = ({files, setFiles}: {
+  files: File[],
+  setFiles: Dispatch<React.SetStateAction<File[]>>
+}) => {
+  function fileLoader(e: React.ChangeEvent<HTMLInputElement>) {
+    const files: FileList = e.target.files as FileList;
+    if (files) {
+      setFiles(Array.from(files))
+    }
+  }
+
+  return <FormGroup className='choose-file' data-testid={DATA_TEST_ID.FILE_SELECTOR_PARENT}>
+    <FormLabel htmlFor={HTML_ELEMENT_IDS.FILE_SELECTOR_INPUT}>Choose File</FormLabel>
+    <input name='upload-file-input' id={HTML_ELEMENT_IDS.FILE_SELECTOR_INPUT}
+           data-testid={DATA_TEST_ID.FILE_SELECTOR_INPUT}
+           title='upload-file' type='file'
+           multiple accept='.csv' onChange={(e) => fileLoader(e)}/>
+    <div className='files-pool' data-testid={DATA_TEST_ID.FILE_SELECTOR_FILE_POOL}>
+      {files.length === 0
+        && <FormLabel htmlFor={HTML_ELEMENT_IDS.FILE_SELECTOR_INPUT}
+                      data-testid={DATA_TEST_ID.FILE_SELECTOR_FLAG_LABEL}>
+          choose csv files to import </FormLabel>}
+      {files.map(file => <p className='file' key={file.name}>{file.name}</p>)}
+    </div>
+  </FormGroup>
+}
+
+export default ImportModel;
 
 interface TextInputFieldProps {
   value: string,

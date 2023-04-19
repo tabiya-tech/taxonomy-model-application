@@ -20,7 +20,7 @@ const responseValidator: ValidateFunction = ajv.getSchema(ModelInfoResponseSchem
 
 export type INewModelSpecification = IModelInfoRequest
 
-export default class ImportService {
+export default class ModelService {
   readonly apiServerUrl: string;
   readonly createModelEndpointUrl: string;
 
@@ -33,8 +33,8 @@ export default class ImportService {
    * Resolves with the modelID or rejects with a ServiceError
    *
    */
-  async createModel(newModelSpec: INewModelSpecification): Promise<string> {
-    const errorFactory = getServiceErrorFactory("ImportService", "createModel", "POST", this.createModelEndpointUrl);
+  public async createModel(newModelSpec: INewModelSpecification): Promise<string> {
+    const errorFactory = getServiceErrorFactory("ModelService", "createModel", "POST", this.createModelEndpointUrl);
     let response;
     let responseBody: string;
     const requestBody = JSON.stringify(newModelSpec);
