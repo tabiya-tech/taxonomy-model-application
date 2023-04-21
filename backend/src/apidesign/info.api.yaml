@@ -1,0 +1,24 @@
+get:
+  summary: Info for a specific info
+  operationId: showPetById
+  tags:
+    - version
+  responses:
+    '200':
+      description: Expected response to a valid request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: 
+              date: 
+                type: string 
+              branch:
+                type: string 
+              buildNumber:
+                type: string
+              sha: 
+                type: string 
+              # Errors, to be added
+    '400':
+      description: invalid client request

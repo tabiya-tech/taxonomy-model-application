@@ -1,0 +1,36 @@
+post:
+      requestBody:
+        content:
+        #input needs validation , figure out to get validator 
+        # yaml or json
+          application/json:  
+            schema:
+              type: object
+              properties:
+                name:
+                   type: string
+                locale:
+                    type: string
+                description:
+                     type: string
+              required:
+                - name
+                - locale
+              additionalProperties: false
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                 type: object
+                 properties:
+                    status:
+                    schema:
+                       type: boolean
+        '405':
+          description: Invalid input 
+          content:
+            application/json:
+            

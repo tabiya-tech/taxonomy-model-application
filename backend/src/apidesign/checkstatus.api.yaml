@@ -1,0 +1,15 @@
+get:
+  summary: check status of csv files processing 
+  operationId: getProcessStatusByModelId 
+tags:
+   - files 
+paremeters:
+  modelId:
+   - name: modelId
+     in: path
+     required: true 
+     description: The id of the model to check status 
+     schema:
+      type: string
+  
+  

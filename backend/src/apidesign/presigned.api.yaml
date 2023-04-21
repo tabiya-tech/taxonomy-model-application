@@ -1,0 +1,23 @@
+get:
+  summary: get a list of presigned urls
+  operationId: getPresignedUrls
+  responses:
+    '200':
+     content:
+        application/json:
+        properties:
+           url:
+             schema:
+               type: string
+    '405':
+       content:
+        application/json:
+        properties:
+            error:
+             schema:
+               type: integer 
+               format: int32
+            message:
+               schema:
+                  type: string 
+            

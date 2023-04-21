@@ -1,0 +1,23 @@
+openapi: 3.0.3  # look out support for different schema
+info:
+  title: Tabiya Model - OpenAPI 3.0
+  description: This is a tabiya  Server based on the OpenAPI 3.0 specification. 
+  contact:
+    email: support@tabiya.com
+  license:
+    name: MIT to be filled
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://tabiya.com/api/v1  //version will come later
+paths:
+  /models:
+    $ref: "./taxanomyModel/model.api.yaml" 
+  /models/{modelId}/checkStatus:
+    $ref: './taxanomyModel/checkstatus.api.yaml'
+  /info:
+    $ref: "./info/info.api.yaml"
+  /presigned: 
+    $ref: "./upload/presigned.api.yaml"
+
+    

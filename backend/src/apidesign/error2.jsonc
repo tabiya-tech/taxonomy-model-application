@@ -1,0 +1,16 @@
+// error response status >=400 represents an error
+{
+    "error": "MODEL_NAME_IS_NOT_UNIQUE",
+    "message": "The model name must be unique in the system", 
+    "details": "The name value provide is 'foo'", 
+    "path": "/models/507f1f77bcf86cd799439011"
+}
+
+
+
+
+
+
+
+
+
