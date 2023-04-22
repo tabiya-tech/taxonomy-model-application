@@ -50,3 +50,6 @@ jobs:
         uses: ./.github/aws-lambda-actions/
         with:
           function-name: info
+      - name: Smoke Tests
+        run: yarn run test:smoke
+        working-directory: backend

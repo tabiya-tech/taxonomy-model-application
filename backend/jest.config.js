@@ -2,14 +2,15 @@
 const {compilerOptions} = require('./tsconfig.json')
 
 module.exports = {
-  modulePaths: [`<rootDir>/src`],
+  modulePaths: ["<rootDir>/src"],
   testPathIgnorePatterns : [
     "<rootDir>/build",
     "<rootDir>/coverage",
     "<rootDir>/deploy",
+    "<rootDir>/test",
   ],
-  modulePathIgnorePatterns: ['<rootDir>/build'],
-  moduleDirectories: ['node_modules', '<rootDir>/src'],
+  modulePathIgnorePatterns: ["<rootDir>/build"],
+  moduleDirectories: ["node_modules", "<rootDir>/src"],
   transform: { // override default transform to use a custom inline tsconfig
     // process js/ts with `ts-jest`
     '^.+\\.[tj]s$': [
@@ -21,7 +22,7 @@ module.exports = {
       }
     ],
   },
-  testEnvironment: 'node',
+  testEnvironment: "node",
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}"
   ],
