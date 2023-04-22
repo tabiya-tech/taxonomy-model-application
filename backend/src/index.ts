@@ -1,22 +1,21 @@
-import {Handler, APIGatewayEvent} from "aws-lambda";
+import {Handler, APIGatewayProxyEvent, Context, Callback} from "aws-lambda";
 import {handler as InfoHandler} from "./info";
+import {STD_ERRORS_RESPONSES} from "./httpUtils";
+import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 
-export const handler: Handler = async (event: APIGatewayEvent, context, callback) => {
+export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult>
+  = async (event: APIGatewayProxyEvent, context, callback) => {
+  try {
+    return handleRouteEvent(event, context, callback);
+  } catch (e) {
+    return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;
+  }
+}
+
+export const handleRouteEvent
+  = async (event: APIGatewayProxyEvent, context: Context, callback: Callback<APIGatewayProxyResult>) => {
   if (event.path === "/info") {
     return InfoHandler(event, context, callback);
-  } else {
-    // See https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-output-format
-    // For the format of the return value
-    return {
-      isBase64Encoded: false,
-      headers: {
-        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-      },
-      multiValueHeaders: {"Access-Control-Allow-Methods": ["GET"]},
-      statusCode: 404,
-      body: JSON.stringify({
-        message: 'Go look somewhere else'
-      }),
-    };
   }
+  return STD_ERRORS_RESPONSES.NOT_FOUND;
 }
