@@ -1,0 +1,190 @@
+body{
+    font-family: 'Roboto Slab', serif;
+}
+label{
+    cursor: pointer;
+}
+
+.MuiFormControl-root{
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+p,label{
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+:root{
+    --white: #fff;
+    --dark: #555;
+    --header: #dee3e8;
+    --semi-dark: #222;
+}
+
+.import-container{
+    background-color: var(--white);
+    height: 100vh;
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+.import-modal{
+    width: 500px;
+    border: 2px solid var(--dark);
+    border-radius: 5px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.import-modal > .header{
+    width: 100%;
+    height: 50px;
+    background: var(--header);
+    display: grid;
+    grid-template: auto / 100% auto;
+    font-size: 1.5em;
+    border-radius: 5px;
+}
+
+.import-modal > .header p{
+    justify-self: center;
+    align-self: center;
+}
+
+.import-modal > .header svg{
+    justify-self: center;
+    align-self: center;
+    cursor: pointer;
+}
+
+.form{
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    gap: 10px;
+    font-family: 'Roboto Slab', serif;
+}
+
+.choose-file{
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row !important;
+    height: 50px;
+}
+
+.choose-file > input{
+    display: none;
+}
+
+.choose-file > label{
+    border: 1px solid var(--dark);
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.files-pool{
+    width: 70%;
+    height: 31px;
+    padding: 5px;
+    display: flex;
+    gap: 5px;
+    border: 1px solid var(--dark);
+    border-radius: 2px;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: auto;
+}
+
+.files-pool > p.file{
+    border: 1px solid var(--dark);
+    border-radius: 5px;
+    color: var(--dark);
+    padding: 5px;
+    max-width: 70px;
+    white-space: nowrap;
+    overflow: hidden;
+    font-style: italic;
+    font-size: 0.7em !important;
+    user-select: none;
+    text-overflow: ellipsis;
+}
+
+.text-input-group{
+    width: 95%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: row !important;
+}
+
+.text-input-group > label{
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.text-input-group > input{
+    width: 70%;
+    height: 31px;
+    padding: 5px;
+    gap: 5px;
+    border: 1px solid var(--dark);
+    border-radius: 2px;
+    overflow: auto;
+    font-size: 1rem;
+}
+
+.text-input-group > .cbo{
+    border: none;
+    border-Radius:2px;
+    border: 1px solid var(--semi-dark);
+    width: 72.5%;
+}
+
+.text-input-group .MuiSelect-select{
+    padding: 5px !important;
+    border-radius: 0 !important;
+}
+
+.text-input-group > textarea.desc{
+    width: 70%;
+    max-width: 70%;
+    height: 110px;
+    padding: 5px;
+    gap: 5px;
+    border: 1px solid var(--dark);
+    border-radius: 2px;
+    overflow: auto;
+    font-size: 1rem;
+    resize: none;
+
+}
+
+.action-group{
+    width: 95%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-direction: row !important;
+}
+
+.action-group button{
+    padding: 10px;
+    background: none;
+    border: 1px solid var(--dark);
+    width: 100px;
+}
