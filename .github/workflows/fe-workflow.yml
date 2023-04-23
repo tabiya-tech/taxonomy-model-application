@@ -34,6 +34,12 @@ jobs:
       - name: Test
         run: yarn run test
         working-directory: frontend
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend.lcov.info
+          path: frontend/coverage/lcov.info
+          retention-days: 1
 ### TODO move to separate job with a dependency on the build job
 #### deploy_dev:
 ####   name: Deploy frontend to S3

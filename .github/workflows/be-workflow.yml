@@ -34,7 +34,12 @@ jobs:
       - name: Test
         run: yarn run test
         working-directory: backend
-
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend.lcov.info
+          path: backend/coverage/lcov.info
+          retention-days: 1
 ### TODO move to separate job with a dependency on the build job
 #### deploy_dev:
 ####   name: Deploy lambda function

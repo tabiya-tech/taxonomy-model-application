@@ -1,5 +1,10 @@
 name: Main CI
-on: [push]
+on:
+  push:
+   # branches:
+   #   - main
+  #pull_request:
+   # types: [opened, synchronize, reopened]
 
 jobs:
   build-frontend:
@@ -7,4 +12,8 @@ jobs:
     secrets: inherit
   build-backend:
     uses: ./.github/workflows/be-workflow.yml
+    secrets: inherit
+  sonarcloud:
+    needs: [build-backend, build-frontend]
+    uses: ./.github/workflows/sonar-cloud.yml
     secrets: inherit
