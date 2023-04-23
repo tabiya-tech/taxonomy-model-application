@@ -1,0 +1,48 @@
+name: Deploy Frontend
+
+on:
+  workflow_call:
+    inputs:
+      version-info:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy and test the frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: frontend
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+          role-duration-seconds: 1200
+          role-session-name: MySessionName
+      - name: Download frontend.build.folder
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend.build.folder
+          path: frontend/build/
+      - name: AWS S3 Deploy
+        uses: ./.github/aws-s3-actions/
+        with:
+          bucket-name: tabiya-frontend-dev
+      #TODO: add smoke tests
