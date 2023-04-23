@@ -3,8 +3,8 @@ on:
   push:
    # branches:
    #   - main
-  #pull_request:
-   # types: [opened, synchronize, reopened]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   # Backend
@@ -12,6 +12,7 @@ jobs:
     uses: ./.github/workflows/backend-build.yml
     secrets: inherit
   deploy-backend:
+    if: github.event_name == 'push'
     needs: [build-backend]
     uses: ./.github/workflows/backend-deploy.yml
     secrets: inherit
@@ -22,6 +23,7 @@ jobs:
     uses: ./.github/workflows/frontend-build.yml
     secrets: inherit
   deploy-frontend:
+    if: github.event_name == 'push'
     needs: [build-frontend]
     uses: ./.github/workflows/frontend-deploy.yml
     secrets: inherit
