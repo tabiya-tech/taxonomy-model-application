@@ -1,10 +1,36 @@
 name: Main CI
-on: [push]
+on:
+  push:
+   # branches:
+   #   - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  build-frontend:
-    uses: ./.github/workflows/fe-workflow.yml
-    secrets: inherit
+  # Backend
   build-backend:
-    uses: ./.github/workflows/be-workflow.yml
+    uses: ./.github/workflows/backend-build.yml
+    secrets: inherit
+  deploy-backend:
+    if: github.event_name == 'push'
+    needs: [build-backend]
+    uses: ./.github/workflows/backend-deploy.yml
+    secrets: inherit
+    with:
+      version-info: ${{ needs.build-backend.outputs.version-info }}
+  # Frontend
+  build-frontend:
+    uses: ./.github/workflows/frontend-build.yml
+    secrets: inherit
+  deploy-frontend:
+    if: github.event_name == 'push'
+    needs: [build-frontend]
+    uses: ./.github/workflows/frontend-deploy.yml
+    secrets: inherit
+    with:
+      version-info: ${{ needs.build-frontend.outputs.version-info }}
+  # Sonarcloud
+  sonarcloud:
+    needs: [build-backend, build-frontend]
+    uses: ./.github/workflows/sonar-cloud.yml
     secrets: inherit

@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "sonarqube-scanner": "~3.0.1"
+  },
+  "scripts": {
+    "sonar": "sonar-scanner"
+  }
+}

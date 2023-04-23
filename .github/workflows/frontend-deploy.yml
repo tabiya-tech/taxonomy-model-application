@@ -1,7 +1,11 @@
-name: Frontend CI
+name: Deploy Frontend
 
 on:
   workflow_call:
+    inputs:
+      version-info:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY:
         required: true
@@ -9,8 +13,8 @@ on:
         required: true
 
 jobs:
-  build:
-    name: Build and test the frontend
+  deploy:
+    name: Deploy and test the frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,19 +28,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
         working-directory: frontend
-      - name: Set version info
-        run: |
-          ./pipeline/setVersionInfo.sh frontend/public/data/version.json
-          cat frontend/public/data/version.json
-      - name: Build
-        run: yarn run build
-        working-directory: frontend
-      - name: Test
-        run: yarn run test
-        working-directory: frontend
-### TODO move to separate job with a dependency on the build job
-#### deploy_dev:
-####   name: Deploy frontend to S3
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -45,7 +36,13 @@ jobs:
           aws-region: eu-central-1
           role-duration-seconds: 1200
           role-session-name: MySessionName
+      - name: Download frontend.build.folder
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend.build.folder
+          path: frontend/build/
       - name: AWS S3 Deploy
         uses: ./.github/aws-s3-actions/
         with:
           bucket-name: tabiya-frontend-dev
+      #TODO: add smoke tests

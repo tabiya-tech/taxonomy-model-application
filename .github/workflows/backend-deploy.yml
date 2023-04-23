@@ -1,7 +1,11 @@
-name: Backend CI
+name: Deploy Backend
 
 on:
   workflow_call:
+    inputs:
+      version-info:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY:
         required: true
@@ -9,8 +13,8 @@ on:
         required: true
 
 jobs:
-  build:
-    name: Build and test the backend
+  deploy:
+    name: Deploy and test the backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,20 +28,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
         working-directory: backend
-      - name: Set Version Info
-        run: |
-          ./pipeline/setVersionInfo.sh ./backend/src/info/version.json
-          cat ./backend/src/info/version.json
-      - name: Build
-        run: yarn run build
-        working-directory: backend
-      - name: Test
-        run: yarn run test
-        working-directory: backend
-
-### TODO move to separate job with a dependency on the build job
-#### deploy_dev:
-####   name: Deploy lambda function
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -46,10 +36,18 @@ jobs:
           aws-region: eu-central-1
           role-duration-seconds: 1200
           role-session-name: MySessionName
+      - name: Download backend.build.folder
+        uses: actions/download-artifact@v3
+        with:
+          name: backend.build.folder
+          path: backend/build/
       - name: Update Info Lambda Function
         uses: ./.github/aws-lambda-actions/
         with:
           function-name: info
       - name: Smoke Tests
-        run: yarn run test:smoke
+        run: |
+          echo '${{ inputs.version-info }}' > ./src/info/version.json
+          cat ./src/info/version.json
+          yarn run test:smoke
         working-directory: backend
