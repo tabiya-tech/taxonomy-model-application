@@ -1,0 +1,55 @@
+name: Build Backend
+
+on:
+  workflow_call:
+    outputs:
+      version-info:
+        description: "The backend version info"
+        value: ${{ jobs.build.outputs.version-info }}
+jobs:
+  build:
+    name: Build and test the backend
+    runs-on: ubuntu-latest
+    outputs:
+        version-info: ${{ steps.setVersionInfo.outputs.version-info }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: backend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: backend
+      - name: Set Version Info
+        id: setVersionInfo
+        # see https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
+        # for multiline strings
+        run: |
+          ./pipeline/setVersionInfo.sh ./backend/src/info/version.json
+          cat ./backend/src/info/version.json
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "version-info<<$EOF" >> "$GITHUB_OUTPUT"
+          echo "$(cat ./backend/src/info/version.json)" >> "$GITHUB_OUTPUT"
+          echo "$EOF" >> "$GITHUB_OUTPUT"
+      - name: Build
+        run: yarn run build
+        working-directory: backend
+      - name: Archive build bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend.build.folder
+          path: backend/build/
+          retention-days: 1
+      - name: Test
+        run: yarn run test
+        working-directory: backend
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend.lcov.info
+          path: backend/coverage/lcov.info
+          retention-days: 1
