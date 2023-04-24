@@ -9,8 +9,8 @@
         "name": "foo",
         "locale": {
             "uuid": "1e158047-b5b0-47af-831e-9547787e3900",
-            "shortcode":"ZA",
-            "name":"South Africa"
+//           "shortcode":"ZA",
+//          "name":"South Africa"
         }
     }
 }

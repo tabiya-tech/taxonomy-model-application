@@ -5,8 +5,8 @@
         "originUUID": "", // optional if the model does not an origin.
             "locale": {
                 "uuid": "1e158047-b5b0-47af-831e-9547787e3900",
-                "shortcode":"ZA", // The actual short code should be resolved from the Locale Service.   
-                "name":"South Africa" // The actual name  should be resolved from the Locale Service.
+ //               "shortcode":"ZA", // The actual short code should be resolved from the Locale Service.   
+//              "name":"South Africa" // The actual name  should be resolved from the Locale Service.
             }
-        }
+    }
 }
