@@ -12,12 +12,12 @@ servers:
   - url: https://tabiya.com/api/v1  //version will come later
 paths:
   /models:
-    $ref: "./taxanomyModel/model.api.yaml" 
+    $ref: "./model.api.yaml" 
   /models/{modelId}/checkStatus:
-    $ref: './taxanomyModel/checkstatus.api.yaml'
+    $ref: './checkstatus.api.yaml'
   /info:
-    $ref: "./info/info.api.yaml"
+    $ref: "./info.api.yaml"
   /presigned: 
-    $ref: "./upload/presigned.api.yaml"
+    $ref: "./presigned.api.yaml"
 
     
