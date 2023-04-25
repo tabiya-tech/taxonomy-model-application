@@ -3,6 +3,9 @@ name: Deploy Backend
 on:
   workflow_call:
     inputs:
+      target-environment:
+        required: true
+        type: string
       version-info:
         required: true
         type: string
@@ -14,8 +17,11 @@ on:
 
 jobs:
   deploy:
-    name: Deploy and test the backend
+    name: Deploy the backend
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
+    outputs:
+      backedRestApiURLBase: ${{ steps.pulumi.outputs.backedRestApiURLBase }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,10 +30,10 @@ jobs:
         with:
           node-version: 16.x
           cache: 'yarn'
-          cache-dependency-path: backend/yarn.lock
+          cache-dependency-path: iac/yarn.lock
       - name: Install dependencies
         run: yarn install
-        working-directory: backend
+        working-directory: iac
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -41,13 +47,40 @@ jobs:
         with:
           name: backend.build.folder
           path: backend/build/
+      # TODO: remove this when the new infrastructure is ready
       - name: Update Info Lambda Function
         uses: ./.github/aws-lambda-actions/
         with:
           function-name: info
+      - name: Deploy backend
+        id: pulumi
+        uses: pulumi/actions@v3
+        with:
+          work-dir: iac/backend
+          command: up
+          stack-name: tabiya-tech/taxonomy-model-application-backend/dev
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+  smoke_test:
+    needs: [ deploy ]
+    name: Smoke test the backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: backend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: backend
       - name: Smoke Tests
         run: |
           export API_VERSION_JSON='${{ inputs.version-info }}'
-          export E2E_BASE_URL="https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev"
+          export E2E_BASE_URL=${{ needs.deploy.outputs.backedRestApiURLBase }}
           yarn run test:smoke
         working-directory: backend

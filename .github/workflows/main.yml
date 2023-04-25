@@ -1,10 +1,10 @@
 name: Main CI
 on:
   push:
-   # branches:
-   #   - main
+  # branches:
+  #   - main
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
 jobs:
   # Backend
@@ -13,10 +13,11 @@ jobs:
     secrets: inherit
   deploy-backend:
     if: github.event_name == 'push'
-    needs: [build-backend]
+    needs: [ build-backend ]
     uses: ./.github/workflows/backend-deploy.yml
     secrets: inherit
     with:
+      target-environment: dev
       version-info: ${{ needs.build-backend.outputs.version-info }}
   # Frontend
   build-frontend:
@@ -24,13 +25,13 @@ jobs:
     secrets: inherit
   deploy-frontend:
     if: github.event_name == 'push'
-    needs: [build-frontend]
+    needs: [ build-frontend ]
     uses: ./.github/workflows/frontend-deploy.yml
     secrets: inherit
     with:
       version-info: ${{ needs.build-frontend.outputs.version-info }}
   # Sonarcloud
   sonarcloud:
-    needs: [build-backend, build-frontend]
+    needs: [ build-backend, build-frontend ]
     uses: ./.github/workflows/sonar-cloud.yml
     secrets: inherit

@@ -1,0 +1,3 @@
+name: taxonomy-model-application-frontend
+runtime: nodejs
+description: The frontend infrastructure for the taxonomy application
