@@ -47,7 +47,7 @@ jobs:
           function-name: info
       - name: Smoke Tests
         run: |
-          echo '${{ inputs.version-info }}' > ./src/info/version.json
-          cat ./src/info/version.json
+          export API_VERSION_JSON='${{ inputs.version-info }}'
+          export E2E_BASE_URL="https://j17b26oc5i.execute-api.eu-central-1.amazonaws.com/dev"
           yarn run test:smoke
         working-directory: backend
