@@ -48,7 +48,7 @@ jobs:
           role-session-name: MySessionName
       - name: Deploy Common Infrastructure
         id: pulumi
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v4
         with:
           work-dir: iac/common
           command: up

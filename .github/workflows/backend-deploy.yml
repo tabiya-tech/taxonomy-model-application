@@ -54,7 +54,7 @@ jobs:
           function-name: info
       - name: Deploy backend
         id: pulumi
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v4
         with:
           work-dir: iac/backend
           command: up
