@@ -36,3 +36,14 @@ jobs:
     needs: [ build-backend, build-frontend ]
     uses: ./.github/workflows/sonar-cloud.yml
     secrets: inherit
+  # Common Infrastructure
+  deploy-common:
+    if: github.event_name == 'push'
+    needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend ]
+    uses: ./.github/workflows/deploy-common.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
+

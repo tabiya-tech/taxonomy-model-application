@@ -5,6 +5,7 @@ import {StatusCodes} from "http-status-codes";
 describe("Testing the deployment of the frontend", () => {
   const baseUrl: string = process.env.E2E_BASE_URL as string;
   beforeAll(() => {
+    expect(baseUrl).toBeDefined();
     request = supertest.agent(baseUrl);
   });
 

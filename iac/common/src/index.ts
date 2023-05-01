@@ -63,3 +63,5 @@ const frontendBucket = frontendStack.getOutput("frontendBucket").apply((t) => {
  *  Cloud Front
  */
 export const cdn = setupCDN(frontendBucket, backendRestApi, certificate, hostedZone, domainName);
+export const  backendURLBase = cdn.backendURLBase;
+export const  frontendURLBase = cdn.frontendURLBase;

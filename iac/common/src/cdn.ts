@@ -72,8 +72,8 @@ export function setupCDN(frontendBucket: {
   domainName: Output<string>,
   path: Output<string>
 }, cert: Certificate, hostedZone: Zone, domainName: string): {
-  backendBaseURL: Output<string>,
-  frontendBaseURL: Output<string>
+  backendURLBase: Output<string>,
+  frontendURLBase: Output<string>
 } {
 
   const urlRewriteFunction = new aws.cloudfront.Function("urlRewrite", {
@@ -216,8 +216,8 @@ export function setupCDN(frontendBucket: {
   }, {dependsOn: [cdn, hostedZone]});
 
   return {
-    backendBaseURL: interpolate`https://${domainName}/api/`,
-    frontendBaseURL: interpolate`https://${domainName}/app/`
+    backendURLBase: interpolate`https://${domainName}/api`,
+    frontendURLBase: interpolate`https://${domainName}/app`
   };
 }
 
