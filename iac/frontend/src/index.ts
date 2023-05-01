@@ -18,3 +18,5 @@ export const frontendBucket = {
   websiteUrl: pulumi.interpolate`http://${_frontendBucket.websiteEndpoint}`,
   websiteEndpoint: _frontendBucket.websiteEndpoint
 };
+
+export const frontendBucketWebsiteURLBase = pulumi.interpolate`http://${_frontendBucket.websiteEndpoint}`;
