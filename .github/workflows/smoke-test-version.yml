@@ -1,0 +1,40 @@
+name: Smoke Test the version of the backend/frontend
+on:
+  workflow_call:
+    inputs:
+      component:
+        description: Either 'frontend' or 'backend'
+        required: true
+        type: string
+      component-url:
+        description: The urlbase of the 'frontend' or 'backend'
+        required: true
+        type: string
+      expected-version-info:
+        description: The expected version info
+        required: true
+        type: string
+jobs:
+  smoke-test:
+    name: Smoke Test ${{ inputs.component }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout-code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: ${{ inputs.component }}/yarn.lock
+      - id: install-dependencies
+        shell: bash
+        run: yarn install
+        working-directory: ${{ inputs.component }}
+      - id: smoke-test
+        shell: bash
+        run: |
+          export EXPECTED_VERSION_INFO='${{ inputs.expected-version-info }}'
+          export E2E_BASE_URL=${{ inputs.component-url }}
+          yarn run test:smoke
+        working-directory: ${{ inputs.component }}

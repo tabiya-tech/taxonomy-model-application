@@ -9,12 +9,15 @@ on:
       version-info:
         required: true
         type: string
+    outputs:
+      backedRestApiURLBase:
+        description: "The backend api url"
+        value: ${{ jobs.deploy.outputs.backedRestApiURLBase }}
     secrets:
       AWS_ACCESS_KEY:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-
 jobs:
   deploy:
     name: Deploy the backend
@@ -61,26 +64,3 @@ jobs:
           stack-name: tabiya-tech/taxonomy-model-application-backend/dev
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
-  smoke_test:
-    needs: [ deploy ]
-    name: Smoke test the backend
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'yarn'
-          cache-dependency-path: backend/yarn.lock
-      - name: Install dependencies
-        run: yarn install
-        working-directory: backend
-      - name: Smoke Tests
-        run: |
-          export API_VERSION_JSON='${{ inputs.version-info }}'
-          export E2E_BASE_URL=${{ needs.deploy.outputs.backedRestApiURLBase }}
-          yarn run test:smoke
-        working-directory: backend

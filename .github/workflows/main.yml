@@ -19,6 +19,14 @@ jobs:
     with:
       target-environment: dev
       version-info: ${{ needs.build-backend.outputs.version-info }}
+  smoke-test-backend:
+    needs: [ build-backend, deploy-backend]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: backend
+      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
+      component-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}
   # Frontend
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
@@ -31,6 +39,14 @@ jobs:
     with:
       target-environment: dev
       version-info: ${{ needs.build-frontend.outputs.version-info }}
+  smoke-test-frontend:
+    needs: [ build-frontend, deploy-frontend]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: frontend
+      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      component-url: ${{ needs.deploy-frontend.outputs.frontendBucketWebsiteURLBase }}
   # Sonarcloud
   sonarcloud:
     needs: [ build-backend, build-frontend ]
@@ -46,4 +62,19 @@ jobs:
       target-environment: dev
       frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
       backend-version-info: ${{ needs.build-backend.outputs.version-info }}
-
+  smoke-test-frontend-cdn:
+    needs: [ build-frontend, deploy-common]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: frontend
+      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      component-url: ${{ needs.deploy-common.outputs.frontendURLBase }}
+  smoke-test-backend-cdn:
+    needs: [ build-backend, deploy-common ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: backend
+      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
+      component-url: ${{ needs.deploy-common.outputs.backendURLBase }}
