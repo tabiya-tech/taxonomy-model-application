@@ -21,7 +21,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --coverage --watchAll=false",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postinstall": "(cd .. && ./link-api-specifications.sh)"
   },
   "eslintConfig": {
     "extends": [

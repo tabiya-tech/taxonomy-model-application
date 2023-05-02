@@ -9,7 +9,8 @@
     "build": "esbuild ./src/index.ts --bundle --external: --tsconfig=tsconfig.prod.json --sourcemap --minify --platform=node --target=node16 --outdir=build",
     "postbuild": "cp ./package.json ./build/ && (cd ./build; npm pkg delete devDependencies; npm pkg delete dependencies; npm pkg delete scripts)",
     "test": "jest --coverage",
-    "test:smoke": "jest --config jest.smoke.config.js --runInBand test/smoke/*.test.ts"
+    "test:smoke": "jest --config jest.smoke.config.js --runInBand test/smoke/*.test.ts",
+    "postinstall": "(cd .. && ./link-api-specifications.sh)"
   },
   "devDependencies": {
     "@types/aws-lambda": "~8.10.114",
@@ -22,6 +23,5 @@
     "typescript": "~4.4.2"
   },
   "dependencies": {
-
   }
 }
