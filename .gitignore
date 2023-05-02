@@ -1,2 +1,4 @@
 /node_modules/
 /.scannerwork/
+/api-specifications/node_modules/
+/iac/node_modules/
