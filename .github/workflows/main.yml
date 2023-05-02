@@ -9,24 +9,24 @@ on:
 jobs:
   # Backend
   build-backend:
-    uses: ./.github/workflows/backend-build.yml
+    uses: ./.github/workflows/build-backend.yml
     secrets: inherit
   deploy-backend:
     if: github.event_name == 'push'
     needs: [ build-backend ]
-    uses: ./.github/workflows/backend-deploy.yml
+    uses: ./.github/workflows/deploy-backend.yml
     secrets: inherit
     with:
       target-environment: dev
       version-info: ${{ needs.build-backend.outputs.version-info }}
   # Frontend
   build-frontend:
-    uses: ./.github/workflows/frontend-build.yml
+    uses: ./.github/workflows/build-frontend.yml
     secrets: inherit
   deploy-frontend:
     if: github.event_name == 'push'
     needs: [ build-frontend ]
-    uses: ./.github/workflows/frontend-deploy.yml
+    uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
     with:
       target-environment: dev
