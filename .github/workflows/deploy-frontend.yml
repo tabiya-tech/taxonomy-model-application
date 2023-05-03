@@ -50,11 +50,6 @@ jobs:
         with:
           name: frontend.build.folder
           path: frontend/build/
-      # TODO: remove this when the new infrastructure is ready
-      - name: AWS S3 Deploy
-        uses: ./.github/aws-s3-actions/
-        with:
-          bucket-name: tabiya-frontend-dev
       - name: Deploy frontend
         id: pulumi
         uses: pulumi/actions@v4

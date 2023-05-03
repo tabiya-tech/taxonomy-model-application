@@ -49,11 +49,6 @@ jobs:
         with:
           name: backend.build.folder
           path: backend/build/
-      # TODO: remove this when the new infrastructure is ready
-      - name: Update Info Lambda Function
-        uses: ./.github/aws-lambda-actions/
-        with:
-          function-name: info
       - name: Deploy backend
         id: pulumi
         uses: pulumi/actions@v4
