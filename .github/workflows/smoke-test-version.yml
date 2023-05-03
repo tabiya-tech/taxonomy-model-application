@@ -16,7 +16,7 @@ on:
         type: string
 jobs:
   smoke-test:
-    name: Smoke Test ${{ inputs.component }}
+    name: ${{ inputs.component }}
     runs-on: ubuntu-latest
     steps:
       - id: checkout-code

@@ -8,7 +8,6 @@ on:
         value: ${{ jobs.build.outputs.version-info }}
 jobs:
   build:
-    name: Build and test the backend
     runs-on: ubuntu-latest
     outputs:
         version-info: ${{ steps.setVersionInfo.outputs.version-info }}

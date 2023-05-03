@@ -20,7 +20,6 @@ on:
         required: true
 jobs:
   deploy:
-    name: Deploy the backend
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
