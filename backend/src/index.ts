@@ -6,7 +6,7 @@ import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult>
   = async (event: APIGatewayProxyEvent, context, callback) => {
   try {
-    return handleRouteEvent(event, context, callback);
+    return await handleRouteEvent(event, context, callback);
   } catch (e) {
     return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;
   }
