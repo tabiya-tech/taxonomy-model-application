@@ -1,0 +1,3 @@
+name: taxonomy-model-application-common
+runtime: nodejs
+description: The common infrastructure for the taxonomy application

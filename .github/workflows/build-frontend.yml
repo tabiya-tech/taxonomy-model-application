@@ -1,17 +1,16 @@
-name: Build Backend
+name: Build Frontend
 
 on:
   workflow_call:
     outputs:
       version-info:
-        description: "The backend version info"
+        description: "The frontend version info"
         value: ${{ jobs.build.outputs.version-info }}
 jobs:
   build:
-    name: Build and test the backend
     runs-on: ubuntu-latest
     outputs:
-        version-info: ${{ steps.setVersionInfo.outputs.version-info }}
+      version-info: ${{ steps.setVersionInfo.outputs.version-info }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,36 +19,36 @@ jobs:
         with:
           node-version: 16.x
           cache: 'yarn'
-          cache-dependency-path: backend/yarn.lock
+          cache-dependency-path: frontend/yarn.lock
       - name: Install dependencies
         run: yarn install
-        working-directory: backend
+        working-directory: frontend
       - name: Set Version Info
         id: setVersionInfo
         # see https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
         # for multiline strings
         run: |
-          ./pipeline/setVersionInfo.sh ./backend/src/info/version.json
-          cat ./backend/src/info/version.json
+          ./pipeline/setVersionInfo.sh frontend/public/data/version.json
+          cat frontend/public/data/version.json
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "version-info<<$EOF" >> "$GITHUB_OUTPUT"
-          echo "$(cat ./backend/src/info/version.json)" >> "$GITHUB_OUTPUT"
+          echo "$(cat ./frontend/public/data/version.json)" >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"
       - name: Build
         run: yarn run build
-        working-directory: backend
+        working-directory: frontend
       - name: Archive build bundle
         uses: actions/upload-artifact@v3
         with:
-          name: backend.build.folder
-          path: backend/build/
+          name: frontend.build.folder
+          path: frontend/build/
           retention-days: 1
       - name: Test
         run: yarn run test
-        working-directory: backend
+        working-directory: frontend
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
-          name: backend.lcov.info
-          path: backend/coverage/lcov.info
+          name: frontend.lcov.info
+          path: frontend/coverage/lcov.info
           retention-days: 1

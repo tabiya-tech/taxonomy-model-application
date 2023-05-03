@@ -3,9 +3,16 @@ name: Deploy Frontend
 on:
   workflow_call:
     inputs:
+      target-environment:
+        required: true
+        type: string
       version-info:
         required: true
         type: string
+    outputs:
+      frontendBucketWebsiteURLBase:
+        description: "The frontend bucket url"
+        value: ${{ jobs.deploy.outputs.frontendBucketWebsiteURLBase }}
     secrets:
       AWS_ACCESS_KEY:
         required: true
@@ -14,8 +21,10 @@ on:
 
 jobs:
   deploy:
-    name: Deploy and test the frontend
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
+    outputs:
+      frontendBucketWebsiteURLBase: ${{ steps.pulumi.outputs.frontendBucketWebsiteURLBase }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,10 +33,10 @@ jobs:
         with:
           node-version: 16.x
           cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
+          cache-dependency-path: iac/yarn.lock
       - name: Install dependencies
         run: yarn install
-        working-directory: frontend
+        working-directory: iac
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -41,8 +50,12 @@ jobs:
         with:
           name: frontend.build.folder
           path: frontend/build/
-      - name: AWS S3 Deploy
-        uses: ./.github/aws-s3-actions/
+      - name: Deploy frontend
+        id: pulumi
+        uses: pulumi/actions@v4
         with:
-          bucket-name: tabiya-frontend-dev
-      #TODO: add smoke tests
+          work-dir: iac/frontend
+          command: up
+          stack-name: tabiya-tech/taxonomy-model-application-frontend/dev
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

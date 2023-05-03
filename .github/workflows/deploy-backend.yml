@@ -3,19 +3,27 @@ name: Deploy Backend
 on:
   workflow_call:
     inputs:
+      target-environment:
+        required: true
+        type: string
       version-info:
         required: true
         type: string
+    outputs:
+      backedRestApiURLBase:
+        description: "The backend api url"
+        value: ${{ jobs.deploy.outputs.backedRestApiURLBase }}
     secrets:
       AWS_ACCESS_KEY:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-
 jobs:
   deploy:
-    name: Deploy and test the backend
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
+    outputs:
+      backedRestApiURLBase: ${{ steps.pulumi.outputs.backedRestApiURLBase }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,10 +32,10 @@ jobs:
         with:
           node-version: 16.x
           cache: 'yarn'
-          cache-dependency-path: backend/yarn.lock
+          cache-dependency-path: iac/yarn.lock
       - name: Install dependencies
         run: yarn install
-        working-directory: backend
+        working-directory: iac
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -41,13 +49,12 @@ jobs:
         with:
           name: backend.build.folder
           path: backend/build/
-      - name: Update Info Lambda Function
-        uses: ./.github/aws-lambda-actions/
+      - name: Deploy backend
+        id: pulumi
+        uses: pulumi/actions@v4
         with:
-          function-name: info
-      - name: Smoke Tests
-        run: |
-          echo '${{ inputs.version-info }}' > ./src/info/version.json
-          cat ./src/info/version.json
-          yarn run test:smoke
-        working-directory: backend
+          work-dir: iac/backend
+          command: up
+          stack-name: tabiya-tech/taxonomy-model-application-backend/dev
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
