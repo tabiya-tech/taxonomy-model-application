@@ -21,7 +21,7 @@ const certificate = setupCert(domainName, hostedZone);
 const validationOptions = pulumi.output(certificate.domainValidationOptions[0]);
 export const dns = {
   domainName: domainName,
-  nameServers: hostedZone.nameServers, // TODO: update the name servers at the parent domain name registrar
+  nameServers: hostedZone.nameServers, // TODO: PLAT-77 IaC/Update the name servers at the parent domain name registrar
   certificateValidationRecord: {
     name: validationOptions.resourceRecordName,
     type: validationOptions.resourceRecordType,
