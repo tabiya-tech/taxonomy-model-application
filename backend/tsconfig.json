@@ -4,7 +4,6 @@
     "strict": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    "inlineSourceMap": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,

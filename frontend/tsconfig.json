@@ -7,7 +7,6 @@
       "esnext"
     ],
     "sourceMap": true,
-    "inlineSourceMap": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
