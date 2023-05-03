@@ -12,7 +12,7 @@ jobs:
     uses: ./.github/workflows/build-backend.yml
     secrets: inherit
   deploy-backend:
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: [ build-backend ]
     uses: ./.github/workflows/deploy-backend.yml
     secrets: inherit
@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/build-frontend.yml
     secrets: inherit
   deploy-frontend:
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: [ build-frontend ]
     uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
@@ -54,7 +54,7 @@ jobs:
     secrets: inherit
   # Common Infrastructure
   deploy-common:
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend ]
     uses: ./.github/workflows/deploy-common.yml
     secrets: inherit
