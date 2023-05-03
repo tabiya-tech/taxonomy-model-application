@@ -42,6 +42,10 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!<rootDir>/node_modules/"
+    ],
+    "coverageReporters": [
+      ["lcov", {"projectRoot": "../"}],
+      "text"
     ]
   },
   "browserslist": {

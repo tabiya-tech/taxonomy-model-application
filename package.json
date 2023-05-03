@@ -3,6 +3,6 @@
     "sonarqube-scanner": "~3.0.1"
   },
   "scripts": {
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scanner -X"
   }
 }
