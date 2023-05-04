@@ -26,4 +26,8 @@ module.exports = {
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}"
   ],
+  "coverageReporters": [
+    ["lcov", {"projectRoot": "../"}],
+    "text"
+  ]
 };

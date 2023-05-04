@@ -6,4 +6,9 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+# csv editor
+/csv-editor.xml
+# SonarLint
 /sonarlint/
+/sonarlint.xml
+/sonarlint-state.xml
