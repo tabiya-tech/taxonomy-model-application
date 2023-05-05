@@ -1,5 +1,7 @@
-import {Schema} from "ajv";
-export const errorResponseSchema: Schema = {
+import {AsyncSchema, Schema} from "ajv";
+export const errorResponseSchema: AsyncSchema = {
+    $async: true,
+    $id: "#/components/schemas/errorResponseSchema",
     type: "array",
     items: [
         {
