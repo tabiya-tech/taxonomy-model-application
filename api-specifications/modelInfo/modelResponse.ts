@@ -1,7 +1,8 @@
+import {AsyncSchema} from "ajv";
 
-
-export const  modelResponseSchema = {
-
+export const  modelResponseSchema: AsyncSchema = {
+    $async: true,
+    $id: "#/components/schemas/modelResponseSchema",
     type: "object",
     properties: {
         id: {
@@ -16,7 +17,7 @@ export const  modelResponseSchema = {
         tabiyaPath: {
             type: "string"
         },
-        uuid: {
+        UUID: {
             type: "string"
         },
         name: {
@@ -26,23 +27,7 @@ export const  modelResponseSchema = {
             type: "string"
         },
         locale: {
-            type: "object",
-            properties: {
-                uuid: {
-                    type: "string"
-                },
-                shortcode: {
-                    type: "string"
-                },
-                name: {
-                    type: "string"
-                }
-            },
-            required: [
-                "uuid",
-                "shortcode",
-                "name"
-            ]
+            $ref: "#/components/schemas/localeSchema"
         }
     },
     required: [
@@ -50,7 +35,7 @@ export const  modelResponseSchema = {
         "originUUID",
         "path",
         "tabiyaPath",
-        "uuid",
+        "UUID",
         "name",
         "description",
         "locale"

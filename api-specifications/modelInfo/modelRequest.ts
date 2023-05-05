@@ -1,5 +1,8 @@
-export const  modelRequestSchema = {
+import {AsyncSchema} from "ajv";
 
+export const  modelRequestSchema: AsyncSchema = {
+    $async: true,
+    $id: "#/components/schemas/modelRequestSchema",
     type: "object",
     properties: {
         name: {
@@ -9,15 +12,7 @@ export const  modelRequestSchema = {
             type: "string"
         },
         locale: {
-            type: "object",
-            properties: {
-                uuid: {
-                    type: "string"
-                }
-            },
-            required: [
-                "uuid"
-            ]
+            $ref: "#/components/schemas/localeSchema"
         }
     },
     required: [
