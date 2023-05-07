@@ -33,6 +33,11 @@ jobs:
         with:
           name: backend.lcov.info
           path: backend/coverage/
+      - name: Download api-specifications.lcov.info
+        uses: actions/download-artifact@v3
+        with:
+          name: api-specifications.lcov.info
+          path: api-specifications/coverage/
       - name: SonarCloud Scan
         #uses: SonarSource/sonarcloud-github-action@v1.9.1
         #with:
@@ -43,8 +48,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ls -la frontend/coverage/
-          cat frontend/coverage/lcov.info
-          ls -la backend/coverage/
-          cat backend/coverage/lcov.info
           yarn run sonar

@@ -7,9 +7,14 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
+  # API Specifications
+  build-api-specs:
+    uses: ./.github/workflows/build-api-specs.yml
+    secrets: inherit
   # Backend
   build-backend:
     uses: ./.github/workflows/build-backend.yml
+    needs: [ build-api-specs ]
     secrets: inherit
   deploy-backend:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -30,6 +35,7 @@ jobs:
   # Frontend
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
+    needs: [ build-api-specs ]
     secrets: inherit
   deploy-frontend:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -49,7 +55,7 @@ jobs:
       component-url: ${{ needs.deploy-frontend.outputs.frontendBucketWebsiteURLBase }}
   # Sonarcloud
   sonarcloud:
-    needs: [ build-backend, build-frontend ]
+    needs: [ build-backend, build-frontend, build-api-specs ]
     uses: ./.github/workflows/sonar-cloud.yml
     secrets: inherit
   # Common Infrastructure

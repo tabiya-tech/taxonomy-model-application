@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/package.json"
+  ],
+  "exclude": [
+    "node_modules",
+    "package.json",
+    "dist",
+    "generateJsonSchemaFiles.ts",
+    "src/**/*.test.ts",
+    "src/_test_utilities/**/*",
+  ]
+}
