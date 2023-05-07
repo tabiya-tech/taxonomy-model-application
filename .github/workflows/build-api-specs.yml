@@ -1,0 +1,35 @@
+name: Build Api Specification
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: api-specifications/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: api-specifications
+      - name: Link
+        run: yarn run lint
+        working-directory: api-specifications
+      - name: Build
+        run: yarn run compile
+        working-directory: api-specifications
+      - name: Test
+        run: yarn run test
+        working-directory: api-specifications
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-specifications.lcov.info
+          path: api-specifications/coverage/lcov.info
+          retention-days: 1

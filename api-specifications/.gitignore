@@ -1,0 +1,10 @@
+.DS_Store
+/node_modules/
+/.scannerwork/
+/api-specifications/node_modules/
+/api-specifications/dist/
+/api-specifications/schemas/
+/coverage/
+/dist/
+/node_modules/
+/schemas/
