@@ -16,6 +16,7 @@ import {repositories} from "repositories";
 import {initialize, initOnce} from "init";
 import {getTestString} from "_test_utilities/specialCharacters";
 import {IConfiguration} from "../server/config";
+import {getTestConfiguration} from "./testDataHelper";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -48,13 +49,6 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
   };
 }
 
-function getTestConfiguration(): IConfiguration {
-  return {
-    dbURI: process.env.MONGODB_URI as string,
-    resourcesBaseUrl: "foo",
-  };
-}
-
 describe("Test the Model Repository with an in-memory mongodb", () => {
 
   let dbConnection: Connection;
@@ -63,7 +57,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     // @ts-ignore
-    const {connection, repositories} = await initialize(getTestConfiguration());
+    const {connection, repositories} = await initialize(getTestConfiguration("ModelRepositoryTestDB"));
     dbConnection = connection;
     repository = repositories.modelInfo;
   });
@@ -80,7 +74,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   });
 
   test("initOnce has registered the ModelRepository", async () => {
-    const connection = await initOnce(getTestConfiguration());
+    const connection = await initOnce(getTestConfiguration("ModelRepositoryTestDB"));
     expect(repositories.modelInfo).toBeDefined();
     await connection.close(true);
   });
@@ -208,7 +202,7 @@ function TestConnectionFailure(actionCallback: (repository: ModelRepository) => 
   return test("should reject with an error when connection to db is lost", async () => {
     // GIVEN the db connection will be lost
 
-    const {connection, repositories} = await initialize(getTestConfiguration());
+    const {connection, repositories} = await initialize(getTestConfiguration("ModelRepositoryTestDB"));
     const repository = repositories.modelInfo;
 
     // WHEN we get a model by the id

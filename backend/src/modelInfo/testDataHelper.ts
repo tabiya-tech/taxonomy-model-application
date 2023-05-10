@@ -9,6 +9,7 @@ import {
 import {getMockId} from "../_test_utilities/mockMongoId";
 import {randomUUID} from "crypto";
 import {getRandomString} from "../_test_utilities/specialCharacters";
+import {IConfiguration} from "../server/config";
 
 export function getIModelInfoMockData(): IModelInfo {
   return {
@@ -28,5 +29,13 @@ export function getIModelInfoMockData(): IModelInfo {
     version: getRandomString(VERSION_MAX_LENGTH),
     createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
     updatedAt: new Date() //.toISOString()
+  };
+}
+
+
+export function getTestConfiguration(dbname: string): IConfiguration {
+  return {
+    dbURI: process.env.MONGODB_URI + dbname, //use a dedicated DB for this test to avoid conflicts with other test
+    resourcesBaseUrl: "foo",
   };
 }

@@ -13,6 +13,7 @@ import {getRandomString, getTestString} from "../_test_utilities/specialCharacte
 import {HTTP_VERBS, StatusCodes} from "../server/httpUtils";
 import {handler as modelHandler} from "./index";
 import addFormats from "ajv-formats";
+import {getTestConfiguration} from "./testDataHelper";
 
 describe("test for model handler with a DB", () => {
 
@@ -20,7 +21,7 @@ describe("test for model handler with a DB", () => {
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     // @ts-ignore
-    dbConnection = await initOnce({dbURI: process.env.MONGODB_URI as string});
+    dbConnection = await initOnce(getTestConfiguration("ModelInfoHandlerTestDB"));
   });
 
   afterAll(async () => {

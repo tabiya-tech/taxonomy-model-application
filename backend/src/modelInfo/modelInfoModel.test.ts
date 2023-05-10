@@ -11,6 +11,9 @@ import {randomUUID} from "crypto";
 import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {initialize} from "init";
 import {getMockId} from "_test_utilities/mockMongoId";
+import {getTestConfiguration} from "./testDataHelper";
+
+
 
 describe('Test the definition of the ModelInfo Model', () => {
   let dbConnection: Connection;
@@ -18,7 +21,7 @@ describe('Test the definition of the ModelInfo Model', () => {
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     // @ts-ignore
-    const {connection, repositories} = await initialize({dbURI: process.env.MONGODB_URI as string});
+    const {connection, repositories} = await initialize(getTestConfiguration("ModelInfoModelTestDB"));
     dbConnection = connection;
     ModelInfoModel = connection.model(ModelName);
   });
