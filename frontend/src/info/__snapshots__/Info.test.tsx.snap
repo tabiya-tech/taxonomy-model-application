@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing Info component it should show frontend and backend info successfully: backend 1`] = `
+exports[`Testing Info component it should show frontend and backend info successfully: version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc 1`] = `
 <div
-  data-testid="backend"
+  data-testid="version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
   id="backend"
 >
   <ul
@@ -54,9 +54,9 @@ exports[`Testing Info component it should show frontend and backend info success
 </div>
 `;
 
-exports[`Testing Info component it should show frontend and backend info successfully: frontend 1`] = `
+exports[`Testing Info component it should show frontend and backend info successfully: version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc 1`] = `
 <div
-  data-testid="frontend"
+  data-testid="version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
   id="frontend"
 >
   <ul

@@ -1,19 +1,25 @@
 import Info from "./info/Info";
-import ImportModal from "./import/ImportModel";
+import ImportModal, {DATA_TEST_ID} from "./import/ImportModel";
+
+export const routerPaths = {
+  ROOT:"/",
+  VERSION:"/version",
+  IMPORT:"/import"
+}
 
 export const routerConfig = [
   {
-    path: "/",
-    element: <div>Welcome Page</div>,
+    path: routerPaths.ROOT,
+    element: <div data-testid={DATA_TEST_ID.WELCOME_PAGE_ROOT}>Welcome Page</div>,
     errorElement: <div>Sorry something went wrong</div>,
   },
   {
-    path: "/info",
+    path: routerPaths.VERSION,
     element: <Info/>,
     errorElement: <div>Sorry info got wrong</div>
   },
   {
-    path: "/import",
+    path: routerPaths.IMPORT,
     element: <ImportModal/>,
     errorElement: <div>Sorry upload got wrong</div>
   }

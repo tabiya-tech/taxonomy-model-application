@@ -8,6 +8,7 @@ jest.mock("./info.service");
 import {InfoProps} from "./info.types";
 import Info from "./Info";
 import {act, render, screen} from "@testing-library/react";
+import {DATA_TEST_ID} from "./Info"
 
 describe("Testing Info component", () => {
 
@@ -43,11 +44,11 @@ describe("Testing Info component", () => {
     });
 
     // THEN the frontend and backend info should be displayed
-    expect(screen.getByTestId('frontend')).toBeDefined();
-    expect(screen.getByTestId('frontend')).toMatchSnapshot("frontend");
+    expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONT_ROOT)).toBeDefined();
+    expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONT_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_FRONT_ROOT);
 
-    expect(screen.getByTestId('backend')).toBeDefined();
-    expect(screen.getByTestId('backend')).toMatchSnapshot("backend");
+    expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toBeDefined();
+    expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_BACKEND_ROOT);
   });
 
   xtest("it should show some progress while data are loading", () => {
