@@ -9,6 +9,9 @@ import {writeServiceErrorToLog} from "../error/logger";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
+  WELCOME_PAGE_ROOT:`welcome-page-${uniqueId}`,
+  VERSION_FRONT_ROOT:`version-frontend-${uniqueId}`,
+  VERSION_BACKEND_ROOT:`version-backend-${uniqueId}`,
   DIALOG_ROOT: `root-${uniqueId}`,
   IMPORT_BUTTON: `import-button-${uniqueId}`,
   NAME_INPUT: `name-input-${uniqueId}`,
