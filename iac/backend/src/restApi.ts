@@ -7,7 +7,7 @@ import {publicApiRootPath, resourcesBaseUrl} from "./index";
 
 const buildFolderPath = "../../backend/build";
 
-export function setupBackendRESTApi(environment: string, config:{ resourcesBaseUrl: string }): { restApi: RestApi, stage: Stage } {
+export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: string, resourcesBaseUrl: string }): { restApi: RestApi, stage: Stage } {
   /**
    * Lambda for api
    */
@@ -54,6 +54,7 @@ export function setupBackendRESTApi(environment: string, config:{ resourcesBaseU
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
+        MONGODB_URI: config.mongodb_uri,
       },
     }
   });

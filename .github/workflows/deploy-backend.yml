@@ -62,3 +62,4 @@ jobs:
           stack-name: tabiya-tech/taxonomy-model-application-backend/dev
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}

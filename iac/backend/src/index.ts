@@ -10,7 +10,7 @@ export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 /**
  * Setup Backend Rest API
  */
-const {restApi, stage} = setupBackendRESTApi(environment, {resourcesBaseUrl});
+const {restApi, stage} = setupBackendRESTApi(environment, {mongodb_uri: process.env.MONGODB_URI || "", resourcesBaseUrl});
 
 export const backendRestApi = {
   restApiArn: restApi.arn,
