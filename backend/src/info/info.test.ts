@@ -24,9 +24,10 @@ describe("test for info handler", () => {
     // THEN expect response to be OK and the version
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     // AND expect the body to be a json representation the version
-    expect(JSON.parse(actualResponse.body)).toMatchObject({
+    expect(JSON.parse(actualResponse.body)).toEqual({
       ...version,
-      path: `${givenResourcesBaseUrl}${givenEvent.path}`
+      path: `${givenResourcesBaseUrl}${givenEvent.path}`,
+      database: "not connected"
     });
   })
 

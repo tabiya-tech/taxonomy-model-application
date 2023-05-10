@@ -4,8 +4,8 @@ import {ModelRepository} from "./modelInfo/ModelRepository";
 import {repositories, RepositoryRegistry} from "./repositories";
 import {Connection} from "mongoose";
 import mongoose from "mongoose";
-import {getDbURI, IConfiguration} from "./server/config";
-import {isSpecified, isUnspecified} from "./server/isUnspecified";
+import {IConfiguration} from "./server/config";
+import {isUnspecified} from "./server/isUnspecified";
 
 let initialized = false;
 let  connection: Connection;
@@ -30,6 +30,10 @@ export async function initOnce(config: IConfiguration): Promise<Connection> {
   connection = result.connection;
   repositories.modelInfo = result.repositories.modelInfo;
   initialized = true;
+  return connection;
+}
+
+export function getCurrentDBConnection(): Connection {
   return connection;
 }
 
