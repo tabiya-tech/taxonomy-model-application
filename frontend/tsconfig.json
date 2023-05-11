@@ -6,9 +6,6 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": [
-      "node_modules/api-specification/dist/**/*.d.ts",
-    ],
     "sourceMap": true,
     "allowJs": true,
     "skipLibCheck": true,
