@@ -54,6 +54,8 @@ export function setupAsyncImportApi(environment: string, config: {
     code: asyncFileArchive,
     handler: "index.handler",
     runtime: 'nodejs16.x',
+    timeout: 60,// seconds
+    memorySize: 512,// MB
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
@@ -67,11 +69,11 @@ export function setupAsyncImportApi(environment: string, config: {
 
   // Create log group with retention of days,
   // log group is assigned to the lambda function via the name of the log group (see https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html)
+  // @ts-ignore
   const asyncLogGroup = new aws.cloudwatch.LogGroup("async-import-log-group", {
     name: pulumi.interpolate`/aws/lambda/${asyncLambdaFunction.name}`,
     retentionInDays: LOG_RETENTION_IN_DAYS
   });
 
-  // @ts-ignore
   return {asyncLambdaRole, asyncLambdaFunction};
 }

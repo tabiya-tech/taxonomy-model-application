@@ -183,8 +183,8 @@ describe("test for model handler", () => {
     // AND expect  created
   });
 
-  test("POST should respond with the BAD_REQUEST if model schema %s", async () => {
-    //GIVEN a payload
+  test("POST should respond with the BAD_REQUEST if payload doe not conform to the model schema", async () => {
+    //GIVEN a payload that does not conform to the model schema
     const givenPayload = {foo: "foo"}
     // AND event
     const givenEvent = {

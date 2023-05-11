@@ -8,6 +8,7 @@
   ],
   "exclude": [
     "src/**/__snapshots__/",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "src/**/_test_data_/*"
   ]
 }
