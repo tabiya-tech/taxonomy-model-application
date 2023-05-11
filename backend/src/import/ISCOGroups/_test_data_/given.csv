@@ -1,0 +1,21 @@
+"ESCOURI","ORIGINUUID","ISCOCODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
+"","","","","",""
+,,,,,
+"esco uri","origin uuid","isco code","preferred label","label1
+label2","description"
+"esco
+uri
+with
+linebreak","origin
+uuid
+with
+linebreak","isco
+code
+with
+linebreak","preferred
+label
+with
+linebreak","label1
+label2","description
+with
+linebreak"

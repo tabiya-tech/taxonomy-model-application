@@ -1,17 +1,51 @@
-import {ImportRequest} from "api-specifications/import";
+import {ImportFileTypes, ImportRequest, ImportRequestSchema} from "api-specifications/import";
+import {initOnce} from "server/init";
+import {S3PresignerService} from "./S3PresignerService";
+import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
+import {ajvInstance, ParseValidationError} from "validator";
+import {ValidateFunction} from "ajv";
+import {parseISCOGroupsFromUrl} from "import/ISCOGroups/ISCOGroupsParser";
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event: ImportRequest): Promise<any> => {
   console.log(event);
 
-  const result = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        msg: 'TO BE IMPLEMENTED',
-        importRequest: event
-      });
-    }, 1000);
-  });
+  // Validate the event against the schema
+  const validateFunction = ajvInstance.getSchema(ImportRequestSchema.$id as string) as ValidateFunction;
+  const isValid = validateFunction(event);
+  if (!isValid) {
+    const errorDetail = ParseValidationError(validateFunction.errors);
+    const e = new Error("Import failed, the event does not conform to the expected schema: " +  errorDetail);
+    console.error(e);
+    throw e;
+  }
 
-  console.log(result);
+  try {
+    await initOnce();
+
+
+    const modelid = event.modelId;
+    // Generate the presigned urls for the files
+    const downloadUrls = await getPresignedUrls(event.filePaths);
+    console.log(downloadUrls);
+    // Process the files
+    if (downloadUrls.ISCO_GROUP) {
+      await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP);
+    }
+    if (downloadUrls.ESCO_SKILL_GROUP) {
+      // TODO
+    }
+    console.log("Completed import");
+  } catch (e: unknown) {
+    console.error(e);
+  }
+};
+
+const getPresignedUrls = async (filePaths: { [key in ImportFileTypes]?: string }): Promise<{ [key in ImportFileTypes]?: string }> => {
+  const s3PresignedService = new S3PresignerService(getUploadBucketRegion(), getUploadBucketName());
+  const promises = Object.entries(filePaths).map(async (entry) => {
+    return {[entry[0]]: await s3PresignedService.getPresignedGet(entry[1])};
+  });
+  return Object.assign({}, ... await Promise.all(promises));
 };
