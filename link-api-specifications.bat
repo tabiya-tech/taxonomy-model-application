@@ -1,20 +1,21 @@
+@ECHO ON
 echo "LINKING API-SPECIFICATIONS FOR WINDOWS"
 
 :: ********************************************************
 :: First unlink to ensure that any previous links is removed
 :: ********************************************************
-pushd backend/
-yarn unlink api-specifications
+pushd backend
+call yarn unlink api-specifications
 :: back to the root of the project
 popd
-pushd frontend/
-yarn unlink api-specifications)
+pushd frontend
+call yarn unlink api-specifications
 :: back to the root of the project
 popd
-pushd api-specifications/
-yarn unlink
-cd dist/
-yarn unlink
+pushd api-specifications
+call yarn unlink
+cd dist
+call yarn unlink
 :: back to the root of the project
 popd
 
@@ -23,11 +24,11 @@ popd
 :: compiles it, and creates a symbolic link to the dist/ folder.
 :: ********************************************************
 
-pushd api-specifications/
-yarn install
-yarn run compile
-cd dist/
-yarn link
+pushd api-specifications
+call yarn install
+call yarn run compile
+cd dist
+call yarn link
 :: back to the root of the project
 popd
 
@@ -35,11 +36,11 @@ popd
 :: Finally, link the 'api-specifications' package
 :: to the 'backend' and 'frontend' projects.
 :: ********************************************************
-pushd backend/
-yarn link api-specifications
+pushd backend
+call yarn link api-specifications
 :: back to the root of the project
 popd
-pushd frontend/
-yarn link api-specifications
+pushd frontend
+call yarn link api-specifications
 :: back to the root of the project
 popd
