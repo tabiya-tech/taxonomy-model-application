@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test the STD_ERRORS_RESPONSES STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR 1`] = `
+{
+  "body": "{"errorCode":"INTERNAL_SERVER_ERROR","message":"Internal Server Error","details":""}",
+  "headers": {
+    "Access-Control-Allow-Origin": "*",
+  },
+  "isBase64Encoded": false,
+  "multiValueHeaders": {},
+  "statusCode": 500,
+}
+`;
+
+exports[`test the STD_ERRORS_RESPONSES STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED 1`] = `
+{
+  "body": "{"errorCode":"METHOD_NOT_ALLOWED","message":"Method Not Allowed","details":""}",
+  "headers": {
+    "Access-Control-Allow-Origin": "*",
+  },
+  "isBase64Encoded": false,
+  "multiValueHeaders": {},
+  "statusCode": 405,
+}
+`;
+
+exports[`test the STD_ERRORS_RESPONSES STD_ERRORS_RESPONSES.NOT_FOUND 1`] = `
+{
+  "body": "{"errorCode":"NOT_FOUND","message":"Not Found","details":""}",
+  "headers": {
+    "Access-Control-Allow-Origin": "*",
+  },
+  "isBase64Encoded": false,
+  "multiValueHeaders": {},
+  "statusCode": 404,
+}
+`;

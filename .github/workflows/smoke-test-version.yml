@@ -6,6 +6,10 @@ on:
         description: Either 'frontend' or 'backend'
         required: true
         type: string
+      resources-base-url:
+        description: The api resources base url of the backend
+        required: false
+        type: string
       component-url:
         description: The urlbase of the 'frontend' or 'backend'
         required: true
@@ -36,5 +40,6 @@ jobs:
         run: |
           export EXPECTED_VERSION_INFO='${{ inputs.expected-version-info }}'
           export E2E_BASE_URL=${{ inputs.component-url }}
+          export E2E_RESOURCES_BASE_URL=${{ inputs.resources-base-url }}
           yarn run test:smoke
         working-directory: ${{ inputs.component }}

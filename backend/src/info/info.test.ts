@@ -1,13 +1,20 @@
 import {handler as infoHandler} from "./index";
-import {HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "httpUtils";
+import {HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import version from './version.json';
+import * as config from "server/config";
 
 describe("test for info handler", () => {
-
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
   it("GET should respond with the 200 and the version, ", async () => {
-    //GIVEN a GET event
+    //GIVEN some configuration
+    const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+    jest.spyOn(config, "getResourcesBaseUrl").mockReturnValue(givenResourcesBaseUrl)
+    // AND  GET event
     const givenEvent = {
-      httpMethod: HTTP_VERBS.GET
+      httpMethod: HTTP_VERBS.GET,
+      path: "/info"
     }
 
     //WHEN the info handler is invoked with event param
@@ -17,7 +24,11 @@ describe("test for info handler", () => {
     // THEN expect response to be OK and the version
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     // AND expect the body to be a json representation the version
-    expect(actualResponse.body).toEqual(JSON.stringify(version));
+    expect(JSON.parse(actualResponse.body)).toEqual({
+      ...version,
+      path: `${givenResourcesBaseUrl}${givenEvent.path}`,
+      database: "not connected"
+    });
   })
 
   it.each([

@@ -1,0 +1,290 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "ESCOModelId": {
+        "type": "integer"
+      },
+      "OccupationID": {
+        "type": "integer"
+      },
+      "UUID": {
+        "type": "string"
+      },
+      "OriginUUID": {
+        "type": "string"
+      },
+      "ObjectType": {
+        "type": "string"
+      },
+      "ESCO_UUID": {
+        "type": "string"
+      },
+      "ESCOUri": {
+        "type": "string"
+      },
+      "ISCOCode": {
+        "type": "string"
+      },
+      "PreferredLabel": {
+        "type": "string"
+      },
+      "AltLabels": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "ScopeNote": {
+        "type": "string"
+      },
+      "Definition": {
+        "type": "string"
+      },
+      "Description": {
+        "type": "string"
+      },
+      "Code": {
+        "type": "string"
+      },
+      "Skills": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "SkillID": {
+                "type": "integer"
+              },
+              "SkillUUD": {
+                "type": "string"
+              },
+              "skillObjectType": {
+                "type": "string"
+              },
+              "RelationType": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "SkillID",
+              "SkillUUD",
+              "skillObjectType",
+              "RelationType"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "SkillID": {
+                "type": "integer"
+              },
+              "SkillUUD": {
+                "type": "string"
+              },
+              "skillObjectType": {
+                "type": "string"
+              },
+              "RelationType": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "SkillID",
+              "SkillUUD",
+              "skillObjectType",
+              "RelationType"
+            ]
+          }
+        ]
+      },
+      "Logs": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "LogId": {
+                "type": "integer"
+              },
+              "LogUUID": {
+                "type": "string"
+              },
+              "ObjectType": {
+                "type": "string"
+              },
+              "Message": {
+                "type": "string"
+              },
+              "LogTime": {
+                "type": "string"
+              },
+              "Changes": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "LogId",
+              "LogUUID",
+              "ObjectType",
+              "Message",
+              "LogTime",
+              "Changes"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "LogId": {
+                "type": "integer"
+              },
+              "LogUUID": {
+                "type": "string"
+              },
+              "ObjectType": {
+                "type": "string"
+              },
+              "Message": {
+                "type": "string"
+              },
+              "LogTime": {
+                "type": "string"
+              },
+              "Changes": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "LogId",
+              "LogUUID",
+              "ObjectType",
+              "Message",
+              "LogTime",
+              "Changes"
+            ]
+          }
+        ]
+      },
+      "Parents": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "ParentID": {
+                "type": "integer"
+              },
+              "ParentUUID": {
+                "type": "string"
+              },
+              "ParentObjectType": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "ParentID",
+              "ParentUUID",
+              "ParentObjectType"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "ParentID": {
+                "type": "integer"
+              },
+              "ParentUUID": {
+                "type": "string"
+              },
+              "ParentObjectType": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "ParentID",
+              "ParentUUID",
+              "ParentObjectType"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "ParentID": {
+                "type": "integer"
+              },
+              "ParentUUID": {
+                "type": "string"
+              },
+              "ParentObjectType": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "ParentID",
+              "ParentUUID",
+              "ParentObjectType"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "ParentID": {
+                "type": "integer"
+              },
+              "ParentUUID": {
+                "type": "string"
+              },
+              "ParentObjectType": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "ParentID",
+              "ParentUUID",
+              "ParentObjectType"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "ESCOModelId",
+      "OccupationID",
+      "UUID",
+      "OriginUUID",
+      "ObjectType",
+      "ESCO_UUID",
+      "ESCOUri",
+      "ISCOCode",
+      "PreferredLabel",
+      "AltLabels",
+      "ScopeNote",
+      "Definition",
+      "Description",
+      "Code",
+      "Skills",
+      "Logs",
+      "Parents"
+    ]
+  }

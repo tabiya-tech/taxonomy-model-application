@@ -1,14 +1,21 @@
 import {Context, Callback, APIGatewayProxyEvent} from "aws-lambda";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import version from './version.json';
-import {HTTP_VERBS, response, STD_ERRORS_RESPONSES} from "httpUtils";
+import {HTTP_VERBS, responseJSON, STD_ERRORS_RESPONSES} from "server/httpUtils";
+import {getResourcesBaseUrl} from "server/config";
+import {getCurrentDBConnection} from "../init";
 
 export const handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback)
   => Promise<APIGatewayProxyResult>
-  = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
+  = async (event: APIGatewayProxyEvent/*, context: Context, callback: Callback*/) => {
 
   if (event?.httpMethod === HTTP_VERBS.GET) {
-    return response(200, version);
+    const dbConnection  = getCurrentDBConnection();
+    return responseJSON(200, {
+      ...version,
+      path: `${getResourcesBaseUrl()}${event.path}`,
+      database: dbConnection?.readyState === 1 ? "connected" : "not connected"
+    });
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
-}
+};

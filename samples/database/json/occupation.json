@@ -1,0 +1,69 @@
+{
+    "ModelID": "0123456789abcdef01234567",
+    "ID": "0123456789abcdef01234567",
+    "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+    "OriginUUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+    "ObjectType": "ESCO | Localized | Local", 
+    "ESCO_UUID": "ess", // only has value when  ObjectType is Localized
+    "ESCOUri": "https://data .../{foo}",
+    "ISCOCode": "123",
+    "PreferredLabel": "name",
+    "AltLabels": ["labelOne", "label2"],
+    "ScopeNote": "scope",
+    "Definition": "define here",
+    "Description": "some text",
+    "Code": "1234.1",
+    "HasSkills": [ {
+            "SkillID": "0123456789abcdef01234567",
+            "SkillUUD": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+            "SkillObjectType": "skill | SkillGroup",
+            "RelationType": "essential | optional"
+        },
+        {
+            "SkillID": "0123456789abcdef01234567",
+            "SkillUUD": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+            "SkillObjectType": "skill | SkillGroup",
+            "RelationType": "essential | optional"
+        },
+    ], 
+    "Logs": [{
+        "LogId": "0123456789abcdef01234567", // probably no need for LogId and ChangeID
+        "LogUUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+        "ObjectType": "ESCO | Localized | Local",
+        "Message": "Some message",
+        "LogTime": "2023-03-04 08:00:00",
+        "Changes": ["Add skill", "Reclassify"]
+    },
+    {
+        "LogId": "0123456789abcdef01234567",
+        "LogUUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+        "ObjectType": "ESCO | Localized | Local",
+        "Message": "Some message",
+        "LogTime": "2023-03-04 08:00:00",
+        "Changes": [ "Add skill", "Reclassify"]
+    }],
+    "Parents": [ 
+        {
+            "ID": "0123456789abcdef01234567",
+            "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+        },
+        {
+            "ID": "0123456789abcdef01234567",
+            "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+        }
+    ],
+    "Children": [
+        {
+            "ID": "0123456789abcdef01234567",
+            "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+        },
+        {
+            "ID": "0123456789abcdef01234567",
+            "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
+            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+        } 
+    ]
+}

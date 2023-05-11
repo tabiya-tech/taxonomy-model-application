@@ -13,6 +13,9 @@ on:
       backedRestApiURLBase:
         description: "The backend api url"
         value: ${{ jobs.deploy.outputs.backedRestApiURLBase }}
+      resourcesBaseUrl:
+        description: "The resources base url"
+        value: ${{ jobs.deploy.outputs.resourcesBaseUrl }}
     secrets:
       AWS_ACCESS_KEY:
         required: true
@@ -24,6 +27,7 @@ jobs:
     environment: ${{ inputs.target-environment }}
     outputs:
       backedRestApiURLBase: ${{ steps.pulumi.outputs.backedRestApiURLBase }}
+      resourcesBaseUrl: ${{ steps.pulumi.outputs.resourcesBaseUrl }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -58,3 +62,4 @@ jobs:
           stack-name: tabiya-tech/taxonomy-model-application-backend/dev
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}

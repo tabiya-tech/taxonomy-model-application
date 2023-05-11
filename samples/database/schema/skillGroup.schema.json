@@ -1,0 +1,78 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "ModelId": {
+        "type": "integer"
+      },
+      "SkillGroupID": {
+        "type": "integer"
+      },
+      "UUID": {
+        "type": "string"
+      },
+      "OriginUUID": {
+        "type": "string"
+      },
+      "ESCOUri": {
+        "type": "string"
+      },
+      "TabiyaUri": {
+        "type": "string"
+      },
+      "PreferredLabel": {
+        "type": "string"
+      },
+      "AltLabels": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "ScopeNote": {
+        "type": "string"
+      },
+      "Description": {
+        "type": "string"
+      },
+      "Code": {
+        "type": "string"
+      },
+      "Parents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "ParentID": {
+              "type": "integer"
+            },
+            "ParentUUID": {
+              "type": "string"
+            },
+            "ParentObjectType": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "ParentID",
+            "ParentUUID",
+            "ParentObjectType"
+          ]
+        }
+      }
+    },
+    "required": [
+      "ModelId",
+      "SkillGroupID",
+      "UUID",
+      "OriginUUID",
+      "ESCOUri",
+      "TabiyaUri",
+      "PreferredLabel",
+      "AltLabels",
+      "ScopeNote",
+      "Description",
+      "Code",
+      "Parents"
+    ]
+  }

@@ -1,0 +1,46 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "ModelId": {
+        "type": "integer"
+      },
+      "UUID": {
+        "type": "string"
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255
+      },
+      "Locale": {
+        "type": "string"
+      },
+      "Version": {
+        "type": "string"
+      },
+      "Released": {
+        "type": "boolean"
+      },
+      "ReleaseNotes": {
+        "type": "string"
+      },
+      "Previous": {
+        "type": "string"
+      },
+      "OriginUUID": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "ModelId",
+      "UUID",
+      "Name",
+      "Locale",
+      "Version",
+      "Released",
+      "ReleaseNotes",
+      "Previous",
+      "OriginUUID"
+    ]
+  }

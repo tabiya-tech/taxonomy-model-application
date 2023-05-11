@@ -18,7 +18,8 @@ export interface IModelInfoResponse extends IModelInfoRequest {
 }
 
 export enum ModelInfoResponseErrorCodes {
-  INVALID_MODEL_INFO_JSON = "INVALID_MODEL_INFO_JSON",
+  DB_FAILED_TO_CREATE_MODEL = "DB_FAILED_TO_CREATE_MODEL",
+  MODEL_COULD_NOT_VALIDATE = "MODEL_COULD_NOT_VALIDATE",
 }
 
 export const ModelInfoResponseSchema: SchemaObject = {
