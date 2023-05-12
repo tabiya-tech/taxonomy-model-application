@@ -50,8 +50,8 @@ function _errorResponse(statusCode: StatusCodes, error: IErrorResponse): APIGate
 export function errorResponse(statusCode: StatusCodes, errorCode: string, message: string, details: string): APIGatewayProxyResult {
   return _errorResponse(statusCode, {
     errorCode: errorCode,
-    message: message,
-    details: details,
+    message: message || "",
+    details: details || "",
   });
 }
 

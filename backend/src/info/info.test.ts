@@ -1,7 +1,7 @@
 import {handler as infoHandler} from "./index";
 import {HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import version from './version.json';
-import * as config from "server/config";
+import * as config from "server/config/config";
 
 describe("test for info handler", () => {
   beforeEach(() => {

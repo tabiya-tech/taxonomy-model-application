@@ -3,15 +3,13 @@ import {handler as InfoHandler} from "./info";
 import {handler as ModelHandler } from "./modelInfo";
 import {STD_ERRORS_RESPONSES} from "./server/httpUtils";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
-import {initOnce} from "./init";
-import {getConfiguration} from "./server/config";
-
+import {initOnce} from "server/init";
 
 export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult>
   = async (event: APIGatewayProxyEvent, context, callback) => {
   try {
     // Initialize the application
-    await initOnce(getConfiguration());
+    await initOnce();
 
     // Handle routes
     return await handleRouteEvent(event, context, callback);

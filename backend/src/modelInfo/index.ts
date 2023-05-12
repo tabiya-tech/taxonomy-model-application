@@ -8,7 +8,7 @@ import {
   STD_ERRORS_RESPONSES
 } from "server/httpUtils";
 import {IModelInfo, INewModelInfoSpec} from "./modelInfoModel";
-import {repositories} from "../repositories";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {ajvInstance, ParseValidationError} from "../validator";
 import {
   IModelInfoRequest,
@@ -20,7 +20,7 @@ import {ErrorCodes} from "api-specifications/error";
 
 import {ValidateFunction} from "ajv";
 import {transform} from "./transform";
-import {getResourcesBaseUrl} from "server/config";
+import {getResourcesBaseUrl} from "server/config/config";
 
 
 export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback: Callback*/)
@@ -92,13 +92,13 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
     payload = JSON.parse(event.body as string);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    return errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.MALFORMED_BODY, "Payload is malformed, it should be a valid model json", error.message || "");
+    return errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.MALFORMED_BODY, "Payload is malformed, it should be a valid model json", error.message);
   }
   const validateFunction = ajvInstance.getSchema(ModelInfoRequestSchema.$id as string) as ValidateFunction;
   const isValid = validateFunction(payload);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
-    return errorResponse(StatusCodes.BAD_REQUEST, ModelInfoResponseErrorCodes.MODEL_COULD_NOT_VALIDATE, "Payload should conform to schema", errorDetail || "");
+    return errorResponse(StatusCodes.BAD_REQUEST, ModelInfoResponseErrorCodes.MODEL_COULD_NOT_VALIDATE, "Payload should conform to schema", errorDetail);
   }
 
   const newModelInfoSpec: INewModelInfoSpec = {
@@ -108,10 +108,11 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
   };
   let newModelInfo: IModelInfo;
   try {
-    newModelInfo = await repositories.modelInfo.create(newModelInfoSpec);
+    newModelInfo = await getRepositoryRegistry().modelInfo.create(newModelInfoSpec);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {  //
-    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfoResponseErrorCodes.DB_FAILED_TO_CREATE_MODEL, "Failed to create the model in the DB", error.message || "");
+    // Do not show the error message to the user as it can contain sensitive information such as DB connection string
+    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfoResponseErrorCodes.DB_FAILED_TO_CREATE_MODEL, "Failed to create the model in the DB", "");
   }
   return responseJSON(StatusCodes.CREATED, transform(newModelInfo, getResourcesBaseUrl()));
 }

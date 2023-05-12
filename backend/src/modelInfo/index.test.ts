@@ -1,8 +1,7 @@
-import * as config from "server/config";
+import * as config from "server/config/config";
 import * as transformModule from "./transform";
 import {handler as modelHandler} from "./index";
 import {HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
-import {repositories} from "repositories";
 
 import {DESCRIPTION_MAX_LENGTH, IModelInfo, NAME_MAX_LENGTH} from "./modelInfoModel";
 import {randomUUID} from "crypto";
@@ -14,6 +13,7 @@ import {
   ModelInfoResponseErrorCodes
 } from "api-specifications/modelInfo";
 import {getIModelInfoMockData} from "./testDataHelper";
+import {getRepositoryRegistry} from "../server/repositoryRegistry/repositoryRegisrty";
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 
@@ -48,20 +48,21 @@ describe("test for model handler", () => {
     // AND repository successfully creates a model
     const expectedModelInfo: IModelInfo = getIModelInfoMockData();
 
-    repositories.modelInfo = {
-      // @ts-ignore
+    const modelInfoMock = {
       Model: undefined,
       create: jest.fn().mockResolvedValue(expectedModelInfo),
       getModelById: jest.fn().mockResolvedValue(null),
       getModelByUUID: jest.fn().mockResolvedValue(null)
-    }
+    };
+    // @ts-ignore
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(modelInfoMock);
 
     //WHEN the info handler is invoked with the event
     //@ts-ignore
     const actualResponse = await modelHandler(givenEvent);
 
     // THEN expect the handler to call the repository with the payload
-    expect(repositories.modelInfo.create).toHaveBeenCalledWith(givenPayload);
+    expect(getRepositoryRegistry().modelInfo.create).toHaveBeenCalledWith(givenPayload);
     // AND expect to respond with status CREATED
     expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
     // AND expect the handler to return the correct headers
@@ -98,20 +99,23 @@ describe("test for model handler", () => {
     const expectedErrorBody: IErrorResponse = {
       "errorCode": ModelInfoResponseErrorCodes.DB_FAILED_TO_CREATE_MODEL,
       "message": "Failed to create the model in the DB",
-      "details": "Failed to create the model in the DB",
+      "details": "",
     }
 
-    //@ts-ignore
-    repositories.modelInfo = {
+    const modelInfoMock = {
+      Model: undefined,
       create: jest.fn().mockRejectedValue(expectedErrorBody),
       getModelById: jest.fn().mockResolvedValue(null),
       getModelByUUID: jest.fn().mockResolvedValue(null)
-    }
+    };
+    // @ts-ignore
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(modelInfoMock);
+
     //WHEN the info handler is invoked with event param
     //@ts-ignore
     const actualResponse = await modelHandler(givenEvent, null, null);
     // THEN expects created is called
-    expect(repositories.modelInfo.create).toHaveBeenCalledWith(givenPayload);
+    expect(getRepositoryRegistry().modelInfo.create).toHaveBeenCalledWith(givenPayload);
     //AND  expect response to be Created and the model
     expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
     // AND expect  created
@@ -163,13 +167,14 @@ describe("test for model handler", () => {
       }
     }
 
-    repositories.modelInfo = {
-      //@ts-ignore
+    const modelInfoMock = {
       Model: undefined,
       create: jest.fn().mockResolvedValue({}),
       getModelById: jest.fn().mockResolvedValue(null),
       getModelByUUID: jest.fn().mockResolvedValue(null)
-    }
+    };
+    // @ts-ignore
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(modelInfoMock);
 
     //WHEN the info handler is invoked with event param
     //@ts-ignore
@@ -196,12 +201,17 @@ describe("test for model handler", () => {
       "message": "Payload should conform to schema",
       "details": "Payload should conform to schema",
     }
-    //@ts-ignore
-    repositories.modelInfo = {
+
+
+    const modelInfoMock = {
+      Model: undefined,
       create: jest.fn().mockResolvedValue({}),
       getModelById: jest.fn().mockResolvedValue(null),
       getModelByUUID: jest.fn().mockResolvedValue(null)
-    }
+    };
+    // @ts-ignore
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(modelInfoMock);
+
 
     //WHEN the info handler is invoked with event param
     //@ts-ignore
@@ -240,12 +250,15 @@ describe("test for model handler", () => {
       "message": "Payload is malformed, it should be a valid model json",
       "details": "any text",
     }
-    //@ts-ignore
-    repositories.modelInfo = {
+
+    const modelInfoMock = {
+      Model: undefined,
       create: jest.fn().mockResolvedValue({}),
       getModelById: jest.fn().mockResolvedValue(null),
       getModelByUUID: jest.fn().mockResolvedValue(null)
-    }
+    };
+    // @ts-ignore
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(modelInfoMock);
 
     //WHEN the info handler is invoked with event param
     //@ts-ignore

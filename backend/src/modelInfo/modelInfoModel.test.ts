@@ -1,3 +1,6 @@
+// Suppress chatty console during the tests
+import "_test_utilities/consoleMock"
+
 import mongoose, {Connection} from "mongoose";
 import {
   DESCRIPTION_MAX_LENGTH,
@@ -5,13 +8,14 @@ import {
   NAME_MAX_LENGTH,
   RELEASE_NOTES_MAX_LENGTH, SHORTCODE_MAX_LENGTH,
   VERSION_MAX_LENGTH,
-  ModelName, INewModelInfoSpec
+  ModelName, INewModelInfoSpec, initializeSchemaAndModel
 } from './modelInfoModel'
 import {randomUUID} from "crypto";
 import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
-import {initialize} from "init";
+
 import {getMockId} from "_test_utilities/mockMongoId";
 import {getTestConfiguration} from "./testDataHelper";
+import {getNewConnection} from "../server/connection/newConnection";
 
 
 
@@ -20,10 +24,11 @@ describe('Test the definition of the ModelInfo Model', () => {
   let ModelInfoModel: mongoose.Model<IModelInfo>;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    // @ts-ignore
-    const {connection, repositories} = await initialize(getTestConfiguration("ModelInfoModelTestDB"));
-    dbConnection = connection;
-    ModelInfoModel = connection.model(ModelName);
+    const config = getTestConfiguration("ModelInfoModelTestDB");
+    dbConnection = await getNewConnection(config.dbURI);
+    // initialize the schema and model
+    initializeSchemaAndModel(dbConnection);
+    ModelInfoModel = dbConnection.model(ModelName);
   });
 
   afterAll(async () => {
@@ -264,7 +269,7 @@ describe('Test the definition of the ModelInfo Model', () => {
       });
     });
 
-    // TODO
+
     // success validation of 'UUID'
     describe("Success validation of 'UUID'", () => {
       test.each([,

@@ -120,22 +120,3 @@ export interface IModelInfo extends INewModelInfoSpec {
   createdAt: Date,
   updatedAt: Date
 }
-/*
-export interface IModelInfo {
-  id: string
-  UUID: string
-  previousUUID: string
-  originUUID: string
-  name: string
-  locale: ILocale
-  description: string
-  released: boolean
-  releaseNotes: string
-  version: string,
-  createdAt: Date,
-  updatedAt: Date
-}
-
-export type INewModelInfoSpec = Omit<IModelInfo, 'id' | 'UUID' | 'createdAt' | 'updatedAt'>;
-
- */

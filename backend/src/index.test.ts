@@ -1,22 +1,45 @@
+// ##############
+// Setup the configuration mock
+const mockConfiguration = {
+  dbURI: "mongodb://username@password:server:port/database",
+  resourcesBaseUrl: "https://path/to/resource"
+}
+jest.mock("./server/config/config", () => {
+  const originalModule = jest.requireActual("./server/config/config");
+  return {
+    ...originalModule,
+    readEnvironmentConfiguration: jest.fn().mockImplementation(() => {
+      return mockConfiguration;
+    })
+  }
+});
+
+// Setup the init mock
+jest.mock("./server/init", () => {
+  const originalModule = jest.requireActual("./server/init");
+  return {
+    ...originalModule,
+    initOnce: jest.fn().mockImplementation(() => {
+      return Promise.resolve();
+    })
+  };
+});
+// ##############
+
 import * as MainHandler from "./index";
 import * as InfoHandler from "./info/index";
 import * as ModelHandler from "./modelInfo/index"
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {response, STD_ERRORS_RESPONSES} from "./server/httpUtils";
-import * as initModule from './init';
-import {Connection} from "mongoose";
-
-afterEach(() => {
-  jest.restoreAllMocks();
-});
-
-beforeEach(() => {
-  // mock init
-  const initOnceSpy = jest.spyOn(initModule, 'initOnce');
-  initOnceSpy.mockImplementation(() => { return  Promise.resolve({} as Connection)} );
-})
+import {initOnce} from "./server/init";
 
 describe("test the main handler function", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterAll(() => {
+    jest.resetAllMocks();
+  });
 
   test("should return the response from the handleRouteEvent function", async () => {
     //GIVEN some event
@@ -57,12 +80,8 @@ describe("test the main handler function", () => {
   });
 
   describe("test the initialisation", () => {
-    test("should call the initialisation ", async () => {
-
-      // GIVEN the initialization succeeds
-      const initOnceSpy = jest.spyOn(initModule, 'initOnce');
-      initOnceSpy.mockResolvedValueOnce({} as Connection);
-      // AND successfully handled event
+    test("should call the initialisation", async () => {
+      // GIVEN a successfully handled event
       const givenResponse = response(200, {foo: "bar"});
       const handleRouteEventSpy = jest.spyOn(MainHandler, "handleRouteEvent").mockImplementation(() => {
         return Promise.resolve(givenResponse);
@@ -72,16 +91,15 @@ describe("test the main handler function", () => {
       // @ts-ignore
       await MainHandler.handler(null, null, null);
 
-      // THEN expect an init called
-      expect(initOnceSpy).toBeCalled()
+      // Then expect an initOnce to be called with the environment configuration
+      expect(initOnce).toBeCalledTimes(1);
     })
 
     test("should return INTERNAL_SERVER_ERROR if initialisation fails", async () => {
-
       // GIVEN the initialization fails
-      const initOnceFailedSpy = jest.spyOn(initModule, 'initOnce');
-      initOnceFailedSpy.mockRejectedValueOnce(new Error("foo"));
-      // AND successfully handled event
+      (initOnce as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+
+      // AND a successfully handled event
       const givenResponse = response(200, {foo: "bar"});
       const handleRouteEventSpy = jest.spyOn(MainHandler, "handleRouteEvent").mockImplementation(() => {
         return Promise.resolve(givenResponse);
@@ -91,7 +109,7 @@ describe("test the main handler function", () => {
       // @ts-ignore
       const actualResponse = await MainHandler.handler(null, null, null);
       // THEN expect an init called
-      expect(initOnceFailedSpy).toBeCalled()
+      expect(initOnce).toBeCalled()
       // AND expect an internal server error response
       expect(actualResponse).toEqual(STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR);
     })

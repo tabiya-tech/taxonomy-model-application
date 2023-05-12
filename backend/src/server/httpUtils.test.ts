@@ -1,10 +1,13 @@
+import Ajv from 'ajv';
+import addFormats from "ajv-formats";
+
 import {
   errorResponse,
   response,
   STD_ERRORS_RESPONSES
 } from "./httpUtils";
 
-import {IErrorResponse} from "api-specifications/error";
+import {ErrorResponseSchema, IErrorResponse} from "api-specifications/error";
 describe("test response function", () => {
 
   test("should return correct response for an object", () => {
@@ -64,7 +67,44 @@ describe("test the errorResponse function", () => {
     expect(result.statusCode).toEqual(givenStatusCode);
     // AND body to be a json string of an array than contains given error
     expect(result.body).toEqual(JSON.stringify(givenError));
+    // AND a body should validate against the ErrorResponse schema
+    const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorResponseSchema);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
   });
+  test.each([
+    ["undefined", undefined],
+    ["null", null],
+  ])
+  ("should return correct response for an error even is some properties are %s", (description, value) => {
+    // GIVEN a status code
+    const givenStatusCode = 500;
+    // AND some error details
+    const givenError: IErrorResponse = {
+      errorCode: "error",
+      // @ts-ignore
+      message: value,
+      // @ts-ignore
+      details: value
+    };
+
+    //WHEN errorResponse is invoked for the given status and error
+    const result = errorResponse(givenStatusCode, givenError.errorCode, givenError.message, givenError.details);
+
+    //THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of an array than contains given error
+    expect(result.body).toEqual(JSON.stringify({...givenError, message: "", details: ""}));
+    // AND a body should validate against the ErrorResponse schema
+    const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorResponseSchema);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
+  });
+
 });
 
 
