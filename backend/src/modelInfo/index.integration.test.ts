@@ -1,7 +1,10 @@
-import Ajv, {ValidateFunction} from 'ajv';
+// Suppress chatty console during the tests
+import "_test_utilities/consoleMock"
+
+import Ajv from 'ajv';
 import {randomUUID} from "crypto";
 import {Connection} from "mongoose";
-import {initOnce} from "../init";
+
 import {
   DESCRIPTION_MAX_LENGTH,
   IModelInfoRequest,
@@ -9,19 +12,23 @@ import {
   NAME_MAX_LENGTH
 } from "api-specifications/modelInfo";
 
-import {getRandomString, getTestString} from "../_test_utilities/specialCharacters";
+import {getRandomString} from "../_test_utilities/specialCharacters";
 import {HTTP_VERBS, StatusCodes} from "../server/httpUtils";
 import {handler as modelHandler} from "./index";
 import addFormats from "ajv-formats";
 import {getTestConfiguration} from "./testDataHelper";
+import {initOnce} from "../server/init";
+import {getConnectionManager} from "../server/connection/connectionManager";
 
 describe("test for model handler with a DB", () => {
 
-  let dbConnection: Connection;
+  let dbConnection: Connection | undefined;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    // @ts-ignore
-    dbConnection = await initOnce(getTestConfiguration("ModelInfoHandlerTestDB"));
+    const config = getTestConfiguration("ModelInfoHandlerTestDB");
+    jest.spyOn(require("server/config/config"),  "readEnvironmentConfiguration").mockReturnValue(config);
+    await initOnce();
+    dbConnection = getConnectionManager().getCurrentDBConnection();
   });
 
   afterAll(async () => {

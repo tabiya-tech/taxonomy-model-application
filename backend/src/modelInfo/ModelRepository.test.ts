@@ -1,22 +1,21 @@
 import {getMockId} from "../_test_utilities/mockMongoId";
-import mongoose, {Connection} from "mongoose";
+import {Connection} from "mongoose";
 import {ModelRepository} from "./ModelRepository";
 import {
   DESCRIPTION_MAX_LENGTH,
   IModelInfo,
   INewModelInfoSpec,
   NAME_MAX_LENGTH,
-  RELEASE_NOTES_MAX_LENGTH,
-  SHORTCODE_MAX_LENGTH,
-  VERSION_MAX_LENGTH
+  SHORTCODE_MAX_LENGTH
 } from "./modelInfoModel";
 
 import {randomUUID} from "crypto";
-import {repositories} from "repositories";
-import {initialize, initOnce} from "init";
 import {getTestString} from "_test_utilities/specialCharacters";
-import {IConfiguration} from "../server/config";
 import {getTestConfiguration} from "./testDataHelper";
+import {getNewConnection} from "../server/connection/newConnection";
+import {getRepositoryRegistry, RepositoryRegistry} from "../server/repositoryRegistry/repositoryRegisrty";
+import {initOnce} from "../server/init";
+import {getConnectionManager} from "../server/connection/connectionManager";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -52,14 +51,14 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
 describe("Test the Model Repository with an in-memory mongodb", () => {
 
   let dbConnection: Connection;
-  let ModelInfoModel: mongoose.Model<IModelInfo>;
   let repository: ModelRepository;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    // @ts-ignore
-    const {connection, repositories} = await initialize(getTestConfiguration("ModelRepositoryTestDB"));
-    dbConnection = connection;
-    repository = repositories.modelInfo;
+    const config = getTestConfiguration("ModelRepositoryTestDB");
+    dbConnection = await getNewConnection(config.dbURI);
+    const repositoryRegistry = new RepositoryRegistry()
+    repositoryRegistry.initialize(dbConnection);
+    repository = repositoryRegistry.modelInfo;
   });
 
   afterAll(async () => {
@@ -74,9 +73,17 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   });
 
   test("initOnce has registered the ModelRepository", async () => {
-    const connection = await initOnce(getTestConfiguration("ModelRepositoryTestDB"));
-    expect(repositories.modelInfo).toBeDefined();
-    await connection.close(true);
+    // GIVEN the environment mongo db uri is set
+    expect(process.env.MONGODB_URI).toBeDefined();
+
+    // WHEN initOnce has been called
+    await initOnce()
+
+    // THEN expect the modelInfo repository to be defined
+    expect(getRepositoryRegistry().modelInfo).toBeDefined();
+
+    // Clean up
+    await getConnectionManager().getCurrentDBConnection()!.close(true);
   });
 
   describe("Test create() model ", () => {
@@ -201,10 +208,11 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 function TestConnectionFailure(actionCallback: (repository: ModelRepository) => Promise<IModelInfo | null>) {
   return test("should reject with an error when connection to db is lost", async () => {
     // GIVEN the db connection will be lost
-
-    const {connection, repositories} = await initialize(getTestConfiguration("ModelRepositoryTestDB"));
-    const repository = repositories.modelInfo;
-
+    const config = getTestConfiguration("ModelRepositoryTestDB");
+    const connection = await getNewConnection(config.dbURI);
+    const repositoryRegistry = new RepositoryRegistry();
+    repositoryRegistry.initialize(connection);
+    const repository = repositoryRegistry.modelInfo;
     // WHEN we get a model by the id
     // THEN expect to reject with an error
     await connection.close(true);
