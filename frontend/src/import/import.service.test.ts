@@ -86,10 +86,6 @@ describe("Test the service", () => {
     return jest.spyOn(window, 'fetch').mockResolvedValue(expectedResponse);
   }
 
-  function setupFetchSpyReject(expectedError: any): jest.SpyInstance {
-    return jest.spyOn(window, 'fetch').mockRejectedValueOnce(expectedError)
-  }
-
   test("should construct the service successfully", () => {
     // GIVEN an api server url
     const apiServerUrl = getTestString(10);
@@ -117,7 +113,7 @@ describe("Test the service", () => {
     // WHEN the createModel function is called with the given arguments (name, description, ...)
     const service = new ImportService(givenApiServerUrl);
 
-    const actualModelId = await service.createModel(givenModelSpec);
+    await service.createModel(givenModelSpec);
     // THEN expect it to make a POST request
     // AND the headers
     // AND the request payload to contain the given arguments (name, description, ...)
@@ -126,10 +122,8 @@ describe("Test the service", () => {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(givenModelSpec)
     });
-    //expect(fetchSpy.mock.calls[0][1].method).toEqual("POST");
 
     const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
-    //expect(payload).toMatchObject(givenModelSpec);
 
     // AND the body conforms to the modelRequestSchema
     const validateRequest = ajv.compile(ModelInfoRequestSchema);
@@ -163,8 +157,6 @@ describe("Test the service", () => {
   ("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s", async (description, givenResponse) => {
       // GIVEN a api server url
       const givenApiServerUrl = "/path/to/api";
-      // AND  a name, description, locale
-      const givenModelSpec = getNewModelSpecMockData();
       // AND the create model REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
       setupFetchSpySuccessResponse(givenResponse, "application/json;charset=UTF-8");
 
@@ -183,8 +175,6 @@ describe("Test the service", () => {
   test("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
     // GIVEN a api server url
     const givenApiServerUrl = "/path/to/api";
-    // AND  a name, description, locale
-    const givenModelSpec = getNewModelSpecMockData();
     // AND the create model REST API will respond with OK and some response
     // that conforms to the modelInfoResponseSchema
     // but the content-type is not application/json;charset=UTF-8
@@ -205,8 +195,6 @@ describe("Test the service", () => {
   test("on NOT 201, it should reject with an error ERROR_CODE.API_ERROR that contains the body of the response", async () => {
     // GIVEN a api server url
     const givenApiServerUrl = "/path/to/api";
-    // AND a name, description, locale
-    const givenModelSpec = getNewModelSpecMockData();
     // AND the create model REST API will respond with NOT OK and some response body
     const givenResponse = {foo: "foo", bar: "bar"};
     setupFetchSpyErrorResponse(givenResponse);

@@ -36,7 +36,7 @@ export function setupFrontendBucket(domainName: string): Bucket {
     blockPublicAcls: false,
   });
 
-  const folder = new synced_folder.S3BucketFolder("synced-folder", {
+  new synced_folder.S3BucketFolder("synced-folder", {
     //disableManagedObjectAliases: true,
     path: buildFolderPath,
     bucketName: bucket.bucket,

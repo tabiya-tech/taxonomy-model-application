@@ -4,8 +4,8 @@ export interface IConfiguration {
 }
 export function readEnvironmentConfiguration(): IConfiguration {
   return  {
-    dbURI: process.env.MONGODB_URI || "",
-    resourcesBaseUrl: process.env.RESOURCES_BASE_URL || ""
+    dbURI: process.env.MONGODB_URI ?? "",
+    resourcesBaseUrl: process.env.RESOURCES_BASE_URL ?? ""
   };
 }
 
@@ -19,9 +19,9 @@ export function setConfiguration(config: IConfiguration) {
 }
 
 export function getDbURI(){
-  return _configuration?.dbURI  || "";
+  return _configuration?.dbURI ?? "";
 }
 
 export function getResourcesBaseUrl(){
-  return _configuration?.resourcesBaseUrl || "";
+  return _configuration?.resourcesBaseUrl ?? "";
 }

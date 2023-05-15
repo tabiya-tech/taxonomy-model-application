@@ -1,7 +1,7 @@
 import Ajv,{ValidateFunction} from "ajv";
 import addFormats from "ajv-formats";
 import {IModelInfoResponse, ModelInfoResponseSchema} from "./modelInfoResponse";
-import {IModelInfoRequest, ModelInfoRequestSchema} from "./modelInfoRequest";
+import {ModelInfoRequestSchema} from "./modelInfoRequest";
 import {LocaleSchema} from "./locale";
 import {getTestString} from "../_test_utilities/specialCharacters";
 import {

@@ -47,7 +47,7 @@ describe('Test new connection', () => {
     // GIVEN the connection to the database fails
     const givenDbUri = "mongodb://username@password:server:port/database"
     // @ts-ignore
-    const connectionSpy = jest.spyOn(mongoose, "createConnection").mockImplementationOnce(() => {
+    jest.spyOn(mongoose, "createConnection").mockImplementationOnce(() => {
       return {
         asPromise: () => Promise.reject(new Error(givenDbUri))
       };
