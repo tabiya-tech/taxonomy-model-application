@@ -50,12 +50,4 @@ describe("Testing Info component", () => {
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toBeDefined();
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_BACKEND_ROOT);
   });
-
-  xtest("it should show some progress while data are loading", () => {
-    // TO BE IMPLEMENTED
-  });
-
-  xtest("it should show some notification if fetching of the data fails", () => {
-    // TO BE IMPLEMENTED
-  });
 });

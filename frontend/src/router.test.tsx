@@ -18,16 +18,14 @@ function renderWithRouter(route: string) {
 }
 
 describe("Tests for router config", () => {
-    // TODO: implement tests for the other routes
   it("should render the full application given root", async () => {
     renderWithRouter(routerPaths.ROOT);
     // verify page content for default route
     expect(screen.getByTestId(IMPORT_DATA_TEST_ID.WELCOME_PAGE_ROOT)).toBeInTheDocument();
   });
 
-  // TODO: implement tests for the other routes
   it("should render the full application given root", async () => {
-    renderWithRouter(routerPaths.VERSION);
+    renderWithRouter(routerPaths.INFO);
     // verify page content for default route
     expect(screen.getByTestId(INFO_DATA_TEST_ID.VERSION_FRONT_ROOT)).toBeInTheDocument();
   });

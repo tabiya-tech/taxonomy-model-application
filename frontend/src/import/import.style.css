@@ -103,7 +103,6 @@ p,label{
     border: 1px solid var(--dark);
     border-radius: 2px;
     font-style: italic;
-    display: flex;
     align-items: center;
     justify-content: flex-start;
     overflow: auto;
@@ -149,7 +148,6 @@ p,label{
 }
 
 .text-input-group > .cbo{
-    border: none;
     border-Radius:2px;
     border: 1px solid var(--semi-dark);
     width: 72.5%;
