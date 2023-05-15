@@ -3,7 +3,7 @@ import ImportModal, {DATA_TEST_ID} from "./import/ImportModel";
 
 export const routerPaths = {
   ROOT:"/",
-  VERSION:"/version",
+  INFO:"/info",
   IMPORT:"/import"
 }
 
@@ -14,7 +14,7 @@ export const routerConfig = [
     errorElement: <div>Sorry something went wrong</div>,
   },
   {
-    path: routerPaths.VERSION,
+    path: routerPaths.INFO,
     element: <Info/>,
     errorElement: <div>Sorry info got wrong</div>
   },
