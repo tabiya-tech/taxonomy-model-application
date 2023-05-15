@@ -3,7 +3,6 @@ import * as pulumi from "@pulumi/pulumi";
 import {asset} from "@pulumi/pulumi";
 import {RestApi, Stage} from "@pulumi/aws/apigateway";
 import {randomUUID} from "crypto";
-import {publicApiRootPath, resourcesBaseUrl} from "./index";
 
 const buildFolderPath = "../../backend/build";
 
@@ -71,7 +70,7 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
     });
 
   // Add the necessary permissions to allow the API Gateway to invoke the Lambda function
-  const permission = new aws.lambda.Permission("model-api-permission", {
+  new aws.lambda.Permission("model-api-permission", {
     action: "lambda:InvokeFunction",
     function: lambdaFunction.name,
     principal: "apigateway.amazonaws.com",
@@ -110,7 +109,7 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
    * setup method OPTIONS
    */
     // Create a new API Gateway method
-  const optionsApiMethod = new aws.apigateway.Method("model-api-method-OPTIONS", {
+  new aws.apigateway.Method("model-api-method-OPTIONS", {
       authorization: "NONE",
       httpMethod: "OPTIONS",
       resourceId: apiResource.id,
@@ -144,7 +143,7 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
   });
 
 
-  const optionsApiIntegrationResponse = new aws.apigateway.IntegrationResponse("model-api-integration-response-OPTIONS", {
+  new aws.apigateway.IntegrationResponse("model-api-integration-response-OPTIONS", {
     restApi: restApi.id,
     resourceId: apiResource.id,
     httpMethod: mockOptionsIntegration.httpMethod,
@@ -169,8 +168,7 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
   const deployment = new aws.apigateway.Deployment("model-api-deployment", {
       restApi: restApi.id,
       triggers: {
-        // for now always redeploy
-        // TODO: redeploy only if a relevant API gateway resource will change
+        // Currently always redeploy, in the future, redeploy only if a relevant API gateway resource has changed
         redeployment: randomUUID(),
       }
       // You can set the stage name and description as desired

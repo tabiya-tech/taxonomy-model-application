@@ -1,6 +1,7 @@
 import {IErrorResponse} from "api-specifications/error";
 import {ErrorCodes} from "./errorCodes";
 
+type ServiceErrorDetails = string | IErrorResponse | any;
 export class ServiceError extends Error {
   serviceName: string;
   serviceFunction: string;
@@ -8,9 +9,9 @@ export class ServiceError extends Error {
   path: string;
   statusCode: number;
   errorCode: ErrorCodes;
-  details: string | IErrorResponse | any;
+  details: ServiceErrorDetails;
 
-  constructor(serviceName: string, serviceFunction: string, method: string, path: string, statusCode: number, errorCode: ErrorCodes, message: string, details?: string | IErrorResponse | any) {
+  constructor(serviceName: string, serviceFunction: string, method: string, path: string, statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails) {
     super(message);
     this.serviceName = serviceName;
     this.serviceFunction = serviceFunction;
@@ -36,12 +37,12 @@ export class ServiceError extends Error {
 
 //factory function
 export interface ServiceErrorFactory {
-  (statusCode: number, errorCode: ErrorCodes, message: string, details?: IErrorResponse | any): ServiceError
+  (statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails): ServiceError
 }
 
 
 export function getServiceErrorFactory(serviceName: string, serviceFunction: string, method: string, path: string): ServiceErrorFactory {
-  return (statusCode: number, errorCode: ErrorCodes, message: string, details?: string | IErrorResponse | any): ServiceError => {
+  return (statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails): ServiceError => {
     return new ServiceError(serviceName, serviceFunction, method, path, statusCode, errorCode, message, details);
   };
 }

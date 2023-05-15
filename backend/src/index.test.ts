@@ -83,9 +83,7 @@ describe("test the main handler function", () => {
     test("should call the initialisation", async () => {
       // GIVEN a successfully handled event
       const givenResponse = response(200, {foo: "bar"});
-      const handleRouteEventSpy = jest.spyOn(MainHandler, "handleRouteEvent").mockImplementation(() => {
-        return Promise.resolve(givenResponse);
-      });
+      jest.spyOn(MainHandler, "handleRouteEvent").mockResolvedValue(givenResponse);
 
       // WHEN the main handler is called
       // @ts-ignore
@@ -101,9 +99,7 @@ describe("test the main handler function", () => {
 
       // AND a successfully handled event
       const givenResponse = response(200, {foo: "bar"});
-      const handleRouteEventSpy = jest.spyOn(MainHandler, "handleRouteEvent").mockImplementation(() => {
-        return Promise.resolve(givenResponse);
-      });
+      jest.spyOn(MainHandler, "handleRouteEvent").mockResolvedValue(givenResponse);
 
       // WHEN the main handler is called
       // @ts-ignore

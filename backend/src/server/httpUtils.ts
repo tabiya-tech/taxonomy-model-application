@@ -30,7 +30,7 @@ export function response(statusCode: StatusCodes, body: object | string, headers
   return {
     isBase64Encoded: false,
     headers: {
-      ...headers||{},
+      ...headers ?? {},
       "Access-Control-Allow-Origin": "*", // Required for CORS support to work
     },
     multiValueHeaders: {},
@@ -50,8 +50,8 @@ function _errorResponse(statusCode: StatusCodes, error: IErrorResponse): APIGate
 export function errorResponse(statusCode: StatusCodes, errorCode: string, message: string, details: string): APIGatewayProxyResult {
   return _errorResponse(statusCode, {
     errorCode: errorCode,
-    message: message || "",
-    details: details || "",
+    message: message ?? "",
+    details: details ?? "",
   });
 }
 

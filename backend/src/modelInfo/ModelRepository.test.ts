@@ -172,7 +172,6 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   });
 
   describe("Test getModelByUUID()", () => {
-    const modelSpec = getNewModelInfoSpec();
 
     test("should return an existing model by model uuid", async () => {
       // GIVEN a model info exists in the database

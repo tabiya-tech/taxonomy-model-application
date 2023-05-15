@@ -34,7 +34,7 @@ describe("test the RepositoryRegistry", () => {
 
     // WHEN trying to initialize the RepositoryRegistry
     const repositoryRegistry = new RepositoryRegistry();
-    await repositoryRegistry.initialize(dbConnection);
+    repositoryRegistry.initialize(dbConnection);
 
     // THEN the repositories should be initialized
     expect(repositoryRegistry.modelInfo).toBeDefined();

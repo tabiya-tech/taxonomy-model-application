@@ -8,7 +8,7 @@ import {
   NAME_MAX_LENGTH,
   RELEASE_NOTES_MAX_LENGTH, SHORTCODE_MAX_LENGTH,
   VERSION_MAX_LENGTH,
-  ModelName, INewModelInfoSpec, initializeSchemaAndModel
+  ModelName, initializeSchemaAndModel
 } from './modelInfoModel'
 import {randomUUID} from "crypto";
 import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
@@ -272,7 +272,7 @@ describe('Test the definition of the ModelInfo Model', () => {
 
     // success validation of 'UUID'
     describe("Success validation of 'UUID'", () => {
-      test.each([,
+      test.each([
         ["Valid UUID", randomUUID()]
       ])("Successful validation 'UUID' when it is %s", (caseDescription, value) => {
         const modelInfoSpec: Partial<IModelInfo> = {
@@ -401,7 +401,7 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         ["undefined", undefined, "Path `{0}` is required."],
         ["null", null, "Path `{0}` is required."],
-        ["not boolean", "foo", 'Cast to Boolean failed .* path \"{0}\"'],
+        ["not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
       ])("Fail validation 'released' because it is %s", (caseDescription, value, message) => {
         const modelInfoSpec: Partial<IModelInfo> = {
           // @ts-ignore
