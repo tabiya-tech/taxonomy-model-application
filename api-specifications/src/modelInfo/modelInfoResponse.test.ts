@@ -13,6 +13,10 @@ import {
 import {randomUUID} from "crypto";
 import {RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4} from "../regex";
 import {getMockId} from "../_test_utilities/mockMongoId";
+import {assertValidationErrors} from "../_test_utilities/assertValidationErrors";
+import {
+  testExpectedFailValuesForSchemaProperty_DateTime, testExpectedSuccessfulValuesForSchemaProperty_DateTime
+} from "../_test_utilities/date-time-propertyTest";
 
 describe('Test the ModelInfoResponse Schema', () => {
   test("The ModelInfoRequestSchema module can be required via the index", () => {
@@ -109,21 +113,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
 
 
   describe("Fail properties validation", () => {
-    function assertValidationErrors(ajv: Ajv, modelInfoResponseSpec: Partial<IModelInfoResponse>, failure: {
-      instancePath: string,
-      keyword: string,
-      message: string
-    }) {
-      const result = validateFunction(modelInfoResponseSpec);
-      expect(result).toBe(false);
-      expect(validateFunction.errors).toEqual(expect.arrayContaining(
-        [expect.objectContaining({
-          instancePath: failure.instancePath,
-          keyword: failure.keyword,
-          message: failure.message
-        })]
-      ));
-    }
+
 
     describe("Fail validation '/id'", () => {
       test.each([
@@ -144,7 +134,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
           //@ts-ignore
           id: value
         };
-        assertValidationErrors(ajv, spec, failure);
+        assertValidationErrors(validateFunction, spec, failure);
       });
     });
 
@@ -167,7 +157,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
           //@ts-ignore
           UUID: value
         };
-        assertValidationErrors(ajv, spec, failure);
+        assertValidationErrors(validateFunction, spec, failure);
       });
     });
 
@@ -195,7 +185,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
           //@ts-ignore
           path: value
         };
-        assertValidationErrors(ajv, spec, failure);
+        assertValidationErrors(validateFunction, spec, failure);
       });
     });
 
@@ -223,7 +213,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
           //@ts-ignore
           tabiyaPath: value
         };
-        assertValidationErrors(ajv, spec, failure);
+        assertValidationErrors(validateFunction, spec, failure);
       });
     });
 
@@ -241,7 +231,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
           //@ts-ignore
           released: value
         };
-        assertValidationErrors(ajv, spec, failure);
+        assertValidationErrors(validateFunction, spec, failure);
       });
     });
 
@@ -264,9 +254,10 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
           //@ts-ignore
           releaseNotes: value
         };
-        assertValidationErrors(ajv, spec, failure);
+        assertValidationErrors(validateFunction, spec, failure);
       });
     });
+
     describe("Fail validation '/version'", () => {
       test.each([
         ["undefined", undefined, {
@@ -286,43 +277,20 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
           //@ts-ignore
           version: value
         };
-        assertValidationErrors(ajv, spec, failure);
+        assertValidationErrors(validateFunction, spec, failure);
       });
     });
 
-    describe("Fail validation '/createdAt'", () => {
-      test.each([
-        ["undefined", undefined, {
-          instancePath: "",
-          keyword: "required",
-          message: "must have required property 'createdAt'"
-        }],
-        ["null", null, {instancePath: "/createdAt", keyword: "type", message: "must be string"}],
-        ["empty", "", {
-          instancePath: "/createdAt",
-          keyword: "format",
-          message: 'must match format "date-time"'
-        }],
-        ["only whitespace characters", WHITESPACE, {
-          instancePath: "/createdAt",
-          keyword: "format",
-          message: 'must match format "date-time"'
-        }],
-        ["not ISO date", "13-11-2018T20:20:39+00:00", {
-          instancePath: "/createdAt",
-          keyword: "format",
-          message: 'must match format "date-time"'
-        }],
-      ])
-      ("Fail validation '/createdAt' because it is %s", (caseDescription, value, failure) => {
-        const spec: Partial<IModelInfoResponse> = {
-          //@ts-ignore
-          createdAt: value
-        };
-        assertValidationErrors(ajv, spec, failure);
-      });
-    });
+    testExpectedFailValuesForSchemaProperty_DateTime( "createdAt", validateFunction);
+
+    testExpectedFailValuesForSchemaProperty_DateTime( "updatedAt", validateFunction);
   });
+
+  describe("Successfully validate properties", () => {
+    testExpectedSuccessfulValuesForSchemaProperty_DateTime( "createdAt", validateFunction);
+
+    testExpectedSuccessfulValuesForSchemaProperty_DateTime( "updatedAt", validateFunction);
+  })
 });
 
 
