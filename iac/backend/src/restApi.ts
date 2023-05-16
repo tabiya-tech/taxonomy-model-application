@@ -6,6 +6,8 @@ import {randomUUID} from "crypto";
 
 const buildFolderPath = "../../backend/build";
 
+const LOG_RETENTION_IN_DAYS = 7;
+
 export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: string, resourcesBaseUrl: string }): { restApi: RestApi, stage: Stage } {
   /**
    * Lambda for api
@@ -58,6 +60,12 @@ export function setupBackendRESTApi(environment: string, config:{ mongodb_uri: s
     }
   });
 
+  // Create log group with retention of days,
+  // log group is assigned to the lambda function via the name of the log group (see https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html)
+  const logGroup = new aws.cloudwatch.LogGroup("model-api-log-group", {
+    name: pulumi.interpolate `/aws/lambda/${lambdaFunction.name}`,
+    retentionInDays:  LOG_RETENTION_IN_DAYS
+  });
 
   /**
    *
