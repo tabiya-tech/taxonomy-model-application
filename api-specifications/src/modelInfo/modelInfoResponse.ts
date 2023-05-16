@@ -1,7 +1,7 @@
 import {SchemaObject} from "ajv";
 import {_baseRequestSchemaProperties, IModelInfoRequest} from "./modelInfoRequest";
-import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty} from "../regex";
-import {RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH} from "./modelInfo.constants";
+import {RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty} from "../regex";
+import {PATH_MAX_LENGTH, RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH} from "./modelInfo.constants";
 
 export interface IModelInfoResponse extends IModelInfoRequest {
   id: string,
@@ -31,7 +31,7 @@ export const ModelInfoResponseSchema: SchemaObject = {
     id: {
       description: "The id of the model. It can be used to retrieve the model from the server.",
       type: "string",
-      pattern: RegExp_Str_NotEmptyString,
+      pattern: RegExp_Str_ID,
     },
     UUID: {
       description: "The UUID of the model. It can be used to identify the model across systems.",
@@ -48,14 +48,16 @@ export const ModelInfoResponseSchema: SchemaObject = {
       type: "string",
       pattern: RegExp_Str_UUIDv4_Or_Empty
     },
-    path: {
+    path: { // TODO : rename to URI
       description: "The path to the model resource using the resource id",
       type: "string",
+      maxLength: PATH_MAX_LENGTH,
       pattern: RegExp_Str_NotEmptyString,
     },
-    tabiyaPath: {
+    tabiyaPath: { // TODO : rename to tabiyaURI
       description: "The path to the model resource using the resource UUID",
       type: "string",
+      maxLength: PATH_MAX_LENGTH,
       pattern: RegExp_Str_NotEmptyString,
     },
     released: {
@@ -72,8 +74,13 @@ export const ModelInfoResponseSchema: SchemaObject = {
       type: "string",
       maxLength: VERSION_MAX_LENGTH
     },
-    createdAt: {type: "string", format: "date-time"},
-    updatedAt: {type: "string", format: "date-time"},
+    createdAt: {
+      description: "The date and time the model was created. It is an ISO 8601 date-time with mandatory time zone",
+      type: "string", format: "date-time"
+    },
+    updatedAt: {
+      description: "The date and time the model was updated. It is an ISO 8601 date-time with mandatory time zone",
+      type: "string", format: "date-time"},
     ..._baseRequestSchemaProperties,
   },
 
