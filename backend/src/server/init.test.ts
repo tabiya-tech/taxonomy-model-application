@@ -53,63 +53,61 @@ jest.mock("./repositoryRegistry/repositoryRegisrty", () => {
 import {getConfiguration, readEnvironmentConfiguration} from "./config/config";
 import {getRepositoryRegistry} from "./repositoryRegistry/repositoryRegisrty";
 import {getConnectionManager} from "./connection/connectionManager";
-import Mock = jest.Mock;
 
 describe('Test initialization', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   })
   test("should initialize once", async () => {
-    let initModule = require("./init");
-
-    // GIVEN the server is not initialized
     jest.isolateModules(async () => {
-      initModule = require("./init");
+      // GIVEN the server is not initialized
+      const initModule = require("./init");
+
+      expect(initModule.isInitialized()).toBeFalsy();
+
+      // WHEN trying to initialize the server (even more that once )
+      const N = 3;
+      for (let i = 0; i < N; i++) {
+        const initPromise = initModule.initOnce();
+        // THEN the server should be initialized
+        await expect(initPromise).resolves.toBeUndefined();
+        expect(initModule.isInitialized()).toBeTruthy();
+      }
+
+      // AND the configuration should be set from the environment variables
+      expect(readEnvironmentConfiguration).toHaveBeenCalledTimes(1)
+      const config = getConfiguration();
+      expect(config).toEqual(mockConfiguration);
+
+      // AND the connection manager should be initialized
+      expect(getConnectionManager().initialize).toBeCalledTimes(1);
+      expect(getConnectionManager().initialize).toBeCalledWith(mockConfiguration.dbURI);
+
+      // AND the repository registry should be initialized
+      expect(getRepositoryRegistry().initialize).toBeCalledTimes(1);
     });
-    expect(initModule.isInitialized()).toBeFalsy();
-
-    // WHEN trying to initialize the server (even more that once )
-    const N = 3;
-    for (let i = 0; i < N; i++) {
-      const initPromise = initModule.initOnce();
-      // THEN the server should be initialized
-      await expect(initPromise).resolves.toBeUndefined();
-      expect(initModule.isInitialized()).toBeTruthy();
-    }
-
-    // AND the configuration should be set from the environment variables
-    expect(readEnvironmentConfiguration).toHaveBeenCalledTimes(1)
-    const config = getConfiguration();
-    expect(config).toEqual(mockConfiguration);
-
-    // AND the connection manager should be initialized
-    expect(getConnectionManager().initialize).toBeCalledTimes(1);
-    expect(getConnectionManager().initialize).toBeCalledWith(mockConfiguration.dbURI);
-
-    // AND the repository registry should be initialized
-    expect(getRepositoryRegistry().initialize).toBeCalledTimes(1);
   });
 
   test("should initialize and not throw an error even if connectionManager fails to initialize DB", async () => {
-
-    // GIVEN the connection manager fails to initialize the DB
-    getConnectionManager().initialize = jest.fn().mockImplementation(() => {
-      return Promise.reject(new Error("DB connection failed"));
-    });
-
-    let initModule = require("./init");
-
-    // AND the server is not initialized
     jest.isolateModules(async () => {
+
+      // GIVEN the connection manager fails to initialize the DB
+      getConnectionManager().initialize = jest.fn().mockImplementation(() => {
+        return Promise.reject(new Error("DB connection failed"));
+      });
+
+      let initModule: typeof import("./init");
+
+      // AND the server is not initialized
       initModule = require("./init");
+      expect(initModule.isInitialized()).toBeFalsy();
+
+      // WHEN trying to initialize the server
+      const initPromise = initModule.initOnce();
+
+      // THEN the server should be initialized
+      await expect(initPromise).resolves.toBeUndefined();
+      expect(initModule.isInitialized()).toBeTruthy()
     });
-    expect(initModule.isInitialized()).toBeFalsy();
-
-    // WHEN trying to initialize the server
-    const initPromise = initModule.initOnce();
-
-    // THEN the server should be initialized
-    await expect(initPromise).resolves.toBeUndefined();
-    expect(initModule.isInitialized()).toBeTruthy()
   });
 });

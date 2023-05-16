@@ -1,3 +1,5 @@
+@import '../global.style.css';
+
 body{
     font-family: 'Roboto Slab', serif;
 }
@@ -14,13 +16,6 @@ p,label{
     display: inline;
     padding: 0;
     margin: 0;
-}
-
-:root{
-    --white: #fff;
-    --dark: #555;
-    --header: #dee3e8;
-    --semi-dark: #222;
 }
 
 .import-container{

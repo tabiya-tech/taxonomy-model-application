@@ -1,3 +1,6 @@
---root{
-    --white: #fff
+:root{
+    --white: #fff;
+    --dark: #555;
+    --header: #dee3e8;
+    --semi-dark: #222;
 }
