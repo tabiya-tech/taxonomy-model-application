@@ -4,7 +4,7 @@ import {asset, Output} from "@pulumi/pulumi";
 import {RestApi, Stage} from "@pulumi/aws/apigateway";
 import {randomUUID} from "crypto";
 
-const buildFolderPath = "../../backend/build";
+const buildFolderPath = "../../backend/build/rest";
 
 const LOG_RETENTION_IN_DAYS = 7;
 
@@ -12,8 +12,9 @@ export function setupBackendRESTApi(environment: string, config: {
   mongodb_uri: string,
   resourcesBaseUrl: string,
   upload_bucket_name: Output<string>,
-  upload_bucket_region: Output<string>
-}): { restApi: RestApi, stage: Stage, lambdaRole: aws.iam.Role} {
+  upload_bucket_region: Output<string>,
+  async_lambda_function: Output<string>,
+}): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
   /**
    * Lambda for api
    */
@@ -62,7 +63,8 @@ export function setupBackendRESTApi(environment: string, config: {
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
         MONGODB_URI: config.mongodb_uri,
         UPLOAD_BUCKET_NAME: config.upload_bucket_name,
-        UPLOAD_BUCKET_REGION: config.upload_bucket_region
+        UPLOAD_BUCKET_REGION: config.upload_bucket_region,
+        ASYNC_LAMBDA_FUNCTION_ARN: config.async_lambda_function
       }
     }
   });
@@ -198,7 +200,7 @@ export function setupBackendRESTApi(environment: string, config: {
   }, {dependsOn: [restApi, deployment]});
 
   // @ts-ignore
-  return {restApi, stage, lambdaRole};
+  return {restApi, stage, restApiLambdaRole: lambdaRole};
 }
 
 export function getRestApiDomainName(stage: Stage) {
