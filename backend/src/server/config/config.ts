@@ -3,7 +3,7 @@ export interface IConfiguration {
   resourcesBaseUrl: string;
   uploadBucketName: string;
   uploadBucketRegion: string;
-
+  asyncLambdaFunctionArn: string;
 }
 export function readEnvironmentConfiguration(): IConfiguration {
   return  {
@@ -11,6 +11,7 @@ export function readEnvironmentConfiguration(): IConfiguration {
     resourcesBaseUrl: process.env.RESOURCES_BASE_URL ?? "",
     uploadBucketName: process.env.UPLOAD_BUCKET_NAME ?? "",
     uploadBucketRegion: process.env.UPLOAD_BUCKET_REGION ?? "",
+    asyncLambdaFunctionArn: process.env.ASYNC_LAMBDA_FUNCTION_ARN ?? ""
   };
 }
 
@@ -38,4 +39,8 @@ export function getUploadBucketName(){
 
 export function getUploadBucketRegion(){
   return _configuration?.uploadBucketRegion ?? "";
+}
+
+export function getAsyncLambdaFunctionArn(){
+  return _configuration?.asyncLambdaFunctionArn ?? "";
 }

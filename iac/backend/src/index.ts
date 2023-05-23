@@ -2,6 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import {getRestApiDomainName, getRestApiPath, setupBackendRESTApi} from "./restApi";
 import {setupUploadBucket, setupUploadBucketPolicy} from "./uploadBucket";
+import {setupAsyncImportApi} from "./asyncImport";
 
 export const environment = pulumi.getStack();
 export const domainName = `${environment}.tabiya.tech`
@@ -10,6 +11,8 @@ export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 
 export const currentRegion = pulumi.output(aws.getRegion()).name;
 
+
+
 /**
  * Setup Upload Bucket
  */
@@ -17,14 +20,27 @@ const allowedOrigins = [`https://${domainName}`, (environment === "dev") ? "http
 const uploadBucket = setupUploadBucket(allowedOrigins);
 export const uploadBucketName = uploadBucket.id;
 
+
 /**
- * Setup Backend Rest API
+ * Setup Async Import
  */
-const {restApi, stage, lambdaRole} = setupBackendRESTApi(environment, {
+
+const {asyncLambdaRole, asyncLambdaFunction} = setupAsyncImportApi(environment, {
   mongodb_uri: process.env.MONGODB_URI ?? "",
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
-  upload_bucket_region: currentRegion
+  upload_bucket_region: currentRegion,
+})
+
+/**
+ * Setup Backend Rest API
+ */
+const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
+  mongodb_uri: process.env.MONGODB_URI ?? "",
+  resourcesBaseUrl,
+  upload_bucket_name: uploadBucketName,
+  upload_bucket_region: currentRegion,
+  async_lambda_function: asyncLambdaFunction.arn
 });
 
 export const backendRestApi = {
@@ -40,4 +56,4 @@ export const backedRestApiURLBase = pulumi.interpolate`https://${backendRestApi.
  * Ensure lambda function of the backend rest api can access the upload bucket
  */
 
-setupUploadBucketPolicy(uploadBucket, lambdaRole);
+setupUploadBucketPolicy(uploadBucket, restApiLambdaRole, asyncLambdaRole);

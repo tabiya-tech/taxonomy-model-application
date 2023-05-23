@@ -6,7 +6,7 @@ import {
   getResourcesBaseUrl,
   setConfiguration,
   getConfiguration,
-  IConfiguration
+  IConfiguration, getAsyncLambdaFunctionArn
 } from "./config";
 import {getRandomString, getTestString} from "_test_utilities/specialCharacters";
 
@@ -34,13 +34,15 @@ describe("Test read Configuration()", () => {
     process.env.RESOURCES_BASE_URL = getRandomString(10);
     process.env.UPLOAD_BUCKET_NAME = getRandomString(10);
     process.env.UPLOAD_BUCKET_REGION = getRandomString(10);
+    process.env.ASYNC_LAMBDA_FUNCTION_ARN = getRandomString(10);
     // WHEN the configuration is read
     const config = readEnvironmentConfiguration();
     expect(config).toMatchObject({
       dbURI: process.env.MONGODB_URI,
       resourcesBaseUrl: process.env.RESOURCES_BASE_URL,
       uploadBucketName: process.env.UPLOAD_BUCKET_NAME,
-      uploadBucketRegion: process.env.UPLOAD_BUCKET_REGION
+      uploadBucketRegion: process.env.UPLOAD_BUCKET_REGION,
+      asyncLambdaFunctionArn: process.env.ASYNC_LAMBDA_FUNCTION_ARN
     });
   });
   test("readEnvironmentConfiguration() should return default value if environment is not set", () => {
@@ -49,13 +51,15 @@ describe("Test read Configuration()", () => {
     delete process.env.RESOURCES_BASE_URL
     delete process.env.UPLOAD_BUCKET_NAME
     delete process.env.UPLOAD_BUCKET_REGION
+    delete process.env.ASYNC_LAMBDA_FUNCTION_ARN
     // WHEN the configuration is read
     const config = readEnvironmentConfiguration();
     expect(config).toMatchObject({
       dbURI: "",
       resourcesBaseUrl: "",
       uploadBucketName: "",
-      uploadBucketRegion: ""
+      uploadBucketRegion: "",
+      asyncLambdaFunctionArn: ""
     });
   });
 });
@@ -65,7 +69,8 @@ describe("Test current configuration", () => {
       dbURI: getTestString(10),
       resourcesBaseUrl: getTestString(10),
       uploadBucketName: getTestString(10),
-      uploadBucketRegion: getTestString(10)
+      uploadBucketRegion: getTestString(10),
+      asyncLambdaFunctionArn: getTestString(10)
     };
   }
 
@@ -271,6 +276,55 @@ describe("Test current configuration", () => {
 
       // WHEN getUploadBucketRegion is called
       const actual = getUploadBucketRegion()
+
+      // THEN the value is returned
+      expect(actual).toEqual("");
+    });
+  });
+
+  describe("Test getAsyncLambdaFunctionArn()", () => {
+    test("getAsyncLambdaFunctionArn() should return the set value", () => {
+      // GIVEN a configuration is set
+      const config = getMockConfig();
+      setConfiguration(config);
+
+      // WHEN getAsyncLambdaFunctionArn is called
+      const asyncLambdaFunctionArn = getAsyncLambdaFunctionArn()
+
+      // THEN the value is returned
+      expect(asyncLambdaFunctionArn).toEqual(config.uploadBucketName);
+    });
+
+    test.each([
+      ["is undefined", undefined],
+      ["is null", null],
+    ])
+    ("getAsyncLambdaFunctionArn() should return '' if the set value %s", (description, value) => {
+      // GIVEN a configuration is set
+      const config = {
+        asyncLambdaFunctionArn: value,
+      }
+      // @ts-ignore
+      setConfiguration(config);
+
+      // WHEN getAsyncLambdaFunctionArn is called
+      const actual = getAsyncLambdaFunctionArn()
+
+      // THEN the value is returned
+      expect(actual).toEqual("");
+    });
+
+    test.each([
+      ["is undefined", undefined],
+      ["is null", null],
+    ])
+    ("getAsyncLambdaFunctionArn() should return '' if configuration %s", (description, value) => {
+      // GIVEN a configuration is set
+      // @ts-ignore
+      setConfiguration(value);
+
+      // WHEN getAsyncLambdaFunctionArn is called
+      const actual = getAsyncLambdaFunctionArn()
 
       // THEN the value is returned
       expect(actual).toEqual("");
