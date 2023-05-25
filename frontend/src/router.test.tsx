@@ -24,7 +24,7 @@ describe("Tests for router config", () => {
     expect(screen.getByTestId(IMPORT_DATA_TEST_ID.WELCOME_PAGE_ROOT)).toBeInTheDocument();
   });
 
-  it("should render the full application given root", async () => {
+  it("should render the info", async () => {
     renderWithRouter(routerPaths.INFO);
     // verify page content for default route
     expect(screen.getByTestId(INFO_DATA_TEST_ID.VERSION_FRONT_ROOT)).toBeInTheDocument();

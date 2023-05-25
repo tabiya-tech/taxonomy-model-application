@@ -12,3 +12,4 @@ workspace.xml
 /sonarlint/
 /sonarlint.xml
 /sonarlint-state.xml
+/dataSources.xml

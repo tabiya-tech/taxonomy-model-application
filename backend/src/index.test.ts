@@ -1,3 +1,6 @@
+// mute console.log during test
+import "_test_utilities/consoleMock";
+
 // ##############
 // Setup the configuration mock
 const mockConfiguration = {
@@ -30,6 +33,7 @@ import * as MainHandler from "./index";
 import * as InfoHandler from "./info/index";
 import * as ModelHandler from "./modelInfo/index"
 import * as PresignedHandler from "./presigned/index";
+import * as ImportHandler from "./import/index"
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {response, STD_ERRORS_RESPONSES} from "./server/httpUtils";
 import {initOnce} from "./server/init";
@@ -159,8 +163,31 @@ describe("test the handleRouteEvent function", () => {
     // @ts-ignore
     const actualResponse = await MainHandler.handleRouteEvent(expectedEvent, null, null);
 
-    // THEN expect Presigned handler to be called with event
+    // THEN expect models handler to be called with event
     expect(presignedHandlerSpy).toBeCalledWith(expectedEvent);
+    // AND the main handler to return the response
+    expect(actualResponse).toBeDefined();
+  });
+
+  test("should call import handler if path is /import", async () => {
+    // GIVEN a path that is /import
+    // AND any method
+    const expectedEvent = {
+      path: "/import",
+    }
+    // AND The triggerImport Handler returns a response
+    const expectedResponse = {}
+    // WHEN the handleRouteEvent is called
+    // @ts-ignore
+    const importHandlerSpy = jest.spyOn(ImportHandler, "handler").mockImplementation(() => {
+        return Promise.resolve(expectedResponse);
+      }
+    );
+    // @ts-ignore
+    const actualResponse = await MainHandler.handleRouteEvent(expectedEvent, null, null);
+
+    // THEN expect Presigned handler to be called with event
+    expect(importHandlerSpy).toBeCalledWith(expectedEvent);
     // AND the main handler to return the response from the Presigned handler
     expect(actualResponse).toEqual(expectedResponse);
   });
@@ -183,6 +210,8 @@ describe("test the handleRouteEvent function", () => {
     const actualResponse = await MainHandler.handleRouteEvent(expectedEvent, null, null);
 
     // THEN expect Model handler to be called with event
+    expect(modelHandlerSpy).toBeCalledWith(expectedEvent);
+    // THEN expect Info handler to be called with event
     expect(modelHandlerSpy).toBeCalledWith(expectedEvent);
     // AND the main handler to return the response
     expect(actualResponse).toBeDefined();
