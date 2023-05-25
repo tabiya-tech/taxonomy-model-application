@@ -19,6 +19,7 @@ export enum StatusCodes {
   UNSUPPORTED_MEDIA_TYPE = 415,
   OK = 200,
   CREATED = 201,
+  ACCEPTED = 202,
 }
 
 

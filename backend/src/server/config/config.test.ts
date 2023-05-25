@@ -6,9 +6,10 @@ import {
   getResourcesBaseUrl,
   setConfiguration,
   getConfiguration,
-  IConfiguration, getAsyncLambdaFunctionArn
+  IConfiguration, getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion
 } from "./config";
 import {getRandomString, getTestString} from "_test_utilities/specialCharacters";
+import {ImportFileTypes} from "api-specifications/import";
 
 describe("Test read Configuration()", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -64,15 +65,6 @@ describe("Test read Configuration()", () => {
   });
 });
 describe("Test current configuration", () => {
-  function getMockConfig(): IConfiguration {
-    return {
-      dbURI: getTestString(10),
-      resourcesBaseUrl: getTestString(10),
-      uploadBucketName: getTestString(10),
-      uploadBucketRegion: getTestString(10),
-      asyncLambdaFunctionArn: getTestString(10)
-    };
-  }
 
   test("should set/get the configuration", () => {
     // GIVEN a configuration
@@ -135,199 +127,75 @@ describe("Test current configuration", () => {
     });
   });
 
-  describe("Test getResourcesBaseUrl()", () => {
-    test("getResourcesBaseUrl() should return the set value", () => {
-      // GIVEN a configuration is set
-      const config = getMockConfig();
-      setConfiguration(config);
+  stdConfigurationValuesTest("getResourcesBaseUrl", getResourcesBaseUrl, "resourcesBaseUrl");
 
-      // WHEN getDbURI is called
-      const dbURI = getResourcesBaseUrl()
+  stdConfigurationValuesTest("getUploadBucketName", getUploadBucketName, "uploadBucketName");
 
-      // THEN the value is returned
-      expect(dbURI).toEqual(config.resourcesBaseUrl);
-    });
+  stdConfigurationValuesTest("getUploadBucketRegion", getUploadBucketRegion, "uploadBucketRegion");
 
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getResourcesBaseUrl() should return '' if the set value %s", (description, value) => {
-      // GIVEN a configuration is set
-      const config = {
-        resourcesBaseUrl: value,
-      }
-      // @ts-ignore
-      setConfiguration(config);
+  stdConfigurationValuesTest("getAsyncLambdaFunctionArn", getAsyncLambdaFunctionArn, "asyncLambdaFunctionArn");
 
-      // WHEN getDbURI is called
-      const actual = getResourcesBaseUrl()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getResourcesBaseUrl() should return '' if configuration %s", (description, value) => {
-      // GIVEN a configuration is set
-      // @ts-ignore
-      setConfiguration(value);
-
-      // WHEN getDbURI is called
-      const actual = getResourcesBaseUrl()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-  });
-
-  describe("Test getUploadBucketName()", () => {
-    test("getUploadBucketName() should return the set value", () => {
-      // GIVEN a configuration is set
-      const config = getMockConfig();
-      setConfiguration(config);
-
-      // WHEN getUploadBucketName is called
-      const uploadBucketName = getUploadBucketName()
-
-      // THEN the value is returned
-      expect(uploadBucketName).toEqual(config.uploadBucketName);
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getUploadBucketName() should return '' if the set value %s", (description, value) => {
-      // GIVEN a configuration is set
-      const config = {
-        uploadBucketName: value,
-      }
-      // @ts-ignore
-      setConfiguration(config);
-
-      // WHEN getUploadBucketName is called
-      const actual = getUploadBucketName()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getUploadBucketName() should return '' if configuration %s", (description, value) => {
-      // GIVEN a configuration is set
-      // @ts-ignore
-      setConfiguration(value);
-
-      // WHEN getUploadBucketName is called
-      const actual = getUploadBucketName()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-  });
-
-  describe("Test getUploadBucketRegion()", () => {
-    test("getUploadBucketRegion() should return the set value", () => {
-      // GIVEN a configuration is set
-      const config = getMockConfig();
-      setConfiguration(config);
-
-      // WHEN getUploadBucketRegion is called
-      const uploadBucketRegion = getUploadBucketRegion()
-
-      // THEN the value is returned
-      expect(uploadBucketRegion).toEqual(config.uploadBucketRegion);
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getUploadBucketRegion() should return '' if the set value %s", (description, value) => {
-      // GIVEN a configuration is set
-      const config = {
-        uploadBucketRegion: value,
-      }
-      // @ts-ignore
-      setConfiguration(config);
-
-      // WHEN getUploadBucketRegion is called
-      const actual = getUploadBucketRegion()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getUploadBucketRegion() should return '' if configuration %s", (description, value) => {
-      // GIVEN a configuration is set
-      // @ts-ignore
-      setConfiguration(value);
-
-      // WHEN getUploadBucketRegion is called
-      const actual = getUploadBucketRegion()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-  });
-
-  describe("Test getAsyncLambdaFunctionArn()", () => {
-    test("getAsyncLambdaFunctionArn() should return the set value", () => {
-      // GIVEN a configuration is set
-      const config = getMockConfig();
-      setConfiguration(config);
-
-      // WHEN getAsyncLambdaFunctionArn is called
-      const asyncLambdaFunctionArn = getAsyncLambdaFunctionArn()
-
-      // THEN the value is returned
-      expect(asyncLambdaFunctionArn).toEqual(config.uploadBucketName);
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getAsyncLambdaFunctionArn() should return '' if the set value %s", (description, value) => {
-      // GIVEN a configuration is set
-      const config = {
-        asyncLambdaFunctionArn: value,
-      }
-      // @ts-ignore
-      setConfiguration(config);
-
-      // WHEN getAsyncLambdaFunctionArn is called
-      const actual = getAsyncLambdaFunctionArn()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getAsyncLambdaFunctionArn() should return '' if configuration %s", (description, value) => {
-      // GIVEN a configuration is set
-      // @ts-ignore
-      setConfiguration(value);
-
-      // WHEN getAsyncLambdaFunctionArn is called
-      const actual = getAsyncLambdaFunctionArn()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-  });
+  stdConfigurationValuesTest("getAsyncLambdaFunctionRegion", getAsyncLambdaFunctionRegion, "asyncLambdaFunctionRegion");
 });
+
+function stdConfigurationValuesTest(getFunctionName: string, getFunction: ()=> string, configKey: keyof IConfiguration) {
+  return describe(`Test ${getFunctionName}()`, () => {
+    test(`${getFunctionName}() should return the set value`, () => {
+      // GIVEN a configuration is set
+      const config = getMockConfig();
+      setConfiguration(config);
+
+      // WHEN getFunction is called
+      const actualValue = getFunction()
+
+      // THEN the value is returned
+      expect(actualValue).toEqual(config[configKey])
+    });
+
+    test.each([
+      ["is undefined", undefined],
+      ["is null", null],
+    ])
+    (`${getFunctionName}() should return '' if the set value %s`, (description, value) => {
+      // GIVEN a configuration is set
+      const config = {
+        [configKey]: value,
+      }
+      // @ts-ignore
+      setConfiguration(config);
+
+      // WHEN getFunction is called
+      const actual = getFunction()
+
+      // THEN the value is returned
+      expect(actual).toEqual("");
+    });
+
+    test.each([
+      ["is undefined", undefined],
+      ["is null", null],
+    ])
+    (`${getFunctionName}() should return '' if configuration %s`, (description, value) => {
+      // GIVEN a configuration is set
+      // @ts-ignore
+      setConfiguration(value);
+
+      // WHEN getFunction is called
+      const actual = getFunction()
+
+      // THEN the value is returned
+      expect(actual).toEqual("");
+    });
+  });
+}
+
+function getMockConfig(): IConfiguration {
+  return {
+    dbURI: getTestString(10),
+    resourcesBaseUrl: getTestString(10),
+    uploadBucketName: getTestString(10),
+    uploadBucketRegion: getTestString(10),
+    asyncLambdaFunctionArn: getTestString(10),
+    asyncLambdaFunctionRegion: getTestString(10),
+  };
+}

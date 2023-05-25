@@ -16,7 +16,12 @@ export const currentRegion = pulumi.output(aws.getRegion()).name;
 /**
  * Setup Upload Bucket
  */
-const allowedOrigins = [`https://${domainName}`, (environment === "dev") ? "http://localhost:3000" : undefined].filter(Boolean) as string[];
+const allowedOrigins = [`https://${domainName}`];
+if(environment === "dev") {
+  allowedOrigins.push("http://localhost:3000"); // Local web server for frontend
+  allowedOrigins.push("http://localhost:6006"); // Storybook
+}
+
 const uploadBucket = setupUploadBucket(allowedOrigins);
 export const uploadBucketName = uploadBucket.id;
 
@@ -40,7 +45,8 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
   upload_bucket_region: currentRegion,
-  async_lambda_function: asyncLambdaFunction.arn
+  async_lambda_function_arn: asyncLambdaFunction.arn,
+  async_lambda_function_region: currentRegion
 });
 
 export const backendRestApi = {

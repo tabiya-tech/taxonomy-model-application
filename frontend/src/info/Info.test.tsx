@@ -2,13 +2,13 @@
 // Setup info.service mock
 // ##############################
 import InfoService from "./info.service";
-jest.mock("./info.service");
 // ##############################
 
 import {InfoProps} from "./info.types";
 import Info from "./Info";
 import {act, render, screen} from "@testing-library/react";
 import {DATA_TEST_ID} from "./Info"
+jest.mock("./info.service");
 
 describe("Testing Info component", () => {
 

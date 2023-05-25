@@ -1,11 +1,13 @@
-import react, {Dispatch, useState} from 'react';
-import {FormGroup, FormLabel} from '@mui/material';
-import './ImportModel.style.css';
+import {Button, FormGroup} from '@mui/material';
 
 import ImportDirectorService from "./importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
 import {ServiceError} from "src/error/error";
 import {writeServiceErrorToLog} from "src/error/logger";
+import ImportFilesSelection from "./components/ImportFilesSelection";
+import ModelNameField from "./components/ModelNameField";
+import ModelDescriptionField from "./components/ModelDescriptionField";
+import {ImportFileTypes} from "api-specifications/import";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -18,7 +20,7 @@ export const DATA_TEST_ID = {
   DESC_INPUT: `desc-input-${uniqueId}`,
   FILE_SELECTOR_PARENT: `file-selector-parent-${uniqueId}`,
   FILE_SELECTOR_INPUT: `file-selector-input-${uniqueId}`,
-  FILE_SELECTOR_FLAG_LABEL: `file-selector-flag-label-${uniqueId}`,
+  FILE_SELECTOR_PLACEHOLDER_LABEL: `file-selector-placeholder-label-${uniqueId}`,
   FILE_SELECTOR_FILE_POOL: `file-selector-file-pool-${uniqueId}`
 }
 
@@ -32,22 +34,61 @@ export const HTML_ELEMENT_IDS = {
   MODEL_DESCRIPTION: `model-description-${elementUniqueUUID}`,
 }
 
-const ImportModel = () => {
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [files, setFiles] = useState<File[]>([]);
-  const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
-  // if no uniqueId is passed in props, generate a unique id
+/**
+ * "ESCO Occupations",
+ *       "ESCO Skill Hierarchy","ESCO Skill Groups",
+ *       "ESCO Skill","ISCO Groups",
+ *       "Local Occupations","Localized Occupations",
+ *       "Model Info","Occupations  Hierarchy"
+ * */
 
-  const handleImportButtonClick = async () => {
-    const demoLocale: ILocale = {
+interface ImportData {
+  name: string,
+  description: string,
+  locale: ILocale,
+  selectedFiles: { [key in ImportFileTypes]?: File }
+}
+
+const ImportModel = () => {
+
+  const data: ImportData = {
+    name: "",
+    description: "",
+    locale: {
       name: "South Africa",
       shortCode: "ZA",
       UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a"
-    };
+    },
+    selectedFiles: {}
+  }
+
+  const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
+  // if no uniqueId is passed in props, generate a unique id
+
+  const handleNameChange = (newName: string) => {
+    data.name = newName;
+  }
+  const handleDescriptionChange = (newDescription: string) => {
+    data.description = newDescription;
+  }
+  const handleSelectedFileChange = (fileType: ImportFileTypes, file: File | null) => {
+    if (file === null) {
+      delete data.selectedFiles[fileType];
+    } else {
+      data.selectedFiles[fileType] = file;
+    }
+  }
+
+  const handleImportButtonClick = async () => {
     try {
+      const files = Object.entries(data.selectedFiles).map(([fileType, file]) => {
+        return {
+          fileType: fileType as ImportFileTypes,
+          file: file
+        }
+      });
       const modelID = await importDirectorService.directImport(
-        name, description, demoLocale, files
+        data.name, data.description, data.locale, files
       );
 
       console.log("Created model: " + modelID);
@@ -60,87 +101,21 @@ const ImportModel = () => {
     }
   };
 
-  return <div className="Import-container">
-    <div className='Import-modal' data-testid={DATA_TEST_ID.DIALOG_ROOT}>
-      <div className='header'>
+  return <div>
+    <div data-testid={DATA_TEST_ID.DIALOG_ROOT}>
+      <div>
         <p className="title">Import Model</p>
       </div>
-      <div className='form'>
-        <ModelFilesLoader files={files} setFiles={setFiles}/>
-        <ModelNameField value={name} setValue={setName}/>
-        <ModelDescriptionField value={description}
-                               setValue={setDescription}/>
-        <FormGroup className='action-group'>
-          <button onClick={handleImportButtonClick} data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</button>
+      <div>
+        <ModelNameField notifyModelNameChanged={handleNameChange}/>
+        <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange}/>
+        <ImportFilesSelection notifySelectedFileChange={handleSelectedFileChange}/>
+        <FormGroup>
+          <Button onClick={handleImportButtonClick} data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</Button>
           {/*<button>Cancel</button>*/}
         </FormGroup>
       </div>
     </div>
   </div>;
 };
-
-const ModelNameField = ({value, setValue}: TextInputFieldProps) => {
-  //handles text and select input change only
-  function handleTextInputChange(e: react.ChangeEvent<HTMLInputElement>) {
-    return setValue(e.target.value);
-  }
-
-  return <FormGroup className='text-input-group'>
-    <FormLabel htmlFor={HTML_ELEMENT_IDS.MODEL_NAME}>Model Name</FormLabel>
-    <input name="Name" title='ModelName' data-testid={DATA_TEST_ID.NAME_INPUT}
-           type='text' placeholder="enter model name" value={value}
-           id={HTML_ELEMENT_IDS.MODEL_NAME}
-           onChange={handleTextInputChange}
-    />
-  </FormGroup>;
-};
-
-const ModelDescriptionField = ({value, setValue}: TextInputFieldProps) => {
-  //handles textarea change only
-  function handleTextInputChange(e: react.ChangeEvent<HTMLTextAreaElement>) {
-    return setValue(e.target.value);
-  }
-
-  return <FormGroup className='text-input-group' style={{height: "auto"}}>
-    <FormLabel htmlFor={HTML_ELEMENT_IDS.MODEL_DESCRIPTION}>Model Description</FormLabel>
-    <textarea placeholder="Enter Model Description" className='desc' name="Description"
-              value={value} onChange={handleTextInputChange}
-              id={HTML_ELEMENT_IDS.MODEL_DESCRIPTION}
-              data-testid={DATA_TEST_ID.DESC_INPUT}
-    />
-  </FormGroup>;
-};
-
-export const ModelFilesLoader = ({files, setFiles}: {
-  files: File[],
-  setFiles: Dispatch<React.SetStateAction<File[]>>
-}) => {
-  function fileLoader(e: React.ChangeEvent<HTMLInputElement>) {
-    const files: FileList = e.target.files as FileList;
-    if (files) {
-      setFiles(Array.from(files))
-    }
-  }
-
-  return <FormGroup className='choose-file' data-testid={DATA_TEST_ID.FILE_SELECTOR_PARENT}>
-    <FormLabel htmlFor={HTML_ELEMENT_IDS.FILE_SELECTOR_INPUT}>Choose File</FormLabel>
-    <input name='upload-file-input' id={HTML_ELEMENT_IDS.FILE_SELECTOR_INPUT}
-           data-testid={DATA_TEST_ID.FILE_SELECTOR_INPUT}
-           title='upload-file' type='file'
-           multiple accept='.csv' onChange={(e) => fileLoader(e)}/>
-    <div className='files-pool' data-testid={DATA_TEST_ID.FILE_SELECTOR_FILE_POOL}>
-      {files.length === 0
-        && <FormLabel htmlFor={HTML_ELEMENT_IDS.FILE_SELECTOR_INPUT}
-                      data-testid={DATA_TEST_ID.FILE_SELECTOR_FLAG_LABEL}>
-          choose csv files to import </FormLabel>}
-      {files.map(file => <p className='file' key={file.name}>{file.name}</p>)}
-    </div>
-  </FormGroup>
-}
-
 export default ImportModel;
-
-interface TextInputFieldProps {
-  value: string,
-  setValue: react.Dispatch<react.SetStateAction<string>>
-}

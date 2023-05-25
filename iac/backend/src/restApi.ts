@@ -13,7 +13,8 @@ export function setupBackendRESTApi(environment: string, config: {
   resourcesBaseUrl: string,
   upload_bucket_name: Output<string>,
   upload_bucket_region: Output<string>,
-  async_lambda_function: Output<string>,
+  async_lambda_function_arn: Output<string>,
+  async_lambda_function_region: Output<string>,
 }): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
   /**
    * Lambda for api
@@ -35,22 +36,44 @@ export function setupBackendRESTApi(environment: string, config: {
       }),
     });
 
-  // Attach the necessary policies to the IAM role
+  // Attach the necessary policies to the IAM role created above
+
+  // CloudWatch Logs policy
   const cloudwatchPolicy = aws.iam.getPolicy({
     arn: "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
   });
 
-  const lambdaPolicy = new aws.iam.Policy("model-api-function-policy", {
+  const lambdaLogsPolicy = new aws.iam.Policy("model-api-function-logs-policy", {
     policy: cloudwatchPolicy.then((cp) => cp.policy),
   });
 
-  new aws.iam.RolePolicyAttachment("model-api-function-role-policy-attachment", {
-    policyArn: lambdaPolicy.arn,
+  new aws.iam.RolePolicyAttachment("model-api-function-role-logs-policy-attachment", {
+    policyArn: lambdaLogsPolicy.arn,
     role: lambdaRole.name,
   });
 
+  // Invoke async lambda function policy
+  const asyncLambdaInvokePolicy = new aws.iam.Policy("model-api-function-async-lambda-invoke-policy", {
+    policy: {
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Action: "lambda:InvokeFunction",
+          Effect: "Allow",
+          Resource: config.async_lambda_function_arn,
+        }
+      ]
+    }
+  });
 
+  new aws.iam.RolePolicyAttachment("model-api-function-role-lambda-invoke-policy-attachment", {
+    policyArn: asyncLambdaInvokePolicy.arn,
+    role: lambdaRole.name,
+  });
+    
+  // Build the source code archive
   let fileArchive = new asset.FileArchive(buildFolderPath);
+
   // Create a new AWS Lambda function
   const lambdaFunction = new aws.lambda.Function("model-api-function", {
     role: lambdaRole.arn,
@@ -64,7 +87,8 @@ export function setupBackendRESTApi(environment: string, config: {
         MONGODB_URI: config.mongodb_uri,
         UPLOAD_BUCKET_NAME: config.upload_bucket_name,
         UPLOAD_BUCKET_REGION: config.upload_bucket_region,
-        ASYNC_LAMBDA_FUNCTION_ARN: config.async_lambda_function
+        ASYNC_LAMBDA_FUNCTION_ARN: config.async_lambda_function_arn,
+        ASYNC_LAMBDA_FUNCTION_REGION: config.async_lambda_function_region,
       }
     }
   });

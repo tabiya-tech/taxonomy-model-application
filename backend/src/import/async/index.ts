@@ -1,12 +1,17 @@
+import {ImportRequest} from "api-specifications/import";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const handler = async (event: any = {}): Promise<any> => {
-    console.log(event);
+export const handler = async (event: ImportRequest): Promise<any> => {
+  console.log(event);
 
-    const result = await new Promise((resolve) => {
-        setTimeout(()=>{
-            resolve('hello world');
-        }, 1000);
-    });
+  const result = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        msg: 'TO BE IMPLEMENTED',
+        importRequest: event
+      });
+    }, 1000);
+  });
 
-    console.log(result);
+  console.log(result);
 };
