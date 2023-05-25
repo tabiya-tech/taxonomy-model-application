@@ -2,7 +2,7 @@ import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import {asset, Output} from "@pulumi/pulumi";
 
-const buildFolderPath = "../../backend/build/import";
+const buildFolderPath = "../../backend/build/import/async";
 
 const LOG_RETENTION_IN_DAYS = 7;
 
