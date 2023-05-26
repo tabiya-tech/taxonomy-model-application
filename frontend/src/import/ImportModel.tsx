@@ -1,5 +1,4 @@
-import {Button, FormGroup} from '@mui/material';
-
+import {Button, Container, FormGroup, Stack, Typography} from '@mui/material';
 import ImportDirectorService from "./importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
 import {ServiceError} from "src/error/error";
@@ -8,6 +7,7 @@ import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
 import ModelDescriptionField from "./components/ModelDescriptionField";
 import {ImportFileTypes} from "api-specifications/import";
+import {useStyles} from "../global.style";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -100,22 +100,19 @@ const ImportModel = () => {
       }
     }
   };
-
-  return <div>
-    <div data-testid={DATA_TEST_ID.DIALOG_ROOT}>
-      <div>
-        <p className="title">Import Model</p>
-      </div>
-      <div>
-        <ModelNameField notifyModelNameChanged={handleNameChange}/>
-        <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange}/>
-        <ImportFilesSelection notifySelectedFileChange={handleSelectedFileChange}/>
-        <FormGroup>
-          <Button onClick={handleImportButtonClick} data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</Button>
-          {/*<button>Cancel</button>*/}
-        </FormGroup>
-      </div>
-    </div>
-  </div>;
+  const classes = useStyles();
+  return <Container maxWidth="lg" data-testid={DATA_TEST_ID.DIALOG_ROOT}>
+    <Stack className={classes.customStack} spacing={5}>
+      <Typography className="title">Import Model</Typography>
+      <ModelNameField notifyModelNameChanged={handleNameChange}/>
+      <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange}/>
+      <ImportFilesSelection notifySelectedFileChange={handleSelectedFileChange}/>
+      <FormGroup sx={{direction: "row", justifyContent: 'flex-end', alignItems: 'flex-start', width: '100%'}}>
+        <Button variant="outlined" sx={{marginLeft: 'auto'}} onClick={handleImportButtonClick}
+                data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</Button>
+        {/*<button>Cancel</button>*/}
+      </FormGroup>
+    </Stack>
+  </Container>
 };
 export default ImportModel;

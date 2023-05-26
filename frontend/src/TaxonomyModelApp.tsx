@@ -1,9 +1,10 @@
 import React from 'react';
-import './TaxonomyModelApp.css';
 import {createHashRouter, RouterProvider} from 'react-router-dom';
+
 import routerConfig from './routerConfig';
 
 const router = createHashRouter(routerConfig);
+
 
 function TaxonomyModelApp() {
   return (
