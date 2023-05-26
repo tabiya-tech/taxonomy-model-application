@@ -81,14 +81,22 @@ export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) 
   return <div>
     {
       selectedFile ?
-        <Fab {...commonFabProps} color='secondary' aria-label={`Remove ${fileTypeName} csv file`}
+        <Fab {...commonFabProps} {...selectedFileFabProps} color='secondary'
+             aria-label={`Remove ${fileTypeName} csv file`}
              onClick={fileRemovedHandler}>
-          <RemoveIcon/> {fileTypeName}: {selectedFile.name}
+          <RemoveIcon/>
+          <span style={{
+            display: 'inline-block',
+            maxWidth: 'calc(100% - 20px)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>{fileTypeName}: {selectedFile.name}</span>
         </Fab>
         : <div>
-          <input id={uniqueId} type='file' style={{display: 'none'}} datatype='.csv' onChange={fileChangedHandler}/>
+          <input id={uniqueId} type='file' style={{display: 'none'}} datatype='.csv'
+                 onChange={fileChangedHandler}/>
           <Fab {...commonFabProps} color='primary' aria-label={`Add ${fileTypeName} csv file`}
-                onClick={() => document.getElementById(uniqueId)!.click()}>
+               onClick={() => document.getElementById(uniqueId)!.click()}>
             <AddIcon/>{fileTypeName}
           </Fab>
         </div>
@@ -104,3 +112,13 @@ const commonFabProps = {
   sx: {textTransform: 'none'},
   // Add any other shared styles here
 };
+const selectedFileFabProps = {
+  sx: {
+    textTransform: 'none',
+    justifyContent: 'flex-start',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    width: '250px'
+  }
+}

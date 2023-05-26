@@ -1,6 +1,7 @@
 import react from "react";
-import {FormControl, FormLabel, TextareaAutosize} from "@mui/material";
+import {FormControl, FormLabel, Stack, TextareaAutosize} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
+import {useStyles} from "src/global.style";
 
 export const TEXT = {
   MODEL_DESC_LABEL: "Model Description",
@@ -26,15 +27,20 @@ export const ModelDescriptionField = ({notifyModelDescriptionChanged}: ModelDesc
     }
   }
 
+  const classes = useStyles();
   return <FormControl sx={{width: '100%'}}>
-    <FormLabel data-testid={DATA_TEST_ID.MODEL_DESC_LABEL} htmlFor={uniqueId}>{TEXT.MODEL_DESC_LABEL}</FormLabel>
-    <TextareaAutosize
-      data-testid={DATA_TEST_ID.MODEL_DESC_INPUT}
-      placeholder={TEXT.MODEL_DESC_PLACEHOLDER}
-      id={uniqueId}
-      minRows={6}
-      onChange={handleTextInputChange}
-    />
+    <Stack className={classes.fieldStack} spacing={0.5}>
+      <FormLabel data-testid={DATA_TEST_ID.MODEL_DESC_LABEL}
+                 htmlFor={uniqueId}>{TEXT.MODEL_DESC_LABEL}</FormLabel>
+      <TextareaAutosize
+        data-testid={DATA_TEST_ID.MODEL_DESC_INPUT}
+        placeholder={TEXT.MODEL_DESC_PLACEHOLDER}
+        id={uniqueId}
+        minRows={6}
+        style={{maxWidth: '100%', minWidth: '100%', maxHeight: '120px', minHeight: '100px'}}
+        onChange={handleTextInputChange}
+      />
+    </Stack>
   </FormControl>
 };
 export default ModelDescriptionField;
