@@ -1,4 +1,4 @@
-import {Button, Container, FormGroup, Stack, Typography} from '@mui/material';
+import {Button, Container, FormGroup, Stack} from '@mui/material';
 import ImportDirectorService from "./importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
 import {ServiceError} from "src/error/error";
@@ -7,7 +7,7 @@ import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
 import ModelDescriptionField from "./components/ModelDescriptionField";
 import {ImportFileTypes} from "api-specifications/import";
-import {useStyles} from "../global.style";
+import {useStyles} from "src/theme/global.style";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -103,7 +103,6 @@ const ImportModel = () => {
   const classes = useStyles();
   return <Container maxWidth="lg" data-testid={DATA_TEST_ID.DIALOG_ROOT}>
     <Stack className={classes.customStack} spacing={5}>
-      <Typography className="title">Import Model</Typography>
       <ModelNameField notifyModelNameChanged={handleNameChange}/>
       <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange}/>
       <ImportFilesSelection notifySelectedFileChange={handleSelectedFileChange}/>

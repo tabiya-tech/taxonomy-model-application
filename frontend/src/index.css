@@ -1,12 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 body {
-  margin: 0;
-  font-family: 'Roboto Slab', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-input,textarea{
-  font-family: 'Roboto Slab', serif;
-  font-size: 14px!important;
 }

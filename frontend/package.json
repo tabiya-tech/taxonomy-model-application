@@ -6,6 +6,7 @@
     "@storybook/addon-essentials": "^7.0.12",
     "@storybook/addon-interactions": "^7.0.12",
     "@storybook/addon-links": "^7.0.12",
+    "@storybook/addon-styling": "^1.0.8",
     "@storybook/blocks": "^7.0.12",
     "@storybook/preset-create-react-app": "^7.0.12",
     "@storybook/react": "^7.0.12",
@@ -53,6 +54,7 @@
   "scripts": {
     "lint": "eslint src --ext .ts --ext .tsx",
     "clean": "rimraf -I build coverage",
+    "compile": "tsc --noEmit",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --coverage --watchAll=false",
