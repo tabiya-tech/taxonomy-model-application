@@ -1,6 +1,7 @@
 import {createTheme} from '@mui/material/styles';
 
 const applicationTheme = createTheme({
+
   typography: {
     htmlFontSize: 16, // Set the base font size
     fontFamily: 'Roboto, sans-serif', // Set the desired font family
@@ -25,7 +26,17 @@ const applicationTheme = createTheme({
         }
       }
     },
-  },
+    MuiButton: {
+      defaultProps: {
+        variant: 'outlined',
+      },
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+        }
+      }
+    }
+  }
 });
 
 export default applicationTheme;

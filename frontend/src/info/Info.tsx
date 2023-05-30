@@ -6,7 +6,8 @@ import {Box, CircularProgress, FormLabel, List, ListItem, ListItemText} from "@m
 
 const uniqueId = "37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
 export const DATA_TEST_ID = {
-  VERSION_FRONT_ROOT: `version-frontend-${uniqueId}`,
+  INFO_ROOT: `version-${uniqueId}`,
+  VERSION_FRONTEND_ROOT: `version-frontend-${uniqueId}`,
   VERSION_BACKEND_ROOT: `version-backend-${uniqueId}`,
 }
 
@@ -18,8 +19,8 @@ const Info = () => {
     infoService.loadInfo().then((data) => setVersions(data));
   }, [infoService]);
   return (
-    <div>
-      <div id="frontend" data-testid={DATA_TEST_ID.VERSION_FRONT_ROOT}>
+    <div data-testid={DATA_TEST_ID.INFO_ROOT}>
+      <div id="frontend" data-testid={DATA_TEST_ID.VERSION_FRONTEND_ROOT}>
         {RenderVersion("Frontend", version[0])}
       </div>
       <div id="backend" data-testid={DATA_TEST_ID.VERSION_BACKEND_ROOT}>

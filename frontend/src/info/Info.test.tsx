@@ -44,8 +44,8 @@ describe("Testing Info component", () => {
     });
 
     // THEN the frontend and backend info should be displayed
-    expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONT_ROOT)).toBeDefined();
-    expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONT_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_FRONT_ROOT);
+    expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONTEND_ROOT)).toBeDefined();
+    expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONTEND_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_FRONTEND_ROOT);
 
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toBeDefined();
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_BACKEND_ROOT);
