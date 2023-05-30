@@ -3,7 +3,7 @@ import {DATA_TEST_ID, FileEntry} from "./FileEntry";
 import {ImportFileTypes} from "api-specifications/import";
 import {mapFileTypeToName} from "./mapFileTypeToName";
 
-describe("FileEntry tests only", () => {
+describe("FileEntry render tests", () => {
 
   it.each(
     [...Object.values(ImportFileTypes).map((fileType) => [fileType as ImportFileTypes, mapFileTypeToName(fileType)] as [ImportFileTypes, string])]
@@ -12,9 +12,17 @@ describe("FileEntry tests only", () => {
     // WHEN fileEntry is rendered with some fileType
     render(<FileEntry fileType={fileType}/>)
 
-    // THEN expect file input's to have no files
-    const fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
+    // THEN  expect the component to be rendered
+    const fileEntry = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY);
+    expect(fileEntry).toBeInTheDocument();
+    // AND to have the correct file type
+    expect(fileEntry).toHaveAttribute("data-filetype", fileType);
+
+    // AND expect file input's to have no files
+    const fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     expect(fileInput.files).toHaveLength(0);
+    // AND expect file input to have the file type
+    expect(fileInput).toHaveAttribute("data-filetype", fileType);
 
     // AND expect file trigger fab to be in the document
     const selectFileButton = screen.getByTestId(DATA_TEST_ID.SELECT_FILE_BUTTON)
@@ -28,7 +36,26 @@ describe("FileEntry tests only", () => {
     expect(selectFileButton.textContent).toBe(expectedFileTypeName);
   })
 
-  it("should render file selected state", async () => {
+  it("multiple components should have a unique id", () => {
+    // GIVEN some filetype
+    const givenFileType = ImportFileTypes.ESCO_OCCUPATION;
+
+    // WHEN fileEntry is rendered multiples
+    render(<FileEntry fileType={givenFileType}/>)
+    render(<FileEntry fileType={givenFileType}/>)
+
+    // THEN expect to find two inputEntries
+    let inputEntries = screen.getAllByTestId(DATA_TEST_ID.FILE_INPUT)
+    expect(inputEntries.length).toBe(2);
+
+    // AND their ids are different
+    expect(inputEntries[0].id).not.toBe(inputEntries[1].id);
+  })
+})
+
+describe("FileEntry action tests", () => {
+
+  it("should selected file", async () => {
     // GIVEN some fileType
     const givenFileType = ImportFileTypes.ESCO_OCCUPATION;
     // AND some file
@@ -37,7 +64,7 @@ describe("FileEntry tests only", () => {
     // WHEN fileEntry is rendered
     render(<FileEntry fileType={givenFileType}/>)
     // AND fileInput value is changed
-    const fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
+    const fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     fireEvent.change(fileInput, {target: {files: [givenAFile]}})
 
     // THEN expect file input to have 1 files
@@ -60,7 +87,7 @@ describe("FileEntry tests only", () => {
     // AND fileEntry is rendered
     render(<FileEntry fileType={givenFileType}/>)
     // AND fileInput value has changed
-    let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
+    let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     fireEvent.change(fileInput, {target: {files: [givenAFile]}});
     expect(fileInput.files).toHaveLength(1);
 
@@ -71,27 +98,11 @@ describe("FileEntry tests only", () => {
 
     // THEN expect file input to have an empty files
     // get the new fileInput element from the dom
-    fileInput = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
+    fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     expect(fileInput.files).toHaveLength(0);
     // AND expect file trigger fab to be in the document
     const selectFileButton = screen.getByTestId(DATA_TEST_ID.SELECT_FILE_BUTTON)
     expect(selectFileButton).toBeInTheDocument();
-  })
-
-  it("multiple components should have a unique id", () => {
-    // GIVEN some filetype
-    const givenFileType = ImportFileTypes.ESCO_OCCUPATION;
-
-    // WHEN fileEntry is rendered multiples
-    render(<FileEntry fileType={givenFileType}/>)
-    render(<FileEntry fileType={givenFileType}/>)
-
-    // THEN expect to find two inputEntries
-    let inputEntries = screen.getAllByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT)
-    expect(inputEntries.length).toBe(2);
-
-    // AND their ids are different
-    expect(inputEntries[0].id).not.toBe(inputEntries[1].id);
   })
 
   it("should correctly notify the notifySelectedFileChange handler when file is selected", async () => {
@@ -105,7 +116,7 @@ describe("FileEntry tests only", () => {
     // WHEN fileEntry is rendered
     render(<FileEntry fileType={givenFileType} notifySelectedFileChange={givenMockNotification}/>);
     // AND a file is chosen
-    const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
+    const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     fireEvent.change(fileInput, {target: {files: [givenFile]}});
 
     // THEN expect notification to have been called with the given filetype and file
@@ -122,7 +133,7 @@ describe("FileEntry tests only", () => {
     // AND fileEntry is rendered
     render(<FileEntry fileType={givenFileType} notifySelectedFileChange={givenMockNotification}/>)
     // AND the given file has been selected
-    let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
+    let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     fireEvent.change(fileInput, {target: {files: [givenAFile]}});
     expect(fileInput.files).toHaveLength(1);
 
@@ -144,7 +155,7 @@ describe("FileEntry tests only", () => {
     // When  fileEntry is rendered without a notification handler
     render(<FileEntry fileType={givenFileType}/>)
     // AND fileInput value has changed
-    let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
+    let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     fireEvent.change(fileInput, {target: {files: [givenAFile]}});
 
     // THEN expect file input to have 1 files
@@ -154,4 +165,4 @@ describe("FileEntry tests only", () => {
     const fileRemoverButton = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON)
     expect(fileRemoverButton).toBeInTheDocument();
   });
-})
+});

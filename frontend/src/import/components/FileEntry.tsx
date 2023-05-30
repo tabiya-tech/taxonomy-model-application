@@ -15,23 +15,23 @@ export interface FileEntryProps {
 const baseTestID = "d2bc4d5d-7760-450d-bac6-a8857affeb89"
 
 export const DATA_TEST_ID = {
-  FILE_ENTRY_INPUT: `file-entry-input-${baseTestID}`,
-  SELECT_FILE_BUTTON: `fab-load-file-trigger-${baseTestID}`,
-  REMOVE_SELECTED_FILE_BUTTON: `fab-load-file-remover-${baseTestID}`
+  FILE_ENTRY: `file-entry-${baseTestID}`,
+  FILE_INPUT: `file-input-${baseTestID}`,
+  SELECT_FILE_BUTTON: `select-file-button-${baseTestID}`,
+  REMOVE_SELECTED_FILE_BUTTON: `remove-selected-file-button-${baseTestID}`
 }
 
 /**
  * Represent a file entry of specific type and a selected file
- * @param fileType
- * @param fileChangeHandler
+ * The data-filetype attribute is used to identify the file type
  * @constructor
  */
 
-export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) => {
+export const FileEntry = (props: FileEntryProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const uniqueId: string = generateUniqueId(); // unique id for the input element to ensure the onClick will find the correct element across all entries in the dom
-  const fileTypeName = mapFileTypeToName(fileType);
+  const fileTypeName = mapFileTypeToName(props.fileType);
   const fileChangedHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const newFile: File = e.target?.files![0];
     if (newFile) {
@@ -46,12 +46,12 @@ export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) 
   const updateSelectedFile = (file: File | null) => {
     setSelectedFile(file); // update internal state
     // notify the parent component if it has provided handler
-    if (notifySelectedFileChange) {
-      notifySelectedFileChange(fileType, file);
+    if (props.notifySelectedFileChange) {
+      props.notifySelectedFileChange(props.fileType, file);
     }
   }
 
-  return <div>
+  return <div data-filetype={props.fileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
     {
       selectedFile ?
         <Fab {...commonFabProps} {...selectedFileFabProps} color='secondary'
@@ -68,8 +68,8 @@ export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) 
         </Fab>
         : <div>
           <input id={uniqueId} type='file' style={{display: 'none'}} datatype='.csv'
-                 data-testid={DATA_TEST_ID.FILE_ENTRY_INPUT}
-                 onChange={fileChangedHandler}/>
+                 data-testid={DATA_TEST_ID.FILE_INPUT}
+                 onChange={fileChangedHandler} data-filetype={props.fileType}/>
           <Fab {...commonFabProps} color='primary'
                aria-label={`Add ${fileTypeName} csv file`}
                data-testid={DATA_TEST_ID.SELECT_FILE_BUTTON}
@@ -78,7 +78,7 @@ export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) 
           </Fab>
         </div>
     }
-  </div>
+  </div>;
 }
 export default FileEntry;
 

@@ -10,6 +10,7 @@ export const TEXT = {
 const baseTestID = "110643ab-593e-47dc-b398-ecc98518660e"
 
 export const DATA_TEST_ID = {
+  MODEL_DESCRIPTION_FIELD: `model-desc-field-${baseTestID}`,
   MODEL_DESC_INPUT: `model-desc-input-${baseTestID}`,
   MODEL_DESC_LABEL: `model-desc-label-${baseTestID}`
 }
@@ -18,18 +19,17 @@ export interface ModelDescriptionFieldProps {
   notifyModelDescriptionChanged?: (newDescription: string) => void
 }
 
-export const ModelDescriptionField = ({notifyModelDescriptionChanged}: ModelDescriptionFieldProps) => {
+export const ModelDescriptionField = (props: ModelDescriptionFieldProps) => {
   const uniqueId = generateUniqueId();
 
-
   function handleTextInputChange(e: react.ChangeEvent<HTMLTextAreaElement>) {
-    if (notifyModelDescriptionChanged) {
-      notifyModelDescriptionChanged(e.target.value);
+    if (props.notifyModelDescriptionChanged) {
+      props.notifyModelDescriptionChanged(e.target.value);
     }
   }
 
   const classes = useStyles();
-  return <FormControl sx={{width: '100%'}}>
+  return <FormControl sx={{width: '100%'}} data-testid={DATA_TEST_ID.MODEL_DESCRIPTION_FIELD}>
     <Stack className={classes.fieldStack} spacing={0.5}>
       <FormLabel data-testid={DATA_TEST_ID.MODEL_DESC_LABEL} htmlFor={uniqueId}>
         {TEXT.MODEL_DESC_LABEL}
