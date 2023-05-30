@@ -107,9 +107,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
         released: false,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
-
       }
-      expect(newModel).toMatchObject(expectedNewModelInfo);
+      expect(newModel).toEqual(expectedNewModelInfo);
     });
 
     test("should reject with an error when creating a model and providing a UUID", async () => {
