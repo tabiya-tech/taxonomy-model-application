@@ -1,6 +1,8 @@
 import {IModelRepository, ModelRepository} from "modelInfo/ModelRepository";
 import mongoose, {Connection} from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
+import * as ISCOGroupModel from "iscoGroup/ISCOGroupModel";
+import {IISCOGroupRepository, ISCOGroupRepository} from "../../iscoGroup/ISCOGroupRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -10,6 +12,13 @@ export class RepositoryRegistry {
   }
   public set modelInfo(repository: IModelRepository) {
     this._repositories.set("ModelRepository", repository);
+  }
+
+  public get ISCOGroup(): IISCOGroupRepository {
+    return this._repositories.get("ISCOGroupRepository");
+  }
+  public set ISCOGroup(repository: IISCOGroupRepository) {
+    this._repositories.set("ISCOGroupRepository", repository);
   }
 
   initialize(connection: Connection | undefined) {
@@ -37,6 +46,7 @@ export class RepositoryRegistry {
 
     // Set up the ModelRepository
     this.modelInfo = new ModelRepository(modelInfoModel.initializeSchemaAndModel(connection));
+    this.ISCOGroup = new ISCOGroupRepository(ISCOGroupModel.initializeSchemaAndModel(connection));
   }
 }
 
