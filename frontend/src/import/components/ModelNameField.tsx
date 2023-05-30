@@ -1,7 +1,7 @@
 import react from "react";
 import {FormControl, FormLabel, Input, Stack} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
-import {useStyles} from "src/global.style";
+import {useStyles} from "src/theme/global.style";
 
 export const TEXT = {
   MODEL_NAME_LABEL: "Model Name",
@@ -30,7 +30,7 @@ export const ModelNameField = ({notifyModelNameChanged}: ModelNameFieldProps) =>
   const classes = useStyles();
   return <FormControl sx={{width: '100%'}}>
     <Stack className={classes.fieldStack} spacing={0.5}>
-      <FormLabel data-testid={DATA_TEST_ID.MODEL_NAME_LABEL}
+      <FormLabel required data-testid={DATA_TEST_ID.MODEL_NAME_LABEL}
                  htmlFor={uniqueId}>{TEXT.MODEL_NAME_LABEL}</FormLabel>
       <Input
         placeholder={TEXT.MODEL_NAME_PLACEHOLDER}
