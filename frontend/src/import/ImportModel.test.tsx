@@ -1,7 +1,7 @@
 // ##############################
 // Setup import.service mock
 // ##############################
-import {fireEvent, render, screen} from "@testing-library/react";
+import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
 import ImportModel, {DATA_TEST_ID, HTML_ELEMENT_IDS} from "./ImportModel";
 import {getTestString} from "src/_test_utilities/specialCharacters";
 import {ILocale} from "api-specifications/modelInfo"

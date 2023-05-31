@@ -6,7 +6,7 @@ jest.mock("./FileEntry", () => {
   };
 });
 
-import {render, screen} from "@testing-library/react";
+import {render, screen} from "src/_test_utilities/test-utils";
 import {ImportFileTypes} from "api-specifications/import";
 import ImportFilesSelection from "./ImportFilesSelection";
 
