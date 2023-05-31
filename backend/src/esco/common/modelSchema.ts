@@ -11,6 +11,8 @@ function hasUniqueValues<T>(value: T[]) {
 
 // Description
 export const DESCRIPTION_MAX_LENGTH = 4000;
+
+export const SCOPE_NOTE_MAX_LENGTH = 4000;
 export const DescriptionProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("description"),
@@ -73,4 +75,18 @@ export const ISCOCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: true,
   validate: RegExISCOCode
+};
+
+export const ScopeNoteProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("scopeNote"),
+  maxlength: [SCOPE_NOTE_MAX_LENGTH, `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`],
+  validate: {
+    validator: function (value: string): boolean {
+      if (value === '') {
+        return true;
+      }
+      return isSpecified(value);
+    }
+  }
 };

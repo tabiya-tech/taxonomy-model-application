@@ -1,4 +1,5 @@
 import {
+    RegEx_Skill_Group_Code,
     RegExp_Hex,
     RegExp_Hex_AnyLength,
     RegExp_Hex_MinLength,
@@ -235,6 +236,42 @@ describe("Test RegExp_UUIDv4_Or_Empty", () => {
     ])(`It performs fast (<=${PERF_DURATION}ms) and does not hang/cause catastrophic backtracking for '%s'`, async (description, value) => {
         expect(() => {
             RegExp_UUIDv4_Or_Empty.test(value);
+        }).toCompleteWithinQuantile(PERF_DURATION, {iterations: 10, quantile: 90});
+    });
+
+});
+
+describe("Test RegEx_Skill_Group_Code", () => {
+    test.each([
+        ["L"],
+        ["l"],
+        ["L9"],
+        ["l9"],
+        ["L9.9"],
+        ["L9.8.8.8"],
+    ])("It should successfully test true to skill group code string '%s'", (s) => {
+        expect(RegEx_Skill_Group_Code.test(s)).toBe(true);
+    });
+
+    test.each([
+        [""],
+        ["LL"],
+        ["L."],
+        ["L.9"],
+        ["L.9.9"],
+        ["L9.9."],
+        ["L9.9.L"],
+    ])("It should successfully test false to string '%s'", (s) => {
+        expect(RegEx_Skill_Group_Code.test(s)).toBe(false);
+    });
+
+    test.each([
+        ["long valid code", "L9" + (".9".repeat(65535))],
+        ["long  invalid code", "ghi".repeat(65535)],
+        ["long  empty code", " ".repeat(65535)],
+    ])(`It performs fast (<=${PERF_DURATION}ms) and does not hang/cause catastrophic backtracking for '%s'`, async (description, value) => {
+        expect(() => {
+            RegEx_Skill_Group_Code.test(value);
         }).toCompleteWithinQuantile(PERF_DURATION, {iterations: 10, quantile: 90});
     });
 });

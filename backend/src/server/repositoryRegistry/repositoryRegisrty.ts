@@ -2,7 +2,9 @@ import {IModelRepository, ModelRepository} from "modelInfo/ModelRepository";
 import mongoose, {Connection} from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
 import * as ISCOGroupModel from "iscoGroup/ISCOGroupModel";
+import * as skillGroupModel from "skillGroup/skillGroupModel";
 import {IISCOGroupRepository, ISCOGroupRepository} from "../../iscoGroup/ISCOGroupRepository";
+import {ISkillGroupRepository, SkillGroupRepository} from "../../skillGroup/SkillGroupRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -19,6 +21,14 @@ export class RepositoryRegistry {
   }
   public set ISCOGroup(repository: IISCOGroupRepository) {
     this._repositories.set("ISCOGroupRepository", repository);
+  }
+
+
+  public get skillGroup(): ISkillGroupRepository {
+    return this._repositories.get("ISkillGroupRepository");
+  }
+  public set skillGroup(repository: ISkillGroupRepository) {
+    this._repositories.set("ISkillGroupRepository", repository);
   }
 
   initialize(connection: Connection | undefined) {
@@ -47,6 +57,7 @@ export class RepositoryRegistry {
     // Set up the ModelRepository
     this.modelInfo = new ModelRepository(modelInfoModel.initializeSchemaAndModel(connection));
     this.ISCOGroup = new ISCOGroupRepository(ISCOGroupModel.initializeSchemaAndModel(connection));
+    this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
   }
 }
 
