@@ -1,4 +1,4 @@
-import {fireEvent, render, screen} from "@testing-library/react";
+import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
 import ModelDescriptionField, {DATA_TEST_ID, TEXT} from "./ModelDescriptionField";
 import {getTestString} from "src/_test_utilities/specialCharacters";
 import {isSpecified} from "src/utils/isUnspecified";

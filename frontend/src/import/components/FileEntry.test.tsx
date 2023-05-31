@@ -1,5 +1,4 @@
-import {screen} from "@storybook/testing-library";
-import {render} from "@testing-library/react";
+import {render, screen} from "src/_test_utilities/test-utils";
 import {FileEntry} from "./FileEntry";
 import {ImportFileTypes} from "api-specifications/import";
 
