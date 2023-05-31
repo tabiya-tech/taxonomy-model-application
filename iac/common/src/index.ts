@@ -5,7 +5,9 @@ import {setupDNS} from "./dns";
 import {setupCert} from "./cert";
 
 export const environment = pulumi.getStack();
-export const domainName = `${environment}.tabiya.tech`
+
+const  subdomain = environment
+export const domainName = `${subdomain}.tabiya.tech`
 
 /**
  *  ROUTE 53
@@ -20,8 +22,9 @@ const certificate = setupCert(domainName, hostedZone);
 
 const validationOptions = pulumi.output(certificate.domainValidationOptions[0]);
 export const dns = {
+  subdomain: subdomain,
   domainName: domainName,
-  nameServers: hostedZone.nameServers, // TODO: PLAT-77 IaC/Update the name servers at the parent domain name registrar
+  nameServers: hostedZone.nameServers,
   certificateValidationRecord: {
     name: validationOptions.resourceRecordName,
     type: validationOptions.resourceRecordType,
