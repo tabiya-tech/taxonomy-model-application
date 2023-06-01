@@ -1,6 +1,6 @@
 import {ImportFileTypes} from "api-specifications/import";
 
-export const mapFileTypeToName = (fileType: ImportFileTypes) => {
+export const mapFileTypeToName = (fileType: ImportFileTypes): string => {
   switch (fileType) {
     case ImportFileTypes.ESCO_OCCUPATION:
       return "ESCO Occupations";

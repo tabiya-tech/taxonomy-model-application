@@ -12,6 +12,14 @@ export interface FileEntryProps {
   notifySelectedFileChange?: (fileType: ImportFileTypes, newFile: File | null) => void
 }
 
+const baseTestID = "d2bc4d5d-7760-450d-bac6-a8857affeb89"
+
+export const DATA_TEST_ID = {
+  FILE_ENTRY_INPUT: `file-entry-input-${baseTestID}`,
+  SELECT_FILE_BUTTON: `fab-load-file-trigger-${baseTestID}`,
+  REMOVE_SELECTED_FILE_BUTTON: `fab-load-file-remover-${baseTestID}`
+}
+
 /**
  * Represent a file entry of specific type and a selected file
  * @param fileType
@@ -19,43 +27,6 @@ export interface FileEntryProps {
  * @constructor
  */
 
-/* WORKS
-export const FileEntry = ({fileType, selectedFile, notifySelectedFileChange}: FileEntryProps) => {
-  const generateUniqueId = () => {
-    return Math.random().toString(36).substr(2, 9);
-  };
-
-  const uniqueId: string = generateUniqueId();//"04db94c6-7f5d-494c-8b6d-c4c765c10aff"
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target?.files![0]) {
-      notifySelectedFileChange(fileType, e.target?.files![0]);
-    }
-  }
-
-  const deleteHandler = () => {
-    notifySelectedFileChange(fileType, null);
-  }
-
-  return <div className="entry">
-    {
-      selectedFile ?
-        <Fab color="secondary" size="small" component="span" aria-label={`Remove ${mapFileTypeToName(fileType)} csv file`} variant="extended" sx={{textTransform:'none'}} onClick={deleteHandler}>
-          <RemoveIcon/> {mapFileTypeToName(fileType)}: {selectedFile.name}
-        </Fab>
-        :<div>
-          <input id={uniqueId} type='file' style={{display: 'none'}} datatype='.csv' onChange={handleChange}/>
-          <Fab color="primary" size="small" component="span" aria-label={`Add ${mapFileTypeToName(fileType)} csv file`} variant="extended"
-               onClick={()=>document.getElementById(uniqueId)!.click()}
-          >
-            <AddIcon/>{mapFileTypeToName(fileType)}
-          </Fab>
-        </div>
-    }
-  </div>
-}
-
- */
 export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -74,8 +45,10 @@ export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) 
 
   const updateSelectedFile = (file: File | null) => {
     setSelectedFile(file); // update internal state
-    if (notifySelectedFileChange) // notify the parent component if it has provided handler
+    // notify the parent component if it has provided handler
+    if (notifySelectedFileChange) {
       notifySelectedFileChange(fileType, file);
+    }
   }
 
   return <div>
@@ -83,6 +56,7 @@ export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) 
       selectedFile ?
         <Fab {...commonFabProps} {...selectedFileFabProps} color='secondary'
              aria-label={`Remove ${fileTypeName} csv file`}
+             data-testid={DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON}
              onClick={fileRemovedHandler}>
           <RemoveIcon/>
           <span style={{
@@ -94,8 +68,11 @@ export const FileEntry = ({fileType, notifySelectedFileChange}: FileEntryProps) 
         </Fab>
         : <div>
           <input id={uniqueId} type='file' style={{display: 'none'}} datatype='.csv'
+                 data-testid={DATA_TEST_ID.FILE_ENTRY_INPUT}
                  onChange={fileChangedHandler}/>
-          <Fab {...commonFabProps} color='primary' aria-label={`Add ${fileTypeName} csv file`}
+          <Fab {...commonFabProps} color='primary'
+               aria-label={`Add ${fileTypeName} csv file`}
+               data-testid={DATA_TEST_ID.SELECT_FILE_BUTTON}
                onClick={() => document.getElementById(uniqueId)!.click()}>
             <AddIcon/>{fileTypeName}
           </Fab>
