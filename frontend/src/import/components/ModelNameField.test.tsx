@@ -61,5 +61,20 @@ describe("Model Name Field Tests only", () => {
     expect(notifyModelNameChangedHandlerMock).toHaveBeenCalledWith(givenModelName)
   })
 
-  test.todo("should handle text changes even if notifyModelNameChanged handler is notset");
+  test("should handle text changes even if notifyModelNameChanged handler is notset",()=>{
+    // GIVEN that the model name field is rendered without a notifyModelNameChanged handler
+    render(<ModelNameField/>);
+
+    // WHEN the inputField changes value
+    const givenModelName = getTestString(10)
+    const inputField:HTMLInputElement = screen.getByTestId(DATA_TEST_ID.MODEL_NAME_INPUT)
+    fireEvent.change(inputField, {
+      target: {
+        value: givenModelName
+      }
+    })
+
+    // THEN expect inputField value tobe the given value
+    expect(inputField.value).toBe(givenModelName)
+  });
 })
