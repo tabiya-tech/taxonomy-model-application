@@ -59,7 +59,7 @@ jobs:
         with:
           work-dir: iac/backend
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-backend/dev
+          stack-name: tabiya-tech/taxonomy-model-application-backend/${{ inputs.target-environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
