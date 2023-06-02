@@ -17,8 +17,8 @@ export class ConnectionManager {
   }
 }
 
-const _connectionManageInstance = new ConnectionManager();
+const _connectionManagerInstance = new ConnectionManager();
 
 export function getConnectionManager(): ConnectionManager {
-  return _connectionManageInstance;
+  return _connectionManagerInstance;
 }

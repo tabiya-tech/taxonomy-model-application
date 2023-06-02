@@ -3,6 +3,7 @@ import "_test_utilities/consoleMock"
 
 import mongoose, {Connection} from 'mongoose';
 import {getNewConnection} from "./newConnection";
+import {redactCredentialsFromURI} from "../httpUtils";
 
 describe('Test new connection', () => {
 
@@ -45,7 +46,7 @@ describe('Test new connection', () => {
 
   test('should reject if the connection fails', async () => {
     // GIVEN the connection to the database fails
-    const givenDbUri = "mongodb://username@password:server:port/database"
+    const givenDbUri = "mongodb://username:password@server:port/database"
     // @ts-ignore
     jest.spyOn(mongoose, "createConnection").mockImplementationOnce(() => {
       return {
@@ -53,10 +54,11 @@ describe('Test new connection', () => {
       };
     });
     // WHEN trying to connect to the database
-    const connectionPromise = getNewConnection("mongodb://invalid")
+    const connectionPromise = getNewConnection(givenDbUri)
 
     // THEN the connection should fail
-    // AND not contain the original error message
-    await expect(connectionPromise).rejects.toThrowError(/^Failed to connect to the database.$/);
+    // AND contains the redacted username password uri
+    await expect(connectionPromise).rejects.toThrowError(`Failed to connect to the database ${redactCredentialsFromURI(givenDbUri)}`);
+    await expect(connectionPromise).rejects.not.toThrowError(givenDbUri);
   });
 });

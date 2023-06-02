@@ -62,3 +62,11 @@ export const STD_ERRORS_RESPONSES = {
   NOT_FOUND: errorResponse(StatusCodes.NOT_FOUND, ErrorCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND, ""),
   INTERNAL_SERVER_ERROR: errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ErrorCodes.INTERNAL_SERVER_ERROR, ReasonPhrases.INTERNAL_SERVER_ERROR, ""),
 };
+
+export function redactCredentialsFromURI(uri: string) {
+  // Regular expression pattern to match username and password
+  const pattern = /\/\/(.+)@/;
+
+  // Replace the matched username and password with asterisks
+  return uri.replace(pattern, '//*:*@');
+}

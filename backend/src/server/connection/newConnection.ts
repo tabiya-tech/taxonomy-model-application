@@ -1,5 +1,6 @@
 import mongoose  from 'mongoose';
 import {isUnspecified} from "server/isUnspecified";
+import {redactCredentialsFromURI} from "../httpUtils";
 
 export async function getNewConnection(uri: string): Promise<mongoose.Connection> {
 
@@ -19,6 +20,7 @@ export async function getNewConnection(uri: string): Promise<mongoose.Connection
     return connection;
   } catch (error: unknown) {
     // do not log the error here, because it contains the password
-    throw new Error("Failed to connect to the database.");
+    const redactedUri = redactCredentialsFromURI(uri);
+    throw new Error(`Failed to connect to the database ${redactedUri}`);
   }
 }
