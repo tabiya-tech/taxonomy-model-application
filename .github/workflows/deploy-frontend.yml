@@ -13,11 +13,6 @@ on:
       frontendBucketWebsiteURLBase:
         description: "The frontend bucket url"
         value: ${{ jobs.deploy.outputs.frontendBucketWebsiteURLBase }}
-    secrets:
-      AWS_ACCESS_KEY:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
 
 jobs:
   deploy:
@@ -56,6 +51,6 @@ jobs:
         with:
           work-dir: iac/frontend
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-frontend/dev
+          stack-name: tabiya-tech/taxonomy-model-application-frontend/${{ inputs.target-environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
