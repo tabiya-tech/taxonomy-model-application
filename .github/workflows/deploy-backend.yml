@@ -16,11 +16,7 @@ on:
       resourcesBaseUrl:
         description: "The resources base url"
         value: ${{ jobs.deploy.outputs.resourcesBaseUrl }}
-    secrets:
-      AWS_ACCESS_KEY:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -59,7 +55,7 @@ jobs:
         with:
           work-dir: iac/backend
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-backend/dev
+          stack-name: tabiya-tech/taxonomy-model-application-backend/${{ inputs.target-environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
