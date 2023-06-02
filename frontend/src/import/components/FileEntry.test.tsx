@@ -1,4 +1,4 @@
-import {act, fireEvent, render, screen} from "src/_test_utilities/test-utils";
+import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
 import {DATA_TEST_ID, FileEntry} from "./FileEntry";
 import {ImportFileTypes} from "api-specifications/import";
 import {mapFileTypeToName} from "./mapFileTypeToName";
@@ -38,7 +38,7 @@ describe("FileEntry tests only", () => {
     render(<FileEntry fileType={givenFileType}/>)
     // AND fileInput value is changed
     const fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
-    await act(() => fireEvent.change(fileInput, {target: {files: [givenAFile]}}));
+    fireEvent.change(fileInput, {target: {files: [givenAFile]}})
 
     // THEN expect file input to have 1 files
     expect(fileInput.files).toHaveLength(1);
@@ -61,13 +61,13 @@ describe("FileEntry tests only", () => {
     render(<FileEntry fileType={givenFileType}/>)
     // AND fileInput value has changed
     let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
-    await act(() => fireEvent.change(fileInput, {target: {files: [givenAFile]}}));
+    fireEvent.change(fileInput, {target: {files: [givenAFile]}});
     expect(fileInput.files).toHaveLength(1);
 
     // WHEN fileRemoverFab is clicked
     const fileRemoverFab = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON)
     // wait for the component's state to update
-    await act(() => fireEvent.click(fileRemoverFab));
+    fireEvent.click(fileRemoverFab)
 
     // THEN expect file input to have an empty files
     // get the new fileInput element from the dom
@@ -106,7 +106,7 @@ describe("FileEntry tests only", () => {
     render(<FileEntry fileType={givenFileType} notifySelectedFileChange={givenMockNotification}/>);
     // AND a file is chosen
     const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
-    await act(() => fireEvent.change(fileInput, {target: {files: [givenFile]}}));
+    fireEvent.change(fileInput, {target: {files: [givenFile]}});
 
     // THEN expect notification to have been called with the given filetype and file
     expect(givenMockNotification).toHaveBeenCalledWith(givenFileType, givenFile);
@@ -123,13 +123,13 @@ describe("FileEntry tests only", () => {
     render(<FileEntry fileType={givenFileType} notifySelectedFileChange={givenMockNotification}/>)
     // AND the given file has been selected
     let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
-    await act(() => fireEvent.change(fileInput, {target: {files: [givenAFile]}}));
+    fireEvent.change(fileInput, {target: {files: [givenAFile]}});
     expect(fileInput.files).toHaveLength(1);
 
     // WHEN the remove selected file button is clicked
     const fileRemoverFab = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON)
     // wait for the component's state to update
-    await act(() => fireEvent.click(fileRemoverFab));
+    fireEvent.click(fileRemoverFab);
 
     // THEN expect notificationHandler to have been called with givenFileType and null
     expect(givenMockNotification).toBeCalledWith(givenFileType, null)
@@ -145,7 +145,7 @@ describe("FileEntry tests only", () => {
     render(<FileEntry fileType={givenFileType}/>)
     // AND fileInput value has changed
     let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY_INPUT);
-    await act(() => fireEvent.change(fileInput, {target: {files: [givenAFile]}}));
+    fireEvent.change(fileInput, {target: {files: [givenAFile]}});
 
     // THEN expect file input to have 1 files
     expect(fileInput.files).toHaveLength(1);
