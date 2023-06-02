@@ -1,13 +1,14 @@
 import Ajv from 'ajv';
 import addFormats from "ajv-formats";
-
+import 'jest-performance-matchers';
 import {
-  errorResponse,
+  errorResponse, redactCredentialsFromURI,
   response,
   STD_ERRORS_RESPONSES
 } from "./httpUtils";
 
 import {ErrorResponseSchema, IErrorResponse} from "api-specifications/error";
+
 describe("test response function", () => {
 
   test("should return correct response for an object", () => {
@@ -107,7 +108,6 @@ describe("test the errorResponse function", () => {
 
 });
 
-
 describe("test the STD_ERRORS_RESPONSES", () => {
   test("STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED", () => {
     expect(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED).toMatchSnapshot();
@@ -119,5 +119,71 @@ describe("test the STD_ERRORS_RESPONSES", () => {
 
   test("STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR", () => {
     expect(STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR).toMatchSnapshot();
+  });
+});
+
+describe("test the redactCredentialsFromURI function", () => {
+
+  describe("test typical uri", () => {
+    test.each(
+      [
+        ["http://foo.bar"],
+        ["http://foo/bar"],
+        ["http://foo/bar?baz=qux"],
+        ["https://example.com:8080"],
+        ["mongodb://example.com:8080/"],
+      ]
+    )
+    ("should return the same URI %s if no credentials are present", (uri: string) => {
+      const result = redactCredentialsFromURI(uri);
+      expect(result).toEqual(uri);
+    });
+
+    test.each(
+      [
+        ["http://user:password@foo.bar", "http://*:*@foo.bar"],
+        ["http://user:password@foo/bar", "http://*:*@foo/bar"],
+        ["http://user:password@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"],
+        ["https://user:password@example.com:8080", "https://*:*@example.com:8080"],
+        ["mongodb://user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"],
+      ]
+    )("should return the redacted URI %s if credentials are present", (uriWithCredentials, uriWithoutCredential) => {
+      const result = redactCredentialsFromURI(uriWithCredentials);
+      expect(result).toEqual(uriWithoutCredential);
+    });
+  });
+  describe("test credentials are malformed", () => {
+    test.each(
+      [
+        ["//user:password@foo.bar", "//*:*@foo.bar"],
+        ["://user:password@foo/bar", "://*:*@foo/bar"],
+        ["http://user:@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"],
+        ["https://user@example.com:8080", "https://*:*@example.com:8080"],
+        ["mongodb://:password@example.com:8080/", "mongodb://*:*@example.com:8080/"],
+        ["mongodb://user:password@user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"],
+      ]
+    )("should return the redacted URI %s if credentials are malformed", (uriWithCredentials, uriWithoutCredential) => {
+      const result = redactCredentialsFromURI(uriWithCredentials);
+      expect(result).toEqual(uriWithoutCredential);
+    });
+  });
+
+  describe("test function performance", () => {
+    const PERF_DURATION = 10;
+    test.each([
+      ["plain http", "http://foo/bar?baz=qux"],
+      ["http with credentials", "http://username:password@foo/bar?baz=qux"],
+      ["only username", "http://username:@foo/bar?baz=qux"],
+      ["only password", "http://:@foo/bar?baz=qux"],
+      ["(extreme long) plain http", "http://foo/bar?baz=" + "qux".repeat(65535)],
+      ["(extreme long) with credentials ", "http://" + "username".repeat(32000) + ":" + "password".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)],
+      ["(extreme long) only username ", "http://" + "username".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)],
+      ["(extreme long) only password ", "http://:" + "username".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)],
+      ["(extreme long) with multiple user name passwords", "http://:" + "username:password".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)],
+    ])(`It performs fast (<=${PERF_DURATION}ms) and does not hang/cause catastrophic backtracking for '%s'`, (description, uri) => {
+      expect(() => {
+        redactCredentialsFromURI(uri);
+      }).toCompleteWithinQuantile(PERF_DURATION, {iterations: 10, quantile: 90});
+    });
   });
 });

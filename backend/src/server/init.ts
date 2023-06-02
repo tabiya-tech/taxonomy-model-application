@@ -8,7 +8,6 @@ let _initialized = false;
  * Initialize the database connection and the repositories.
  * This function can be called multiple times, but will only initialize the database connection once.
  *
- * @param config
  */
 export async function initOnce(): Promise<void> {
   if (_initialized) {
@@ -27,7 +26,7 @@ export async function initOnce(): Promise<void> {
     const connection = getConnectionManager().getCurrentDBConnection();
     getRepositoryRegistry().initialize(connection);
   } catch (e: unknown) {
-    console.error("Error initializing the server");
+    console.error("Error initializing the server", e);
   }
 }
 
