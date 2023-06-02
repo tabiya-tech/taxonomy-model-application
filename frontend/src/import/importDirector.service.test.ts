@@ -2,7 +2,7 @@
 // Setup mocks
 
 // Setup the mock for the model.service
-import {getMockId} from "../_test_utilities/mockMongoId";
+import {getMockId} from "src/_test_utilities/mockMongoId";
 
 jest.mock("./model/model.service", () => {
   // Mocking the ES5 class
@@ -37,7 +37,7 @@ jest.mock("./import/import.service", () => {
 
 // ###########
 
-import {getTestString} from "../_test_utilities/specialCharacters";
+import {getTestString} from "src/_test_utilities/specialCharacters";
 import {NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH} from "api-specifications/modelInfo";
 import {randomUUID} from "crypto";
 import ImportDirectorService from "./importDirector.service";
@@ -107,12 +107,12 @@ describe('Test the import director service', () => {
     expect(uploadService.uploadFiles).toHaveBeenCalledWith(givenMockPresignedResponse, givenFiles.map(file => file.file));
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
-    const mockGivenFilesUrls: { [key: string]: string } = {
-      [ImportFileTypes.ESCO_SKILL]: `${givenMockPresignedResponse?.url + givenMockPresignedResponse?.key}/foo.csv`,
-      [ImportFileTypes.OCCUPATION_HIERARCHY]: `${givenMockPresignedResponse?.url + givenMockPresignedResponse?.key}/bar.json`,
+    const givenFilesPaths: { [key: string]: string } = {
+      [ImportFileTypes.ESCO_SKILL]: `${givenMockPresignedResponse.key}/foo.csv`,
+      [ImportFileTypes.OCCUPATION_HIERARCHY]: `${givenMockPresignedResponse.key}/bar.json`,
     }
-    // THEN the import service is called with the given arguments (modelId, file urls)
-    expect(importService.import).toHaveBeenCalledWith(givenMockModelId, mockGivenFilesUrls);
+    // THEN the import service is called with the given arguments (modelId, file paths)
+    expect(importService.import).toHaveBeenCalledWith(givenMockModelId, givenFilesPaths);
     // AND the processing of the files is started
 
     // AND when the processing is finished

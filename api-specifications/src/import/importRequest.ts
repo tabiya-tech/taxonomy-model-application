@@ -1,9 +1,9 @@
 import {SchemaObject} from "ajv";
-import {RegExp_Str_ID} from "../regex";
+import {RegExp_Str_ID, RegExp_Str_NotEmptyString} from "../regex";
 
 export interface ImportRequest {
   modelId: string
-  urls: { [key in ImportFileTypes]?: string }
+  filePaths: { [key in ImportFileTypes]?: string }
 }
 
 export enum ImportResponseErrorCodes {
@@ -27,6 +27,7 @@ export enum ImportFileTypes {
   OCCUPATION_SKILL_RELATION = "OCCUPATION_SKILL_RELATION" // <--- occupationSkillRelations.csv
 }
 
+export const FILEPATH_MAX_LENGTH = 255;
 export const ImportRequestSchema: SchemaObject = {
   $id: "/components/schemas/ImportRequestSchema",
   type: "object",
@@ -37,184 +38,24 @@ export const ImportRequestSchema: SchemaObject = {
       type: "string",
       pattern: RegExp_Str_ID,
     },
-    urls: {
+    filePaths: {
       type: "object",
-      // properties: {
-      //   ESCO_OCCUPATION: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   ESCO_SKILL_HIERARCHY: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   ESCO_SKILL_GROUP: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   ESCO_SKILL: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   ESCO_SKILL_SKILL_RELATIONS: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   ISCO_GROUP: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   LOCAL_OCCUPATION: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   LOCALIZED_OCCUPATION: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   MODEL_INFO: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   OCCUPATION_HIERARCHY: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   OCCUPATION_LOGS: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   OCCUPATION_LOG_CHANGES: {
-      //     type: "string",
-      //     format: "uri"
-      //   },
-      //   OCCUPATION_SKILL_RELATION: {
-      //     type: "string",
-      //     format: "uri"
-      //   }
-      // },
-      anyOf: [{
-        properties: {
-          ESCO_OCCUPATION: {
-            type: "string",
-            format: "uri"
-          }
-        },
-        required: ['ESCO_OCCUPATION']
-      },
-        {
+      anyOf: Object.values(ImportFileTypes).map(value => {
+        return {
           properties: {
-            ESCO_SKILL_HIERARCHY: {
+            [value]: {
               type: "string",
-              format: "uri"
-            },
+              maxLength: FILEPATH_MAX_LENGTH,
+              pattern: RegExp_Str_NotEmptyString
+            }
           },
-          required: ['ESCO_SKILL_HIERARCHY']
-        },
-        {
-          properties: {
-            ESCO_SKILL_GROUP: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['ESCO_SKILL_GROUP']
-        },
-        {
-          properties: {
-            ESCO_SKILL: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['ESCO_SKILL']
-        },
-        {
-          properties: {
-            ESCO_SKILL_SKILL_RELATIONS: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['ESCO_SKILL_SKILL_RELATIONS']
-        },
-        {
-          properties: {
-            ISCO_GROUP: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['ISCO_GROUP']
-        },
-        {
-          properties: {
-            LOCAL_OCCUPATION: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['LOCAL_OCCUPATION']
-        },
-        {
-          properties: {
-            LOCALIZED_OCCUPATION: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['LOCALIZED_OCCUPATION']
-        },
-        {
-          properties: {
-            MODEL_INFO: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['MODEL_INFO']
-        },
-        {
-          properties: {
-            OCCUPATION_HIERARCHY: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['OCCUPATION_HIERARCHY']
-        },
-        {
-          properties: {
-            OCCUPATION_LOGS: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['OCCUPATION_LOGS']
-        },
-        {
-          properties: {
-            OCCUPATION_LOG_CHANGES: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['OCCUPATION_LOG_CHANGES']
-        },
-        {
-          properties: {
-            OCCUPATION_SKILL_RELATION: {
-              type: "string",
-              format: "uri"
-            },
-          },
-          required: ['OCCUPATION_SKILL_RELATION']
-        }
-      ]
+          required: [value]
+        };
+      })
     },
   },
   required: [
     "modelId",
-    "urls"
+    "filePaths",
   ]
 };
