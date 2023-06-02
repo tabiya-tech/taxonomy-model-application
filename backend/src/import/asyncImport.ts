@@ -1,8 +1,7 @@
-import {errorResponse, response, StatusCodes} from "../server/httpUtils";
+import {errorResponse, response, StatusCodes} from "server/httpUtils";
 import {ImportRequest, ImportResponseErrorCodes} from "api-specifications/import";
-//import {Lambda} from "aws-sdk";
 import {LambdaClient, InvokeCommand, InvokeCommandInput} from "@aws-sdk/client-lambda";
-import {getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion} from "../server/config/config";
+import {getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion} from "server/config/config";
 
 export async function lambda_invokeAsyncImport(request: ImportRequest) {
   try {

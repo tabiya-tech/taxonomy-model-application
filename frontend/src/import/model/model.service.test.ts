@@ -147,6 +147,7 @@ describe("Test the service", () => {
 
     // WHEN the createModel function is called with the given arguments (name, description, ...)
     const service = new ModelService(givenApiServerUrl);
+    const createModelPromise = service.createModel(getNewModelSpecMockData());
 
     // THEN expected it to reject with the error response
     const expectedError = {
@@ -154,7 +155,7 @@ describe("Test the service", () => {
       message: expect.any(String),
       details: expect.anything()
     };
-    await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
+    await expect(createModelPromise).rejects.toMatchObject(expectedError);
   });
 
   test("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
@@ -167,6 +168,7 @@ describe("Test the service", () => {
 
     // WHEN the createModel function is called with the given arguments (name, description, ...)
     const service = new ModelService(givenApiServerUrl);
+    const createModelPromise = service.createModel(getNewModelSpecMockData());
 
     // THEN expected it to reject with the error response
     const expectedError = {
@@ -174,7 +176,7 @@ describe("Test the service", () => {
       message: expect.any(String),
       details: expect.any(String)
     };
-    await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
+    await expect(createModelPromise).rejects.toMatchObject(expectedError);
   });
 
   test("on NOT 201, it should reject with an error ERROR_CODE.API_ERROR that contains the body of the response", async () => {

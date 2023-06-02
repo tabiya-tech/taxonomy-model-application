@@ -16,10 +16,9 @@ describe("test for trigger import handler", () => {
     //GIVEN a payload
     const givenPayload: ImportRequest = {
       modelId: getMockId(2),
-      // @ts-ignore
-      urls: {
-        ISCO_GROUP: "https://foo/bar/file6",
-        ESCO_OCCUPATION: "https://foo/bar/file7",
+      filePaths: {
+        ISCO_GROUP: "path/to/file6",
+        ESCO_OCCUPATION: "path/to/file7",
       }
     }
     // AND event

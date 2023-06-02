@@ -1,8 +1,8 @@
 import Ajv, {ValidateFunction} from "ajv";
-import addFormats from "ajv-formats";
-import {ImportFileTypes, ImportRequest, ImportRequestSchema} from "./importRequest";
-import {getMockId} from "../_test_utilities/mockMongoId";
-import {getTestString} from "../_test_utilities/specialCharacters";
+import {FILEPATH_MAX_LENGTH, ImportFileTypes, ImportRequest, ImportRequestSchema} from "./importRequest";
+import {getMockId} from "_test_utilities/mockMongoId";
+import {WHITESPACE} from "_test_utilities/specialCharacters";
+import {RegExp_Str_NotEmptyString} from "regex";
 
 describe('Test the ImportRequest Schema', () => {
   test("The ImportRequestSchema module can be required via the index", () => {
@@ -13,7 +13,6 @@ describe('Test the ImportRequest Schema', () => {
 
   test("The ImportRequest schema is a valid Schema", () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-    addFormats(ajv);
     expect(() => {
       ajv.addSchema(ImportRequestSchema, ImportRequestSchema.$id);
     }).not.toThrowError();
@@ -23,7 +22,6 @@ describe('Test the ImportRequest Schema', () => {
 
 describe('Validate JSON against the ImportRequest Schema', () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-  addFormats(ajv);
   ajv.addSchema(ImportRequestSchema, ImportRequestSchema.$id);
 
   let validateFunction = ajv.getSchema(ImportRequestSchema.$id as string) as ValidateFunction;
@@ -33,20 +31,20 @@ describe('Validate JSON against the ImportRequest Schema', () => {
       // GIVEN a valid ImportRequest object
       const importRequest: ImportRequest = {
         modelId: getMockId(2),
-        urls: {
-          ESCO_OCCUPATION: "https://example.com/folder/file1",
-          ESCO_SKILL_HIERARCHY: "https://example.com/folder/file2",
-          ESCO_SKILL_GROUP: "https://example.com/folder/file3",
-          ESCO_SKILL: "https://example.com/folder/file4",
-          ESCO_SKILL_SKILL_RELATIONS: "https://example.com/folder/file5",
-          ISCO_GROUP: "https://example.com/folder/file6",
-          LOCAL_OCCUPATION: "https://example.com/folder/file7",
-          LOCALIZED_OCCUPATION: "https://example.com/folder/file8",
-          MODEL_INFO: "https://example.com/folder/file9",
-          OCCUPATION_HIERARCHY: "https://example.com/folder/file10",
-          OCCUPATION_LOGS: "https://example.com/folder/file11",
-          OCCUPATION_LOG_CHANGES: "https://example.com/folder/file12",
-          OCCUPATION_SKILL_RELATION: "https://example.com/folder/file13"
+        filePaths: {
+          ESCO_OCCUPATION: "folder/file1",
+          ESCO_SKILL_HIERARCHY: "folder/file2",
+          ESCO_SKILL_GROUP: "folder/file3",
+          ESCO_SKILL: "folder/file4",
+          ESCO_SKILL_SKILL_RELATIONS: "folder/file5",
+          ISCO_GROUP: "folder/file6",
+          LOCAL_OCCUPATION: "folder/file7",
+          LOCALIZED_OCCUPATION: "folder/file8",
+          MODEL_INFO: "folder/file9",
+          OCCUPATION_HIERARCHY: "folder/file10",
+          OCCUPATION_LOGS: "folder/file11",
+          OCCUPATION_LOG_CHANGES: "folder/file12",
+          OCCUPATION_SKILL_RELATION: "folder/file13"
         }
       }
       // WHEN the object is validated
@@ -60,14 +58,13 @@ describe('Validate JSON against the ImportRequest Schema', () => {
 
     describe("At least of urls files ImportRequest object should validate", () => {
 
-      const values = Object.values(ImportFileTypes);
-      values.forEach((fileType) => {
-        test(`ImportRequest object should validate because it has ${fileType}`, () => {
+      Object.values(ImportFileTypes).forEach((value) => {
+        test(`ImportRequest object should validate because it has ${value}`, () => {
           // GIVEN a valid ImportRequest object
           const importRequest: ImportRequest = {
             modelId: getMockId(2),
-            urls: {
-              [fileType]: "https://example.com/folder/file6",
+            filePaths: {
+              [value]: "folder/file6",
             }
           }
           // WHEN the object is validated
@@ -107,7 +104,7 @@ describe('Validate JSON against the ImportRequest Schema', () => {
           keyword: "required",
           message: "must have required property 'modelId'"
         }],
-        ["undefined", null, {instancePath: "/modelId", keyword: "type", message: "must be string"}],
+        ["null", null, {instancePath: "/modelId", keyword: "type", message: "must be string"}],
         ["malformed", "foo", {
           instancePath: "/modelId",
           keyword: "pattern",
@@ -122,44 +119,58 @@ describe('Validate JSON against the ImportRequest Schema', () => {
       })
     })
 
-    describe("Fail validation of 'urls'", () => {
+    describe("Fail validation of 'filePaths'", () => {
       test.each([
         ["undefined", undefined, {
           instancePath: "",
           keyword: "required",
-          message: "must have required property 'urls'"
+          message: "must have required property 'filePaths'"
         }],
-        ["undefined", null, {instancePath: "/urls", keyword: "type", message: "must be object"}],
-        ["malformed", "foo", {instancePath: "/urls", keyword: "type", message: "must be object"}],
-        ["all files missing", {}, {instancePath: "/urls", keyword: "anyOf", message: "must match a schema in anyOf"}],
-      ])("Fail validation of ImportRequest 'urls' because it is %s", (caseDescription, value, failure) => {
+        ["null", null, {instancePath: "/filePaths", keyword: "type", message: "must be object"}],
+        ["malformed", "foo", {instancePath: "/filePaths", keyword: "type", message: "must be object"}],
+        ["all files missing", {}, {
+          instancePath: "/filePaths",
+          keyword: "anyOf",
+          message: "must match a schema in anyOf"
+        }],
+      ])("Fail validation of ImportRequest 'filePaths' because it is %s", (caseDescription, value, failure) => {
         const importRequestSpec: Partial<ImportRequest> = {
           // @ts-ignore
-          urls: value,
+          filePaths: value,
         }
         assertValidationErrors(importRequestSpec, failure);
       })
     })
 
-    describe("Fail validation of 'urls.uri'", () => {
-
-      const values = Object.values(ImportFileTypes);
-      values.forEach((fileType) => {
+    describe("Fail validation of 'filePaths.{filetype}'", () => {
+      Object.values(ImportFileTypes).forEach((fileType) => {
         test.each([
-          ["malformed uri", {[fileType]: getTestString(5)}, {
-            instancePath: `/urls/${fileType}`,
-            keyword: "format",
-            message: "must match format \"uri\""
+          ["null", null, {instancePath: `/filePaths/${fileType}`, keyword: "type", message: "must be string"}],
+          ["empty", "", {
+            instancePath: `/filePaths/${fileType}`,
+            keyword: "pattern",
+            message: `must match pattern "${RegExp_Str_NotEmptyString}"`
+          }],
+          ["only whitespace characters", WHITESPACE, {
+            instancePath: `/filePaths/${fileType}`,
+            keyword: "pattern",
+            message: `must match pattern "${RegExp_Str_NotEmptyString}"`
+          }],
+          [`more than ${FILEPATH_MAX_LENGTH} characters`, "a".repeat(FILEPATH_MAX_LENGTH + 1), {
+            instancePath: `/filePaths/${fileType}`,
+            keyword: "maxLength",
+            message: `must NOT have more than ${FILEPATH_MAX_LENGTH} characters`
           }],
         ])(`Fail validation of ImportRequest 'urls.${fileType}' because it is %s`, (caseDescription, value, failure) => {
           const importRequestSpec: Partial<ImportRequest> = {
-            urls: value,
+            // @ts-ignore
+            filePaths: {
+              [fileType]: value
+            },
           }
           assertValidationErrors(importRequestSpec, failure);
         })
       })
-
     })
-
   })
 });

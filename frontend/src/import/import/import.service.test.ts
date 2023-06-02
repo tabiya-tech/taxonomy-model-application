@@ -2,87 +2,118 @@
 import "src/_test_utilities/consoleMock"
 
 import ImportService from './import.service';
-import {ServiceError} from '../../error/error';
-import {ImportFileTypes} from "api-specifications/import";
-import {setupFetchSpy} from "../../_test_utilities/fetchSpy";
+import {ServiceError} from 'src/error/error';
+import {ImportFileTypes, ImportRequest, ImportRequestSchema} from "api-specifications/import";
+import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
 import {StatusCodes} from "http-status-codes/";
-import {ErrorCodes} from "../../error/errorCodes";
-const mockFileUrls: {[key in ImportFileTypes]: string} = {
-    [ImportFileTypes.ESCO_SKILL]: "https://example.com/csv",
-    [ImportFileTypes.OCCUPATION_HIERARCHY]: "https://example.com/json"
+import {ErrorCodes} from "src/error/errorCodes";
+import Ajv from "ajv/dist/2020";
+import {getTestString} from "src/_test_utilities/specialCharacters";
+import {getMockId} from "src/_test_utilities/mockMongoId";
+
+const mockFilePaths: { [key in ImportFileTypes]: string } = {
+  [ImportFileTypes.ESCO_SKILL]: "foo/bar",
+  [ImportFileTypes.OCCUPATION_HIERARCHY]: "bar/baz",
 } as any;
+
 describe("Test the service", () => {
 
-    afterEach(() => {
-        jest.clearAllMocks();
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("should construct the service successfully", () => {
+    // GIVEN an api server url
+    const apiServerUrl = getTestString(10);
+
+    // WHEN the service is constructed
+    const service = new ImportService(apiServerUrl);
+
+    // THEN expect the service to be constructed successfully
+    expect(service).toBeDefined();
+
+    // AND the service should have the correct api server url and create model endpoint url
+    expect(service.apiServerUrl).toEqual(apiServerUrl);
+    expect(service.importEndpointUrl).toEqual(`${apiServerUrl}/import`);
+  });
+
+  test("should successfully trigger the import with POST to /import", async () => {
+    // GIVEN apiServerUrl, modelId and filePaths
+    const givenApiServerUrl = "/path/to/api";
+    const givenModelId = getMockId(1);
+    const givenFilePaths = mockFilePaths;
+    // AND the upload of the files will succeed
+    const fetchSpy = setupFetchSpy(StatusCodes.ACCEPTED, undefined, "");
+
+    // WHEN calling the import method with the given arguments (modelId, filePaths)
+    const importService = new ImportService(givenApiServerUrl);
+    await importService.import(givenModelId, givenFilePaths);
+
+    // THEN Expect to make a POST request
+    // AND the headers
+    // AND the request jsonPayload to contain the given arguments (givenModelId, givenFilePaths)
+    const expectedPayload: ImportRequest = {
+      modelId: givenModelId,
+      filePaths: givenFilePaths
+    }
+    const expectedJSONPayload = JSON.stringify(expectedPayload);
+    expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/import`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: expectedJSONPayload,
     });
+    // AND the body conforms to the  ImportRequestSchema schema
+    const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+    const validateRequest = ajv.compile(ImportRequestSchema);
+    validateRequest(expectedPayload);
+    expect(validateRequest.errors).toBeNull();
+  });
 
-    test("should successfully import model", async () => {
-        // GIVEN url, modelId and fileUrls
-        const givenUrl = "https://example.com";
-        const givenModelId = "modelId";
-        const givenFileUrls=mockFileUrls;
-        // AND the upload of the files will succeed
-        setupFetchSpy(StatusCodes.ACCEPTED, undefined, "");
+  test("on fail to fetch, it should reject with an error ERROR_CODE.FETCH_FAILED that contains information about the error", async () => {
+    // GIVEN url, modelId and filePaths
+    const givenApiServerUrl = "/path/to/api";
+    const givenModelId = getMockId(1);
+    const givenFilePaths = mockFilePaths;
+    // AND the fetch of some of the files will fail with some error.
+    const givenError = new Error("some error");
+    jest.spyOn(window, 'fetch').mockRejectedValue(givenError);
 
-        // WHEN calling the import method with the given arguments (modelId, fileUrls)
-        const importService = new ImportService(givenUrl);
-        await importService.import(givenModelId, givenFileUrls);
-        // THEN Expect Accepted to be called
-        expect(fetch).toHaveBeenCalledWith(givenUrl + "/import", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                modelId: givenModelId,
-                urls: givenFileUrls
-            }),
-        });
-    });
+    // WHEN calling the import method with the given arguments (modelId, filePaths)
+    const importService = new ImportService(givenApiServerUrl);
+    const importPromise = importService.import(givenModelId, givenFilePaths);
 
-    test("on fail to import, it should reject with an error ERROR_CODE.FETCH_FAILED that contains information about the error", async () => {
-        // GIVEN url, modelId and fileUrls
-        const givenUrl = "https://example.com";
-        const givenModelId = "modelId";
-        const givenFileUrls=mockFileUrls;
-        // AND the fetch of some of the files will fail with some error.
-        const givenError = new Error("some error");
-        jest.spyOn(window, 'fetch').mockRejectedValue(givenError);
+    // THEN Expect to reject with an error
+    const expectedError = {
+      ...new ServiceError("ImportService", "import", "POST", `${givenApiServerUrl}/import`, StatusCodes.NOT_FOUND, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      statusCode: expect.any(Number),
+      message: expect.any(String),
+      details: expect.any(Error),
+    };
+    await expect(importPromise).rejects.toMatchObject(expectedError);
+  });
 
-        // WHEN calling the import method with the given arguments (modelId, fileUrls)
-        const importService = new ImportService(givenUrl);
-        const importPromise = importService.import(givenModelId, givenFileUrls);
-        // THEN Expect Accepted to be called
-        const expectedError = {
-            ...new ServiceError("ImportService", "import", "POST", givenUrl + "/import", StatusCodes.NOT_FOUND, ErrorCodes.FAILED_TO_FETCH, "", ""),
-            statusCode: expect.any(Number),
-            message: expect.any(String),
-            details: expect.anything(),
-        };
-        await expect(importPromise).rejects.toMatchObject(expectedError);
-    });
+  test("on NOT 202, it should reject with an error ERROR_CODE.FETCH_FAILED that contains information about the error", async () => {
+    // GIVEN url, modelId and filePaths
+    const givenApiServerUrl = getMockId(1);
+    const givenModelId = "modelId";
+    const givenFilePaths = mockFilePaths;
+    // AND the fetch of some of the files will respond with a status code other than 204.
+    const givenFailureStatusCode = StatusCodes.BAD_REQUEST;
+    setupFetchSpy(givenFailureStatusCode, undefined, "");
 
-    test("on NOT 202, it should reject with an error ERROR_CODE.FETCH_FAILED that contains information about the error", async () => {
-        // GIVEN url, modelId and fileUrls
-        const givenUrl = "https://example.com";
-        const givenModelId = "modelId";
-        const givenFileUrls=mockFileUrls;
-        // AND the fetch of some of the files will respond with a status code other than 204.
-        const givenFailureStatusCode = StatusCodes.BAD_REQUEST;
-        setupFetchSpy(givenFailureStatusCode, undefined, "");
+    // WHEN calling the import method with the given arguments (modelId, filePaths)
+    const importService = new ImportService(givenApiServerUrl);
+    const importPromise = importService.import(givenModelId, givenFilePaths);
 
-        // WHEN calling the import method with the given arguments (modelId, fileUrls)
-        const importService = new ImportService(givenUrl);
-        const importPromise = importService.import(givenModelId, givenFileUrls);
-        // THEN Expect Accepted to be called
-        const expectedError = {
-            ...new ServiceError("ImportService", "import", "POST", givenUrl + "/import", givenFailureStatusCode, ErrorCodes.FAILED_TO_FETCH, "", ""),
-            statusCode: expect.any(Number),
-            message: expect.any(String),
-            details: expect.anything(),
-        };
-        await expect(importPromise).rejects.toMatchObject(expectedError);
-    });
-
+    // THEN Expect to reject with an error
+    const expectedError = {
+      ...new ServiceError("ImportService", "import", "POST", `${givenApiServerUrl}/import`, givenFailureStatusCode, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      statusCode: expect.any(Number),
+      message: expect.any(String),
+      details: expect.anything(),
+    };
+    await expect(importPromise).rejects.toMatchObject(expectedError);
+  });
 });

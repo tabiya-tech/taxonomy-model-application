@@ -1,8 +1,7 @@
-import {getServiceErrorFactory} from "../../error/error";
-import {ErrorCodes} from "../../error/errorCodes";
-import {ImportFileTypes,ImportRequest} from "api-specifications/import";
+import {getServiceErrorFactory} from "src/error/error";
+import {ErrorCodes} from "src/error/errorCodes";
+import {ImportFileTypes, ImportRequest} from "api-specifications/import";
 import {StatusCodes} from "http-status-codes";
-
 
 export default class ImportService {
 
@@ -14,23 +13,23 @@ export default class ImportService {
     this.importEndpointUrl = `${apiServerUrl}/import`;
   }
 
-  async import(modelId:string, fileUrls: {[key in ImportFileTypes]: string}) {
+  async import(modelId: string, filePaths: { [key in ImportFileTypes]: string }) {
     const errorFactory = getServiceErrorFactory("ImportService", "import", "POST", this.importEndpointUrl);
 
     let responseStatus: number;
     try {
-        const importRequest: ImportRequest = {
-            modelId: modelId,
-            urls: fileUrls
-        }
-        const response = await fetch(this.importEndpointUrl, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(importRequest)
-        });
-        responseStatus = response.status;
+      const importRequest: ImportRequest = {
+        modelId: modelId,
+        filePaths: filePaths
+      }
+      const response = await fetch(this.importEndpointUrl, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(importRequest)
+      });
+      responseStatus = response.status;
     } catch (e) {
       throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to import files", e);
     }

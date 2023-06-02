@@ -22,12 +22,12 @@ export default class ImportDirectorService {
 
     const uploadService = new UploadService();
     await uploadService.uploadFiles(presigned, files.map(file => file.file));
-    const filesUrls: {[key in ImportFileTypes]: string} = {} as any;
+    const filesPaths: {[key in ImportFileTypes]: string} = {} as any;
     files.forEach(file => {
-        filesUrls[file.fileType] = `${presigned?.url+presigned?.key}/${file.file.name}`;
+        filesPaths[file.fileType] = `${presigned.key}/${file.file.name}`;
     });
     const importService = new ImportService(this.apiServerUrl);
-    await importService.import(modelid,filesUrls);
+    await importService.import(modelid,filesPaths);
     return modelid;
   }
 

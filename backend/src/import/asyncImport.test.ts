@@ -6,7 +6,7 @@ import {ImportFileTypes, ImportRequest, ImportResponseErrorCodes} from "api-spec
 import {StatusCodes} from "server/httpUtils";
 import {getAsyncLambdaFunctionArn} from "server/config/config";
 
-import {LambdaClient, InvokeCommand, InvokeCommandInput} from "@aws-sdk/client-lambda";
+import {LambdaClient, InvokeCommand} from "@aws-sdk/client-lambda";
 
 jest.mock("@aws-sdk/client-lambda", () => {
   return {
@@ -20,16 +20,16 @@ jest.mock("@aws-sdk/client-lambda", () => {
 });
 
 
-import * as config from "../server/config/config";
+import * as config from "server/config/config";
 import {IErrorResponse} from "api-specifications/error";
 
 describe("Test lambda_invokeAsyncImport()  ", () => {
   test("lambda_invokeAsyncImport() should return ACCEPTED", async () => {
     // GIVEN an ImportRequest
     const givenRequest: ImportRequest = {
-      urls: {
-        [ImportFileTypes.ESCO_SKILL_GROUP]: "https://example.com/ESCO_SKILL_GROUP.csv",
-        [ImportFileTypes.ESCO_SKILL]: "https://example.com/ESCO_SKILL.csv",
+      filePaths: {
+        [ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
@@ -70,9 +70,9 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
   test("lambda_invokeAsyncImport() should return INTERNAL_SERVER_ERROR if InvokeCommand throws an error", async () => {
     // GIVEN an ImportRequest
     const request: ImportRequest = {
-      urls: {
-        [ImportFileTypes.ESCO_SKILL_GROUP]: "https://example.com/ESCO_SKILL_GROUP.csv",
-        [ImportFileTypes.ESCO_SKILL]: "https://example.com/ESCO_SKILL.csv",
+      filePaths: {
+        [ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
+        [ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
