@@ -17,6 +17,7 @@ import ModelDescriptionField from "./components/ModelDescriptionField";
 import {ImportFileTypes} from "api-specifications/import";
 import {useStyles} from "src/theme/global.style";
 import CancelButton from "src/theme/CancelButton/CancelButton";
+import {AlertWithDetails} from "src/theme/AlertWithDetails/AlertWithDetails";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -40,6 +41,11 @@ export interface ImportModelDialogProps {
 }
 
 const ImportModelDialog = (props: ImportModelDialogProps) => {
+  // add state for an error that occurred during import
+  const [errorVisible, setErrorVisible] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  // create a boolean state for the alert
   const handleClose = (event: CloseEvent) => {
     props.notifyOnClose(event);
   }
@@ -92,7 +98,9 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
 
       console.log("Created model: " + modelID);
       handleClose({name: "SUCCESS", modelid: modelID});
-    } catch (e) {
+    } catch (e: unknown) {
+      setErrorVisible(true);
+      setError(e as Error);
       if (e instanceof ServiceError) {
         writeServiceErrorToLog(e, console.error);
       } else {
@@ -104,6 +112,18 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
   const classes = useStyles();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  /*PaperProps={{
+      style: {
+        position: 'fixed',
+        top: '0',
+        left: '50%',
+        transform: 'translate(-50%, 0)',
+        maxHeight: errorVisible ? 'none' : '90vh',
+        overflowY: errorVisible ? 'visible' : 'auto',
+      },
+    }}*/
+
   return <Dialog open={props.isOpen} onKeyDown={handleKeyDown} fullWidth={true} fullScreen={fullScreen}
                  maxWidth='sm' data-testid={DATA_TEST_ID.IMPORT_MODEL_DIALOG}>
     <DialogTitle>Import Model</DialogTitle>
@@ -121,6 +141,15 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
       <Button onClick={handleImportButtonClick}
               data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</Button>
     </DialogActions>
+    <div>
+      {errorVisible ?
+        <AlertWithDetails notifyOnClose={() => setErrorVisible(false)} isOpen={errorVisible}
+        message={"An unexpected %error_link% occurred and the model could not be imported."}
+        // @ts-ignore
+        errorDetails={error}/>
+        : null}
+    </div>
   </Dialog>
+
 };
 export default ImportModelDialog;
