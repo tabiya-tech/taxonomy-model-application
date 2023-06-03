@@ -1,5 +1,5 @@
 import react from "react";
-import {FormControl, FormLabel, Input, Stack} from "@mui/material";
+import {FormControl, FormLabel, Input, Stack, TextField, Typography, useTheme} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
 import {useStyles} from "src/theme/global.style";
 
@@ -27,7 +27,6 @@ export const ModelNameField = (props: ModelNameFieldProps) => {
       props.notifyModelNameChanged(e.target.value);
     }
   }
-
   const classes = useStyles();
   return <FormControl sx={{width: '100%'}} data-testid={DATA_TEST_ID.MODEL_NAME_FIELD}>
     <Stack className={classes.fieldStack} spacing={0.5}>
@@ -35,11 +34,13 @@ export const ModelNameField = (props: ModelNameFieldProps) => {
                  htmlFor={uniqueId}>{TEXT.MODEL_NAME_LABEL}</FormLabel>
       <Input
         placeholder={TEXT.MODEL_NAME_PLACEHOLDER}
-        sx={{width: '100%'}}
+        sx={{width: '100%', color: 'red'}}
         id={uniqueId}
         inputProps={{"data-testid": DATA_TEST_ID.MODEL_NAME_INPUT}}
         onChange={handleTextInputChange}
-      /></Stack>
+      />
+      {true && <Typography variant={"caption"} sx={{ "color": "red" }}>Input must be at least 5 characters long</Typography>}
+    </Stack>
   </FormControl>
 };
 export default ModelNameField;
