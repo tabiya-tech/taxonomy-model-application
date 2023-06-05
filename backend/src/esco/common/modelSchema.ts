@@ -4,7 +4,7 @@ import {stringRequired} from "server/stringRequired";
 import {RegExp_UUIDv4} from "server/regex";
 
 // check for unique values in an array
-function hasUniqueValues<T>(value: T[]) {
+export function hasUniqueValues<T>(value: T[]) {
   // Remove duplicates and check if the array length is the same
   return value.length === new Set<T>(value).size;
 }
@@ -40,6 +40,7 @@ export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
       const trimmed = item.trim();
       return trimmed.length > 0 && trimmed.length <= LABEL_MAX_LENGTH;
     }))) {
+      // TODO: throw a different  when ATL_LABELS_MAX_ITEMS is exceeded
       throw new Error('AltLabels must be an array of non empty strings');
     }
 

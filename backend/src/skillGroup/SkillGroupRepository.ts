@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import {randomUUID} from "crypto";
-import {ISkillGroup, SkillGroupSpec} from "./skillGroupModel";
+import {ISkillGroup, INewSkillGroupSpec} from "./skillGroupModel";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroup>;
@@ -9,7 +9,7 @@ export interface ISkillGroupRepository {
    * Resolves to the newly created ISkillGroup entry, or it rejects with an error if the  SkillGroup entry could not be created.
    * @param newSkillGroupSpec
    */
-  create(newSkillGroupSpec: SkillGroupSpec): Promise<ISkillGroup>;
+  create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup>;
 }
 
 
@@ -21,7 +21,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     this.Model = model;
   }
 
-  async create(newSkillGroupSpec: SkillGroupSpec): Promise<ISkillGroup> {
+  async create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup> {
     try {
       //@ts-ignore
       if (newSkillGroupSpec.UUID !== undefined) {
@@ -29,9 +29,12 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       }
       const newSkillGroupModel = new this.Model({
         ...newSkillGroupSpec,
+        parentGroups: [],
         UUID: randomUUID()
       });
       await newSkillGroupModel.save();
+      await newSkillGroupModel.populate({path: "parentGroups"});
+      await newSkillGroupModel.populate({path:"childrenGroups"});
       return newSkillGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);

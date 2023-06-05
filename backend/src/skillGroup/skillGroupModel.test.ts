@@ -3,48 +3,20 @@ import "_test_utilities/consoleMock"
 
 import mongoose, {Connection} from "mongoose";
 import {randomUUID} from "crypto";
-import {getNewConnection} from "../server/connection/newConnection";
+import {getNewConnection} from "server/connection/newConnection";
 import {initializeSchemaAndModel, ISkillGroup, ModelName, PARENT_MAX_ITEMS,} from "./skillGroupModel";
-import {getTestConfiguration} from "../modelInfo/testDataHelper";
-import {getMockId} from "../_test_utilities/mockMongoId";
-import {generateRandomUrl, getRandomString, getTestString, WHITESPACE} from "../_test_utilities/specialCharacters";
-import {assertCaseForProperty, CaseType} from "../_test_utilities/dataModel";
+import {getTestConfiguration} from "modelInfo/testDataHelper";
+import {getMockId} from "_test_utilities/mockMongoId";
+import {generateRandomUrl, getRandomString, getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
+import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {
   ATL_LABELS_MAX_ITEMS,
   DESCRIPTION_MAX_LENGTH,
   ESCO_URI_MAX_LENGTH,
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH
-} from "../esco/common/modelSchema";
-
-
-export function generateValidCode() {
-  const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const digits = '0123456789';
-
-  // Generate a random alphabet character
-  const randomChar = characters.charAt(Math.floor(Math.random() * characters.length));
-
-  if (Math.random() < 0.5) {
-    return randomChar;
-  }
-
-  // Generate a random integer
-  const randomInteger = digits.charAt(Math.floor(Math.random() * digits.length));
-
-  if (Math.random() < 0.5) {
-    return randomChar + randomInteger;
-  }
-
-  const MAX_SIZE_RANDON_LOOP = 1000;
-  const n = Math.floor(Math.random() * MAX_SIZE_RANDON_LOOP);
-  let currentCode = randomChar + randomInteger;
-  for (let i = 0; i < n; i++) {
-    currentCode += `.${digits.charAt(Math.floor(Math.random() * digits.length))}`;
-  }
-  return currentCode;
-}
-
+} from "esco/common/modelSchema";
+import {getMockRandomSkillCode} from "../_test_utilities/mockSkillGroupCode";
 
 describe('Test the definition of the skillGroup Model', () => {
   let dbConnection: Connection;
@@ -70,7 +42,7 @@ describe('Test the definition of the skillGroup Model', () => {
     const givenObject: ISkillGroup = {
       id: getMockId(2),
       UUID: randomUUID(),
-      code: generateValidCode(),
+      code: getMockRandomSkillCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: randomUUID(),
@@ -102,11 +74,12 @@ describe('Test the definition of the skillGroup Model', () => {
     // GIVEN an skillGroup object with all mandatory fields
     const givenObject: ISkillGroup = {
       UUID: randomUUID(),
-      code: generateValidCode(),
+      code: getMockRandomSkillCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: "",
       altLabels: [],
+      parentGroups: [],
       ESCOUri: generateRandomUrl(),
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       scopeNote: ""
@@ -177,7 +150,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "valid code 'S1.3.5'", "S1.3.5", undefined],
         [CaseType.Success, "one letter 'L'", "L", undefined],
         [CaseType.Success, "one letter with number 'T3'", "T3", undefined],
-        [CaseType.Success, "any way in range", generateValidCode(), undefined],
+        [CaseType.Success, "any way in range", getMockRandomSkillCode(), undefined],
       ])
       (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<ISkillGroup>(skillGroupModel, "code", caseType, value, expectedFailureMessage);
@@ -253,13 +226,17 @@ describe('Test the definition of the skillGroup Model', () => {
 
     describe("Test validation of 'parentGroups'", () => {
       test.each([
-        [CaseType.Failure, "too long array", new Array(PARENT_MAX_ITEMS + 1).fill(undefined).map((v, i) => new mongoose.Types.ObjectId()), `Parents must be at most ${PARENT_MAX_ITEMS} uniques refs.`],
-        [CaseType.Failure, "not unique", [getMockId(2), getMockId(2)], `Parents must be at most ${PARENT_MAX_ITEMS} uniques refs.`],
-        [CaseType.Success, 'null', null, undefined],
-        [CaseType.Success, 'undefined', undefined, undefined],
+        [CaseType.Failure, "too long array", new Array(PARENT_MAX_ITEMS + 1).fill(undefined).map(() => new mongoose.Types.ObjectId()), `Validator failed for path \`{0}\` with value`],
+        [CaseType.Failure, "not unique", [getMockId(2), getMockId(2)], `Validator failed for path \`{0}\` with value \`${getMockId(2)},${getMockId(2)}\``],
+        [CaseType.Failure, 'array of numbers', [123], `Path \`{0}\` is required.`],
+        [CaseType.Failure, 'array of string', ["foo"], `Path \`{0}\` is required.`],
+        [CaseType.Failure, 'a string', "foo", `Path \`{0}\` is required.`],
+        [CaseType.Failure, 'null', null, `Path \`{0}\` is required.`],
+        [CaseType.Failure, 'undefined', undefined, `Path \`{0}\` is required.`],
         [CaseType.Success, 'empty array', [], undefined],
         [CaseType.Success, "ObjectID", [new mongoose.Types.ObjectId()], undefined],
-        [CaseType.Success, "hex 24 chars", getMockId(2), undefined]
+        [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
+        [CaseType.Success, "valid longest array with objects ids", new Array(PARENT_MAX_ITEMS ).fill(undefined).map(() => new mongoose.Types.ObjectId()), undefined],
       ])
       (`(%s) Validate 'parentGroups' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<ISkillGroup>(skillGroupModel, "parentGroups", caseType, value, expectedFailureMessage);

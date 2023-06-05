@@ -10,6 +10,7 @@ import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrt
 import {IModelInfo, INewModelInfoSpec} from "modelInfo/modelInfoModel";
 import {randomUUID} from "crypto";
 import {parseISCOGroupsFromFile} from "./ISCOGroups/ISCOGroupsParser";
+import {parseSkillGroupsFromFile} from "./skillGroups/skillGroupsParser";
 
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
@@ -80,6 +81,10 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
 
       // 03. Import the ESCO Skill Groups CSV files
       //
+      await parseSkillGroupsFromFile(modelInfo.id, "../samples/csv-samples/ESCO dataset - v1.1.1/skillGroups_en.csv" );
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+
     } catch (err) {
       // should not throw an error
       expect(err).toBeUndefined();
