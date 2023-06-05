@@ -23,10 +23,10 @@ const presignedMock: IPresignedResponse = {
   url: "https://example.com",
   fields: [
     {
-      name: "key",
+      name: "some name",
       value: "value"
     }],
-  key: "key"
+  folder: "some folder"
 }
 
 describe("Test the service", () => {

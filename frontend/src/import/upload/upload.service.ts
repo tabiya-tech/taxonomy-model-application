@@ -32,7 +32,7 @@ export default class UploadService {
       presigned.fields.forEach(field => {
         formData.append(field.name, field.value);
       });
-      formData.append("key", presigned.key + "/" + file.name);
+      formData.append("key", presigned.folder + "/" + file.name);
       formData.append("file", file);
       const response = await fetch(presigned.url, {
         method: "POST",

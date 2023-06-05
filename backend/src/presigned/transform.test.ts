@@ -18,7 +18,7 @@ describe("test the transformPostData()", () => {
     // THEN expect to return IPreSignedResponse
     expect(actualPostData).toMatchObject({
       url: givenPostData.url,
-      key: folder,
+      folder: folder,
       fields: [{name: "key1", value: "value1"}, {name: "key2", value: "value2"}]
     })
   });
