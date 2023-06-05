@@ -5,7 +5,6 @@ import {getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion} from "server/co
 
 export async function lambda_invokeAsyncImport(request: ImportRequest) {
   try {
-    //const lambda = new Lambda();
     const client = new LambdaClient({region: getAsyncLambdaFunctionRegion()});
     const input: InvokeCommandInput = { // InvocationRequest
       FunctionName: getAsyncLambdaFunctionArn(), // required

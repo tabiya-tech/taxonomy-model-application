@@ -1,6 +1,5 @@
 import {transformPostData} from "./transform";
 import {IPresignedResponse} from "api-specifications/presigned";
-import * as url from "url";
 import {PresignedPost} from "@aws-sdk/s3-presigned-post";
 
 describe("test the transformPostData()", () => {

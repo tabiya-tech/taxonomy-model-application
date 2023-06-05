@@ -13,7 +13,6 @@ export interface IISCOGroupRow {
   DESCRIPTION: string
 }
 
-// TODO: test this function with a mock repository // AND from row data edge cases
 export function getRowProcessor(modelId: string): (row: IISCOGroupRow, index: number) => Promise<void> {
 
   const ISCOGroupRepository = getRepositoryRegistry().ISCOGroup;
@@ -36,16 +35,11 @@ export function getRowProcessor(modelId: string): (row: IISCOGroupRow, index: nu
   };
 }
 
-
-// TODO: test this function with a mock repository
-
 // function to parse from url
 export async function parseISCOGroupsFromUrl(modelId: string, url: string) {
   const rowProcessor = getRowProcessor(modelId);
   await processDownloadStream(url, rowProcessor);
 }
-
-
 
 export async function parseISCOGroupsFromFile(modelId: string, filePath: string) {
   const iscoGroupsCSVFileStream = fs.createReadStream(filePath );

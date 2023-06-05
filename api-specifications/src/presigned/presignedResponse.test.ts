@@ -1,8 +1,6 @@
 import Ajv, {ValidateFunction} from "ajv";
-
 import {IPresignedResponse, PresignedResponseSchema,} from "./presignedResponse";
 import addFormats from "ajv-formats";
-import {randomUUID} from "crypto";
 import {getTestString} from "../_test_utilities/specialCharacters";
 
 describe('Test the PresignedResponseSchema', () => {

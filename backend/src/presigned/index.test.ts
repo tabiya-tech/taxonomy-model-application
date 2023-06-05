@@ -14,7 +14,6 @@ jest.mock("crypto", () => {
 // ############
 
 import {randomUUID} from "crypto";
-import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
 import * as config from "server/config/config";
 import * as handlerModule from './index';
 import {APIGatewayProxyEvent} from 'aws-lambda';

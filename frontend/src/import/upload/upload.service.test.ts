@@ -49,12 +49,10 @@ describe("Test the service", () => {
 
     // THEN Expect fetch to be called for each file
     expect(fetch).toHaveBeenCalledTimes(givenFiles.length);
-    for (let i = 0; i < givenFiles.length; i++) {
-      expect(fetch).toHaveBeenCalledWith(givenPreSigned.url, {
-        method: "POST",
-        body: expect.any(FormData),
-      });
-    }
+    expect(fetch).toHaveBeenCalledWith(givenPreSigned.url, {
+      method: "POST",
+      body: expect.any(FormData),
+    });
   });
 
   test("on fail to upload, it should reject with an error ERROR_CODE.FETCH_FAILED that contains information about the error", async () => {
@@ -113,7 +111,7 @@ describe("Test the service", () => {
     // AND the upload of the files will succeed
     let counter = 0;
     let max = 0;
-    const countConcurrentCallsPromise = new Promise<void>((resolve, reject) => {
+    const countConcurrentCallsPromise = new Promise<void>((resolve) => {
       counter++;
       max = Math.max(counter, max);
       resolve();

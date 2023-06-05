@@ -6,14 +6,8 @@ import reportWebVitals from './reportWebVitals';
 import applicationTheme from "./theme/applicationTheme";
 import {ThemeProvider} from "@mui/material";
 
-/*
 // Currently the fonts are downloaded from google via the index.css
-// Fonts could be distributed with the app by explicitly importing them
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-*/
+// Fonts could be distributed with the app instead, by explicitly importing them here
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
