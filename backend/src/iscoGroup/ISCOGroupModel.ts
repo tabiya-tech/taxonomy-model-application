@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {RegExp_ID, RegExp_UUIDv4} from "server/regex";
+import {RegExp_UUIDv4} from "server/regex";
 import {
   AltLabelsProperty, DescriptionProperty,
   ESCOUriProperty, ISCOCodeProperty,
@@ -16,7 +16,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     UUID: {type: String, required: true, validate: RegExp_UUIDv4}, // TODO this could be an nodejs UUID
     ISCOCode: ISCOCodeProperty,
     preferredLabel: PreferredLabelProperty,
-    modelId: {type: String, required: true, validate: RegExp_ID}, // TODO this should be an ObjectId
+    modelId: {type: mongoose.Schema.Types.ObjectId, required: true}, // TODO this should be an ObjectId
     originUUID: OriginUUIDProperty,
     ESCOUri: ESCOUriProperty,
     altLabels: AltLabelsProperty,
@@ -55,7 +55,7 @@ export interface IISCOGroupReference {
 
 export interface IISCOGroup {
   id: string
-  modelId: string
+  modelId: string | mongoose.Types.ObjectId
   UUID: string
   originUUID: string
   ISCOCode: string
@@ -63,8 +63,8 @@ export interface IISCOGroup {
   preferredLabel: string
   altLabels: string[]
   description: string
-  parentGroup: string | IISCOGroupReference | null | undefined
-  childrenGroups: string[] | IISCOGroupReference[]
+  parentGroup: string | mongoose.Types.ObjectId | IISCOGroupReference | null | undefined
+  childrenGroups: string[] | mongoose.Types.ObjectId[] | IISCOGroupReference[]
   createdAt: Date,
   updatedAt: Date
 }
