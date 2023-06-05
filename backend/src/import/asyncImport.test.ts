@@ -4,7 +4,6 @@ import "_test_utilities/consoleMock";
 import {lambda_invokeAsyncImport} from "./asyncImport";
 import {ImportFileTypes, ImportRequest, ImportResponseErrorCodes} from "api-specifications/import";
 import {StatusCodes} from "server/httpUtils";
-import {getAsyncLambdaFunctionArn} from "server/config/config";
 
 import {LambdaClient, InvokeCommand} from "@aws-sdk/client-lambda";
 

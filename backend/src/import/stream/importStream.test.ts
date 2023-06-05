@@ -1,7 +1,10 @@
-import {IRowProcessor, processDownloadStream, processStream} from "./processStream";
+// mute the console during the test
+import "_test_utilities/consoleMock"
+
+import {RowProcessorFunction, processDownloadStream, processStream} from "./processStream";
 import {Readable} from "node:stream";
 import https from 'https';
-import {StatusCodes} from "../../server/httpUtils";
+import {StatusCodes} from "server/httpUtils";
 
 jest.mock('https');
 
@@ -43,7 +46,7 @@ describe("test processStream", () => {
 
       // AND a row processor that will throw an error
       const givenError = new Error("some error");
-      const processRow: IRowProcessor<any> = jest.fn().mockRejectedValue(givenError);
+      const processRow: RowProcessorFunction<any> = jest.fn().mockRejectedValue(givenError);
 
       // WHEN the stream is processed
       const processPromise = processStream(stream, processRow);
@@ -67,7 +70,7 @@ describe("test processStream", () => {
       });
 
       // AND a row processor error
-      const processRow: IRowProcessor<any> = jest.fn();
+      const processRow: RowProcessorFunction<any> = jest.fn();
 
       // WHEN the stream is processed
       const processPromise = processStream(stream, processRow);
@@ -122,7 +125,7 @@ describe("test processDownloadStream", () => {
     });
 
     // AND a row processor
-    const processRow: IRowProcessor<any> = jest.fn();
+    const processRow: RowProcessorFunction<any> = jest.fn();
 
     // WHEN the file is downloaded and processed
     await processDownloadStream(givenUrl, processRow);
@@ -152,7 +155,7 @@ describe("test processDownloadStream", () => {
       });
 
       // AND a row processor
-      const processRow: IRowProcessor<any> = jest.fn();
+      const processRow: RowProcessorFunction<any> = jest.fn();
 
       // WHEN the file is downloaded and processed
       const processPromise = processDownloadStream(givenUrl, processRow);
@@ -177,7 +180,7 @@ describe("test processDownloadStream", () => {
       });
 
       // AND a row processor
-      const processRow: IRowProcessor<any> = jest.fn();
+      const processRow: RowProcessorFunction<any> = jest.fn();
 
       // WHEN the file is downloaded and processed
       const processPromise = processDownloadStream(givenUrl, processRow);
@@ -213,7 +216,7 @@ describe("test processDownloadStream", () => {
       });
 
       // AND a row processor
-      const processRow: IRowProcessor<any> = jest.fn();
+      const processRow: RowProcessorFunction<any> = jest.fn();
 
       // WHEN the file is downloaded and processed
       const processPromise = processDownloadStream(givenUrl, processRow);
@@ -247,7 +250,7 @@ describe("test processDownloadStream", () => {
 
       // AND a row processor that will throw an error
       const givenError = new Error("some error");
-      const processRow: IRowProcessor<any> = jest.fn().mockRejectedValue(givenError);
+      const processRow: RowProcessorFunction<any> = jest.fn().mockRejectedValue(givenError);
 
       // WHEN the file is downloaded and processed
       const processPromise = processDownloadStream(givenUrl, processRow);

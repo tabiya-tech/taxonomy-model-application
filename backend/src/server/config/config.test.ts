@@ -9,7 +9,6 @@ import {
   IConfiguration, getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion
 } from "./config";
 import {getRandomString, getTestString} from "_test_utilities/specialCharacters";
-import {ImportFileTypes} from "api-specifications/import";
 
 describe("Test read Configuration()", () => {
   const originalEnv: { [key: string]: string } = {};

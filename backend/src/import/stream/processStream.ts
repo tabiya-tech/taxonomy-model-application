@@ -3,10 +3,9 @@ import {IncomingMessage} from "http";
 import {parse, Parser} from "csv-parse";
 import {Readable} from "node:stream";
 
-export interface IRowProcessor<T> {
-  (row: T, index: number): Promise<void>;
-}
-export function processDownloadStream<T>(url: string, processRow: IRowProcessor<T>): Promise<boolean> {
+export type RowProcessorFunction<T>  = (row: T, index: number)=> Promise<void>;
+
+export function processDownloadStream<T>(url: string, processRow: RowProcessorFunction<T>): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     const request = https.get(url, async (response: IncomingMessage) => {
       try {
@@ -28,7 +27,7 @@ export function processDownloadStream<T>(url: string, processRow: IRowProcessor<
   });
 }
 
-export function processStream<T>(stream: Readable, processRow: IRowProcessor<T>): Promise<void> {
+export function processStream<T>(stream: Readable, processRow: RowProcessorFunction<T>): Promise<void> {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
     try {

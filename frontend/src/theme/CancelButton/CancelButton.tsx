@@ -11,14 +11,6 @@ const StyledButton = styled(Button)(({theme}) => ({
 }));
 
 const CancelButton: React.FC<CancelButtonProps> = ({style, children, ...props}) => {
-  /*
-  React.useEffect(() => {
-    if (React.Children.count(children) > 0) {
-      console.warn("CancelButton component does not support children. Please remove any children elements.");
-    }
-  }, [children]);
-  */
-
   return (
     <StyledButton style={style} {...props}>
       {children ?? "Cancel"}

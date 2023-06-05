@@ -1,3 +1,6 @@
+// mute the console
+import "src/_test_utilities/consoleMock";
+
 // ##############################
 // Setup import.service mock
 // ##############################
