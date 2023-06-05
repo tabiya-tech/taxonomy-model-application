@@ -46,6 +46,31 @@ describe("test getRowProcessor", () => {
     }
     expect(mockRepository.create).toBeCalledWith({...expectedSpec, modelId: givenModelId})
   })
+
+  test("should not fail if creating the ISCOGroup fails", async () => {
+    // GIVEN a model id
+    const givenModelId = "modelId";
+    // AND any a given row
+    const givenRow: IISCOGroupRow = {} as IISCOGroupRow;
+    // AND a row processor for the given model id
+    const mockRepository: IISCOGroupRepository = {
+      // @ts-ignore
+      Model: undefined,
+      create: jest.fn().mockRejectedValue(new Error("Some Error")),
+    };
+    // @ts-ignore
+    jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(mockRepository);
+    const rowProcessor = getRowProcessor(givenModelId);
+
+    // WHEN the row processor is called with the given row
+    const processPromise =  rowProcessor(givenRow, 1);
+
+    // THEN expect the promise to not be rejected
+    await expect(processPromise).resolves.not.toThrow();
+
+    // AND expect the ISCOGroup repository to have been called
+    expect(mockRepository.create).toBeCalled()
+  });
 })
 
 describe("test parseISCOGroupsFromUrl", () => {
