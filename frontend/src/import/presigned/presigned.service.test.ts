@@ -24,7 +24,7 @@ function getPresignedMockResponse(): IPresignedResponse {
   const givenResponse: IPresignedResponse = {
     url: "https://somedomain/somepath",
     fields: [{name: "someName", value: "someValue"}, {name: "someOtherName", value: "someOtherValue"}],
-    key: getTestString(10)
+    folder: getTestString(10)
   }
   // guard against invalid response
   validateResponse(givenResponse);

@@ -33,7 +33,7 @@ describe('Validate JSON against the PresignedResponseSchema', () => {
     const validPresignedResponse: IPresignedResponse = {
       url: "https://foo.bar",
       fields: [{name: "name1", value: getTestString(10)}, {name: "name2", value: getTestString(10)}],
-      key: getTestString(10),
+      folder: getTestString(10),
     }
     // WHEN the object is validated
     const result = validateFunction(validPresignedResponse);

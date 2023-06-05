@@ -24,7 +24,7 @@ export default class ImportDirectorService {
     await uploadService.uploadFiles(presigned, files.map(file => file.file));
     const filesPaths: {[key in ImportFileTypes]: string} = {} as any;
     files.forEach(file => {
-        filesPaths[file.fileType] = `${presigned.key}/${file.file.name}`;
+        filesPaths[file.fileType] = `${presigned.folder}/${file.file.name}`;
     });
     const importService = new ImportService(this.apiServerUrl);
     await importService.import(modelid,filesPaths);

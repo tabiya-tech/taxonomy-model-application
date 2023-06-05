@@ -4,7 +4,7 @@ import {RegExp_Str_NotEmptyString} from "../regex";
 export interface IPresignedResponse {
   url: string,
   fields: {name: string, value: string}[],
-  key: string, // TODO: rename to folder
+  folder: string,
 }
 
 export const PresignedResponseSchema: SchemaObject = {
@@ -40,7 +40,7 @@ export const PresignedResponseSchema: SchemaObject = {
         ],
       }
     },
-    key: {// TODO rename to folder
+    folder: {
       description: "The folder name to upload the files to",
       type: "string",
       pattern: RegExp_Str_NotEmptyString
@@ -49,6 +49,6 @@ export const PresignedResponseSchema: SchemaObject = {
   required: [
     "url",
     "fields",
-    "key"// TODO rename to folder
+    "folder"
   ]
 };

@@ -60,7 +60,7 @@ describe('Test the import director service', () => {
       fields: [
         {name: "foo", value: "bar"},
         {name: "baz", value: "qux"}
-      ], key: "bar", url: "http://foo.bar"
+      ], folder: "bar", url: "http://foo.bar"
     }
     jest.spyOn(presignedService, "getPresignedPost").mockResolvedValue(givenMockPresignedResponse);
 
@@ -108,8 +108,8 @@ describe('Test the import director service', () => {
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
     const givenFilesPaths: { [key: string]: string } = {
-      [ImportFileTypes.ESCO_SKILL]: `${givenMockPresignedResponse.key}/foo.csv`,
-      [ImportFileTypes.OCCUPATION_HIERARCHY]: `${givenMockPresignedResponse.key}/bar.json`,
+      [ImportFileTypes.ESCO_SKILL]: `${givenMockPresignedResponse.folder}/foo.csv`,
+      [ImportFileTypes.OCCUPATION_HIERARCHY]: `${givenMockPresignedResponse.folder}/bar.json`,
     }
     // THEN the import service is called with the given arguments (modelId, file paths)
     expect(importService.import).toHaveBeenCalledWith(givenMockModelId, givenFilesPaths);

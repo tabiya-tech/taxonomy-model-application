@@ -8,6 +8,6 @@ export function transformPostData(postData: PresignedPost, folder: string): IPre
       name: key,
       value: value,
     })),
-    key: folder,
+    folder: folder,
   };
 }
