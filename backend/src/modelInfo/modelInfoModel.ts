@@ -20,13 +20,13 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     name: {
       type: String,
       required: stringRequired("locale", "name"),
-      maxlength: [NAME_MAX_LENGTH, `Name must be at most ${NAME_MAX_LENGTH}`]
+      maxlength: [NAME_MAX_LENGTH, `Name must be at most ${NAME_MAX_LENGTH} chars long`]
     },
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     shortCode: {
       type: String,
       required: stringRequired("locale", "shortCode"),
-      maxlength: [SHORTCODE_MAX_LENGTH, `Short code must be at most ${SHORTCODE_MAX_LENGTH}`]
+      maxlength: [SHORTCODE_MAX_LENGTH, `Short code must be at most ${SHORTCODE_MAX_LENGTH} chars long`]
     },
   };
 
@@ -46,7 +46,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     name: {
       type: String,
       required: true,
-      maxlength: [NAME_MAX_LENGTH, `Name must be at most ${NAME_MAX_LENGTH}`],
+      maxlength: [NAME_MAX_LENGTH, `Name must be at most ${NAME_MAX_LENGTH} chars long`],
       validate: function (value: string): boolean {
         return isSpecified(value);
       }
@@ -61,12 +61,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     releaseNotes: {
       type: String,
       required: stringRequired("releaseNotes"),
-      maxlength: [RELEASE_NOTES_MAX_LENGTH, `Release notes must be at most ${RELEASE_NOTES_MAX_LENGTH}`]
+      maxlength: [RELEASE_NOTES_MAX_LENGTH, `Release notes must be at most ${RELEASE_NOTES_MAX_LENGTH} chars long`]
     },
     version: {
       type: String,
       required: stringRequired("version"),
-      maxlength: [VERSION_MAX_LENGTH, `Version must be at most ${VERSION_MAX_LENGTH}`]
+      maxlength: [VERSION_MAX_LENGTH, `Version must be at most ${VERSION_MAX_LENGTH} chars long`]
     },
   }, {timestamps: true, strict: "throw"},);
 

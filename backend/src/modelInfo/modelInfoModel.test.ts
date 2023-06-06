@@ -12,12 +12,10 @@ import {
 } from './modelInfoModel'
 import {randomUUID} from "crypto";
 import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
-
 import {getMockId} from "_test_utilities/mockMongoId";
 import {getTestConfiguration} from "./testDataHelper";
-import {getNewConnection} from "../server/connection/newConnection";
-
-
+import {getNewConnection} from "server/connection/newConnection";
+import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 
 describe('Test the definition of the ModelInfo Model', () => {
   let dbConnection: Connection;
@@ -98,391 +96,148 @@ describe('Test the definition of the ModelInfo Model', () => {
     expect(errors).toBeUndefined();
   });
 
-  function formatMessage(message: string, ...args: string[]) {
-    return message.replace(/{(\d+)}/g, (match: string, number: number) => {
-      return (typeof args[number] != 'undefined'
-        ? args[number]
-        : match);
-    });
-  }
+  describe("Validate modelInfo fields", () => {
 
-  describe("Successfully validate modelInfo fields", () => {
-    function assertNoValidationError(modelInfoSpec: Partial<IModelInfo>, failedProperty: string) {
-      const newModel = new ModelInfoModel(modelInfoSpec);
-      const result = newModel.validateSync();
-      if (result) {
-        expect(result.errors[failedProperty]).toBeUndefined();
-      }
-    }
-
-    describe("Success validation of 'description'", () => {
+    describe("Test validation of 'description'", () => {
       test.each([
-        ["empty", ""],
-        ["only whitespace characters", WHITESPACE],
-        ["The longest description", getTestString(DESCRIPTION_MAX_LENGTH)],
-      ])("Successful validation 'description' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          description: value
-        };
-        assertNoValidationError(modelInfoSpec, 'description');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
+      ])("(%s) Validate 'description' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "description", caseType, value, expectedFailureMessage);
       });
     });
 
-    // success validation of 'releaseNotes'
-    describe("Success validation of 'releaseNotes'", () => {
+    describe("Test validation of 'releaseNotes'", () => {
       test.each([
-        ["empty", ""],
-        ["only whitespace characters", WHITESPACE],
-        ["The longest releaseNotes", getTestString(RELEASE_NOTES_MAX_LENGTH)],
-      ])("Successful validation 'releaseNotes' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          releaseNotes: value
-        };
-        assertNoValidationError(modelInfoSpec, 'releaseNotes');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "the longest", getTestString(RELEASE_NOTES_MAX_LENGTH), undefined],
+      ])("(%s) Validate 'releaseNotes' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "releaseNotes", caseType, value, expectedFailureMessage);
       });
     });
 
-    // success validation of 'version'
-    describe("Success validation of 'version'", () => {
+    describe("Test validation of 'version'", () => {
       test.each([
-        ["empty", ""],
-        ["only whitespace characters", WHITESPACE],
-        ["The longest version", getTestString(VERSION_MAX_LENGTH)],
-      ])("Successful validation 'version' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          version: value
-        };
-        assertNoValidationError(modelInfoSpec, 'version');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "the longest", getTestString(VERSION_MAX_LENGTH), undefined],
+      ])("(%s) Validate 'version' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "version", caseType, value, expectedFailureMessage);
       });
     });
 
-    // success validation of 'name'
-    describe("Success validation of 'name'", () => {
+    describe("Test validation of 'name'", () => {
       test.each([
-        ["The longest name", getTestString(NAME_MAX_LENGTH)],
-      ])("Successful validation 'name' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          name: value
-        };
-        assertNoValidationError(modelInfoSpec, 'name');
-      });
-    });
-    
-    // success validation of 'locale'
-    describe("Success validation of 'locale'", () => {
-      test.each([
-        ["Valid locale.UUID", randomUUID()]
-      ])("Successful validation 'locale.UUID' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale:  {
-            UUID: value,
-            name: getTestString(NAME_MAX_LENGTH),
-            shortCode: getTestString(SHORTCODE_MAX_LENGTH)
-          }
-        };
-        assertNoValidationError(modelInfoSpec, 'locale.UUID');
-        assertNoValidationError(modelInfoSpec, 'locale.name');
-        assertNoValidationError(modelInfoSpec, 'locale.shortCode');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+        [CaseType.Failure, "Too long name", getTestString(NAME_MAX_LENGTH + 1), `Name must be at most ${NAME_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "the longest", getTestString(NAME_MAX_LENGTH), undefined],
+      ])("(%s) Validate 'name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "name", caseType, value, expectedFailureMessage);
       });
     });
 
-    // success validation of 'locale.uuid'
-    describe("Success validation of 'locale.UUID'", () => {
+    describe("Test validation of 'previousUUID'", () => {
       test.each([
-        ["Valid locale.UUID", randomUUID()]
-      ])("Successful validation 'locale.UUID' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale:  {
-            UUID: value
-          }
-        };
-        assertNoValidationError(modelInfoSpec, 'locale.UUID');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+        [CaseType.Success, "Empty previousUUID", "", undefined],
+        [CaseType.Success, "Valid previousUUID", randomUUID(), undefined]
+      ])("(%s) Validate 'previousUUID' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "previousUUID", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'originUUID", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+        [CaseType.Success, "Empty originUUID", "", undefined],
+        [CaseType.Success, "Valid originUUID", randomUUID(), undefined]
+      ])("(%s) Validate 'originUUID' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "originUUID", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'UUID", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+        [CaseType.Success, "Valid UUID", randomUUID(), undefined]
+      ])("(%s) Validate 'UUID' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "UUID", caseType, value, expectedFailureMessage);
       });
     });
 
 
-    // success validation of 'locale.name'
-    describe("Success validation of 'locale.name'", () => {
+    describe("Test validation of 'released'", () => {
       test.each([
-        ["Empty locale.name", ""],
-        ["Valid locale.name", getTestString(NAME_MAX_LENGTH)]
-      ])("Successful validation 'locale.name' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale:  {
-            name: value
-          }
-        };
-        assertNoValidationError(modelInfoSpec, 'locale.name');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
+        [CaseType.Success, "true", true, undefined],
+        [CaseType.Success, "false", false, undefined]
+      ])("(%s) Validate 'released' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, "released", caseType, value, expectedFailureMessage);
       });
     });
 
-
-    // success validation of 'locale.shortCode'
-    describe("Success validation of 'locale.shortcode'", () => {
+    describe("Test validation of 'locale.UUID'", () => {
       test.each([
-        ["Empty locale.shortCode", ""],
-        ["Valid locale.shortCode", getTestString(SHORTCODE_MAX_LENGTH)]
-      ])("Successful validation 'locale.shortCode' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale:  {
-            shortCode: value
-          }
-        };
-        assertNoValidationError(modelInfoSpec, 'locale.shortCode');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+        [CaseType.Success, "Valid locale.UUID", randomUUID(), undefined]
+      ])("(%s) Validate 'locale.name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, ["locale", "UUID"], caseType, value, expectedFailureMessage);
       });
     });
 
-
-    // success validation of 'previousUUID'
-    describe("Success validation of 'previousUUID'", () => {
+    describe("Test validation of 'locale.name'", () => {
       test.each([
-        ["Empty previousUUID", ""],
-        ["Valid previousUUID", randomUUID()]
-      ])("Successful validation 'previousUUID' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          previousUUID: value
-        };
-        assertNoValidationError(modelInfoSpec, 'previousUUID');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long locale name", getTestString(NAME_MAX_LENGTH + 1), `Name must be at most ${NAME_MAX_LENGTH} chars long`],
+        [CaseType.Success, "Empty locale.name", "", undefined],
+        [CaseType.Success, "Valid locale.name", getTestString(NAME_MAX_LENGTH), undefined]
+      ])("(%s) Validate 'locale.name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, ["locale", "name"], caseType, value, expectedFailureMessage);
       });
     });
 
-    // success validation of 'originUUID'
-    describe("Success validation of 'originUUID'", () => {
+    describe("Test validation of 'locale.shortCode'", () => {
       test.each([
-        ["Empty originUUID", ""],
-        ["Valid UUID", randomUUID()]
-      ])("Successful validation 'originUUID' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          originUUID: value
-        };
-        assertNoValidationError(modelInfoSpec, 'originUUID');
-      });
-    });
-
-
-    // success validation of 'UUID'
-    describe("Success validation of 'UUID'", () => {
-      test.each([
-        ["Valid UUID", randomUUID()]
-      ])("Successful validation 'UUID' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          UUID: value
-        };
-        assertNoValidationError(modelInfoSpec, 'UUID');
-      });
-    });
-
-    // success validation of 'released'
-    describe("Success validation of 'released'", () => {
-      test.each([
-        ["true", true],
-        ["false", false]
-      ])("Successful validation 'released' when it is %s", (caseDescription, value) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          released: value
-        };
-        assertNoValidationError(modelInfoSpec, 'released');
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long locale name", getTestString(SHORTCODE_MAX_LENGTH + 1), `Short code must be at most ${SHORTCODE_MAX_LENGTH} chars long`],
+        [CaseType.Success, "Empty locale.shortCode", "", undefined],
+        [CaseType.Success, "Valid locale.shortCode", getTestString(SHORTCODE_MAX_LENGTH), undefined]
+      ])("(%s) Validate 'locale.shortcode' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfo>(ModelInfoModel, ["locale", "shortCode"], caseType, value, expectedFailureMessage);
       });
     });
   })
-
-  describe("Fail validation of modelInfo fields", () => {
-    function assertValidationError(modelInfoSpec: Partial<IModelInfo>, failedProperty: string, failMessage: string) {
-      const newModel = new ModelInfoModel(modelInfoSpec);
-      const result = newModel.validateSync();
-      expect(result).toBeDefined();
-      expect(result?.errors[failedProperty]?.message).toEqual(expect.stringMatching(new RegExp(failMessage)));
-    }
-
-    describe("Fail validation of 'UUID'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["empty", "", "Path `{0}` is required."],
-        ["only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
-        ["not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-      ])("Fail validation 'UUID' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          UUID: value
-        };
-        assertValidationError(modelInfoSpec, 'UUID', formatMessage(message, 'UUID'));
-      });
-    });
-
-
-    describe("Fail validation of 'name'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["empty", "", "Path `{0}` is required."],
-        ["only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
-        ["Too long name", getTestString(NAME_MAX_LENGTH + 1), 'Name must be at most 256']
-      ])("Fail validation 'name' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          name: value
-        };
-        assertValidationError(modelInfoSpec, 'name', formatMessage(message, 'name'));
-      });
-    });
-
-    describe("Fail validation of 'description'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["Too long description", getTestString(DESCRIPTION_MAX_LENGTH + 1), `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`]
-      ])("Fail validation 'description' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          description: value
-        };
-        assertValidationError(modelInfoSpec, 'description', formatMessage(message, 'description'));
-      });
-    });
-
-    describe("Fail validation of 'previousUUID'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
-        ["not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-      ])("Fail validation 'previousUUID' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          previousUUID: value
-        };
-        assertValidationError(modelInfoSpec, 'previousUUID', formatMessage(message, 'previousUUID'));
-      });
-    });
-
-    describe("Fail validation of 'originUUID'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
-        ["not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-      ])("Fail validation 'originUUID' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          originUUID: value
-        };
-        assertValidationError(modelInfoSpec, 'originUUID', formatMessage(message, 'originUUID'));
-      });
-    });
-
-    describe("Fail validation of 'releaseNotes'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["Too long releaseNotes", getTestString(RELEASE_NOTES_MAX_LENGTH + 1), `Release notes must be at most ${RELEASE_NOTES_MAX_LENGTH}`]
-      ])("Fail validation 'releaseNotes' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          releaseNotes: value
-        };
-        assertValidationError(modelInfoSpec, 'releaseNotes', formatMessage(message, 'releaseNotes'));
-      });
-    });
-
-    describe("Fail validation of 'released'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
-      ])("Fail validation 'released' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          released: value
-        };
-        assertValidationError(modelInfoSpec, 'released', formatMessage(message, 'released'));
-      });
-    });
-
-    describe("Fail validation of 'version'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["Too long version", getTestString(VERSION_MAX_LENGTH + 1), `Version must be at most ${VERSION_MAX_LENGTH}`]
-      ])("Fail validation 'version' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          version: value
-        };
-        assertValidationError(modelInfoSpec, 'version', formatMessage(message, 'version'));
-      });
-    });
-
-/* REDUNDANT as it is covered by the individual locale properties
-  describe("Fail validation of 'locale entity'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-      ])("Fail validation 'locale entity' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale: value
-        };
-        assertValidationError(modelInfoSpec, 'locale', formatMessage(message, 'locale'));
-      });
-    });
-
- */
-
-    describe("Fail validation of 'locale.UUID'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["empty", "", "Path `{0}` is required."],
-        ["only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
-        ["not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"]
-      ])("Fail validation 'locale UUID' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale: {UUID: value}
-        };
-        assertValidationError(modelInfoSpec, 'locale.UUID', formatMessage(message, 'locale.UUID'));
-      });
-    });
-
-    describe("Fail validation of 'locale.name'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["Too long locale name", getTestString(NAME_MAX_LENGTH + 1), `Name must be at most ${NAME_MAX_LENGTH}`]
-      ])("Fail validation 'locale name' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale: {name: value}
-        };
-        assertValidationError(modelInfoSpec, 'locale.name', formatMessage(message, 'locale.name'));
-      });
-    });
-
-    describe("Fail validation of 'locale.shortCode'", () => {
-      test.each([
-        ["undefined", undefined, "Path `{0}` is required."],
-        ["null", null, "Path `{0}` is required."],
-        ["Too long locale name", getTestString(SHORTCODE_MAX_LENGTH + 1), `Short code must be at most ${SHORTCODE_MAX_LENGTH}`]
-      ])("Fail validation 'locale shortCode' because it is %s", (caseDescription, value, message) => {
-        const modelInfoSpec: Partial<IModelInfo> = {
-          // @ts-ignore
-          locale: {shortCode: value}
-        };
-        assertValidationError(modelInfoSpec, 'locale.shortCode', formatMessage(message, 'locale.shortCode'));
-      });
-    });
-  })
-});
+})
