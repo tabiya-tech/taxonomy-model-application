@@ -1,8 +1,9 @@
-import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
+import {render, screen} from "src/_test_utilities/test-utils";
 import ModelDescriptionField, {DATA_TEST_ID, TEXT} from "./ModelDescriptionField";
 import {getTestString} from "src/_test_utilities/specialCharacters";
 import {isSpecified} from "src/utils/isUnspecified";
 import React from "react";
+import {typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
 
 describe("ModelDescriptionField render tests", () => {
   test("should render default state", () => {
@@ -44,7 +45,8 @@ describe("ModelDescriptionField render tests", () => {
 })
 
 describe("ModelDescriptionField action tests", () => {
-  test("should correctly notify the notifyModelDescriptionChanged handler", () => {
+
+  test("should correctly notify the notifyModelDescriptionChanged handler", async () => {
     // GIVEN a notifyModelDescriptionChanged mock
     const notifyModelDescriptionChangedHandlerMock = jest.fn()
 
@@ -54,30 +56,25 @@ describe("ModelDescriptionField action tests", () => {
     // WHEN descriptionField changes value
     const givenModelDescription = getTestString(10)
     const descField = screen.getByTestId(DATA_TEST_ID.MODEL_DESC_INPUT)
-    fireEvent.change(descField, {
-      target: {
-        value: givenModelDescription
-      }
-    })
 
-    // THEN expect the notifyModelDescriptionChangedHandlerMock to have been called
-    expect(notifyModelDescriptionChangedHandlerMock).toHaveBeenCalledTimes(1)
+    // We must use fake timers so that time can progress immediately while the input is debounced.
+    await typeDebouncedInput(descField, givenModelDescription)
+
+    // THEN expect the notifyModelDescriptionChangedHandlerMock to have been called once because it is debounced
+    expect(notifyModelDescriptionChangedHandlerMock).toHaveBeenCalledTimes(1);
+
     // AND expect the notifyModelDescriptionChangedHandlerMock to have been called with the correct value
-    expect(notifyModelDescriptionChangedHandlerMock).toHaveBeenCalledWith(givenModelDescription)
+    expect(notifyModelDescriptionChangedHandlerMock).toHaveBeenCalledWith(givenModelDescription);
   })
 
-  test("should handle text changes even if notifyModelNameChanged handler is notset",()=>{
+  test("should handle text changes even if notifyModelNameChanged handler is notset", async () => {
     // GIVEN the model description field is rendered without a notifyModelDescriptionChanged handler
     render(<ModelDescriptionField/>);
 
     // WHEN the descriptionField changes value
     const givenModelDescription = getTestString(10)
-    const descField:HTMLInputElement = screen.getByTestId(DATA_TEST_ID.MODEL_DESC_INPUT)
-    fireEvent.change(descField, {
-      target: {
-        value: givenModelDescription
-      }
-    })
+    const descField: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.MODEL_DESC_INPUT)
+    await typeDebouncedInput(descField, givenModelDescription);
 
     // THEN expect inputField to have the new value
     expect(descField.value).toBe(givenModelDescription)

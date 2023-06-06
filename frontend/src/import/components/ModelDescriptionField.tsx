@@ -2,6 +2,8 @@ import react from "react";
 import {FormControl, FormLabel, Input, Stack} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
 import {useStyles} from "src/theme/global.style";
+import debounce from "lodash.debounce";
+import {DEBOUNCE_INTERVAL} from "./debouncing";
 
 export const TEXT = {
   MODEL_DESC_LABEL: "Model Description",
@@ -22,6 +24,8 @@ export interface ModelDescriptionFieldProps {
 export const ModelDescriptionField = (props: ModelDescriptionFieldProps) => {
   const uniqueId = generateUniqueId();
 
+  const debounceHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL)
+
   function handleTextInputChange(e: react.ChangeEvent<HTMLTextAreaElement>) {
     if (props.notifyModelDescriptionChanged) {
       props.notifyModelDescriptionChanged(e.target.value);
@@ -41,7 +45,7 @@ export const ModelDescriptionField = (props: ModelDescriptionFieldProps) => {
         placeholder={TEXT.MODEL_DESC_PLACEHOLDER}
         id={uniqueId}
         style={{maxWidth: '100%', minWidth: '100%', maxHeight: '20rem', minHeight: '6rem'}}
-        onChange={handleTextInputChange}
+        onChange={debounceHandleTextInputChange}
       />
     </Stack>
   </FormControl>

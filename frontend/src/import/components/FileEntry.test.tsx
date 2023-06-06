@@ -2,6 +2,8 @@ import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
 import {DATA_TEST_ID, FileEntry} from "./FileEntry";
 import {ImportFileTypes} from "api-specifications/import";
 import {mapFileTypeToName} from "./mapFileTypeToName";
+import {waitFor} from "@testing-library/react";
+import {clickDebouncedButton} from "src/_test_utilities/userEventFakeTimer";
 
 describe("FileEntry render tests", () => {
 
@@ -93,16 +95,17 @@ describe("FileEntry action tests", () => {
 
     // WHEN fileRemoverFab is clicked
     const fileRemoverFab = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON)
-    // wait for the component's state to update
-    fireEvent.click(fileRemoverFab)
+    await clickDebouncedButton(fileRemoverFab);
 
     // THEN expect file input to have an empty files
-    // get the new fileInput element from the dom
-    fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
-    expect(fileInput.files).toHaveLength(0);
+    // wait for the component's state to update
+    await waitFor(() => {
+      fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    }, {});
+    expect(fileInput.files).toHaveLength(0)
     // AND expect file trigger fab to be in the document
     const selectFileButton = screen.getByTestId(DATA_TEST_ID.SELECT_FILE_BUTTON)
-    expect(selectFileButton).toBeInTheDocument();
+    expect(selectFileButton).toBeInTheDocument()
   })
 
   it("should correctly notify the notifySelectedFileChange handler when file is selected", async () => {
@@ -140,10 +143,10 @@ describe("FileEntry action tests", () => {
     // WHEN the remove selected file button is clicked
     const fileRemoverFab = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON)
     // wait for the component's state to update
-    fireEvent.click(fileRemoverFab);
+    await clickDebouncedButton(fileRemoverFab);
 
-    // THEN expect notificationHandler to have been called with givenFileType and null
-    expect(givenMockNotification).toBeCalledWith(givenFileType, null)
+    // THEN expect notificationHandler to have been called with givenFileType and null,
+    expect(givenMockNotification).toBeCalledWith(givenFileType, null);
   });
 
   it("should handle file changes even if notifySelectedFileChange handler is not set", async () => {
