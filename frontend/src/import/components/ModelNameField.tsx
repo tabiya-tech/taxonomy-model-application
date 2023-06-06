@@ -2,6 +2,8 @@ import react from "react";
 import {FormControl, FormLabel, Input, Stack} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
 import {useStyles} from "src/theme/global.style";
+import debounce from "lodash.debounce"
+import {DEBOUNCE_INTERVAL} from "./debouncing";
 
 export const TEXT = {
   MODEL_NAME_LABEL: "Model Name",
@@ -16,17 +18,20 @@ export const DATA_TEST_ID = {
 }
 
 export interface ModelNameFieldProps {
-  notifyModelNameChanged?: (newName: string) => void
+  notifyModelNameChanged?: (newName: string) => any
 }
 
 export const ModelNameField = (props: ModelNameFieldProps) => {
   const uniqueId = generateUniqueId();
+
+  const throttledHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL)
 
   function handleTextInputChange(e: react.ChangeEvent<HTMLTextAreaElement>) {
     if (props.notifyModelNameChanged) {
       props.notifyModelNameChanged(e.target.value);
     }
   }
+
 
   const classes = useStyles();
   return <FormControl sx={{width: '100%'}} data-testid={DATA_TEST_ID.MODEL_NAME_FIELD}>
@@ -38,7 +43,7 @@ export const ModelNameField = (props: ModelNameFieldProps) => {
         sx={{width: '100%'}}
         id={uniqueId}
         inputProps={{"data-testid": DATA_TEST_ID.MODEL_NAME_INPUT}}
-        onChange={handleTextInputChange}
+        onChange={throttledHandleTextInputChange}
       /></Stack>
   </FormControl>
 };

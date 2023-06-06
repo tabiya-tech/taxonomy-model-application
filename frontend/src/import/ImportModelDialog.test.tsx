@@ -16,6 +16,7 @@ import ImportDirectorService from "./importDirector.service";
 import {getMockId} from "src/_test_utilities/mockMongoId";
 import {ImportFileTypes} from "api-specifications/import";
 import {ILocale} from "api-specifications/modelInfo";
+import {typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
 
 jest.mock("./importDirector.service", () => {
   // Mocking the ES5 class
@@ -76,16 +77,15 @@ describe("ImportModel dialog render tests", () => {
   });
 });
 
-function fillInImportDialog() {
-  // User enters a model name
+async function fillInImportDialog() {
   const enteredModelName = 'My Model';
   const modelNameElement = screen.getByTestId(MODEL_NAME_FIELD_DATA_TEST_ID.MODEL_NAME_INPUT);
-  fireEvent.change(modelNameElement, {target: {value: enteredModelName}});
+  await typeDebouncedInput(modelNameElement, enteredModelName);
 
   // User enters a model description
   const enteredModelDescription = 'My Model Description';
   const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
-  fireEvent.change(modelDescriptionElement, {target: {value: enteredModelDescription}});
+  await typeDebouncedInput(modelDescriptionElement, enteredModelDescription);
 
   // User selects the import files
   const selectedFiles: { fileType: ImportFileTypes, file: File }[] = [];
@@ -104,6 +104,7 @@ function fillInImportDialog() {
   }
   return {enteredModelName, enteredModelDescription, selectedFiles, selectedLocale};
 }
+
 describe('ImportModel dialog action tests', () => {
 
   it('should call notifyOnClose with CANCEL when Escape key is pressed', () => {
@@ -137,7 +138,7 @@ describe('ImportModel dialog action tests', () => {
     ImportDirectorService.prototype.directImport = jest.fn().mockResolvedValueOnce(givenModelId);
 
     // WHEN the user enters all the data required for the import
-    const data = fillInImportDialog();
+    const data = await fillInImportDialog();
     // AND the Import button is clicked
     const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
     fireEvent.click(importButton);
@@ -151,17 +152,19 @@ describe('ImportModel dialog action tests', () => {
   });
 
   it('should not call notifyOnClose when Import button is clicked and import is not unsuccessful', async () => {
+
     // GIVEN the dialog is visible
     render(<ImportModelDialog {...props} />);
     // AND the import will fail
     ImportDirectorService.prototype.directImport = jest.fn().mockRejectedValueOnce(new Error('Import failed'));
 
     // WHEN the user enters all the data required for the import
-    const data = fillInImportDialog();
+    const data = await fillInImportDialog();
+
     // AND the Import button is clicked
     const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
-    fireEvent.click(importButton);
 
+    fireEvent.click(importButton);
     // THEN expect the import director service to have been called
     expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(data.enteredModelName, data.enteredModelDescription, data.selectedLocale, data.selectedFiles)
     await waitFor(() => {

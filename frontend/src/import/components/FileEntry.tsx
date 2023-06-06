@@ -6,6 +6,8 @@ import {ImportFileTypes} from "api-specifications/import";
 import {Fab, FabProps} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
 import {mapFileTypeToName} from "./mapFileTypeToName";
+import debounce from "lodash.debounce";
+import {DEBOUNCE_INTERVAL} from "./debouncing";
 
 export interface FileEntryProps {
   fileType: ImportFileTypes,
@@ -51,13 +53,15 @@ export const FileEntry = (props: FileEntryProps) => {
     }
   }
 
+  const debounceFileRemoveHandler = debounce(fileRemovedHandler,DEBOUNCE_INTERVAL)
+
   return <div data-filetype={props.fileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
     {
       selectedFile ?
         <Fab {...commonFabProps} {...selectedFileFabProps} color='secondary'
              aria-label={`Remove ${fileTypeName} csv file`}
              data-testid={DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON}
-             onClick={fileRemovedHandler}>
+             onClick={debounceFileRemoveHandler}>
           <RemoveIcon/>
           <span style={{
             display: 'inline-block',
