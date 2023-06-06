@@ -28,16 +28,33 @@ export enum CaseType {
   Failure = "Failure",
 }
 
-export function assertCaseForProperty<T>(model: mongoose.Model<T>, propertyName: string, caseType: CaseType, testValue: unknown, expectedFailureMessage?: string) {
+export function assertCaseForProperty<T>(model: mongoose.Model<T>, propertyNames: string|string[], caseType: CaseType, testValue: unknown, expectedFailureMessage?: string) {
+
+  if (typeof propertyNames === "string") {
+    propertyNames = [propertyNames];
+  }
   // @ts-ignore
-  const docSpec: Partial<T> = {
-    // @ts-ignore
-    [propertyName]: testValue
-  };
+  const docSpec: Partial<T> =   createNestedObject(propertyNames, testValue);
+
+  const propertyPath = propertyNames.join(".");
+
   if (caseType === CaseType.Success) {
-    assertNoValidationError<T>(model, docSpec, propertyName);
+    assertNoValidationError<T>(model, docSpec, propertyPath);
   } else {
     expect(expectedFailureMessage).toBeDefined();
-    assertValidationError<T>(model, docSpec, propertyName, formatMessage(expectedFailureMessage as string, propertyName));
+    assertValidationError<T>(model, docSpec, propertyPath, formatMessage(expectedFailureMessage as string, propertyPath));
   }
 }
+
+const createNestedObject = (keys: string[], value: unknown): unknown => {
+  if (keys.length === 0) {
+    return value; // Assign value to innermost property
+  }
+
+  const key = keys[0];
+  const nestedKeys = keys.slice(1);
+
+  return {
+    [key]: createNestedObject(nestedKeys, value) // Recursively build nested object
+  };
+};
