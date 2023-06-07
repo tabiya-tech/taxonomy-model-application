@@ -7,10 +7,7 @@ import {
   DialogContent,
   DialogTitle, useMediaQuery, useTheme
 } from '@mui/material';
-import ImportDirectorService from "src/import/importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
-import {ServiceError} from "src/error/error";
-import {writeServiceErrorToLog} from "src/error/logger";
 import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
 import ModelDescriptionField from "./components/ModelDescriptionField";
@@ -25,14 +22,14 @@ export const DATA_TEST_ID = {
   CANCEL_BUTTON: `cancel-button-${uniqueId}`
 }
 
-interface ImportData {
+export interface ImportData {
   name: string,
   description: string,
   locale: ILocale,
   selectedFiles: { [key in ImportFileTypes]?: File }
 }
 
-export type CloseEvent = { name: "CANCEL" | "SUCCESS", modelid?: string };
+export type CloseEvent = { name: "CANCEL" | "IMPORT", importData?: ImportData };
 
 export interface ImportModelDialogProps {
   isOpen: boolean, // if true, the dialog is open/shown
@@ -60,8 +57,6 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
     selectedFiles: {}
   }
 
-  const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
-
   const handleNameChange = (newName: string) => {
     data.name = newName;
   }
@@ -77,29 +72,6 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
       data.selectedFiles[fileType] = file;
     }
   }
-
-  const handleImportButtonClick = async () => {
-    try {
-      const files = Object.entries(data.selectedFiles).map(([fileType, file]) => {
-        return {
-          fileType: fileType as ImportFileTypes,
-          file: file
-        }
-      });
-      const modelID = await importDirectorService.directImport(
-        data.name, data.description, data.locale, files
-      );
-
-      console.log("Created model: " + modelID);
-      handleClose({name: "SUCCESS", modelid: modelID});
-    } catch (e) {
-      if (e instanceof ServiceError) {
-        writeServiceErrorToLog(e, console.error);
-      } else {
-        console.error(e);
-      }
-    }
-  };
 
   const classes = useStyles();
   const theme = useTheme();
@@ -118,7 +90,7 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
       <CancelButton onClick={() => {
         handleClose({name: "CANCEL"})
       }} data-testid={DATA_TEST_ID.CANCEL_BUTTON}/>
-      <Button onClick={handleImportButtonClick}
+      <Button onClick={()=>handleClose({name: "IMPORT", importData: data })}
               data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</Button>
     </DialogActions>
   </Dialog>
