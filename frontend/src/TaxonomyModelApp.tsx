@@ -1,6 +1,5 @@
 import React from 'react';
 import {createHashRouter, RouterProvider} from 'react-router-dom';
-
 import routerConfig from './routerConfig';
 import {Container} from "@mui/material";
 

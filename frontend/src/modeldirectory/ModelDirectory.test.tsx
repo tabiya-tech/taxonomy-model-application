@@ -12,12 +12,21 @@ import ImportDirectorService from "src/import/importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
 import {ImportFileTypes} from "api-specifications/import";
 import {ImportFiles} from "../import/ImportFiles.type";
+import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 
 jest.mock("src/import/importDirector.service", () => {
   // Mocking the ES5 class
   const mockDirectorService = jest.fn(); // the constructor
   mockDirectorService.prototype.directImport = jest.fn();// adding a mock method
   return mockDirectorService;
+});
+
+jest.mock("src/theme/SnackbarProvider/SnackbarProvider", () => {
+  return {
+    useSnackbar: jest.fn().mockReturnValue({
+      enqueueSnackbar: jest.fn()
+    }),
+  };
 });
 
 jest.mock("src/import/ImportModelDialog", () => {
@@ -53,6 +62,9 @@ function getTestImportData(): ImportData {
   return {name, description, locale, selectedFiles};
 }
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 describe("ModelDirectory.ImportDialog action tests", () => {
 
   test("should show ImportDialog when import button is clicked", async () => {
@@ -109,6 +121,11 @@ describe("ModelDirectory.ImportDialog action tests", () => {
       const mock = (ImportModelDialog as jest.Mock).mock;
       mock.lastCall[0].notifyOnClose({name: 'IMPORT', importData: givenImportData})
     });
+    // AND the snackbar notification was shown
+    expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+      `The model ${givenImportData.name} import has started.`,
+      { variant: "success" }
+    );
 
     // THEN expect the ImportDialog to be rendered as closed
     expect(screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeNull();
@@ -118,6 +135,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
   });
 
   it('should throw an error when import director fails to import', async () => {
+
     // GIVEN the ModelDirectory is rendered
     render(<ModelDirectory/>);
     // AND the import will fail
@@ -151,5 +169,9 @@ describe("ModelDirectory.ImportDialog action tests", () => {
 
     // AND expect the error to be thrown
     expect(errorWasThrown).toBeTruthy();
+    expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+      `The model ${givenImportData.name} import could not be started.`,
+      { variant: "error" }
+    );
   });
 });

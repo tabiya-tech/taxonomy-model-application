@@ -4,8 +4,10 @@ import {
 } from '@mui/material';
 import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelDialog";
 import {ServiceError} from "src/error/error";
-import {writeServiceErrorToLog} from "src/error/logger";
 import ImportDirectorService from "src/import/importDirector.service";
+import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
+import {writeServiceErrorToLog} from "../error/logger";
+
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
   MODEL_DIRECTORY_PAGE: `model-directory-root-${uniqueId}`,
@@ -16,6 +18,7 @@ const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech
 
 const ModelDirectory = () => {
   const [isImportDlgOpen, setImportDlgOpen] = React.useState(false);
+  const {enqueueSnackbar} = useSnackbar()
   const showImportDialog = (b: boolean) => {
     setImportDlgOpen(b);
   }
@@ -31,8 +34,10 @@ const ModelDirectory = () => {
           importData.locale,
           importData.selectedFiles
         );
+        enqueueSnackbar(`The model ${importData.name} import has started.`, {variant:"success"})
         console.log("Created model: " + modelID);
       } catch (e) {
+        enqueueSnackbar(`The model ${importData.name} import could not be started.`, {variant:"error"})
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
@@ -53,7 +58,7 @@ const ModelDirectory = () => {
       Import Model
     </Button>
     {isImportDlgOpen &&
-      <ImportModelDialog isOpen={isImportDlgOpen} notifyOnClose={handleOnImportDialogClose}/>}
+        <ImportModelDialog isOpen={isImportDlgOpen} notifyOnClose={handleOnImportDialogClose}/>}
   </Container>
 };
 export default ModelDirectory;
