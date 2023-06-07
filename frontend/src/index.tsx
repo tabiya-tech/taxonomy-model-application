@@ -5,8 +5,9 @@ import TaxonomyModelApp from './TaxonomyModelApp';
 import reportWebVitals from './reportWebVitals';
 import applicationTheme from "./theme/applicationTheme";
 import {ThemeProvider} from "@mui/material";
+import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
 
-// Currently the fonts are downloaded from google via the index.css
+// Currently the fonts are downloaded from Google via the index.css
 // Fonts could be distributed with the app instead, by explicitly importing them here
 
 const root = ReactDOM.createRoot(
@@ -16,7 +17,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={applicationTheme}>
-      <TaxonomyModelApp/>
+      <SnackbarProvider>
+        <TaxonomyModelApp/>
+      </SnackbarProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

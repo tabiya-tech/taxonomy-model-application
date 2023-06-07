@@ -16,6 +16,7 @@ import "@fontsource/roboto/700.css";
 */
 
 import type {Preview} from "@storybook/react";
+import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
 
 const preview: Preview = {
   parameters: {
@@ -39,5 +40,9 @@ export const decorators = [
     defaultTheme: "applicationsTheme",
     Provider: ThemeProvider,
     //GlobalStyles: CssBaseline,
-  }),
+  }),(Story) => (
+    <CustomSnackbarProvider>
+      <Story />
+    </CustomSnackbarProvider>
+  ),
 ];
