@@ -36,12 +36,15 @@ export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
   maxlength: [LABEL_MAX_LENGTH, `AltLabel must be at most ${LABEL_MAX_LENGTH}`],
   default: undefined,
   validate: (value: string[]) => {
-    if (!(Array.isArray(value) && value.length <= ATL_LABELS_MAX_ITEMS && value.every((item: string) => {
+    if (!Array.isArray(value) || (value.length > 0 && value.every((item: string) => {
       const trimmed = item.trim();
-      return trimmed.length > 0 && trimmed.length <= LABEL_MAX_LENGTH;
+      return trimmed.length === 0 || trimmed.length > LABEL_MAX_LENGTH;
     }))) {
-      // TODO: throw a different  when ATL_LABELS_MAX_ITEMS is exceeded
       throw new Error('AltLabels must be an array of non empty strings');
+    }
+
+    if (value.length > ATL_LABELS_MAX_ITEMS) {
+      throw new Error(`AltLabels must be at most ${ATL_LABELS_MAX_ITEMS} items`);
     }
 
     if (!hasUniqueValues(value)) {
