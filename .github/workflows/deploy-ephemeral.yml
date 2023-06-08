@@ -1,0 +1,94 @@
+name: Deploy Ephemeral Environment
+
+on:
+  pull_request:
+    types:  [opened]
+
+jobs:
+  # API Specifications
+  build-api-specs:
+    uses: ./.github/workflows/build-api-specs.yml
+    secrets: inherit
+  # Backend
+  build-backend:
+    uses: ./.github/workflows/build-backend.yml
+    needs: [ build-api-specs ]
+    secrets: inherit
+  deploy-backend-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    needs: [  build-backend ]
+    uses: ./.github/workflows/deploy-backend-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      version-info: ${{ needs.build-backend.outputs.version-info }}
+  smoke-test-backend:
+    needs: [ build-backend, deploy-backend-ephemeral ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: backend
+      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
+      component-url: ${{ needs.deploy-backend-ephemeral.outputs.backedRestApiURLBase }}
+      resources-base-url: ${{ needs.deploy-backend-ephemeral.outputs.resourcesBaseUrl }}
+  # Frontend
+  build-frontend:
+    uses: ./.github/workflows/build-frontend.yml
+    needs: [ build-api-specs ]
+    secrets: inherit
+  deploy-frontend-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    needs: [ build-frontend ]
+    uses: ./.github/workflows/deploy-frontend-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      version-info: ${{ needs.build-frontend.outputs.version-info }}
+  smoke-test-frontend:
+    needs: [ build-frontend, deploy-frontend-ephemeral ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: frontend
+      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      component-url: ${{ needs.deploy-frontend-ephemeral.outputs.frontendBucketWebsiteURLBase }}
+  # Sonarcloud
+  sonarcloud:
+    needs: [ build-backend, build-frontend, build-api-specs ]
+    uses: ./.github/workflows/sonar-cloud.yml
+    secrets: inherit
+  # Common Infrastructure
+  deploy-common-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    needs: [ deploy-frontend-ephemeral, build-frontend, deploy-backend-ephemeral, build-backend ]
+    uses: ./.github/workflows/deploy-common-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
+  #  Update the parent Nameserver with the subdomain
+  deploy-nameserver-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    needs: [ deploy-common-ephemeral ]
+    uses: ./.github/workflows/deploy-nameserver-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+  smoke-test-frontend-cdn:
+    needs: [ build-frontend, deploy-common-ephemeral, deploy-nameserver-ephemeral ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: frontend
+      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      component-url: ${{ needs.deploy-common-ephemeral.outputs.frontendURLBase }}
+  smoke-test-backend-cdn:
+    needs: [ build-backend, deploy-backend-ephemeral, deploy-common-ephemeral, deploy-nameserver-ephemeral ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: backend
+      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
+      resources-base-url: ${{ needs.deploy-backend-ephemeral.outputs.resourcesBaseUrl }}
+      component-url: ${{ needs.deploy-common-ephemeral.outputs.backendURLBase }}
