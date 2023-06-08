@@ -1,20 +1,19 @@
 // suppress chatty log output when testing
 import "_test_utilities/consoleMock";
+
 import {getMockId} from "_test_utilities/mockMongoId";
 import {Connection} from "mongoose";
-
 import {randomUUID} from "crypto";
 import {generateRandomUrl, getTestString} from "_test_utilities/specialCharacters";
 import {getNewConnection} from "server/connection/newConnection";
 import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
-
-import {getTestConfiguration} from "modelInfo/testDataHelper"; // TODO: move to _test_utilities
 import {ISkillGroupRepository} from "./SkillGroupRepository";
 import {INewSkillGroupSpec, ISkillGroup} from "./skillGroupModel";
 import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH, SCOPE_NOTE_MAX_LENGTH} from "esco/common/modelSchema";
 import {getMockRandomSkillCode} from "_test_utilities/mockSkillGroupCode";
+import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");

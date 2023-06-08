@@ -9,7 +9,6 @@ import {
   IISCOGroup,
   ModelName,
 } from "./ISCOGroupModel";
-import {getTestConfiguration} from "modelInfo/testDataHelper";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {
   generateRandomDigitString,
@@ -24,6 +23,7 @@ import {
   LABEL_MAX_LENGTH
 } from "../esco/common/modelSchema";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
+import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
 function getRandomISCOGroupCode(): string {
   return generateRandomDigitString(1, 4);

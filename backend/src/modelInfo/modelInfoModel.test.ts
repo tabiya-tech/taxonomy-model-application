@@ -13,9 +13,9 @@ import {
 import {randomUUID} from "crypto";
 import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {getMockId} from "_test_utilities/mockMongoId";
-import {getTestConfiguration} from "./testDataHelper";
 import {getNewConnection} from "server/connection/newConnection";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
+import {getTestConfiguration} from "../_test_utilities/getTestConfiguration";
 
 describe('Test the definition of the ModelInfo Model', () => {
   let dbConnection: Connection;
