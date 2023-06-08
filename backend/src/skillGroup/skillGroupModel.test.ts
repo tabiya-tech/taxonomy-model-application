@@ -5,7 +5,6 @@ import mongoose, {Connection} from "mongoose";
 import {randomUUID} from "crypto";
 import {getNewConnection} from "server/connection/newConnection";
 import {initializeSchemaAndModel, ISkillGroup, ModelName, PARENT_MAX_ITEMS,} from "./skillGroupModel";
-import {getTestConfiguration} from "modelInfo/testDataHelper";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {generateRandomUrl, getRandomString, getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
@@ -17,6 +16,7 @@ import {
   SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
 import {getMockRandomSkillCode} from "../_test_utilities/mockSkillGroupCode";
+import {getTestConfiguration} from "../_test_utilities/getTestConfiguration";
 
 describe('Test the definition of the skillGroup Model', () => {
   let dbConnection: Connection;
