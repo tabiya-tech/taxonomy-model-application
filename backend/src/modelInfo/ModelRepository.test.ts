@@ -87,6 +87,9 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() model ", () => {
+    afterEach(async () => {
+      await repository.Model.deleteMany({});
+    })
 
     test("should successfully create a new model", async () => {
       // GIVEN a valid INewModelInfoSpec
