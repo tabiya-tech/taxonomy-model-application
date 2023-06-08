@@ -55,7 +55,7 @@ describe("test for trigger import handler", () => {
       // GIVEN an event with a non POST method
       const givenEvent = {httpMethod: param};
 
-      //WHEN the trigger import handler is invoked
+      // WHEN the trigger import handler is invoked
       //@ts-ignore
       const actualResponse = await importHandler(givenEvent, null, null);
 
@@ -82,7 +82,7 @@ describe("test for trigger import handler", () => {
       }
     }
 
-    //WHEN the info handler is invoked with event param
+    // WHEN the info handler is invoked with event param
     //@ts-ignore
     const actualResponse = await importHandler(givenEvent, null, null);
 
@@ -111,7 +111,7 @@ describe("test for trigger import handler", () => {
       }
     }
 
-    //WHEN the info handler is invoked with event param
+    // WHEN the info handler is invoked with event param
     //@ts-ignore
     const actualResponse = await importHandler(givenEvent, null, null);
 
@@ -132,7 +132,7 @@ describe("test for trigger import handler", () => {
     );
   });
 
-  test("POST should respond with the BAD_REQUEST if Request does not conform to schema %s", async () => {
+  test("POST should respond with the BAD_REQUEST if Request does not conform to schema", async () => {
     // GIVEN a payload
     const givenPayload = {foo: "foo"}
     // AND event
@@ -144,7 +144,7 @@ describe("test for trigger import handler", () => {
       }
     }
 
-    //WHEN the info handler is invoked with event param
+    // WHEN the info handler is invoked with event param
     //@ts-ignore
     const actualResponse = await importHandler(givenEvent, null, null);
 
