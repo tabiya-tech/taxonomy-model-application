@@ -1,0 +1,49 @@
+name: Destroy Ephemeral Environment
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  # API Specifications
+  build-api-specs:
+    uses: ./.github/workflows/build-api-specs.yml
+    secrets: inherit
+  # Backend
+  build-backend:
+    uses: ./.github/workflows/build-backend.yml
+    needs: [ build-api-specs ]
+    secrets: inherit
+  destroy-backend-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    needs: [ build-backend ]
+    uses: ./.github/workflows/destroy-backend-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+  # Frontend
+  build-frontend:
+    uses: ./.github/workflows/build-frontend.yml
+    needs:  [ build-api-specs ]
+    secrets:  inherit
+  destroy-frontend-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    needs: [ build-frontend ]
+    uses: ./.github/workflows/destroy-frontend-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+  # Common
+  destroy-common-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    uses: ./.github/workflows/destroy-common-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+  # Destroy Nameserver
+  destroy-nameserver-ephemeral:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    uses: ./.github/workflows/destroy-nameserver-ephemeral.yml
+    secrets: inherit
+    with:
+      target-environment: dev
