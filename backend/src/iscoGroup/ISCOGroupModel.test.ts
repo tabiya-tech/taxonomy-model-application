@@ -111,8 +111,8 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Failure, "only whitespace characters", WHITESPACE, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [CaseType.Failure, "not a objectId", "foo", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [CaseType.Failure, "not a objectId", {foo:"bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
+        [CaseType.Failure, "not a objectId (string)", "foo", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
+        [CaseType.Failure, "not a objectId (object)", {foo:"bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
