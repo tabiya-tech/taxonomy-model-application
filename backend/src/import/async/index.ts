@@ -9,7 +9,7 @@ import {parseISCOGroupsFromUrl} from "import/ISCOGroups/ISCOGroupsParser";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event: ImportRequest): Promise<any> => {
-  console.log(event);
+  console.info("Import started", event);
 
   // Validate the event against the schema
   const validateFunction = ajvInstance.getSchema(ImportRequestSchema.$id as string) as ValidateFunction;
@@ -24,11 +24,10 @@ export const handler = async (event: ImportRequest): Promise<any> => {
   try {
     await initOnce();
 
-
     const modelid = event.modelId;
     // Generate the presigned urls for the files
     const downloadUrls = await getPresignedUrls(event.filePaths);
-    console.log(downloadUrls);
+
     // Process the files
     if (downloadUrls.ISCO_GROUP) {
       await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP);
@@ -36,7 +35,7 @@ export const handler = async (event: ImportRequest): Promise<any> => {
     if (downloadUrls.ESCO_SKILL_GROUP) {
       // TODO
     }
-    console.log("Completed import");
+    console.info("Completed import");
   } catch (e: unknown) {
     console.error(e);
   }

@@ -36,12 +36,12 @@ export function getRowProcessor(modelId: string): (row: IISCOGroupRow, index: nu
 }
 
 // function to parse from url
-export async function parseISCOGroupsFromUrl(modelId: string, url: string) {
+export async function parseISCOGroupsFromUrl(modelId: string, url: string): Promise<void> {
   const rowProcessor = getRowProcessor(modelId);
   await processDownloadStream(url, rowProcessor);
 }
 
-export async function parseISCOGroupsFromFile(modelId: string, filePath: string) {
+export async function parseISCOGroupsFromFile(modelId: string, filePath: string): Promise<void> {
   const iscoGroupsCSVFileStream = fs.createReadStream(filePath );
   const rowProcessor = getRowProcessor(modelId);
   await processStream<IISCOGroupRow>(iscoGroupsCSVFileStream, rowProcessor);
