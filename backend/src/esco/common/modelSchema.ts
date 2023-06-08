@@ -4,13 +4,15 @@ import {stringRequired} from "server/stringRequired";
 import {RegExp_UUIDv4} from "server/regex";
 
 // check for unique values in an array
-function hasUniqueValues<T>(value: T[]) {
+export function hasUniqueValues<T>(value: T[]) {
   // Remove duplicates and check if the array length is the same
   return value.length === new Set<T>(value).size;
 }
 
 // Description
 export const DESCRIPTION_MAX_LENGTH = 4000;
+
+export const SCOPE_NOTE_MAX_LENGTH = 4000;
 export const DescriptionProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("description"),
@@ -38,6 +40,7 @@ export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
       const trimmed = item.trim();
       return trimmed.length > 0 && trimmed.length <= LABEL_MAX_LENGTH;
     }))) {
+      // TODO: throw a different  when ATL_LABELS_MAX_ITEMS is exceeded
       throw new Error('AltLabels must be an array of non empty strings');
     }
 
@@ -73,4 +76,18 @@ export const ISCOCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: true,
   validate: RegExISCOCode
+};
+
+export const ScopeNoteProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("scopeNote"),
+  maxlength: [SCOPE_NOTE_MAX_LENGTH, `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`],
+  validate: {
+    validator: function (value: string): boolean {
+      if (value === '') {
+        return true;
+      }
+      return isSpecified(value);
+    }
+  }
 };
