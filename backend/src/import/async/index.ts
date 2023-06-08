@@ -5,6 +5,7 @@ import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
 import {ajvInstance, ParseValidationError} from "validator";
 import {ValidateFunction} from "ajv";
 import {parseISCOGroupsFromUrl} from "import/ISCOGroups/ISCOGroupsParser";
+import {parseSkillGroupsFromUrl} from "import/skillGroups/skillGroupsParser";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,7 +34,7 @@ export const handler = async (event: ImportRequest): Promise<any> => {
       await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP);
     }
     if (downloadUrls.ESCO_SKILL_GROUP) {
-      // TODO
+      await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP);
     }
     console.info("Completed import");
   } catch (e: unknown) {

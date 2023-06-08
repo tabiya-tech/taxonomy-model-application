@@ -1,0 +1,20 @@
+"ESCOURI","ORIGINUUID","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION",SCOPENOTE
+,,,,,,
+,,,,,,
+"esco uri","origin uuid","L","preferred label","label1
+label2","description",scopeNote
+"esco
+uri
+with
+linebreak","origin
+uuid
+with
+linebreak","L6.6.6","preferred
+label
+with
+linebreak","label1
+label2","description
+with
+linebreak","scopeNote
+with
+linebreak"
