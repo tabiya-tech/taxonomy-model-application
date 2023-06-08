@@ -3,8 +3,8 @@ import "_test_utilities/consoleMock";
 
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {getRowProcessor, IISCOGroupRow, parseISCOGroupsFromFile, parseISCOGroupsFromUrl} from "./ISCOGroupsParser";
-import {IISCOGroupRepository} from "iscoGroup/ISCOGroupRepository";
-import {INewISCOGroupSpec} from "iscoGroup/ISCOGroupModel";
+import {IISCOGroupRepository} from "esco/iscoGroup/ISCOGroupRepository";
+import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroupModel";
 import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";

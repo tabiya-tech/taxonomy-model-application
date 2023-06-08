@@ -1,7 +1,7 @@
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {processDownloadStream, processStream} from "import/stream/processStream";
 import fs from "fs";
-import {INewSkillGroupSpec} from "skillGroup/skillGroupModel";
+import {INewSkillGroupSpec} from "esco/skillGroup/skillGroupModel";
 
 // expect all columns to be in upper case
 export interface ISkillGroupRow {

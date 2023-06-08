@@ -21,7 +21,7 @@ import {
   DESCRIPTION_MAX_LENGTH,
   ESCO_URI_MAX_LENGTH,
   LABEL_MAX_LENGTH
-} from "../esco/common/modelSchema";
+} from "esco/common/modelSchema";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 

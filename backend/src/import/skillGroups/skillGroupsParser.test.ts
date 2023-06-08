@@ -7,8 +7,8 @@ import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";
 import {ISkillGroupRow} from "./skillGroupsParser";
-import {ISkillGroupRepository} from "skillGroup/SkillGroupRepository";
-import {INewSkillGroupSpec} from "skillGroup/skillGroupModel";
+import {ISkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
+import {INewSkillGroupSpec} from "esco/skillGroup/skillGroupModel";
 
 jest.mock('https');
 
