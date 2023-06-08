@@ -18,7 +18,7 @@ import {getConnectionManager} from "server/connection/connectionManager";
 import {IISCOGroupRepository} from "./ISCOGroupRepository";
 import {IISCOGroup, INewISCOGroupSpec} from "./ISCOGroupModel";
 import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH} from "esco/common/modelSchema";
-import {getTestConfiguration} from "../_test_utilities/getTestConfiguration";
+import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");

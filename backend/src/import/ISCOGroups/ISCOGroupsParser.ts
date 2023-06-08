@@ -1,4 +1,4 @@
-import {INewISCOGroupSpec} from "iscoGroup/ISCOGroupModel";
+import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroupModel";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {processDownloadStream, processStream} from "import/stream/processStream";
 import fs from "fs";

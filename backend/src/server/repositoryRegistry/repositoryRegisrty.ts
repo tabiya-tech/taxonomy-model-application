@@ -1,10 +1,10 @@
 import {IModelRepository, ModelRepository} from "modelInfo/ModelRepository";
 import mongoose, {Connection} from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
-import * as ISCOGroupModel from "iscoGroup/ISCOGroupModel";
-import * as skillGroupModel from "skillGroup/skillGroupModel";
-import {IISCOGroupRepository, ISCOGroupRepository} from "../../iscoGroup/ISCOGroupRepository";
-import {ISkillGroupRepository, SkillGroupRepository} from "../../skillGroup/SkillGroupRepository";
+import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";
+import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
+import {IISCOGroupRepository, ISCOGroupRepository} from "esco/iscoGroup/ISCOGroupRepository";
+import {ISkillGroupRepository, SkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line

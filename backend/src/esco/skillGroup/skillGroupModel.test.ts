@@ -15,8 +15,8 @@ import {
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
-import {getMockRandomSkillCode} from "../_test_utilities/mockSkillGroupCode";
-import {getTestConfiguration} from "../_test_utilities/getTestConfiguration";
+import {getMockRandomSkillCode} from "_test_utilities/mockSkillGroupCode";
+import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
 describe('Test the definition of the skillGroup Model', () => {
   let dbConnection: Connection;
