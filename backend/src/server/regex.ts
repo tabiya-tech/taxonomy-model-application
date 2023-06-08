@@ -9,6 +9,9 @@ export const RegExp_Str_Hex_32: string = RegExp_Str_Hex(32);
 export const RegExp_Str_Hex_64: string = RegExp_Str_Hex(64);
 export const RegExp_Str_Hex_AnyLength: string = `^[0-9a-f]+$`;
 
+export const RegEx_Skill_Group_Code = RegExp(/^([a-zA-Z]\d+(\.\d+)*|[a-zA-Z])$/);
+// (^[a-zA-Z]$)|(^([a-zA-Z]\d+)(\.\d+)*$)
+
 export const RegExp_Hex: (length: number) => RegExp = (length: number) => RegExp(RegExp_Str_Hex(length));
 export const RegExp_Hex_MinLength: (length: number) => RegExp = (length: number) => RegExp(RegExp_Str_Hex_MinLength(length));
 export const RegExp_Hex_24: RegExp = RegExp(RegExp_Str_Hex_24);
