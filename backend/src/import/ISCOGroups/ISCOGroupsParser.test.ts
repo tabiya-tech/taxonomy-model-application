@@ -1,10 +1,13 @@
+// mute console.log
+import "_test_utilities/consoleMock";
+
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {getRowProcessor, IISCOGroupRow, parseISCOGroupsFromFile, parseISCOGroupsFromUrl} from "./ISCOGroupsParser";
-import {IISCOGroupRepository} from "../../iscoGroup/ISCOGroupRepository";
-import {INewISCOGroupSpec} from "../../iscoGroup/ISCOGroupModel";
+import {IISCOGroupRepository} from "iscoGroup/ISCOGroupRepository";
+import {INewISCOGroupSpec} from "iscoGroup/ISCOGroupModel";
 import fs from "fs";
 import https from "https";
-import {StatusCodes} from "../../server/httpUtils";
+import {StatusCodes} from "server/httpUtils";
 
 jest.mock('https');
 
@@ -50,9 +53,9 @@ describe("test getRowProcessor", () => {
   test("should not fail if creating the ISCOGroup fails", async () => {
     // GIVEN a model id
     const givenModelId = "modelId";
-    // AND any a given row
+    // AND any given row
     const givenRow: IISCOGroupRow = {} as IISCOGroupRow;
-    // AND a row processor for the given model id
+    // AND a repository that throws an error
     const mockRepository: IISCOGroupRepository = {
       // @ts-ignore
       Model: undefined,
@@ -60,6 +63,7 @@ describe("test getRowProcessor", () => {
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(mockRepository);
+    // AND a row processor for the given model id
     const rowProcessor = getRowProcessor(givenModelId);
 
     // WHEN the row processor is called with the given row
@@ -106,6 +110,7 @@ describe("test parseISCOGroupsFromUrl", () => {
     })
   })
 });
+
 describe("test parseISCOGroupsFromFile", () => {
   test("should create IISOGroup from csv file", async () => {
     // GIVEN a model id
@@ -129,4 +134,3 @@ describe("test parseISCOGroupsFromFile", () => {
     })
   })
 });
-

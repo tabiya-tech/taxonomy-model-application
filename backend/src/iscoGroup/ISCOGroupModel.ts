@@ -13,10 +13,10 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 
   // Main Schema
   const ISCOGroupSchema = new mongoose.Schema<IISCOGroup>({
-    UUID: {type: String, required: true, validate: RegExp_UUIDv4}, // TODO this could be an nodejs UUID
+    UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     ISCOCode: ISCOCodeProperty,
     preferredLabel: PreferredLabelProperty,
-    modelId: {type: mongoose.Schema.Types.ObjectId, required: true}, // TODO this should be an ObjectId
+    modelId: {type: mongoose.Schema.Types.ObjectId, required: true},
     originUUID: OriginUUIDProperty,
     ESCOUri: ESCOUriProperty,
     altLabels: AltLabelsProperty,
