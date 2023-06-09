@@ -8,10 +8,11 @@ async function setup(callback: (user: UserEvent) => Promise<void>) {
   // before the user begins typing, and for this reason we need to set up the userEvent to advance the timers using the jest timers,
   // so that the await user.type() can be resolved.
   // User enters a model name
-  jest.useFakeTimers()
+  jest.useFakeTimers();
   const userEventFakeTimer = userEvent.setup({advanceTimers: jest.advanceTimersByTime});
   await callback(userEventFakeTimer);
   await act(() => jest.runOnlyPendingTimers());
+  jest.useRealTimers();
 }
 
 export async function typeDebouncedInput(element: Element, text: string) {
