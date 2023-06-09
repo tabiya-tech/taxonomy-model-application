@@ -4,41 +4,32 @@ import "_test_utilities/consoleMock"
 import mongoose, {Connection} from "mongoose";
 import {randomUUID} from "crypto";
 import {getNewConnection} from "server/connection/newConnection";
+import {initializeSchemaAndModel, ISkill, ModelName,} from "./skillModel";
+
+
 import {
-  initializeSchemaAndModel,
-  IISCOGroup,
-  ModelName,
-} from "./ISCOGroupModel";
-import {getMockId} from "_test_utilities/mockMongoId";
-import {
-  generateRandomDigitString,
-  generateRandomUrl, getRandomString,
-  getTestString,
-  WHITESPACE
-} from "_test_utilities/specialCharacters";
-import {
-  ATL_LABELS_MAX_ITEMS,
+  ATL_LABELS_MAX_ITEMS, DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
   ESCO_URI_MAX_LENGTH,
-  LABEL_MAX_LENGTH
+  LABEL_MAX_LENGTH,
+  SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
-import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import {getMockId} from "_test_utilities/mockMongoId";
+import {generateRandomUrl, getRandomString, getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
+import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 
-function getRandomISCOGroupCode(): string {
-  return generateRandomDigitString(1, 4);
-}
 
-describe('Test the definition of the ISCOGroup Model', () => {
+describe('Test the definition of the skill Model', () => {
   let dbConnection: Connection;
-  let ISCOGroupModel: mongoose.Model<IISCOGroup>;
+  let skillModel: mongoose.Model<ISkill>;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("ISCOGroupModelTestDB");
+    const config = getTestConfiguration("skillGroupModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // initialize the schema and model
     initializeSchemaAndModel(dbConnection);
-    ISCOGroupModel = dbConnection.model(ModelName);
+    skillModel = dbConnection.model(ModelName);
   });
 
   afterAll(async () => {
@@ -48,63 +39,64 @@ describe('Test the definition of the ISCOGroup Model', () => {
     }
   });
 
-  test("Successfully validate ISCOGroup with mandatory fields", async () => {
-    // GIVEN an ISCOGroup object with all mandatory fields
-    const givenObject: IISCOGroup = {
+  test("Successfully validate skill with mandatory fields", async () => {
+    // GIVEN a skillGroup object with all mandatory fields
+    const givenObject: ISkill = {
       id: getMockId(2),
       UUID: randomUUID(),
-      code: getRandomISCOGroupCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: randomUUID(),
       ESCOUri: generateRandomUrl(),
-      altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
+      altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+      definition: getTestString(DEFINITION_MAX_LENGTH),
       description: getTestString(DESCRIPTION_MAX_LENGTH),
-      parentGroup: getMockId(2),
+      scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+      skillType: "skill/competence",
+      reuseLevel: "sector-specific",
       // @ts-ignore
       createdAt: new Date().toISOString(),
       // @ts-ignore
       updatedAt: new Date().toISOString(),
+
     };
 
     // WHEN validating that object
-    const ISCOGroupModelValid = new ISCOGroupModel(givenObject);
+    const skillModelValid = new skillModel(givenObject);
 
     // THEN it should validate successfully
-    const errors = await ISCOGroupModelValid.validateSync()
+    const errors = await skillModelValid.validateSync()
     // @ts-ignore
     expect(errors).toBeUndefined();
   });
 
-  test("Successfully validate ISCOGroup with optional fields", async () => {
-    // GIVEN an ISCOGroup object with all optional fields
-    const givenObject: IISCOGroup = {
-      id: getMockId(2),
+  test("Successfully validate skill with optional fields", async () => {
+    //@ts-ignore
+    // GIVEN a skill object with all optional fields
+    const givenObject: ISkill = {
       UUID: randomUUID(),
-      code: getRandomISCOGroupCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: "",
-      ESCOUri: "",
       altLabels: [],
+      skillType: "",
+      reuseLevel: "",
+      ESCOUri: "",
+      definition: "",
       description: "",
-      parentGroup: undefined,
-      // @ts-ignore
-      createdAt: new Date().toISOString(),
-      // @ts-ignore
-      updatedAt: new Date().toISOString(),
+      scopeNote: "",
     };
 
     // WHEN validating that object
-    const ISCOGroupModelValid = new ISCOGroupModel(givenObject);
+    const skillModelValid = new skillModel(givenObject);
 
     // THEN it should validate successfully
-    const errors = await ISCOGroupModelValid.validateSync()
+    const errors = await skillModelValid.validateSync()
     // @ts-ignore
     expect(errors).toBeUndefined();
   });
 
-  describe("Validate ISCOGroup fields", () => {
+  describe("Validate skillGroup fields", () => {
     describe("Test validation of 'modelId'", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
@@ -117,7 +109,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
       (`(%s) Validate 'modelId' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "modelId", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkill>(skillModel, "modelId", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -131,7 +123,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "UUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkill>(skillModel, "UUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -145,28 +137,10 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'originUUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "originUUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkill>(skillModel, "originUUID", caseType, value, expectedFailureMessage);
       });
     });
 
-    describe("Test validation of 'code'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
-        [CaseType.Failure, "not a string od digits", "foo1", "Validator failed for path `{0}` with value `foo1`"],
-        [CaseType.Failure, "more than 4 digits", "55555", "Validator failed for path `{0}` with value `55555`"],
-        [CaseType.Failure, "with negative sign", "-9999", "Validator failed for path `{0}` with value `-9999`"],
-        [CaseType.Success, "0", "0", undefined],
-        [CaseType.Success, "max", "9999", undefined],
-        [CaseType.Success, "leading zero", "0009", undefined],
-        [CaseType.Success, "any way in range", "090", undefined],
-      ])
-      (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "code", caseType, value, expectedFailureMessage);
-      });
-    });
 
     describe("Test validation of 'ESCOUri'", () => {
       test.each([
@@ -179,7 +153,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "The longest ESCOUri", getTestString(ESCO_URI_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'ESCOUri' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "ESCOUri", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkill>(skillModel, "ESCOUri", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -194,7 +168,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'preferredLabel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "preferredLabel", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkill>(skillModel, "preferredLabel", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -203,6 +177,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "not and array of strings (objects)", [{foo: "bar"}], "Path `{0}` is required."],
+        [CaseType.Failure, "not and array of array of (string)", [["bar"]], "Path `{0}` is required."],
         [CaseType.Failure, "array with null", [null, null], "Validator failed for path `altLabels` with value `,`"],
         [CaseType.Failure, "array with undefined", [undefined, undefined], "Validator failed for path `altLabels` with value `,`"],
         [CaseType.Failure, "array with double entries", ['foo', 'foo'], "Validator failed for path `{0}` with value `foo,foo`"],
@@ -215,22 +190,87 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "valid longest array with longest label", new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)), undefined]
       ])
       (`(%s) Validate 'altLabels' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "altLabels", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkill>(skillModel, "altLabels", caseType, value, expectedFailureMessage);
       });
     });
 
-    describe("Test validation of 'parentGroup'", () => {
+    describe("Test validation of 'scopeNote'", () => {
       test.each([
-        [CaseType.Failure, "empty", "", "Cast to ObjectId failed for value .* at path \"{0}\""],
-        [CaseType.Failure, "only whitespace characters", WHITESPACE, "Cast to ObjectId failed for value .* at path \"{0}\""],
-        [CaseType.Failure, "not a objectId", "foo", "Cast to ObjectId failed for value .* at path \"{0}\""],
-        [CaseType.Success, 'null', null, undefined],
-        [CaseType.Success, 'undefined', undefined, undefined],
-        [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-        [CaseType.Success, "hex 24 chars", getMockId(2), undefined]
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long scopeNote", getTestString(SCOPE_NOTE_MAX_LENGTH + 1), `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
       ])
-      (`(%s) Validate 'parentGroup' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "parentGroup", caseType, value, expectedFailureMessage);
+      (`(%s) Validate 'scopeNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<ISkill>(skillModel, "scopeNote", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'definition'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long definition", getTestString(DEFINITION_MAX_LENGTH + 1), `Definition must be at most ${DEFINITION_MAX_LENGTH} chars long`],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "the longest", getTestString(DEFINITION_MAX_LENGTH), undefined],
+      ])
+      (`(%s) Validate 'definition' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<ISkill>(skillModel, "definition", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'description'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long description", getTestString(DESCRIPTION_MAX_LENGTH + 1), `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
+      ])
+      (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<ISkill>(skillModel, "description", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'skillType'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE,` is not a valid enum value for path \`{0}\`.`],
+        [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
+        [CaseType.Success, "empty", "",undefined],
+        [CaseType.Success, "skill/competence", "skill/competence", undefined],
+        [CaseType.Success, "knowledge", "knowledge", undefined],
+        [CaseType.Success, "language", "language", undefined],
+        [CaseType.Success, "attitude", "attitude", undefined],
+      ])
+      (`(%s) Validate 'skillType' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<ISkill>(skillModel, "skillType", caseType, value, expectedFailureMessage);
+      });
+    });
+
+
+    describe("Test validation of 'reuseLevel'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
+        [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
+        [CaseType.Success, "sector-specific", "sector-specific", undefined],
+        [CaseType.Success, "occupation-specific", "occupation-specific", undefined],
+        [CaseType.Success, "cross-sector", "cross-sector", undefined],
+        [CaseType.Success, "transversal", "transversal", undefined],
+        [CaseType.Success, "empty", "", undefined],
+      ])
+      (`(%s) Validate 'reuseLevel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<ISkill>(skillModel, "reuseLevel", caseType, value, expectedFailureMessage);
       });
     });
   });

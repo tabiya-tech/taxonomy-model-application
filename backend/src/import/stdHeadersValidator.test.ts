@@ -1,7 +1,12 @@
+import "_test_utilities/consoleMock"
+
 import { getStdHeadersValidator } from './stdHeadersValidator';
 import {getMockId} from "../_test_utilities/mockMongoId";
 
 describe('getStdHeadersValidator', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   test('call getStdHeadersValidator should return a function', () => {
     // GIVEN a valid modelId
@@ -27,7 +32,7 @@ describe('getStdHeadersValidator', () => {
     // AND received actual headers
 
     const actualHeaders = ['header1', 'header2', 'header3'];
-     //  THEN headersValidator should validate correctly
+    //  THEN headersValidator should validate correctly
     const result = await headersValidator(actualHeaders);
     expect(result).toBe(true);
   });
@@ -68,6 +73,5 @@ describe('getStdHeadersValidator', () => {
     expect(consoleWarnMock).toHaveBeenCalledWith(
       `When importing data for model ${modelId}, expected to include header ${expectedHeaders[1]}`
     );
-    consoleWarnMock.mockRestore();
   });
 });

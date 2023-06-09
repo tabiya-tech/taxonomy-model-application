@@ -59,6 +59,13 @@ jest.mock("import/skillGroups/skillGroupsParser.ts", () => {
     parseSkillGroupsFromUrl: jest.fn().mockResolvedValue(undefined)
   }
 });
+
+// Mock the ESCOSkillParser
+jest.mock("import/skills/skillsParser.ts", () => {
+  return {
+    parseSkillsFromUrl: jest.fn().mockResolvedValue(undefined)
+  }
+});
 // ##############
 
 import * as asyncIndex from "./index";
@@ -71,6 +78,7 @@ import {parseISCOGroupsFromUrl} from "import/ISCOGroups/ISCOGroupsParser";
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
 import {S3PresignerService} from "./S3PresignerService";
 import {parseSkillGroupsFromUrl} from "import/skillGroups/skillGroupsParser";
+import {parseSkillsFromUrl} from "import/skills/skillsParser";
 
 describe("Test the main async handler", () => {
   beforeEach(
@@ -87,6 +95,7 @@ describe("Test the main async handler", () => {
       filePaths: {
         [ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
         [ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
         // ADD additional file types here
       },
       modelId: getMockId(1)
@@ -109,6 +118,9 @@ describe("Test the main async handler", () => {
           break;
         case ImportFileTypes.ESCO_SKILL_GROUP:
           expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
+          break;
+        case ImportFileTypes.ESCO_SKILL:
+          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
         // ADD additional file types here
       }
     }

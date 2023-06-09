@@ -12,11 +12,28 @@ export function hasUniqueValues<T>(value: T[]) {
 // Description
 export const DESCRIPTION_MAX_LENGTH = 4000;
 
-export const SCOPE_NOTE_MAX_LENGTH = 4000;
 export const DescriptionProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("description"),
   maxlength: [DESCRIPTION_MAX_LENGTH, `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`]
+};
+
+// Scope Note
+
+export const SCOPE_NOTE_MAX_LENGTH = 4000;
+export const ScopeNoteProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("scopeNote"),
+  maxlength: [SCOPE_NOTE_MAX_LENGTH, `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`]
+};
+
+// Definition
+export const DEFINITION_MAX_LENGTH = 4000;
+
+export const DefinitionProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("definition"),
+  maxlength: [DEFINITION_MAX_LENGTH, `Definition must be at most ${DEFINITION_MAX_LENGTH} chars long`]
 };
 
 // Preferred Label
@@ -79,18 +96,4 @@ export const ISCOCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: true,
   validate: RegExISCOCode
-};
-
-export const ScopeNoteProperty: mongoose.SchemaDefinitionProperty<string> = {
-  type: String,
-  required: stringRequired("scopeNote"),
-  maxlength: [SCOPE_NOTE_MAX_LENGTH, `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`],
-  validate: {
-    validator: function (value: string): boolean {
-      if (value === '') {
-        return true;
-      }
-      return isSpecified(value);
-    }
-  }
 };
