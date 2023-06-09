@@ -4,9 +4,21 @@ import {
   createMemoryRouter
 } from "react-router-dom";
 
-import routesConfig, {DATA_TEST_ID as LANDING_PAGE_DATA_TEST_ID , routerPaths} from "./routerConfig";
+import routesConfig, {DATA_TEST_ID as LANDING_PAGE_DATA_TEST_ID, routerPaths} from "./routerConfig";
 import {DATA_TEST_ID as INFO_DATA_TEST_ID} from "./info/Info";
 import {DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID} from "./modeldirectory/ModelDirectory";
+
+// Mock the Info component as it has dependencies to the backend and we do not want to test that here
+jest.mock("src/info/Info", () => {
+  const actual = jest.requireActual("src/info/Info");
+  return {
+    ...actual,
+    __esModule: true,
+    default: () => {
+      return <div data-testid={actual.DATA_TEST_ID.INFO_ROOT}>Info</div>
+    }
+  }
+});
 
 function renderWithRouter(route: string) {
   const router = createMemoryRouter(routesConfig, {
