@@ -9,10 +9,14 @@ import {getNewConnection} from "server/connection/newConnection";
 import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
-import {ISkillGroupRepository} from "./SkillGroupRepository";
-import {INewSkillGroupSpec, ISkillGroup} from "./skillGroupModel";
-import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH, SCOPE_NOTE_MAX_LENGTH} from "esco/common/modelSchema";
-import {getMockRandomSkillCode} from "_test_utilities/mockSkillGroupCode";
+import {
+  DEFINITION_MAX_LENGTH,
+  DESCRIPTION_MAX_LENGTH,
+  LABEL_MAX_LENGTH,
+  SCOPE_NOTE_MAX_LENGTH
+} from "esco/common/modelSchema";
+import {INewSkillSpec, ISkill} from "./skillModel";
+import {ISkillRepository} from "./SkillRepository";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
 jest.mock("crypto", () => {
@@ -23,30 +27,32 @@ jest.mock("crypto", () => {
   }
 });
 
-function getNewSkillGroupSpec(): INewSkillGroupSpec {
+function getNewSkillSpec(): INewSkillSpec {
   return {
-    code: getMockRandomSkillCode(),
     preferredLabel: getTestString(LABEL_MAX_LENGTH),
     modelId: getMockId(2),
     originUUID: randomUUID(),
     ESCOUri: generateRandomUrl(),
+    definition: getTestString(DEFINITION_MAX_LENGTH),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+    skillType: "knowledge",
+    reuseLevel: "cross-sector",
     altLabels: [getTestString(LABEL_MAX_LENGTH,"1_"), getTestString(LABEL_MAX_LENGTH, "2_" )],
   };
 }
 
-describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
+describe("Test the Skill Repository with an in-memory mongodb", () => {
 
   let dbConnection: Connection;
-  let repository: ISkillGroupRepository;
+  let repository: ISkillRepository;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("SkillGroupRepositoryTestDB");
+    const config = getTestConfiguration("SkillRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry()
     repositoryRegistry.initialize(dbConnection);
-    repository = repositoryRegistry.skillGroup;
+    repository = repositoryRegistry.skill
   });
 
   afterAll(async () => {
@@ -60,7 +66,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     expect(repository.Model).toBeDefined();
   });
 
-  test("initOnce has registered the ModelRepository", async () => {
+  test("initOnce has registered the SkillRepository", async () => {
     // GIVEN the environment mongo db uri is set
     expect(process.env.MONGODB_URI).toBeDefined();
 
@@ -68,75 +74,74 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     await initOnce()
 
     // THEN expect the modelInfo repository to be defined
-    expect(getRepositoryRegistry().skillGroup).toBeDefined();
+    expect(getRepositoryRegistry().skill).toBeDefined();
 
     // Clean up
     await getConnectionManager().getCurrentDBConnection()!.close(true);
   });
 
-  describe("Test create() skill group ", () => {
+  describe("Test create() skill", () => {
 
     afterEach(async () => {
       await repository.Model.deleteMany({})
     })
 
-    test("should successfully create a new skill group", async () => {
-      // GIVEN a valid SkillGroupSpec
-      const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+    test("should successfully create a new skill", async () => {
+      // GIVEN a valid SkillSpec
+      const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
 
-      // WHEN Creating a new skillGroup with given specifications
-      const newModel = await repository.create(givenNewSkillGroupSpec);
+      // WHEN Creating a new skill with given specifications
+      const newModel = await repository.create(givenNewSkillSpec);
 
-      // THEN expect the new skillGroup to be created with the specific attributes
-      const expectedNewSkillGroup: ISkillGroup = {
-        ...givenNewSkillGroupSpec,
+      // THEN expect the new skill to be created with the specific attributes
+      const expectedNewISCO: ISkill = {
+        ...givenNewSkillSpec,
         id: expect.any(String),
-        parentGroups: [],
-        childrenGroups: [],
         UUID: expect.any(String),
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       }
-      expect(newModel).toEqual(expectedNewSkillGroup);
+      expect(newModel).toEqual(expectedNewISCO);
     });
+
 
     TestConnectionFailure((repository) => {
-      return repository.create(getNewSkillGroupSpec());
+      return repository.create(getNewSkillSpec());
     });
 
-    test("should reject with an error when creating a skill group and providing a UUID", async () => {
-      // GIVEN a SkillGroupSpec that is otherwise valid but has a UUID
-      const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+    test("should reject with an error when creating a skill and providing a UUID", async () => {
+      // GIVEN a SkillSpec that is otherwise valid but has a UUID
+      const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
 
-      // WHEN Creating a new SkillGroupSpec with the UUID of the existing
+      // WHEN Creating a new SkillSpec with the UUID of the existing
       await expect(repository.create({
-        ...givenNewSkillGroupSpec,
+        ...givenNewSkillSpec,
         //@ts-ignore
         UUID: randomUUID()
       })).rejects.toThrowError(/UUID should not be provided/);
     });
 
-    test("should reject with an error when creating a skill group with an existing UUID", async () => {
-      // GIVEN a SkillGroup record exists in the database
-      const givenNewSkillGroupSpecSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
-      const givenNewModel = await repository.create(givenNewSkillGroupSpecSpec);
+    test("should reject with an error when creating skill with an existing UUID", async () => {
+      // GIVEN a Skill record exists in the database
+      const givenNewSkillSpecSpec: INewSkillSpec = getNewSkillSpec();
+      const givenNewModel = await repository.create(givenNewSkillSpecSpec);
 
-      // WHEN Creating a new SkillGroup with the UUID of the existing SkillGroup
+      // WHEN Creating a new Skill with the UUID of the existing Skill
       // @ts-ignore
       randomUUID.mockReturnValueOnce(givenNewModel.UUID);
-      await expect(repository.create(givenNewSkillGroupSpecSpec)).rejects.toThrowError(/duplicate key/);
+      await expect(repository.create(givenNewSkillSpecSpec)).rejects.toThrowError(/duplicate key/);
     });
   });
 });
 
-function TestConnectionFailure(actionCallback: (repository: ISkillGroupRepository) => Promise<ISkillGroup | null>) {
+function TestConnectionFailure(actionCallback: (repository: ISkillRepository) => Promise<ISkill | null>) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
-    const config = getTestConfiguration("SkillGroupRepositoryTestDB");
+    const config = getTestConfiguration("SkillRepositoryTestDB");
     const connection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry();
     repositoryRegistry.initialize(connection);
-    const repository = repositoryRegistry.skillGroup;
+    const repository = repositoryRegistry.skill;
 
     // WHEN connection is lost
     await connection.close(true);

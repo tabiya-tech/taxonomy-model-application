@@ -6,6 +6,7 @@ import {ajvInstance, ParseValidationError} from "validator";
 import {ValidateFunction} from "ajv";
 import {parseISCOGroupsFromUrl} from "import/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromUrl} from "import/skillGroups/skillGroupsParser";
+import {parseSkillsFromUrl} from "import/skills/skillsParser";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +36,9 @@ export const handler = async (event: ImportRequest): Promise<any> => {
     }
     if (downloadUrls.ESCO_SKILL_GROUP) {
       await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP);
+    }
+    if (downloadUrls.ESCO_SKILL) {
+      await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL);
     }
     console.info("Completed import");
   } catch (e: unknown) {

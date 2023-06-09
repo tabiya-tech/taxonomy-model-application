@@ -69,9 +69,8 @@ describe('Test the definition of the skillGroup Model', () => {
   });
 
   test("Successfully validate skillGroup with optional fields", async () => {
-    // GIVEN an object with all mandatory fields
     //@ts-ignore
-    // GIVEN an skillGroup object with all mandatory fields
+    // GIVEN an skillGroup object with all optional fields
     const givenObject: ISkillGroup = {
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
@@ -80,8 +79,8 @@ describe('Test the definition of the skillGroup Model', () => {
       originUUID: "",
       altLabels: [],
       parentGroups: [],
-      ESCOUri: generateRandomUrl(),
-      description: getTestString(DESCRIPTION_MAX_LENGTH),
+      ESCOUri: "",
+      description: "",
       scopeNote: ""
     };
 
@@ -214,10 +213,10 @@ describe('Test the definition of the skillGroup Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
         [CaseType.Failure, "Too long scopeNote", getTestString(SCOPE_NOTE_MAX_LENGTH + 1), `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'scopeNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {

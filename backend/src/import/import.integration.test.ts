@@ -11,6 +11,7 @@ import {IModelInfo, INewModelInfoSpec} from "modelInfo/modelInfoModel";
 import {randomUUID} from "crypto";
 import {parseISCOGroupsFromFile} from "./ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromFile} from "./skillGroups/skillGroupsParser";
+import {parseSkillsFromFile} from "./skills/skillsParser";
 
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
@@ -59,29 +60,33 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
 
   // The actual tests
   test("should import the sample CSV files", async () => {
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-      const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
-      // 01. Create a new ModelInfo
-      const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
-        name: "CSVImport",
-        description: "CSVImport",
-        locale: {
-          name: "en",
-          UUID: randomUUID(),
-          shortCode: "en"
-        }
-      } as INewModelInfoSpec);
+    // 01. Create a new ModelInfo
+    const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: "CSVImport",
+      description: "CSVImport",
+      locale: {
+        name: "en",
+        UUID: randomUUID(),
+        shortCode: "en"
+      }
+    } as INewModelInfoSpec);
 
-      // 02. Import the ISCOGroup CSV files
-      await parseISCOGroupsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/ISCOGroups.csv" );
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
-      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    // 02. Import the ISCOGroup CSV files
+    await parseISCOGroupsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/ISCOGroups.csv");
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
 
-      // 03. Import the ESCO Skill Groups CSV files
-      //
-      await parseSkillGroupsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/skillGroups.csv" );
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
-      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    // 03. Import the ESCO Skill Groups CSV files
+    await parseSkillGroupsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/skillGroups.csv");
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
+
+    // 04. Import the ESCO Skills CSV files
+    await parseSkillsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/skills.csv");
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
   }, 30000); // 30 seconds timeout to allow for the import to complete
 });
