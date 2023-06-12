@@ -1,4 +1,4 @@
-import React, {KeyboardEvent} from "react";
+import React, {KeyboardEvent, useRef} from "react";
 import {
   Button,
   Stack,
@@ -38,6 +38,9 @@ export interface ImportModelDialogProps {
 }
 
 const ImportModelDialog = (props: ImportModelDialogProps) => {
+  // state to enable disabling the import button when the user has not selected all the required files
+  const [isImportButtonDisabled, setIsImportButtonDisabled] = React.useState(true);
+
   const handleClose = (event: CloseEvent) => {
     props.notifyOnClose(event);
   }
@@ -47,7 +50,7 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
     }
   };
 
-  const data: ImportData = {
+  const data = useRef<ImportData>({
     name: "",
     description: "",
     locale: {
@@ -56,22 +59,31 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
       UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a"
     },
     selectedFiles: {}
-  }
+  })
 
   const handleNameChange = (newName: string) => {
-    data.name = newName;
+    data.current.name = newName;
+    validateData();
   }
 
   const handleDescriptionChange = (newDescription: string) => {
-    data.description = newDescription;
+    data.current.description = newDescription;
   }
 
   const handleSelectedFileChange = (fileType: ImportFileTypes, file: File | null) => {
     if (file === null) {
-      delete data.selectedFiles[fileType];
+      delete data.current.selectedFiles[fileType];
     } else {
-      data.selectedFiles[fileType] = file;
+      data.current.selectedFiles[fileType] = file;
     }
+    validateData();
+  }
+
+  // function to validate the data that the user has entered
+  const validateData = () => {
+    const currentData = data.current;
+    const invalid: boolean = (currentData.name.length === 0 || Object.keys(currentData.selectedFiles).length === 0 || currentData.locale === undefined);
+    setIsImportButtonDisabled(invalid);
   }
 
   const classes = useStyles();
@@ -91,7 +103,8 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
       <CancelButton onClick={() => {
         handleClose({name: "CANCEL"})
       }} data-testid={DATA_TEST_ID.CANCEL_BUTTON}/>
-      <Button onClick={()=>handleClose({name: "IMPORT", importData: data })}
+      <Button onClick={() => handleClose({name: "IMPORT", importData: data.current})}
+              disabled={isImportButtonDisabled}
               data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</Button>
     </DialogActions>
   </Dialog>
