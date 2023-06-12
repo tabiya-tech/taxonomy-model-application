@@ -1,5 +1,5 @@
-"ESCOURI","ORIGINUUID","ISCOCODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
-"","","","","",""
+"ESCOURI","ORIGINUUID","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
+,,,,,
 ,,,,,
 "esco uri","origin uuid","isco code","preferred label","label1
 label2","description"

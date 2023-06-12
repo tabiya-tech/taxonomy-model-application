@@ -35,7 +35,7 @@ function getRandomISCOGroupCode(): string {
 function getNewISCOGroupSpec(): INewISCOGroupSpec {
   return {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    ISCOCode: getRandomISCOGroupCode(),
+    code: getRandomISCOGroupCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockId(2),
     originUUID: "",

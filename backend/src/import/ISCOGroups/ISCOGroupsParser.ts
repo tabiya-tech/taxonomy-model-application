@@ -7,7 +7,7 @@ import fs from "fs";
 export interface IISCOGroupRow {
   ESCOURI: string,
   ORIGINUUID: string
-  ISCOCODE: string
+  CODE: string
   PREFERREDLABEL: string
   ALTLABELS: string
   DESCRIPTION: string
@@ -21,7 +21,7 @@ export function getRowProcessor(modelId: string): (row: IISCOGroupRow, index: nu
       ESCOUri: row.ESCOURI ?? '',
       modelId: modelId,
       originUUID: row.ORIGINUUID ?? '',
-      ISCOCode: row.ISCOCODE,
+      code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split('\n') : [],
       description: row.DESCRIPTION ?? ''
