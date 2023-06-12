@@ -19,7 +19,7 @@ describe("test getRowProcessor", () => {
     const givenRow: IISCOGroupRow = {
       ESCOURI: "ESCO:123",
       ORIGINUUID: "originUUID",
-      ISCOCODE: "ISCO:123",
+      CODE: "ISCO:123",
       PREFERREDLABEL: "preferredLabel",
       ALTLABELS: "altLabel1\naltLabel2",
       DESCRIPTION: "description"
@@ -42,7 +42,7 @@ describe("test getRowProcessor", () => {
       modelId: givenModelId,
       ESCOUri: "ESCO:123",
       originUUID: "originUUID",
-      ISCOCode: "ISCO:123",
+      code: "ISCO:123",
       preferredLabel: "preferredLabel",
       altLabels: ["altLabel1", "altLabel2"],
       description: "description"

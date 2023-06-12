@@ -53,7 +53,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
     const givenObject: IISCOGroup = {
       id: getMockId(2),
       UUID: randomUUID(),
-      ISCOCode: getRandomISCOGroupCode(),
+      code: getRandomISCOGroupCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: randomUUID(),
@@ -81,7 +81,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
     const givenObject: IISCOGroup = {
       id: getMockId(2),
       UUID: randomUUID(),
-      ISCOCode: getRandomISCOGroupCode(),
+      code: getRandomISCOGroupCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: "",
@@ -149,7 +149,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
       });
     });
 
-    describe("Test validation of 'ISCOCode'", () => {
+    describe("Test validation of 'code'", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
@@ -163,8 +163,8 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "leading zero", "0009", undefined],
         [CaseType.Success, "any way in range", "090", undefined],
       ])
-      (`(%s) Validate 'ISCOCode' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "ISCOCode", caseType, value, expectedFailureMessage);
+      (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "code", caseType, value, expectedFailureMessage);
       });
     });
 

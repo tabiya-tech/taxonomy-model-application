@@ -14,7 +14,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   // Main Schema
   const ISCOGroupSchema = new mongoose.Schema<IISCOGroup>({
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
-    ISCOCode: ISCOCodeProperty,
+    code: ISCOCodeProperty,
     preferredLabel: PreferredLabelProperty,
     modelId: {type: mongoose.Schema.Types.ObjectId, required: true},
     originUUID: OriginUUIDProperty,
@@ -39,7 +39,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   ISCOGroupSchema.index({modelId: 1});
 
   // Two isco groups cannot have the same isco code in the same model
-  ISCOGroupSchema.index({ISCOCode: 1, modelId: 1}, {unique: true});
+  ISCOGroupSchema.index({code: 1, modelId: 1}, {unique: true});
   // Preferred label must be unique in the same model
   // ISCOGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
 
@@ -58,7 +58,7 @@ export interface IISCOGroup {
   modelId: string | mongoose.Types.ObjectId
   UUID: string
   originUUID: string
-  ISCOCode: string
+  code: string
   ESCOUri: string
   preferredLabel: string
   altLabels: string[]

@@ -2,7 +2,7 @@ export const expected = [
   {
     ESCOUri: "",
     originUUID: "",
-    ISCOCode: "",
+    code: "",
     preferredLabel: "",
     altLabels: [],
     description: ""
@@ -10,7 +10,7 @@ export const expected = [
   {
     ESCOUri: "",
     originUUID: "",
-    ISCOCode: "",
+    code: "",
     preferredLabel: "",
     altLabels: [],
     description: ""
@@ -18,7 +18,7 @@ export const expected = [
   {
     ESCOUri: "esco uri",
     originUUID: "origin uuid",
-    ISCOCode: "isco code",
+    code: "isco code",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description"
@@ -32,7 +32,7 @@ export const expected = [
       "uuid\n" +
       "with\n" +
       "linebreak",
-    ISCOCode: "isco\n" +
+    code: "isco\n" +
       "code\n" +
       "with\n" +
       "linebreak",
