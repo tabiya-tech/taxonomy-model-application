@@ -59,7 +59,6 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
 
   // The actual tests
   test("should import the sample CSV files", async () => {
-    try {
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
       const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
@@ -84,10 +83,5 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       await parseSkillGroupsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/skillGroups.csv" );
       expect(consoleErrorSpy).not.toHaveBeenCalled();
       expect(consoleWarnSpy).not.toHaveBeenCalled();
-
-    } catch (err) {
-      // should not throw an error
-      expect(err).toBeUndefined();
-    }
   }, 30000); // 30 seconds timeout to allow for the import to complete
 });

@@ -4,8 +4,9 @@ import {parse, Parser} from "csv-parse";
 import {Readable} from "node:stream";
 
 export type RowProcessorFunction<T>  = (row: T, index: number)=> Promise<void>;
+export type HeadersValidatorFunction = (actualHeaders: string[]) => Promise<boolean>;
 
-export function processDownloadStream<T>(url: string, processRow: RowProcessorFunction<T>): Promise<boolean> {
+export function processDownloadStream<T>(url: string, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     const request = https.get(url, async (response: IncomingMessage) => {
       try {
@@ -13,7 +14,7 @@ export function processDownloadStream<T>(url: string, processRow: RowProcessorFu
           reject(new Error(`Failed to download file ${url}. Status Code: ${response.statusCode}`));
           return;
         }
-        await processStream<T>(response, processRow);
+        await processStream<T>(response, validateHeaders, processRow);
         resolve(true);
       } catch (e: unknown) {
         console.error(`Error while processing  ${url}`, e);
@@ -27,7 +28,7 @@ export function processDownloadStream<T>(url: string, processRow: RowProcessorFu
   });
 }
 
-export function processStream<T>(stream: Readable, processRow: RowProcessorFunction<T>): Promise<void> {
+export function processStream<T>(stream: Readable, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>): Promise<void> {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
     try {
@@ -45,6 +46,9 @@ export function processStream<T>(stream: Readable, processRow: RowProcessorFunct
       });
       let count = 0;
       for await (const record of parser) {
+        if(count === 0){
+          await validateHeaders(Object.keys(record));
+        }
         count++;
         await processRow(record, count);
       }

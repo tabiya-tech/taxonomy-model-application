@@ -9,8 +9,39 @@ import {StatusCodes} from "server/httpUtils";
 import {ISkillGroupRow} from "./skillGroupsParser";
 import {ISkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
 import {INewSkillGroupSpec} from "esco/skillGroup/skillGroupModel";
+import {getHeadersValidator} from "./skillGroupsParser";
+import {getStdHeadersValidator} from "import/stdHeadersValidator";
 
 jest.mock('https');
+
+jest.mock("import/stdHeadersValidator.ts", () => ({
+  getStdHeadersValidator: jest.fn().mockReturnValue(() => true)
+}));
+
+describe("test headers validator", () => {
+  test("should return true if all expected SkillGroup headers are present ", () => {
+    // GIVEN a model id
+    const givenModelId = "modelId";
+
+    // WHEN the getHeaderValidator is called with the given model id
+    getHeadersValidator(givenModelId);
+
+    // THEN expect the stdHeadersValidator to have been called with the expected given model and the
+    // ISCO headers
+    const expectedHeaders = [
+      "ESCOURI",
+      "ORIGINUUID",
+      "CODE",
+      "PREFERREDLABEL",
+      "ALTLABELS",
+      "DESCRIPTION",
+      "SCOPENOTE"
+    ];
+
+    // @ts-ignore
+    expect(getStdHeadersValidator).toBeCalledWith(givenModelId, expectedHeaders);
+  })
+})
 
 describe("test getRowProcessor", () => {
   test("should create an SkillGroup", async () => {
