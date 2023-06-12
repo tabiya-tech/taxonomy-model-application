@@ -68,26 +68,26 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     expect(repository.Model).toBeDefined();
   });
 
-  test("initOnce has registered the ModelRepository", async () => {
+  test("initOnce has registered the ISCOGroupRepository", async () => {
     // GIVEN the environment mongo db uri is set
     expect(process.env.MONGODB_URI).toBeDefined();
 
     // WHEN initOnce has been called
     await initOnce()
 
-    // THEN expect the modelInfo repository to be defined
+    // THEN expect the repository to be defined
     expect(getRepositoryRegistry().ISCOGroup).toBeDefined();
 
     // Clean up
     await getConnectionManager().getCurrentDBConnection()!.close(true);
   });
 
-  describe("Test create() model ", () => {
+  describe("Test create() ISCOGroup ", () => {
     afterEach(async () => {
       await repository.Model.deleteMany({}).exec();
     })
 
-    test("should successfully create a new model", async () => {
+    test("should successfully create a new ISCOGroup", async () => {
       // GIVEN a valid ISCOGroupSpec
       const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
 
@@ -125,15 +125,45 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     test("should reject with an error when creating model with an existing UUID", async () => {
       // GIVEN a ISCOGroup record exists in the database
       const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
-      const givenNewModel = await repository.create(givenNewISCOGroupSpec);
+      const givenNewISCOGroup = await repository.create(givenNewISCOGroupSpec);
 
       // WHEN Creating a new ISCOGroup with the same UUID as the one the existing ISCOGroup
       // @ts-ignore
-      randomUUID.mockReturnValueOnce(givenNewModel.UUID);
+      randomUUID.mockReturnValueOnce(givenNewISCOGroup.UUID);
       const secondNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+      const secondNewISCOGroupPromise = repository.create(secondNewISCOGroupSpec);
+
+      await expect(secondNewISCOGroupPromise).rejects.toThrowError(/duplicate key .* dup key: { UUID/);
+    });
+
+    test("should successfully create a second Identical ISCOGroup in a different model", async () => {
+      // GIVEN a ISCOGroup record exists in the database for a given model
+      const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+      await repository.create(givenNewISCOGroupSpec);
+
+      // WHEN Creating an identical ISCOGroup in a new model (new modelId)
+      // @ts-ignore
+      const secondNewISCOGroupSpec: INewISCOGroupSpec = {...givenNewISCOGroupSpec};
+      secondNewISCOGroupSpec.modelId = getMockId(3);
+      const secondNewISCOGroupPromise = repository.create(secondNewISCOGroupSpec);
+
+      // THEN expect the new ISCOGroup to be created
+      await expect(secondNewISCOGroupPromise).resolves.toBeDefined();
+    });
+
+    test("should reject with an error when creating a pair of (modelId and code) is duplicated", async () => {
+      // GIVEN a ISCOGroup record exists in the database
+      const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+      const givenNewModel = await repository.create(givenNewISCOGroupSpec);
+
+      // WHEN Creating a new ISCOGroup with the same pair of modelId and code as the ones the existing ISCOGroup
+      // @ts-ignore
+      const secondNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+      secondNewISCOGroupSpec.code = givenNewModel.code;
+      secondNewISCOGroupSpec.modelId = givenNewModel.modelId;
       const secondNewModelPromise = repository.create(secondNewISCOGroupSpec);
 
-      await expect(secondNewModelPromise).rejects.toThrowError(/duplicate key .* dup key: { UUID/);
+      await expect(secondNewModelPromise).rejects.toThrowError(/duplicate key error collection/);
     });
   });
 });
