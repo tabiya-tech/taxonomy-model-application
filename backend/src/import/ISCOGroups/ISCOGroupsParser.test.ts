@@ -2,14 +2,24 @@
 import "_test_utilities/consoleMock";
 
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
-import {getRowProcessor, IISCOGroupRow, parseISCOGroupsFromFile, parseISCOGroupsFromUrl} from "./ISCOGroupsParser";
+import {
+  getHeadersValidator,
+  getRowProcessor,
+  IISCOGroupRow,
+  parseISCOGroupsFromFile,
+  parseISCOGroupsFromUrl
+} from "./ISCOGroupsParser";
 import {IISCOGroupRepository} from "esco/iscoGroup/ISCOGroupRepository";
 import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroupModel";
 import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";
+import {getStdHeadersValidator} from "import/stdHeadersValidator";
 
 jest.mock('https');
+jest.mock("import/stdHeadersValidator.ts", () => ({
+  getStdHeadersValidator: jest.fn().mockReturnValue(() => true)
+}));
 
 describe("test getRowProcessor", () => {
   test("should create an ISCOGroup", async () => {
@@ -67,7 +77,7 @@ describe("test getRowProcessor", () => {
     const rowProcessor = getRowProcessor(givenModelId);
 
     // WHEN the row processor is called with the given row
-    const processPromise =  rowProcessor(givenRow, 1);
+    const processPromise = rowProcessor(givenRow, 1);
 
     // THEN expect the promise to not be rejected
     await expect(processPromise).resolves.not.toThrow();
@@ -75,6 +85,30 @@ describe("test getRowProcessor", () => {
     // AND expect the ISCOGroup repository to have been called
     expect(mockRepository.create).toBeCalled()
   });
+})
+
+describe("test headers validator", () => {
+  test("should return true if all expected ISCOGroup headers are present ", () => {
+    // GIVEN a model id
+    const givenModelId = "modelId";
+
+    // WHEN the getHeaderValidator is called with the given model id
+    getHeadersValidator(givenModelId);
+
+    // THEN expect the stdHeadersValidator to have been called with the expected given model and the
+    // ISCO headers
+    const expectedHeaders = [
+      "ESCOURI",
+      "ORIGINUUID",
+      "CODE",
+      "PREFERREDLABEL",
+      "ALTLABELS",
+      "DESCRIPTION"
+    ];
+
+    // @ts-ignore
+    expect(getStdHeadersValidator).toBeCalledWith(givenModelId, expectedHeaders);
+  })
 })
 
 describe("test parseISCOGroupsFromUrl", () => {

@@ -1,7 +1,13 @@
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
-import {processDownloadStream, processStream} from "import/stream/processStream";
+import {
+  HeadersValidatorFunction,
+  processDownloadStream,
+  processStream,
+  RowProcessorFunction
+} from "import/stream/processStream";
 import fs from "fs";
 import {INewSkillGroupSpec} from "esco/skillGroup/skillGroupModel";
+import {getStdHeadersValidator} from "../stdHeadersValidator";
 
 // expect all columns to be in upper case
 export interface ISkillGroupRow {
@@ -14,7 +20,10 @@ export interface ISkillGroupRow {
   SCOPENOTE: string
 }
 
-export function getRowProcessor(modelId: string): (row: ISkillGroupRow, index: number) => Promise<void> {
+export function getHeadersValidator(modelid: string): HeadersValidatorFunction {
+  return getStdHeadersValidator(modelid, ['ESCOURI', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'SCOPENOTE']);
+}
+export function getRowProcessor(modelId: string): RowProcessorFunction<ISkillGroupRow> {
 
   const skillGroupRepository = getRepositoryRegistry().skillGroup;
   return async (row: ISkillGroupRow, index: number) => {
@@ -40,12 +49,14 @@ export function getRowProcessor(modelId: string): (row: ISkillGroupRow, index: n
 
 // function to parse from url
 export async function parseSkillGroupsFromUrl(modelId: string, url: string) {
+  const headersValidator = getHeadersValidator(modelId);
   const rowProcessor = getRowProcessor(modelId);
-  await processDownloadStream(url, rowProcessor);
+  await processDownloadStream(url, headersValidator, rowProcessor);
 }
 
 export async function parseSkillGroupsFromFile(modelId: string, filePath: string) {
   const skillGroupsCSVFileStream = fs.createReadStream(filePath );
+  const headersValidator = getHeadersValidator(modelId);
   const rowProcessor = getRowProcessor(modelId);
-  await processStream<ISkillGroupRow>(skillGroupsCSVFileStream, rowProcessor);
+  await processStream<ISkillGroupRow>(skillGroupsCSVFileStream, headersValidator, rowProcessor);
 }

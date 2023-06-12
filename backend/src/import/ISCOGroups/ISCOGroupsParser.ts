@@ -1,7 +1,13 @@
 import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroupModel";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
-import {processDownloadStream, processStream} from "import/stream/processStream";
+import {
+  HeadersValidatorFunction,
+  processDownloadStream,
+  processStream,
+  RowProcessorFunction
+} from "import/stream/processStream";
 import fs from "fs";
+import {getStdHeadersValidator} from "../stdHeadersValidator";
 
 // expect all columns to be in upper case
 export interface IISCOGroupRow {
@@ -13,8 +19,11 @@ export interface IISCOGroupRow {
   DESCRIPTION: string
 }
 
-export function getRowProcessor(modelId: string): (row: IISCOGroupRow, index: number) => Promise<void> {
+export function getHeadersValidator(modelid: string): HeadersValidatorFunction {
+  return getStdHeadersValidator(modelid, ['ESCOURI', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION']);
+}
 
+export function getRowProcessor(modelId: string): RowProcessorFunction<IISCOGroupRow> {
   const ISCOGroupRepository = getRepositoryRegistry().ISCOGroup;
   return async (row: IISCOGroupRow, index: number) => {
     const spec: INewISCOGroupSpec = {
@@ -37,12 +46,14 @@ export function getRowProcessor(modelId: string): (row: IISCOGroupRow, index: nu
 
 // function to parse from url
 export async function parseISCOGroupsFromUrl(modelId: string, url: string): Promise<void> {
+  const headersValidator = getHeadersValidator(modelId);
   const rowProcessor = getRowProcessor(modelId);
-  await processDownloadStream(url, rowProcessor);
+  await processDownloadStream(url, headersValidator, rowProcessor);
 }
 
 export async function parseISCOGroupsFromFile(modelId: string, filePath: string): Promise<void> {
-  const iscoGroupsCSVFileStream = fs.createReadStream(filePath );
+  const iscoGroupsCSVFileStream = fs.createReadStream(filePath);
+  const headersValidator = getHeadersValidator(modelId);
   const rowProcessor = getRowProcessor(modelId);
-  await processStream<IISCOGroupRow>(iscoGroupsCSVFileStream, rowProcessor);
+  await processStream<IISCOGroupRow>(iscoGroupsCSVFileStream, headersValidator, rowProcessor);
 }
