@@ -54,8 +54,8 @@ export function setupAsyncImportApi(environment: string, config: {
     code: asyncFileArchive,
     handler: "index.handler",
     runtime: 'nodejs16.x',
-    timeout: 60,// seconds
-    memorySize: 512,// MB
+    timeout: 180,// 3 minutes
+    memorySize: 1024,// GB
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
