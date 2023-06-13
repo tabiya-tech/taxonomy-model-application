@@ -12,7 +12,7 @@ export default class ImportDirectorService {
     this.apiServerUrl = apiServerUrl;
   }
 
-  async directImport(name: string, description: string, locale: ILocale, files: { fileType: ImportFileTypes,file: File }[]): Promise<string> {
+  async directImport(name: string, description: string, locale: ILocale, files: { [key in ImportFileTypes]?: File }): Promise<string> {
 
     const modelService = new ModelService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
@@ -21,10 +21,10 @@ export default class ImportDirectorService {
         presignedService.getPresignedPost()]);
 
     const uploadService = new UploadService();
-    await uploadService.uploadFiles(presigned, files.map(file => file.file));
+    await uploadService.uploadFiles(presigned, Object.entries(files).map(([, file]) => file));
     const filesPaths: {[key in ImportFileTypes]: string} = {} as any;
-    files.forEach(file => {
-        filesPaths[file.fileType] = `${presigned.folder}/${file.file.name}`;
+    Object.entries(files).map(([fileType, file])=> {
+        return filesPaths[fileType as ImportFileTypes] = `${presigned.folder}/${file.name}`;
     });
     const importService = new ImportService(this.apiServerUrl);
     await importService.import(modelid,filesPaths);

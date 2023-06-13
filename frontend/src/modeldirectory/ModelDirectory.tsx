@@ -6,8 +6,6 @@ import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelD
 import {ServiceError} from "src/error/error";
 import {writeServiceErrorToLog} from "src/error/logger";
 import ImportDirectorService from "src/import/importDirector.service";
-import {ImportFileTypes} from "api-specifications/import";
-
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
   MODEL_DIRECTORY_PAGE: `model-directory-root-${uniqueId}`,
@@ -27,18 +25,11 @@ const ModelDirectory = () => {
     if (event.name === "IMPORT") {
       const importData = event.importData as ImportData;
       try {
-        //TODO: change the importDirectorService.directImport to accept the key-value object and not an array
-        const files = Object.entries(importData.selectedFiles).map(([fileType, file]) => {
-          return {
-            fileType: fileType as ImportFileTypes,
-            file: file
-          }
-        });
         const modelID = await importDirectorService.directImport(
           importData.name,
           importData.description,
           importData.locale,
-          files
+          importData.selectedFiles
         );
         console.log("Created model: " + modelID);
       } catch (e) {
