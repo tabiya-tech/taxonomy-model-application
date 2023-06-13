@@ -78,10 +78,10 @@ describe('Test the import director service', () => {
     // AND a api server url
     const apiServerUrl = "https://somedomain/path/to/api";
     // AND some files
-    const givenFiles: { fileType: ImportFileTypes, file: File }[] = [
-      {fileType: ImportFileTypes.ESCO_SKILL, file: new File(["foo"], "foo.csv")},
-      {fileType: ImportFileTypes.OCCUPATION_HIERARCHY, file: new File(["bar"], "bar.json")},
-    ]
+    const givenFiles: { [key in ImportFileTypes]?: File } = {};
+    Object.values(ImportFileTypes).forEach((fileType: ImportFileTypes) => {
+      givenFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, {type: 'text/plain'});
+    });
 
     // WHEN the directImport() is called with the given arguments (name, description, locale, files)
     const manager = new ImportDirectorService(apiServerUrl);
@@ -104,13 +104,13 @@ describe('Test the import director service', () => {
     expect(presignedService.getPresignedPost).toBeCalled();
 
     // AND the upload service is called with the presigned url from the presigned service and the given files
-    expect(uploadService.uploadFiles).toHaveBeenCalledWith(givenMockPresignedResponse, givenFiles.map(file => file.file));
+    expect(uploadService.uploadFiles).toHaveBeenCalledWith(givenMockPresignedResponse, Object.entries(givenFiles).map(([, file]) => file));
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
-    const givenFilesPaths: { [key: string]: string } = {
-      [ImportFileTypes.ESCO_SKILL]: `${givenMockPresignedResponse.folder}/foo.csv`,
-      [ImportFileTypes.OCCUPATION_HIERARCHY]: `${givenMockPresignedResponse.folder}/bar.json`,
-    }
+    const givenFilesPaths: {[key in ImportFileTypes]: string} = {} as any;
+    Object.entries(givenFiles).map(([fileType, file])=> {
+      return givenFilesPaths[fileType as ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
+    });
     // THEN the import service is called with the given arguments (modelId, file paths)
     expect(importService.import).toHaveBeenCalledWith(givenMockModelId, givenFilesPaths);
     // AND the processing of the files is started

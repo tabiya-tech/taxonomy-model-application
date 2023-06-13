@@ -113,13 +113,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     expect(screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeNull();
 
     // AND expect the import director service to have been called with the data entered by the user
-    const expectedFiles = Object.entries(givenImportData.selectedFiles).map(([fileType, file]) => {
-      return {
-        fileType: fileType as ImportFileTypes,
-        file: file
-      }
-    });
-    expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, expectedFiles)
+    expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, givenImportData.selectedFiles)
   });
 
   it('should throw an error when import director fails to import', async () => {
@@ -152,13 +146,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     expect(screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeNull();
 
     // AND expect the import director service to have been called with the data entered by the user
-    const expectedFiles = Object.entries(givenImportData.selectedFiles).map(([fileType, file]) => {
-      return {
-        fileType: fileType as ImportFileTypes,
-        file: file
-      }
-    });
-    expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, expectedFiles);
+    expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, givenImportData.selectedFiles);
 
     // AND expect the error to be thrown
     expect(errorWasThrown).toBeTruthy();
