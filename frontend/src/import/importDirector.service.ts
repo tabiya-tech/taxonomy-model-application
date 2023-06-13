@@ -3,7 +3,8 @@ import ModelService from "./model/model.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
-import {ImportFileTypes} from "api-specifications/import";
+import {ImportFileTypes, ImportFilePaths} from "api-specifications/import";
+import {ImportFiles} from "./ImportFiles.type";
 
 export default class ImportDirectorService {
   readonly apiServerUrl: string;
@@ -12,7 +13,7 @@ export default class ImportDirectorService {
     this.apiServerUrl = apiServerUrl;
   }
 
-  async directImport(name: string, description: string, locale: ILocale, files: { [key in ImportFileTypes]?: File }): Promise<string> {
+  async directImport(name: string, description: string, locale: ILocale, files: ImportFiles): Promise<string> {
 
     const modelService = new ModelService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
@@ -22,12 +23,12 @@ export default class ImportDirectorService {
 
     const uploadService = new UploadService();
     await uploadService.uploadFiles(presigned, Object.entries(files).map(([, file]) => file));
-    const filesPaths: {[key in ImportFileTypes]: string} = {} as any;
-    Object.entries(files).map(([fileType, file])=> {
-        return filesPaths[fileType as ImportFileTypes] = `${presigned.folder}/${file.name}`;
+    const filesPaths: ImportFilePaths = {};
+    Object.entries(files).forEach(([fileType, file]) => {
+      filesPaths[fileType as ImportFileTypes] = `${presigned.folder}/${file.name}`;
     });
     const importService = new ImportService(this.apiServerUrl);
-    await importService.import(modelid,filesPaths);
+    await importService.import(modelid, filesPaths);
     return modelid;
   }
 

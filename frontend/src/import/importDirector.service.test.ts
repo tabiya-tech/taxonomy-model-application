@@ -41,11 +41,12 @@ import {getTestString} from "src/_test_utilities/specialCharacters";
 import {NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH} from "api-specifications/modelInfo";
 import {randomUUID} from "crypto";
 import ImportDirectorService from "./importDirector.service";
-import {ImportFileTypes} from "api-specifications/import";
+import {ImportFilePaths, ImportFileTypes} from "api-specifications/import";
 import ModelService from "./model/model.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
+import {ImportFiles} from "./ImportFiles.type";
 
 describe('Test the import director service', () => {
   it("should successfully direct the import", async () => {
@@ -78,7 +79,7 @@ describe('Test the import director service', () => {
     // AND a api server url
     const apiServerUrl = "https://somedomain/path/to/api";
     // AND some files
-    const givenFiles: { [key in ImportFileTypes]?: File } = {};
+    const givenFiles: ImportFiles = {};
     Object.values(ImportFileTypes).forEach((fileType: ImportFileTypes) => {
       givenFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, {type: 'text/plain'});
     });
@@ -107,7 +108,7 @@ describe('Test the import director service', () => {
     expect(uploadService.uploadFiles).toHaveBeenCalledWith(givenMockPresignedResponse, Object.entries(givenFiles).map(([, file]) => file));
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
-    const givenFilesPaths: {[key in ImportFileTypes]: string} = {} as any;
+    const givenFilesPaths: ImportFilePaths = {};
     Object.entries(givenFiles).map(([fileType, file])=> {
       return givenFilesPaths[fileType as ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
     });

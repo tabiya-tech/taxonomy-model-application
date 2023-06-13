@@ -11,6 +11,7 @@ import * as React from "react";
 import ImportDirectorService from "src/import/importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
 import {ImportFileTypes} from "api-specifications/import";
+import {ImportFiles} from "../import/ImportFiles.type";
 
 jest.mock("src/import/importDirector.service", () => {
   // Mocking the ES5 class
@@ -38,7 +39,7 @@ function getTestImportData(): ImportData {
   // model description
   const description = 'My Model Description';
   // the import files
-  const selectedFiles: { [key in ImportFileTypes]?: File } = {};
+  const selectedFiles: ImportFiles = {};
   Object.values(ImportFileTypes).forEach((fileType: ImportFileTypes) => {
     selectedFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, {type: 'text/plain'});
   });

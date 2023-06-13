@@ -13,6 +13,7 @@ import {fireEvent} from "@testing-library/react";
 import {ImportFileTypes} from "api-specifications/import";
 import {ILocale} from "api-specifications/modelInfo";
 import {clickDebouncedButton, typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
+import {ImportFiles} from "./ImportFiles.type";
 
 const notifyOnCloseMock = jest.fn();
 const props: ImportModelDialogProps = {
@@ -76,7 +77,7 @@ async function fillInImportDialog() {
   await typeDebouncedInput(modelDescriptionElement, enteredModelDescription);
 
   // User selects the import files
-  const selectedFiles: { [key in ImportFileTypes]?: File } = {}
+  const selectedFiles: ImportFiles = {};
 
   const importFilesSelectionElement: HTMLInputElement[] = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.FILE_INPUT);
   importFilesSelectionElement.forEach((element, index) => {

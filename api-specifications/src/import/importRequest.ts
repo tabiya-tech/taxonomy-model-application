@@ -1,9 +1,13 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_ID, RegExp_Str_NotEmptyString} from "../regex";
 
+
+
+export type  ImportFilePaths = { [key in ImportFileTypes]?: string }
+
 export interface ImportRequest {
   modelId: string
-  filePaths: { [key in ImportFileTypes]?: string }
+  filePaths: ImportFilePaths
 }
 
 export enum ImportResponseErrorCodes {

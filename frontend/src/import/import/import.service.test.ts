@@ -3,7 +3,7 @@ import "src/_test_utilities/consoleMock"
 
 import ImportService from './import.service';
 import {ServiceError} from 'src/error/error';
-import {ImportFileTypes, ImportRequest, ImportRequestSchema} from "api-specifications/import";
+import {ImportFilePaths, ImportFileTypes, ImportRequest, ImportRequestSchema} from "api-specifications/import";
 import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
 import {StatusCodes} from "http-status-codes/";
 import {ErrorCodes} from "src/error/errorCodes";
@@ -11,10 +11,10 @@ import Ajv from "ajv/dist/2020";
 import {getTestString} from "src/_test_utilities/specialCharacters";
 import {getMockId} from "src/_test_utilities/mockMongoId";
 
-const mockFilePaths: { [key in ImportFileTypes]: string } = {
+const mockFilePaths: ImportFilePaths = {
   [ImportFileTypes.ESCO_SKILL]: "foo/bar",
   [ImportFileTypes.OCCUPATION_HIERARCHY]: "bar/baz",
-} as any;
+};
 
 describe("Test the service", () => {
 

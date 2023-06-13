@@ -1,6 +1,6 @@
 import {getServiceErrorFactory} from "src/error/error";
 import {ErrorCodes} from "src/error/errorCodes";
-import {ImportFileTypes, ImportRequest} from "api-specifications/import";
+import {ImportFilePaths, ImportRequest} from "api-specifications/import";
 import {StatusCodes} from "http-status-codes";
 
 export default class ImportService {
@@ -13,7 +13,7 @@ export default class ImportService {
     this.importEndpointUrl = `${apiServerUrl}/import`;
   }
 
-  async import(modelId: string, filePaths: { [key in ImportFileTypes]: string }) {
+  async import(modelId: string, filePaths: ImportFilePaths) {
     const errorFactory = getServiceErrorFactory("ImportService", "import", "POST", this.importEndpointUrl);
 
     let responseStatus: number;
