@@ -75,13 +75,13 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       } as INewModelInfoSpec);
 
       // 02. Import the ISCOGroup CSV files
-      await parseISCOGroupsFromFile(modelInfo.id, "../samples/csv-samples/ESCO dataset - v1.1.1/ISCOGroups_en.csv" );
+      await parseISCOGroupsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/ISCOGroups.csv" );
       expect(consoleErrorSpy).not.toHaveBeenCalled();
       expect(consoleWarnSpy).not.toHaveBeenCalled();
 
       // 03. Import the ESCO Skill Groups CSV files
       //
-      await parseSkillGroupsFromFile(modelInfo.id, "../samples/csv-samples/ESCO dataset - v1.1.1/skillGroups_en.csv" );
+      await parseSkillGroupsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/skillGroups.csv" );
       expect(consoleErrorSpy).not.toHaveBeenCalled();
       expect(consoleWarnSpy).not.toHaveBeenCalled();
 
