@@ -1,4 +1,4 @@
-import {ImportFileTypes, ImportRequest, ImportRequestSchema} from "api-specifications/import";
+import {ImportFilePaths, ImportRequest, ImportRequestSchema} from "api-specifications/import";
 import {initOnce} from "server/init";
 import {S3PresignerService} from "./S3PresignerService";
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
@@ -42,7 +42,7 @@ export const handler = async (event: ImportRequest): Promise<any> => {
   }
 };
 
-const getPresignedUrls = async (filePaths: { [key in ImportFileTypes]?: string }): Promise<{ [key in ImportFileTypes]?: string }> => {
+const getPresignedUrls = async (filePaths: ImportFilePaths): Promise<ImportFilePaths> => {
   const s3PresignedService = new S3PresignerService(getUploadBucketRegion(), getUploadBucketName());
   const promises = Object.entries(filePaths).map(async (entry) => {
     return {[entry[0]]: await s3PresignedService.getPresignedGet(entry[1])};

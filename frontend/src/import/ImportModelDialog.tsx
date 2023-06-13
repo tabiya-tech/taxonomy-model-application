@@ -14,6 +14,7 @@ import ModelDescriptionField from "./components/ModelDescriptionField";
 import {ImportFileTypes} from "api-specifications/import";
 import {useStyles} from "src/theme/global.style";
 import CancelButton from "src/theme/CancelButton/CancelButton";
+import {ImportFiles} from "./ImportFiles.type";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -26,7 +27,7 @@ export interface ImportData {
   name: string,
   description: string,
   locale: ILocale,
-  selectedFiles: { [key in ImportFileTypes]?: File }
+  selectedFiles: ImportFiles
 }
 
 export type CloseEvent = { name: "CANCEL" | "IMPORT", importData?: ImportData };
