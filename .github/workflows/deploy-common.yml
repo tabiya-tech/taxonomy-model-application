@@ -12,6 +12,9 @@ on:
       backend-version-info:
         required: true
         type: string
+      stack-name:
+        required: true
+        type: string
     outputs:
       frontendURLBase:
         description: "The frontend url"

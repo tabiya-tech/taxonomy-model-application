@@ -1,0 +1,24 @@
+name: Sanitize Branch
+
+on:
+  workflow_call:
+    outputs:
+      stack-name:
+        description:  "This is a sanitized branch"
+        value:  ${{ steps.sanitized-branch.outputs.sanitized_branch }}
+
+jobs:
+  sanitize-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Sanitize Branch Name
+        id: sanitized-branch
+        run: |
+          # Fetch branch name
+          branch_name=${GITHUB_REF#refs/heads/}
+          sanitized_name=$(echo $branch_name | sed -e 's/[^a-zA-Z0-9-]/-/g')
+          echo "::set-output name=sanitized_branch::$sanitized_name"

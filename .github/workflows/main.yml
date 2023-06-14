@@ -7,6 +7,14 @@ on:
   #  types: [ opened, synchronize, reopened ]
 
 jobs:
+  # Sanitize Branch
+  sanitize-branch:
+    uses: ./.github/workflows/sanitize-branch.yml
+    secrets:  inherit
+  deploy-ephemeral:
+    if: github.event_name == 'pull_request' && contains(github.event.head_commit.message, '[provision_stack]')
+    uses: ./.github/workflows/setup.yml
+    secrets: inherit
   # API Specifications
   build-api-specs:
     uses: ./.github/workflows/build-api-specs.yml
@@ -24,6 +32,7 @@ jobs:
     with:
       target-environment: dev
       version-info: ${{ needs.build-backend.outputs.version-info }}
+      stack-name: ${{ needs.sanitize-branch.outputs.sanitized_branch }}
   smoke-test-backend:
     needs: [ build-backend, deploy-backend]
     uses: ./.github/workflows/smoke-test-version.yml
@@ -40,12 +49,13 @@ jobs:
     secrets: inherit
   deploy-frontend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ build-frontend ]
+    needs: [ build-frontend, sanitize-branch ]
     uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
     with:
       target-environment: dev
       version-info: ${{ needs.build-frontend.outputs.version-info }}
+      stack-name: ${{ needs.sanitize-branch.outputs.sanitized_branch }}
   smoke-test-frontend:
     needs: [ build-frontend, deploy-frontend]
     uses: ./.github/workflows/smoke-test-version.yml
@@ -62,21 +72,23 @@ jobs:
   # Common Infrastructure
   deploy-common:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend ]
+    needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend, sanitize-branch ]
     uses: ./.github/workflows/deploy-common.yml
     secrets: inherit
     with:
       target-environment: dev
       frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
       backend-version-info: ${{ needs.build-backend.outputs.version-info }}
+      stack-name: ${{ needs.sanitize-branch.outputs.sanitized_branch }}
   #  Update the parent Nameserver with the subdomain
   deploy-nameserver:
      if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-     needs: [ deploy-common ]
+     needs: [ deploy-common, sanitize-branch ]
      uses: ./.github/workflows/deploy-nameserver.yml
      secrets: inherit
      with:
        target-environment: dev
+       stack-name: ${{ needs.sanitize-branch.outputs.sanitized_branch }}
   smoke-test-frontend-cdn:
     needs: [ build-frontend, deploy-common, deploy-nameserver]
     uses: ./.github/workflows/smoke-test-version.yml

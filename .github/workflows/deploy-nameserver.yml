@@ -6,6 +6,9 @@ on:
       target-environment:
         required: true
         type: string
+      stack-name:
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -36,6 +39,6 @@ jobs:
         with:
           work-dir: iac/name-servers
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ inputs.target-environment }}
+          stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ inputs.stack-name }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
