@@ -4,10 +4,11 @@ import "src/_test_utilities/consoleMock";
 import {getByTestId, render, screen} from "src/_test_utilities/test-utils";
 import ImportModelDialog, {DATA_TEST_ID, ImportData, ImportModelDialogProps} from "./ImportModelDialog";
 import {DATA_TEST_ID as MODEL_NAME_FIELD_DATA_TEST_ID} from "src/import/components/ModelNameField";
+import {DATA_TEST_ID as MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID} from "src/import/components/ModelLocalSelectField";
 import {DATA_TEST_ID as MODEL_DESCRIPTION_FIELD_DATA_TEST_ID} from "src/import/components/ModelDescriptionField";
 import {DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID} from "src/import/components/ImportFilesSelection";
 import {DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID} from "src/import/components/FileEntry";
-import {fireEvent} from "@testing-library/react";
+import {fireEvent, within} from "@testing-library/react";
 import {ImportFileTypes} from "api-specifications/import";
 import {clickDebouncedButton, typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
 import {ImportFiles} from "./ImportFiles.type";
@@ -15,8 +16,17 @@ import {isSpecified} from "../utils/isUnspecified";
 import userEvent from "@testing-library/user-event";
 
 const notifyOnCloseMock = jest.fn();
-const props: ImportModelDialogProps = {
+const testProps: ImportModelDialogProps = {
   isOpen: true,
+  availableLocales: [{
+    name: 'foo',
+    shortCode: 'foo',
+    UUID: 'foo'
+  }, {
+    name: 'bar',
+    shortCode: 'bar',
+    UUID: 'bar'
+  }],
   notifyOnClose: notifyOnCloseMock,
 };
 
@@ -24,12 +34,7 @@ function getImportDataTestValues(): ImportData {
   return {
     name: 'foo model name',
     description: 'foo model description',
-    // Currently the local in the dialog is hard coded to South Africa, we we cannot use mock data here
-    locale: {
-      name: 'South Africa',
-      shortCode: 'ZA',
-      UUID: '8e763c32-4c21-449c-94ee-7ddeb379369a'
-    },
+    locale: testProps.availableLocales[1],
     selectedFiles: Object.values(ImportFileTypes).reduce((acc, fileType) => {
       acc[fileType] = new File([fileType], fileType, {type: 'text/plain'});
       return acc;
@@ -38,18 +43,27 @@ function getImportDataTestValues(): ImportData {
 }
 
 async function fillInImportDialog(inputData: ImportData): Promise<void> {
+  // Select the model name
   if (isSpecified(inputData.name)) {
     const modelNameElement = screen.getByTestId(MODEL_NAME_FIELD_DATA_TEST_ID.MODEL_NAME_INPUT);
     await typeDebouncedInput(modelNameElement, inputData.name);
   }
 
+  // Select the description
   if (isSpecified(inputData.description)) {
     const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
     await typeDebouncedInput(modelDescriptionElement, inputData.description);
   }
 
-  // the locale is currently hard coded in the dialog, so we cannot set it here
+  // Selecting the locale
+  const dropdownElement = screen.getByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_DROPDOWN)
+  const button = within(dropdownElement).getByRole('button');
+  await userEvent.click(button);
+  const dropdownList = screen.getAllByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_ITEM);
+  const targetLocaleElement = dropdownList.find((item) => item.getAttribute('data-value') === inputData.locale.UUID);
+  await userEvent.click(targetLocaleElement as HTMLElement);
 
+  // Select the import files
   const importFilesSelectionElement: HTMLInputElement[] = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.FILE_INPUT);
   importFilesSelectionElement.forEach((element) => {
     const elementFileType = element.getAttribute('data-filetype') as ImportFileTypes
@@ -68,7 +82,7 @@ beforeEach(
 describe("ImportModel dialog render tests", () => {
   it("should render the dialog visible", () => {
     //GIVEN the dialog is visible
-    render(<ImportModelDialog {...props}/>);
+    render(<ImportModelDialog {...testProps}/>);
 
     //THEN expect the dialog to be in the document
     const dialogBox = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG);
@@ -82,6 +96,9 @@ describe("ImportModel dialog render tests", () => {
     // AND expect the Model Name field to exist
     const modelNameElement = screen.getByTestId(MODEL_NAME_FIELD_DATA_TEST_ID.MODEL_NAME_FIELD);
     expect(modelNameElement).toBeInTheDocument();
+    // AND expect the Model Locale field to exist
+    const modelLocaleElement = screen.getByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD);
+    expect(modelLocaleElement).toBeInTheDocument();
     // AND expect the Model Description field to exist
     const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESCRIPTION_FIELD);
     expect(modelDescriptionElement).toBeInTheDocument();
@@ -92,12 +109,12 @@ describe("ImportModel dialog render tests", () => {
 
   it('should render the dialog hidden', function () {
     // GIVEN the dialog is hidden
-    const props: ImportModelDialogProps = {
-      isOpen: false,
-      notifyOnClose: notifyOnCloseMock,
+    const givenProps: ImportModelDialogProps = {
+      ...testProps,
+      isOpen: false
     }
     // WHEN the dialog is rendered
-    render(<ImportModelDialog {...props}/>);
+    render(<ImportModelDialog {...givenProps}/>);
     // THEN expect the dialog to not be in the document
     const dialogBox = screen.queryByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG);
     expect(dialogBox).not.toBeInTheDocument();
@@ -109,7 +126,7 @@ describe("ImportModel dialog render tests", () => {
       data.name = "";
       return data;
     }],
-    /* This test cannot be done yet as the locale is currently hard coded.
+    /* This test cannot be done, as the user cannot select an empty locale, unless there are no locales in which case there is something wrong already with the code.
     ["locale is missing", () => {
       const data = getImportDataTestValues();
       data.locale = undefined as any;
@@ -124,7 +141,7 @@ describe("ImportModel dialog render tests", () => {
   ])
   ('should render the import button disabled when mandatory fields %s', async (description, getTestData) => {
     // GIVEN the dialog is rendered
-    render(<ImportModelDialog {...props}/>);
+    render(<ImportModelDialog {...testProps}/>);
 
     // WHEN the user does not enter any of the mandatory data
     await fillInImportDialog(getTestData());
@@ -136,7 +153,7 @@ describe("ImportModel dialog render tests", () => {
 
   it('should render the import button enable if all mandatory fields are filled', async function () {
     // GIVEN the dialog is visible
-    render(<ImportModelDialog {...props} />);
+    render(<ImportModelDialog {...testProps} />);
     // AND given the mandatory
     const givenMandatoryFields = getImportDataTestValues();
 
@@ -153,7 +170,7 @@ describe('ImportModel dialog action tests', () => {
 
   it('should call notifyOnClose with CANCEL when Escape key is pressed', () => {
     // GIVEN
-    render(<ImportModelDialog {...props} />);
+    render(<ImportModelDialog {...testProps} />);
 
     // WHEN Escape key is pressed
     fireEvent.keyDown(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG), {key: 'Escape'});
@@ -164,7 +181,7 @@ describe('ImportModel dialog action tests', () => {
 
   it('should call notifyOnClose with CANCEL when Cancel button is clicked', () => {
     // GIVEN the dialog is visible
-    render(<ImportModelDialog {...props} />);
+    render(<ImportModelDialog {...testProps} />);
 
     const cancelButton = screen.getByTestId(DATA_TEST_ID.CANCEL_BUTTON);
     // WHEN Cancel button is clicked
@@ -176,7 +193,7 @@ describe('ImportModel dialog action tests', () => {
 
   it('should call notifyOnClose with IMPORT and model data when Import button is clicked', async () => {
     // GIVEN the dialog is visible
-    render(<ImportModelDialog {...props} />);
+    render(<ImportModelDialog {...testProps} />);
 
     // WHEN the user enters all the data required for the import
     // @ts-ignore
@@ -201,8 +218,7 @@ describe('ImportModel dialog action tests', () => {
 
   it('should call notifyOnClose with IMPORT and the correct selected files when some files where removed by the user', async () => {
     // GIVEN the dialog is visible
-
-    render(<ImportModelDialog {...props} />);
+    render(<ImportModelDialog {...testProps} />);
     // WHEN the user enters all the data required for the import
     // @ts-ignore
     const givenData = getImportDataTestValues()

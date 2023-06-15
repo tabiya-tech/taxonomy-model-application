@@ -7,6 +7,7 @@ import {ServiceError} from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {writeServiceErrorToLog} from "../error/logger";
+import {ILocale} from "api-specifications/modelInfo";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -15,6 +16,15 @@ export const DATA_TEST_ID = {
 }
 
 const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
+export const availableLocales: ILocale[] = [{
+  name: "South Africa",
+  shortCode: "ZA",
+  UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a"
+}, {
+  name: "Ethiopia",
+  shortCode: "ETH",
+  UUID: "1df3d395-2a3d-4334-8fec-9d990bc8e3e4"
+}]
 
 const ModelDirectory = () => {
   const [isImportDlgOpen, setImportDlgOpen] = React.useState(false);
@@ -34,10 +44,10 @@ const ModelDirectory = () => {
           importData.locale,
           importData.selectedFiles
         );
-        enqueueSnackbar(`The model ${importData.name} import has started.`, {variant:"success"})
+        enqueueSnackbar(`The model ${importData.name} import has started.`, {variant: "success"})
         console.log("Created model: " + modelID);
       } catch (e) {
-        enqueueSnackbar(`The model ${importData.name} import could not be started.`, {variant:"error"})
+        enqueueSnackbar(`The model ${importData.name} import could not be started.`, {variant: "error"})
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
@@ -58,7 +68,8 @@ const ModelDirectory = () => {
       Import Model
     </Button>
     {isImportDlgOpen &&
-        <ImportModelDialog isOpen={isImportDlgOpen} notifyOnClose={handleOnImportDialogClose}/>}
+      <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
+                         notifyOnClose={handleOnImportDialogClose}/>}
   </Container>
 };
 export default ModelDirectory;

@@ -2,7 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import {act, render, screen,} from "@testing-library/react";
-import ModelDirectory, {DATA_TEST_ID} from "./ModelDirectory";
+import ModelDirectory, {availableLocales, DATA_TEST_ID} from "./ModelDirectory";
 import ImportModelDialog, {
   DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportData,
 } from "src/import/ImportModelDialog";
@@ -12,7 +12,7 @@ import ImportDirectorService from "src/import/importDirector.service";
 import {ILocale} from "api-specifications/modelInfo";
 import {ImportFileTypes} from "api-specifications/import";
 import {ImportFiles} from "../import/ImportFiles.type";
-import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
+import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 
 jest.mock("src/import/importDirector.service", () => {
   // Mocking the ES5 class
@@ -78,6 +78,13 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     // THEN expect the ImportDialog to be visible
     const importDialog = screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
     expect(importDialog).toBeVisible();
+
+    // AND expect the import dialog to have been called with the correct props
+    expect(ImportModelDialog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        availableLocales: availableLocales,
+        notifyOnClose: expect.any(Function),
+      }),{});
   });
 
   test("should close ImportDialog and not import the model when cancel button is clicked", async () => {
@@ -124,7 +131,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     // AND the snackbar notification was shown
     expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
       `The model ${givenImportData.name} import has started.`,
-      { variant: "success" }
+      {variant: "success"}
     );
 
     // THEN expect the ImportDialog to be rendered as closed
@@ -171,7 +178,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     expect(errorWasThrown).toBeTruthy();
     expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
       `The model ${givenImportData.name} import could not be started.`,
-      { variant: "error" }
+      {variant: "error"}
     );
   });
 });
