@@ -9,7 +9,7 @@ on:
     outputs:
       stack-name:
         description: "This is a sanitized branch"
-        value: ${{ jobs.sanitize-branch.outputs.sanitized_branch }}
+        value: ${{ jobs.sanitized-branch.outputs.sanitized_branch }}
       mongo_uri:
         description:  "Mongo URI"
         value:  ${{ jobs.deploy-branch.outputs.mongo_uri }}
