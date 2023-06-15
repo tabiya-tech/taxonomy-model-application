@@ -4,17 +4,15 @@ on:
   workflow_call:
     outputs:
       stack-name:
-        description:  "This is a sanitized branch"
-        value:  ${{ steps.sanitized-branch.outputs.sanitized_branch }}
+        description: "This is a sanitized branch"
+        value: ${{ jobs.sanitized-branch.outputs.sanitized_branch }}
 
 jobs:
   sanitize-branch:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Sanitize Branch Name
         id: sanitized-branch
         run: |
