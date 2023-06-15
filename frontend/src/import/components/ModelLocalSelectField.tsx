@@ -1,11 +1,11 @@
 import {
   FormControl, Stack, MenuItem, Select, FormLabel, SelectChangeEvent,
 } from "@mui/material";
-import {useStyles} from "../../theme/global.style";
+import {useStyles} from "src/theme/global.style";
 import React, {useEffect} from "react";
 import {ILocale} from "api-specifications/modelInfo";
-import {generateUniqueId} from "../../utils/generateUniqueId";
-
+import {generateUniqueId} from "src/utils/generateUniqueId";
+import {isUnspecified} from "src/utils/isUnspecified";
 
 export const TEXT = {
   MODEL_LOCALE_SELECT_LABEL: "Select Model Locale",
@@ -26,7 +26,7 @@ export interface ModelLocaleSelectProps {
 }
 
 const ModelLocalSelectField = (props: ModelLocaleSelectProps) => {
-  if (props.locales.length === 0) {
+  if (props.locales.length === 0 || props.locales.find((locale) => isUnspecified(locale.UUID))) {
     console.error("Locales should have at least one item");
   }
   const uniqueId = generateUniqueId();
