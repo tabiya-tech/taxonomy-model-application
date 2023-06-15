@@ -8,14 +8,13 @@ on:
 
 jobs:
   # Sanitize Branch
-  sanitize-branch:
-    uses: ./.github/workflows/sanitize-branch.yml
-    secrets:  inherit
+#  sanitize-branch:
+#    uses: ./.github/workflows/sanitize-branch.yml
+#    secrets:  inherit
   deploy-ephemeral:
     if: github.event_name == 'pull_request' && contains(github.event.head_commit.message, '[provision_stack]')
+    needs: [ build-api-specs, build-backend, build-frontend]
     uses: ./.github/workflows/setup.yml
-    with:
-      stack-name: ${{ needs.sanitize-branch.outputs.sanitized_branch }}
     secrets: inherit
   # API Specifications
   build-api-specs:

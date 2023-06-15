@@ -2,22 +2,42 @@ name: Setup Ephemeral Database
 
 on:
   workflow_call:
-    inputs:
+#    inputs:
+#      stack-name:
+#        required: true
+#        type: string
+    outputs:
       stack-name:
-        required: true
-        type: string
+        description: "This is a sanitized branch"
+        value: ${{ jobs.sanitize-branch.outputs.sanitized_branch }}
+      mongo_uri:
+        description:  "Mongo URI"
+        value:  ${{ jobs.deploy-branch.outputs.mongo_uri }}
 
 jobs:
+  # Sanitize Branch
+  sanitize-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Sanitize Branch Name
+        id: sanitized-branch
+        run: |
+          # Fetch branch name
+          branch_name=${GITHUB_REF#refs/heads/}
+          sanitized_name=$(echo $branch_name | sed -e 's/[^a-zA-Z0-9-]/-/g')
+          echo "sanitized_branch=$sanitized_name" >> "$GITHUB_OUTPUT"
+  # Deploy DB
   deploy-db:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.stack-name }}
-    outputs:
-      mongo_uri:  ${{ steps.get-branch.outputs.mongo_uri }}
+    environment: ${{ outputs.stack-name }}
+#    outputs:
+#      mongo_uri:  ${{ steps.get-branch.outputs.mongo_uri }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Set up MongoDB Atlas
         run: |
           sudo apt-get update
@@ -26,34 +46,51 @@ jobs:
           echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
           sudo apt-get update
           sudo apt-get install -y mongodb-atlas
-
       - name: Configure MongoDB CLI
         run: |
           atlas config set org_id ${{ secrets.MONGODB_ORG_ID }}
           atlas config set project_id ${{ secrets.MONGODB_PROJECT_ID_NEW }}
           atlas config set public_api_key "${{ secrets.MONGODB_PUBLIC_API_KEY }}"
           atlas config set private_api_key "${{ secrets.MONGODB_PRIVATE_KEY }}"
-
       - name: Create database
         run: |
           atlas cluster create Cluster0 --projectId ${{ secrets.MONGODB_PROJECT_ID_NEW }} --provider AWS --region US_EAST_1 --tier M0 --output json
-
       - name: Get connection string
         id: get-branch
         run: |
           sleep 60
           output=$(atlas cluster connectionString describe Cluster0 --output json)
           standardSrv=$(echo "$output" | jq -r '.standardSrv')
-          echo "::set-output name=standardSrv::'$mongo_uri/${{ inputs.stack-name }}'"
-  # API Specifications
-  build-api-specs:
-    uses: ./.github/workflows/build-api-specs.yml
-    secrets: inherit
+          echo "standardSrv="$mongo_uri/${{ inputs.stack-name }}"" >> "$GITHUB_OUTPUT"
   # Backend
-  build-backend:
-    uses: ./.github/workflows/build-backend.yml
-    needs: [ build-api-specs ]
-    secrets: inherit
   deploy-backend:
-    needs: [ build-backend ]
     uses: ./.github/workflows/deploy-backend.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      version-info: ${{ needs.build-backend.outputs.version-info }}
+      stack-name: ${{ outputs.stack-name }}
+  # Frontend
+  deploy-frontend:
+    uses: ./.github/workflows/deploy-frontend.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      version-info: ${{ needs.build-frontend.outputs.version-info }}
+      stack-name: ${{ outputs.stack-name }}
+  # Common Infrastructure
+  deploy-common:
+    uses: ./.github/workflows/deploy-common.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
+      stack-name: ${{ outputs.stack-name }}
+  # Nameserver
+  deploy-nameserver:
+    uses: ./.github/workflows/deploy-nameserver.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      stack-name: ${{ outputs.stack-name }}

@@ -19,4 +19,4 @@ jobs:
           # Fetch branch name
           branch_name=${GITHUB_REF#refs/heads/}
           sanitized_name=$(echo $branch_name | sed -e 's/[^a-zA-Z0-9-]/-/g')
-          echo "::set-output name=sanitized_branch::$sanitized_name"
+          echo "sanitized_branch=$sanitized_name" >> "$GITHUB_OUTPUT"
