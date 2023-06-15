@@ -5,9 +5,10 @@ import {
   SnackbarKey
 } from 'notistack';
 import {ReactNode} from 'react';
-import {IconButton} from '@mui/material';
+import {IconButton, styled} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import * as React from 'react';
+import {MaterialDesignContent} from 'notistack'
 
 const uniqueId = "bade4e92-baed-40f8-a098-0e745563e786"
 export const DATA_TEST_ID = {
@@ -25,14 +26,34 @@ interface SnackbarProviderProps {
   children: ReactNode;
 }
 
+const StyledMaterialDesignContent = styled(MaterialDesignContent)(({theme}) => ({
+  '&.notistack-MuiContent-success': {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: theme.typography.fontSize
+  },
+  '&.notistack-MuiContent-error': {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: theme.typography.fontSize
+  },
+  '&.notistack-MuiContent-warning': {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: theme.typography.fontSize
+  },
+}));
+
 const SnackbarProvider: React.FC<SnackbarProviderProps & _SnackbarProviderProps> = ({children, ...props}) => {
   const notistackOptions: _SnackbarProviderProps = {
-    maxSnack: 20,
+    maxSnack: 10,
     autoHideDuration: null,
     transitionDuration: {enter: 500, exit: 500},
     anchorOrigin: {
       vertical: 'top',
       horizontal: 'right',
+    },
+    Components: {
+      success: StyledMaterialDesignContent,
+      error: StyledMaterialDesignContent,
+      warning: StyledMaterialDesignContent,
     }
   };
 
