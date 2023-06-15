@@ -14,6 +14,8 @@ jobs:
   deploy-ephemeral:
     if: github.event_name == 'pull_request' && contains(github.event.head_commit.message, '[provision_stack]')
     uses: ./.github/workflows/setup.yml
+    with:
+      stack-name: ${{ needs.sanitize-branch.outputs.sanitized_branch }}
     secrets: inherit
   # API Specifications
   build-api-specs:
