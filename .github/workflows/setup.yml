@@ -109,11 +109,6 @@ jobs:
       backedRestApiURLBase: ${{ steps.pulumi.outputs.backedRestApiURLBase }}
       resourcesBaseUrl: ${{ steps.pulumi.outputs.resourcesBaseUrl }}
     needs:  [ build-backend ]
-    secrets: inherit
-    with:
-      target-environment: dev
-      version-info: ${{ needs.build-backend.outputs.version-info }}
-      stack-name: ${{ outputs.stack-name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -145,10 +140,10 @@ jobs:
         with:
           work-dir: iac/backend
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-backend/dev
+          stack-name: tabiya-tech/taxonomy-model-application-backend/${{ outputs.stack-name }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGODB_URI: ${{ outputs.mongo_uri }}
   # Frontend
   # Frontend
   build-frontend:
@@ -193,13 +188,12 @@ jobs:
         with:
           work-dir: iac/frontend
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-frontend/dev
+          stack-name: tabiya-tech/taxonomy-model-application-frontend/${{ outputs.stack-name }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
   # Common Infrastructure
   deploy-common:
     needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend ]
-    secrets: inherit
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
@@ -231,14 +225,9 @@ jobs:
         with:
           work-dir: iac/common
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-common/dev
+          stack-name: tabiya-tech/taxonomy-model-application-common/${{ outputs.stack-name }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-    with:
-      target-environment: dev
-      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
-      stack-name: ${{ outputs.stack-name }}
   # Nameserver
   deploy-nameserver:
     runs-on: ubuntu-latest
@@ -263,15 +252,13 @@ jobs:
           role-duration-seconds: 1200
           role-session-name: MySessionName
       - name: Update Record on Parent Domain
+        needs: [ deploy-common ]
         id: pulumi
         uses: pulumi/actions@v4
         with:
           work-dir: iac/name-servers
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ inputs.stack-name }}
+          stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ outputs.stack-name }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-    secrets: inherit
-    with:
-      target-environment: dev
-      stack-name: ${{ outputs.stack-name }}
+
