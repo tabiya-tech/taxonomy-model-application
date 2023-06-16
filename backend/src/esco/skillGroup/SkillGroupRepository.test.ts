@@ -100,10 +100,6 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(newModel).toEqual(expectedNewSkillGroup);
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewSkillGroupSpec());
-    });
-
     test("should reject with an error when creating a skill group and providing a UUID", async () => {
       // GIVEN a SkillGroupSpec that is otherwise valid but has a UUID
       const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
@@ -125,6 +121,96 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // @ts-ignore
       randomUUID.mockReturnValueOnce(givenNewModel.UUID);
       await expect(repository.create(givenNewSkillGroupSpecSpec)).rejects.toThrowError(/duplicate key/);
+    });
+
+    TestConnectionFailure((repository) => {
+      return repository.create(getNewSkillGroupSpec());
+    });
+  });
+
+  describe("Test batchCreate() skill group ", () => {
+    afterEach(async () => {
+      await repository.Model.deleteMany({}).exec();
+    })
+
+    test("should successfully create a batch of new skill groups", async () => {
+      // GIVEN some valid SkillGroupSpec
+      const givenBatchSize = 3;
+      const givenNewSkillGroupSpecs: INewSkillGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenNewSkillGroupSpecs[i] = getNewSkillGroupSpec();
+      }
+
+      // WHEN batch creating the Skill Groups with the given specifications
+      const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate(givenNewSkillGroupSpecs);
+
+      // THEN expect all the Skill Groups to be created with the specific attributes
+      expect(newSkillGroups).toEqual(
+        expect.arrayContaining(
+          givenNewSkillGroupSpecs.map((givenNewSkillGroupSpec) => {
+            const expectedNewSkillGroup: ISkillGroup = {
+              ...givenNewSkillGroupSpec,
+              id: expect.any(String),
+              parentGroups: [],
+              childrenGroups: [],
+              UUID: expect.any(String),
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            }
+            return expectedNewSkillGroup;
+          })
+        )
+      );
+    });
+
+    test("should successfully create a batch of new skill groups even if some don't validate", async () => {
+      // GIVEN some valid SkillGroupSpec
+      const givenBatchSize = 3;
+      const givenValidSkillGroupSpecs: INewSkillGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenValidSkillGroupSpecs[i] = getNewSkillGroupSpec();
+      }
+      // AND one SkillGroupSpec that is invalid
+      const givenInvalidSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+      givenInvalidSkillGroupSpec.code = "invalid code";
+
+      // WHEN batch creating the Skill Groups with the given specifications
+      const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate([...givenValidSkillGroupSpecs, givenInvalidSkillGroupSpec]);
+
+      // THEN expect only the valid Skill Group to be created
+      expect(newSkillGroups).toHaveLength(givenValidSkillGroupSpecs.length);
+
+      expect(newSkillGroups).toEqual(
+        expect.arrayContaining(
+          givenValidSkillGroupSpecs.map((givenNewSkillGroupSpec) => {
+            const expectedNewSkill: ISkillGroup = {
+              ...givenNewSkillGroupSpec,
+              id: expect.any(String),
+              parentGroups: [],
+              childrenGroups: [],
+              UUID: expect.any(String),
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            }
+            return expectedNewSkill;
+          })
+        )
+      );
+    });
+
+    test("should resolve to an empty array if none of the element could be validated", async () => {
+      // GIVEN only invalid SkillGroupSpec
+      const givenBatchSize = 3;
+      const givenValidSkillGroupSpecs: INewSkillGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenValidSkillGroupSpecs[i] = getNewSkillGroupSpec();
+        givenValidSkillGroupSpecs[i].code = "invalid code";
+      }
+      // WHEN batch creating the Skill Groups with the given specifications
+      const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate(givenValidSkillGroupSpecs);
+
+      // THEN expect an empty array to be created
+      expect(newSkillGroups).toHaveLength(0);
     });
   });
 });
