@@ -6,6 +6,10 @@ const buildFolderPath = "../../backend/build/import/async";
 
 const LOG_RETENTION_IN_DAYS = 7;
 
+const LAMBDA_TIMEOUT_IN_SECONDS = 180;
+
+const LAMBDA_MEMORY_IN_MB = 1024;
+
 export function setupAsyncImportApi(environment: string, config: {
   mongodb_uri: string,
   resourcesBaseUrl: string,
@@ -54,8 +58,8 @@ export function setupAsyncImportApi(environment: string, config: {
     code: asyncFileArchive,
     handler: "index.handler",
     runtime: 'nodejs16.x',
-    timeout: 180,// 3 minutes
-    memorySize: 1024,// GB
+    timeout: LAMBDA_TIMEOUT_IN_SECONDS,
+    memorySize: LAMBDA_MEMORY_IN_MB,
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',

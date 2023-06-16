@@ -8,6 +8,10 @@ const buildFolderPath = "../../backend/build/rest";
 
 const LOG_RETENTION_IN_DAYS = 7;
 
+const LAMBDA_TIMEOUT_IN_SECONDS = 30;
+
+const LAMBDA_MEMORY_IN_MB = 512;
+
 export function setupBackendRESTApi(environment: string, config: {
   mongodb_uri: string,
   resourcesBaseUrl: string,
@@ -80,6 +84,8 @@ export function setupBackendRESTApi(environment: string, config: {
     code: fileArchive,
     handler: "index.handler",
     runtime: 'nodejs16.x',
+    timeout: LAMBDA_TIMEOUT_IN_SECONDS,
+    memorySize: LAMBDA_MEMORY_IN_MB,
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
