@@ -10,6 +10,13 @@ export interface ISkillGroupRepository {
    * @param newSkillGroupSpec
    */
   create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup>;
+
+  /**
+   * Resolves to an array with the newly created ISkillGroup entries. If some of the documents could not be validated, they will be excluded and not saved and the function will resolve.
+   * The promise will reject with an error if the ISkillGroup entries could not be created due to reasons other than not passing the validation.
+   * @param newSkillGroupSpecs
+   */
+  batchCreate(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -23,7 +30,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   async create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup> {
     //@ts-ignore
     if (newSkillGroupSpec.UUID !== undefined) {
-      const e =  new Error("UUID should not be provided");
+      const e = new Error("UUID should not be provided");
       console.error("create failed", e);
       throw e;
     }
@@ -39,6 +46,26 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return newSkillGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
+      throw e;
+    }
+  }
+
+  async batchCreate(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> {
+    try {
+      const newSkillGroupModels = newSkillGroupSpecs.map((spec) => {
+        return new this.Model({
+          ...spec,
+          parentGroups: [],
+          UUID: randomUUID() // override UUID silently
+        });
+      });
+      const newSkillGroups = await this.Model.insertMany(newSkillGroupModels, {
+        ordered: false,
+        populate: ["parentGroups", "childrenGroups"]
+      });
+      return newSkillGroups.map((skillGroup) => skillGroup.toObject());
+    } catch (e: unknown) {
+      console.error("batch create failed", e);
       throw e;
     }
   }
