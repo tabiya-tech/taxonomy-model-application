@@ -1,5 +1,6 @@
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {
+  CompletedFunction,
   HeadersValidatorFunction,
   processDownloadStream,
   processStream,
@@ -7,7 +8,8 @@ import {
 } from "import/stream/processStream";
 import fs from "fs";
 import {INewSkillGroupSpec} from "esco/skillGroup/skillGroupModel";
-import {getStdHeadersValidator} from "../stdHeadersValidator";
+import {getStdHeadersValidator} from "import/stdHeadersValidator";
+import {BatchProcessor} from "import/batch/BatchProcessor";
 
 // expect all columns to be in upper case
 export interface ISkillGroupRow {
@@ -23,10 +25,21 @@ export interface ISkillGroupRow {
 export function getHeadersValidator(modelid: string): HeadersValidatorFunction {
   return getStdHeadersValidator(modelid, ['ESCOURI', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'SCOPENOTE']);
 }
-export function getRowProcessor(modelId: string): RowProcessorFunction<ISkillGroupRow> {
 
-  const skillGroupRepository = getRepositoryRegistry().skillGroup;
-  return async (row: ISkillGroupRow, index: number) => {
+function getBatchProcessor() {
+  const BATCH_SIZE: number = 5000;
+  const batchProcessFn = async (specs: INewSkillGroupSpec[]) => {
+    try {
+      const skillGroupRepository = getRepositoryRegistry().skillGroup;
+      await skillGroupRepository.batchCreate(specs);
+    } catch (e: unknown) {
+      console.error("Failed to process batch", e);
+    }
+  };
+  return new BatchProcessor<INewSkillGroupSpec>(BATCH_SIZE, batchProcessFn);
+}
+export function getRowProcessor(modelId: string, batchProcessor: BatchProcessor<INewSkillGroupSpec>): RowProcessorFunction<ISkillGroupRow> {
+  return async (row: ISkillGroupRow) => {
     const spec: INewSkillGroupSpec = {
       ESCOUri: row.ESCOURI ?? '',
       modelId: modelId,
@@ -37,26 +50,30 @@ export function getRowProcessor(modelId: string): RowProcessorFunction<ISkillGro
       description: row.DESCRIPTION ?? '',
       scopeNote: row.SCOPENOTE ?? ''
     };
-    try {
-      await skillGroupRepository.create(spec);
-      //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      console.warn(`Failed to process row(${index}):'${row}' create skillGroup ${JSON.stringify(spec)}: ${e.message}`);
-    }
+    await batchProcessor.add(spec);
   };
 }
 
+export function getCompletedProcessor(batchProcessor: BatchProcessor<INewSkillGroupSpec>): CompletedFunction {
+  return async () => {
+    await batchProcessor.flush();
+  };
+}
 
 // function to parse from url
 export async function parseSkillGroupsFromUrl(modelId: string, url: string) {
   const headersValidator = getHeadersValidator(modelId);
-  const rowProcessor = getRowProcessor(modelId);
-  await processDownloadStream(url, headersValidator, rowProcessor);
+  const batchProcessor = getBatchProcessor();
+  const rowProcessor = getRowProcessor(modelId, batchProcessor);
+  const completedProcessor = getCompletedProcessor(batchProcessor);
+  await processDownloadStream(url, headersValidator, rowProcessor, completedProcessor);
 }
 
 export async function parseSkillGroupsFromFile(modelId: string, filePath: string) {
   const skillGroupsCSVFileStream = fs.createReadStream(filePath );
   const headersValidator = getHeadersValidator(modelId);
-  const rowProcessor = getRowProcessor(modelId);
-  await processStream<ISkillGroupRow>(skillGroupsCSVFileStream, headersValidator, rowProcessor);
+  const batchProcessor = getBatchProcessor();
+  const rowProcessor = getRowProcessor(modelId, batchProcessor);
+  const completedProcessor = getCompletedProcessor(batchProcessor);
+  await processStream<ISkillGroupRow>(skillGroupsCSVFileStream, headersValidator, rowProcessor, completedProcessor);
 }
