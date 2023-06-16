@@ -140,10 +140,10 @@ jobs:
         with:
           work-dir: iac/backend
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-backend/${{ outputs.stack-name }}
+          stack-name: tabiya-tech/taxonomy-model-application-backend/${{ jobs.sanitized-branch.outputs.sanitized_branch }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          MONGODB_URI: ${{ outputs.mongo_uri }}
+          MONGODB_URI: ${{ jobs.deploy-branch.outputs.mongo_uri }}
   # Frontend
   # Frontend
   build-frontend:
@@ -188,7 +188,7 @@ jobs:
         with:
           work-dir: iac/frontend
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-frontend/${{ outputs.stack-name }}
+          stack-name: tabiya-tech/taxonomy-model-application-frontend/${{ jobs.sanitized-branch.outputs.sanitized_branch }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
   # Common Infrastructure
@@ -225,7 +225,7 @@ jobs:
         with:
           work-dir: iac/common
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-common/${{ outputs.stack-name }}
+          stack-name: tabiya-tech/taxonomy-model-application-common/${{ jobs.sanitized-branch.outputs.sanitized_branch }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
   # Nameserver
@@ -258,7 +258,7 @@ jobs:
         with:
           work-dir: iac/name-servers
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ outputs.stack-name }}
+          stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ jobs.sanitized-branch.outputs.sanitized_branch }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
