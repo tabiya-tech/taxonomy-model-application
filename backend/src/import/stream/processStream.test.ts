@@ -1,7 +1,7 @@
 // mute the console during the test
 import "_test_utilities/consoleMock"
 
-import {RowProcessorFunction, processDownloadStream, processStream} from "./processStream";
+import {processDownloadStream, processStream} from "./processStream";
 import {Readable} from "node:stream";
 import https from 'https';
 import {StatusCodes} from "server/httpUtils";
@@ -19,13 +19,15 @@ describe("test processStream", () => {
 
     const stream = Readable.from(givenData);
 
-    // AND a row processor
-    const processRow = jest.fn();
     // AND validator which resolves
     const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+    // AND a row processor
+    const processRow = jest.fn();
+    // ABD a completed processor
+    const completedProcessor = jest.fn();
 
     // WHEN the stream is processed
-    await processStream(stream,mockHeadersValidator, processRow);
+    await processStream(stream, mockHeadersValidator, processRow, completedProcessor);
 
     // THEN expect the headersValidator to have been called once
     expect(mockHeadersValidator).toHaveBeenCalledTimes(1);
@@ -37,6 +39,8 @@ describe("test processStream", () => {
     expect(processRow).toHaveBeenNthCalledWith(1, {NAME: 'John', AGE: '30'}, 1);
     expect(processRow).toHaveBeenNthCalledWith(2, {NAME: 'Alice', AGE: '25'}, 2);
     expect(processRow).toHaveBeenNthCalledWith(3, {NAME: 'Bob', AGE: '35'}, 3);
+    // AND expect the completed processor to have been called once
+    expect(completedProcessor).toHaveBeenCalledTimes(1);
   })
 
   describe("test processStream with errors", () => {
@@ -50,14 +54,16 @@ describe("test processStream", () => {
 
       const stream = Readable.from(givenData);
 
+      // AND validator which resolves
+      const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
       // AND a row processor that will throw an error
       const givenError = new Error("some error");
-      const processRow: RowProcessorFunction<any> = jest.fn().mockRejectedValue(givenError);
-      // AND validator which resolves
-      const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+      const processRow = jest.fn().mockRejectedValue(givenError);
+      // AND a completed processor which resolves
+      const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
       // WHEN the stream is processed
-      const processPromise = processStream(stream,mockHeadersValidator, processRow);
+      const processPromise = processStream(stream, mockHeadersValidator, processRow, completedProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError(givenError);
@@ -77,13 +83,15 @@ describe("test processStream", () => {
         stream.destroy(givenError);
       });
 
-      // AND a row processor error
-      const processRow: RowProcessorFunction<any> = jest.fn();
       // AND validator which resolves
-      const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+      const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
+      // AND a row processor which resolves
+      const processRow = jest.fn().mockResolvedValue(undefined);
+      // AND a completed processor which resolves
+      const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
       // WHEN the stream is processed
-      const processPromise = processStream(stream,mockHeadersValidator, processRow);
+      const processPromise = processStream(stream, mockHeadersValidator, processRow, completedProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError(givenError);
@@ -98,13 +106,15 @@ describe("test processStream", () => {
         'Alice,25\n' +
         'Bob,35\n';
 
-      // AND a row processor
-      const processRow = jest.fn();
       // AND validator which resolves
-      const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+      const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
+      // AND a row processor which resolves
+      const processRow = jest.fn().mockResolvedValue(undefined);
+      // AND a completed processor which resolves
+      const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
       // WHEN the stream is processed
-      const processPromise = processStream(Readable.from(givenData), mockHeadersValidator, processRow);
+      const processPromise = processStream(Readable.from(givenData), mockHeadersValidator, processRow, completedProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError("Invalid Record Length: columns length is 2, got 3 on line 2");
@@ -136,13 +146,15 @@ describe("test processDownloadStream", () => {
       };
     });
 
-    // AND a row processor
-    const processRow: RowProcessorFunction<any> = jest.fn();
     // AND validator which resolves
-    const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+    const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
+    // AND a row processor which resolves
+    const processRow = jest.fn().mockResolvedValue(undefined);
+    // AND a completed processor which resolves
+    const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
     // WHEN the file is downloaded and processed
-    await processDownloadStream(givenUrl,mockHeadersValidator, processRow);
+    await processDownloadStream(givenUrl, mockHeadersValidator, processRow, completedProcessor);
 
     // THEN expect the row processor to have been called 3 times
     expect(processRow).toHaveBeenCalledTimes(3);
@@ -162,19 +174,21 @@ describe("test processDownloadStream", () => {
       // @ts-ignore
       (https.get as jest.Mock).mockImplementationOnce(() => {
         return { // Return a mock request
-          on: jest.fn((event, callback)=>{
+          on: jest.fn((event, callback) => {
             callback(givenError);
           }),
         };
       });
 
-      // AND a row processor
-      const processRow: RowProcessorFunction<any> = jest.fn();
-      // AND a validator which resolves
-      const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+      // AND validator which resolves
+      const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
+      // AND a row processor which resolves
+      const processRow = jest.fn().mockResolvedValue(undefined);
+      // AND a completed processor which resolves
+      const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
       // WHEN the file is downloaded and processed
-      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow);
+      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow, completedProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError(givenError);
@@ -195,13 +209,15 @@ describe("test processDownloadStream", () => {
         };
       });
 
-      // AND a row processor
-      const processRow: RowProcessorFunction<any> = jest.fn();
-      // AND a validator which resolves
-      const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+      // AND validator which resolves
+      const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
+      // AND a row processor which resolves
+      const processRow = jest.fn().mockResolvedValue(undefined);
+      // AND a completed processor which resolves
+      const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
       // WHEN the file is downloaded and processed
-      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow);
+      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow, completedProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError("Failed to download file https://foo/bar.csv. Status Code: 404");
@@ -233,13 +249,15 @@ describe("test processDownloadStream", () => {
         };
       });
 
-      // AND a row processor
-      const processRow: RowProcessorFunction<any> = jest.fn();
-      // AND a validator which resolves
-      const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+      // AND validator which resolves
+      const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
+      // AND a row processor which resolves
+      const processRow = jest.fn().mockResolvedValue(undefined);
+      // AND a completed processor which resolves
+      const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
       // WHEN the file is downloaded and processed
-      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow);
+      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow, completedProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError(givenError);
@@ -268,14 +286,16 @@ describe("test processDownloadStream", () => {
         };
       });
 
+      // AND validator which resolves
+      const mockHeadersValidator = jest.fn().mockResolvedValue(undefined);
       // AND a row processor that will throw an error
       const givenError = new Error("some error");
-      const processRow: RowProcessorFunction<any> = jest.fn().mockRejectedValue(givenError);
-      // AND a validator which resolves
-      const mockHeadersValidator = jest.fn().mockResolvedValue(true);
+      const processRow = jest.fn().mockRejectedValue(givenError);
+      // AND a completed processor which resolves
+      const completedProcessor = jest.fn().mockResolvedValue(undefined);
 
       // WHEN the file is downloaded and processed
-      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow);
+      const processPromise = processDownloadStream(givenUrl, mockHeadersValidator, processRow, completedProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError(givenError);

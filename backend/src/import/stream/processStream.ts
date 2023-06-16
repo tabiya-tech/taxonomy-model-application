@@ -3,10 +3,11 @@ import {IncomingMessage} from "http";
 import {parse, Parser} from "csv-parse";
 import {Readable} from "node:stream";
 
+export type CompletedFunction  = ()=> Promise<void>;
 export type RowProcessorFunction<T>  = (row: T, index: number)=> Promise<void>;
 export type HeadersValidatorFunction = (actualHeaders: string[]) => Promise<boolean>;
 
-export function processDownloadStream<T>(url: string, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>): Promise<boolean> {
+export function processDownloadStream<T>(url: string, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>, completed?: CompletedFunction): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     const request = https.get(url, async (response: IncomingMessage) => {
       try {
@@ -14,7 +15,7 @@ export function processDownloadStream<T>(url: string, validateHeaders:HeadersVal
           reject(new Error(`Failed to download file ${url}. Status Code: ${response.statusCode}`));
           return;
         }
-        await processStream<T>(response, validateHeaders, processRow);
+        await processStream<T>(response, validateHeaders, processRow, completed);
         resolve(true);
       } catch (e: unknown) {
         console.error(`Error while processing  ${url}`, e);
@@ -28,7 +29,7 @@ export function processDownloadStream<T>(url: string, validateHeaders:HeadersVal
   });
 }
 
-export function processStream<T>(stream: Readable, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>): Promise<void> {
+export function processStream<T>(stream: Readable, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>, completed?: CompletedFunction): Promise<void> {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
     try {
@@ -52,6 +53,7 @@ export function processStream<T>(stream: Readable, validateHeaders:HeadersValida
         count++;
         await processRow(record, count);
       }
+      completed && await completed();
       resolve();
     } catch (e: unknown) {
       console.error("Error while processing the stream:", e);
