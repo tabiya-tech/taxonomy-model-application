@@ -9,9 +9,6 @@ on:
       version-info:
         required: true
         type: string
-      stack-name:
-        required: true
-        type: string
       mongo_uri:
         required: true
         type: string

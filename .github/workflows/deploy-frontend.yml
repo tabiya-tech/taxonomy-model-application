@@ -9,9 +9,6 @@ on:
       version-info:
         required: true
         type: string
-      stack-name:
-        required: true
-        type: string
     outputs:
       frontendBucketWebsiteURLBase:
         description: "The frontend bucket url"
