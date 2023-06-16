@@ -94,19 +94,14 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const newModel = await repository.create(givenNewSkillSpec);
 
       // THEN expect the new skill to be created with the specific attributes
-      const expectedNewISCO: ISkill = {
+      const expectedNewSkill: ISkill = {
         ...givenNewSkillSpec,
         id: expect.any(String),
         UUID: expect.any(String),
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       }
-      expect(newModel).toEqual(expectedNewISCO);
-    });
-
-
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewSkillSpec());
+      expect(newModel).toEqual(expectedNewSkill);
     });
 
     test("should reject with an error when creating a skill and providing a UUID", async () => {
@@ -130,6 +125,92 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // @ts-ignore
       randomUUID.mockReturnValueOnce(givenNewModel.UUID);
       await expect(repository.create(givenNewSkillSpecSpec)).rejects.toThrowError(/duplicate key/);
+    });
+
+    TestConnectionFailure((repository) => {
+      return repository.create(getNewSkillSpec());
+    });
+  });
+
+  describe("Test batchCreate() Skill ", () => {
+    afterEach(async () => {
+      await repository.Model.deleteMany({}).exec();
+    })
+
+    test("should successfully create a batch of new Skills", async () => {
+      // GIVEN some valid SkillSpec
+      const givenBatchSize = 3;
+      const givenNewSkillSpecs: INewSkillSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenNewSkillSpecs[i] = getNewSkillSpec();
+      }
+
+      // WHEN batch creating the Skills with the given specifications
+      const newSkills: INewSkillSpec[] = await repository.batchCreate(givenNewSkillSpecs);
+
+      // THEN expect all the Skills to be created with the specific attributes
+      expect(newSkills).toEqual(
+        expect.arrayContaining(
+          givenNewSkillSpecs.map((givenNewSkillSpec) => {
+            const expectedNewSkill: ISkill = {
+              ...givenNewSkillSpec,
+              id: expect.any(String),
+              UUID: expect.any(String),
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            }
+            return expectedNewSkill;
+          })
+        )
+      );
+    });
+
+    test("should successfully create a batch of new Skills even if some don't validate", async () => {
+      // GIVEN some valid SkillSpec
+      const givenBatchSize = 3;
+      const givenValidSkillSpecs: INewSkillSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenValidSkillSpecs[i] = getNewSkillSpec();
+      }
+      // AND one SkillSpec that is invalid
+      const givenInvalidSkillSpec: INewSkillSpec = getNewSkillSpec();
+      givenInvalidSkillSpec.preferredLabel = "";
+
+      // WHEN batch creating the Skills with the given specifications
+      const newSkills: INewSkillSpec[] = await repository.batchCreate([...givenValidSkillSpecs, givenInvalidSkillSpec]);
+
+      // THEN expect only the valid Skills to be created
+      expect(newSkills).toHaveLength(givenValidSkillSpecs.length);
+
+      expect(newSkills).toEqual(
+        expect.arrayContaining(
+          givenValidSkillSpecs.map((givenNewSkillSpec) => {
+            const expectedNewSkill: ISkill = {
+              ...givenNewSkillSpec,
+              id: expect.any(String),
+              UUID: expect.any(String),
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            }
+            return expectedNewSkill;
+          })
+        )
+      );
+    });
+
+    test("should resolve to an empty array if none of the element could be validated", async () => {
+      // GIVEN only invalid SkillSpec
+      const givenBatchSize = 3;
+      const givenValidSkillSpecs: INewSkillSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenValidSkillSpecs[i] = getNewSkillSpec();
+        givenValidSkillSpecs[i].preferredLabel = "";
+      }
+      // WHEN batch creating the Skill with the given specifications
+      const newSkills: INewSkillSpec[] = await repository.batchCreate(givenValidSkillSpecs);
+
+      // THEN expect an empty array to be created
+      expect(newSkills).toHaveLength(0);
     });
   });
 });

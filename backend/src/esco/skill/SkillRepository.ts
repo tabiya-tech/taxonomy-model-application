@@ -10,8 +10,14 @@ export interface ISkillRepository {
    * @param newSkillSpec
    */
   create(newSkillSpec: INewSkillSpec): Promise<ISkill>;
-}
 
+  /**
+   * Resolves to an array with the newly created ISkill entries. If some of the documents could not be validated, they will be excluded and not saved and the function will resolve.
+   * The promise will reject with an error if the ISkill entries could not be created due to reasons other than not passing the validation.
+   * @param newSkillSpecs
+   */
+  batchCreate(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]>
+}
 
 export class SkillRepository implements ISkillRepository {
 
@@ -37,6 +43,25 @@ export class SkillRepository implements ISkillRepository {
       return newSkillModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
+      throw e;
+    }
+  }
+
+  async batchCreate(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]> {
+    try {
+      const newSkillModels = newSkillSpecs.map((spec) => {
+        return new this.Model({
+          ...spec,
+          UUID: randomUUID() // override UUID silently
+        });
+      });
+      const newSkills = await this.Model.insertMany(newSkillModels, {
+        ordered: false,
+        populate: ["parentGroup", "childrenGroups"]
+      });
+      return newSkills.map((skill) => skill.toObject());
+    } catch (e: unknown) {
+      console.error("batch create failed", e);
       throw e;
     }
   }
