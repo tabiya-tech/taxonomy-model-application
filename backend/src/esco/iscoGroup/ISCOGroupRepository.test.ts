@@ -6,7 +6,6 @@ import {Connection} from "mongoose";
 
 import {randomUUID} from "crypto";
 import {
-  generateRandomDigitString,
   generateRandomUrl,
   getRandomString,
   getTestString
@@ -28,9 +27,18 @@ jest.mock("crypto", () => {
   }
 });
 
+
+let _iscoCode = 0;
+
 function getRandomISCOGroupCode(): string {
-  return generateRandomDigitString(1, 4);
+  //return generateRandomDigitString(1, 4);
+  if (_iscoCode > 9999) {
+    console.warn("ISCO codes is exhausted! Recycling");
+    _iscoCode = 0;
+  }
+  return (_iscoCode++).toString().padStart(4, '0');
 }
+
 
 function getNewISCOGroupSpec(): INewISCOGroupSpec {
   return {
@@ -165,5 +173,112 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
       await expect(secondNewModelPromise).rejects.toThrowError(/duplicate key error collection/);
     });
+
+    TestConnectionFailure((repository) => {
+      return repository.create(getNewISCOGroupSpec());
+    });
+  });
+
+  describe("Test batchCreate() ISCOGroup ", () => {
+    afterEach(async () => {
+      await repository.Model.deleteMany({}).exec();
+    })
+
+    test("should successfully create a batch of new ISCOGroups", async () => {
+      // GIVEN some valid ISCOGroupSpec
+      const givenBatchSize = 3;
+      const givenNewISCOGroupSpecs: INewISCOGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenNewISCOGroupSpecs[i] = getNewISCOGroupSpec();
+      }
+
+      // WHEN batch creating the ISCO Groups with the given specifications
+      const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate(givenNewISCOGroupSpecs);
+
+      // THEN expect all the ISCO Groups to be created with the specific attributes
+      expect(newISCOGroups).toEqual(
+        expect.arrayContaining(
+          givenNewISCOGroupSpecs.map((givenNewISCOGroupSpec) => {
+            const expectedNewISCO: IISCOGroup = {
+              ...givenNewISCOGroupSpec,
+              id: expect.any(String),
+              parentGroup: null,
+              childrenGroups: [],
+              UUID: expect.any(String),
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            }
+            return expectedNewISCO;
+          })
+        )
+      );
+    });
+
+    test("should successfully create a batch of new ISCOGroups even if some don't validate", async () => {
+      // GIVEN some valid ISCOGroupSpec
+      const givenBatchSize = 3;
+      const givenValidISCOGroupSpecs: INewISCOGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenValidISCOGroupSpecs[i] = getNewISCOGroupSpec();
+      }
+      // AND one ISCOGroupSpec that is invalid
+      const givenInvalidISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+      givenInvalidISCOGroupSpec.code = "invalid code";
+
+      // WHEN batch creating the ISCO Groups with the given specifications
+      const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate([...givenValidISCOGroupSpecs, givenInvalidISCOGroupSpec]);
+
+      // THEN expect only the valid ISCO Group to be created
+      expect(newISCOGroups).toHaveLength(givenValidISCOGroupSpecs.length);
+
+      expect(newISCOGroups).toEqual(
+        expect.arrayContaining(
+          givenValidISCOGroupSpecs.map((givenNewISCOGroupSpec) => {
+            const expectedNewISCO: IISCOGroup = {
+              ...givenNewISCOGroupSpec,
+              id: expect.any(String),
+              parentGroup: null,
+              childrenGroups: [],
+              UUID: expect.any(String),
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            }
+            return expectedNewISCO;
+          })
+        )
+      );
+    });
+
+    test("should resolve to an empty array if none of the element could be validated", async () => {
+      // GIVEN only invalid ISCOGroupSpec
+      const givenBatchSize = 3;
+      const givenValidISCOGroupSpecs: INewISCOGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenValidISCOGroupSpecs[i] = getNewISCOGroupSpec();
+        givenValidISCOGroupSpecs[i].code = "invalid code";
+      }
+      // WHEN batch creating the ISCO Groups with the given specifications
+      const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate(givenValidISCOGroupSpecs);
+
+      // THEN expect an empty array to be created
+      expect(newISCOGroups).toHaveLength(0);
+    });
   });
 });
+
+function TestConnectionFailure(actionCallback: (repository: IISCOGroupRepository) => Promise<any>) {
+  return test("should reject with an error when connection to database is lost", async () => {
+    // GIVEN the db connection will be lost
+    const config = getTestConfiguration("ISCOGroupRepositoryTestDB");
+    const connection = await getNewConnection(config.dbURI);
+    const repositoryRegistry = new RepositoryRegistry();
+    repositoryRegistry.initialize(connection);
+    const repository = repositoryRegistry.ISCOGroup;
+
+    // WHEN connection is lost
+    await connection.close(true);
+
+    // THEN expect to reject with an error
+    await expect(actionCallback(repository)).rejects.toThrowError(/Connection/);
+  });
+}
