@@ -1,8 +1,8 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import {act, render, screen,} from "@testing-library/react";
-import ModelDirectory, {availableLocales, DATA_TEST_ID} from "./ModelDirectory";
+import {act, render, screen, waitFor,} from "@testing-library/react";
+import ModelDirectory, {availableLocales, DATA_TEST_ID as MODEL_DIR_DATA_TEST_ID} from "./ModelDirectory";
 import ImportModelDialog, {
   DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportData,
 } from "src/import/ImportModelDialog";
@@ -13,6 +13,8 @@ import {ILocale} from "api-specifications/modelInfo";
 import {ImportFileTypes} from "api-specifications/import";
 import {ImportFiles} from "../import/ImportFiles.type";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
+import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID} from "src/theme/Backdrop/Backdrop";
+
 
 jest.mock("src/import/importDirector.service", () => {
   // Mocking the ES5 class
@@ -28,6 +30,20 @@ jest.mock("src/theme/SnackbarProvider/SnackbarProvider", () => {
     }),
   };
 });
+
+jest.mock("src/theme/Backdrop/Backdrop", () => {
+  const actual = jest.requireActual("src/theme/Backdrop/Backdrop");
+  const mockBackDrop = jest.fn().mockImplementation(() => {
+    return <div data-testid={actual.DATA_TEST_ID.BACKDROP_CONTAINER}> My BackDrop Mock</div>
+  });
+
+  return {
+    ...actual,
+    __esModule: true,
+    Backdrop: mockBackDrop,
+  };
+});
+
 
 jest.mock("src/import/ImportModelDialog", () => {
   const actual = jest.requireActual("../import/ImportModelDialog");
@@ -72,7 +88,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     render(<ModelDirectory/>);
 
     // WHEN the import button is clicked
-    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     // THEN expect the ImportDialog to be visible
@@ -84,7 +100,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
       expect.objectContaining({
         availableLocales: availableLocales,
         notifyOnClose: expect.any(Function),
-      }),{});
+      }), {});
   });
 
   test("should close ImportDialog and not import the model when cancel button is clicked", async () => {
@@ -92,7 +108,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     render(<ModelDirectory/>);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -108,6 +124,9 @@ describe("ModelDirectory.ImportDialog action tests", () => {
 
     // AND expect the import director service to not have been called
     expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledTimes(0);
+
+    // AND the backdrop was not shown
+    expect(Backdrop).toHaveBeenCalledTimes(0);
   });
 
   test("should close the Import Dialog and import the model when the user clicks the import button", async () => {
@@ -115,7 +134,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     render(<ModelDirectory/>);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -128,17 +147,28 @@ describe("ModelDirectory.ImportDialog action tests", () => {
       const mock = (ImportModelDialog as jest.Mock).mock;
       mock.lastCall[0].notifyOnClose({name: 'IMPORT', importData: givenImportData})
     });
-    // AND the snackbar notification was shown
-    expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
-      `The model ${givenImportData.name} import has started.`,
-      {variant: "success"}
-    );
 
     // THEN expect the ImportDialog to be rendered as closed
     expect(screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeNull();
 
+    // AND the backdrop was shown
+    expect(Backdrop).toHaveBeenNthCalledWith(1, {isShown: true, message: expect.any(String)}, {});
+
     // AND expect the import director service to have been called with the data entered by the user
-    expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, givenImportData.selectedFiles)
+    expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, givenImportData.selectedFiles);
+
+    // AND the backdrop was eventually hidden
+
+    await waitFor(() => {
+      const backdrop = screen.queryByTestId(BACKDROP_DATA_TEST_ID.BACKDROP_CONTAINER);
+      expect(backdrop).not.toBeInTheDocument();
+    });
+
+    // AND the snackbar notification was shown
+    expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+      `The model '${givenImportData.name}' import has started.`,
+      {variant: "success"}
+    );
   });
 
   it('should throw an error when import director fails to import', async () => {
@@ -154,7 +184,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     }));
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -171,13 +201,24 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     // THEN expect the ImportDialog to be rendered as closed
     expect(screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeNull();
 
+    // AND the backdrop was shown
+    expect(Backdrop).toHaveBeenNthCalledWith(1, {isShown: true, message: expect.any(String)}, {});
+
     // AND expect the import director service to have been called with the data entered by the user
     expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, givenImportData.selectedFiles);
 
+    // AND the backdrop was eventually hidden
+    await waitFor(() => {
+      const backdrop = screen.queryByTestId(BACKDROP_DATA_TEST_ID.BACKDROP_CONTAINER);
+      expect(backdrop).not.toBeInTheDocument();
+    });
+
     // AND expect the error to be thrown
     expect(errorWasThrown).toBeTruthy();
+
+    // AND the snackbar notification was shown
     expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
-      `The model ${givenImportData.name} import could not be started.`,
+      `The model '${givenImportData.name}' import could not be started. Please try again.`,
       {variant: "error"}
     );
   });

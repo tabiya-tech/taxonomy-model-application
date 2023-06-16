@@ -8,6 +8,7 @@ import ImportDirectorService from "src/import/importDirector.service";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {writeServiceErrorToLog} from "../error/logger";
 import {ILocale} from "api-specifications/modelInfo";
+import {Backdrop} from "src/theme/Backdrop/Backdrop";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -28,6 +29,8 @@ export const availableLocales: ILocale[] = [{
 
 const ModelDirectory = () => {
   const [isImportDlgOpen, setImportDlgOpen] = React.useState(false);
+  const [isBackDropShown, setBackDropShown] = React.useState(false);
+
   const {enqueueSnackbar} = useSnackbar()
   const showImportDialog = (b: boolean) => {
     setImportDlgOpen(b);
@@ -36,6 +39,7 @@ const ModelDirectory = () => {
   const handleOnImportDialogClose = async (event: CloseEvent) => {
     showImportDialog(false);
     if (event.name === "IMPORT") {
+      setBackDropShown(true);
       const importData = event.importData as ImportData;
       try {
         const modelID = await importDirectorService.directImport(
@@ -44,15 +48,17 @@ const ModelDirectory = () => {
           importData.locale,
           importData.selectedFiles
         );
-        enqueueSnackbar(`The model ${importData.name} import has started.`, {variant: "success"})
+        enqueueSnackbar(`The model '${importData.name}' import has started.`, {variant: "success"})
         console.log("Created model: " + modelID);
       } catch (e) {
-        enqueueSnackbar(`The model ${importData.name} import could not be started.`, {variant: "error"})
+        enqueueSnackbar(`The model '${importData.name}' import could not be started. Please try again.`, {variant: "error"})
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
           console.error(e);
         }
+      } finally {
+        setBackDropShown(false);
       }
     }
   };
@@ -70,6 +76,8 @@ const ModelDirectory = () => {
     {isImportDlgOpen &&
       <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
                          notifyOnClose={handleOnImportDialogClose}/>}
+    {isBackDropShown &&
+      <Backdrop isShown={isBackDropShown} message="The model is being created and the files uploaded. Please wait ... "/>}
   </Container>
 };
 export default ModelDirectory;
