@@ -27,26 +27,26 @@ on:
         value: ${{ jobs.sanitized-branch.outputs.sanitized_branch }}
       mongo_uri:
         description:  "Mongo URI"
-        value:  ${{ jobs.deploy-branch.outputs.mongo_uri }}
+        value:  ${{ needs.deploy-db.outputs.mongo_uri }}
       backedRestApiURLBase:
         description: "The backend api url"
-        value: ${{ jobs.deploy.outputs.backedRestApiURLBase }}
+        value: ${{ needs.deploy.outputs.backedRestApiURLBase }}
       resourcesBaseUrl:
         description: "The resources base url"
-        value: ${{ jobs.deploy.outputs.resourcesBaseUrl }}
+        value: ${{ needs.deploy.outputs.resourcesBaseUrl }}
       frontendURLBase:
         description: "The frontend url"
-        value: ${{ jobs.deploy.outputs.frontendURLBase }}
+        value: ${{ needs.deploy.outputs.frontendURLBase }}
       backendURLBase:
         description: "The backend url"
-        value: ${{ jobs.deploy.outputs.backendURLBase }}
+        value: ${{ needs.deploy.outputs.backendURLBase }}
       frontendBucketWebsiteURLBase:
         description: "The frontend bucket url"
-        value: ${{ jobs.deploy.outputs.frontendBucketWebsiteURLBase }}
+        value: ${{ needs.deploy.outputs.frontendBucketWebsiteURLBase }}
 
 jobs:
   # Sanitize Branch
-  sanitize-branch:
+  sanitized-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -61,10 +61,7 @@ jobs:
   # Deploy DB
   deploy-db:
     runs-on: ubuntu-latest
-    environment: ${{ outputs.stack-name }}
-#    outputs:
-#      mongo_uri:  ${{ steps.get-branch.outputs.mongo_uri }}
-
+    environment: ${{ needs.deploy-db.outputs.stack-name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -143,8 +140,7 @@ jobs:
           stack-name: tabiya-tech/taxonomy-model-application-backend/${{ jobs.sanitized-branch.outputs.sanitized_branch }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          MONGODB_URI: ${{ jobs.deploy-branch.outputs.mongo_uri }}
-  # Frontend
+          MONGODB_URI: ${{ needs.deploy-db.outputs.mongo_uri }}
   # Frontend
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
@@ -246,19 +242,17 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_DNS_UPDATE_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_DNS_UPDATE_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
           role-duration-seconds: 1200
           role-session-name: MySessionName
-      - name: Update Record on Parent Domain
-        needs: [ deploy-common ]
+      - name: Deploy nameserver
         id: pulumi
         uses: pulumi/actions@v4
         with:
-          work-dir: iac/name-servers
+          work-dir: iac/nameserver
           command: up
           stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ jobs.sanitized-branch.outputs.sanitized_branch }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
