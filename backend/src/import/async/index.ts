@@ -4,9 +4,9 @@ import {S3PresignerService} from "./S3PresignerService";
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
 import {ajvInstance, ParseValidationError} from "validator";
 import {ValidateFunction} from "ajv";
-import {parseISCOGroupsFromUrl} from "import/ISCOGroups/ISCOGroupsParser";
-import {parseSkillGroupsFromUrl} from "import/skillGroups/skillGroupsParser";
-import {parseSkillsFromUrl} from "import/skills/skillsParser";
+import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
+import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
+import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

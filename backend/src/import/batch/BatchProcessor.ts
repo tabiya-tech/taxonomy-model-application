@@ -1,9 +1,10 @@
+export type ProcessBatchFunction<T> = (batch: T[]) => Promise<void>;
 export class BatchProcessor<T> {
   private readonly batchSize: number;
   private array: T[];
-  private readonly processFn: (batch: T[]) => Promise<void>;
+  private readonly processFn: ProcessBatchFunction<T>;
 
-  constructor(batchSize: number, processFn: (batch: T[]) => Promise<void>) {
+  constructor(batchSize: number, processFn: ProcessBatchFunction<T>) {
     this.batchSize = batchSize;
     this.array = [];
     this.processFn = processFn;

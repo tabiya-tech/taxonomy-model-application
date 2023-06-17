@@ -48,20 +48,20 @@ jest.mock('./S3PresignerService', () => {
 });
 
 // Mock the ISCOGroupsParser
-jest.mock("import/ISCOGroups/ISCOGroupsParser", () => {
+jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
   return {
     parseISCOGroupsFromUrl: jest.fn().mockResolvedValue(undefined)
   }
 });
 // Mock the ESCOSkillGroupsParser
-jest.mock("import/skillGroups/skillGroupsParser.ts", () => {
+jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
   return {
     parseSkillGroupsFromUrl: jest.fn().mockResolvedValue(undefined)
   }
 });
 
 // Mock the ESCOSkillParser
-jest.mock("import/skills/skillsParser.ts", () => {
+jest.mock("import/esco/skills/skillsParser.ts", () => {
   return {
     parseSkillsFromUrl: jest.fn().mockResolvedValue(undefined)
   }
@@ -74,11 +74,11 @@ import {ImportFileTypes} from "api-specifications/import";
 
 import {initOnce} from "server/init";
 import {getMockId} from "_test_utilities/mockMongoId";
-import {parseISCOGroupsFromUrl} from "import/ISCOGroups/ISCOGroupsParser";
+import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
 import {S3PresignerService} from "./S3PresignerService";
-import {parseSkillGroupsFromUrl} from "import/skillGroups/skillGroupsParser";
-import {parseSkillsFromUrl} from "import/skills/skillsParser";
+import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
+import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 
 describe("Test the main async handler", () => {
   beforeEach(
