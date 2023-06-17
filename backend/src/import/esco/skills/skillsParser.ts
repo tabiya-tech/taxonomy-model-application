@@ -1,15 +1,14 @@
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {
-  CompletedFunction,
-  HeadersValidatorFunction,
   processDownloadStream,
-  processStream,
-  RowProcessorFunction
+  processStream
 } from "import/stream/processStream";
 import fs from "fs";
 import {INewSkillSpec, ReuseLevel, SkillType} from "esco/skill/skillModel";
-import {getStdHeadersValidator} from "import/stdHeadersValidator";
 import {BatchProcessor} from "import/batch/BatchProcessor";
+import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
+import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
+import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
 
 // expect all columns to be in upper case
 export interface ISkillRow {
@@ -24,7 +23,7 @@ export interface ISkillRow {
   SKILLTYPE: string
 }
 
-export function getHeadersValidator(modelId: string): HeadersValidatorFunction {
+function getHeadersValidator(modelId: string): HeadersValidatorFunction {
   return getStdHeadersValidator(modelId, ['ESCOURI', 'ORIGINUUID', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'DEFINITION', 'SCOPENOTE', 'REUSELEVEL', 'SKILLTYPE']);
 }
 
@@ -41,10 +40,10 @@ function getBatchProcessor() {
   return new BatchProcessor<INewSkillSpec>(BATCH_SIZE, batchProcessFn);
 }
 
-export function getRowProcessor(modelId: string, batchProcessor: BatchProcessor<INewSkillSpec>): RowProcessorFunction<ISkillRow> {
-  return async (row: ISkillRow) => {
+function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecificationFunction<ISkillRow, INewSkillSpec> {
+  return (row: ISkillRow) => {
     // @ts-ignore
-    const spec: INewSkillSpec = {
+    return {
       ESCOUri: row.ESCOURI ?? '',
       modelId: modelId,
       originUUID: row.ORIGINUUID ?? '',
@@ -56,30 +55,23 @@ export function getRowProcessor(modelId: string, batchProcessor: BatchProcessor<
       reuseLevel: row.REUSELEVEL as ReuseLevel ?? '',
       skillType: row.SKILLTYPE as SkillType ?? '',
     };
-    await batchProcessor.add(spec);
-  };
-}
-
-export function getCompletedProcessor(batchProcessor: BatchProcessor<INewSkillSpec>): CompletedFunction {
-  return async () => {
-    await batchProcessor.flush();
   };
 }
 
 // function to parse from url
 export async function parseSkillsFromUrl(modelId: string, url: string) {
   const headersValidator = getHeadersValidator(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
-  const rowProcessor = getRowProcessor(modelId, batchProcessor);
-  const completedProcessor = getCompletedProcessor(batchProcessor);
-  await processDownloadStream(url, headersValidator, rowProcessor, completedProcessor);
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
+  await processDownloadStream(url, batchRowProcessor);
 }
 
 export async function parseSkillsFromFile(modelId: string, filePath: string) {
   const skillsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
-  const rowProcessor = getRowProcessor(modelId, batchProcessor);
-  const completedProcessor = getCompletedProcessor(batchProcessor);
-  await processStream<ISkillRow>(skillsCSVFileStream, headersValidator, rowProcessor, completedProcessor);
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
+  await processStream<ISkillRow>(skillsCSVFileStream, batchRowProcessor);
 }

@@ -9,9 +9,9 @@ import {ENV_VAR_NAMES} from "server/config/config";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {IModelInfo, INewModelInfoSpec} from "modelInfo/modelInfoModel";
 import {randomUUID} from "crypto";
-import {parseISCOGroupsFromFile} from "./ISCOGroups/ISCOGroupsParser";
-import {parseSkillGroupsFromFile} from "./skillGroups/skillGroupsParser";
-import {parseSkillsFromFile} from "./skills/skillsParser";
+import {parseISCOGroupsFromFile} from "./esco/ISCOGroups/ISCOGroupsParser";
+import {parseSkillGroupsFromFile} from "./esco/skillGroups/skillGroupsParser";
+import {parseSkillsFromFile} from "./esco/skills/skillsParser";
 
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {

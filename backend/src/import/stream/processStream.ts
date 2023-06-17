@@ -2,12 +2,10 @@ import https from "https";
 import {IncomingMessage} from "http";
 import {parse, Parser} from "csv-parse";
 import {Readable} from "node:stream";
+import {RowProcessor} from "import/parse/RowProcessor.types";
 
-export type CompletedFunction  = ()=> Promise<void>;
-export type RowProcessorFunction<T>  = (row: T, index: number)=> Promise<void>;
-export type HeadersValidatorFunction = (actualHeaders: string[]) => Promise<boolean>;
 
-export function processDownloadStream<T>(url: string, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>, completed?: CompletedFunction): Promise<boolean> {
+export function processDownloadStream<T>(url: string, rowProcessor: RowProcessor<T>): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     const request = https.get(url, async (response: IncomingMessage) => {
       try {
@@ -15,7 +13,7 @@ export function processDownloadStream<T>(url: string, validateHeaders:HeadersVal
           reject(new Error(`Failed to download file ${url}. Status Code: ${response.statusCode}`));
           return;
         }
-        await processStream<T>(response, validateHeaders, processRow, completed);
+        await processStream<T>(response, rowProcessor);
         resolve(true);
       } catch (e: unknown) {
         console.error(`Error while processing  ${url}`, e);
@@ -29,7 +27,7 @@ export function processDownloadStream<T>(url: string, validateHeaders:HeadersVal
   });
 }
 
-export function processStream<T>(stream: Readable, validateHeaders:HeadersValidatorFunction, processRow: RowProcessorFunction<T>, completed?: CompletedFunction): Promise<void> {
+export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>): Promise<void> {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
     try {
@@ -48,12 +46,12 @@ export function processStream<T>(stream: Readable, validateHeaders:HeadersValida
       let count = 0;
       for await (const record of parser) {
         if(count === 0){
-          await validateHeaders(Object.keys(record));
+          await rowProcessor.validateHeaders(Object.keys(record));
         }
         count++;
-        await processRow(record, count);
+        await rowProcessor.processRow(record, count);
       }
-      completed && await completed();
+      await rowProcessor.completed();
       resolve();
     } catch (e: unknown) {
       console.error("Error while processing the stream:", e);

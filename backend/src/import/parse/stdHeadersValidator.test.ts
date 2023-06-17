@@ -1,7 +1,7 @@
 import "_test_utilities/consoleMock"
 
 import { getStdHeadersValidator } from './stdHeadersValidator';
-import {getMockId} from "../_test_utilities/mockMongoId";
+import {getMockId} from "_test_utilities/mockMongoId";
 
 describe('getStdHeadersValidator', () => {
   beforeEach(() => {
