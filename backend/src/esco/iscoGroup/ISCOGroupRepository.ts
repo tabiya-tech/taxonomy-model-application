@@ -66,6 +66,19 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       });
       return newISCOGroups.map((iscoGroup) => iscoGroup.toObject());
     } catch (e: unknown) {
+      // If the error is a bulk write error, we can still return the created documents
+      // Such an error will occur if a unique index is violated
+      if ((e as { name?: string }).name === "MongoBulkWriteError") {
+        console.warn("some documents could not be created", e);
+        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
+        const newISCOGroups: IISCOGroup[] = [];
+        for await (const doc of bulkWriteError.insertedDocs) {
+          await doc.populate("parentGroup",);
+          await doc.populate("childrenGroups",);
+          newISCOGroups.push(doc.toObject());
+        }
+        return newISCOGroups;
+      }
       console.error("batch create failed", e);
       throw e;
     }

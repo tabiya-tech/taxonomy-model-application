@@ -23,6 +23,10 @@ jest.mock("crypto", () => {
   }
 });
 
+/**
+ * Helper function to create an INewSkillGroupSpec with random values,
+ * that can be used for creating a new ISkillGroup
+ */
 function getNewSkillGroupSpec(): INewSkillGroupSpec {
   return {
     code: getMockRandomSkillCode(),
@@ -32,7 +36,24 @@ function getNewSkillGroupSpec(): INewSkillGroupSpec {
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-    altLabels: [getTestString(LABEL_MAX_LENGTH,"1_"), getTestString(LABEL_MAX_LENGTH, "2_" )],
+    altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
+  };
+}
+
+/**
+ * Helper function to create an expected ISkillGroup from a given ,
+ * that can ebe used for assertions
+ * @param givenSpec
+ */
+function expectedFromGivenSpec(givenSpec: INewSkillGroupSpec): ISkillGroup {
+  return {
+    ...givenSpec,
+    id: expect.any(String),
+    parentGroups: [],
+    childrenGroups: [],
+    UUID: expect.any(String),
+    createdAt: expect.any(Date),
+    updatedAt: expect.any(Date),
   };
 }
 
@@ -45,14 +66,14 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     const config = getTestConfiguration("SkillGroupRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry()
-    repositoryRegistry.initialize(dbConnection);
+    await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.skillGroup;
   });
 
   afterAll(async () => {
     if (dbConnection) {
       await dbConnection.dropDatabase();
-      await dbConnection.close(true);
+      await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
 
@@ -71,13 +92,17 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     expect(getRepositoryRegistry().skillGroup).toBeDefined();
 
     // Clean up
-    await getConnectionManager().getCurrentDBConnection()!.close(true);
+    await getConnectionManager().getCurrentDBConnection()!.close(false); // do not force close as there might be pending mongo operations
   });
 
   describe("Test create() skill group ", () => {
 
     afterEach(async () => {
-      await repository.Model.deleteMany({})
+      await repository.Model.deleteMany({}).exec();
+    })
+
+    beforeEach(async () => {
+      await repository.Model.deleteMany({}).exec();
     })
 
     test("should successfully create a new skill group", async () => {
@@ -88,15 +113,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const newModel = await repository.create(givenNewSkillGroupSpec);
 
       // THEN expect the new skillGroup to be created with the specific attributes
-      const expectedNewSkillGroup: ISkillGroup = {
-        ...givenNewSkillGroupSpec,
-        id: expect.any(String),
-        parentGroups: [],
-        childrenGroups: [],
-        UUID: expect.any(String),
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-      }
+      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec);
       expect(newModel).toEqual(expectedNewSkillGroup);
     });
 
@@ -112,15 +129,17 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       })).rejects.toThrowError(/UUID should not be provided/);
     });
 
-    test("should reject with an error when creating a skill group with an existing UUID", async () => {
-      // GIVEN a SkillGroup record exists in the database
-      const givenNewSkillGroupSpecSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
-      const givenNewModel = await repository.create(givenNewSkillGroupSpecSpec);
+    describe("Test unique indexes", () => {
+      test("should reject with an error when creating a skill group with an existing UUID", async () => {
+        // GIVEN a SkillGroup record exists in the database
+        const givenNewSkillGroupSpecSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+        const givenNewModel = await repository.create(givenNewSkillGroupSpecSpec);
 
-      // WHEN Creating a new SkillGroup with the UUID of the existing SkillGroup
-      // @ts-ignore
-      randomUUID.mockReturnValueOnce(givenNewModel.UUID);
-      await expect(repository.create(givenNewSkillGroupSpecSpec)).rejects.toThrowError(/duplicate key/);
+        // WHEN Creating a new SkillGroup with the UUID of the existing SkillGroup
+        // @ts-ignore
+        randomUUID.mockReturnValueOnce(givenNewModel.UUID);
+        await expect(repository.create(givenNewSkillGroupSpecSpec)).rejects.toThrowError(/duplicate key/);
+      });
     });
 
     TestConnectionFailure((repository) => {
@@ -130,6 +149,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
   describe("Test batchCreate() skill group ", () => {
     afterEach(async () => {
+      await repository.Model.deleteMany({}).exec();
+    })
+
+    beforeEach(async () => {
       await repository.Model.deleteMany({}).exec();
     })
 
@@ -148,16 +171,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(newSkillGroups).toEqual(
         expect.arrayContaining(
           givenNewSkillGroupSpecs.map((givenNewSkillGroupSpec) => {
-            const expectedNewSkillGroup: ISkillGroup = {
-              ...givenNewSkillGroupSpec,
-              id: expect.any(String),
-              parentGroups: [],
-              childrenGroups: [],
-              UUID: expect.any(String),
-              createdAt: expect.any(Date),
-              updatedAt: expect.any(Date),
-            }
-            return expectedNewSkillGroup;
+            return expectedFromGivenSpec(givenNewSkillGroupSpec);
           })
         )
       );
@@ -183,16 +197,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(newSkillGroups).toEqual(
         expect.arrayContaining(
           givenValidSkillGroupSpecs.map((givenNewSkillGroupSpec) => {
-            const expectedNewSkill: ISkillGroup = {
-              ...givenNewSkillGroupSpec,
-              id: expect.any(String),
-              parentGroups: [],
-              childrenGroups: [],
-              UUID: expect.any(String),
-              createdAt: expect.any(Date),
-              updatedAt: expect.any(Date),
-            }
-            return expectedNewSkill;
+            return expectedFromGivenSpec(givenNewSkillGroupSpec);
           })
         )
       );
@@ -212,22 +217,61 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // THEN expect an empty array to be created
       expect(newSkillGroups).toHaveLength(0);
     });
+
+    describe("Test unique indexes", () => {
+      test("should return only the documents that did not violate the UUID unique index", async () => {
+        // GIVEN 3 SkillGroupSpec
+        const givenBatchSize = 3;
+        const givenNewSkillGroupSpecs: INewSkillGroupSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewSkillGroupSpecs[i] = getNewSkillGroupSpec();
+        }
+
+        // WHEN batch creating the Skill Groups with the given specifications
+        // AND the second SkillGroupSpec is created with the same UUID as the first one
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+
+        const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate(givenNewSkillGroupSpecs);
+
+        // THEN expect only the first and the third the Skill Groups to be created with the specific attributes
+        expect(newSkillGroups).toEqual(
+          expect.arrayContaining(
+            givenNewSkillGroupSpecs.filter((spec, index) => index !== 1)
+              .map((givenNewSkillGroupSpec) => {
+                return expectedFromGivenSpec(givenNewSkillGroupSpec);
+              })
+          )
+        );
+      });
+    });
+
+    // Testing connection failure with the insetMany() is currently not possible,
+    // as there no easy way to simulate a connection failure.
+    // Force closing the connection will throw an uncaught exception instead of the operation rejecting.
+    // This seems to be a limitation of the current version of the MongoDB driver.
+    // Other ways of simulating the connection failure e.g, start/stopping the in memory mongo instance,
+    // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
+    // This seems to be a limitation of the current version of the MongoDB driver.
+    // TestConnectionFailure((repository) => {
+    //    return repository.batchCreate([getNewSkillGroupSpec()]);
+    //  });
   });
 });
 
-function TestConnectionFailure(actionCallback: (repository: ISkillGroupRepository) => Promise<ISkillGroup | null>) {
+function TestConnectionFailure(actionCallback: (repository: ISkillGroupRepository) => Promise<any>) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
     const config = getTestConfiguration("SkillGroupRepositoryTestDB");
     const connection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry();
-    repositoryRegistry.initialize(connection);
+    await repositoryRegistry.initialize(connection);
     const repository = repositoryRegistry.skillGroup;
 
     // WHEN connection is lost
-    await connection.close(true);
+    await connection.close(false); // do not force close as there might be pending mongo operations
 
     // THEN expect to reject with an error
-    await expect(actionCallback(repository)).rejects.toThrowError(/Connection/);
+    await expect(actionCallback(repository)).rejects.toThrowError(/Client must be connected before running operations/);
   });
 }

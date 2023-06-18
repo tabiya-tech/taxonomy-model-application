@@ -43,7 +43,7 @@ export class RepositoryRegistry {
     this._repositories.set("ISkillRepository", repository);
   }
 
-  initialize(connection: Connection | undefined) {
+  async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
 
     // Set up mongoose
@@ -75,6 +75,17 @@ export class RepositoryRegistry {
     this.ISCOGroup = new ISCOGroupRepository(ISCOGroupModel.initializeSchemaAndModel(connection));
     this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
+
+    // Set up the indexes
+    // This is done here because the autoIndex is turned off in production
+    // In a production environment,
+    // the indexes must be created manually before the application is started for the first time,
+    // and it the future this code should be moved in to deployment scripts.
+    // If indexes are not created then, queries will become inefficient, unique constrains will not be enforced.
+    await this.modelInfo.Model.createIndexes();
+    await this.ISCOGroup.Model.createIndexes();
+    await this.skillGroup.Model.createIndexes();
+    await this.skill.Model.createIndexes();
   }
 }
 

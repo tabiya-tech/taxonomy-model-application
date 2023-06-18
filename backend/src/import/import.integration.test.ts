@@ -13,7 +13,6 @@ import {parseISCOGroupsFromFile} from "./esco/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromFile} from "./esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromFile} from "./esco/skills/skillsParser";
 
-
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
   // Backup and restore the original env variables
