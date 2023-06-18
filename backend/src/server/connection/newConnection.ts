@@ -13,9 +13,13 @@ export async function getNewConnection(uri: string): Promise<mongoose.Connection
 
   // Setting the sanitizeFilter = true is a failsafe for NoSQL injections. But do not rely on it!
   // Use $eq where possible and write tests to ensure that the queries are not vulnerable to NoSQL with the filter on and off!
-
   try {
-    const connection = await mongoose.set("sanitizeFilter", true).createConnection(uri).asPromise();
+    const connection = await mongoose
+      .set("sanitizeFilter", true)
+      .set('bufferCommands', true)
+      .set('autoIndex', false) // disable automatic index creation for production
+      .set('autoCreate', false) // disable automatic creation of collections for production
+      .createConnection(uri).asPromise();
     console.info(`Connected to db ${connection.host}:${connection.port}/${connection.name}`);
     return connection;
   } catch (error: unknown) {

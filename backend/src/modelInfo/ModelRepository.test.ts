@@ -1,4 +1,7 @@
-import {getMockId} from "../_test_utilities/mockMongoId";
+// mute the console output
+import "_test_utilities/consoleMock"
+
+import {getMockId} from "_test_utilities/mockMongoId";
 import {Connection} from "mongoose";
 import {ModelRepository} from "./ModelRepository";
 import {
@@ -11,11 +14,11 @@ import {
 
 import {randomUUID} from "crypto";
 import {getTestString} from "_test_utilities/specialCharacters";
-import {getNewConnection} from "../server/connection/newConnection";
-import {getRepositoryRegistry, RepositoryRegistry} from "../server/repositoryRegistry/repositoryRegisrty";
-import {initOnce} from "../server/init";
-import {getConnectionManager} from "../server/connection/connectionManager";
-import {getTestConfiguration} from "../_test_utilities/getTestConfiguration";
+import {getNewConnection} from "server/connection/newConnection";
+import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {initOnce} from "server/init";
+import {getConnectionManager} from "server/connection/connectionManager";
+import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -25,17 +28,11 @@ jest.mock("crypto", () => {
   }
 });
 
-// Supper chatty console during the tests
-jest.spyOn(console, "error").mockImplementation(() => {
-});
-jest.spyOn(console, "warn").mockImplementation(() => {
-});
-jest.spyOn(console, "log").mockImplementation(() => {
-});
-jest.spyOn(console, "info").mockImplementation(() => {
-});
 
-
+/**
+ * Helper function to create an INewModelInfoSpec with random values,
+ * that can be used for creating a new ISkillGroup
+ */
 function getNewModelInfoSpec(): INewModelInfoSpec {
   return {
     name: getTestString(NAME_MAX_LENGTH),
@@ -57,14 +54,14 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     const config = getTestConfiguration("ModelRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry()
-    repositoryRegistry.initialize(dbConnection);
+    await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.modelInfo;
   });
 
   afterAll(async () => {
     if (dbConnection) {
       await dbConnection.dropDatabase();
-      await dbConnection.close(true);
+      await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
 
@@ -83,7 +80,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     expect(getRepositoryRegistry().modelInfo).toBeDefined();
 
     // Clean up
-    await getConnectionManager().getCurrentDBConnection()!.close(true);
+    await getConnectionManager().getCurrentDBConnection()!.close(false); // do not force close as there might be pending mongo operations
   });
 
   describe("Test create() model ", () => {
@@ -186,7 +183,6 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       expect(foundModel).toMatchObject(existingModel);
     });
 
-
     test("should return null if a model with uuid does not exist", async () => {
       // GIVEN a model in the database does not exist
       const existingModel = await repository.create(getNewModelInfoSpec());
@@ -212,11 +208,11 @@ function TestConnectionFailure(actionCallback: (repository: ModelRepository) => 
     const config = getTestConfiguration("ModelRepositoryTestDB");
     const connection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry();
-    repositoryRegistry.initialize(connection);
+    await repositoryRegistry.initialize(connection);
     const repository = repositoryRegistry.modelInfo;
     // WHEN we get a model by the id
     // THEN expect to reject with an error
-    await connection.close(true);
-    await expect(actionCallback(repository)).rejects.toThrowError(/Connection/);
+    await connection.close(false); // do not force close as there might be pending mongo operations
+    await expect(actionCallback(repository)).rejects.toThrowError(/Client must be connected before running operations/);
   });
 }

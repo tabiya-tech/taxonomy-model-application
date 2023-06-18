@@ -56,11 +56,21 @@ export class SkillRepository implements ISkillRepository {
         });
       });
       const newSkills = await this.Model.insertMany(newSkillModels, {
-        ordered: false,
-        populate: ["parentGroup", "childrenGroups"]
+        ordered: false
       });
       return newSkills.map((skill) => skill.toObject());
     } catch (e: unknown) {
+      // If the error is a bulk write error, we can still return the created documents
+      // Such an error will occur if a unique index is violated
+      if ((e as { name?: string }).name === "MongoBulkWriteError") {
+        console.warn("some documents could not be created", e);
+        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
+        const newSkills: ISkill[] = [];
+        for await (const doc of bulkWriteError.insertedDocs) {
+          newSkills.push(doc.toObject());
+        }
+        return newSkills;
+      }
       console.error("batch create failed", e);
       throw e;
     }

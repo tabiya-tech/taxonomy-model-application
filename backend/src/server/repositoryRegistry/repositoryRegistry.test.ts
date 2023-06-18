@@ -12,7 +12,7 @@ describe("test the RepositoryRegistry", () => {
 
   afterAll(async () => {
     if (dbConnection) {
-      await dbConnection.close(true);
+      await dbConnection.close(false);  // do not force close as there might be pending mongo operations
     }
   });
 
@@ -34,19 +34,19 @@ describe("test the RepositoryRegistry", () => {
 
     // WHEN trying to initialize the RepositoryRegistry
     const repositoryRegistry = new RepositoryRegistry();
-    repositoryRegistry.initialize(dbConnection);
+    await repositoryRegistry.initialize(dbConnection);
 
     // THEN the repositories should be initialized
     expect(repositoryRegistry.modelInfo).toBeDefined();
   });
 
-  test("should throw an error if the connection is not defined", async () => {
+  test("should reject the connection is not defined", async () => {
 
     // WHEN trying to initialize the RepositoryRegistry with an undefined connection
     const repositoryRegistry = new RepositoryRegistry();
-    const initializeCall = () => repositoryRegistry.initialize(undefined);
+    const initializePromise = repositoryRegistry.initialize(undefined);
 
     // THEN it should reject with an error
-    expect(initializeCall).toThrowError("Connection is undefined");
+    await expect(initializePromise).rejects.toThrowError("Connection is undefined");
   });
 });

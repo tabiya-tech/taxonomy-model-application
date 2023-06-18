@@ -27,6 +27,10 @@ jest.mock("crypto", () => {
   }
 });
 
+/**
+ * Helper function to create an INewSkillSpec with random values,
+ * that can be used for creating a new ISkill
+ */
 function getNewSkillSpec(): INewSkillSpec {
   return {
     preferredLabel: getTestString(LABEL_MAX_LENGTH),
@@ -38,7 +42,22 @@ function getNewSkillSpec(): INewSkillSpec {
     scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
     skillType: "knowledge",
     reuseLevel: "cross-sector",
-    altLabels: [getTestString(LABEL_MAX_LENGTH,"1_"), getTestString(LABEL_MAX_LENGTH, "2_" )],
+    altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
+  };
+}
+
+/**
+ * Helper function to create an expected INewSkillSpec from a given ,
+ * that can ebe used for assertions
+ * @param givenSpec
+ */
+function expectedFromGivenSpec(givenSpec: INewSkillSpec): ISkill {
+  return {
+    ...givenSpec,
+    id: expect.any(String),
+    UUID: expect.any(String),
+    createdAt: expect.any(Date),
+    updatedAt: expect.any(Date),
   };
 }
 
@@ -51,14 +70,14 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     const config = getTestConfiguration("SkillRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry()
-    repositoryRegistry.initialize(dbConnection);
+    await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.skill
   });
 
   afterAll(async () => {
     if (dbConnection) {
       await dbConnection.dropDatabase();
-      await dbConnection.close(true);
+      await dbConnection.close(false);
     }
   });
 
@@ -77,13 +96,16 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     expect(getRepositoryRegistry().skill).toBeDefined();
 
     // Clean up
-    await getConnectionManager().getCurrentDBConnection()!.close(true);
+    await getConnectionManager().getCurrentDBConnection()!.close(false); // do not force close as there might be pending mongo operations
   });
 
   describe("Test create() skill", () => {
-
     afterEach(async () => {
-      await repository.Model.deleteMany({})
+      await repository.Model.deleteMany({}).exec();
+    })
+
+    beforeEach(async () => {
+      await repository.Model.deleteMany({}).exec();
     })
 
     test("should successfully create a new skill", async () => {
@@ -94,13 +116,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const newModel = await repository.create(givenNewSkillSpec);
 
       // THEN expect the new skill to be created with the specific attributes
-      const expectedNewSkill: ISkill = {
-        ...givenNewSkillSpec,
-        id: expect.any(String),
-        UUID: expect.any(String),
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-      }
+      const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec);
       expect(newModel).toEqual(expectedNewSkill);
     });
 
@@ -137,6 +153,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       await repository.Model.deleteMany({}).exec();
     })
 
+    beforeEach(async () => {
+      await repository.Model.deleteMany({}).exec();
+    })
+
     test("should successfully create a batch of new Skills", async () => {
       // GIVEN some valid SkillSpec
       const givenBatchSize = 3;
@@ -152,14 +172,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(newSkills).toEqual(
         expect.arrayContaining(
           givenNewSkillSpecs.map((givenNewSkillSpec) => {
-            const expectedNewSkill: ISkill = {
-              ...givenNewSkillSpec,
-              id: expect.any(String),
-              UUID: expect.any(String),
-              createdAt: expect.any(Date),
-              updatedAt: expect.any(Date),
-            }
-            return expectedNewSkill;
+            return expectedFromGivenSpec(givenNewSkillSpec);
           })
         )
       );
@@ -185,14 +198,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(newSkills).toEqual(
         expect.arrayContaining(
           givenValidSkillSpecs.map((givenNewSkillSpec) => {
-            const expectedNewSkill: ISkill = {
-              ...givenNewSkillSpec,
-              id: expect.any(String),
-              UUID: expect.any(String),
-              createdAt: expect.any(Date),
-              updatedAt: expect.any(Date),
-            }
-            return expectedNewSkill;
+            return expectedFromGivenSpec(givenNewSkillSpec);
           })
         )
       );
@@ -212,6 +218,45 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // THEN expect an empty array to be created
       expect(newSkills).toHaveLength(0);
     });
+
+    describe("Test unique indexes", () => {
+      test("should return only the documents that did not violate the UUID unique index", async () => {
+        // GIVEN 3 Skill
+        const givenBatchSize = 3;
+        const givenNewSkillSpecs: INewSkillSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewSkillSpecs[i] = getNewSkillSpec();
+        }
+
+        // WHEN batch creating the Skill with the given specifications
+        // AND the second SkillSpec is created with the same UUID as the first one
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+
+        const newSkills: INewSkillSpec[] = await repository.batchCreate(givenNewSkillSpecs);
+
+        // THEN expect only the first and the third the Skill to be created with the specific attributes
+        expect(newSkills).toEqual(
+          expect.arrayContaining(
+            givenNewSkillSpecs.filter((spec, index) => index !== 1)
+              .map((givenNewSkillSpec) => {
+                return expectedFromGivenSpec(givenNewSkillSpec);
+              })
+          )
+        );
+      });
+    });
+
+    // Testing connection failure with the insetMany() is currently not possible,
+    // as there no easy way to simulate a connection failure.
+    // Force closing the connection will throw an uncaught exception instead of the operation rejecting.
+    // This seems to be a limitation of the current version of the MongoDB driver.
+    // Other ways of simulating the connection failure e.g, start/stopping the in memory mongo instance,
+    // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
+    // This seems to be a limitation of the current version of the MongoDB driver.
+    // TestConnectionFailure((repository) => {
+    //    return repository.batchCreate([getNewSkillSpec()]);
+    //  });
   });
 });
 
@@ -221,13 +266,13 @@ function TestConnectionFailure(actionCallback: (repository: ISkillRepository) =>
     const config = getTestConfiguration("SkillRepositoryTestDB");
     const connection = await getNewConnection(config.dbURI);
     const repositoryRegistry = new RepositoryRegistry();
-    repositoryRegistry.initialize(connection);
+    await repositoryRegistry.initialize(connection);
     const repository = repositoryRegistry.skill;
 
     // WHEN connection is lost
-    await connection.close(true);
+    await connection.close(false);
 
     // THEN expect to reject with an error
-    await expect(actionCallback(repository)).rejects.toThrowError(/Connection/);
+    await expect(actionCallback(repository)).rejects.toThrowError(/Client must be connected before running operations/);
   });
 }
