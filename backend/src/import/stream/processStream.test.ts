@@ -26,9 +26,11 @@ describe("test processStream", () => {
     };
 
     // WHEN the stream is processed
-    await processStream(stream, rowProcessor);
+    const actualCount = await processStream(stream, rowProcessor);
 
-    // THEN expect the headersValidator to have been called once
+    // THEN the expected count is returned
+    expect(actualCount).toEqual(3);
+    // AND expect the headersValidator to have been called once
     expect(rowProcessor.validateHeaders).toHaveBeenCalledTimes(1);
     // AND expect the headersValidator to have been called with the correct headers
     expect(rowProcessor.validateHeaders).toHaveBeenCalledWith(['NAME', 'AGE']);
@@ -87,7 +89,7 @@ describe("test processStream", () => {
       };
 
       // WHEN the stream is processed
-      const processPromise = processStream(stream,rowProcessor);
+      const processPromise = processStream(stream, rowProcessor);
 
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError(givenError);

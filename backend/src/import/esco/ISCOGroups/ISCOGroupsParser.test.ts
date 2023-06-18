@@ -39,10 +39,13 @@ describe("test parseISCOGroupsFromUrl", () => {
         on: jest.fn(),
       };
     });
-    await parseISCOGroupsFromUrl(givenModelId, "someUrl");
+    const actualCount =  await parseISCOGroupsFromUrl(givenModelId, "someUrl");
 
-    // THEN expect the ISCOGroup repository to have been called with the correct spec
-    require("./_test_data_/expected.ts").expected.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
+    // THEN expect the actual count to be the same as the expected count
+    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    expect(actualCount).toBe(expectedResults.length);
+    // AND expect the repository to have been called with the correct spec
+    expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
       expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
@@ -66,10 +69,13 @@ describe("test parseISCOGroupsFromFile", () => {
     jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(mockRepository);
 
     // WHEN the csv file is parsed
-    await parseISCOGroupsFromFile(givenModelId, "./src/import/esco/ISCOGroups/_test_data_/given.csv");
+    const actualCount = await parseISCOGroupsFromFile(givenModelId, "./src/import/esco/ISCOGroups/_test_data_/given.csv");
 
-    // THEN expect the ISCOGroup repository to have been called with the correct spec
-    require("./_test_data_/expected.ts").expected.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
+    // THEN expect the actual count to be the same as the expected count
+    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    expect(actualCount).toBe(expectedResults.length);
+    // AND expect the repository to have been called with the correct spec
+    expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
       expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )

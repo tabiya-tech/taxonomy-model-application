@@ -5,16 +5,16 @@ import {Readable} from "node:stream";
 import {RowProcessor} from "import/parse/RowProcessor.types";
 
 
-export function processDownloadStream<T>(url: string, rowProcessor: RowProcessor<T>): Promise<boolean> {
-  return new Promise<boolean>((resolve, reject) => {
+export function processDownloadStream<T>(url: string, rowProcessor: RowProcessor<T>): Promise<number> {
+  return new Promise<number>((resolve, reject) => {
     const request = https.get(url, async (response: IncomingMessage) => {
       try {
         if (response.statusCode !== 200) {
           reject(new Error(`Failed to download file ${url}. Status Code: ${response.statusCode}`));
           return;
         }
-        await processStream<T>(response, rowProcessor);
-        resolve(true);
+       const count =  await processStream<T>(response, rowProcessor);
+        resolve(count);
       } catch (e: unknown) {
         console.error(`Error while processing  ${url}`, e);
         reject(e);
@@ -27,9 +27,9 @@ export function processDownloadStream<T>(url: string, rowProcessor: RowProcessor
   });
 }
 
-export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>): Promise<void> {
+export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>): Promise<number> {
   // eslint-disable-next-line no-async-promise-executor
-  return new Promise<void>(async (resolve, reject) => {
+  return new Promise<number>(async (resolve, reject) => {
     try {
       stream.on('error', (error: Error) => {
         console.error(`Error from the reading stream:`, error);
@@ -52,7 +52,7 @@ export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>
         await rowProcessor.processRow(record, count);
       }
       await rowProcessor.completed();
-      resolve();
+      resolve(count);
     } catch (e: unknown) {
       console.error("Error while processing the stream:", e);
       reject(e);
