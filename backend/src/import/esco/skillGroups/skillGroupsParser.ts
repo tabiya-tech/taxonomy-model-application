@@ -59,14 +59,14 @@ export async function parseSkillGroupsFromUrl(modelId: string, url: string) {
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  await processDownloadStream(url, batchRowProcessor);
+  return await processDownloadStream(url, batchRowProcessor);
 }
 
 export async function parseSkillGroupsFromFile(modelId: string, filePath: string) {
-  const skillGroupsCSVFileStream = fs.createReadStream(filePath );
+  const skillGroupsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  await processStream<ISkillGroupRow>(skillGroupsCSVFileStream, batchRowProcessor);
+  return await processStream<ISkillGroupRow>(skillGroupsCSVFileStream, batchRowProcessor);
 }

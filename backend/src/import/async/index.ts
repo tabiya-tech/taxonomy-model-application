@@ -18,7 +18,7 @@ export const handler = async (event: ImportRequest): Promise<any> => {
   const isValid = validateFunction(event);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
-    const e = new Error("Import failed, the event does not conform to the expected schema: " +  errorDetail);
+    const e = new Error("Import failed, the event does not conform to the expected schema: " + errorDetail);
     console.error(e);
     throw e;
   }
@@ -32,15 +32,18 @@ export const handler = async (event: ImportRequest): Promise<any> => {
 
     // Process the files
     if (downloadUrls.ISCO_GROUP) {
-      await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP);
+      const count = await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP);
+      console.info(`Processed ${count} ISCO groups`);
     }
     if (downloadUrls.ESCO_SKILL_GROUP) {
-      await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP);
+      const count = await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP);
+      console.info(`Processed ${count} Skill groups`);
     }
     if (downloadUrls.ESCO_SKILL) {
-      await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL);
+      const count = await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL);
+      console.info(`Processed ${count} Skills`);
     }
-    console.info("Completed import");
+    console.info("Import successfully finished");
   } catch (e: unknown) {
     console.error(e);
   }
@@ -51,5 +54,5 @@ const getPresignedUrls = async (filePaths: ImportFilePaths): Promise<ImportFileP
   const promises = Object.entries(filePaths).map(async (entry) => {
     return {[entry[0]]: await s3PresignedService.getPresignedGet(entry[1])};
   });
-  return Object.assign({}, ... await Promise.all(promises));
+  return Object.assign({}, ...await Promise.all(promises));
 };

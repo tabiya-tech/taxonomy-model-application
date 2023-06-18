@@ -64,7 +64,7 @@ export async function parseSkillsFromUrl(modelId: string, url: string) {
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  await processDownloadStream(url, batchRowProcessor);
+  return await processDownloadStream(url, batchRowProcessor);
 }
 
 export async function parseSkillsFromFile(modelId: string, filePath: string) {
@@ -73,5 +73,5 @@ export async function parseSkillsFromFile(modelId: string, filePath: string) {
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  await processStream<ISkillRow>(skillsCSVFileStream, batchRowProcessor);
+  return await processStream<ISkillRow>(skillsCSVFileStream, batchRowProcessor);
 }

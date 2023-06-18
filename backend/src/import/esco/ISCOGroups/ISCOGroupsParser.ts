@@ -52,19 +52,19 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
 }
 
 // function to parse from url
-export async function parseISCOGroupsFromUrl(modelId: string, url: string): Promise<void> {
+export async function parseISCOGroupsFromUrl(modelId: string, url: string): Promise<number> {
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  await processDownloadStream(url, batchRowProcessor);
+  return await processDownloadStream(url, batchRowProcessor);
 }
 
-export async function parseISCOGroupsFromFile(modelId: string, filePath: string): Promise<void> {
+export async function parseISCOGroupsFromFile(modelId: string, filePath: string): Promise<number> {
   const iscoGroupsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor();
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  await processStream<IISCOGroupRow>(iscoGroupsCSVFileStream, batchRowProcessor);
+  return await processStream<IISCOGroupRow>(iscoGroupsCSVFileStream, batchRowProcessor);
 }

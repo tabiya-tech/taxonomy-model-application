@@ -40,10 +40,13 @@ describe("test parseSkillsFromUrl", () => {
         on: jest.fn(),
       };
     });
-    await parseSkillsFromUrl(givenModelId, "someUrl");
+    const actualCount = await parseSkillsFromUrl(givenModelId, "someUrl");
 
-    // THEN expect the skill repository to have been called with the correct spec
-    require("./_test_data_/expected.ts").expected.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
+    // THEN the actual count should be the same as the expected count
+    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    expect(actualCount).toBe(expectedResults.length);
+    // AND expect the repository to have been called with the correct spec
+    expectedResults.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
       expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
@@ -67,10 +70,13 @@ describe("test parseSkillsFromFile", () => {
     jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(mockRepository);
 
     // WHEN the csv file is parsed
-    await parseSkillsFromFile(givenModelId, "./src/import/esco/skills/_test_data_/given.csv");
+    const actualCount = await parseSkillsFromFile(givenModelId, "./src/import/esco/skills/_test_data_/given.csv");
 
-    // THEN expect the skill repository to have been called with the correct spec
-    require("./_test_data_/expected.ts").expected.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
+    // THEN the actual count should be the same as the expected count
+    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    expect(actualCount).toBe(expectedResults.length);
+    // AND expect the repository to have been called with the correct spec
+    expectedResults.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
       expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
