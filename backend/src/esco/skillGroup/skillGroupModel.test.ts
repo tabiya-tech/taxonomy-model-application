@@ -217,7 +217,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "one character", "a", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
+        [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'scopeNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<ISkillGroup>(skillGroupModel, "scopeNote", caseType, value, expectedFailureMessage);
