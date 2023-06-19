@@ -4,10 +4,11 @@ import * as modelInfoModel from "modelInfo/modelInfoModel";
 import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";
 import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
+import * as occupationModel from "esco/occupation/occupationModel";
 import {IISCOGroupRepository, ISCOGroupRepository} from "esco/iscoGroup/ISCOGroupRepository";
 import {ISkillGroupRepository, SkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
 import {ISkillRepository, SkillRepository} from "esco/skill/SkillRepository";
-
+import {IOccupationRepository, OccupationRepository} from "esco/occupation/OccupationRepository";
 export class RepositoryRegistry {
   // eslint-disable-next-line
   private readonly _repositories: Map<string, any> = new Map<string, any>();
@@ -43,6 +44,13 @@ export class RepositoryRegistry {
     this._repositories.set("ISkillRepository", repository);
   }
 
+  public get occupation(): IOccupationRepository {
+    return this._repositories.get("IOccupationRepository");
+  }
+  public set occupation(repository: IOccupationRepository) {
+    this._repositories.set("IOccupationRepository", repository);
+  }
+
   async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
 
@@ -75,6 +83,7 @@ export class RepositoryRegistry {
     this.ISCOGroup = new ISCOGroupRepository(ISCOGroupModel.initializeSchemaAndModel(connection));
     this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
+    this.occupation = new OccupationRepository(occupationModel.initializeSchemaAndModel(connection));
 
     // Set up the indexes
     // This is done here because the autoIndex is turned off in production
@@ -86,6 +95,7 @@ export class RepositoryRegistry {
     await this.ISCOGroup.Model.createIndexes();
     await this.skillGroup.Model.createIndexes();
     await this.skill.Model.createIndexes();
+    await this.occupation.Model.createIndexes();
   }
 }
 

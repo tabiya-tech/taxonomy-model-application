@@ -12,6 +12,7 @@ import {randomUUID} from "crypto";
 import {parseISCOGroupsFromFile} from "./esco/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromFile} from "./esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromFile} from "./esco/skills/skillsParser";
+import {parseOccupationsFromFile} from "./esco/occupations/occupationsParser";
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -87,5 +88,11 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
     await parseSkillsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/skills.csv");
     expect(consoleErrorSpy).not.toHaveBeenCalled();
     expect(consoleWarnSpy).not.toHaveBeenCalled();
+
+    // 05. Import the Occupations CSV files
+    await parseOccupationsFromFile(modelInfo.id, "../data-sets/csv/tabiya-sample/occupations.csv");
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
+
   }, 30000); // 30 seconds timeout to allow for the import to complete
 });

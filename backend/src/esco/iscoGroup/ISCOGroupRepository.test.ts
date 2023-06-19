@@ -18,6 +18,7 @@ import {IISCOGroupRepository} from "./ISCOGroupRepository";
 import {IISCOGroup, INewISCOGroupSpec} from "./ISCOGroupModel";
 import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH} from "esco/common/modelSchema";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -27,19 +28,6 @@ jest.mock("crypto", () => {
   }
 });
 
-
-let _iscoCode = 0;
-
-function getRandomISCOGroupCode(): string {
-  //return generateRandomDigitString(1, 4);
-  if (_iscoCode > 9999) {
-    console.warn("ISCO codes is exhausted! Recycling");
-    _iscoCode = 0;
-  }
-  return (_iscoCode++).toString().padStart(4, '0');
-}
-
-
 /**
  * Helper function to create an INewISCOGroupSpec with random values,
  * that can be used for creating a new ISCOGroup
@@ -47,7 +35,7 @@ function getRandomISCOGroupCode(): string {
 function getNewISCOGroupSpec(): INewISCOGroupSpec {
   return {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getRandomISCOGroupCode(),
+    code: getMockRandomISCOGroupCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockId(2),
     originUUID: "",

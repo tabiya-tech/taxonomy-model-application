@@ -6,9 +6,9 @@ import {randomUUID} from "crypto";
 import {getNewConnection} from "server/connection/newConnection";
 import {
   initializeSchemaAndModel,
-  IISCOGroup,
+  IOccupation,
   ModelName,
-} from "./ISCOGroupModel";
+} from "./occupationModel";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {
   generateRandomUrl, getRandomString,
@@ -16,25 +16,26 @@ import {
   WHITESPACE
 } from "_test_utilities/specialCharacters";
 import {
-  ATL_LABELS_MAX_ITEMS,
+  ATL_LABELS_MAX_ITEMS, DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
   ESCO_URI_MAX_LENGTH,
-  LABEL_MAX_LENGTH
+  LABEL_MAX_LENGTH, REGULATED_PROFESSION_NOTE_MAX_LENGTH, SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import {getMockRandomOccupationCode} from "_test_utilities/mockOccupationCode";
 import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
 
-describe('Test the definition of the ISCOGroup Model', () => {
+describe('Test the definition of the Occupation Model', () => {
   let dbConnection: Connection;
-  let ISCOGroupModel: mongoose.Model<IISCOGroup>;
+  let OccupationModel: mongoose.Model<IOccupation>;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("ISCOGroupModelTestDB");
+    const config = getTestConfiguration("OccupationModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // initialize the schema and model
     initializeSchemaAndModel(dbConnection);
-    ISCOGroupModel = dbConnection.model(ModelName);
+    OccupationModel = dbConnection.model<IOccupation>(ModelName);
   });
 
   afterAll(async () => {
@@ -44,19 +45,22 @@ describe('Test the definition of the ISCOGroup Model', () => {
     }
   });
 
-  test("Successfully validate ISCOGroup with mandatory fields", async () => {
-    // GIVEN an ISCOGroup object with all mandatory fields
-    const givenObject: IISCOGroup = {
+  test("Successfully validate Occupation with mandatory fields", async () => {
+    // GIVEN an Occupation object with all mandatory fields
+    const givenObject: IOccupation = {
       id: getMockId(2),
       UUID: randomUUID(),
-      code: getMockRandomISCOGroupCode(),
+      code: getMockRandomOccupationCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: randomUUID(),
       ESCOUri: generateRandomUrl(),
       altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
       description: getTestString(DESCRIPTION_MAX_LENGTH),
-      parentGroup: getMockId(2),
+      ISCOGroupCode: getMockRandomISCOGroupCode(),
+      definition: getTestString(DEFINITION_MAX_LENGTH),
+      scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+      regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
       // @ts-ignore
       createdAt: new Date().toISOString(),
       // @ts-ignore
@@ -64,27 +68,30 @@ describe('Test the definition of the ISCOGroup Model', () => {
     };
 
     // WHEN validating that object
-    const ISCOGroupModelValid = new ISCOGroupModel(givenObject);
+    const occupationModelValid = new OccupationModel(givenObject);
 
     // THEN it should validate successfully
-    const errors = await ISCOGroupModelValid.validateSync()
+    const errors = await occupationModelValid.validateSync()
     // @ts-ignore
     expect(errors).toBeUndefined();
   });
 
-  test("Successfully validate ISCOGroup with optional fields", async () => {
-    // GIVEN an ISCOGroup object with all optional fields
-    const givenObject: IISCOGroup = {
+  test("Successfully validate Occupation with optional fields", async () => {
+    // GIVEN an Occupation object with all optional fields
+    const givenObject: IOccupation = {
       id: getMockId(2),
       UUID: randomUUID(),
-      code: getMockRandomISCOGroupCode(),
+      code: getMockRandomOccupationCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
       originUUID: "",
       ESCOUri: "",
       altLabels: [],
       description: "",
-      parentGroup: undefined,
+      ISCOGroupCode: getMockRandomISCOGroupCode(),
+      definition: "",
+      scopeNote: "",
+      regulatedProfessionNote: "",
       // @ts-ignore
       createdAt: new Date().toISOString(),
       // @ts-ignore
@@ -92,15 +99,15 @@ describe('Test the definition of the ISCOGroup Model', () => {
     };
 
     // WHEN validating that object
-    const ISCOGroupModelValid = new ISCOGroupModel(givenObject);
+    const occupationModelValid = new OccupationModel(givenObject);
 
     // THEN it should validate successfully
-    const errors = await ISCOGroupModelValid.validateSync()
+    const errors = await occupationModelValid.validateSync()
     // @ts-ignore
     expect(errors).toBeUndefined();
   });
 
-  describe("Validate ISCOGroup fields", () => {
+  describe("Validate Occupation fields", () => {
     describe("Test validation of 'modelId'", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
@@ -113,7 +120,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
       (`(%s) Validate 'modelId' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "modelId", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupation>(OccupationModel, "modelId", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -127,7 +134,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "UUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupation>(OccupationModel, "UUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -141,11 +148,11 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'originUUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "originUUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupation>(OccupationModel, "originUUID", caseType, value, expectedFailureMessage);
       });
     });
 
-    describe("Test validation of 'code'", () => {
+    describe("Test validation of 'ISCOGroupCode'", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
@@ -160,7 +167,25 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "any way in range", "090", undefined],
       ])
       (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "code", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupation>(OccupationModel, "ISCOGroupCode", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'code'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
+        [CaseType.Failure, "not a string od digits", "foo1", "Validator failed for path `{0}` with value `foo1`"],
+        [CaseType.Failure, "more than 4 digits", "55555.1", "Validator failed for path `{0}` with value `55555.1`"],
+        [CaseType.Failure, "with negative sign", "-9999.1", "Validator failed for path `{0}` with value `-9999.1`"],
+        [CaseType.Success, "extremely deep 1234.1.2.3.4.5.6.7.8.9", "1234.1.2.3.4.5.6.7.8.9", undefined],
+        [CaseType.Success, "leading zeros 0001.01.01", "0001.01.01", undefined],
+        [CaseType.Success, " typical value 1234.1", "1234.1", undefined],
+      ])
+      (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IOccupation>(OccupationModel, "code", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -175,7 +200,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "The longest ESCOUri", getTestString(ESCO_URI_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'ESCOUri' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "ESCOUri", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupation>(OccupationModel, "ESCOUri", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -190,7 +215,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'preferredLabel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "preferredLabel", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupation>(OccupationModel, "preferredLabel", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -211,22 +236,67 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Success, "valid longest array with longest label", new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)), undefined]
       ])
       (`(%s) Validate 'altLabels' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "altLabels", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupation>(OccupationModel, "altLabels", caseType, value, expectedFailureMessage);
       });
     });
 
-    describe("Test validation of 'parentGroup'", () => {
+    describe("Test validation of 'scopeNote'", () => {
       test.each([
-        [CaseType.Failure, "empty", "", "Cast to ObjectId failed for value .* at path \"{0}\""],
-        [CaseType.Failure, "only whitespace characters", WHITESPACE, "Cast to ObjectId failed for value .* at path \"{0}\""],
-        [CaseType.Failure, "not a objectId", "foo", "Cast to ObjectId failed for value .* at path \"{0}\""],
-        [CaseType.Success, 'null', null, undefined],
-        [CaseType.Success, 'undefined', undefined, undefined],
-        [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-        [CaseType.Success, "hex 24 chars", getMockId(2), undefined]
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long scopeNote", getTestString(SCOPE_NOTE_MAX_LENGTH + 1), `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
       ])
-      (`(%s) Validate 'parentGroup' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroup>(ISCOGroupModel, "parentGroup", caseType, value, expectedFailureMessage);
+      (`(%s) Validate 'scopeNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IOccupation>(OccupationModel, "scopeNote", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'definition'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long definition", getTestString(DEFINITION_MAX_LENGTH + 1), `Definition must be at most ${DEFINITION_MAX_LENGTH} chars long`],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "the longest", getTestString(DEFINITION_MAX_LENGTH), undefined],
+      ])
+      (`(%s) Validate 'definition' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IOccupation>(OccupationModel, "definition", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'description'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long description", getTestString(DESCRIPTION_MAX_LENGTH + 1), `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
+      ])
+      (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IOccupation>(OccupationModel, "description", caseType, value, expectedFailureMessage);
+      });
+    });
+
+    describe("Test validation of 'regulatedProfessionNote'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long description", getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH + 1), `RegulatedProfessionNote must be at most ${REGULATED_PROFESSION_NOTE_MAX_LENGTH} chars long`],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "the longest", getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH), undefined],
+      ])
+      (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IOccupation>(OccupationModel, "regulatedProfessionNote", caseType, value, expectedFailureMessage);
       });
     });
   });
