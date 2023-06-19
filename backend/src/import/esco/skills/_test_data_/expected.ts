@@ -33,28 +33,13 @@ export const expected = [
     reuseLevel: "sector-specific",
   },
   {
-    ESCOUri: "esco\n" +
-      "uri\n" +
-      "with\n" +
-      "linebreak",
-    originUUID: "origin\n" +
-      "uuid\n" +
-      "with\n" +
-      "linebreak",
-    preferredLabel: "preferred\n" +
-      "label\n" +
-      "with\n" +
-      "linebreak",
+    ESCOUri: "esco\nuri\nwith\nlinebreak",
+    originUUID: "origin\nuuid\nwith\nlinebreak",
+    preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
-    description: "description\n" +
-      "with\n" +
-      "linebreak",
-    definition: "definition\n" +
-      "with\n" +
-      "linebreak",
-    scopeNote: "scopeNote\n" +
-      "with\n" +
-      "linebreak",
+    description: "description\nwith\nlinebreak",
+    definition: "definition\nwith\nlinebreak",
+    scopeNote: "scopeNote\nwith\nlinebreak",
     skillType: "knowledge",
     reuseLevel: "cross-sector",
   }

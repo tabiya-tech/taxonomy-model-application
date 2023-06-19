@@ -27,25 +27,12 @@ export const expected = [
     scopeNote: "scopeNote"
   },
   {
-    ESCOUri: "esco\n" +
-      "uri\n" +
-      "with\n" +
-      "linebreak",
-    originUUID: "origin\n" +
-      "uuid\n" +
-      "with\n" +
-      "linebreak",
-      code: "L6.6.6",
-    preferredLabel: "preferred\n" +
-      "label\n" +
-      "with\n" +
-      "linebreak",
+    ESCOUri: "esco\nuri\nwith\nlinebreak",
+    originUUID: "origin\nuuid\nwith\nlinebreak",
+    code: "L6.6.6",
+    preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
-    description: "description\n" +
-      "with\n" +
-      "linebreak",
-    scopeNote: "scopeNote\n" +
-      "with\n" +
-      "linebreak"
+    description: "description\nwith\nlinebreak",
+    scopeNote: "scopeNote\nwith\nlinebreak"
   }
 ];

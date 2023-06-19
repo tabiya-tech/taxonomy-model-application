@@ -18,31 +18,17 @@ export const expected = [
   {
     ESCOUri: "esco uri",
     originUUID: "origin uuid",
-    code: "isco code",
+    code: "01",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description"
   },
   {
-    ESCOUri: "esco\n" +
-      "uri\n" +
-      "with\n" +
-      "linebreak",
-    originUUID: "origin\n" +
-      "uuid\n" +
-      "with\n" +
-      "linebreak",
-    code: "isco\n" +
-      "code\n" +
-      "with\n" +
-      "linebreak",
-    preferredLabel: "preferred\n" +
-      "label\n" +
-      "with\n" +
-      "linebreak",
+    ESCOUri: "esco\nuri\nwith\nlinebreak",
+    originUUID: "origin\nuuid\nwith\nlinebreak",
+    code: "0101",
+    preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
-    description: "description\n" +
-      "with\n" +
-      "linebreak"
+    description: "description\nwith\nlinebreak"
   }
 ];
