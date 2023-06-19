@@ -1,0 +1,27 @@
+"ESCOURI","ORIGINUUID","ISCOGROUPCODE","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SCOPENOTE","REGULATEDPROFESSIONNOTE"
+,,,,,,,,,
+,,,,,,,,,
+"esco uri","origin uuid",01,01.1.2.3,"preferred label","label1
+label2","description","definition","scope note","regulated profession note"
+"esco
+uri
+with
+linebreak","origin
+uuid
+with
+linebreak",0101,0101.01.02.03,"preferred
+label
+with
+linebreak","label1
+label2","description
+with
+linebreak","definition
+with
+linebreak","scope
+note
+with
+linebreak","regulated
+profession
+note
+with
+linebreak"

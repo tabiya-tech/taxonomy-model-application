@@ -9,6 +9,15 @@ export function hasUniqueValues<T>(value: T[]) {
   return value.length === new Set<T>(value).size;
 }
 
+// Regulated ProfessionNote
+export const REGULATED_PROFESSION_NOTE_MAX_LENGTH = 4000;
+
+export const RegulatedProfessionNoteProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("regulatedProfessionNote"),
+  maxlength: [REGULATED_PROFESSION_NOTE_MAX_LENGTH, `RegulatedProfessionNote must be at most ${REGULATED_PROFESSION_NOTE_MAX_LENGTH} chars long`]
+};
+
 // Description
 export const DESCRIPTION_MAX_LENGTH = 4000;
 
@@ -96,4 +105,13 @@ export const ISCOCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: true,
   validate: RegExISCOCode
+};
+
+// ESCO Occupation Code
+export const RegExESCOOccupationCode = RegExp(/^\d{1,4}(?:\.\d+)+$/);
+
+export const ESCOOccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: true,
+  validate: RegExESCOOccupationCode
 };

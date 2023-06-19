@@ -7,6 +7,7 @@ import {ValidateFunction} from "ajv";
 import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
+import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,6 +43,10 @@ export const handler = async (event: ImportRequest): Promise<any> => {
     if (downloadUrls.ESCO_SKILL) {
       const count = await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL);
       console.info(`Processed ${count} Skills`);
+    }
+    if (downloadUrls.ESCO_OCCUPATION) {
+      const count = await parseOccupationsFromUrl(modelid, downloadUrls.ESCO_OCCUPATION);
+      console.info(`Processed ${count} Occupations`);
     }
     console.info("Import successfully finished");
   } catch (e: unknown) {
