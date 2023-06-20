@@ -16,7 +16,7 @@ export interface IOccupationRepository {
    * The promise will reject with an error if the Occupation entries could not be created due to reasons other than not passing the validation.
    * @param newOccupationSpecs
    */
-  batchCreate(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]>
+  createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]>
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -48,7 +48,7 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  async batchCreate(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]> {
+  async createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]> {
     try {
       const newOccupationModels = newOccupationSpecs.map((spec) => {
         return new this.Model({

@@ -23,7 +23,7 @@ describe("test parseISCOGroupsFromUrl", () => {
     const mockRepository: IISCOGroupRepository = {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue({}),
-      batchCreate: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockResolvedValue([{}])
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(mockRepository);
@@ -46,7 +46,7 @@ describe("test parseISCOGroupsFromUrl", () => {
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
-      expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
+      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })
@@ -63,7 +63,7 @@ describe("test parseISCOGroupsFromFile", () => {
       // @ts-ignore
       Model: undefined,
       create: jest.fn().mockResolvedValue({}),
-      batchCreate: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockResolvedValue([{}])
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(mockRepository);
@@ -76,7 +76,7 @@ describe("test parseISCOGroupsFromFile", () => {
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
-      expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
+      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })

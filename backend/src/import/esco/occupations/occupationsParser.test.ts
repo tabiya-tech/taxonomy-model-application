@@ -23,7 +23,7 @@ describe("test parseOccupationsFromUrl", () => {
     const mockRepository: IOccupationRepository = {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue({}),
-      batchCreate: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockResolvedValue([{}])
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);
@@ -46,7 +46,7 @@ describe("test parseOccupationsFromUrl", () => {
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">) => {
-      expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
+      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })
@@ -63,7 +63,7 @@ describe("test parseOccupationsFromFile", () => {
       // @ts-ignore
       Model: undefined,
       create: jest.fn().mockResolvedValue({}),
-      batchCreate: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockResolvedValue([{}])
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);
@@ -76,7 +76,7 @@ describe("test parseOccupationsFromFile", () => {
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">) => {
-      expect(mockRepository.batchCreate).toHaveBeenLastCalledWith(
+      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })

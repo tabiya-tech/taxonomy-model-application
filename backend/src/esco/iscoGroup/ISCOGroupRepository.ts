@@ -16,7 +16,7 @@ export interface IISCOGroupRepository {
    * The promise will reject with an error if the ISCOGroup entries could not be created due to reasons other than not passing the validation.
    * @param newISCOGroupSpecs
    */
-  batchCreate(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]>
+  createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]>
 }
 
 export class ISCOGroupRepository implements IISCOGroupRepository {
@@ -51,7 +51,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     }
   }
 
-  async batchCreate(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> {
+  async createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> {
     try {
       const newISCOGroupModels = newISCOGroupSpecs.map((spec) => {
         return new this.Model({

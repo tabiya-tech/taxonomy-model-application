@@ -16,7 +16,7 @@ export interface ISkillGroupRepository {
    * The promise will reject with an error if the ISkillGroup entries could not be created due to reasons other than not passing the validation.
    * @param newSkillGroupSpecs
    */
-  batchCreate(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
+  createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -50,7 +50,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async batchCreate(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> {
+  async createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> {
     try {
       const newSkillGroupModels = newSkillGroupSpecs.map((spec) => {
         return new this.Model({

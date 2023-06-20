@@ -186,7 +186,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     });
   });
 
-  describe("Test batchCreate() ISCOGroup ", () => {
+  describe("Test createMany() ISCOGroup ", () => {
     afterEach(async () => {
       await repository.Model.deleteMany({}).exec();
     })
@@ -202,7 +202,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       }
 
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate(givenNewISCOGroupSpecs);
+      const newISCOGroups: INewISCOGroupSpec[] = await repository.createMany(givenNewISCOGroupSpecs);
 
       // THEN expect all the ISCO Groups to be created with the specific attributes
       expect(newISCOGroups).toEqual(
@@ -226,7 +226,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       givenInvalidISCOGroupSpec.code = "invalid code";
 
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate([...givenValidISCOGroupSpecs, givenInvalidISCOGroupSpec]);
+      const newISCOGroups: INewISCOGroupSpec[] = await repository.createMany([...givenValidISCOGroupSpecs, givenInvalidISCOGroupSpec]);
 
       // THEN expect only the valid ISCO Group to be created
       expect(newISCOGroups).toHaveLength(givenValidISCOGroupSpecs.length);
@@ -249,7 +249,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         givenValidISCOGroupSpecs[i].code = "invalid code";
       }
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate(givenValidISCOGroupSpecs);
+      const newISCOGroups: INewISCOGroupSpec[] = await repository.createMany(givenValidISCOGroupSpecs);
 
       // THEN expect an empty array to be created
       expect(newISCOGroups).toHaveLength(0);
@@ -269,7 +269,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
 
-        const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate(givenNewISCOGroupSpecs);
+        const newISCOGroups: INewISCOGroupSpec[] = await repository.createMany(givenNewISCOGroupSpecs);
 
         // THEN expect only the first and the third the ISCO Groups to be created with the specific attributes
         expect(newISCOGroups).toEqual(
@@ -294,7 +294,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // AND the second ISCOGroupSpec has the same code as the one
         givenNewISCOGroupSpecs[1].code = givenNewISCOGroupSpecs[0].code;
 
-        const newISCOGroups: INewISCOGroupSpec[] = await repository.batchCreate(givenNewISCOGroupSpecs);
+        const newISCOGroups: INewISCOGroupSpec[] = await repository.createMany(givenNewISCOGroupSpecs);
         // THEN expect only the first and the third the ISCO Groups to be created with the specific attributes
         expect(newISCOGroups).toEqual(
           expect.arrayContaining(
@@ -315,7 +315,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
     // This seems to be a limitation of the current version of the MongoDB driver.
     // TestConnectionFailure((repository) => {
-    //    return repository.batchCreate([getNewISCOGroupSpec()]);
+    //    return repository.createMany([getNewISCOGroupSpec()]);
     //  });
   });
 });
