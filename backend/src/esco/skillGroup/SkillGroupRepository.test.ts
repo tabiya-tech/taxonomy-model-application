@@ -147,7 +147,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
   });
 
-  describe("Test batchCreate() skill group ", () => {
+  describe("Test createMany() skill group ", () => {
     afterEach(async () => {
       await repository.Model.deleteMany({}).exec();
     })
@@ -165,7 +165,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       }
 
       // WHEN batch creating the Skill Groups with the given specifications
-      const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate(givenNewSkillGroupSpecs);
+      const newSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
 
       // THEN expect all the Skill Groups to be created with the specific attributes
       expect(newSkillGroups).toEqual(
@@ -189,7 +189,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       givenInvalidSkillGroupSpec.code = "invalid code";
 
       // WHEN batch creating the Skill Groups with the given specifications
-      const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate([...givenValidSkillGroupSpecs, givenInvalidSkillGroupSpec]);
+      const newSkillGroups: INewSkillGroupSpec[] = await repository.createMany([...givenValidSkillGroupSpecs, givenInvalidSkillGroupSpec]);
 
       // THEN expect only the valid Skill Group to be created
       expect(newSkillGroups).toHaveLength(givenValidSkillGroupSpecs.length);
@@ -212,7 +212,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         givenValidSkillGroupSpecs[i].code = "invalid code";
       }
       // WHEN batch creating the Skill Groups with the given specifications
-      const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate(givenValidSkillGroupSpecs);
+      const newSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenValidSkillGroupSpecs);
 
       // THEN expect an empty array to be created
       expect(newSkillGroups).toHaveLength(0);
@@ -232,7 +232,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
 
-        const newSkillGroups: INewSkillGroupSpec[] = await repository.batchCreate(givenNewSkillGroupSpecs);
+        const newSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
 
         // THEN expect only the first and the third the Skill Groups to be created with the specific attributes
         expect(newSkillGroups).toEqual(
@@ -254,7 +254,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
     // This seems to be a limitation of the current version of the MongoDB driver.
     // TestConnectionFailure((repository) => {
-    //    return repository.batchCreate([getNewSkillGroupSpec()]);
+    //    return repository.createMany([getNewSkillGroupSpec()]);
     //  });
   });
 });

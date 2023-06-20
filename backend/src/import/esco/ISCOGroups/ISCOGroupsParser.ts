@@ -29,7 +29,7 @@ function getBatchProcessor() {
   const batchProcessFn = async (specs: INewISCOGroupSpec[]) => {
     try {
       const ISCOGroupRepository = getRepositoryRegistry().ISCOGroup;
-      await ISCOGroupRepository.batchCreate(specs);
+      await ISCOGroupRepository.createMany(specs);
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }

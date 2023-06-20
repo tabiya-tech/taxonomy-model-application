@@ -148,7 +148,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     });
   });
 
-  describe("Test batchCreate() Skill ", () => {
+  describe("Test createMany() Skill ", () => {
     afterEach(async () => {
       await repository.Model.deleteMany({}).exec();
     })
@@ -166,7 +166,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       }
 
       // WHEN batch creating the Skills with the given specifications
-      const newSkills: INewSkillSpec[] = await repository.batchCreate(givenNewSkillSpecs);
+      const newSkills: INewSkillSpec[] = await repository.createMany(givenNewSkillSpecs);
 
       // THEN expect all the Skills to be created with the specific attributes
       expect(newSkills).toEqual(
@@ -190,7 +190,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       givenInvalidSkillSpec.preferredLabel = "";
 
       // WHEN batch creating the Skills with the given specifications
-      const newSkills: INewSkillSpec[] = await repository.batchCreate([...givenValidSkillSpecs, givenInvalidSkillSpec]);
+      const newSkills: INewSkillSpec[] = await repository.createMany([...givenValidSkillSpecs, givenInvalidSkillSpec]);
 
       // THEN expect only the valid Skills to be created
       expect(newSkills).toHaveLength(givenValidSkillSpecs.length);
@@ -213,7 +213,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         givenValidSkillSpecs[i].preferredLabel = "";
       }
       // WHEN batch creating the Skill with the given specifications
-      const newSkills: INewSkillSpec[] = await repository.batchCreate(givenValidSkillSpecs);
+      const newSkills: INewSkillSpec[] = await repository.createMany(givenValidSkillSpecs);
 
       // THEN expect an empty array to be created
       expect(newSkills).toHaveLength(0);
@@ -233,7 +233,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
 
-        const newSkills: INewSkillSpec[] = await repository.batchCreate(givenNewSkillSpecs);
+        const newSkills: INewSkillSpec[] = await repository.createMany(givenNewSkillSpecs);
 
         // THEN expect only the first and the third the Skill to be created with the specific attributes
         expect(newSkills).toEqual(
@@ -255,7 +255,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
     // This seems to be a limitation of the current version of the MongoDB driver.
     // TestConnectionFailure((repository) => {
-    //    return repository.batchCreate([getNewSkillSpec()]);
+    //    return repository.createMany([getNewSkillSpec()]);
     //  });
   });
 });

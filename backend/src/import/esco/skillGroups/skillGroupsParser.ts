@@ -30,7 +30,7 @@ function getBatchProcessor() {
   const batchProcessFn = async (specs: INewSkillGroupSpec[]) => {
     try {
       const skillGroupRepository = getRepositoryRegistry().skillGroup;
-      await skillGroupRepository.batchCreate(specs);
+      await skillGroupRepository.createMany(specs);
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }

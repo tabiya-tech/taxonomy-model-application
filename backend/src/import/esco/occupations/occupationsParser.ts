@@ -45,7 +45,7 @@ function getBatchProcessor() {
   const batchProcessFn = async (specs: INewOccupationSpec[]) => {
     try {
       const OccupationRepository = getRepositoryRegistry().occupation;
-      await OccupationRepository.batchCreate(specs);
+      await OccupationRepository.createMany(specs);
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }

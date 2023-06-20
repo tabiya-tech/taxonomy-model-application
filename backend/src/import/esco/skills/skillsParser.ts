@@ -32,7 +32,7 @@ function getBatchProcessor() {
   const batchProcessFn = async (specs: INewSkillSpec[]) => {
     try {
       const skillRepository = getRepositoryRegistry().skill;
-      await skillRepository.batchCreate(specs);
+      await skillRepository.createMany(specs);
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }

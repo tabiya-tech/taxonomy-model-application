@@ -196,7 +196,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     });
   });
 
-  describe("Test batchCreate() Occupation ", () => {
+  describe("Test createMany() Occupation ", () => {
     afterEach(async () => {
       await repository.Model.deleteMany({}).exec();
     })
@@ -212,7 +212,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       }
 
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newOccupations: INewOccupationSpec[] = await repository.batchCreate(givenNewOccupationSpecs);
+      const newOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
 
       // THEN expect all the ISCO Groups to be created with the specific attributes
       expect(newOccupations).toEqual(
@@ -236,7 +236,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       givenInvalidOccupationSpec.code = "invalid code";
 
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newOccupations: INewOccupationSpec[] = await repository.batchCreate([...givenValidOccupationSpecs, givenInvalidOccupationSpec]);
+      const newOccupations: INewOccupationSpec[] = await repository.createMany([...givenValidOccupationSpecs, givenInvalidOccupationSpec]);
 
       // THEN expect only the valid ISCO Group to be created
       expect(newOccupations).toHaveLength(givenValidOccupationSpecs.length);
@@ -259,7 +259,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         givenValidOccupationSpecs[i].code = "invalid code";
       }
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newOccupations: INewOccupationSpec[] = await repository.batchCreate(givenValidOccupationSpecs);
+      const newOccupations: INewOccupationSpec[] = await repository.createMany(givenValidOccupationSpecs);
 
       // THEN expect an empty array to be created
       expect(newOccupations).toHaveLength(0);
@@ -279,7 +279,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
 
-        const newOccupations: INewOccupationSpec[] = await repository.batchCreate(givenNewOccupationSpecs);
+        const newOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
 
         // THEN expect only the first and the third the ISCO Groups to be created with the specific attributes
         expect(newOccupations).toEqual(
@@ -304,7 +304,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND the second OccupationSpec has the same code as the one
         givenNewOccupationSpecs[1].code = givenNewOccupationSpecs[0].code;
 
-        const newOccupations: INewOccupationSpec[] = await repository.batchCreate(givenNewOccupationSpecs);
+        const newOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
         // THEN expect only the first and the third the ISCO Groups to be created with the specific attributes
         expect(newOccupations).toEqual(
           expect.arrayContaining(
@@ -325,7 +325,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
     // This seems to be a limitation of the current version of the MongoDB driver.
     // TestConnectionFailure((repository) => {
-    //    return repository.batchCreate([getNewOccupationSpec()]);
+    //    return repository.createMany([getNewOccupationSpec()]);
     //  });
   });
 });
