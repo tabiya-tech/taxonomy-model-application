@@ -9,14 +9,14 @@ import {
   PreferredLabelProperty,
   ScopeNoteProperty
 } from "esco/common/modelSchema";
-
-export const ModelName = "SkillGroupModel";
+import {ISkillGroupDoc} from "./skillGroup.types";
+import {MongooseModelName} from "esco/common/mongooseModelNames";
 
 export const PARENT_MAX_ITEMS = 100;
 
-export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroup> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroupDoc> {
   // Main Schema
-  const SkillGroupSchema = new mongoose.Schema<ISkillGroup>({
+  const SkillGroupSchema = new mongoose.Schema<ISkillGroupDoc>({
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     preferredLabel: PreferredLabelProperty,
     code: {
@@ -43,7 +43,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       type: [mongoose.Schema.Types.ObjectId],
       required: true,
       default: undefined,
-      ref: ModelName,
+      ref: MongooseModelName.SkillGroup,
       validate: (value: mongoose.Schema.Types.ObjectId[]) => {
         if (value.length > PARENT_MAX_ITEMS) {
           throw new Error(`Parents must be at most ${PARENT_MAX_ITEMS} uniques refs.`);
@@ -59,39 +59,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   SkillGroupSchema.virtual('childrenGroups', {
     localField: '_id',
     foreignField: 'parentGroups',
-    ref: ModelName
+    ref: MongooseModelName.SkillGroup
   });
 
   SkillGroupSchema.index({UUID: 1}, {unique: true});
 
   SkillGroupSchema.index({modelId: 1});
 
-  return dbConnection.model<ISkillGroup>(ModelName, SkillGroupSchema);
+  return dbConnection.model<ISkillGroupDoc>(MongooseModelName.SkillGroup, SkillGroupSchema);
 }
-
-export interface ISkillGroupReference {
-  id: string
-  UUID: string
-  code: string
-  preferredLabel: string
-}
-
-export interface ISkillGroup {
-  id: string
-  UUID: string
-  code: string
-  preferredLabel: string
-  modelId: string | mongoose.Types.ObjectId
-  originUUID: string
-  ESCOUri: string
-  altLabels: string[]
-  description: string
-  scopeNote: string
-  parentGroups: string[] | mongoose.Types.ObjectId[] | ISkillGroupReference[]
-  childrenGroups: string[] | mongoose.Types.ObjectId[] | ISkillGroupReference[]
-  createdAt: Date,
-  updatedAt: Date
-}
-
-export type INewSkillGroupSpec = Omit<ISkillGroup, "id" | "UUID" | "parentGroups" | "childrenGroups" | "createdAt" | "updatedAt">;
-

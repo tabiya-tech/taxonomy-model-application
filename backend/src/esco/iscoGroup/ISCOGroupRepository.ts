@@ -1,9 +1,19 @@
 import mongoose from "mongoose";
-import {IISCOGroup, INewISCOGroupSpec} from "./ISCOGroupModel";
 import {randomUUID} from "crypto";
+import {IOccupationReferenceDoc} from "esco/occupation/occupation.types";
+import {MongooseModelName} from "esco/common/mongooseModelNames";
+import {
+  IISCOGroup,
+  IISCOGroupDoc,
+  IISCOGroupReferenceDoc,
+  INewISCOGroupSpec
+} from "./ISCOGroup.types";
+import {ReferenceWithModelId} from "esco/common/objectTypes";
+import {getISCOGroupReferenceWithModelId} from "./ISCOGroupReference";
+import {getOccupationReferenceWithModelId} from "esco/occupation/occupationReference";
 
 export interface IISCOGroupRepository {
-  readonly Model: mongoose.Model<IISCOGroup>;
+  readonly Model: mongoose.Model<IISCOGroupDoc>;
 
   /**
    * Resolves to the newly created ISCOGroup entry, or it rejects with an error if the ISCOGroup entry could not be created.
@@ -17,13 +27,15 @@ export interface IISCOGroupRepository {
    * @param newISCOGroupSpecs
    */
   createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]>
+
+  findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null>
 }
 
 export class ISCOGroupRepository implements IISCOGroupRepository {
 
-  public readonly Model: mongoose.Model<IISCOGroup>;
+  public readonly Model: mongoose.Model<IISCOGroupDoc>;
 
-  constructor(model: mongoose.Model<IISCOGroup>) {
+  constructor(model: mongoose.Model<IISCOGroupDoc>) {
     this.Model = model;
   }
 
@@ -38,12 +50,10 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     try {
       const newISCOGroupModel = new this.Model({
         ...newISCOGroupSpec,
-        parentGroup: null,
         UUID: randomUUID()
       });
       await newISCOGroupModel.save();
-      await newISCOGroupModel.populate({path: "parentGroup"});
-      await newISCOGroupModel.populate({path: "childrenGroups"});
+      await newISCOGroupModel.populate([{path: "parent"}, {path: "children"}]);
       return newISCOGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -56,13 +66,12 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       const newISCOGroupModels = newISCOGroupSpecs.map((spec) => {
         return new this.Model({
           ...spec,
-          parentGroup: null,
           UUID: randomUUID() // override UUID silently
         });
       });
       const newISCOGroups = await this.Model.insertMany(newISCOGroupModels, {
         ordered: false,
-        populate: ["parentGroup", "childrenGroups"]
+        populate: ["parent", "children"]
       });
       return newISCOGroups.map((iscoGroup) => iscoGroup.toObject());
     } catch (e: unknown) {
@@ -73,14 +82,70 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
         const newISCOGroups: IISCOGroup[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate("parentGroup",);
-          await doc.populate("childrenGroups",);
+          await doc.populate([{path: "parent"}, {path: "children"}]);
           newISCOGroups.push(doc.toObject());
         }
         return newISCOGroups;
       }
       console.error("batch create failed", e);
       throw e;
+    }
+  }
+
+  async findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const iscoGroup = await this.Model.findById(id)
+        .populate({
+          path: "parent",
+          populate: {
+            path: "parentId",
+            transform: function (doc): ReferenceWithModelId<IISCOGroupReferenceDoc> | null { // return only the relevant fields
+              if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
+                return getISCOGroupReferenceWithModelId(doc);
+              }
+              console.error(`Parent is not an ISCOGroup: ${doc.constructor.modelName}`);
+              return null;
+            },
+          },
+          transform: function (doc): IISCOGroupReferenceDoc | null { // return only the relevant fields
+            if (!doc?.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
+            if (!doc?.parentId?.modelId?.equals(doc?.modelId)) {
+              console.error(`Parent is not in the same model as the child`);
+              return null;
+            }
+            delete doc.parentId.modelId;
+            return doc.parentId;
+          }
+        }).populate({
+          path: "children",
+          populate: {
+            path: "childId",
+            transform: function (doc): ReferenceWithModelId<IISCOGroupReferenceDoc> | ReferenceWithModelId<IOccupationReferenceDoc> | null { // return only the relevant fields
+              if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
+                return getISCOGroupReferenceWithModelId(doc);
+              }
+              if (doc.constructor.modelName === MongooseModelName.Occupation) {
+                return getOccupationReferenceWithModelId(doc);
+              }
+              console.error(`Child is not an ISCOGroup or Occupation: ${doc.constructor.modelName}`);
+              return null;
+            },
+          },
+          transform: function (doc): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null { // return only the relevant fields
+            if (!doc?.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
+            if (!doc?.childId?.modelId?.equals(doc?.modelId)) {
+              console.error(`Child is not in the same model as the parent`);
+              return null;
+            }
+            delete doc.childId.modelId;
+            return doc.childId;
+          }
+        }).exec();
+      return (iscoGroup != null ? iscoGroup.toObject() : null);
+    } catch (e: unknown) {
+      console.error("findById failed", e);
+      return null;
     }
   }
 }

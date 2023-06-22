@@ -1,12 +1,12 @@
-"ESCOURI","ORIGINUUID","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
-,,,,,
-,,,,,
-"esco uri","origin uuid",01,"preferred label","label1
+"ESCOURI",ID,"ORIGINUUID","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
+,,,,,,
+,,,,,,
+"esco uri",key_1,"origin uuid",01,"preferred label","label1
 label2","description"
 "esco
 uri
 with
-linebreak","origin
+linebreak",key_2,"origin
 uuid
 with
 linebreak",0101,"preferred

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import {ISkill, INewSkillSpec} from "./skillModel";
 import {randomUUID} from "crypto";
+import {INewSkillSpec, ISkill, ISkillDoc} from "./skills.types";
 
 export interface ISkillRepository {
-  readonly Model: mongoose.Model<ISkill>;
+  readonly Model: mongoose.Model<ISkillDoc>;
 
   /**
    * Resolves to the newly created ISkill entry, or it rejects with an error if the  Skill entry could not be created.
@@ -21,9 +21,9 @@ export interface ISkillRepository {
 
 export class SkillRepository implements ISkillRepository {
 
-  public readonly Model: mongoose.Model<ISkill>;
+  public readonly Model: mongoose.Model<ISkillDoc>;
 
-  constructor(model: mongoose.Model<ISkill>) {
+  constructor(model: mongoose.Model<ISkillDoc>) {
     this.Model = model;
   }
 

@@ -10,7 +10,7 @@ import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";
 import {ISkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
-import {INewSkillGroupSpec} from "esco/skillGroup/skillGroupModel";
+import {INewSkillGroupSpec} from "esco/skillGroup/skillGroup.types";
 
 jest.mock('https');
 

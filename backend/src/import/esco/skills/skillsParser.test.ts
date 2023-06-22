@@ -10,7 +10,7 @@ import {
   parseSkillsFromUrl
 } from "./skillsParser";
 import {ISkillRepository} from "esco/skill/SkillRepository";
-import {INewSkillSpec} from "esco/skill/skillModel";
+import {INewSkillSpec} from "../../../esco/skill/skills.types";
 
 jest.mock('https');
 

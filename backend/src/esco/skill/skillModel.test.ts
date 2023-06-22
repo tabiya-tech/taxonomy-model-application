@@ -4,9 +4,7 @@ import "_test_utilities/consoleMock"
 import mongoose, {Connection} from "mongoose";
 import {randomUUID} from "crypto";
 import {getNewConnection} from "server/connection/newConnection";
-import {initializeSchemaAndModel, ISkill, ModelName,} from "./skillModel";
-
-
+import {initializeSchemaAndModel} from "./skillModel";
 import {
   ATL_LABELS_MAX_ITEMS, DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
@@ -18,18 +16,17 @@ import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {generateRandomUrl, getRandomString, getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
-
+import {ISkillDoc} from "./skills.types";
 
 describe('Test the definition of the skill Model', () => {
   let dbConnection: Connection;
-  let skillModel: mongoose.Model<ISkill>;
+  let skillModel: mongoose.Model<ISkillDoc>;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("skillGroupModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // initialize the schema and model
-    initializeSchemaAndModel(dbConnection);
-    skillModel = dbConnection.model(ModelName);
+    skillModel = initializeSchemaAndModel(dbConnection);
   });
 
   afterAll(async () => {
@@ -41,8 +38,7 @@ describe('Test the definition of the skill Model', () => {
 
   test("Successfully validate skill with mandatory fields", async () => {
     // GIVEN a skillGroup object with all mandatory fields
-    const givenObject: ISkill = {
-      id: getMockId(2),
+    const givenObject: ISkillDoc = {
       UUID: randomUUID(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
@@ -54,11 +50,8 @@ describe('Test the definition of the skill Model', () => {
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
       skillType: "skill/competence",
       reuseLevel: "sector-specific",
-      // @ts-ignore
       createdAt: new Date().toISOString(),
-      // @ts-ignore
       updatedAt: new Date().toISOString(),
-
     };
 
     // WHEN validating that object
@@ -104,12 +97,12 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Failure, "only whitespace characters", WHITESPACE, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Failure, "not a objectId (string)", "foo", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [CaseType.Failure, "not a objectId (object)", {foo:"bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
+        [CaseType.Failure, "not a objectId (object)", {foo: "bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
       (`(%s) Validate 'modelId' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "modelId", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "modelId", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -123,7 +116,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "UUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "UUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -137,7 +130,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'originUUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "originUUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "originUUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -153,7 +146,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "The longest ESCOUri", getTestString(ESCO_URI_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'ESCOUri' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "ESCOUri", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "ESCOUri", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -168,7 +161,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'preferredLabel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "preferredLabel", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "preferredLabel", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -190,7 +183,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "valid longest array with longest label", new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)), undefined]
       ])
       (`(%s) Validate 'altLabels' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "altLabels", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "altLabels", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -205,7 +198,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'scopeNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "scopeNote", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "scopeNote", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -220,7 +213,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "the longest", getTestString(DEFINITION_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'definition' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "definition", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "definition", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -235,7 +228,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "description", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "description", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -243,19 +236,18 @@ describe('Test the definition of the skill Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "only whitespace characters", WHITESPACE,` is not a valid enum value for path \`{0}\`.`],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
         [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
-        [CaseType.Success, "empty", "",undefined],
+        [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "skill/competence", "skill/competence", undefined],
         [CaseType.Success, "knowledge", "knowledge", undefined],
         [CaseType.Success, "language", "language", undefined],
         [CaseType.Success, "attitude", "attitude", undefined],
       ])
       (`(%s) Validate 'skillType' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "skillType", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "skillType", caseType, value, expectedFailureMessage);
       });
     });
-
 
     describe("Test validation of 'reuseLevel'", () => {
       test.each([
@@ -270,7 +262,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Success, "empty", "", undefined],
       ])
       (`(%s) Validate 'reuseLevel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkill>(skillModel, "reuseLevel", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillDoc>(skillModel, "reuseLevel", caseType, value, expectedFailureMessage);
       });
     });
   });

@@ -2,23 +2,24 @@
 import "_test_utilities/consoleMock";
 
 import {getMockId} from "_test_utilities/mockMongoId";
-import {Connection} from "mongoose";
-
+import mongoose, {Connection} from "mongoose";
 import {randomUUID} from "crypto";
-import {
-  generateRandomUrl,
-  getRandomString,
-  getTestString
-} from "_test_utilities/specialCharacters";
+import {generateRandomUrl, getRandomString, getTestString} from "_test_utilities/specialCharacters";
 import {getNewConnection} from "server/connection/newConnection";
 import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {IISCOGroupRepository} from "./ISCOGroupRepository";
-import {IISCOGroup, INewISCOGroupSpec} from "./ISCOGroupModel";
 import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH} from "esco/common/modelSchema";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
+import {IISCOGroup, INewISCOGroupSpec} from "./ISCOGroup.types";
+import {
+  IOccupationHierarchyPairDoc
+} from "esco/occupationHierarchy/occupationHierarchy.types";
+import {ObjectTypes} from "esco/common/objectTypes";
+import {MongooseModelName} from "esco/common/mongooseModelNames";
+import {INewSkillSpec} from "esco/skill/skills.types";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -44,6 +45,18 @@ function getNewISCOGroupSpec(): INewISCOGroupSpec {
   };
 }
 
+function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
+  return {
+    altLabels: [],
+    code: getMockRandomISCOGroupCode(),
+    preferredLabel: preferredLabel,
+    modelId: modelId,
+    originUUID: "",
+    ESCOUri: "",
+    description: ""
+  };
+}
+
 /**
  * Helper function to create an expected ISCOGroup from a given INewISCOGroupSpec,
  * that can ebe used for assertions
@@ -53,8 +66,8 @@ function expectedFromGivenSpec(givenSpec: INewISCOGroupSpec): IISCOGroup {
   return {
     ...givenSpec,
     id: expect.any(String),
-    parentGroup: null,
-    childrenGroups: [],
+    parent: null,
+    children: [],
     UUID: expect.any(String),
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
@@ -63,13 +76,21 @@ function expectedFromGivenSpec(givenSpec: INewISCOGroupSpec): IISCOGroup {
 
 describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
+
   let dbConnection: Connection;
   let repository: IISCOGroupRepository;
+  let repositoryRegistry: RepositoryRegistry;
+
+
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("ISCOGroupRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    const repositoryRegistry = new RepositoryRegistry()
+    repositoryRegistry = new RepositoryRegistry()
     await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.ISCOGroup;
   });
@@ -81,6 +102,22 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  async function cleanupDBCollections() {
+    if (repository) await repository.Model.deleteMany({}).exec();
+    if (repositoryRegistry) {
+      await repositoryRegistry.skill.Model.deleteMany({}).exec();
+      await repositoryRegistry.occupationHierarchy.hierarchyModel.deleteMany({}).exec();
+    }
+  }
+
+  afterEach(async () => {
+    await cleanupDBCollections();
+  })
+
+  beforeEach(async () => {
+    await cleanupDBCollections();
+  })
 
   test("should return the model", async () => {
     expect(repository.Model).toBeDefined();
@@ -101,13 +138,6 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() ISCOGroup ", () => {
-    afterEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    })
-
-    beforeEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    })
 
     test("should successfully create a new ISCOGroup", async () => {
       // GIVEN a valid ISCOGroupSpec
@@ -187,12 +217,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
   });
 
   describe("Test createMany() ISCOGroup ", () => {
-    afterEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    })
-    beforeEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    })
+
     test("should successfully create a batch of new ISCOGroups", async () => {
       // GIVEN some valid ISCOGroupSpec
       const givenBatchSize = 3;
@@ -318,6 +343,265 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     //    return repository.createMany([getNewISCOGroupSpec()]);
     //  });
   });
+
+  describe("Test findById()", () => {
+
+    test("should find an ISCO Group by its id", async () => {
+      // GIVEN an ISCO Group exists in the database
+      const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+      const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
+
+      // WHEN searching for the ISCO Group by its id
+      const foundISCOGroup = await repository.findById(givenISCOGroup.id);
+
+      // THEN expect the ISCO Group to be found
+      expect(foundISCOGroup).toEqual(givenISCOGroup);
+    });
+
+    test("should return null if no ISCO Group with the given id exists", async () => {
+      // GIVEN no ISCO Group exists in the database
+
+      // WHEN searching for the ISCO Group by its id
+      const foundISCOGroup = await repository.findById(new mongoose.Types.ObjectId().toHexString());
+
+      // THEN expect no ISCO Group to be found
+      expect(foundISCOGroup).toBeNull();
+    });
+
+    test("should return null if given id is not a valid object id", async () => {
+      // GIVEN no ISCO Group exists in the database
+
+      // WHEN searching for the ISCO Group by its id
+      const foundISCOGroup = await repository.findById("non_existing_id");
+
+      // THEN expect no ISCO Group to be found
+      expect(foundISCOGroup).toBeNull();
+    });
+
+    describe("Test ISCO Group hierarchy robustness to inconsistencies", () => {
+
+      test("should ignore parents that are not ISCO Groups", async () => {
+        // GIVEN an inconsistency was introduced, and non-ISCOGroup document is a parent of an ISCOGroup
+        // The ISCOGroup
+        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+        const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
+        // The non-ISCOGroup in this case a Skill
+        const newSkillSpec: INewSkillSpec = {
+          preferredLabel: "skill_1",
+          modelId: givenISCOGroup.modelId,
+          originUUID: "",
+          ESCOUri: "",
+          definition: "",
+          description: "",
+          scopeNote: "",
+          skillType: "knowledge",
+          reuseLevel: "cross-sector",
+          altLabels: [],
+        };
+        const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
+        // it is important to cast the id to ObjectId, otherwise the parents will not be found
+        const inconsistentPair: IOccupationHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenISCOGroup.modelId),
+
+          //@ts-ignore
+          parentType: ObjectTypes.Skill, // <- This is the inconsistency
+          parentDocModel: MongooseModelName.Skill, // <- This is the inconsistency
+          parentId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
+
+          childId: new mongoose.Types.ObjectId(givenISCOGroup.id),
+          childDocModel: MongooseModelName.ISCOGroup,
+          childType: ObjectTypes.ISCOGroup,
+        }
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+
+        // WHEN searching for the ISCO Group by its id
+        jest.spyOn(console, "error");
+        const foundGroup = await repository.findById(givenISCOGroup.id);
+
+        // THEN expect the ISCO Group to not contain the inconsistent parent
+        expect(foundGroup).not.toBeNull();
+        expect(foundGroup!.parent).toEqual(null);
+        // AND expect a warning to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Parent is not an ISCOGroup: ${inconsistentPair.parentDocModel}`);
+
+      });
+
+      test("should ignore children that are not ISCO Groups | Occupations", async () => {
+        // GIVEN an inconsistency was introduced, and non-ISCOGroup document is a child of an ISCOGroup
+        // The ISCOGroup
+        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+        const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
+        // The non-ISCOGroup in this case a Skill
+        const newSkillSpec: INewSkillSpec = {
+          preferredLabel: "skill_1",
+          modelId: givenISCOGroup.modelId,
+          originUUID: "",
+          ESCOUri: "",
+          definition: "",
+          description: "",
+          scopeNote: "",
+          skillType: "knowledge",
+          reuseLevel: "cross-sector",
+          altLabels: [],
+        };
+        const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
+        // it is import to cast the id to ObjectId, otherwise the parents will not be found
+        const inconsistentPair: IOccupationHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenISCOGroup.modelId),
+
+          parentId: new mongoose.Types.ObjectId(givenISCOGroup.id),
+          parentDocModel: MongooseModelName.ISCOGroup,
+          parentType: ObjectTypes.ISCOGroup,
+
+          //@ts-ignore
+          childType: ObjectTypes.Skill, // <- This is the inconsistency
+          childDocModel: MongooseModelName.Skill, // <- This is the inconsistency
+          childId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
+        }
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+
+        // WHEN searching for the ISCO Group by its id
+        jest.spyOn(console, "error");
+        const foundGroup = await repository.findById(givenISCOGroup.id);
+
+        // THEN expect the ISCO Group to not contain the inconsistent parent
+        expect(foundGroup).not.toBeNull();
+        expect(foundGroup!.children).toEqual([]);
+
+        // AND expect a warning to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Child is not an ISCOGroup or Occupation: ${inconsistentPair.childDocModel}`);
+      });
+
+      test("should not find parent or child if the hierarchy is in a different model", async () => {
+        // GIVEN an inconsistency was introduced, and the child and the parent are in different models
+        // The ISCOGroup 1
+        const givenModelId_1 = getMockId(1);
+        const givenISCOGroupSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId_1, "group_1");
+        const givenISCOGroup_1 = await repository.create(givenISCOGroupSpecs_1);
+        // The ISCOGroup 2
+        const givenModelId_2 = getMockId(2);
+        const givenISCOGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId_2, "group_2");
+        const givenISCOGroup_2 = await repository.create(givenISCOGroupSpecs_2);
+
+        // it is import to cast the id to ObjectId, otherwise the parents will not be found
+        // the third model
+        const givenModelId_3 = getMockId(3);
+
+        //@ts-ignore
+        const inconsistentPair: IOccupationHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenModelId_3), // <-- this is the inconsistency
+
+          parentId: new mongoose.Types.ObjectId(givenISCOGroup_1.id), // <-- this is the inconsistency
+          parentDocModel: MongooseModelName.ISCOGroup,
+          parentType: ObjectTypes.ISCOGroup,
+
+          childId: new mongoose.Types.ObjectId(givenISCOGroup_2.id), // <-- this is the inconsistency
+          childDocModel: MongooseModelName.ISCOGroup,
+          childType: ObjectTypes.ISCOGroup,
+        }
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+
+        // WHEN searching for the ISCO Group_1 by its id
+        const foundGroup_1 = await repository.findById(givenISCOGroup_1.id);
+
+        // THEN expect the ISCO Group to not contain the inconsistent children
+        expect(foundGroup_1).not.toBeNull();
+        expect(foundGroup_1!.children).toEqual([]);
+        expect(foundGroup_1!.parent).toEqual(null);
+
+        // WHEN searching for the ISCO Group_1 by its id
+        const foundGroup_2 = await repository.findById(givenISCOGroup_2.id);
+
+        // THEN expect the ISCO Group to not contain the inconsistent children
+        expect(foundGroup_2).not.toBeNull();
+        expect(foundGroup_2!.children).toEqual([]);
+        expect(foundGroup_2!.parent).toEqual(null);
+      });
+
+      test("should not find parent if it is not is the same model as the child", async () => {
+        // GIVEN an inconsistency was introduced, and the child and the parent are in different models
+        // The ISCOGroup 1
+        const givenModelId_1 = getMockId(1);
+        const givenISCOGroupSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId_1, "group_1");
+        const givenISCOGroup_1 = await repository.create(givenISCOGroupSpecs_1);
+        // The ISCOGroup 2
+        const givenModelId_2 = getMockId(2);
+        const givenISCOGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId_2, "group_2");
+        const givenISCOGroup_2 = await repository.create(givenISCOGroupSpecs_2);
+
+        // it is import to cast the id to ObjectId, otherwise the parents will not be found
+
+        //@ts-ignore
+        const inconsistentPair: IOccupationHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenModelId_1),
+
+          parentId: new mongoose.Types.ObjectId(givenISCOGroup_1.id),
+          parentDocModel: MongooseModelName.ISCOGroup,
+          parentType: ObjectTypes.ISCOGroup,
+
+          childId: new mongoose.Types.ObjectId(givenISCOGroup_2.id), // <-- this is the inconsistency
+          childDocModel: MongooseModelName.ISCOGroup,
+          childType: ObjectTypes.ISCOGroup,
+        }
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+
+        // WHEN searching for the ISCO Group_1 by its id
+        jest.spyOn(console, "error");
+        const foundGroup_1 = await repository.findById(givenISCOGroup_1.id);
+
+        // THEN expect the ISCO Group to not contain the inconsistent children
+        expect(foundGroup_1).not.toBeNull();
+        expect(foundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
+
+        // AND expect a warning to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
+      });
+
+      test("should not find child if it is not is the same model as the parent", async () => {
+        // GIVEN an inconsistency was introduced, and the child and the parent are in different models
+        // The ISCOGroup 1
+        const givenModelId_1 = getMockId(1);
+        const givenISCOGroupSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId_1, "group_1");
+        const givenISCOGroup_1 = await repository.create(givenISCOGroupSpecs_1);
+        // The ISCOGroup 2
+        const givenModelId_2 = getMockId(2);
+        const givenISCOGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId_2, "group_2");
+        const givenISCOGroup_2 = await repository.create(givenISCOGroupSpecs_2);
+
+        // it is import to cast the id to ObjectId, otherwise the parents will not be found
+
+        //@ts-ignore
+        const inconsistentPair: IOccupationHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenModelId_2),
+
+          parentId: new mongoose.Types.ObjectId(givenISCOGroup_1.id), // <-- this is the inconsistency
+          parentDocModel: MongooseModelName.ISCOGroup,
+          parentType: ObjectTypes.ISCOGroup,
+
+          childId: new mongoose.Types.ObjectId(givenISCOGroup_2.id),
+          childDocModel: MongooseModelName.ISCOGroup,
+          childType: ObjectTypes.ISCOGroup,
+        }
+
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+
+        // WHEN searching for the ISCO Group_2 by its id
+        jest.spyOn(console, "error");
+        const foundGroup_2 = await repository.findById(givenISCOGroup_2.id);
+
+        // THEN expect the ISCO Group to not contain the inconsistent parent
+        expect(foundGroup_2).not.toBeNull();
+        expect(foundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
+
+        // AND expect a warning to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+      });
+    })
+  })
 });
 
 function TestConnectionFailure(actionCallback: (repository: IISCOGroupRepository) => Promise<any>) {
