@@ -5,10 +5,13 @@ import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";
 import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
 import * as occupationModel from "esco/occupation/occupationModel";
+import * as occupationHierarchyModel from "esco/occupationHierarchy/occupationHierarchyModel";
+
 import {IISCOGroupRepository, ISCOGroupRepository} from "esco/iscoGroup/ISCOGroupRepository";
 import {ISkillGroupRepository, SkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
 import {ISkillRepository, SkillRepository} from "esco/skill/SkillRepository";
 import {IOccupationRepository, OccupationRepository} from "esco/occupation/OccupationRepository";
+import {IOccupationHierarchyRepository, OccupationHierarchyRepository} from "esco/occupationHierarchy/occupationHierarchyRepository";
 export class RepositoryRegistry {
   // eslint-disable-next-line
   private readonly _repositories: Map<string, any> = new Map<string, any>();
@@ -51,6 +54,13 @@ export class RepositoryRegistry {
     this._repositories.set("IOccupationRepository", repository);
   }
 
+  public get occupationHierarchy(): IOccupationHierarchyRepository {
+    return this._repositories.get("IOccupationHierarchyRepository");
+  }
+  public set occupationHierarchy(repository: IOccupationHierarchyRepository) {
+    this._repositories.set("IOccupationHierarchyRepository", repository);
+  }
+
   async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
 
@@ -64,9 +74,16 @@ export class RepositoryRegistry {
         // Delete any object attributes we do not need in our projections
         //delete ret.id;
 
-        if (ret.modelId) {
+        if (ret.modelId && ret.modelId instanceof mongoose.Types.ObjectId) {
           ret.modelId = ret.modelId.toString(); // Convert modelId to string
         }
+        if (ret.parentId && ret.parentId instanceof mongoose.Types.ObjectId) {
+          ret.parentId = ret.parentId.toString(); // Convert parentId to string
+        }
+        if (ret.childId && ret.childId instanceof mongoose.Types.ObjectId) {
+          ret.childId = ret.childId.toString(); // Convert childId to string
+        }
+
         delete ret._id;
         delete ret.__v;
       }
@@ -84,6 +101,7 @@ export class RepositoryRegistry {
     this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
     this.occupation = new OccupationRepository(occupationModel.initializeSchemaAndModel(connection));
+    this.occupationHierarchy = new OccupationHierarchyRepository(occupationHierarchyModel.initializeSchemaAndModel(connection),this.ISCOGroup.Model, this.occupation.Model);
 
     // Set up the indexes
     // This is done here because the autoIndex is turned off in production
@@ -96,6 +114,7 @@ export class RepositoryRegistry {
     await this.skillGroup.Model.createIndexes();
     await this.skill.Model.createIndexes();
     await this.occupation.Model.createIndexes();
+    await this.occupationHierarchy.hierarchyModel.createIndexes();
   }
 }
 

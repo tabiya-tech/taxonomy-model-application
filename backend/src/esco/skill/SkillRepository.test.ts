@@ -15,9 +15,9 @@ import {
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
-import {INewSkillSpec, ISkill} from "./skillModel";
 import {ISkillRepository} from "./SkillRepository";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import {INewSkillSpec, ISkill} from "./skills.types";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -269,7 +269,7 @@ function TestConnectionFailure(actionCallback: (repository: ISkillRepository) =>
     await repositoryRegistry.initialize(connection);
     const repository = repositoryRegistry.skill;
 
-    // WHEN connection is lost
+    // WHEN connection is losta
     await connection.close(false);
 
     // THEN expect to reject with an error

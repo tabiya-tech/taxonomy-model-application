@@ -7,10 +7,10 @@ import {
   parseOccupationsFromUrl
 } from "./occupationsParser";
 import {IOccupationRepository} from "esco/occupation/OccupationRepository";
-import { INewOccupationSpec} from "esco/occupation/occupationModel";
 import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";
+import {INewOccupationSpec} from "esco/occupation/occupation.types";
 
 jest.mock('https');
 
@@ -23,7 +23,8 @@ describe("test parseOccupationsFromUrl", () => {
     const mockRepository: IOccupationRepository = {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue({}),
-      createMany: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockResolvedValue([{}]),
+      findById:jest.fn().mockResolvedValue(null)
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);

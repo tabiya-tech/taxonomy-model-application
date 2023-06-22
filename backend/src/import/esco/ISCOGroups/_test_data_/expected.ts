@@ -1,4 +1,6 @@
-export const expected = [
+import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
+
+export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
   {
     ESCOUri: "",
     originUUID: "",

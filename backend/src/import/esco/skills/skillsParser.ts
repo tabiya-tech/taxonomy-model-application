@@ -4,7 +4,7 @@ import {
   processStream
 } from "import/stream/processStream";
 import fs from "fs";
-import {INewSkillSpec, ReuseLevel, SkillType} from "esco/skill/skillModel";
+import {INewSkillSpec, ReuseLevel, SkillType} from "esco/skill/skills.types";
 import {BatchProcessor} from "import/batch/BatchProcessor";
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";

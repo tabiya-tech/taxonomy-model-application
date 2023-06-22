@@ -1,4 +1,4 @@
-import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroupModel";
+import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {
   processDownloadStream,
@@ -38,7 +38,7 @@ function getBatchProcessor() {
 }
 
 function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecificationFunction<IISCOGroupRow, INewISCOGroupSpec> {
-  return (row: IISCOGroupRow) => {
+  return (row: IISCOGroupRow): INewISCOGroupSpec => {
     return {
       ESCOUri: row.ESCOURI ?? '',
       modelId: modelId,

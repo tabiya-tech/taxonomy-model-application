@@ -9,12 +9,12 @@ import {
   ScopeNoteProperty
 } from "esco/common/modelSchema";
 import {stringRequired} from "server/stringRequired";
+import {MongooseModelName} from "esco/common/mongooseModelNames";
+import {ISkillDoc} from "./skills.types";
 
-export const ModelName = "SkillModel";
-
-export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkill> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillDoc> {
   // Main Schema
-  const SkillSchema = new mongoose.Schema<ISkill>({
+  const SkillSchema = new mongoose.Schema<ISkillDoc>({
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     preferredLabel: PreferredLabelProperty,
     skillType: {
@@ -39,27 +39,6 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   SkillSchema.index({modelId: 1});
 
   // Model
-  return dbConnection.model<ISkill>(ModelName, SkillSchema);
+  return dbConnection.model<ISkillDoc>(MongooseModelName.Skill, SkillSchema);
 }
 
-export type SkillType = "" | "skill/competence" | "knowledge" | "language" | "attitude";
-export type ReuseLevel = "" | "sector-specific" | "occupation-specific" | "cross-sector" | "transversal";
-
-export interface ISkill {
-  id: string
-  UUID: string
-  modelId: string | mongoose.Schema.Types.ObjectId
-  preferredLabel: string
-  originUUID: string
-  ESCOUri: string
-  altLabels: string[]
-  description: string
-  definition: string
-  scopeNote: string
-  skillType: SkillType
-  reuseLevel: ReuseLevel
-  createdAt: Date
-  updatedAt: Date
-}
-
-export type INewSkillSpec = Omit<ISkill, "id" | "UUID" | "createdAt" | "updatedAt">;

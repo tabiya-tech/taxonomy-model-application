@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import {randomUUID} from "crypto";
-import {ISkillGroup, INewSkillGroupSpec} from "./skillGroupModel";
+import {INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc} from "./skillGroup.types";
 
 export interface ISkillGroupRepository {
-  readonly Model: mongoose.Model<ISkillGroup>;
+  readonly Model: mongoose.Model<ISkillGroupDoc>;
 
   /**
    * Resolves to the newly created ISkillGroup entry, or it rejects with an error if the  SkillGroup entry could not be created.
@@ -21,9 +21,9 @@ export interface ISkillGroupRepository {
 
 export class SkillGroupRepository implements ISkillGroupRepository {
 
-  public readonly Model: mongoose.Model<ISkillGroup>;
+  public readonly Model: mongoose.Model<ISkillGroupDoc>;
 
-  constructor(model: mongoose.Model<ISkillGroup>) {
+  constructor(model: mongoose.Model<ISkillGroupDoc>) {
     this.Model = model;
   }
 

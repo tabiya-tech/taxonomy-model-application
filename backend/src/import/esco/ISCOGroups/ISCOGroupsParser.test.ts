@@ -7,7 +7,7 @@ import {
   parseISCOGroupsFromUrl
 } from "./ISCOGroupsParser";
 import {IISCOGroupRepository} from "esco/iscoGroup/ISCOGroupRepository";
-import { INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroupModel";
+import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
 import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";
@@ -23,7 +23,8 @@ describe("test parseISCOGroupsFromUrl", () => {
     const mockRepository: IISCOGroupRepository = {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue({}),
-      createMany: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockResolvedValue([{}]),
+      findById: jest.fn().mockResolvedValue({})
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(mockRepository);
@@ -39,10 +40,10 @@ describe("test parseISCOGroupsFromUrl", () => {
         on: jest.fn(),
       };
     });
-    const actualCount =  await parseISCOGroupsFromUrl(givenModelId, "someUrl");
+    const actualCount = await parseISCOGroupsFromUrl(givenModelId, "someUrl");
 
     // THEN expect the actual count to be the same as the expected count
-    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    const expectedResults = require("./_test_data_/expected.ts").expected;
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
@@ -72,7 +73,7 @@ describe("test parseISCOGroupsFromFile", () => {
     const actualCount = await parseISCOGroupsFromFile(givenModelId, "./src/import/esco/ISCOGroups/_test_data_/given.csv");
 
     // THEN expect the actual count to be the same as the expected count
-    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    const expectedResults = require("./_test_data_/expected.ts").expected;
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {

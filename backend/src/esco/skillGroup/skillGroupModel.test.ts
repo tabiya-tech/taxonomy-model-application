@@ -4,7 +4,7 @@ import "_test_utilities/consoleMock"
 import mongoose, {Connection} from "mongoose";
 import {randomUUID} from "crypto";
 import {getNewConnection} from "server/connection/newConnection";
-import {initializeSchemaAndModel, ISkillGroup, ModelName, PARENT_MAX_ITEMS,} from "./skillGroupModel";
+import {initializeSchemaAndModel, PARENT_MAX_ITEMS,} from "./skillGroupModel";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {generateRandomUrl, getRandomString, getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
@@ -17,17 +17,17 @@ import {
 } from "esco/common/modelSchema";
 import {getMockRandomSkillCode} from "_test_utilities/mockSkillGroupCode";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import {ISkillGroupDoc} from "./skillGroup.types";
 
 describe('Test the definition of the skillGroup Model', () => {
   let dbConnection: Connection;
-  let skillGroupModel: mongoose.Model<ISkillGroup>;
+  let skillGroupModel: mongoose.Model<ISkillGroupDoc>;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("skillGroupModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // initialize the schema and model
-    initializeSchemaAndModel(dbConnection);
-    skillGroupModel = dbConnection.model(ModelName);
+    skillGroupModel = initializeSchemaAndModel(dbConnection);
   });
 
   afterAll(async () => {
@@ -39,8 +39,7 @@ describe('Test the definition of the skillGroup Model', () => {
 
   test("Successfully validate skillGroup with mandatory fields", async () => {
     // GIVEN a skillGroup object with all mandatory fields
-    const givenObject: ISkillGroup = {
-      id: getMockId(2),
+    const givenObject: ISkillGroupDoc = {
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
@@ -51,12 +50,8 @@ describe('Test the definition of the skillGroup Model', () => {
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
       parentGroups: [getMockId(2), getMockId(3), getMockId(4)],
-      childrenGroups: [getMockId(2)],
-      // @ts-ignore
       createdAt: new Date().toISOString(),
-      // @ts-ignore
       updatedAt: new Date().toISOString(),
-
     };
 
     // WHEN validating that object
@@ -71,7 +66,7 @@ describe('Test the definition of the skillGroup Model', () => {
   test("Successfully validate skillGroup with optional fields", async () => {
     //@ts-ignore
     // GIVEN an skillGroup object with all optional fields
-    const givenObject: ISkillGroup = {
+    const givenObject: ISkillGroupDoc = {
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
@@ -106,7 +101,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
       (`(%s) Validate 'modelId' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "modelId", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "modelId", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -120,7 +115,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "UUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "UUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -134,7 +129,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'originUUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "originUUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "originUUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -153,7 +148,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "any way in range", getMockRandomSkillCode(), undefined],
       ])
       (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "code", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "code", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -168,7 +163,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "The longest ESCOUri", getTestString(ESCO_URI_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'ESCOUri' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "ESCOUri", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "ESCOUri", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -183,7 +178,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'preferredLabel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "preferredLabel", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "preferredLabel", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -205,7 +200,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "valid longest array with longest label", new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)), undefined]
       ])
       (`(%s) Validate 'altLabels' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "altLabels", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "altLabels", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -220,7 +215,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'scopeNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "scopeNote", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "scopeNote", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -239,7 +234,7 @@ describe('Test the definition of the skillGroup Model', () => {
         [CaseType.Success, "valid longest array with objects ids", new Array(PARENT_MAX_ITEMS ).fill(undefined).map(() => new mongoose.Types.ObjectId()), undefined],
       ])
       (`(%s) Validate 'parentGroups' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroup>(skillGroupModel, "parentGroups", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "parentGroups", caseType, value, expectedFailureMessage);
       });
     });
   });

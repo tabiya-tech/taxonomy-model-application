@@ -1,4 +1,3 @@
-import {INewOccupationSpec} from "esco/occupation/occupationModel";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {
   processDownloadStream,
@@ -9,6 +8,7 @@ import {BatchProcessor} from "import/batch/BatchProcessor";
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
+import {INewOccupationSpec} from "esco/occupation/occupation.types";
 
 // expect all columns to be in upper case
 export interface IOccupationRow {

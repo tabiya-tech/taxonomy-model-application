@@ -6,13 +6,13 @@ import {
   OriginUUIDProperty,
   PreferredLabelProperty
 } from "esco/common/modelSchema";
+import {MongooseModelName} from "esco/common/mongooseModelNames";
+import {IISCOGroupDoc} from "./ISCOGroup.types";
 
-export const ModelName = "ISCOGroupModel";
-
-export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IISCOGroup> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IISCOGroupDoc> {
 
   // Main Schema
-  const ISCOGroupSchema = new mongoose.Schema<IISCOGroup>({
+  const ISCOGroupSchema = new mongoose.Schema<IISCOGroupDoc>({
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     code: ISCOCodeProperty,
     preferredLabel: PreferredLabelProperty,
@@ -21,18 +21,22 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     ESCOUri: ESCOUriProperty,
     altLabels: AltLabelsProperty,
     description: DescriptionProperty,
-    parentGroup: {type: mongoose.Schema.Types.ObjectId, ref: ModelName},
   }, {
     timestamps: true, strict: "throw"
   });
-
-  ISCOGroupSchema.virtual(
-    'childrenGroups', {
-      localField: '_id',
-      foreignField: 'parentGroup',
-      ref: ModelName
-    }
-  );
+  ISCOGroupSchema.virtual('parent', {
+    ref: "OccupationHierarchyModel",
+    localField: '_id',
+    foreignField: 'childId',
+    match: (iscoGroup: IISCOGroupDoc) => ({modelId: iscoGroup.modelId}),
+    justOne: true,
+  });
+  ISCOGroupSchema.virtual('children', {
+    ref: "OccupationHierarchyModel",
+    localField: '_id',
+    foreignField: 'parentId',
+    match: (iscoGroup: IISCOGroupDoc) => ({modelId: iscoGroup.modelId}),
+  });
 
   ISCOGroupSchema.index({UUID: 1}, {unique: true});
 
@@ -43,31 +47,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   // Preferred label must be unique in the same model
   // ISCOGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
 
-  return dbConnection.model<IISCOGroup>(ModelName, ISCOGroupSchema);
+  return dbConnection.model<IISCOGroupDoc>(MongooseModelName.ISCOGroup, ISCOGroupSchema);
 }
 
-export interface IISCOGroupReference {
-  id: string
-  UUID: string
-  ISCOCode: string
-  preferredLabel: string
-}
 
-export interface IISCOGroup {
-  id: string
-  modelId: string | mongoose.Types.ObjectId
-  UUID: string
-  originUUID: string
-  code: string
-  ESCOUri: string
-  preferredLabel: string
-  altLabels: string[]
-  description: string
-  parentGroup: string | mongoose.Types.ObjectId | IISCOGroupReference | null | undefined
-  childrenGroups: string[] | mongoose.Types.ObjectId[] | IISCOGroupReference[]
-  createdAt: Date,
-  updatedAt: Date
-}
-
-export type INewISCOGroupSpec = Omit<IISCOGroup, "id" | "UUID" | "parentGroup" | "childrenGroups" | "createdAt" | "updatedAt">;
 

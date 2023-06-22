@@ -10,7 +10,7 @@ import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegist
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {ISkillGroupRepository} from "./SkillGroupRepository";
-import {INewSkillGroupSpec, ISkillGroup} from "./skillGroupModel";
+import {INewSkillGroupSpec, ISkillGroup} from "./skillGroup.types";
 import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH, SCOPE_NOTE_MAX_LENGTH} from "esco/common/modelSchema";
 import {getMockRandomSkillCode} from "_test_utilities/mockSkillGroupCode";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";

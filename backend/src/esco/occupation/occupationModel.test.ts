@@ -6,8 +6,6 @@ import {randomUUID} from "crypto";
 import {getNewConnection} from "server/connection/newConnection";
 import {
   initializeSchemaAndModel,
-  IOccupation,
-  ModelName,
 } from "./occupationModel";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {
@@ -25,17 +23,17 @@ import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {getMockRandomOccupationCode} from "_test_utilities/mockOccupationCode";
 import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
+import {IOccupationDoc} from "./occupation.types";
 
 describe('Test the definition of the Occupation Model', () => {
   let dbConnection: Connection;
-  let OccupationModel: mongoose.Model<IOccupation>;
+  let OccupationModel: mongoose.Model<IOccupationDoc>;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("OccupationModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // initialize the schema and model
-    initializeSchemaAndModel(dbConnection);
-    OccupationModel = dbConnection.model<IOccupation>(ModelName);
+    OccupationModel = initializeSchemaAndModel(dbConnection);
   });
 
   afterAll(async () => {
@@ -47,8 +45,8 @@ describe('Test the definition of the Occupation Model', () => {
 
   test("Successfully validate Occupation with mandatory fields", async () => {
     // GIVEN an Occupation object with all mandatory fields
-    const givenObject: IOccupation = {
-      id: getMockId(2),
+    const givenObject: IOccupationDoc = {
+      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomOccupationCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
@@ -78,8 +76,8 @@ describe('Test the definition of the Occupation Model', () => {
 
   test("Successfully validate Occupation with optional fields", async () => {
     // GIVEN an Occupation object with all optional fields
-    const givenObject: IOccupation = {
-      id: getMockId(2),
+    const givenObject: IOccupationDoc = {
+      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomOccupationCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
@@ -120,7 +118,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
       (`(%s) Validate 'modelId' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "modelId", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "modelId", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -134,7 +132,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "UUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "UUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -148,7 +146,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
       ])
       (`(%s) Validate 'originUUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "originUUID", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "originUUID", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -167,7 +165,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "any way in range", "090", undefined],
       ])
       (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "ISCOGroupCode", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "ISCOGroupCode", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -185,7 +183,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, " typical value 1234.1", "1234.1", undefined],
       ])
       (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "code", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "code", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -200,7 +198,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "The longest ESCOUri", getTestString(ESCO_URI_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'ESCOUri' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "ESCOUri", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "ESCOUri", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -215,7 +213,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'preferredLabel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "preferredLabel", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "preferredLabel", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -236,7 +234,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "valid longest array with longest label", new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)), undefined]
       ])
       (`(%s) Validate 'altLabels' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "altLabels", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "altLabels", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -251,7 +249,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'scopeNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "scopeNote", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "scopeNote", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -266,7 +264,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "the longest", getTestString(DEFINITION_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'definition' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "definition", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "definition", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -281,7 +279,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "description", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "description", caseType, value, expectedFailureMessage);
       });
     });
 
@@ -296,7 +294,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "the longest", getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH), undefined],
       ])
       (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupation>(OccupationModel, "regulatedProfessionNote", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IOccupationDoc>(OccupationModel, "regulatedProfessionNote", caseType, value, expectedFailureMessage);
       });
     });
   });
