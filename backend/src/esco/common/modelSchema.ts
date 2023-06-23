@@ -59,7 +59,7 @@ export const ATL_LABELS_MAX_ITEMS = 100;
 export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
   type: [String],
   required: true,
-  maxlength: [LABEL_MAX_LENGTH, `AltLabel must be at most ${LABEL_MAX_LENGTH}`],
+  maxlength: [LABEL_MAX_LENGTH, `AltLabel must be at most ${LABEL_MAX_LENGTH} chars long`],
   default: undefined,
   validate: (value: string[]) => {
     if (!Array.isArray(value) || (value.length > 0 && value.every((item: string) => {
@@ -92,7 +92,7 @@ export const ESCO_URI_MAX_LENGTH = 4096;
 export const ESCOUriProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("ESCOUri"),
-  maxlength: [ESCO_URI_MAX_LENGTH, `ESCOUri must be at most ${ESCO_URI_MAX_LENGTH}.`],
+  maxlength: [ESCO_URI_MAX_LENGTH, `ESCOUri must be at most ${ESCO_URI_MAX_LENGTH} chars long`],
   validate: function (value: string): boolean {
     return (value.length === 0 || (value.length > 0 && value.trim().length > 0));
   }
