@@ -1,12 +1,12 @@
-"ESCOURI","ORIGINUUID","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION",SCOPENOTE
-,,,,,,
-,,,,,,
-"esco uri","origin uuid","L","preferred label","label1
+"ESCOURI",ID,"ORIGINUUID","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION",SCOPENOTE
+,,,,,,,
+,,,,,,,
+"esco uri",key_1,origin uuid,"L","preferred label","label1
 label2","description",scopeNote
 "esco
 uri
 with
-linebreak","origin
+linebreak",key_2,"origin
 uuid
 with
 linebreak","L6.6.6","preferred

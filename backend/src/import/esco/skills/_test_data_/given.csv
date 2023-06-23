@@ -1,12 +1,12 @@
-"ESCOURI","ORIGINUUID","PREFERREDLABEL","ALTLABELS","DESCRIPTION",DEFINITION,SKILLTYPE,REUSELEVEL,SCOPENOTE
-,,,,,,,,
-,,,,,,,,
-"esco uri","origin uuid","preferred label","label1
+"ESCOURI",ID,"ORIGINUUID","PREFERREDLABEL","ALTLABELS","DESCRIPTION",DEFINITION,SKILLTYPE,REUSELEVEL,SCOPENOTE
+,,,,,,,,,
+,,,,,,,,,
+"esco uri",key_1,"origin uuid","preferred label","label1
 label2","description",definition,skill/competence,sector-specific,scopeNote
 "esco
 uri
 with
-linebreak","origin
+linebreak",key_2,"origin
 uuid
 with
 linebreak","preferred

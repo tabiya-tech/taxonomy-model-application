@@ -16,7 +16,7 @@ import {
 import {
   ATL_LABELS_MAX_ITEMS, DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
-  ESCO_URI_MAX_LENGTH,
+  ESCO_URI_MAX_LENGTH, IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH, REGULATED_PROFESSION_NOTE_MAX_LENGTH, SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
@@ -24,6 +24,7 @@ import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {getMockRandomOccupationCode} from "_test_utilities/mockOccupationCode";
 import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
 import {IOccupationDoc} from "./occupation.types";
+import {testImportId} from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe('Test the definition of the Occupation Model', () => {
   let dbConnection: Connection;
@@ -59,10 +60,9 @@ describe('Test the definition of the Occupation Model', () => {
       definition: getTestString(DEFINITION_MAX_LENGTH),
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
       regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
-      // @ts-ignore
       createdAt: new Date().toISOString(),
-      // @ts-ignore
       updatedAt: new Date().toISOString(),
+      importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
 
     // WHEN validating that object
@@ -90,10 +90,9 @@ describe('Test the definition of the Occupation Model', () => {
       definition: "",
       scopeNote: "",
       regulatedProfessionNote: "",
-      // @ts-ignore
       createdAt: new Date().toISOString(),
-      // @ts-ignore
       updatedAt: new Date().toISOString(),
+      importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
 
     // WHEN validating that object
@@ -113,7 +112,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Failure, "only whitespace characters", WHITESPACE, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Failure, "not a objectId (string)", "foo", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [CaseType.Failure, "not a objectId (object)", {foo:"bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
+        [CaseType.Failure, "not a objectId (object)", {foo: "bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
@@ -296,6 +295,10 @@ describe('Test the definition of the Occupation Model', () => {
       (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IOccupationDoc>(OccupationModel, "regulatedProfessionNote", caseType, value, expectedFailureMessage);
       });
+    });
+
+    describe("Test validation of 'importId'", () => {
+      testImportId<IOccupationDoc>(() => OccupationModel);
     });
   });
 });

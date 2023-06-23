@@ -21,13 +21,15 @@ export interface IOccupationRow {
   DESCRIPTION: string
   DEFINITION: string
   SCOPENOTE: string
-  REGULATEDPROFESSIONNOTE: string
+  REGULATEDPROFESSIONNOTE: string,
+  ID: string
 }
 
 function getHeadersValidator(modelid: string): HeadersValidatorFunction {
   return getStdHeadersValidator(
     modelid,
     ['ESCOURI',
+      'ID',
       'ORIGINUUID',
       'ISCOGROUPCODE',
       'CODE',
@@ -66,7 +68,8 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
       description: row.DESCRIPTION ?? '',
       definition: row.DEFINITION ?? '',
       scopeNote: row.SCOPENOTE ?? '',
-      regulatedProfessionNote: row.REGULATEDPROFESSIONNOTE ?? ''
+      regulatedProfessionNote: row.REGULATEDPROFESSIONNOTE ?? '',
+      importId: row.ID ?? ''
     };
   };
 }

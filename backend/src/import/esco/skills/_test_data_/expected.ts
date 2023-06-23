@@ -9,6 +9,7 @@ export const expected = [
     definition: "",
     skillType: "",
     reuseLevel: "",
+    importId: ""
   },
   {
     ESCOUri: "",
@@ -20,6 +21,7 @@ export const expected = [
     definition: "",
     skillType: "",
     reuseLevel: "",
+    importId: ""
   },
   {
     ESCOUri: "esco uri",
@@ -31,6 +33,7 @@ export const expected = [
     definition: "definition",
     skillType: "skill/competence",
     reuseLevel: "sector-specific",
+    importId: "key_1"
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -42,5 +45,6 @@ export const expected = [
     scopeNote: "scopeNote\nwith\nlinebreak",
     skillType: "knowledge",
     reuseLevel: "cross-sector",
+    importId: "key_2"
   }
 ];

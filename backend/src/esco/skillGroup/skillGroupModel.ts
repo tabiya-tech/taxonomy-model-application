@@ -4,7 +4,7 @@ import {stringRequired} from "server/stringRequired";
 import {
   AltLabelsProperty,
   DescriptionProperty,
-  ESCOUriProperty, hasUniqueValues,
+  ESCOUriProperty, hasUniqueValues, ImportIDProperty,
   OriginUUIDProperty,
   PreferredLabelProperty,
   ScopeNoteProperty
@@ -39,6 +39,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     altLabels: AltLabelsProperty,
     description: DescriptionProperty,
     scopeNote: ScopeNoteProperty,
+    importId: ImportIDProperty,
     parentGroups: {
       type: [mongoose.Schema.Types.ObjectId],
       required: true,

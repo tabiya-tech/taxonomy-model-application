@@ -29,7 +29,8 @@ function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INe
     modelId: modelId,
     originUUID: "",
     ESCOUri: "",
-    description: ""
+    description: "",
+    importId: ""
   };
 }
 
@@ -45,7 +46,8 @@ function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): IN
     description: "",
     definition: "",
     scopeNote: "",
-    regulatedProfessionNote: ""
+    regulatedProfessionNote: "",
+    importId: ""
   };
 }
 
@@ -59,6 +61,7 @@ function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: string): IN
     description: "",
     scopeNote: "",
     altLabels: [],
+    importId: ""
   };
 }
 
@@ -75,6 +78,7 @@ function getSimpleNewSkillSpec(modelId: string, preferredLabel: string): INewSki
     skillType: "knowledge",
     reuseLevel: "cross-sector",
     altLabels: [],
+    importId: ""
   }
 }
 

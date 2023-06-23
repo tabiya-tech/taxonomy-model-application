@@ -115,3 +115,12 @@ export const ESCOOccupationCodeProperty: mongoose.SchemaDefinitionProperty<strin
   required: true,
   validate: RegExESCOOccupationCode
 };
+
+// Import ID
+export const IMPORT_ID_MAX_LENGTH = 256;
+
+export const ImportIDProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("importId"),
+  maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
+};

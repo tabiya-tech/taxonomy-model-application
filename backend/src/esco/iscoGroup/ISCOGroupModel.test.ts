@@ -16,13 +16,14 @@ import {
 import {
   ATL_LABELS_MAX_ITEMS,
   DESCRIPTION_MAX_LENGTH,
-  ESCO_URI_MAX_LENGTH,
+  ESCO_URI_MAX_LENGTH, IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH
 } from "esco/common/modelSchema";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
 import {IISCOGroupDoc} from "./ISCOGroup.types";
+import {testImportId} from "../_test_utilities/modelSchemaTestFunctions";
 
 describe('Test the definition of the ISCOGroup Model', () => {
   let dbConnection: Connection;
@@ -56,6 +57,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
 
     // WHEN validating that object
@@ -81,6 +83,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
       description: "",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      importId: "",
     };
 
     // WHEN validating that object
@@ -100,7 +103,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
         [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Failure, "only whitespace characters", WHITESPACE, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Failure, "not a objectId (string)", "foo", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [CaseType.Failure, "not a objectId (object)", {foo:"bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
+        [CaseType.Failure, "not a objectId (object)", {foo: "bar"}, 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])
@@ -205,6 +208,10 @@ describe('Test the definition of the ISCOGroup Model', () => {
       (`(%s) Validate 'altLabels' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "altLabels", caseType, value, expectedFailureMessage);
       });
+    });
+
+    describe("Test validation of 'importId'", () => {
+      testImportId<IISCOGroupDoc>(()=>ISCOGroupModel);
     });
   });
 });

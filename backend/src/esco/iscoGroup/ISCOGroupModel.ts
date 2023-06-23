@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import {RegExp_UUIDv4} from "server/regex";
 import {
   AltLabelsProperty, DescriptionProperty,
-  ESCOUriProperty, ISCOCodeProperty,
+  ESCOUriProperty, ImportIDProperty, ISCOCodeProperty,
   OriginUUIDProperty,
   PreferredLabelProperty
 } from "esco/common/modelSchema";
@@ -21,6 +21,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     ESCOUri: ESCOUriProperty,
     altLabels: AltLabelsProperty,
     description: DescriptionProperty,
+    importId: ImportIDProperty,
   }, {
     timestamps: true, strict: "throw"
   });

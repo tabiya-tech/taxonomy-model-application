@@ -6,7 +6,8 @@ export const expected = [
     preferredLabel: "",
     altLabels: [],
     description: "",
-    scopeNote: ""
+    scopeNote: "",
+    importId: ""
   },
   {
     ESCOUri: "",
@@ -15,7 +16,8 @@ export const expected = [
     preferredLabel: "",
     altLabels: [],
     description: "",
-    scopeNote: ""
+    scopeNote: "",
+    importId: ""
   },
   {
     ESCOUri: "esco uri",
@@ -24,7 +26,8 @@ export const expected = [
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description",
-    scopeNote: "scopeNote"
+    scopeNote: "scopeNote",
+    importId: "key_1"
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -33,6 +36,7 @@ export const expected = [
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
     description: "description\nwith\nlinebreak",
-    scopeNote: "scopeNote\nwith\nlinebreak"
+    scopeNote: "scopeNote\nwith\nlinebreak",
+    importId: "key_2"
   }
 ];

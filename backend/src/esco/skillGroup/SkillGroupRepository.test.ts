@@ -11,7 +11,12 @@ import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {ISkillGroupRepository} from "./SkillGroupRepository";
 import {INewSkillGroupSpec, ISkillGroup} from "./skillGroup.types";
-import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH, SCOPE_NOTE_MAX_LENGTH} from "esco/common/modelSchema";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  IMPORT_ID_MAX_LENGTH,
+  LABEL_MAX_LENGTH,
+  SCOPE_NOTE_MAX_LENGTH
+} from "esco/common/modelSchema";
 import {getMockRandomSkillCode} from "_test_utilities/mockSkillGroupCode";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
@@ -37,6 +42,7 @@ function getNewSkillGroupSpec(): INewSkillGroupSpec {
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
     altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
+    importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
 

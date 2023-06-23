@@ -1,11 +1,11 @@
-import {ObjectTypes} from "esco/common/objectTypes";
+import {ImportIdentifiable, ObjectTypes} from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import {IISCOGroupReference} from "../iscoGroup/ISCOGroup.types";
 
 /**
  * Describing how the data is saved in MongoDB
  */
-export interface IOccupationDoc {
+export interface IOccupationDoc extends ImportIdentifiable {
   id: string | mongoose.Types.ObjectId
   UUID: string
   modelId: string | mongoose.Types.ObjectId
@@ -30,24 +30,11 @@ export interface IOccupationReferenceDoc extends Pick<IOccupationDoc, "id" | "UU
 /**
  * Describes how occupations are return from the API
  */
-export interface IOccupation {
+export interface IOccupation extends IOccupationDoc {
   id: string
-  UUID: string
   modelId: string
-  preferredLabel: string
-  originUUID: string
-  ESCOUri: string
-  ISCOGroupCode: string
-  code: string
-  altLabels: string[]
-  description: string
-  definition: string
-  scopeNote: string
-  regulatedProfessionNote: string
   parent: (IISCOGroupReference | IOccupationReference)[] | null
   children: (IISCOGroupReference | IOccupationReference)[]
-  createdAt: Date
-  updatedAt: Date
 }
 
 /**

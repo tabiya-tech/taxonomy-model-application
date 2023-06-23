@@ -7,7 +7,8 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     code: "",
     preferredLabel: "",
     altLabels: [],
-    description: ""
+    description: "",
+    importId: ""
   },
   {
     ESCOUri: "",
@@ -15,7 +16,8 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     code: "",
     preferredLabel: "",
     altLabels: [],
-    description: ""
+    description: "",
+    importId: ""
   },
   {
     ESCOUri: "esco uri",
@@ -23,7 +25,8 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     code: "01",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
-    description: "description"
+    description: "description",
+    importId: "key_1"
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -31,6 +34,7 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     code: "0101",
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
-    description: "description\nwith\nlinebreak"
+    description: "description\nwith\nlinebreak",
+    importId: "key_2"
   }
 ];

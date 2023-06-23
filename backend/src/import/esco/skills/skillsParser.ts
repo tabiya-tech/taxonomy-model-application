@@ -20,11 +20,12 @@ export interface ISkillRow {
   DEFINITION: string
   SCOPENOTE: string
   REUSELEVEL: string
-  SKILLTYPE: string
+  SKILLTYPE: string,
+  ID: string
 }
 
 function getHeadersValidator(modelId: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(modelId, ['ESCOURI', 'ORIGINUUID', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'DEFINITION', 'SCOPENOTE', 'REUSELEVEL', 'SKILLTYPE']);
+  return getStdHeadersValidator(modelId, ['ESCOURI', 'ID', 'ORIGINUUID', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'DEFINITION', 'SCOPENOTE', 'REUSELEVEL', 'SKILLTYPE']);
 }
 
 function getBatchProcessor() {
@@ -54,6 +55,7 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
       scopeNote: row.SCOPENOTE ?? '',
       reuseLevel: row.REUSELEVEL as ReuseLevel ?? '',
       skillType: row.SKILLTYPE as SkillType ?? '',
+      importId: row.ID ?? '',
     };
   };
 }
