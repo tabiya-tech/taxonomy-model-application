@@ -64,11 +64,15 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
   async createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> {
     try {
       const newISCOGroupModels = newISCOGroupSpecs.map((spec) => {
-        return new this.Model({
-          ...spec,
-          UUID: randomUUID() // override UUID silently
-        });
-      });
+        try {
+          return new this.Model({
+            ...spec,
+            UUID: randomUUID() // override UUID silently
+          });
+        } catch (e: unknown) {
+          return null;
+        }
+      }).filter(Boolean);
       const newISCOGroups = await this.Model.insertMany(newISCOGroupModels, {
         ordered: false,
         populate: ["parent", "children"]

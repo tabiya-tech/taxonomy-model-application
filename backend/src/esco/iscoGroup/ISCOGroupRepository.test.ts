@@ -240,18 +240,21 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     });
 
     test("should successfully create a batch of new ISCOGroups even if some don't validate", async () => {
-      // GIVEN some valid ISCOGroupSpec
-      const givenBatchSize = 3;
-      const givenValidISCOGroupSpecs: INewISCOGroupSpec[] = [];
-      for (let i = 0; i < givenBatchSize; i++) {
-        givenValidISCOGroupSpecs[i] = getNewISCOGroupSpec();
-      }
-      // AND one ISCOGroupSpec that is invalid
-      const givenInvalidISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
-      givenInvalidISCOGroupSpec.code = "invalid code";
+      // GIVEN two valid ISCOGroupSpec
+      const givenValidISCOGroupSpecs: INewISCOGroupSpec[] = [getNewISCOGroupSpec(), getNewISCOGroupSpec()];
+
+      // AND two ISCOGroupSpec that is invalid
+      const givenInvalidISCOGroupSpec: INewISCOGroupSpec [] = [getNewISCOGroupSpec(), getNewISCOGroupSpec()];
+      givenInvalidISCOGroupSpec[0].code = "invalid code"; // will not validate but will not throw an error
+      // @ts-ignore
+      givenInvalidISCOGroupSpec[1].foo = "invalid"; // will not validate and will throw an error
 
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newISCOGroups: INewISCOGroupSpec[] = await repository.createMany([...givenValidISCOGroupSpecs, givenInvalidISCOGroupSpec]);
+      const newISCOGroups: INewISCOGroupSpec[] = await repository.createMany([
+        givenValidISCOGroupSpecs[0],
+        ...givenInvalidISCOGroupSpec,
+        givenValidISCOGroupSpecs[1],
+      ]);
 
       // THEN expect only the valid ISCO Group to be created
       expect(newISCOGroups).toHaveLength(givenValidISCOGroupSpecs.length);

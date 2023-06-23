@@ -251,18 +251,21 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     });
 
     test("should successfully create a batch of new Occupations even if some don't validate", async () => {
-      // GIVEN some valid OccupationSpec
-      const givenBatchSize = 3;
-      const givenValidOccupationSpecs: INewOccupationSpec[] = [];
-      for (let i = 0; i < givenBatchSize; i++) {
-        givenValidOccupationSpecs[i] = getNewOccupationSpec();
-      }
-      // AND one OccupationSpec that is invalid
-      const givenInvalidOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
-      givenInvalidOccupationSpec.code = "invalid code";
+      // GIVEN two valid OccupationSpec
+      const givenValidOccupationSpecs: INewOccupationSpec[] = [getNewOccupationSpec(), getNewOccupationSpec()];
+
+      // AND two OccupationSpec that is invalid
+      const givenInvalidOccupationSpec: INewOccupationSpec [] = [getNewOccupationSpec(),  getNewOccupationSpec()];
+      givenInvalidOccupationSpec[0].code = "invalid code"; // will not validate but will not throw an error
+      // @ts-ignore
+      givenInvalidOccupationSpec[1].foo = "invalid"; // will not validate and will throw an error
 
       // WHEN batch creating the ISCO Groups with the given specifications
-      const newOccupations: INewOccupationSpec[] = await repository.createMany([...givenValidOccupationSpecs, givenInvalidOccupationSpec]);
+      const newOccupations: INewOccupationSpec[] = await repository.createMany([
+        givenValidOccupationSpecs[0],
+        ...givenInvalidOccupationSpec,
+        givenValidOccupationSpecs[1],
+      ]);
 
       // THEN expect only the valid ISCO Group to be created
       expect(newOccupations).toHaveLength(givenValidOccupationSpecs.length);
