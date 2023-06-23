@@ -140,7 +140,7 @@ describe('Test the definition of the skill Model', () => {
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
-        [CaseType.Failure, "Too long Esco uri", getTestString(ESCO_URI_MAX_LENGTH + 1), `{0} must be at most ${ESCO_URI_MAX_LENGTH}.`],
+        [CaseType.Failure, "Too long Esco uri", getTestString(ESCO_URI_MAX_LENGTH + 1), `{0} must be at most ${ESCO_URI_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "one letter", "a", undefined],
         [CaseType.Success, "The longest ESCOUri", getTestString(ESCO_URI_MAX_LENGTH), undefined],
