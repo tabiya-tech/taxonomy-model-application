@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import {ImportIdentifiable} from "../common/objectTypes";
 
-export interface ISkillGroupDoc {
+export interface ISkillGroupDoc extends ImportIdentifiable {
   UUID: string
   code: string
   preferredLabel: string
@@ -15,7 +16,7 @@ export interface ISkillGroupDoc {
   updatedAt: Date | string
 }
 
-export interface ISkillGroup {
+export interface ISkillGroup extends ImportIdentifiable {
   id: string
   UUID: string
   code: string

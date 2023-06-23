@@ -11,7 +11,7 @@ import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {
   DEFINITION_MAX_LENGTH,
-  DESCRIPTION_MAX_LENGTH,
+  DESCRIPTION_MAX_LENGTH, IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
@@ -43,6 +43,7 @@ function getNewSkillSpec(): INewSkillSpec {
     skillType: "knowledge",
     reuseLevel: "cross-sector",
     altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
+    importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
 

@@ -15,7 +15,7 @@ import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {IOccupationRepository} from "./OccupationRepository";
 import {
-  DESCRIPTION_MAX_LENGTH,
+  DESCRIPTION_MAX_LENGTH, IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH,
   REGULATED_PROFESSION_NOTE_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH
@@ -53,7 +53,8 @@ function getNewOccupationSpec(): INewOccupationSpec {
     modelId: getMockId(2),
     originUUID: "",
     ESCOUri: generateRandomUrl(),
-    description: getTestString(DESCRIPTION_MAX_LENGTH)
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
 
@@ -69,7 +70,8 @@ function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): IN
     modelId: modelId,
     originUUID: "",
     ESCOUri: "",
-    description: ""
+    description: "",
+    importId: "",
   };
 }
 
@@ -411,6 +413,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           skillType: "knowledge",
           reuseLevel: "cross-sector",
           altLabels: [],
+          importId: "",
         };
         const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
@@ -458,6 +461,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           skillType: "knowledge",
           reuseLevel: "cross-sector",
           altLabels: [],
+          importId: "",
         };
         const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found

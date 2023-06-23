@@ -10,7 +10,11 @@ import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegist
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {IISCOGroupRepository} from "./ISCOGroupRepository";
-import {DESCRIPTION_MAX_LENGTH, LABEL_MAX_LENGTH} from "esco/common/modelSchema";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  IMPORT_ID_MAX_LENGTH,
+  LABEL_MAX_LENGTH
+} from "esco/common/modelSchema";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
 import {IISCOGroup, INewISCOGroupSpec} from "./ISCOGroup.types";
@@ -41,7 +45,8 @@ function getNewISCOGroupSpec(): INewISCOGroupSpec {
     modelId: getMockId(2),
     originUUID: "",
     ESCOUri: generateRandomUrl(),
-    description: getTestString(DESCRIPTION_MAX_LENGTH)
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    importId: getTestString(IMPORT_ID_MAX_LENGTH)
   };
 }
 
@@ -53,7 +58,8 @@ function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INe
     modelId: modelId,
     originUUID: "",
     ESCOUri: "",
-    description: ""
+    description: "",
+    importId: ""
   };
 }
 
@@ -400,6 +406,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           skillType: "knowledge",
           reuseLevel: "cross-sector",
           altLabels: [],
+          importId: "",
         };
         const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
@@ -447,6 +454,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           skillType: "knowledge",
           reuseLevel: "cross-sector",
           altLabels: [],
+          importId: "",
         };
         const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found

@@ -3,7 +3,7 @@ import {RegExp_UUIDv4} from "server/regex";
 import {
   AltLabelsProperty, DefinitionProperty,
   DescriptionProperty,
-  ESCOUriProperty,
+  ESCOUriProperty, ImportIDProperty,
   OriginUUIDProperty,
   PreferredLabelProperty,
   ScopeNoteProperty
@@ -34,6 +34,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     definition: DefinitionProperty,
     description: DescriptionProperty,
     scopeNote: ScopeNoteProperty,
+    importId: ImportIDProperty
   }, {timestamps: true, strict: "throw"},);
   SkillSchema.index({UUID: 1}, {unique: true});
   SkillSchema.index({modelId: 1});

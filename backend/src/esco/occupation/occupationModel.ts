@@ -3,7 +3,7 @@ import {RegExp_UUIDv4} from "server/regex";
 import {
   AltLabelsProperty, DefinitionProperty,
   DescriptionProperty, ESCOOccupationCodeProperty,
-  ESCOUriProperty, ISCOCodeProperty,
+  ESCOUriProperty, ImportIDProperty, ISCOCodeProperty,
   OriginUUIDProperty,
   PreferredLabelProperty, RegulatedProfessionNoteProperty,
   ScopeNoteProperty
@@ -26,6 +26,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     description: DescriptionProperty,
     regulatedProfessionNote: RegulatedProfessionNoteProperty,
     scopeNote: ScopeNoteProperty,
+    importId: ImportIDProperty
   }, {timestamps: true, strict: "throw"},);
   OccupationSchema.virtual('parent', {
     ref: "OccupationHierarchyModel",

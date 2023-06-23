@@ -1,8 +1,8 @@
-import {ObjectTypes} from "esco//common/objectTypes";
+import {ImportIdentifiable, ObjectTypes} from "esco//common/objectTypes";
 import mongoose from "mongoose";
 import {IOccupationReference} from "esco/occupation/occupation.types";
 
-export interface IISCOGroupDoc {
+export interface IISCOGroupDoc extends ImportIdentifiable {
   id: string | mongoose.Types.ObjectId
   modelId: string | mongoose.Types.ObjectId
   UUID: string
@@ -20,21 +20,11 @@ export interface IISCOGroupReferenceDoc extends Pick<IISCOGroupDoc, "id" | "UUID
   objectType: ObjectTypes.ISCOGroup
 }
 
-
-export interface IISCOGroup {
+export interface IISCOGroup extends IISCOGroupDoc {
   id: string
   modelId: string
-  UUID: string
-  originUUID: string
-  code: string
-  ESCOUri: string
-  preferredLabel: string
-  altLabels: string[]
-  description: string
   parent: IISCOGroupReference | null
   children: (IISCOGroupReference | IOccupationReference)[]
-  createdAt: Date | string,
-  updatedAt: Date | string
 }
 
 export type INewISCOGroupSpec = Omit<IISCOGroup, "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt">

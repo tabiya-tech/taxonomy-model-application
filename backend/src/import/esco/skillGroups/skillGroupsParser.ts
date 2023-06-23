@@ -19,10 +19,11 @@ export interface ISkillGroupRow {
   ALTLABELS: string
   DESCRIPTION: string
   SCOPENOTE: string
+  ID: string
 }
 
 function getHeadersValidator(modelid: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(modelid, ['ESCOURI', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'SCOPENOTE']);
+  return getStdHeadersValidator(modelid, ['ESCOURI', 'ID', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'SCOPENOTE']);
 }
 
 function getBatchProcessor() {
@@ -48,7 +49,8 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split('\n') : [],
       description: row.DESCRIPTION ?? '',
-      scopeNote: row.SCOPENOTE ?? ''
+      scopeNote: row.SCOPENOTE ?? '',
+      importId: row.ID ?? '',
     };
   };
 }

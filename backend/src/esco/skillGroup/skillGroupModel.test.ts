@@ -11,13 +11,14 @@ import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {
   ATL_LABELS_MAX_ITEMS,
   DESCRIPTION_MAX_LENGTH,
-  ESCO_URI_MAX_LENGTH,
+  ESCO_URI_MAX_LENGTH, IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
 import {getMockRandomSkillCode} from "_test_utilities/mockSkillGroupCode";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {ISkillGroupDoc} from "./skillGroup.types";
+import {testImportId} from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe('Test the definition of the skillGroup Model', () => {
   let dbConnection: Connection;
@@ -52,6 +53,7 @@ describe('Test the definition of the skillGroup Model', () => {
       parentGroups: [getMockId(2), getMockId(3), getMockId(4)],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
 
     // WHEN validating that object
@@ -76,7 +78,8 @@ describe('Test the definition of the skillGroup Model', () => {
       parentGroups: [],
       ESCOUri: "",
       description: "",
-      scopeNote: ""
+      scopeNote: "",
+      importId: ""
     };
 
     // WHEN validating that object
@@ -237,5 +240,10 @@ describe('Test the definition of the skillGroup Model', () => {
         assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "parentGroups", caseType, value, expectedFailureMessage);
       });
     });
+
+    describe("Test validation of 'importId'", () => {
+      testImportId<ISkillGroupDoc>(() => skillGroupModel);
+    });
+
   });
 });

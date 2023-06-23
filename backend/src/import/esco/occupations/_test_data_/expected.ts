@@ -9,7 +9,8 @@ export const expected = [
     description: "",
     definition: "",
     scopeNote: "",
-    regulatedProfessionNote: ""
+    regulatedProfessionNote: "",
+    importId: ""
   },
   {
     ESCOUri: "",
@@ -21,7 +22,8 @@ export const expected = [
     description: "",
     definition: "",
     scopeNote: "",
-    regulatedProfessionNote: ""
+    regulatedProfessionNote: "",
+    importId: ""
   },
   {
     ESCOUri: "esco uri",
@@ -33,7 +35,8 @@ export const expected = [
     description: "description",
     definition: "definition",
     scopeNote: "scope note",
-    regulatedProfessionNote: "regulated profession note"
+    regulatedProfessionNote: "regulated profession note",
+    importId: "key_1"
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -46,5 +49,6 @@ export const expected = [
     definition: "definition\nwith\nlinebreak",
     scopeNote: "scope\nnote\nwith\nlinebreak",
     regulatedProfessionNote: "regulated\nprofession\nnote\nwith\nlinebreak",
+    importId: "key_2"
   }
 ];

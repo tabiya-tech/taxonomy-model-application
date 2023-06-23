@@ -8,7 +8,7 @@ import {initializeSchemaAndModel} from "./skillModel";
 import {
   ATL_LABELS_MAX_ITEMS, DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
-  ESCO_URI_MAX_LENGTH,
+  ESCO_URI_MAX_LENGTH, IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH
 } from "esco/common/modelSchema";
@@ -17,6 +17,7 @@ import {getMockId} from "_test_utilities/mockMongoId";
 import {generateRandomUrl, getRandomString, getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {ISkillDoc} from "./skills.types";
+import {testImportId} from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe('Test the definition of the skill Model', () => {
   let dbConnection: Connection;
@@ -52,6 +53,7 @@ describe('Test the definition of the skill Model', () => {
       reuseLevel: "sector-specific",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
 
     // WHEN validating that object
@@ -78,6 +80,7 @@ describe('Test the definition of the skill Model', () => {
       definition: "",
       description: "",
       scopeNote: "",
+      importId: "",
     };
 
     // WHEN validating that object
@@ -264,6 +267,10 @@ describe('Test the definition of the skill Model', () => {
       (`(%s) Validate 'reuseLevel' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<ISkillDoc>(skillModel, "reuseLevel", caseType, value, expectedFailureMessage);
       });
+    });
+
+    describe("Test validation of 'importId'", () => {
+      testImportId<ISkillDoc>(() => skillModel);
     });
   });
 });

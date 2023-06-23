@@ -18,10 +18,11 @@ export interface IISCOGroupRow {
   PREFERREDLABEL: string
   ALTLABELS: string
   DESCRIPTION: string
+  ID: string
 }
 
 function getHeadersValidator(modelid: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(modelid, ['ESCOURI', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION']);
+  return getStdHeadersValidator(modelid, ['ESCOURI', 'ID', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION']);
 }
 
 function getBatchProcessor() {
@@ -46,7 +47,8 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split('\n') : [],
-      description: row.DESCRIPTION ?? ''
+      description: row.DESCRIPTION ?? '',
+      importId: row.ID ?? '',
     };
   };
 }
