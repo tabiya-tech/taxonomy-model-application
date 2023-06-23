@@ -178,18 +178,21 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
 
     test("should successfully create a batch of new skill groups even if some don't validate", async () => {
-      // GIVEN some valid SkillGroupSpec
-      const givenBatchSize = 3;
-      const givenValidSkillGroupSpecs: INewSkillGroupSpec[] = [];
-      for (let i = 0; i < givenBatchSize; i++) {
-        givenValidSkillGroupSpecs[i] = getNewSkillGroupSpec();
-      }
-      // AND one SkillGroupSpec that is invalid
-      const givenInvalidSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
-      givenInvalidSkillGroupSpec.code = "invalid code";
+      // GIVEN two valid SkillGroupSpec
+      const givenValidSkillGroupSpecs: INewSkillGroupSpec[] = [getNewSkillGroupSpec(), getNewSkillGroupSpec()];
 
-      // WHEN batch creating the Skill Groups with the given specifications
-      const newSkillGroups: INewSkillGroupSpec[] = await repository.createMany([...givenValidSkillGroupSpecs, givenInvalidSkillGroupSpec]);
+      // AND two SkillGroupSpec that is invalid
+      const givenInvalidSkillGroupSpec: INewSkillGroupSpec [] = [getNewSkillGroupSpec(), getNewSkillGroupSpec()];
+      givenInvalidSkillGroupSpec[0].code = "invalid code"; // will not validate but will not throw an error
+      // @ts-ignore
+      givenInvalidSkillGroupSpec[1].foo = "invalid"; // will not validate and will throw an error
+
+      // WHEN batch creating the ISCO Groups with the given specifications
+      const newSkillGroups: INewSkillGroupSpec[] = await repository.createMany([
+        givenValidSkillGroupSpecs[0],
+        ...givenInvalidSkillGroupSpec,
+        givenValidSkillGroupSpecs[1],
+      ]);
 
       // THEN expect only the valid Skill Group to be created
       expect(newSkillGroups).toHaveLength(givenValidSkillGroupSpecs.length);

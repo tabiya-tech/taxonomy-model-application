@@ -53,12 +53,16 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   async createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> {
     try {
       const newSkillGroupModels = newSkillGroupSpecs.map((spec) => {
-        return new this.Model({
-          ...spec,
-          parentGroups: [],
-          UUID: randomUUID() // override UUID silently
-        });
-      });
+        try {
+          return new this.Model({
+            ...spec,
+            parentGroups: [],
+            UUID: randomUUID() // override UUID silently
+          });
+        } catch (e: unknown) {
+          return null;
+        }
+      }).filter(Boolean);
       const newSkillGroups = await this.Model.insertMany(newSkillGroupModels, {
         ordered: false,
         populate: ["parentGroups", "childrenGroups"]

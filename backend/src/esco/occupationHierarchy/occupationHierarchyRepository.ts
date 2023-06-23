@@ -56,7 +56,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
         if (spec.childType !== existingChildType) return false; // skip if the parentType does not match the existingParentType
         return true;
       }).map((spec) => {
-        try{
+        try {
           return new this.hierarchyModel({
             ...spec,
             modelId: modelId,

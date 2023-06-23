@@ -50,11 +50,15 @@ export class SkillRepository implements ISkillRepository {
   async createMany(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]> {
     try {
       const newSkillModels = newSkillSpecs.map((spec) => {
-        return new this.Model({
-          ...spec,
-          UUID: randomUUID() // override UUID silently
-        });
-      });
+        try {
+          return new this.Model({
+            ...spec,
+            UUID: randomUUID() // override UUID silently
+          });
+        } catch (e: unknown) {
+          return null;
+        }
+      }).filter(Boolean);
       const newSkills = await this.Model.insertMany(newSkillModels, {
         ordered: false
       });

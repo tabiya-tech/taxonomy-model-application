@@ -65,11 +65,15 @@ export class OccupationRepository implements IOccupationRepository {
   async createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]> {
     try {
       const newOccupationModels = newOccupationSpecs.map((spec) => {
-        return new this.Model({
-          ...spec,
-          UUID: randomUUID() // override UUID silently
-        });
-      });
+        try{
+          return new this.Model({
+            ...spec,
+            UUID: randomUUID() // override UUID silently
+          });
+        } catch (e: unknown) {
+          return null;
+        }
+      }).filter(Boolean);
       const newOccupations = await this.Model.insertMany(newOccupationModels, {
         ordered: false,
         populate: [{path: "parent"}, {path: "children"}]
