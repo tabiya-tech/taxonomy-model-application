@@ -8,6 +8,7 @@ import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
+import {parseOccupationHierarchyFromUrl} from "../esco/occupationHierarchy/occupationHierarchyParser";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,10 +32,13 @@ export const handler = async (event: ImportRequest): Promise<any> => {
     // Generate the presigned urls for the files
     const downloadUrls = await getPresignedUrls(event.filePaths);
 
+    const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
+
     // Process the files
+    let countISCOGroups = 0;
     if (downloadUrls.ISCO_GROUP) {
-      const count = await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP);
-      console.info(`Processed ${count} ISCO groups`);
+      countISCOGroups = await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP, importIdToDBIdMap);
+      console.info(`Processed ${countISCOGroups} ISCO groups`);
     }
     if (downloadUrls.ESCO_SKILL_GROUP) {
       const count = await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP);
@@ -44,10 +48,20 @@ export const handler = async (event: ImportRequest): Promise<any> => {
       const count = await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL);
       console.info(`Processed ${count} Skills`);
     }
+    let countOccupations = 0;
     if (downloadUrls.ESCO_OCCUPATION) {
-      const count = await parseOccupationsFromUrl(modelid, downloadUrls.ESCO_OCCUPATION);
-      console.info(`Processed ${count} Occupations`);
+      countOccupations = await parseOccupationsFromUrl(modelid, downloadUrls.ESCO_OCCUPATION, importIdToDBIdMap);
+      console.info(`Processed ${countOccupations} Occupations`);
     }
+    if (downloadUrls.OCCUPATION_HIERARCHY) {
+      const count = await parseOccupationHierarchyFromUrl(modelid, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);
+      if (count !== countISCOGroups + countOccupations - 10) {
+        console.warn(`Expected to process ${countISCOGroups + countOccupations - 10} hierarchy entries. That is the number of ISCO groups + Occupations - 10. But processed ${count} entries.`);
+      } else {
+        console.info(`Processed ${count} hierarchy entries that is as expected the number of ISCO groups + Occupations - 10.`);
+      }
+    }
+
     console.info("Import successfully finished");
   } catch (e: unknown) {
     console.error(e);

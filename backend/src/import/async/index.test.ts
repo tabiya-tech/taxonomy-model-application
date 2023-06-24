@@ -73,6 +73,13 @@ jest.mock("import/esco/occupations/occupationsParser.ts", () => {
     parseOccupationsFromUrl: jest.fn().mockResolvedValue(undefined)
   }
 });
+
+// Mock the OccupationHierarchyParser
+jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
+  return {
+    parseOccupationHierarchyFromUrl: jest.fn().mockResolvedValue(undefined)
+  }
+});
 // ##############
 
 import * as asyncIndex from "./index";
@@ -87,6 +94,7 @@ import {S3PresignerService} from "./S3PresignerService";
 import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
+import {parseOccupationHierarchyFromUrl} from "../esco/occupationHierarchy/occupationHierarchyParser";
 
 describe("Test the main async handler", () => {
   beforeEach(
@@ -105,6 +113,8 @@ describe("Test the main async handler", () => {
         [ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
         [ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
         [ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+        [ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+
         // ADD additional file types here
       },
       modelId: getMockId(1)
@@ -123,7 +133,7 @@ describe("Test the main async handler", () => {
       const presignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
       switch (fileType){
         case  ImportFileTypes.ISCO_GROUP:
-          expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
+          expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.ESCO_SKILL_GROUP:
           expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
@@ -132,7 +142,10 @@ describe("Test the main async handler", () => {
           expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
           break;
         case ImportFileTypes.ESCO_OCCUPATION:
-          expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
+          expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
+          break;
+        case ImportFileTypes.OCCUPATION_HIERARCHY:
+          expect(parseOccupationHierarchyFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
           break;
         // ADD additional file types here
       }
