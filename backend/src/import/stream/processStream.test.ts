@@ -116,6 +116,28 @@ describe("test processStream", () => {
       // THEN expect it to reject with the given error
       await expect(processPromise).rejects.toThrowError("Invalid Record Length: columns length is 2, got 3 on line 2");
     });
+
+    test("csv parser throws error due to invalid headers", async () => {
+      // GIVEN some data
+      const givenData =
+        'name,age\n' +
+        'John,30\n' +
+        'Alice,25\n' +
+        'Bob,35\n';
+      // AND a row processor
+      const rowProcessor: RowProcessor<any> = {
+        processRow: jest.fn().mockResolvedValue(undefined),
+        completed: jest.fn().mockResolvedValue(undefined),
+        // AND a headers validator that will return false
+        validateHeaders: jest.fn().mockResolvedValue(false)
+      };
+
+      // WHEN the stream is processed
+      const processPromise = processStream(Readable.from(givenData), rowProcessor);
+
+      // THEN expect it to reject with the given error
+      await expect(processPromise).rejects.toThrowError("Invalid headers");
+    });
   })
 });
 

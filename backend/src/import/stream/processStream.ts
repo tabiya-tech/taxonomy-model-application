@@ -46,7 +46,13 @@ export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>
       let count = 0;
       for await (const record of parser) {
         if(count === 0){
-          await rowProcessor.validateHeaders(Object.keys(record));
+          const headersValidated = await rowProcessor.validateHeaders(Object.keys(record));
+          if(!headersValidated){
+            const e = new Error(`Invalid headers: ${Object.keys(record)}`);
+            console.error(e);
+            reject(e);
+            return;
+          }
         }
         count++;
         await rowProcessor.processRow(record, count);
