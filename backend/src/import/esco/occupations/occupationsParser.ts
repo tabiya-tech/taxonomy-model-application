@@ -9,6 +9,7 @@ import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/par
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
 import {INewOccupationSpec} from "esco/occupation/occupation.types";
+import {isSpecified} from "server/isUnspecified";
 
 // expect all columns to be in upper case
 export interface IOccupationRow {
@@ -42,12 +43,19 @@ function getHeadersValidator(modelid: string): HeadersValidatorFunction {
   );
 }
 
-function getBatchProcessor() {
+function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
   const batchProcessFn = async (specs: INewOccupationSpec[]) => {
     try {
       const OccupationRepository = getRepositoryRegistry().occupation;
-      await OccupationRepository.createMany(specs);
+      const occupations = await OccupationRepository.createMany(specs);
+      // map the importId to the db id
+      // They will be used in a later stage to build the hierarchy and associations
+      occupations.forEach((occupation) => {
+        if(isSpecified(occupation.importId)){
+          importIdToDBIdMap.set(occupation.importId, occupation.id);
+        }
+      });
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }
@@ -75,19 +83,19 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
 }
 
 // function to parse from url
-export async function parseOccupationsFromUrl(modelId: string, url: string): Promise<number> {
+export async function parseOccupationsFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<number> {
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
-  const batchProcessor = getBatchProcessor();
+  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, batchRowProcessor);
 }
 
-export async function parseOccupationsFromFile(modelId: string, filePath: string): Promise<number> {
+export async function parseOccupationsFromFile(modelId: string, filePath: string,  importIdToDBIdMap: Map<string, string>): Promise<number> {
   const OccupationsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
-  const batchProcessor = getBatchProcessor();
+  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<IOccupationRow>(OccupationsCSVFileStream, batchRowProcessor);
 }

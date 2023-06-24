@@ -9,6 +9,7 @@ import {BatchProcessor} from "import/batch/BatchProcessor";
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
+import {isSpecified} from "server/isUnspecified";
 
 // expect all columns to be in upper case
 export interface IISCOGroupRow {
@@ -25,12 +26,19 @@ function getHeadersValidator(modelid: string): HeadersValidatorFunction {
   return getStdHeadersValidator(modelid, ['ESCOURI', 'ID', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION']);
 }
 
-function getBatchProcessor() {
+function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
   const batchProcessFn = async (specs: INewISCOGroupSpec[]) => {
     try {
       const ISCOGroupRepository = getRepositoryRegistry().ISCOGroup;
-      await ISCOGroupRepository.createMany(specs);
+      const iscoGroups = await ISCOGroupRepository.createMany(specs);
+      // map the importId to the db id
+      // They will be used in a later stage to build the hierarchy and associations
+      iscoGroups.forEach((iscoGroup) => {
+        if(isSpecified(iscoGroup.importId)){
+          importIdToDBIdMap.set(iscoGroup.importId, iscoGroup.id);
+        }
+      });
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }
@@ -54,19 +62,19 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
 }
 
 // function to parse from url
-export async function parseISCOGroupsFromUrl(modelId: string, url: string): Promise<number> {
+export async function parseISCOGroupsFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<number> {
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
-  const batchProcessor = getBatchProcessor();
+  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, batchRowProcessor);
 }
 
-export async function parseISCOGroupsFromFile(modelId: string, filePath: string): Promise<number> {
+export async function parseISCOGroupsFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>): Promise<number> {
   const iscoGroupsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
-  const batchProcessor = getBatchProcessor();
+  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<IISCOGroupRow>(iscoGroupsCSVFileStream, batchRowProcessor);
 }

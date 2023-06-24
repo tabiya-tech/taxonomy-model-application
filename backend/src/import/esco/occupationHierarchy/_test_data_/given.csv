@@ -1,0 +1,4 @@
+PARENTOBJECTTYPE,PARENTID,CHILDID,CHILDOBJECTTYPE
+ISCOGroup,key_1,key_2,ISCOGroup
+EscoOccupation,key_3,key_4,EscoOccupation
+ISCOGroup,key_5,key_6,EscoOccupation
