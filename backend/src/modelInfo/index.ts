@@ -9,7 +9,7 @@ import {
 } from "server/httpUtils";
 import {IModelInfo, INewModelInfoSpec} from "./modelInfoModel";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
-import {ajvInstance, ParseValidationError} from "../validator";
+import {ajvInstance, ParseValidationError} from "validator";
 import {
   IModelInfoRequest,
   ModelInfoRequestSchema,

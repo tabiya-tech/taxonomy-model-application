@@ -1,7 +1,7 @@
 import {APIGatewayProxyEvent} from "aws-lambda";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {errorResponse, HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
-import {ajvInstance, ParseValidationError} from "../validator";
+import {ajvInstance, ParseValidationError} from "validator";
 import {ImportRequest, ImportRequestSchema, ImportResponseErrorCodes} from 'api-specifications/import';
 
 import {ErrorCodes} from "api-specifications/error";

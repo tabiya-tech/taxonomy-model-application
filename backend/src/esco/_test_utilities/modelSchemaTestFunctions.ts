@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import {assertCaseForProperty, CaseType} from "../../_test_utilities/dataModel";
-import {getTestString, WHITESPACE} from "../../_test_utilities/specialCharacters";
-import {IMPORT_ID_MAX_LENGTH} from "../common/modelSchema";
+import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
+import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
+import {IMPORT_ID_MAX_LENGTH} from "esco/common/modelSchema";
 
 export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   test.each([

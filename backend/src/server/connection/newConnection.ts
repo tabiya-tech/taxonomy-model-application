@@ -1,6 +1,6 @@
 import mongoose  from 'mongoose';
 import {isUnspecified} from "server/isUnspecified";
-import {redactCredentialsFromURI} from "../httpUtils";
+import {redactCredentialsFromURI} from "server/httpUtils";
 
 export async function getNewConnection(uri: string): Promise<mongoose.Connection> {
 

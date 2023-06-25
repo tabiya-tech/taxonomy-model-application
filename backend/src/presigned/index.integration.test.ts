@@ -14,9 +14,9 @@ jest.mock("@aws-sdk/s3-presigned-post", () => {
 });
 // ####
 
-import * as config from "../server/config/config";
+import * as config from "server/config/config";
 import * as handlerModule from "./index";
-import {HTTP_VERBS, StatusCodes} from "../server/httpUtils";
+import {HTTP_VERBS, StatusCodes} from "server/httpUtils";
 import Ajv from "ajv";
 import {PresignedResponseSchema} from "api-specifications/presigned";
 import addFormats from "ajv-formats";

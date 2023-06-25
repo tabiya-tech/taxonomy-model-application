@@ -1,4 +1,4 @@
-import {ObjectTypes, ReferenceWithModelId} from "../common/objectTypes";
+import {ObjectTypes, ReferenceWithModelId} from "esco/common/objectTypes";
 import {IISCOGroupDoc, IISCOGroupReferenceDoc} from "./ISCOGroup.types";
 
 export function getISCOGroupReferenceWithModelId(iscoGroup: IISCOGroupDoc): ReferenceWithModelId<IISCOGroupReferenceDoc> {

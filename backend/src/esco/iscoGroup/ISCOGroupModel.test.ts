@@ -23,7 +23,7 @@ import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {getMockRandomISCOGroupCode} from "_test_utilities/mockISCOCode";
 import {IISCOGroupDoc} from "./ISCOGroup.types";
-import {testImportId} from "../_test_utilities/modelSchemaTestFunctions";
+import {testImportId} from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe('Test the definition of the ISCOGroup Model', () => {
   let dbConnection: Connection;

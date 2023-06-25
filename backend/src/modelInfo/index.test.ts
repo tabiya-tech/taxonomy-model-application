@@ -6,14 +6,14 @@ import {HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import {DESCRIPTION_MAX_LENGTH, IModelInfo, NAME_MAX_LENGTH} from "./modelInfoModel";
 import {randomUUID} from "crypto";
 import {ErrorCodes, IErrorResponse} from "api-specifications/error";
-import {getRandomString} from "../_test_utilities/specialCharacters";
+import {getRandomString} from "_test_utilities/specialCharacters";
 import {
   IModelInfoRequest,
   LOCALE_SHORTCODE_MAX_LENGTH,
   ModelInfoResponseErrorCodes
 } from "api-specifications/modelInfo";
 import {getIModelInfoMockData} from "./testDataHelper";
-import {getRepositoryRegistry} from "../server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 

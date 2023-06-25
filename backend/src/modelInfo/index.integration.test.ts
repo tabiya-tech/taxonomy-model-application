@@ -12,13 +12,13 @@ import {
   NAME_MAX_LENGTH
 } from "api-specifications/modelInfo";
 
-import {getRandomString} from "../_test_utilities/specialCharacters";
-import {HTTP_VERBS, StatusCodes} from "../server/httpUtils";
+import {getRandomString} from "_test_utilities/specialCharacters";
+import {HTTP_VERBS, StatusCodes} from "server/httpUtils";
 import {handler as modelHandler} from "./index";
 import addFormats from "ajv-formats";
-import {initOnce} from "../server/init";
-import {getConnectionManager} from "../server/connection/connectionManager";
-import {getTestConfiguration} from "../_test_utilities/getTestConfiguration";
+import {initOnce} from "server/init";
+import {getConnectionManager} from "server/connection/connectionManager";
+import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
 describe("test for model handler with a DB", () => {
 

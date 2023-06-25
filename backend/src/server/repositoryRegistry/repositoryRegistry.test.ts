@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock"
 
 import {getRepositoryRegistry, RepositoryRegistry} from "./repositoryRegisrty";
 import {Connection} from "mongoose";
-import {getNewConnection} from "../connection/newConnection";
+import {getNewConnection} from "server/connection/newConnection";
 
 describe("test the RepositoryRegistry", () => {
 
