@@ -12,12 +12,13 @@ import {
 import {ISkillRepository} from "esco/skill/SkillRepository";
 import {INewSkillSpec, ISkill} from "esco/skill/skills.types";
 import {isSpecified} from "server/isUnspecified";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 jest.mock('https');
 
 describe("test parseSkills from", () => {
   test.each([
-    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
       // WHEN the csv file is downloaded and parsed
       // AND the response that returns the expected data
       const mockResponse = fs.createReadStream("./src/import/esco/skills/_test_data_/given.csv");
@@ -31,11 +32,11 @@ describe("test parseSkills from", () => {
       });
       return parseSkillsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
     }],
-    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
       return parseSkillsFromFile(givenModelId, "./src/import/esco/skills/_test_data_/given.csv", importIdToDBIdMap);
     }]
   ])
-  ("should create Skills from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<number>) => {
+  ("should create Skills from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
 
@@ -65,11 +66,15 @@ describe("test parseSkills from", () => {
     jest.spyOn(importIdToDBIdMap, "set")
 
     // WHEN the data are parsed
-    const actualCount = await parseCallBack(givenModelId, importIdToDBIdMap);
+    const actualStats = await parseCallBack(givenModelId, importIdToDBIdMap);
 
-    // THEN expect the actual count to be the same as the expected count
+    // THEN expect all the occupations to have been processed successfully
     const expectedResults = require("./_test_data_/expected.ts").expected;
-    expect(actualCount).toBe(expectedResults.length);
+    expect(actualStats).toEqual({
+      rowsProcessed: expectedResults.length,
+      rowsSuccess: expectedResults.length,
+      rowsFailed: 0
+    });
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
       expect(mockRepository.createMany).toHaveBeenLastCalledWith(

@@ -12,12 +12,13 @@ import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";
 import {isSpecified} from "server/isUnspecified";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 jest.mock('https');
 
 describe("test parseISCOGroups from", () => {
   test.each([
-      ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+      ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
         // WHEN the csv file is downloaded and parsed
         // AND the response that returns the expected data
         const mockResponse = fs.createReadStream("./src/import/esco/ISCOGroups/_test_data_/given.csv");
@@ -31,11 +32,11 @@ describe("test parseISCOGroups from", () => {
         });
         return parseISCOGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
       }],
-      ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+      ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
         return parseISCOGroupsFromFile(givenModelId, "./src/import/esco/ISCOGroups/_test_data_/given.csv", importIdToDBIdMap);
       }]
     ]
-  )("should create IISOGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<number>) => {
+  )("should create IISOGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
 
@@ -66,11 +67,15 @@ describe("test parseISCOGroups from", () => {
     jest.spyOn(importIdToDBIdMap, "set")
 
     // WHEN the data are parsed
-    const actualCount = await parseCallBack(givenModelId, importIdToDBIdMap);
+    const actualStats: RowsProcessedStats = await parseCallBack(givenModelId, importIdToDBIdMap);
 
-    // THEN expect the actual count to be the same as the expected count
+    // THEN expect all the rows to have been processed successfully
     const expectedResults = require("./_test_data_/expected.ts").expected;
-    expect(actualCount).toBe(expectedResults.length);
+    expect(actualStats).toEqual({
+      rowsProcessed: expectedResults.length,
+      rowsSuccess: expectedResults.length,
+      rowsFailed: 0
+    });
     // AND the entries have been created in the database
     expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
       expect(mockRepository.createMany).toHaveBeenLastCalledWith(

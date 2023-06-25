@@ -2,3 +2,5 @@ PARENTOBJECTTYPE,PARENTID,CHILDID,CHILDOBJECTTYPE
 ISCOGroup,key_1,key_2,ISCOGroup
 EscoOccupation,key_3,key_4,EscoOccupation
 ISCOGroup,key_5,key_6,EscoOccupation
+invalid should be ignored,key_7,key_8,EscoOccupation
+ISCOGroup,key_9,key_10,invalid should be ignored

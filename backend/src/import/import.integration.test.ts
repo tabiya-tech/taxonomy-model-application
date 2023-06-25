@@ -14,6 +14,7 @@ import {parseSkillGroupsFromFile} from "./esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromFile} from "./esco/skills/skillsParser";
 import {parseOccupationsFromFile} from "./esco/occupations/occupationsParser";
 import {parseOccupationHierarchyFromFile} from "./esco/occupationHierarchy/occupationHierarchyParser";
+import {RowsProcessedStats} from "./rowsProcessedStats.types";
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -78,41 +79,38 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
     const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
     const dataFolder = "../data-sets/csv/tabiya-sample/";
     // 02. Import the ISCOGroup CSV files
-    const numberOfParsedISCOGroups = await parseISCOGroupsFromFile(modelInfo.id, dataFolder + "ISCOGroups.csv", importIdToDBIdMap);
-    expect(numberOfParsedISCOGroups).toBeGreaterThan(0);
-    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).not.toHaveBeenCalled();
+    const statsISCOGroups = await parseISCOGroupsFromFile(modelInfo.id, dataFolder + "ISCOGroups.csv", importIdToDBIdMap);
+    asserSuccessfullyImported(statsISCOGroups,consoleErrorSpy,consoleWarnSpy);
+    expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed);
 
     // 03. Import the ESCO Skill Groups CSV files
-    const numberOfParsedSkillGroups = await parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skillGroups.csv", importIdToDBIdMap);
-    expect(numberOfParsedSkillGroups).toBeGreaterThan(0);
-    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups + numberOfParsedSkillGroups);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).not.toHaveBeenCalled();
+    const statsSkillGroups = await parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skillGroups.csv", importIdToDBIdMap);
+    asserSuccessfullyImported(statsSkillGroups,consoleErrorSpy,consoleWarnSpy);
+    expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed);
 
     // 04. Import the ESCO Skills CSV files
-    const numberOfParsedSkills = await parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap);
-    expect(numberOfParsedSkills).toBeGreaterThan(0);
-    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups + numberOfParsedSkillGroups + numberOfParsedSkills);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).not.toHaveBeenCalled();
+    const statsSkills = await parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap);
+    asserSuccessfullyImported(statsSkills,consoleErrorSpy,consoleWarnSpy);
+    expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed + statsSkills.rowsProcessed);
 
     // 05. Import the Occupations CSV files
-    const numberOfParsedOccupations = await parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap);
-    expect(numberOfParsedOccupations).toBeGreaterThan(0);
-    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups + numberOfParsedSkillGroups + numberOfParsedSkills + numberOfParsedOccupations);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).not.toHaveBeenCalled();
+    const statsOccupations = await parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap);
+    asserSuccessfullyImported(statsOccupations,consoleErrorSpy,consoleWarnSpy);
+    expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed + statsSkills.rowsProcessed + statsOccupations.rowsProcessed);
 
     // 06. Import occupation hierarchy
-    const numberOfParsedOccHierarchy = await parseOccupationHierarchyFromFile(modelInfo.id, dataFolder + "occupations_hierarchy.csv", importIdToDBIdMap);
-    expect(numberOfParsedOccHierarchy).toBeGreaterThan(0);
+    const statsOccHierarchy = await parseOccupationHierarchyFromFile(modelInfo.id, dataFolder + "occupations_hierarchy.csv", importIdToDBIdMap);
+    asserSuccessfullyImported(statsOccHierarchy,consoleErrorSpy,consoleWarnSpy);
     // every occupation should have one parent occupation, except for the 10 top level occupations (the 10 top level ISCO groups)
-    expect(numberOfParsedOccHierarchy).toEqual(numberOfParsedISCOGroups + numberOfParsedOccupations - 10);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).not.toHaveBeenCalled();
-
+    expect(statsOccHierarchy.rowsSuccess).toEqual(statsISCOGroups.rowsSuccess + statsOccupations.rowsSuccess - 10);
 
   }, 30000); // 30 seconds timeout to allow for the import to complete
 });
+
+function asserSuccessfullyImported(stats: RowsProcessedStats, consoleErrorSpy: jest.SpyInstance, consoleWarnSpy: jest.SpyInstance) {
+  expect(stats.rowsProcessed).toBeGreaterThan(0);
+  expect(stats.rowsSuccess).toEqual(stats.rowsProcessed);
+  expect(stats.rowsFailed).toEqual(0);
+  expect(consoleErrorSpy).not.toHaveBeenCalled();
+  expect(consoleWarnSpy).not.toHaveBeenCalled();
+}

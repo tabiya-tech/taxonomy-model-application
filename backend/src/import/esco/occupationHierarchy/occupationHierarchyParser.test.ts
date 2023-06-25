@@ -7,14 +7,19 @@ import https from "https";
 import {StatusCodes} from "server/httpUtils";
 import {OccupationHierarchyRepository} from "esco/occupationHierarchy/occupationHierarchyRepository";
 import {parseOccupationHierarchyFromFile, parseOccupationHierarchyFromUrl} from "./occupationHierarchyParser";
-import {INewOccupationHierarchyPairSpec} from "esco/occupationHierarchy/occupationHierarchy.types";
+import {
+  INewOccupationHierarchyPairSpec,
+  IOccupationHierarchyPair
+} from "esco/occupationHierarchy/occupationHierarchy.types";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
+import {MongooseModelName} from "esco/common/mongooseModelNames";
 
 jest.mock('https');
 
 describe("test parseOccupationHierarchy from", () => {
 
   test.each([
-    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
       // WHEN the csv file is downloaded and parsed
       // AND the response that returns the expected data
       const mockResponse = fs.createReadStream("./src/import/esco/occupationHierarchy/_test_data_/given.csv");
@@ -28,11 +33,11 @@ describe("test parseOccupationHierarchy from", () => {
       });
       return parseOccupationHierarchyFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
     }],
-    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
       return parseOccupationHierarchyFromFile(givenModelId, "./src/import/esco/occupationHierarchy/_test_data_/given.csv", importIdToDBIdMap);
     }]
   ])
-  ("should create Occupation Hierarchy from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<number>) => {
+  ("should create Occupation Hierarchy from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
 // GIVEN a model id
     const givenModelId = "foo-model-id";
     // AND an OccupationHierarchy repository
@@ -40,7 +45,19 @@ describe("test parseOccupationHierarchy from", () => {
       iscoGroupModel: undefined as any,
       occupationModel: undefined as any,
       hierarchyModel: undefined as any,
-      createMany: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockImplementation((modelId: string, specs: INewOccupationHierarchyPairSpec[]): Promise<IOccupationHierarchyPair[]> => {
+        return Promise.resolve(specs.map((spec: INewOccupationHierarchyPairSpec): IOccupationHierarchyPair => {
+          return {
+            ...spec,
+            id: "DB_ID_", // + spec.importId,
+            modelId: modelId,
+            childDocModel: MongooseModelName.ISCOGroup,
+            parentDocModel: MongooseModelName.Occupation,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+        }))
+      }),
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "occupationHierarchy", "get").mockReturnValue(mockRepository);
@@ -51,11 +68,15 @@ describe("test parseOccupationHierarchy from", () => {
     })
 
     // WHEN the data are parsed
-    const actualCount = await parseCallBack(givenModelId, importIdToDBIdMap);
+    const actualStats = await parseCallBack(givenModelId, importIdToDBIdMap);
 
-    // THEN expect the actual count to be the same as the expected count
+    // THEN expect all the hierarchy entries to have been processed successfully
     const expectedResults = require("./_test_data_/expected.ts").expected;
-    expect(actualCount).toBe(expectedResults.length);
+    expect(actualStats).toEqual({
+      rowsProcessed: expectedResults.length,
+      rowsSuccess: expectedResults.length,
+      rowsFailed: 0
+    });
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewOccupationHierarchyPairSpec, "modelId">) => {
       expect(mockRepository.createMany).toHaveBeenLastCalledWith(

@@ -18,18 +18,23 @@ describe("test processStream", () => {
       'Alice,25\n' +
       'Bob,35\n';
     const stream = Readable.from(givenData);
-    // AND a row processor
+    // AND a row processor that returns some stats
+    const givenStats = {
+      rowsProcessed: 3,
+      rowsSuccess: 3,
+      rowsFailed: 0
+    }
     const rowProcessor: RowProcessor<any> = {
       processRow: jest.fn().mockResolvedValue(undefined),
-      completed: jest.fn().mockResolvedValue(undefined),
+      completed: jest.fn().mockResolvedValue(givenStats),
       validateHeaders: jest.fn().mockResolvedValue(true)
     };
 
     // WHEN the stream is processed
-    const actualCount = await processStream(stream, rowProcessor);
+    const actualStats = await processStream(stream, rowProcessor);
 
-    // THEN the expected count is returned
-    expect(actualCount).toEqual(3);
+    // THEN the expected stats is returned
+    expect(actualStats).toEqual(givenStats);
     // AND expect the headersValidator to have been called once
     expect(rowProcessor.validateHeaders).toHaveBeenCalledTimes(1);
     // AND expect the headersValidator to have been called with the correct headers
@@ -162,18 +167,24 @@ describe("test processDownloadStream", () => {
         on: jest.fn(),
       };
     });
-    // AND a row processor
+    // AND a row processor that returns some stats
+    const givenStats = {
+      rowsProcessed: 3,
+      rowsSuccess: 3,
+      rowsFailed: 0
+    }
+
     const rowProcessor: RowProcessor<any> = {
       processRow: jest.fn().mockResolvedValue(undefined),
-      completed: jest.fn().mockResolvedValue(undefined),
+      completed: jest.fn().mockResolvedValue(givenStats),
       validateHeaders: jest.fn().mockResolvedValue(true)
     };
 
     // WHEN the file is downloaded and processed
-    await processDownloadStream(givenUrl, rowProcessor);
+    const actualStats = await processDownloadStream(givenUrl, rowProcessor);
 
-    // THEN expect the row processor to have been called 3 times
-    expect(rowProcessor.processRow).toHaveBeenCalledTimes(3);
+    // THEN expect the stats to be the same as the one returned by the row processor
+    expect(actualStats).toEqual(givenStats);
     // AND expect the row processor to have been called with the correct data (header is converted to uppercase)
     expect(rowProcessor.processRow).toHaveBeenNthCalledWith(1, {NAME: 'John', AGE: '30'}, 1);
     expect(rowProcessor.processRow).toHaveBeenNthCalledWith(2, {NAME: 'Alice', AGE: '25'}, 2);

@@ -50,34 +50,54 @@ jest.mock('./S3PresignerService', () => {
 // Mock the ISCOGroupsParser
 jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
   return {
-    parseISCOGroupsFromUrl: jest.fn().mockResolvedValue(undefined)
+    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 1,
+      rowsSuccess: 1,
+      rowsFailed: 0,
+    } as RowsProcessedStats)
   }
 });
 // Mock the ESCOSkillGroupsParser
 jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
   return {
-    parseSkillGroupsFromUrl: jest.fn().mockResolvedValue(undefined)
+    parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 1,
+      rowsSuccess: 1,
+      rowsFailed: 0,
+    } as RowsProcessedStats)
   }
 });
 
 // Mock the ESCOSkillParser
 jest.mock("import/esco/skills/skillsParser.ts", () => {
   return {
-    parseSkillsFromUrl: jest.fn().mockResolvedValue(undefined)
+    parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 1,
+      rowsSuccess: 1,
+      rowsFailed: 0,
+    } as RowsProcessedStats)
   }
 });
 
 // Mock the OccupationsParser
 jest.mock("import/esco/occupations/occupationsParser.ts", () => {
   return {
-    parseOccupationsFromUrl: jest.fn().mockResolvedValue(undefined)
+    parseOccupationsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 1,
+      rowsSuccess: 1,
+      rowsFailed: 0,
+    } as RowsProcessedStats)
   }
 });
 
 // Mock the OccupationHierarchyParser
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
   return {
-    parseOccupationHierarchyFromUrl: jest.fn().mockResolvedValue(undefined)
+    parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 1,
+      rowsSuccess: 1,
+      rowsFailed: 0,
+    } as RowsProcessedStats)
   }
 });
 // ##############
@@ -93,6 +113,7 @@ import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser
 import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
 import {parseOccupationHierarchyFromUrl} from "import/esco/occupationHierarchy/occupationHierarchyParser";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 describe("Test the main async handler", () => {
   beforeEach(
