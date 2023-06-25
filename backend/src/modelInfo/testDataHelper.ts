@@ -6,9 +6,9 @@ import {
   SHORTCODE_MAX_LENGTH,
   VERSION_MAX_LENGTH
 } from "./modelInfoModel";
-import {getMockId} from "../_test_utilities/mockMongoId";
+import {getMockId} from "_test_utilities/mockMongoId";
 import {randomUUID} from "crypto";
-import {getRandomString} from "../_test_utilities/specialCharacters";
+import {getRandomString} from "_test_utilities/specialCharacters";
 
 export function getIModelInfoMockData(): IModelInfo {
   return {

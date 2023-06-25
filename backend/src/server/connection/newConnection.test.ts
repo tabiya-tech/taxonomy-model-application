@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock"
 
 import mongoose, {Connection} from 'mongoose';
 import {getNewConnection} from "./newConnection";
-import {redactCredentialsFromURI} from "../httpUtils";
+import {redactCredentialsFromURI} from "server/httpUtils";
 
 describe('Test new connection', () => {
 

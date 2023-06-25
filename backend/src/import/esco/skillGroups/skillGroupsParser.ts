@@ -10,7 +10,7 @@ import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/par
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
 import {isSpecified} from "server/isUnspecified";
-import {RowsProcessedStats} from "../../rowsProcessedStats.types";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 // expect all columns to be in upper case
 export interface ISkillGroupRow {

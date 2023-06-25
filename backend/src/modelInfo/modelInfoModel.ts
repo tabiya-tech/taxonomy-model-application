@@ -1,6 +1,6 @@
 import {isSpecified} from 'server/isUnspecified';
 import mongoose from 'mongoose';
-import {RegExp_UUIDv4} from "../server/regex";
+import {RegExp_UUIDv4} from "server/regex";
 import { stringRequired } from 'server/stringRequired';
 
 export const ModelName = "ModelInfo";

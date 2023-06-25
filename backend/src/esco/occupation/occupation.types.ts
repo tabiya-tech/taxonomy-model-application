@@ -1,6 +1,6 @@
 import {ImportIdentifiable, ObjectTypes} from "esco/common/objectTypes";
 import mongoose from "mongoose";
-import {IISCOGroupReference} from "../iscoGroup/ISCOGroup.types";
+import {IISCOGroupReference} from "esco/iscoGroup/ISCOGroup.types";
 
 /**
  * Describing how the data is saved in MongoDB

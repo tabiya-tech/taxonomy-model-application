@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {ImportIdentifiable} from "../common/objectTypes";
+import {ImportIdentifiable} from "esco/common/objectTypes";
 
 export interface ISkillGroupDoc extends ImportIdentifiable {
   UUID: string
