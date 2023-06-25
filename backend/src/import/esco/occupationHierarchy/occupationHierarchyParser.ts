@@ -8,9 +8,9 @@ import {BatchProcessor} from "import/batch/BatchProcessor";
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
-
 import {INewOccupationHierarchyPairSpec} from "esco/occupationHierarchy/occupationHierarchy.types";
 import {ObjectTypes} from "esco/common/objectTypes";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 // expect all columns to be in upper case
 export interface OccupationHierarchyHierarchyRow {
@@ -29,15 +29,23 @@ function getHeadersValidator(modelid: string): HeadersValidatorFunction {
   return getStdHeadersValidator(modelid, ['PARENTOBJECTTYPE', 'PARENTID', 'CHILDID', 'CHILDOBJECTTYPE']);
 }
 
-function getBatchProcessor(modelId: string, ) {
+function getBatchProcessor(modelId: string,) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = async (hierarchy: INewOccupationHierarchyPairSpec[]) => {
+  const batchProcessFn = async (specs: INewOccupationHierarchyPairSpec[]) => {
+    const stats: RowsProcessedStats = {
+      rowsProcessed: specs.length,
+      rowsSuccess: 0,
+      rowsFailed: 0
+    };
     try {
       const repository = getRepositoryRegistry().occupationHierarchy;
-      await repository.createMany(modelId, hierarchy);
+      const hierarchyEntries = await repository.createMany(modelId, specs);
+      stats.rowsSuccess = hierarchyEntries.length;
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }
+    stats.rowsFailed = specs.length - stats.rowsSuccess;
+    return stats;
   };
   return new BatchProcessor<INewOccupationHierarchyPairSpec>(BATCH_SIZE, batchProcessFn);
 }
@@ -75,7 +83,7 @@ function getRowToSpecificationTransformFn(modelId: string, importIdToDBIdMap: Ma
 }
 
 // function to parse from url
-export async function parseOccupationHierarchyFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<number> {
+export async function parseOccupationHierarchyFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
@@ -83,7 +91,7 @@ export async function parseOccupationHierarchyFromUrl(modelId: string, url: stri
   return await processDownloadStream(url, batchRowProcessor);
 }
 
-export async function parseOccupationHierarchyFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>): Promise<number> {
+export async function parseOccupationHierarchyFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
   const iscoGroupsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);

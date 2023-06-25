@@ -1,5 +1,6 @@
 import {BatchProcessor} from "import/batch/BatchProcessor";
 import {HeadersValidatorFunction, RowProcessor} from "./RowProcessor.types";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 export type TransformRowToSpecificationFunction<RowType, SpecificationType> = (row: RowType) => SpecificationType | undefined | null;
 
@@ -7,7 +8,6 @@ export class BatchRowProcessor<RowType, SpecificationType> implements RowProcess
   private readonly batchProcessor: BatchProcessor<SpecificationType>;
   private readonly transformRowToSpecificationFn: TransformRowToSpecificationFunction<RowType, SpecificationType>;
   private readonly validateHeadersFn: HeadersValidatorFunction;
-  private rowCounter = 0;
 
   constructor(validateHeadersFn: HeadersValidatorFunction,
               transformRowToSpecificationFn: TransformRowToSpecificationFunction<RowType, SpecificationType>,
@@ -18,13 +18,12 @@ export class BatchRowProcessor<RowType, SpecificationType> implements RowProcess
     this.transformRowToSpecificationFn = transformRowToSpecificationFn;
   }
 
-  async completed(): Promise<number> {
+  async completed(): Promise<RowsProcessedStats> {
     await this.batchProcessor.flush();
-    return this.rowCounter;
+    return this.batchProcessor.getStats();
   }
 
-  async processRow(row: RowType): Promise<void> {
-    this.rowCounter++;
+  async processRow(row: RowType, /*index: number*/): Promise<void> {
     const spec = this.transformRowToSpecificationFn(row);
     if (spec !== undefined && spec !== null) {
       return await this.batchProcessor.add(spec);

@@ -12,13 +12,14 @@ import {StatusCodes} from "server/httpUtils";
 import {ISkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
 import {INewSkillGroupSpec, ISkillGroup} from "esco/skillGroup/skillGroup.types";
 import {isSpecified} from "server/isUnspecified";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 jest.mock('https');
 
 describe("test parseSkillGroups from", () => {
 
   test.each([
-    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
       // WHEN the csv file is downloaded and parsed
       // AND the response that returns the expected data
       const mockResponse = fs.createReadStream("./src/import/esco/skillGroups/_test_data_/given.csv");
@@ -32,11 +33,11 @@ describe("test parseSkillGroups from", () => {
       });
       return parseSkillGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
     }],
-    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
       return parseSkillGroupsFromFile(givenModelId, "./src/import/esco/skillGroups/_test_data_/given.csv", importIdToDBIdMap);
     }]
   ])
-  ("should create SkillGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<number>) => {
+  ("should create SkillGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
 
@@ -68,11 +69,15 @@ describe("test parseSkillGroups from", () => {
     jest.spyOn(importIdToDBIdMap, "set")
 
     // WHEN the data are parsed
-    const actualCount = await parseCallBack(givenModelId, importIdToDBIdMap);
+    const actualStats = await parseCallBack(givenModelId, importIdToDBIdMap);
 
-    // THEN expect the actual count to be the same as the expected count
+    // THEN expect all the SkillGroups to have been processed successfully
     const expectedResults = require("./_test_data_/expected.ts").expected;
-    expect(actualCount).toBe(expectedResults.length);
+    expect(actualStats).toEqual({
+      rowsProcessed: expectedResults.length,
+      rowsSuccess: expectedResults.length,
+      rowsFailed: 0
+    });
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">) => {
       expect(mockRepository.createMany).toHaveBeenLastCalledWith(
@@ -82,7 +87,6 @@ describe("test parseSkillGroups from", () => {
 
     // AND expect the non-empty import ids to have been mapped to the db id
     expect(importIdToDBIdMap.set).toHaveBeenCalledTimes(2);
-
 
     expectedResults
       .filter((res: Omit<INewSkillGroupSpec, "modelId">) => isSpecified(res.importId))

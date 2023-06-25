@@ -10,6 +10,7 @@ import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/par
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
 import {isSpecified} from "server/isUnspecified";
+import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 
 // expect all columns to be in upper case
 export interface ISkillRow {
@@ -32,6 +33,11 @@ function getHeadersValidator(modelId: string): HeadersValidatorFunction {
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
   const batchProcessFn = async (specs: INewSkillSpec[]) => {
+    const stats: RowsProcessedStats = {
+      rowsProcessed: specs.length,
+      rowsSuccess: 0,
+      rowsFailed: 0
+    };
     try {
       const skillRepository = getRepositoryRegistry().skill;
       const skills = await skillRepository.createMany(specs);
@@ -42,9 +48,12 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
           importIdToDBIdMap.set(skill.importId, skill.id);
         }
       });
+      stats.rowsSuccess = skills.length;
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }
+    stats.rowsFailed = specs.length - stats.rowsSuccess;
+    return stats;
   };
   return new BatchProcessor<INewSkillSpec>(BATCH_SIZE, batchProcessFn);
 }
@@ -69,7 +78,7 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
 }
 
 // function to parse from url
-export async function parseSkillsFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>) {
+export async function parseSkillsFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
@@ -77,7 +86,7 @@ export async function parseSkillsFromUrl(modelId: string, url: string, importIdT
   return await processDownloadStream(url, batchRowProcessor);
 }
 
-export async function parseSkillsFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>) {
+export async function parseSkillsFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
   const skillsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);

@@ -1,6 +1,19 @@
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "./BatchRowProcessor";
 import {HeadersValidatorFunction} from "./RowProcessor.types";
-import {BatchProcessor} from "import/batch/BatchProcessor";
+import {BatchProcessor, ProcessBatchFunction} from "import/batch/BatchProcessor";
+
+
+function getTestBatchProcessor() {
+  const mockProcessFn: ProcessBatchFunction<any> = jest.fn().mockImplementation((batch: any[]) => {
+      return Promise.resolve({
+        rowsProcessed: batch.length,
+        rowsSuccess: batch.length,
+        rowsFailed: 0
+      })
+    }
+  );
+  return new BatchProcessor<any>(1000, mockProcessFn);
+}
 
 describe("test the BatchRowProcesses", () => {
 
@@ -20,7 +33,7 @@ describe("test the BatchRowProcesses", () => {
     const batchRowProcessor = new BatchRowProcessor<any, any>(
       givenValidatorFn,
       jest.fn(),
-      new BatchProcessor<any>(1000, jest.fn())
+      getTestBatchProcessor()
     );
     // AND some headers
     const givenHeaders = ["foo", "bar"];
@@ -39,7 +52,7 @@ describe("test the BatchRowProcesses", () => {
     const givenTransformedRow = {bar: "bar"};
     const givenTransformFn: TransformRowToSpecificationFunction<any, any> = jest.fn().mockReturnValue(givenTransformedRow);
     // AND a batch processor
-    const givenBatchProcessor = new BatchProcessor<any>(1000, jest.fn());
+    const givenBatchProcessor = getTestBatchProcessor();
     jest.spyOn(givenBatchProcessor, "add");
     // AND a batch row processor with the validator
     const batchRowProcessor = new BatchRowProcessor<any, any>(
@@ -59,7 +72,7 @@ describe("test the BatchRowProcesses", () => {
   });
 
   test.each(
-    [ null, undefined]
+    [null, undefined]
   )("should skip row that are transformed to is %s ", async (transformedRow) => {
     // GIVEN a row
     const givenRow = {foo: "foo"};
@@ -67,7 +80,7 @@ describe("test the BatchRowProcesses", () => {
     const givenTransformFn: TransformRowToSpecificationFunction<any, any> = jest.fn().mockReturnValue(transformedRow);
 
     // AND a batch processor
-    const givenBatchProcessor = new BatchProcessor<any>(1000, jest.fn());
+    const givenBatchProcessor = getTestBatchProcessor();
     jest.spyOn(givenBatchProcessor, "add");
     // AND a batch row processor with the validator
     const batchRowProcessor = new BatchRowProcessor<any, any>(
@@ -88,8 +101,15 @@ describe("test the BatchRowProcesses", () => {
 
   test("should complete", async () => {
     // GIVEN a batch processor
-    const givenBatchProcessor = new BatchProcessor<any>(1000, jest.fn());
+    const givenBatchProcessor = getTestBatchProcessor();
     jest.spyOn(givenBatchProcessor, "flush");
+    // AND it returns some stats
+    const givenStats = {
+      rowsProcessed: 10,
+      rowsSuccess: 9,
+      rowsFailed: 1
+    }
+    jest.spyOn(givenBatchProcessor, "getStats").mockReturnValue(givenStats);
     // AND a batch row processor
     const batchRowProcessor = new BatchRowProcessor<any, any>(
       jest.fn(),
@@ -104,11 +124,11 @@ describe("test the BatchRowProcesses", () => {
     }
 
     // WHEN the batch row processor is completed
-    const actualRowsCount = await batchRowProcessor.completed();
+    const actualStats = await batchRowProcessor.completed();
 
     // THEN expect the batch processor to be flushed
     expect(givenBatchProcessor.flush).toBeCalled();
-    // AND expect the number of rows to be returned
-    expect(actualRowsCount).toBe(givenRows.length);
+    // AND expect the stats to be returned from the batch processor
+    expect(actualStats).toEqual(givenBatchProcessor.getStats());
   });
 });
