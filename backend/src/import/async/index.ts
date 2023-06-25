@@ -8,7 +8,7 @@ import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
-import {parseOccupationHierarchyFromUrl} from "../esco/occupationHierarchy/occupationHierarchyParser";
+import {parseOccupationHierarchyFromUrl} from "import/esco/occupationHierarchy/occupationHierarchyParser";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,11 +41,11 @@ export const handler = async (event: ImportRequest): Promise<any> => {
       console.info(`Processed ${countISCOGroups} ISCO groups`);
     }
     if (downloadUrls.ESCO_SKILL_GROUP) {
-      const count = await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP);
+      const count = await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP, importIdToDBIdMap);
       console.info(`Processed ${count} Skill groups`);
     }
     if (downloadUrls.ESCO_SKILL) {
-      const count = await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL);
+      const count = await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL, importIdToDBIdMap);
       console.info(`Processed ${count} Skills`);
     }
     let countOccupations = 0;

@@ -10,40 +10,68 @@ import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";
 import {ISkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
-import {INewSkillGroupSpec} from "esco/skillGroup/skillGroup.types";
+import {INewSkillGroupSpec, ISkillGroup} from "esco/skillGroup/skillGroup.types";
+import {isSpecified} from "server/isUnspecified";
 
 jest.mock('https');
 
-describe("test parseSkillGroupsFromUrl", () => {
-  test("should create SkillGroup from url file", async () => {
+describe("test parseSkillGroups from", () => {
+
+  test.each([
+    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+      // WHEN the csv file is downloaded and parsed
+      // AND the response that returns the expected data
+      const mockResponse = fs.createReadStream("./src/import/esco/skillGroups/_test_data_/given.csv");
+      // @ts-ignore
+      mockResponse.statusCode = StatusCodes.OK; // Set the status code
+      (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
+        callback(mockResponse);
+        return {
+          on: jest.fn(),
+        };
+      });
+      return parseSkillGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
+    }],
+    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<number> => {
+      return parseSkillGroupsFromFile(givenModelId, "./src/import/esco/skillGroups/_test_data_/given.csv", importIdToDBIdMap);
+    }]
+  ])
+  ("should create SkillGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<number>) => {
     // GIVEN a model id
-    const givenModelId = "modelId";
+    const givenModelId = "foo-model-id";
 
     // AND an SkillGroup repository
     const mockRepository: ISkillGroupRepository = {
       // @ts-ignore
       Model: undefined,
       create: jest.fn().mockResolvedValue({}),
-      createMany: jest.fn().mockResolvedValue([{}])
+      createMany: jest.fn().mockImplementation((specs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> => {
+        return Promise.resolve(specs.map((spec: INewSkillGroupSpec): ISkillGroup => {
+          return {
+            ...spec,
+            id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
+            UUID: "",
+            parentGroups: [],
+            childrenGroups: [],
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+        }));
+      }),
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(mockRepository);
 
-    // WHEN the csv file is downloaded and parsed
-    // AND the response that returns the expected data
-    const mockResponse = fs.createReadStream("./src/import/esco/skillGroups/_test_data_/given.csv");
-    // @ts-ignore
-    mockResponse.statusCode = StatusCodes.OK; // Set the status code
-    (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
-      callback(mockResponse);
-      return {
-        on: jest.fn(),
-      };
-    });
-   const actualCount = await parseSkillGroupsFromUrl(givenModelId, "someUrl");
 
-    // THEN the actual count should be the same as the expected count
-    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    // AND a map to map the ids of the CSV file to the database ids
+    const importIdToDBIdMap = new Map<string, string>();
+    jest.spyOn(importIdToDBIdMap, "set")
+
+    // WHEN the data are parsed
+    const actualCount = await parseCallBack(givenModelId, importIdToDBIdMap);
+
+    // THEN expect the actual count to be the same as the expected count
+    const expectedResults = require("./_test_data_/expected.ts").expected;
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">) => {
@@ -51,35 +79,19 @@ describe("test parseSkillGroupsFromUrl", () => {
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })
-  })
-});
 
-describe("test parseSkillGroupsFromFile", () => {
-  test("should create SkillGroup from csv file", async () => {
-    // GIVEN a model id
-    const givenModelId = "modelId";
+    // AND expect the non-empty import ids to have been mapped to the db id
+    expect(importIdToDBIdMap.set).toHaveBeenCalledTimes(2);
 
-    // AND an SkillGroup repository
-    const mockRepository: ISkillGroupRepository = {
-      // @ts-ignore
-      Model: undefined,
-      create: jest.fn().mockResolvedValue({}),
-      createMany: jest.fn().mockResolvedValue([{}])
-    };
-    // @ts-ignore
-    jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(mockRepository);
 
-    // WHEN the csv file is parsed
-    const actualCount =  await parseSkillGroupsFromFile(givenModelId, "./src/import/esco/skillGroups/_test_data_/given.csv");
-
-    // THEN the actual count should be the same as the expected count
-    const expectedResults =  require("./_test_data_/expected.ts").expected;
-    expect(actualCount).toBe(expectedResults.length);
-    // AND expect the repository to have been called with the correct spec
-    expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">) => {
-      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
-        expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
-      )
-    })
+    expectedResults
+      .filter((res: Omit<INewSkillGroupSpec, "modelId">) => isSpecified(res.importId))
+      .forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">, index: number) => {
+        expect(importIdToDBIdMap.set).toHaveBeenNthCalledWith(
+          index + 1,
+          expectedSpec.importId,
+          "DB_ID_" + expectedSpec.importId
+        )
+      });
   })
 });

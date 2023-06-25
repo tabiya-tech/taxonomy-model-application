@@ -85,21 +85,23 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
     expect(consoleWarnSpy).not.toHaveBeenCalled();
 
     // 03. Import the ESCO Skill Groups CSV files
-    const numberOfParsedSkillGroups = await parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skillGroups.csv");
+    const numberOfParsedSkillGroups = await parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skillGroups.csv", importIdToDBIdMap);
     expect(numberOfParsedSkillGroups).toBeGreaterThan(0);
+    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups + numberOfParsedSkillGroups);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
     expect(consoleWarnSpy).not.toHaveBeenCalled();
 
     // 04. Import the ESCO Skills CSV files
-    const numberOfParsedSkills = await parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv");
+    const numberOfParsedSkills = await parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap);
     expect(numberOfParsedSkills).toBeGreaterThan(0);
+    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups + numberOfParsedSkillGroups + numberOfParsedSkills);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
     expect(consoleWarnSpy).not.toHaveBeenCalled();
 
     // 05. Import the Occupations CSV files
     const numberOfParsedOccupations = await parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap);
     expect(numberOfParsedOccupations).toBeGreaterThan(0);
-    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups + numberOfParsedOccupations);
+    expect(importIdToDBIdMap.size).toEqual(numberOfParsedISCOGroups + numberOfParsedSkillGroups + numberOfParsedSkills + numberOfParsedOccupations);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
     expect(consoleWarnSpy).not.toHaveBeenCalled();
 

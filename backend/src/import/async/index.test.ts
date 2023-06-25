@@ -81,10 +81,8 @@ jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => 
   }
 });
 // ##############
-
 import * as asyncIndex from "./index";
-import {ImportRequest} from "api-specifications/import";
-import {ImportFileTypes} from "api-specifications/import";
+import {ImportFileTypes, ImportRequest} from "api-specifications/import";
 
 import {initOnce} from "server/init";
 import {getMockId} from "_test_utilities/mockMongoId";
@@ -94,7 +92,7 @@ import {S3PresignerService} from "./S3PresignerService";
 import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
 import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
-import {parseOccupationHierarchyFromUrl} from "../esco/occupationHierarchy/occupationHierarchyParser";
+import {parseOccupationHierarchyFromUrl} from "import/esco/occupationHierarchy/occupationHierarchyParser";
 
 describe("Test the main async handler", () => {
   beforeEach(
@@ -131,15 +129,15 @@ describe("Test the main async handler", () => {
     for (const entry of Object.entries(givenEvent.filePaths)) {
       const fileType = entry[0];
       const presignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
-      switch (fileType){
+      switch (fileType) {
         case  ImportFileTypes.ISCO_GROUP:
           expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.ESCO_SKILL_GROUP:
-          expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
+          expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.ESCO_SKILL:
-          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl);
+          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.ESCO_OCCUPATION:
           expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
