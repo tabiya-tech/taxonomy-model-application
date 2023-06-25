@@ -39,11 +39,11 @@ export const handler = async (event: ImportRequest): Promise<any> => {
     if (downloadUrls.ISCO_GROUP) {
       const stats = await parseISCOGroupsFromUrl(modelid, downloadUrls.ISCO_GROUP, importIdToDBIdMap);
       countISCOGroups = stats.rowsSuccess;
-      console.info(`Processed ${JSON.stringify(stats)} ISCO groups`);
+      console.info(`Processed ${JSON.stringify(stats)} ISCO Groups`);
     }
     if (downloadUrls.ESCO_SKILL_GROUP) {
-      const count = await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP, importIdToDBIdMap);
-      console.info(`Processed ${count} Skill groups`);
+      const stats = await parseSkillGroupsFromUrl(modelid, downloadUrls.ESCO_SKILL_GROUP, importIdToDBIdMap);
+      console.info(`Processed ${JSON.stringify(stats)} Skill Groups`);
     }
     if (downloadUrls.ESCO_SKILL) {
       const stats = await parseSkillsFromUrl(modelid, downloadUrls.ESCO_SKILL, importIdToDBIdMap);
@@ -57,11 +57,9 @@ export const handler = async (event: ImportRequest): Promise<any> => {
     }
     if (downloadUrls.OCCUPATION_HIERARCHY) {
       const stats = await parseOccupationHierarchyFromUrl(modelid, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);
+      console.info(`Processed ${JSON.stringify(stats)} Occupation hierarchy entries`);
       if (stats.rowsSuccess !== countISCOGroups + countOccupations - 10) {
-        console.warn(`Expected to successfully process ${countISCOGroups + countOccupations - 10} hierarchy entries. 
-        That is the number of ISCO groups + Occupations - 10. But successfully processed ${stats.rowsSuccess} entries instead.`);
-      } else {
-        console.info(`Processed successfully ${stats.rowsSuccess} hierarchy entries that is as expected the number of ISCO groups + Occupations - 10.`);
+        console.warn(`Expected to successfully process ${countISCOGroups + countOccupations - 10} (ISCO groups + Occupations - 10) hierarchy entries.`);
       }
     }
 
