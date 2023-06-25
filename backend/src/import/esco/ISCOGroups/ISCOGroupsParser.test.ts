@@ -44,7 +44,7 @@ describe("test parseISCOGroups from", () => {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue({}),
       createMany: jest.fn().mockImplementation((specs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> => {
-        return Promise.resolve(specs.map((spec: INewISCOGroupSpec) => {
+        return Promise.resolve(specs.map((spec: INewISCOGroupSpec): IISCOGroup => {
           return {
             ...spec,
             id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
@@ -79,7 +79,6 @@ describe("test parseISCOGroups from", () => {
     });
     // AND expect the non-empty import ids to have been mapped to the db id
     expect(importIdToDBIdMap.set).toHaveBeenCalledTimes(2);
-
     expectedResults
       .filter((res: Omit<INewISCOGroupSpec, "modelId">) => isSpecified(res.importId))
       .forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">, index: number) => {

@@ -9,6 +9,7 @@ import {BatchProcessor} from "import/batch/BatchProcessor";
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
+import {isSpecified} from "server/isUnspecified";
 
 // expect all columns to be in upper case
 export interface ISkillGroupRow {
@@ -26,12 +27,19 @@ function getHeadersValidator(modelid: string): HeadersValidatorFunction {
   return getStdHeadersValidator(modelid, ['ESCOURI', 'ID', 'ORIGINUUID', 'CODE', 'PREFERREDLABEL', 'ALTLABELS', 'DESCRIPTION', 'SCOPENOTE']);
 }
 
-function getBatchProcessor() {
+function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
   const batchProcessFn = async (specs: INewSkillGroupSpec[]) => {
     try {
       const skillGroupRepository = getRepositoryRegistry().skillGroup;
-      await skillGroupRepository.createMany(specs);
+      const skillGroups = await skillGroupRepository.createMany(specs);
+      // map the importId to the db id
+      // They will be used in a later stage to build the hierarchy and associations
+      skillGroups.forEach((skillGroup) => {
+        if (isSpecified(skillGroup.importId)) {
+          importIdToDBIdMap.set(skillGroup.importId, skillGroup.id);
+        }
+      });
     } catch (e: unknown) {
       console.error("Failed to process batch", e);
     }
@@ -56,19 +64,19 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
 }
 
 // function to parse from url
-export async function parseSkillGroupsFromUrl(modelId: string, url: string) {
+export async function parseSkillGroupsFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<number> {
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
-  const batchProcessor = getBatchProcessor();
+  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, batchRowProcessor);
 }
 
-export async function parseSkillGroupsFromFile(modelId: string, filePath: string) {
+export async function parseSkillGroupsFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>): Promise<number> {
   const skillGroupsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator(modelId);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
-  const batchProcessor = getBatchProcessor();
+  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<ISkillGroupRow>(skillGroupsCSVFileStream, batchRowProcessor);
 }

@@ -44,7 +44,7 @@ describe("test parseOccupations from", () => {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue({}),
       createMany: jest.fn().mockImplementation((specs: INewOccupationSpec[]): Promise<IOccupation[]> => {
-        return Promise.resolve(specs.map((spec: INewOccupationSpec) => {
+        return Promise.resolve(specs.map((spec: INewOccupationSpec): IOccupation => {
           return {
             ...spec,
             id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
@@ -56,7 +56,7 @@ describe("test parseOccupations from", () => {
           };
         }));
       }),
-      findById:jest.fn().mockResolvedValue(null)
+      findById: jest.fn().mockResolvedValue(null)
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);
@@ -80,7 +80,7 @@ describe("test parseOccupations from", () => {
     const actualCount = await parseCallBack(givenModelId, importIdToDBIdMap);
 
     // THEN expect the actual count to be the same as the expected count
-    const expectedResults =  require("./_test_data_/expected.ts").expected;
+    const expectedResults = require("./_test_data_/expected.ts").expected;
     expect(actualCount).toBe(expectedResults.length);
     // AND expect the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">) => {
