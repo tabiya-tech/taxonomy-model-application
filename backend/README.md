@@ -2,11 +2,11 @@
 
 ## About
 
-This is the frontend of the Taxonomy Model App.
+This is the backend of the Taxonomy Model App.
 
 ## Prerequisites
 
-To develop the frontend locally, you must install the following:
+To develop the backend locally, you must install the following:
 
 * [Node.js ^16.0](https://nodejs.org/dist/latest-v16.x/)
 * [Yarn ^1.22](https://classic.yarnpkg.com/en/) 
@@ -14,13 +14,13 @@ To develop the frontend locally, you must install the following:
 
 ## Technologies
 
-- [React](https://react.dev/)
-- [MUI](https://mui.com/)
+- [Node.js](https://nodejs.org)
+- [AWS SDK](https://aws.amazon.com/sdk-for-javascript/)
 - [Typescript](https://www.typescriptlang.org/)
-- [Storybook](https://storybook.js.org/)
 - [Jest](https://jestjs.io/)
 - [AJV](https://ajv.js.org/)
-
+- [MongoDB](https://www.mongodb.com/)
+- [Mongoose](https://mongoosejs.com/)
 
 ## Installation
 
@@ -30,36 +30,19 @@ To develop this application locally, follow these steps:
 
 2. Clone the repository
 
-3. Navigate to the frontend directory:
+3. Navigate to the backend directory:
 
     ```
-    cd ./frontend
+    cd ./backend
     ```
 
 4. Install the project's dependencies:
+
     ```
     yarn install
     ```
 
-    After running the above command, the `postinstall` script in the [package.json](package.json) will also run, and it will build and link the [api-specifications](/api-specifications/readme.md) dependency.
-
-## Running the development server locally
-
-After installing and setting up the project locally, run the development server with the following command:
-
-```
-yarn start
-```
-
-The server will run on port 3000, and you can preview the application in your browser by visiting [http://localhost:3000](http://localhost:3000).
-
-## Storybook
-
-We use Storybook to test and demonstrate components in the browser. To run Storybook, execute the following command:
-
-```
-yarn storybook
-```
+   After running the above command, the `postinstall` script in the [package.json](package.json) will also run, and it will build and link the [api-specifications](/api-specifications/readme.md) dependency.
 
 ## Testing
 
@@ -71,7 +54,7 @@ yarn test
 
 ## Building
 
-To build the React application, execute the following command:
+To build the backend application, execute the following command:
 
 ```
 yarn build
