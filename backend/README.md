@@ -52,6 +52,16 @@ To run this application locally, follow these steps:
 
     After installing the dependencies, the `postinstall` script mentionned in the [package.json](/backend/package.json) will run immediately, installing [api-specifications](/api-specifications/readme.md) dependecies.
 
+## Action Required for Ubuntu 23.04 Users: Patch for mongodb-memory-server-core
+
+If you're using Ubuntu 23.04 and encountering issues due to the unavailability of the MongoDB archive for this version, apply the patch file available for this dependecie by executing the command below:
+
+```
+npx patch-package mongodb-memory-server-core
+```
+
+This patch is specifically designed for the newest version of Ubuntu (23.04) to make it point to the LTS version (22.04) of Ubuntu. For more information on patching packages, check out this ressource [here](https://dev.to/zhnedyalkow/the-easiest-way-to-patch-your-npm-package-4ece).
+
 ## Testing
 
 To run the test cases for the application, execute the following command:
