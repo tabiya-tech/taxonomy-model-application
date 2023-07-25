@@ -21,10 +21,10 @@ describe('Test the definition of the ModelInfo Model', () => {
   let dbConnection: Connection;
   let ModelInfoModel: mongoose.Model<IModelInfo>;
   beforeAll(async () => {
-    // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
+    // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("ModelInfoModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    // initialize the schema and model
+    // Initializing the schema and model
     initializeSchemaAndModel(dbConnection);
     ModelInfoModel = dbConnection.model(ModelName);
   });
@@ -36,7 +36,7 @@ describe('Test the definition of the ModelInfo Model', () => {
     }
   });
 
-  test("Successfully validate modelInfo with mandatory fields", async () => {
+  test("Successfully validate the modelInfo with the mandatory fields", async () => {
     // GIVEN an object with all mandatory fields
     const givenObject: IModelInfo = {
       id: getMockId(2),
@@ -59,18 +59,18 @@ describe('Test the definition of the ModelInfo Model', () => {
       updatedAt: new Date().toISOString()
     };
 
-    // WHEN validating that object
-    const modelInfoValid = new ModelInfoModel(givenObject);
+    // WHEN validating that object using the ModelInfoModel
+    const actualModelInfoValid = new ModelInfoModel(givenObject);
 
-    // THEN it should validate successfully
-    const errors = await modelInfoValid.validateSync()
+    // THEN expect it to validate successfully
+    const errors = await actualModelInfoValid.validateSync()
     // @ts-ignore
     expect(errors).toBeUndefined();
   });
 
-  test("Successfully validate modelInfo with optional fields", async () => {
-    // GIVEN an object with all mandatory fields
-    //@ts-ignore
+  test("Successfully validate the modelInfo with optional fields", async () => {
+    // GIVEN an object with optional fields
+    // @ts-ignore
     const givenObject: IModelInfo = {
       UUID: randomUUID(),
       previousUUID: "",
@@ -87,16 +87,16 @@ describe('Test the definition of the ModelInfo Model', () => {
       version: "",
     };
 
-    // WHEN validating that object
-    const modelInfoValid = new ModelInfoModel(givenObject);
+    // WHEN validating that object using the ModelInfoModel
+    const actualModelInfoValid = new ModelInfoModel(givenObject);
 
-    // THEN it should validate successfully
-    const errors = await modelInfoValid.validateSync()
+    // THEN expect it to validate successfully
+    const errors = await actualModelInfoValid.validateSync()
     // @ts-ignore
     expect(errors).toBeUndefined();
   });
 
-  describe("Validate modelInfo fields", () => {
+  describe("Validate the modelInfo fields", () => {
 
     describe("Test validation of 'description'", () => {
       test.each([
@@ -189,7 +189,6 @@ describe('Test the definition of the ModelInfo Model', () => {
         assertCaseForProperty<IModelInfo>(ModelInfoModel, "UUID", caseType, value, expectedFailureMessage);
       });
     });
-
 
     describe("Test validation of 'released'", () => {
       test.each([
