@@ -20,7 +20,7 @@ import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 
-describe("test for model handler with a DB", () => {
+describe("Test for model handler with a DB", () => {
 
   let dbConnection: Connection | undefined;
   beforeAll(async () => {
@@ -38,9 +38,8 @@ describe("test for model handler with a DB", () => {
     }
   });
 
-  test("POST should respond with the CREATED and response passes the JSON Schema validation", async () => {
-    // GIVEN a valid request payload
-
+  test("POST should respond with the CREATED status code and the response passes the JSON Schema validation", async () => {
+    // GIVEN a valid request (method & header & payload)
     const givenPayload: IModelInfoRequest = {
       name: getRandomString(NAME_MAX_LENGTH),
       locale: {
@@ -50,7 +49,6 @@ describe("test for model handler with a DB", () => {
       },
       description: getRandomString(DESCRIPTION_MAX_LENGTH)
     }
-    // WHEN the handler is invoked with the payload
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
@@ -58,6 +56,8 @@ describe("test for model handler with a DB", () => {
         'Content-Type': 'application/json'
       }
     }
+
+    // WHEN the handler is invoked with the given event
     // @ts-ignore
     const actualResponse = await modelHandler(givenEvent);
 
