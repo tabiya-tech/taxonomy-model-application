@@ -102,6 +102,7 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long description", getTestString(DESCRIPTION_MAX_LENGTH + 1), `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
@@ -115,6 +116,7 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long releaseNotes", getTestString(RELEASE_NOTES_MAX_LENGTH + 1), `Release notes must be at most ${RELEASE_NOTES_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
@@ -128,6 +130,7 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "Too long version", getTestString(VERSION_MAX_LENGTH + 1), `Version must be at most ${VERSION_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
