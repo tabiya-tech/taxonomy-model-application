@@ -1,5 +1,4 @@
 import {
-  DESCRIPTION_MAX_LENGTH,
   IModelInfo,
   NAME_MAX_LENGTH,
   RELEASE_NOTES_MAX_LENGTH,
@@ -9,6 +8,8 @@ import {
 import {getMockId} from "_test_utilities/mockMongoId";
 import {randomUUID} from "crypto";
 import {getRandomString} from "_test_utilities/specialCharacters";
+import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
+
 
 export function getIModelInfoMockData(): IModelInfo {
   return {

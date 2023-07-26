@@ -3,7 +3,6 @@ import "_test_utilities/consoleMock"
 
 import mongoose, {Connection} from "mongoose";
 import {
-  DESCRIPTION_MAX_LENGTH,
   IModelInfo,
   NAME_MAX_LENGTH,
   RELEASE_NOTES_MAX_LENGTH, SHORTCODE_MAX_LENGTH,
@@ -16,6 +15,7 @@ import {getMockId} from "_test_utilities/mockMongoId";
 import {getNewConnection} from "server/connection/newConnection";
 import {assertCaseForProperty, CaseType} from "_test_utilities/dataModel";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
 
 describe('Test the definition of the ModelInfo Model', () => {
   let dbConnection: Connection;
