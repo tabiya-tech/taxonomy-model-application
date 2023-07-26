@@ -3,11 +3,13 @@ import * as transformModule from "./transform";
 import {handler as modelHandler} from "./index";
 import {HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 
-import {DESCRIPTION_MAX_LENGTH, IModelInfo, NAME_MAX_LENGTH} from "./modelInfoModel";
+import {IModelInfo} from "./modelInfoModel";
 import {randomUUID} from "crypto";
 import {ErrorCodes, IErrorResponse} from "api-specifications/error";
 import {getRandomString} from "_test_utilities/specialCharacters";
 import {
+  NAME_MAX_LENGTH,
+  DESCRIPTION_MAX_LENGTH,
   IModelInfoRequest,
   LOCALE_SHORTCODE_MAX_LENGTH,
   ModelInfoResponseErrorCodes

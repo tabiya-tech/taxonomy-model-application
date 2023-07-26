@@ -2,13 +2,13 @@ import {isSpecified} from 'server/isUnspecified';
 import mongoose from 'mongoose';
 import {RegExp_UUIDv4} from "server/regex";
 import { stringRequired } from 'server/stringRequired';
+import {DescriptionProperty, OriginUUIDProperty} from "../esco/common/modelSchema";
 
 export const ModelName = "ModelInfo";
 
 export const NAME_MAX_LENGTH = 256;
 
 export const SHORTCODE_MAX_LENGTH = 3;
-export const DESCRIPTION_MAX_LENGTH = 4000;
 
 export const RELEASE_NOTES_MAX_LENGTH = 100000;
 
@@ -38,11 +38,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         return (value.length === 0 || RegExp_UUIDv4.test(value));
       }
     },
-    originUUID: {
-      type: String, required: stringRequired("originUUID"), validate: function (value: string): boolean {
-        return (value.length === 0 || RegExp_UUIDv4.test(value));
-      }
-    },
+    originUUID: OriginUUIDProperty,
     name: {
       type: String,
       required: true,
@@ -52,11 +48,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       }
     },
     locale: localeSchema,
-    description: {
-      type: String,
-      required: stringRequired("description"),
-      maxlength: [DESCRIPTION_MAX_LENGTH, `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`]
-    },
+    description: DescriptionProperty,
     released: {type: Boolean, required: stringRequired("released")},
     releaseNotes: {
       type: String,

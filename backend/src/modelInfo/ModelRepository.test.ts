@@ -5,7 +5,6 @@ import {getMockId} from "_test_utilities/mockMongoId";
 import {Connection} from "mongoose";
 import {ModelRepository} from "./ModelRepository";
 import {
-  DESCRIPTION_MAX_LENGTH,
   IModelInfo,
   INewModelInfoSpec,
   NAME_MAX_LENGTH,
@@ -19,6 +18,7 @@ import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegist
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
