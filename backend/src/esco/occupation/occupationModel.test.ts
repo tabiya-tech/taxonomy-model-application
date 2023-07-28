@@ -45,7 +45,7 @@ describe('Test the definition of the Occupation Model', () => {
   });
 
   test("Successfully validate Occupation with mandatory fields", async () => {
-    // GIVEN an Occupation object with all mandatory fields
+    // GIVEN an Occupation object with mandatory fields filled & a document
     const givenObject: IOccupationDoc = {
       id: getMockId(1),
       UUID: randomUUID(),
@@ -64,18 +64,17 @@ describe('Test the definition of the Occupation Model', () => {
       updatedAt: new Date().toISOString(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
+    const givenOccupationDocument = new OccupationModel(givenObject);
 
-    // WHEN validating that object
-    const occupationModelValid = new OccupationModel(givenObject);
+    // WHEN validating that given occupation document
+    const actualValidationErrors = givenOccupationDocument.validateSync();
 
-    // THEN it should validate successfully
-    const errors = await occupationModelValid.validateSync()
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   test("Successfully validate Occupation with optional fields", async () => {
-    // GIVEN an Occupation object with all optional fields
+    // GIVEN an Occupation object with empty optional fields & a document
     const givenObject: IOccupationDoc = {
       id: getMockId(1),
       UUID: randomUUID(),
@@ -94,14 +93,13 @@ describe('Test the definition of the Occupation Model', () => {
       updatedAt: new Date().toISOString(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
+    const givenOccupationDocument = new OccupationModel(givenObject)
 
-    // WHEN validating that object
-    const occupationModelValid = new OccupationModel(givenObject);
+    // WHEN validating that given occupation document
+    const actualValidationErrors = givenOccupationDocument.validateSync();
 
-    // THEN it should validate successfully
-    const errors = await occupationModelValid.validateSync()
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   describe("Validate Occupation fields", () => {
@@ -163,7 +161,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "leading zero", "0009", undefined],
         [CaseType.Success, "any way in range", "090", undefined],
       ])
-      (`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+      (`(%s) Validate 'ISCOGroupCode' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IOccupationDoc>(OccupationModel, "ISCOGroupCode", caseType, value, expectedFailureMessage);
       });
     });
@@ -292,7 +290,7 @@ describe('Test the definition of the Occupation Model', () => {
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "the longest", getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH), undefined],
       ])
-      (`(%s) Validate 'description' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+      (`(%s) Validate 'regulatedProfessionNote' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IOccupationDoc>(OccupationModel, "regulatedProfessionNote", caseType, value, expectedFailureMessage);
       });
     });
