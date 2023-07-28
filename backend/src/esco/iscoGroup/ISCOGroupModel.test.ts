@@ -29,10 +29,10 @@ describe('Test the definition of the ISCOGroup Model', () => {
   let dbConnection: Connection;
   let ISCOGroupModel: mongoose.Model<IISCOGroupDoc>;
   beforeAll(async () => {
-    // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
+    // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("ISCOGroupModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    // initialize the schema and model
+    // Initialize the schema and model
     ISCOGroupModel = initializeSchemaAndModel(dbConnection);
   });
 
@@ -60,13 +60,13 @@ describe('Test the definition of the ISCOGroup Model', () => {
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
 
-    // WHEN validating that object
-    const ISCOGroupModelValid = new ISCOGroupModel(givenObject);
+    // WHEN validating the ISCOGroup object
+    const actualISCOGroupModelValid = new ISCOGroupModel(givenObject);
 
-    // THEN it should validate successfully
-    const errors = await ISCOGroupModelValid.validateSync()
+    // THEN it should validate successfully without any errors
+    const expectedErrors = await actualISCOGroupModelValid.validateSync()
     // @ts-ignore
-    expect(errors).toBeUndefined();
+    expect(expectedErrors).toBeUndefined();
   });
 
   test("Successfully validate ISCOGroup with optional fields", async () => {
@@ -86,13 +86,13 @@ describe('Test the definition of the ISCOGroup Model', () => {
       importId: "",
     };
 
-    // WHEN validating that object
-    const ISCOGroupModelValid = new ISCOGroupModel(givenObject);
+    // WHEN validating the ISCOGroup object
+    const actualISCOGroupModelValid = new ISCOGroupModel(givenObject);
 
-    // THEN it should validate successfully
-    const errors = await ISCOGroupModelValid.validateSync()
+    // THEN it should validate successfully without any errors
+    const expectedErrors = await actualISCOGroupModelValid.validateSync()
     // @ts-ignore
-    expect(errors).toBeUndefined();
+    expect(expectedErrors).toBeUndefined();
   });
 
   describe("Validate ISCOGroup fields", () => {
