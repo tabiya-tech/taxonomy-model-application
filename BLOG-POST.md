@@ -128,7 +128,7 @@ We name the constants and variables following a specific pattern to ensure consi
 Constants and variables in the `GIVEN` section should start with `given`.
 
 ```javascript
-// GIVEN  a foo
+// GIVEN a foo
 const givenFoo = "foo";
 // AND a bar
 const givenBar = "bar";
@@ -141,7 +141,7 @@ Constants and variables in the `WHEN` section should start with `actual`.
 ```javascript
 // WHEN the foo function is called
 const actualFooResult = foo();
-// AND  the bar function is called
+// AND the bar function is called
 const actualBarPromise = bar();
 ```
 
@@ -163,7 +163,7 @@ We try to maintain the same style and format across all our tests. This makes it
 Here is an example to demonstrate what we mean by it, with respect to the description of the tests:
 
 ```js
-// The desccriptions of these two tests don't follow the same pattern
+// The descriptions of these two tests don't follow the same pattern
 it("should respond with status CREATED and body with new order on POST");
 test("on POST respond with status CREATED and the new order in the response body")
 ```
