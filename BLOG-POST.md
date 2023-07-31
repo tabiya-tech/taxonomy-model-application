@@ -1,7 +1,7 @@
 # How we make our BDD tests readable at Tabiya
 
-At Tabiya, we are convinced that writing clear and concise tests is vital for the maintainability and scalability of our
-codebase. Here, we'll explain the rules we follow to enhance the readability of our Behavior-Driven Development (BDD)
+At [Tabiya](https://tabiya.tech/), we are convinced that writing clear and concise tests is vital for the maintainability and scalability of our
+codebase. Here, we'll explain the rules we follow to enhance the readability of our Behavior-Driven-Development (BDD)
 tests. We follow a simple yet effective pattern and maintain consistent formatting to ensure our tests read like natural
 sentences. This approach makes them easily understandable for both developers and stakeholders. Let's dive in!
 
@@ -36,7 +36,7 @@ case. Our goal is to make the tests read like a complete story, avoiding technic
 much as possible the domain language.
 
 We avoid describing the test steps in terms of the implementation details of the system. Instead, we focus on describing
-the behaviour of the system from the perspective of the user, api-consumer, partner system, etc.
+the behavior of the system from the perspective of the user, api-consumer, partner system, etc.
 
 For example, we avoid describing a test in this way:
 
@@ -201,7 +201,6 @@ Then, we describe the test steps in detail using the Gherkin syntax:
 
 ```javascript
 describe("test login() function", () => {
-
   it("should return status OK and a token and the username on successful login", async () => {
     // GIVEN a username
     // AND a password
@@ -223,7 +222,7 @@ describe("test login() function", () => {
  
     // THEN expect a response with the status UNAUTHORIZED
     // AND the response body to be empty
-  })
+  });
 })
 ```
 
@@ -231,7 +230,6 @@ Finally, we implement the tests:
 
 ```javascript
 describe("test login() function", () => {
-
   it("should return status OK and a token and the username on successful login", async () => {
     // GIVEN a username
     const givenUsername = "someUserName";
@@ -266,7 +264,7 @@ describe("test login() function", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
     // AND the response body to be empty
     expect(actualResponse.body).toEqual({});
-  })
+  });
 })
 ```
 
