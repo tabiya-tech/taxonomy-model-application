@@ -38,7 +38,7 @@ describe('Test the definition of the skill Model', () => {
   });
 
   test("Successfully validate skill with mandatory fields", async () => {
-    // GIVEN a skillGroup object with all mandatory fields
+    // GIVEN a skill object with all mandatory fields filled & a document
     const givenObject: ISkillDoc = {
       UUID: randomUUID(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
@@ -55,20 +55,19 @@ describe('Test the definition of the skill Model', () => {
       updatedAt: new Date().toISOString(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
+    const givenSkillDocument = new skillModel(givenObject);
 
     // WHEN validating that object
-    const skillModelValid = new skillModel(givenObject);
+    const actualValidationErrors = givenSkillDocument.validateSync();
 
-    // THEN it should validate successfully
-    const errors = await skillModelValid.validateSync()
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN expect it to validate without errors
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   test("Successfully validate skill with optional fields", async () => {
     //@ts-ignore
-    // GIVEN a skill object with all optional fields
-    const givenObject: ISkill = {
+    // GIVEN a skill object with empty optional fields & a document
+    const givenObject: ISkillDoc = {
       UUID: randomUUID(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),
@@ -82,14 +81,13 @@ describe('Test the definition of the skill Model', () => {
       scopeNote: "",
       importId: "",
     };
+    const givenSkillDocument = new skillModel(givenObject);
 
     // WHEN validating that object
-    const skillModelValid = new skillModel(givenObject);
+    const actualValidationErrors = givenSkillDocument.validateSync();
 
-    // THEN it should validate successfully
-    const errors = await skillModelValid.validateSync()
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN expect it to validate without errors
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   describe("Validate skillGroup fields", () => {
