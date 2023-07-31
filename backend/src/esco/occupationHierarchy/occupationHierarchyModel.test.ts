@@ -16,10 +16,10 @@ describe('Test the definition of the OccupationHierarchy Model', () => {
   let dbConnection: Connection;
   let OccupationHierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
   beforeAll(async () => {
-    // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
+    // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("OccupationHierarchyModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    // initialize the schema and model
+    // Initialize the schema and model
     OccupationHierarchyModel = initializeSchemaAndModel(dbConnection);
   });
 
@@ -31,7 +31,7 @@ describe('Test the definition of the OccupationHierarchy Model', () => {
   });
 
   test("Successfully validate Occupation Hierarchy with mandatory fields", async () => {
-    // GIVEN an Occupation object with all mandatory fields
+    // GIVEN an Occupation Hierarchy object with mandatory fields filled & a document
     const givenObject: IOccupationHierarchyPairDoc = {
       modelId: getMockId(2),
       parentType: ObjectTypes.ISCOGroup,
@@ -43,14 +43,13 @@ describe('Test the definition of the OccupationHierarchy Model', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    const givenOccupationDocumentDocument = new OccupationHierarchyModel(givenObject);
 
-    // WHEN validating that object
-    const occupationHierarchyModelValid = new OccupationHierarchyModel(givenObject);
+    // WHEN validating the Occupation Hierarchy document
+    const actualErrors = givenOccupationDocumentDocument.validateSync()
 
-    // THEN it should validate successfully
-    const errors = await occupationHierarchyModelValid.validateSync()
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN it should validate successfully without any errors
+    expect(actualErrors).toBeUndefined();
   });
 
   describe("Validate Occupation Hierarchy Model fields", () => {
