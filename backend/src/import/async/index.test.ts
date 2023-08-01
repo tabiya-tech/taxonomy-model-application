@@ -34,7 +34,6 @@ jest.mock("server/init", () => {
 });
 
 // Mock the S3PresignerService
-
 const mockS3PresignerServiceInstance = {
   getPresignedGet: jest.fn().mockImplementation((filePath: string) => {
     return Promise.resolve(`presigned url for ${filePath}`);
@@ -139,32 +138,32 @@ describe("Test the main async handler", () => {
       modelId: getMockId(1)
     }
 
-    // WHEN calling the handler with the given event
+    // WHEN the handler is invoked with the given event param
     await asyncIndex.handler(givenEvent);
 
-    // THEN expect the initOnce function to have been called
+    // THEN expect the initOnce function to be called
     expect(initOnce).toBeCalledTimes(1);
     // AND expect the S3PresignerService to have been instantiated with the correct region and bucket name
     expect(S3PresignerService).toHaveBeenCalledWith(givenUploadBucketRegion, givenUploadBucketName);
     // AND for each of the givenEvent.filePaths to call the correct processing function with the giveModelId and the presigned URL for the file path
     for (const entry of Object.entries(givenEvent.filePaths)) {
-      const fileType = entry[0];
-      const presignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
-      switch (fileType) {
+      const expectedFileType = entry[0];
+      const expectedPresignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
+      switch (expectedFileType) {
         case  ImportFileTypes.ISCO_GROUP:
-          expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
+          expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.ESCO_SKILL_GROUP:
-          expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
+          expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.ESCO_SKILL:
-          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
+          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.ESCO_OCCUPATION:
-          expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
+          expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         case ImportFileTypes.OCCUPATION_HIERARCHY:
-          expect(parseOccupationHierarchyFromUrl).toHaveBeenCalledWith(givenEvent.modelId, presignedUrl, expect.any(Map));
+          expect(parseOccupationHierarchyFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         // ADD additional file types here
       }
@@ -172,14 +171,14 @@ describe("Test the main async handler", () => {
   })
 
   test("should throw error if event does not conform to schema", async () => {
-    // GIVEN an event that does not conform to the  ImportRequest schema
+    // GIVEN an event that does not conform to the ImportRequest schema
     //@ts-ignore
     const givenBadEvent: ImportRequest = {foo: "foo"} as ImportRequest;
 
-    // WHEN the main handler is invoked with the given event
-    const promiseHandler = asyncIndex.handler(givenBadEvent);
+    // WHEN the main handler is invoked with the given bad event
+    const actualPromiseHandler = asyncIndex.handler(givenBadEvent);
 
-    // THEN expect to reject with an error
-    await expect(promiseHandler).rejects.toThrowError("Import failed, the event does not conform to the expected schema");
+    // THEN expect it to reject with an error
+    await expect(actualPromiseHandler).rejects.toThrowError("Import failed, the event does not conform to the expected schema");
   });
 })
