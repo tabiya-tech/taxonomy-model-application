@@ -4,6 +4,8 @@ import "_test_utilities/consoleMock";
 import {lambda_invokeAsyncImport} from "./asyncImport";
 import {ImportFileTypes, ImportRequest, ImportResponseErrorCodes} from "api-specifications/import";
 import {StatusCodes} from "server/httpUtils";
+import * as config from "server/config/config";
+import {IErrorResponse} from "api-specifications/error";
 
 import {LambdaClient, InvokeCommand} from "@aws-sdk/client-lambda";
 
@@ -18,86 +20,74 @@ jest.mock("@aws-sdk/client-lambda", () => {
   };
 });
 
-
-import * as config from "server/config/config";
-import {IErrorResponse} from "api-specifications/error";
-
 describe("Test lambda_invokeAsyncImport()  ", () => {
-  test("lambda_invokeAsyncImport() should return ACCEPTED", async () => {
+  test("should return the ACCEPTED status", async () => {
     // GIVEN an ImportRequest
-    const givenRequest: ImportRequest = {
+    const givenImportRequest: ImportRequest = {
       filePaths: {
         [ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
         [ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
-    // AND a mock for Lambda.invokeAsync which successfully schedules the call
-    // AND some lambda function arn
+    // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
     jest.spyOn(config, "getAsyncLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
-
-    // AND a some lambda function region
+    // AND some lambda function region will be return by the  configuration
     const givenConfigAsyncLambdaFunctionRegion = "foo";
     jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
 
-    // WHEN calling lambda_invokeAsyncImport() with the given ImportRequest
-    const actualResponse = await lambda_invokeAsyncImport(givenRequest);
+    // WHEN calling the lambda_invokeAsyncImport() function with the given ImportRequest
+    const actualResponse = await lambda_invokeAsyncImport(givenImportRequest);
 
-    // THEN lambda_invokeAsyncImport() should return actualResponse
+    // THEN expect the function to return a response
     expect(actualResponse).toBeDefined();
-
-    // AND actualResponse status code should be 202
+    // AND the actualResponse status code to be ACCEPTED
     expect(actualResponse.statusCode).toEqual(StatusCodes.ACCEPTED);
-
-    // AND LambdaClient should be called with the given region
+    // AND the LambdaClient to have been called with the given region from the configuration
     expect(LambdaClient).toHaveBeenCalledWith({region: givenConfigAsyncLambdaFunctionRegion});
-
-    // AND InvokeCommand should be called with
+    // AND InvokeCommand to have been called with
     expect(InvokeCommand).toHaveBeenCalledWith(
       {
-        // The given name of the Lambda function
+        // The Lambda function arn from the configuration
         FunctionName: givenConfigAsyncLambdaFunctionArn,
-        // The invocation type is event for asynchronous execution
+        // The invocation type to be event for asynchronous execution
         InvocationType: "Event",
         // The payload is a Uint8Array of the string representation of the givenImportRequest
-        Payload: new TextEncoder().encode(JSON.stringify(givenRequest))
+        Payload: new TextEncoder().encode(JSON.stringify(givenImportRequest))
       }
     );
   });
 
-  test("lambda_invokeAsyncImport() should return INTERNAL_SERVER_ERROR if InvokeCommand throws an error", async () => {
+  test("should return the INTERNAL_SERVER_ERROR status if InvokeCommand throws an error", async () => {
     // GIVEN an ImportRequest
-    const request: ImportRequest = {
+    const givenImportRequest: ImportRequest = {
       filePaths: {
         [ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
         [ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
-    // AND a mock for InvokeCommand which will fail to schedule the call
+    // AND some lambda function arn will be return by the  configuration
+    const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
+    jest.spyOn(config, "getAsyncLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
+    // AND some lambda function region will be return by the  configuration
+    const givenConfigAsyncLambdaFunctionRegion = "foo";
+    jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
+    // AND the InvokeCommand will fail to schedule the call
     // @ts-ignore
     InvokeCommand.mockImplementationOnce(() => {
       throw new Error("Failed to schedule import");
     });
 
-    // AND some lambda function arn
-    const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
-    jest.spyOn(config, "getAsyncLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
+    // WHEN calling the lambda_invokeAsyncImport() function with the given ImportRequest
+    const actualResponse = await lambda_invokeAsyncImport(givenImportRequest);
 
-    // AND a some lambda function region
-    const givenConfigAsyncLambdaFunctionRegion = "foo";
-    jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
-
-
-    // WHEN calling lambda_invokeAsyncImport() with the given ImportRequest
-    const actualResponse = await lambda_invokeAsyncImport(request);
-
-    // THEN lambda_invokeAsyncImport() should return actualResponse
+    // THEN expect the function to return a response
     expect(actualResponse).toBeDefined();
-
-    // AND actualResponse status code should be 500
+    // AND the actualResponse status code to be INTERNAL_SERVER_ERROR
     expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    // AND the actualResponse body to have the error information
     const expectedErrorBody: IErrorResponse = {
       "errorCode": ImportResponseErrorCodes.FAILED_TO_TRIGGER_IMPORT,
       "message": "Failed to trigger import",
