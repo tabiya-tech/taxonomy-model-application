@@ -24,10 +24,10 @@ describe('Test the definition of the skillGroup Model', () => {
   let dbConnection: Connection;
   let skillGroupModel: mongoose.Model<ISkillGroupDoc>;
   beforeAll(async () => {
-    // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
+    // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("skillGroupModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    // initialize the schema and model
+    // Initialize the schema and model
     skillGroupModel = initializeSchemaAndModel(dbConnection);
   });
 
@@ -39,7 +39,7 @@ describe('Test the definition of the skillGroup Model', () => {
   });
 
   test("Successfully validate skillGroup with mandatory fields", async () => {
-    // GIVEN a skillGroup object with all mandatory fields
+    // GIVEN a skillGroup object with all mandatory fields filled & a document
     const givenObject: ISkillGroupDoc = {
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
@@ -55,19 +55,18 @@ describe('Test the definition of the skillGroup Model', () => {
       updatedAt: new Date().toISOString(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH)
     };
+    const givenSkillGroupDocument = new skillGroupModel(givenObject);
 
-    // WHEN validating that object
-    const skillGroupModelValid = new skillGroupModel(givenObject);
+    // WHEN validating that given skillGroup document
+    const actualValidationErrors = givenSkillGroupDocument.validateSync();
 
-    // THEN it should validate successfully
-    const errors = await skillGroupModelValid.validateSync()
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   test("Successfully validate skillGroup with optional fields", async () => {
     //@ts-ignore
-    // GIVEN an skillGroup object with all optional fields
+    // GIVEN a skillGroup object with empty optional fields & a document
     const givenObject: ISkillGroupDoc = {
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
@@ -81,14 +80,13 @@ describe('Test the definition of the skillGroup Model', () => {
       scopeNote: "",
       importId: ""
     };
+    const givenSkillGroupDocument = new skillGroupModel(givenObject);
 
-    // WHEN validating that object
-    const skillGroupModelValid = new skillGroupModel(givenObject);
+    // WHEN validating that given skillGroup document
+    const actualValidationErrors = givenSkillGroupDocument.validateSync();
 
-    // THEN it should validate successfully
-    const errors = await skillGroupModelValid.validateSync()
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   describe("Validate skillGroup fields", () => {
