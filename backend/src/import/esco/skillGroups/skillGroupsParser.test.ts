@@ -20,8 +20,6 @@ describe("test parseSkillGroups from", () => {
 
   test.each([
     ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
-      // WHEN the csv file is downloaded and parsed
-      // AND the response that returns the expected data
       const mockResponse = fs.createReadStream("./src/import/esco/skillGroups/_test_data_/given.csv");
       // @ts-ignore
       mockResponse.statusCode = StatusCodes.OK; // Set the status code
@@ -40,9 +38,8 @@ describe("test parseSkillGroups from", () => {
   ("should create SkillGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
-
-    // AND an SkillGroup repository
-    const mockRepository: ISkillGroupRepository = {
+    // AND a SkillGroup repository
+    const givenMockRepository: ISkillGroupRepository = {
       // @ts-ignore
       Model: undefined,
       create: jest.fn().mockResolvedValue({}),
@@ -60,16 +57,13 @@ describe("test parseSkillGroups from", () => {
         }));
       }),
     };
-    // @ts-ignore
-    jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(mockRepository);
-
-
+    jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenMockRepository);
     // AND a map to map the ids of the CSV file to the database ids
-    const importIdToDBIdMap = new Map<string, string>();
-    jest.spyOn(importIdToDBIdMap, "set")
+    const givenImportIdToDBIdMap = new Map<string, string>();
+    jest.spyOn(givenImportIdToDBIdMap, "set")
 
     // WHEN the data are parsed
-    const actualStats = await parseCallBack(givenModelId, importIdToDBIdMap);
+    const actualStats = await parseCallBack(givenModelId, givenImportIdToDBIdMap);
 
     // THEN expect all the SkillGroups to have been processed successfully
     const expectedResults = require("./_test_data_/expected.ts").expected;
@@ -78,20 +72,19 @@ describe("test parseSkillGroups from", () => {
       rowsSuccess: expectedResults.length,
       rowsFailed: 0
     });
-    // AND expect the repository to have been called with the correct spec
+    // AND the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">) => {
-      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
+      expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })
-
-    // AND expect the non-empty import ids to have been mapped to the db id
-    expect(importIdToDBIdMap.set).toHaveBeenCalledTimes(2);
+    // AND the non-empty import ids to have been mapped to the db id
+    expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(2);
 
     expectedResults
       .filter((res: Omit<INewSkillGroupSpec, "modelId">) => isSpecified(res.importId))
       .forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">, index: number) => {
-        expect(importIdToDBIdMap.set).toHaveBeenNthCalledWith(
+        expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
           index + 1,
           expectedSpec.importId,
           "DB_ID_" + expectedSpec.importId
