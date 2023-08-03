@@ -85,7 +85,7 @@ describe('test getPreSigned()', () => {
 
     // AND the transform() will transform the post data
     const givenPresignedResponse = {bar: "bar"} as any
-    const transformSpy = jest.spyOn(transformModule, "transformPostData").mockReturnValue(givenPresignedResponse);
+    const transformSpy = jest.spyOn(transformModule, "transformPresignedPostDataToResponse").mockReturnValue(givenPresignedResponse);
 
     // WHEN getPreSigned() is called
     const actualResponse = await handlerModule.getPreSigned();
@@ -95,7 +95,7 @@ describe('test getPreSigned()', () => {
     expect(awsSDKServiceModule.s3_getPresignedPost).toHaveBeenCalledWith(givenRegion, givenBucketName, givenRandomKey, MAX_FILE_SIZE, EXPIRES);
 
     // AND it should call the transformModule.transformPostData() with the given pre-signed post data
-    expect(transformModule.transformPostData).toHaveBeenCalledWith(givenPreSignedPost, givenRandomKey);
+    expect(transformModule.transformPresignedPostDataToResponse).toHaveBeenCalledWith(givenPreSignedPost, givenRandomKey);
 
     // AND expect to respond with status CREATED
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
