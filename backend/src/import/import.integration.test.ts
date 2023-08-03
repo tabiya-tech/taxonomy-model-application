@@ -24,9 +24,9 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       originalEnv[key] = process.env[key] as string;
     });
   });
-
+  
   afterAll(() => {
-    // restore original env variables
+    // Restore original env variables
     Object.keys(process.env).forEach((key) => {
       delete process.env[key];
     });
@@ -34,7 +34,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       process.env[key] = originalEnv[key];
     });
   });
-
+  
   // Initialize the server with an in-memory mongodb
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
@@ -45,12 +45,12 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
     process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_REGION] = "not-used";
     await initOnce()
   });
-
+  
   // Drop the database after all tests and close the connection
   afterAll(async () => {
     const connection = getConnectionManager().getCurrentDBConnection();
     if (connection) {
-
+      
       try {
         await connection.dropDatabase();
         await connection.close(true);
@@ -59,12 +59,12 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       }
     }
   });
-
+  
   // The actual tests
   test("should import the sample CSV files", async () => {
     const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
     const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
-
+    
     // 01. Create a new ModelInfo
     const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
       name: "CSVImport",
@@ -75,35 +75,36 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
         shortCode: "en"
       }
     } as INewModelInfoSpec);
-
+    
     const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
     const dataFolder = "../data-sets/csv/tabiya-sample/";
+
     // 02. Import the ISCOGroup CSV files
     const statsISCOGroups = await parseISCOGroupsFromFile(modelInfo.id, dataFolder + "ISCOGroups.csv", importIdToDBIdMap);
-    asserSuccessfullyImported(statsISCOGroups,consoleErrorSpy,consoleWarnSpy);
+    asserSuccessfullyImported(statsISCOGroups, consoleErrorSpy, consoleWarnSpy);
     expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed);
-
+    
     // 03. Import the ESCO Skill Groups CSV files
     const statsSkillGroups = await parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skillGroups.csv", importIdToDBIdMap);
-    asserSuccessfullyImported(statsSkillGroups,consoleErrorSpy,consoleWarnSpy);
+    asserSuccessfullyImported(statsSkillGroups, consoleErrorSpy, consoleWarnSpy);
     expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed);
-
+    
     // 04. Import the ESCO Skills CSV files
     const statsSkills = await parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap);
-    asserSuccessfullyImported(statsSkills,consoleErrorSpy,consoleWarnSpy);
+    asserSuccessfullyImported(statsSkills, consoleErrorSpy, consoleWarnSpy);
     expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed + statsSkills.rowsProcessed);
-
+    
     // 05. Import the Occupations CSV files
     const statsOccupations = await parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap);
-    asserSuccessfullyImported(statsOccupations,consoleErrorSpy,consoleWarnSpy);
+    asserSuccessfullyImported(statsOccupations, consoleErrorSpy, consoleWarnSpy);
     expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed + statsSkills.rowsProcessed + statsOccupations.rowsProcessed);
-
+    
     // 06. Import occupation hierarchy
     const statsOccHierarchy = await parseOccupationHierarchyFromFile(modelInfo.id, dataFolder + "occupations_hierarchy.csv", importIdToDBIdMap);
-    asserSuccessfullyImported(statsOccHierarchy,consoleErrorSpy,consoleWarnSpy);
+    asserSuccessfullyImported(statsOccHierarchy, consoleErrorSpy, consoleWarnSpy);
     // every occupation should have one parent occupation, except for the 10 top level occupations (the 10 top level ISCO groups)
     expect(statsOccHierarchy.rowsSuccess).toEqual(statsISCOGroups.rowsSuccess + statsOccupations.rowsSuccess - 10);
-
+    
   }, 30000); // 30 seconds timeout to allow for the import to complete
 });
 
