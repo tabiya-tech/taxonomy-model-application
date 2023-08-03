@@ -1,24 +1,25 @@
-import {transformPostData} from "./transform";
+import {transformPresignedPostDataToResponse} from "./transform";
 import {IPresignedResponse} from "api-specifications/presigned";
 import {PresignedPost} from "@aws-sdk/s3-presigned-post";
 
-describe("test the transformPostData()", () => {
+describe("test the transformPresignedPostDataToResponse()", () => {
 
   it("should successfully transform", async () => {
-    // GIVEN a post data
-    const givenPostData: PresignedPost = {
+    // GIVEN some presigned post data
+    const givenPresignedPostData: PresignedPost = {
       url: "some/url",
       fields: {"key": "foo", "key1": "value1", "key2": "value2"}
     }
     // AND a folder
-    const folder = "bar";
-    // WHEN the transformPostData() is called with the given post data
-    const actualPostData: IPresignedResponse = transformPostData(givenPostData, folder);
+    const givenFolder = "bar";
 
-    // THEN expect to return IPreSignedResponse
-    expect(actualPostData).toMatchObject({
-      url: givenPostData.url,
-      folder: folder,
+    // WHEN the transformPresignedPostDataToResponse function is called with the given presigned post data
+    const actualPresignedResponse: IPresignedResponse = transformPresignedPostDataToResponse(givenPresignedPostData, givenFolder);
+
+    // THEN expect the function to return a correct IPreSignedResponse
+    expect(actualPresignedResponse).toEqual({
+      url: givenPresignedPostData.url,
+      folder: givenFolder,
       fields: [{name: "key1", value: "value1"}, {name: "key2", value: "value2"}]
     })
   });

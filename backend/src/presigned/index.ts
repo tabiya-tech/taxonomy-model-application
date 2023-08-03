@@ -6,7 +6,7 @@ import {EXPIRES, MAX_FILE_SIZE} from "./presigned.constants";
 
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
 import {s3_getPresignedPost} from "./awsSDKService";
-import {transformPostData} from "./transform";
+import {transformPresignedPostDataToResponse} from "./transform";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
   = async (event: APIGatewayProxyEvent) => {
@@ -47,7 +47,7 @@ export const getPreSigned = async () => {
   try {
     const folder = randomUUID();
     const postData = await s3_getPresignedPost(getUploadBucketRegion(), getUploadBucketName(), folder, MAX_FILE_SIZE, EXPIRES);
-    return responseJSON(StatusCodes.OK, transformPostData(postData, folder));
+    return responseJSON(StatusCodes.OK, transformPresignedPostDataToResponse(postData, folder));
   } catch (e: unknown) {
     return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;
   }
