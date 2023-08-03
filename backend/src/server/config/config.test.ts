@@ -9,6 +9,7 @@ import {
   IConfiguration, getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion
 } from "./config";
 import {getRandomString, getTestString} from "_test_utilities/specialCharacters";
+import * as process from "process";
 
 describe("Test read Configuration()", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -35,31 +36,42 @@ describe("Test read Configuration()", () => {
     process.env.UPLOAD_BUCKET_NAME = getRandomString(10);
     process.env.UPLOAD_BUCKET_REGION = getRandomString(10);
     process.env.ASYNC_LAMBDA_FUNCTION_ARN = getRandomString(10);
-    // WHEN the configuration is read
-    const config = readEnvironmentConfiguration();
-    expect(config).toMatchObject({
+    process.env.ASYNC_LAMBDA_FUNCTION_REGION = getRandomString(10);
+
+    // WHEN reading the configuration from the environment
+    const actualConfig = readEnvironmentConfiguration();
+
+    // THEN expect the configuration to have the values from the environment variables
+    expect(actualConfig).toEqual({
       dbURI: process.env.MONGODB_URI,
       resourcesBaseUrl: process.env.RESOURCES_BASE_URL,
       uploadBucketName: process.env.UPLOAD_BUCKET_NAME,
       uploadBucketRegion: process.env.UPLOAD_BUCKET_REGION,
-      asyncLambdaFunctionArn: process.env.ASYNC_LAMBDA_FUNCTION_ARN
+      asyncLambdaFunctionArn: process.env.ASYNC_LAMBDA_FUNCTION_ARN,
+      asyncLambdaFunctionRegion: process.env.ASYNC_LAMBDA_FUNCTION_REGION
     });
   });
+
   test("readEnvironmentConfiguration() should return default value if environment is not set", () => {
-    // GIVEN the environment variables are set
+    // GIVEN none of the relevant environment variables are set
     delete process.env.MONGODB_URI;
     delete process.env.RESOURCES_BASE_URL
     delete process.env.UPLOAD_BUCKET_NAME
     delete process.env.UPLOAD_BUCKET_REGION
     delete process.env.ASYNC_LAMBDA_FUNCTION_ARN
-    // WHEN the configuration is read
+    delete process.env.ASYNC_LAMBDA_FUNCTION_REGION
+
+    // WHEN reading the configuration from the environment
     const config = readEnvironmentConfiguration();
-    expect(config).toMatchObject({
+
+    // THEN expect the configuration to have empty values
+    expect(config).toEqual({
       dbURI: "",
       resourcesBaseUrl: "",
       uploadBucketName: "",
       uploadBucketRegion: "",
-      asyncLambdaFunctionArn: ""
+      asyncLambdaFunctionArn: "",
+      asyncLambdaFunctionRegion: ""
     });
   });
 });
@@ -67,64 +79,16 @@ describe("Test current configuration", () => {
 
   test("should set/get the configuration", () => {
     // GIVEN a configuration
-    const config = getMockConfig();
+    const givenConfig = getMockConfig();
 
-    // WHEN the configuration is set
-    setConfiguration(config);
+    // WHEN the given configuration is set
+    setConfiguration(givenConfig);
 
-    // THEN the configuration is returned
-    expect(getConfiguration()).toEqual(config);
+    // THEN expect the given configuration to be returned
+    expect(getConfiguration()).toEqual(givenConfig);
   })
-  describe("Test getDbURI()", () => {
 
-    test("getDbURI() should return the set value", () => {
-      // GIVEN a configuration is set
-      const config = getMockConfig();
-      setConfiguration(config);
-
-      // WHEN getDbURI is called
-      const actual = getDbURI()
-
-      // THEN the value is returned
-      expect(actual).toEqual(config.dbURI);
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getDbURI() should return '' if the set value %s ", (description, value) => {
-      // GIVEN a configuration is set
-      const config = {
-        dbURI: value,
-      }
-      // @ts-ignore
-      setConfiguration(config);
-
-      // WHEN getDbURI is called
-      const actual = getDbURI()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-
-    test.each([
-      ["is undefined", undefined],
-      ["is null", null],
-    ])
-    ("getDbURI() should return '' if the configuration %s ", (description, value) => {
-      // GIVEN a configuration is set
-
-      // @ts-ignore
-      setConfiguration(value);
-
-      // WHEN getDbURI is called
-      const actual = getDbURI()
-
-      // THEN the value is returned
-      expect(actual).toEqual("");
-    });
-  });
+  stdConfigurationValuesTest("getDbURI", getDbURI, "dbURI");
 
   stdConfigurationValuesTest("getResourcesBaseUrl", getResourcesBaseUrl, "resourcesBaseUrl");
 
@@ -137,52 +101,52 @@ describe("Test current configuration", () => {
   stdConfigurationValuesTest("getAsyncLambdaFunctionRegion", getAsyncLambdaFunctionRegion, "asyncLambdaFunctionRegion");
 });
 
-function stdConfigurationValuesTest(getFunctionName: string, getFunction: ()=> string, configKey: keyof IConfiguration) {
+function stdConfigurationValuesTest(getFunctionName: string, getFunction: () => string, configKey: keyof IConfiguration) {
   return describe(`Test ${getFunctionName}()`, () => {
     test(`${getFunctionName}() should return the set value`, () => {
       // GIVEN a configuration is set
-      const config = getMockConfig();
-      setConfiguration(config);
+      const givenConfig = getMockConfig();
+      setConfiguration(givenConfig);
 
-      // WHEN getFunction is called
+      // WHEN calling the getFunction to be tested
       const actualValue = getFunction()
 
-      // THEN the value is returned
-      expect(actualValue).toEqual(config[configKey])
+      // THEN expect the getFunction to return the given config value for the tested config key
+      expect(actualValue).toEqual(givenConfig[configKey])
     });
 
     test.each([
       ["is undefined", undefined],
       ["is null", null],
     ])
-    (`${getFunctionName}() should return '' if the set value %s`, (description, value) => {
-      // GIVEN a configuration is set
+    (`${getFunctionName}() should return '' if the set value %s`, (description, givenValue) => {
+      // GIVEN a configuration value of the tested config key is set to the given value
       const config = {
-        [configKey]: value,
+        [configKey]: givenValue,
       }
       // @ts-ignore
       setConfiguration(config);
 
-      // WHEN getFunction is called
-      const actual = getFunction()
+      // WHEN calling the getFunction to be tested
+      const actualValue = getFunction()
 
-      // THEN the value is returned
-      expect(actual).toEqual("");
+      // THEN expect the function to return an empty string
+      expect(actualValue).toEqual("");
     });
 
     test.each([
       ["is undefined", undefined],
       ["is null", null],
     ])
-    (`${getFunctionName}() should return '' if configuration %s`, (description, value) => {
-      // GIVEN a configuration is set
+    (`${getFunctionName}() should return '' if configuration %s`, (description, givenValue) => {
+      // GIVEN a configuration is set to the given value
       // @ts-ignore
-      setConfiguration(value);
+      setConfiguration(givenValue);
 
-      // WHEN getFunction is called
+      // WHEN calling the getFunction to be tested
       const actual = getFunction()
 
-      // THEN the value is returned
+      // THEN expect the function to return an empty string
       expect(actual).toEqual("");
     });
   });
