@@ -26,8 +26,7 @@ describe('test getPresignedPost()', () => {
     const givenFolder = "baz";
     const givenMaxFileSize = 100;
     const givenExpires = 1000;
-
-    // AND the S3.createPreSignedPost will successfully return a post object
+    // AND the S3.createPreSignedPost will successfully return a presigned post object
     const givenMockPost: PresignedPost = {
       url: "foo/url",
       fields: {"key1": "value", "key2": "value2"}
@@ -35,16 +34,14 @@ describe('test getPresignedPost()', () => {
     (createPresignedPost as jest.Mock).mockResolvedValueOnce(givenMockPost);
 
     // WHEN the getPresignedPost() is called with the given parameters
-    const actualPostData:PresignedPost = await s3_getPresignedPost(givenRegion, givenBucketName, givenFolder, givenMaxFileSize, givenExpires);
+    const actualPostData: PresignedPost = await s3_getPresignedPost(givenRegion, givenBucketName, givenFolder, givenMaxFileSize, givenExpires);
 
     // THEN it should use the correct region
     expect(S3Client).toHaveBeenCalledWith({region: givenRegion});
-
     // AND the given region, bucketName, folder, maxFileSize, and expires should be passed to the createPresignedPost()
-    const arg = (createPresignedPost as jest.Mock).mock.calls[0][1]
-    expect(arg).toMatchSnapshot();
-
-    // AND it should return the post data that was returned from the createPresignedPost()
+    const expectedArg = (createPresignedPost as jest.Mock).mock.calls[0][1]
+    expect(expectedArg).toMatchSnapshot();
+    // AND it should return the presigned post data that was returned from the createPresignedPost()
     expect(actualPostData).toEqual(givenMockPost);
   });
 });
