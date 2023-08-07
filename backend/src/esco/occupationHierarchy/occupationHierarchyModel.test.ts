@@ -43,13 +43,13 @@ describe('Test the definition of the OccupationHierarchy Model', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    const givenOccupationDocumentDocument = new OccupationHierarchyModel(givenObject);
+    const givenOccupationDocument = new OccupationHierarchyModel(givenObject);
 
-    // WHEN validating the Occupation Hierarchy document
-    const actualErrors = givenOccupationDocumentDocument.validateSync()
-
-    // THEN it should validate successfully without any errors
-    expect(actualErrors).toBeUndefined();
+    // WHEN validating that given Occupation Hierarchy document
+    const actualValidationErrors = givenOccupationDocument.validateSync()
+    
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   describe("Validate Occupation Hierarchy Model fields", () => {
