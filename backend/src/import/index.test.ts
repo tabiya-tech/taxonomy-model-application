@@ -1,4 +1,4 @@
-import {handler as importHandler} from "./index";
+import * as ImportHandler from "./index";
 import {HTTP_VERBS, response, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import {ErrorCodes, IErrorResponse} from "api-specifications/error";
 import * as AsyncImport from "./asyncImport";
@@ -7,13 +7,14 @@ import {ImportRequest, ImportResponseErrorCodes} from "api-specifications/import
 import {getMockId} from "_test_utilities/mockMongoId";
 import {APIGatewayProxyEvent} from "aws-lambda";
 
-describe("test for trigger import handler", () => {
+
+describe("test for trigger ImportHandler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test("POST should respond with the response from the callAsyncImport()", async () => {
-    // GIVEN a payload
+  test("POST should respond with the response from the lambda_invokeAsyncImport()", async () => {
+    // GIVEN a correct payload & event with 'Content-Type: application/json; charset=utf-8'
     const givenPayload: ImportRequest = {
       modelId: getMockId(2),
       filePaths: {
@@ -21,26 +22,26 @@ describe("test for trigger import handler", () => {
         ESCO_OCCUPATION: "path/to/file7",
       }
     }
-    // AND event
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8'
       }
     } as any
-    // AND a spy on callAsyncImport method
-    const importHandlerSpy = jest.spyOn(AsyncImport, "lambda_invokeAsyncImport").mockResolvedValueOnce(
-      response(StatusCodes.ACCEPTED, {})
+    // AND the lambda_invokeAsyncImport function will successfully handle the event and return a response
+    const givenResponse = response(StatusCodes.ACCEPTED, {})
+    const givenLambdaInvokeAsyncImportSpy = jest.spyOn(AsyncImport, "lambda_invokeAsyncImport").mockResolvedValueOnce(
+      givenResponse
     );
 
-    // WHEN the info handler is invoked with event param
-    const actualResponse = await importHandler(givenEvent);
+    // WHEN the handler is invoked with the given event
+    const actualResponse = await ImportHandler.handler(givenEvent);
 
-    // THEN expect Info handler to be called with event
-    expect(importHandlerSpy).toBeCalledWith(givenPayload);
-    // AND  expect error message with unsupported code  to exist
-    expect(actualResponse.statusCode).toEqual(StatusCodes.ACCEPTED);
+    // THEN expect lambda_invokeAsyncImport function to be called with the given payload
+    expect(givenLambdaInvokeAsyncImportSpy).toBeCalledWith(givenPayload);
+    // AND the handler to return the response from the lambda_invokeAsyncImport function
+    expect(actualResponse).toEqual(givenResponse);
   });
 
   test.each([
@@ -50,21 +51,21 @@ describe("test for trigger import handler", () => {
     HTTP_VERBS.PATCH,
     HTTP_VERBS.GET
   ])
-  ("%s should respond with NOT_FOUND error",
-    async (param) => {
-      // GIVEN an event with a non POST method
-      const givenEvent = {httpMethod: param};
+  ("%s should respond with METHOD_NOT_ALLOWED error",
+    async (givenMethod) => {
+      // GIVEN an event with the given http method
+      const givenEvent = {httpMethod: givenMethod};
 
-      // WHEN the trigger import handler is invoked
-      //@ts-ignore
-      const actualResponse = await importHandler(givenEvent, null, null);
+      // WHEN the handler is invoked with the given event
+      // @ts-ignore
+      const actualResponse = await ImportHandler.handler(givenEvent);
 
-      // THEN expect status to be 400
+      // THEN expect the handler to respond with METHOD_NOT_ALLOWED status code
       expect(actualResponse).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
     });
 
-  test("POST should respond with the UNSUPPORTED_MEDIA_TYPE if content type is invalid, ", async () => {
-    // GIVEN a payload
+  test("POST should respond with UNSUPPORTED_MEDIA_TYPE if content type is invalid, ", async () => {
+    // GIVEN a payload & event that does not have 'Content-Type: application/json'
     const givenPayload: ImportRequest = {
       modelId: getMockId(2),
       // @ts-ignore
@@ -73,22 +74,21 @@ describe("test for trigger import handler", () => {
 
       }
     }
-    // AND event
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
       headers: {
-        'Content-Type': 'text/html'
+        'Content-Type': 'text/html' // <----- content type is invalid
       }
     }
 
-    // WHEN the info handler is invoked with event param
-    //@ts-ignore
-    const actualResponse = await importHandler(givenEvent, null, null);
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await ImportHandler.handler(givenEvent, null, null);
 
-    // THEN expect to respond with error code
+    // THEN expect the handler to respond with UNSUPPORTED_MEDIA_TYPE status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
-    // AND expect en error message in the body
+    // AND the response body to contain the error information
     const expectedErrorBody: IErrorResponse = {
       "errorCode": ErrorCodes.UNSUPPORTED_MEDIA_TYPE,
       "message": "Content-Type should be application/json",
@@ -101,24 +101,23 @@ describe("test for trigger import handler", () => {
     ["is a malformed json", '{'],
     ["is a string", 'foo'],
   ])
-  ("POST should respond with the BAD_REQUEST if trigger import body is %s", async (description, payload) => {
-    // GIVEN a payload
+  ("POST should respond with BAD_REQUEST if trigger request body %s", async (description, givenPayload) => {
+    // GIVEN an event with the given payload
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,
-      body: payload,
+      body: givenPayload,
       headers: {
         'Content-Type': 'application/json'
       }
     }
 
-    // WHEN the info handler is invoked with event param
-    //@ts-ignore
-    const actualResponse = await importHandler(givenEvent, null, null);
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await ImportHandler.handler(givenEvent);
 
-    // THEN expect to respond with error code
+    // THEN expect the handler to respond with BAD_REQUEST status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-    // AND expect en error message in the body
-    // AND error response status =4 00 represents an error
+    // AND the response body to contain the error information
     const expectedErrorBody: IErrorResponse = {
       "errorCode": ErrorCodes.MALFORMED_BODY,
       "message": "Payload is malformed, it should be a valid model json",
@@ -133,9 +132,8 @@ describe("test for trigger import handler", () => {
   });
 
   test("POST should respond with the BAD_REQUEST if Request does not conform to schema", async () => {
-    // GIVEN a payload
+    // GIVEN a payload that does not conform to schema & event
     const givenPayload = {foo: "foo"}
-    // AND event
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
@@ -144,13 +142,13 @@ describe("test for trigger import handler", () => {
       }
     }
 
-    // WHEN the info handler is invoked with event param
-    //@ts-ignore
-    const actualResponse = await importHandler(givenEvent, null, null);
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await ImportHandler.handler(givenEvent);
 
-    // THEN expect to respond with error code
+    // THEN expect the handler to respond with BAD_REQUEST status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-    // AND expect en error message in the body
+    // AND the response body to contain the error information
     const expectedErrorBody: IErrorResponse = {
       "errorCode": ImportResponseErrorCodes.TRIGGER_IMPORT_COULD_NOT_VALIDATE,
       "message": "Payload should conform to schema",
