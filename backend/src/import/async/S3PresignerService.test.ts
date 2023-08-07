@@ -18,35 +18,37 @@ import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
 
 describe("Test S3PresignerService", () => {
   test("should construct a new S3PresignerService", () => {
-    // GIVEN a region and a bucket
+    // GIVEN a region
     const givenRegion = "foo";
+    // AND a bucket
     const givenBucket = "bar";
 
-    // WHEN constructing a new S3PresignerService
-    const s3PresignerService = new S3PresignerService(givenRegion, givenBucket);
+    // WHEN constructing a new S3PresignerService with the given region and bucket
+    const actualS3PresignerService = new S3PresignerService(givenRegion, givenBucket);
 
     // THEN expect the service to be constructed
-    expect(s3PresignerService).toBeDefined();
+    expect(actualS3PresignerService).toBeDefined();
   });
 
   test("should getPresignedGet() successfully", async () => {
-    // GIVEN a region and a bucket
+    // GIVEN a region
     const givenRegion = "foo";
+    // AND a bucket
     const givenBucket = "bar";
     // AND a S3PresignerService constructed with the given region and bucket
     const givenS3PresignerService = new S3PresignerService(givenRegion, givenBucket);
     // AND a file key
-    const fileKey = "baz";
+    const givenFileKey = "baz";
 
-    // WHEN getPresignedGet() is called with the file key
-    const actualPromise = givenS3PresignerService.getPresignedGet(fileKey);
+    // WHEN getPresignedGet function of the given S3PresignerService is called with the file key
+    const actualPromise = givenS3PresignerService.getPresignedGet(givenFileKey);
 
-    // THEN expect the S3Client to be called with the correct parameters
+    // THEN expect the S3Client to have been called with the correct region
     expect(S3Client).toHaveBeenCalledWith({region: givenRegion});
     // AND expect the GetObjectCommand to be called with the correct parameters
     expect(GetObjectCommand).toHaveBeenCalledWith({
       Bucket: givenBucket,
-      Key: fileKey
+      Key: givenFileKey
     });
     // AND expect the getSignedUrl to return whatever the getSignedUrl returns
     expect(actualPromise).toEqual((getSignedUrl as jest.Mock).mock.results[0].value);
