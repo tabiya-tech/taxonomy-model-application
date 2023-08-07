@@ -23,10 +23,10 @@ describe('Test the definition of the skill Model', () => {
   let dbConnection: Connection;
   let skillModel: mongoose.Model<ISkillDoc>;
   beforeAll(async () => {
-    // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
+    // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("skillGroupModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    // initialize the schema and model
+    // Initialize the schema and model
     skillModel = initializeSchemaAndModel(dbConnection);
   });
 
@@ -57,10 +57,10 @@ describe('Test the definition of the skill Model', () => {
     };
     const givenSkillDocument = new skillModel(givenObject);
 
-    // WHEN validating that object
+    // WHEN validating that given skill document
     const actualValidationErrors = givenSkillDocument.validateSync();
 
-    // THEN expect it to validate without errors
+    // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
   });
 
@@ -82,11 +82,11 @@ describe('Test the definition of the skill Model', () => {
       importId: "",
     };
     const givenSkillDocument = new skillModel(givenObject);
-
-    // WHEN validating that object
+    
+    // WHEN validating that given skill document
     const actualValidationErrors = givenSkillDocument.validateSync();
 
-    // THEN expect it to validate without errors
+    // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
   });
 
