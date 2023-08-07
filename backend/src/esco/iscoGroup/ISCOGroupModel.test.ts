@@ -44,7 +44,7 @@ describe('Test the definition of the ISCOGroup Model', () => {
   });
 
   test("Successfully validate ISCOGroup with mandatory fields", async () => {
-    // GIVEN an ISCOGroup object with all mandatory fields
+    // GIVEN an ISCOGroup object with all mandatory fields filled & a document
     const givenObject: IISCOGroupDoc = {
       id: getMockId(1),
       UUID: randomUUID(),
@@ -59,18 +59,17 @@ describe('Test the definition of the ISCOGroup Model', () => {
       updatedAt: new Date().toISOString(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
+    const givenISCOGroupDocument = new ISCOGroupModel(givenObject);
+    
+    // WHEN validating that given ISCOGroup document
+    const actualValidationErrors = givenISCOGroupDocument.validateSync();
 
-    // WHEN validating the ISCOGroup object
-    const actualISCOGroupModelValid = new ISCOGroupModel(givenObject);
-
-    // THEN it should validate successfully without any errors
-    const expectedErrors = await actualISCOGroupModelValid.validateSync()
-    // @ts-ignore
-    expect(expectedErrors).toBeUndefined();
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   test("Successfully validate ISCOGroup with optional fields", async () => {
-    // GIVEN an ISCOGroup object with all optional fields
+    // GIVEN an ISCOGroup object with empty optional fields & a document
     const givenObject: IISCOGroupDoc = {
       id: getMockId(1),
       UUID: randomUUID(),
@@ -85,14 +84,13 @@ describe('Test the definition of the ISCOGroup Model', () => {
       updatedAt: new Date().toISOString(),
       importId: "",
     };
-
-    // WHEN validating the ISCOGroup object
-    const actualISCOGroupModelValid = new ISCOGroupModel(givenObject);
-
-    // THEN it should validate successfully without any errors
-    const expectedErrors = await actualISCOGroupModelValid.validateSync()
-    // @ts-ignore
-    expect(expectedErrors).toBeUndefined();
+    const givenISCOGroupDocument = new ISCOGroupModel(givenObject);
+    
+    // WHEN validating that given ISCOGroup document
+    const actualValidationErrors = givenISCOGroupDocument.validateSync();
+    
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
   });
 
   describe("Validate ISCOGroup fields", () => {
