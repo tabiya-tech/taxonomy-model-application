@@ -61,6 +61,9 @@ export const STD_ERRORS_RESPONSES = {
   METHOD_NOT_ALLOWED: errorResponse(StatusCodes.METHOD_NOT_ALLOWED, ErrorCodes.METHOD_NOT_ALLOWED, ReasonPhrases.METHOD_NOT_ALLOWED, "",),
   NOT_FOUND: errorResponse(StatusCodes.NOT_FOUND, ErrorCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND, ""),
   INTERNAL_SERVER_ERROR: errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ErrorCodes.INTERNAL_SERVER_ERROR, ReasonPhrases.INTERNAL_SERVER_ERROR, ""),
+  MALFORMED_BODY_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.MALFORMED_BODY, ReasonPhrases.MALFORMED_BODY, errorDetails),
+  INVALID_JSON_SCHEMA_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.INVALID_JSON_SCHEMA, ReasonPhrases.INVALID_JSON_SCHEMA, errorDetails),
+  UNSUPPORTED_MEDIA_TYPE_ERROR: errorResponse(StatusCodes.UNSUPPORTED_MEDIA_TYPE, ErrorCodes.UNSUPPORTED_MEDIA_TYPE, ReasonPhrases.UNSUPPORTED_MEDIA_TYPE, "Content-Type should be application/json"),
 };
 
 export function redactCredentialsFromURI(uri: string) {

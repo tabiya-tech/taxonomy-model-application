@@ -11,8 +11,7 @@ export interface ImportRequest {
 }
 
 export enum ImportResponseErrorCodes {
-  FAILED_TO_TRIGGER_IMPORT = "FAILED_TO_TRIGGER_IMPORT",
-  TRIGGER_IMPORT_COULD_NOT_VALIDATE = "TRIGGER_IMPORT_COULD_NOT_VALIDATE",
+  FAILED_TO_TRIGGER_IMPORT = "FAILED_TO_TRIGGER_IMPORT"
 }
 
 export enum ImportFileTypes {
