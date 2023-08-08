@@ -2,7 +2,7 @@ import {APIGatewayProxyEvent} from "aws-lambda";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {errorResponse, HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import {ajvInstance, ParseValidationError} from "validator";
-import {ImportRequest, ImportRequestSchema, ImportResponseErrorCodes} from 'api-specifications/import';
+import {ImportRequest, ImportRequestSchema} from 'api-specifications/import';
 
 import {ErrorCodes} from "api-specifications/error";
 
@@ -43,8 +43,8 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
  *           description: |
  *             Failed to process the  bad request.
  *             Further information can be found in the `message` of response body, which can have the following values:
- *              - `TRIGGER_IMPORT_COULD_NOT_VALIDATE`: One of the body parameter is invalid
- *              - `MALFORMED_BODY': body of request is malformed
+ *              - `INVALID_JSON_SCHEMA`: The body has an invalid json schema
+ *              - `MALFORMED_BODY': The body is not a json
  *           content:
  *             application/json:
  *               schema:
@@ -60,8 +60,8 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
 
 async function postTriggerImport(event: APIGatewayProxyEvent) {
   // @ts-ignore
-  if (!event.headers || !event.headers['Content-Type'] || !event.headers['Content-Type'].includes('application/json')) { // application/json;charset=UTF-8
-    return errorResponse(StatusCodes.UNSUPPORTED_MEDIA_TYPE, ErrorCodes.UNSUPPORTED_MEDIA_TYPE, "Content-Type should be application/json", "Received Content-Type:" + event.headers['Content-Type']);
+  if (!event.headers || !event.headers['Content-Type'] || !event.headers['Content-Type'].includes('application/json')) { //  application/json;charset=UTF-8
+    return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
 
   let payload: ImportRequest;
@@ -76,8 +76,7 @@ async function postTriggerImport(event: APIGatewayProxyEvent) {
   const isValid = validateFunction(payload);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
-    return errorResponse(StatusCodes.BAD_REQUEST, ImportResponseErrorCodes.TRIGGER_IMPORT_COULD_NOT_VALIDATE,
-      "Payload should conform to schema", errorDetail);
+    return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
   }
   return lambda_invokeAsyncImport(payload);
 }
