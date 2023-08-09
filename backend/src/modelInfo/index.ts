@@ -16,8 +16,6 @@ import {
   ModelInfoResponseErrorCodes
 } from 'api-specifications/modelInfo';
 
-import {ErrorCodes} from "api-specifications/error";
-
 import {ValidateFunction} from "ajv";
 import {transform} from "./transform";
 import {getResourcesBaseUrl} from "server/config/config";
@@ -85,20 +83,20 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
  */
 async function postModelInfo(event: APIGatewayProxyEvent) {
   if (!event.headers['Content-Type'] || !event.headers['Content-Type'].includes('application/json')) { // application/json;charset=UTF-8
-    return errorResponse(StatusCodes.UNSUPPORTED_MEDIA_TYPE, ErrorCodes.UNSUPPORTED_MEDIA_TYPE, "Content-Type should be application/json", "Received Content-Type:" + event.headers['Content-Type']);
+    return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
   let payload: IModelInfoRequest;
   try {
     payload = JSON.parse(event.body as string);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    return errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.MALFORMED_BODY, "Payload is malformed, it should be a valid model json", error.message);
+    return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(error.message);
   }
   const validateFunction = ajvInstance.getSchema(ModelInfoRequestSchema.$id as string) as ValidateFunction;
   const isValid = validateFunction(payload);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
-    return errorResponse(StatusCodes.BAD_REQUEST, ModelInfoResponseErrorCodes.MODEL_COULD_NOT_VALIDATE, "Payload should conform to schema", errorDetail);
+    return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
   }
 
   const newModelInfoSpec: INewModelInfoSpec = {
