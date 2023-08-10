@@ -19,8 +19,6 @@ jest.mock('https');
 describe("test parseSkills from", () => {
   test.each([
     ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
-      // WHEN the csv file is downloaded and parsed
-      // AND the response that returns the expected data
       const mockResponse = fs.createReadStream("./src/import/esco/skills/_test_data_/given.csv");
       // @ts-ignore
       mockResponse.statusCode = StatusCodes.OK; // Set the status code
@@ -39,9 +37,8 @@ describe("test parseSkills from", () => {
   ("should create Skills from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
-
     // AND a Skill repository
-    const mockRepository: ISkillRepository = {
+    const givenMockRepository: ISkillRepository = {
       // @ts-ignore
       Model: undefined,
       create: jest.fn().mockResolvedValue({}),
@@ -57,16 +54,13 @@ describe("test parseSkills from", () => {
         }));
       }),
     };
-    // @ts-ignore
-    jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(mockRepository);
-
-
+    jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(givenMockRepository);
     // AND a map to map the ids of the CSV file to the database ids
-    const importIdToDBIdMap = new Map<string, string>();
-    jest.spyOn(importIdToDBIdMap, "set")
+    const givenImportIdToDBIdMap = new Map<string, string>();
+    jest.spyOn(givenImportIdToDBIdMap, "set")
 
     // WHEN the data are parsed
-    const actualStats = await parseCallBack(givenModelId, importIdToDBIdMap);
+    const actualStats = await parseCallBack(givenModelId, givenImportIdToDBIdMap);
 
     // THEN expect all the occupations to have been processed successfully
     const expectedResults = require("./_test_data_/expected.ts").expected;
@@ -75,19 +69,18 @@ describe("test parseSkills from", () => {
       rowsSuccess: expectedResults.length,
       rowsFailed: 0
     });
-    // AND expect the repository to have been called with the correct spec
+    // AND the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
-      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
+      expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })
-
-    // AND expect the non-empty import ids to have been mapped to the db id
-    expect(importIdToDBIdMap.set).toHaveBeenCalledTimes(2);
+    // AND the non-empty import ids to have been mapped to the db id
+    expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(2);
     expectedResults
       .filter((res: Omit<INewSkillSpec, "modelId">) => isSpecified(res.importId))
       .forEach((expectedSpec: Omit<INewSkillSpec, "modelId">, index: number) => {
-        expect(importIdToDBIdMap.set).toHaveBeenNthCalledWith(
+        expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
           index + 1,
           expectedSpec.importId,
           "DB_ID_" + expectedSpec.importId
