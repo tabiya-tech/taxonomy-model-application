@@ -17,10 +17,9 @@ import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 jest.mock('https');
 
 describe("test parseOccupations from", () => {
+
   test.each([
     ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
-      // WHEN the csv file is downloaded and parsed
-      // AND the response that returns the expected data
       const mockResponse = fs.createReadStream("./src/import/esco/occupations/_test_data_/given.csv");
       // @ts-ignore
       mockResponse.statusCode = StatusCodes.OK; // Set the status code
@@ -39,7 +38,6 @@ describe("test parseOccupations from", () => {
   ("should create Occupations from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
-
     // AND an Occupation repository
     const mockRepository: IOccupationRepository = {
       Model: undefined as any,
@@ -61,18 +59,6 @@ describe("test parseOccupations from", () => {
     };
     // @ts-ignore
     jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);
-
-    // WHEN the csv file is downloaded and parsed
-    // AND the response that returns the expected data
-    const mockResponse = fs.createReadStream("./src/import/esco/occupations/_test_data_/given.csv");
-    // @ts-ignore
-    mockResponse.statusCode = StatusCodes.OK; // Set the status code
-    (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
-      callback(mockResponse);
-      return {
-        on: jest.fn(),
-      };
-    });
     // AND a map to map the ids of the CSV file to the database ids
     const importIdToDBIdMap = new Map<string, string>();
     jest.spyOn(importIdToDBIdMap, "set")
@@ -87,16 +73,14 @@ describe("test parseOccupations from", () => {
       rowsSuccess: expectedResults.length,
       rowsFailed: 0
     });
-    // AND expect the repository to have been called with the correct spec
+    // AND the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">) => {
       expect(mockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })
-
-    // AND expect the non-empty import ids to have been mapped to the db id
+    // AND the non-empty import ids to have been mapped to the db id
     expect(importIdToDBIdMap.set).toHaveBeenCalledTimes(2);
-
     expectedResults
       .filter((res: Omit<INewOccupationSpec, "modelId">) => isSpecified(res.importId))
       .forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">, index: number) => {
