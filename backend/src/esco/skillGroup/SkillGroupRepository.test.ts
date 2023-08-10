@@ -124,10 +124,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
 
     test("should reject with an error when creating a skill group and providing a UUID", async () => {
-      // GIVEN a SkillGroupSpec that is otherwise valid but has a UUID
+      // GIVEN a valid newSkillGroupSpec
       const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
 
-      // WHEN Creating a new SkillGroupSpec with the UUID of the existing
+      // WHEN Creating a new skill with the given specifications by providing a UUID
       await expect(repository.create({
         ...givenNewSkillGroupSpec,
         //@ts-ignore
@@ -144,7 +144,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // WHEN Creating a new SkillGroup with the UUID of the existing SkillGroup
         // @ts-ignore
         randomUUID.mockReturnValueOnce(givenNewModel.UUID);
-        await expect(repository.create(givenNewSkillGroupSpecSpec)).rejects.toThrowError(/duplicate key/);
+        const actualPromise = repository.create(givenNewSkillGroupSpecSpec)
+
+        // THEN expect the actual promise to reject
+        await expect(actualPromise).rejects.toThrowError(/duplicate key/);
       });
     });
 
@@ -170,7 +173,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         givenNewSkillGroupSpecs[i] = getNewSkillGroupSpec();
       }
 
-      // WHEN batch creating the Skill Groups with the given specifications
+      // WHEN creating the batch of skills Groups with the given specifications
       const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
 
       // THEN expect all the Skill Groups to be created with the specific attributes
@@ -192,7 +195,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // @ts-ignore
       givenInvalidSkillGroupSpec[1].foo = "invalid"; // will not validate and will throw an error
 
-      // WHEN batch creating the ISCOGroups with the given specifications
+      // WHEN creating the batch of skills Groups with the given specifications
       const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany([
         givenValidSkillGroupSpecs[0],
         ...givenInvalidSkillGroupSpec,
@@ -219,10 +222,11 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         givenValidSkillGroupSpecs[i] = getNewSkillGroupSpec();
         givenValidSkillGroupSpecs[i].code = "invalid code";
       }
-      // WHEN batch creating the Skill Groups with the given specifications
+
+      // WHEN creating the batch of skills Groups with the given specifications
       const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenValidSkillGroupSpecs);
 
-      // THEN expect an empty array to be created
+      // THEN expect no skill to be created
       expect(actualNewSkillGroups).toHaveLength(0);
     });
 
@@ -235,11 +239,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           givenNewSkillGroupSpecs[i] = getNewSkillGroupSpec();
         }
 
-        // WHEN batch creating the Skill Groups with the given specifications
-        // AND the second SkillGroupSpec is created with the same UUID as the first one
+        // WHEN creating the batch of skills Groups with the given specifications (the second SkillGroupSpec having the same UUID as the first one)
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
-
         const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
 
         // THEN expect only the first and the third the Skill Groups to be created with the specific attributes
