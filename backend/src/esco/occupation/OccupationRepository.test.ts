@@ -156,12 +156,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a valid OccupationSpec
       const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
 
-      // WHEN Creating a new ISCO Group with given specifications
-      const newOccupation: INewOccupationSpec = await repository.create(givenNewOccupationSpec);
+      // WHEN Creating a new ISCOGroup with given specifications
+      const actualNewOccupation: INewOccupationSpec = await repository.create(givenNewOccupationSpec);
 
-      // THEN expect the new ISCO Group to be created with the specific attributes
+      // THEN expect the new ISCOGroup to be created with the specific attributes
       const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec);
-      expect(newOccupation).toEqual(expectedNewISCO);
+      expect(actualNewOccupation).toEqual(expectedNewISCO);
     });
 
     test("should reject with an error when creating a model and providing a UUID", async () => {
@@ -169,59 +169,61 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
 
       // WHEN Creating a new Occupation with a provided UUID
-      const newOccupationPromise = repository.create({
+      const actualNewOccupationPromise = repository.create({
         ...givenNewOccupationSpec,
         //@ts-ignore
         UUID: randomUUID()
       })
 
       // Then expect the promise to reject with an error
-      await expect(newOccupationPromise).rejects.toThrowError(/UUID should not be provided/);
+      await expect(actualNewOccupationPromise).rejects.toThrowError(/UUID should not be provided/);
     });
 
     describe("Test unique indexes", () => {
       test("should reject with an error when creating model with an existing UUID", async () => {
-        // GIVEN a Occupation record exists in the database
+        // GIVEN an Occupation record exists in the database
         const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
         const givenNewOccupation = await repository.create(givenNewOccupationSpec);
 
         // WHEN Creating a new Occupation with the same UUID as the one the existing Occupation
         // @ts-ignore
         randomUUID.mockReturnValueOnce(givenNewOccupation.UUID);
-        const secondNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
-        const secondNewOccupationPromise = repository.create(secondNewOccupationSpec);
+        const actualSecondNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+        const actualSecondNewOccupationPromise = repository.create(actualSecondNewOccupationSpec);
 
-        await expect(secondNewOccupationPromise).rejects.toThrowError(/duplicate key .* dup key: { UUID/);
+        // THEN expect it to throw an error
+        await expect(actualSecondNewOccupationPromise).rejects.toThrowError(/duplicate key .* dup key: { UUID/);
       });
 
       test("should successfully create a second Identical Occupation in a different model", async () => {
-        // GIVEN a Occupation record exists in the database for a given model
+        // GIVEN an Occupation record exists in the database
         const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
         await repository.create(givenNewOccupationSpec);
 
         // WHEN Creating an identical Occupation in a new model (new modelId)
         // @ts-ignore
-        const secondNewOccupationSpec: INewOccupationSpec = {...givenNewOccupationSpec};
-        secondNewOccupationSpec.modelId = getMockId(3);
-        const secondNewOccupationPromise = repository.create(secondNewOccupationSpec);
+        const actualSecondNewOccupationSpec: INewOccupationSpec = {...givenNewOccupationSpec};
+        actualSecondNewOccupationSpec.modelId = getMockId(3);
+        const actualSecondNewOccupationPromise = repository.create(actualSecondNewOccupationSpec);
 
         // THEN expect the new Occupation to be created
-        await expect(secondNewOccupationPromise).resolves.toBeDefined();
+        await expect(actualSecondNewOccupationPromise).resolves.toBeDefined();
       });
 
       test("should reject with an error when creating a pair of (modelId and code) is duplicated", async () => {
-        // GIVEN a Occupation record exists in the database
+        // GIVEN an Occupation record exists in the database
         const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
         const givenNewModel = await repository.create(givenNewOccupationSpec);
 
         // WHEN Creating a new Occupation with the same pair of modelId and code as the ones the existing Occupation
         // @ts-ignore
-        const secondNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
-        secondNewOccupationSpec.code = givenNewModel.code;
-        secondNewOccupationSpec.modelId = givenNewModel.modelId;
-        const secondNewModelPromise = repository.create(secondNewOccupationSpec);
+        const actualSecondNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+        actualSecondNewOccupationSpec.code = givenNewModel.code;
+        actualSecondNewOccupationSpec.modelId = givenNewModel.modelId;
+        const actualSecondNewModelPromise = repository.create(actualSecondNewOccupationSpec);
 
-        await expect(secondNewModelPromise).rejects.toThrowError(/duplicate key error collection/);
+        // THEN expect it to throw an error
+        await expect(actualSecondNewModelPromise).rejects.toThrowError(/duplicate key error collection/);
       });
     });
 
@@ -239,11 +241,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         givenNewOccupationSpecs[i] = getNewOccupationSpec();
       }
 
-      // WHEN batch creating the ISCO Groups with the given specifications
-      const newOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
+      // WHEN creating the batch of ISCOGroups with the given specifications
+      const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
 
-      // THEN expect all the ISCO Groups to be created with the specific attributes
-      expect(newOccupations).toEqual(
+      // THEN expect all the ISCOGroups to be created with the specific attributes
+      expect(actualNewOccupations).toEqual(
         expect.arrayContaining(
           givenNewOccupationSpecs.map((givenNewOccupationSpec) => {
             return expectedFromGivenSpec(givenNewOccupationSpec);
@@ -255,24 +257,22 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should successfully create a batch of new Occupations even if some don't validate", async () => {
       // GIVEN two valid OccupationSpec
       const givenValidOccupationSpecs: INewOccupationSpec[] = [getNewOccupationSpec(), getNewOccupationSpec()];
-
       // AND two OccupationSpec that is invalid
       const givenInvalidOccupationSpec: INewOccupationSpec [] = [getNewOccupationSpec(),  getNewOccupationSpec()];
       givenInvalidOccupationSpec[0].code = "invalid code"; // will not validate but will not throw an error
       // @ts-ignore
       givenInvalidOccupationSpec[1].foo = "invalid"; // will not validate and will throw an error
 
-      // WHEN batch creating the ISCO Groups with the given specifications
-      const newOccupations: INewOccupationSpec[] = await repository.createMany([
+      // WHEN creating the batch of ISCOGroups with the given specifications
+      const actualNewOccupations: INewOccupationSpec[] = await repository.createMany([
         givenValidOccupationSpecs[0],
         ...givenInvalidOccupationSpec,
         givenValidOccupationSpecs[1],
       ]);
 
-      // THEN expect only the valid ISCO Group to be created
-      expect(newOccupations).toHaveLength(givenValidOccupationSpecs.length);
-
-      expect(newOccupations).toEqual(
+      // THEN expect only the valid ISCOGroup to be created
+      expect(actualNewOccupations).toHaveLength(givenValidOccupationSpecs.length);
+      expect(actualNewOccupations).toEqual(
         expect.arrayContaining(
           givenValidOccupationSpecs.map((givenNewOccupationSpec) => {
             return expectedFromGivenSpec(givenNewOccupationSpec);
@@ -289,11 +289,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         givenValidOccupationSpecs[i] = getNewOccupationSpec();
         givenValidOccupationSpecs[i].code = "invalid code";
       }
-      // WHEN batch creating the ISCO Groups with the given specifications
-      const newOccupations: INewOccupationSpec[] = await repository.createMany(givenValidOccupationSpecs);
+      
+      // WHEN creating the batch of ISCOGroups with the given specifications
+      const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenValidOccupationSpecs);
 
       // THEN expect an empty array to be created
-      expect(newOccupations).toHaveLength(0);
+      expect(actualNewOccupations).toHaveLength(0);
     });
 
     describe("Test unique indexes", () => {
@@ -305,15 +306,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           givenNewOccupationSpecs[i] = getNewOccupationSpec();
         }
 
-        // WHEN batch creating the ISCO Groups with the given specifications
-        // AND the second OccupationSpec is created with the same UUID as the first one
+        // WHEN creating the batch of skills Groups with the given specifications (the second SkillGroupSpec having the same UUID as the first one)
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
 
-        const newOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
-
-        // THEN expect only the first and the third the ISCO Groups to be created with the specific attributes
-        expect(newOccupations).toEqual(
+        // THEN expect only the first and the third the ISCOGroups to be created with the specific attributes
+        expect(actualNewOccupations).toEqual(
           expect.arrayContaining(
             givenNewOccupationSpecs.filter((spec, index) => index !== 1)
               .map((givenNewOccupationSpec) => {
@@ -331,13 +330,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           givenNewOccupationSpecs[i] = getNewOccupationSpec();
         }
 
-        // WHEN batch creating the Occupation with the given specifications
-        // AND the second OccupationSpec has the same code as the one
+        // WHEN creating the batch of skills Groups with the given specifications (the second SkillGroupSpec having the same UUID as the first one)
         givenNewOccupationSpecs[1].code = givenNewOccupationSpecs[0].code;
-
-        const newOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
-        // THEN expect only the first and the third the ISCO Groups to be created with the specific attributes
-        expect(newOccupations).toEqual(
+        const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
+        
+        // THEN expect only the first and the third the ISCOGroups to be created with the specific attributes
+        expect(actualNewOccupations).toEqual(
           expect.arrayContaining(
             givenNewOccupationSpecs.filter((spec, index) => index !== 1)
               .map((givenNewOccupationSpec) => {
@@ -368,30 +366,30 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenOccupation = await repository.create(givenOccupationSpecs);
 
       // WHEN searching for the Occupation by its id
-      const foundOccupation = await repository.findById(givenOccupation.id);
+      const actualFoundOccupation = await repository.findById(givenOccupation.id);
 
       // THEN expect the Occupation to be found
-      expect(foundOccupation).toEqual(givenOccupation);
+      expect(actualFoundOccupation).toEqual(givenOccupation);
     });
 
     test("should return null if no Occupation with the given id exists", async () => {
       // GIVEN no Occupation exists in the database
 
       // WHEN searching for the Occupation by its id
-      const foundOccupation = await repository.findById(new mongoose.Types.ObjectId().toHexString());
+      const actualFoundOccupation = await repository.findById(new mongoose.Types.ObjectId().toHexString());
 
       // THEN expect no Occupation to be found
-      expect(foundOccupation).toBeNull();
+      expect(actualFoundOccupation).toBeNull();
     });
 
     test("should return null if given id is not a valid object id", async () => {
       // GIVEN no Occupation exists in the database
 
       // WHEN searching for the Occupation by its id
-      const foundOccupation = await repository.findById("non_existing_id");
+      const actualFoundOccupation = await repository.findById("non_existing_id");
 
       // THEN expect no Occupation to be found
-      expect(foundOccupation).toBeNull();
+      expect(actualFoundOccupation).toBeNull();
     });
 
     describe("Test Occupation hierarchy robustness to inconsistencies", () => {
@@ -402,7 +400,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "occupation_1");
         const givenOccupation = await repository.create(givenOccupationSpecs);
         // The non-Occupation in this case a Skill
-        const newSkillSpec: INewSkillSpec = {
+        const givenNewSkillSpec: INewSkillSpec = {
           preferredLabel: "skill_1",
           modelId: givenOccupation.modelId,
           originUUID: "",
@@ -415,9 +413,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           altLabels: [],
           importId: "",
         };
-        const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
+        const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
-        const inconsistentPair: IOccupationHierarchyPairDoc = {
+        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
 
           parentId: new mongoose.Types.ObjectId(givenOccupation.id),
@@ -429,18 +427,18 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           childDocModel: MongooseModelName.Skill, // <- This is the inconsistency
           childId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
         }
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
 
         // WHEN searching for the Occupation by its id
         jest.spyOn(console, "error");
-        const foundGroup = await repository.findById(givenOccupation.id);
+        const actualFoundGroup = await repository.findById(givenOccupation.id);
 
         // THEN expect the Occupation to not contain the inconsistent parent
-        expect(foundGroup).not.toBeNull();
-        expect(foundGroup!.children).toEqual([]);
+        expect(actualFoundGroup).not.toBeNull();
+        expect(actualFoundGroup!.children).toEqual([]);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not an Occupation: ${inconsistentPair.childDocModel}`);
+        expect(console.error).toBeCalledWith(`Child is not an Occupation: ${givenInconsistentPair.childDocModel}`);
 
       });
 
@@ -450,7 +448,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "group_1");
         const givenOccupation = await repository.create(givenOccupationSpecs);
         // The non-Occupation in this case a Skill
-        const newSkillSpec: INewSkillSpec = {
+        const givenNewSkillSpec: INewSkillSpec = {
           preferredLabel: "skill_1",
           modelId: givenOccupation.modelId,
           originUUID: "",
@@ -463,9 +461,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           altLabels: [],
           importId: "",
         };
-        const givenSkill = await repositoryRegistry.skill.create(newSkillSpec);
+        const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
-        const inconsistentPair: IOccupationHierarchyPairDoc = {
+        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
           //@ts-ignore
           parentType: ObjectTypes.Skill, // <- This is the inconsistency
@@ -476,19 +474,18 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           childDocModel: MongooseModelName.Occupation,
           childType: ObjectTypes.Occupation,
         }
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
 
         // WHEN searching for the Occupation by its id
         jest.spyOn(console, "error");
-        const foundGroup = await repository.findById(givenOccupation.id);
+        const actualFoundGroup = await repository.findById(givenOccupation.id);
 
         // THEN expect the Occupation to not contain the inconsistent parent
-        expect(foundGroup).not.toBeNull();
-        expect(foundGroup!.parent).toEqual(null);
-
+        expect(actualFoundGroup).not.toBeNull();
+        expect(actualFoundGroup!.parent).toEqual(null);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not an ISCOGroup or an Occupation: ${inconsistentPair.parentDocModel}`);
+        expect(console.error).toBeCalledWith(`Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`);
       });
 
       test("should not find parent or child if the hierarchy is in a different model", async () => {
@@ -507,7 +504,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenModelId_3 = getMockId(3);
 
         //@ts-ignore
-        const inconsistentPair: IOccupationHierarchyPairDoc = {
+        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenModelId_3), // <-- this is the inconsistency
 
           parentId: new mongoose.Types.ObjectId(givenOccupation_1.id), // <-- this is the inconsistency
@@ -518,23 +515,23 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           childDocModel: MongooseModelName.Occupation,
           childType: ObjectTypes.Occupation,
         }
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
+        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
 
         // WHEN searching for the Occupation_1 by its id
-        const foundGroup_1 = await repository.findById(givenOccupation_1.id);
+        const actualFoundGroup_1 = await repository.findById(givenOccupation_1.id);
 
         // THEN expect the Occupation to not contain the inconsistent children
-        expect(foundGroup_1).not.toBeNull();
-        expect(foundGroup_1!.children).toEqual([]);
-        expect(foundGroup_1!.parent).toEqual(null);
+        expect(actualFoundGroup_1).not.toBeNull();
+        expect(actualFoundGroup_1!.children).toEqual([]);
+        expect(actualFoundGroup_1!.parent).toEqual(null);
 
         // WHEN searching for the Occupation_1 by its id
-        const foundGroup_2 = await repository.findById(givenOccupation_2.id);
+        const actualFoundGroup_2 = await repository.findById(givenOccupation_2.id);
 
         // THEN expect the Occupation to not contain the inconsistent children
-        expect(foundGroup_2).not.toBeNull();
-        expect(foundGroup_2!.children).toEqual([]);
-        expect(foundGroup_2!.parent).toEqual(null);
+        expect(actualFoundGroup_2).not.toBeNull();
+        expect(actualFoundGroup_2!.children).toEqual([]);
+        expect(actualFoundGroup_2!.parent).toEqual(null);
       });
 
       test("should not find parent if it is not is the same model as the child", async () => {
@@ -566,12 +563,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // WHEN searching for the Occupation_1 by its id
         jest.spyOn(console, "error");
-        const foundGroup_1 = await repository.findById(givenOccupation_1.id);
+        const givenFoundGroup_1 = await repository.findById(givenOccupation_1.id);
 
         // THEN expect the Occupation to not contain the inconsistent children
-        expect(foundGroup_1).not.toBeNull();
-        expect(foundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
-
+        expect(givenFoundGroup_1).not.toBeNull();
+        expect(givenFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
@@ -602,17 +598,15 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           childDocModel: MongooseModelName.Occupation,
           childType: ObjectTypes.Occupation,
         }
-
         await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(inconsistentPair);
 
         // WHEN searching for the Occupation_2 by its id
         jest.spyOn(console, "error");
-        const foundGroup_2 = await repository.findById(givenOccupation_2.id);
+        const actualFoundGroup_2 = await repository.findById(givenOccupation_2.id);
 
         // THEN expect the Occupation to not contain the inconsistent parent
-        expect(foundGroup_2).not.toBeNull();
-        expect(foundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
-
+        expect(actualFoundGroup_2).not.toBeNull();
+        expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
@@ -624,16 +618,16 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 function TestConnectionFailure(actionCallback: (repository: IOccupationRepository) => Promise<any>) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
-    const config = getTestConfiguration("OccupationRepositoryTestDB");
-    const connection = await getNewConnection(config.dbURI);
-    const repositoryRegistry = new RepositoryRegistry();
-    await repositoryRegistry.initialize(connection);
-    const repository = repositoryRegistry.occupation;
+    const givenConfig = getTestConfiguration("OccupationRepositoryTestDB");
+    const givenConnection = await getNewConnection(givenConfig.dbURI);
+    const givenRepositoryRegistry = new RepositoryRegistry();
+    await givenRepositoryRegistry.initialize(givenConnection);
+    const givenRepository = givenRepositoryRegistry.occupation;
 
     // WHEN connection is lost
-    await connection.close(false);
+    await givenConnection.close(false);
 
     // THEN expect to reject with an error
-    await expect(actionCallback(repository)).rejects.toThrowError(/Client must be connected before running operations/);
+    await expect(actionCallback(givenRepository)).rejects.toThrowError(/Client must be connected before running operations/);
   });
 }
