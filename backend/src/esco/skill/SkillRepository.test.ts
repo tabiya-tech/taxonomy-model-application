@@ -165,7 +165,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     })
 
     test("should successfully create a batch of new Skills", async () => {
-      // GIVEN some valid SkillSpecs
+      // GIVEN some valid SkillSpec
       const givenBatchSize = 3;
       const givenNewSkillSpecs: INewSkillSpec[] = [];
       for (let i = 0; i < givenBatchSize; i++) {
@@ -188,8 +188,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should successfully create a batch of new Skills even if some don't validate", async () => {
       // GIVEN two valid skillSpecs
       const givenValidSkillSpecs: INewSkillSpec[] = [getNewSkillSpec(), getNewSkillSpec()];
-
-      // AND two invalid others
+      // AND two SkillSpec that is invalid
       const givenInvalidSkillSpec: INewSkillSpec [] = [getNewSkillSpec(), getNewSkillSpec()];
       givenInvalidSkillSpec[0].preferredLabel = ""; // will not validate but will not throw an error
       // @ts-ignore
@@ -271,16 +270,16 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 function TestConnectionFailure(actionCallback: (repository: ISkillRepository) => Promise<ISkill | null>) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
-    const config = getTestConfiguration("SkillRepositoryTestDB");
-    const connection = await getNewConnection(config.dbURI);
-    const repositoryRegistry = new RepositoryRegistry();
-    await repositoryRegistry.initialize(connection);
-    const repository = repositoryRegistry.skill;
+    const givenConfig = getTestConfiguration("SkillRepositoryTestDB");
+    const givenConnection = await getNewConnection(givenConfig.dbURI);
+    const givenRepositoryRegistry = new RepositoryRegistry();
+    await givenRepositoryRegistry.initialize(givenConnection);
+    const givenRepository = givenRepositoryRegistry.skill;
 
     // WHEN connection is lost
-    await connection.close(false);
+    await givenConnection.close(false);
 
     // THEN expect to reject with an error
-    await expect(actionCallback(repository)).rejects.toThrowError(/Client must be connected before running operations/);
+    await expect(actionCallback(givenRepository)).rejects.toThrowError(/Client must be connected before running operations/);
   });
 }
