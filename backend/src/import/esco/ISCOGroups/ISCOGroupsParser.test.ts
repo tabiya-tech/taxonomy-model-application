@@ -19,8 +19,6 @@ jest.mock('https');
 describe("test parseISCOGroups from", () => {
   test.each([
       ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
-        // WHEN the csv file is downloaded and parsed
-        // AND the response that returns the expected data
         const mockResponse = fs.createReadStream("./src/import/esco/ISCOGroups/_test_data_/given.csv");
         // @ts-ignore
         mockResponse.statusCode = StatusCodes.OK; // Set the status code
@@ -39,9 +37,8 @@ describe("test parseISCOGroups from", () => {
   )("should create IISOGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
-
     // AND an ISCOGroup repository
-    const mockRepository: IISCOGroupRepository = {
+    const givenMockRepository: IISCOGroupRepository = {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue({}),
       createMany: jest.fn().mockImplementation((specs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> => {
@@ -59,15 +56,13 @@ describe("test parseISCOGroups from", () => {
       }),
       findById: jest.fn().mockResolvedValue({})
     };
-    // @ts-ignore
-    jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(mockRepository);
-
+    jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(givenMockRepository);
     // AND a map to map the ids of the CSV file to the database ids
-    const importIdToDBIdMap = new Map<string, string>();
-    jest.spyOn(importIdToDBIdMap, "set")
+    const givenImportIdToDBIdMap = new Map<string, string>();
+    jest.spyOn(givenImportIdToDBIdMap, "set")
 
     // WHEN the data are parsed
-    const actualStats: RowsProcessedStats = await parseCallBack(givenModelId, importIdToDBIdMap);
+    const actualStats: RowsProcessedStats = await parseCallBack(givenModelId, givenImportIdToDBIdMap);
 
     // THEN expect all the rows to have been processed successfully
     const expectedResults = require("./_test_data_/expected.ts").expected;
@@ -76,18 +71,18 @@ describe("test parseISCOGroups from", () => {
       rowsSuccess: expectedResults.length,
       rowsFailed: 0
     });
-    // AND the entries have been created in the database
+    // AND the entries to have been created in the database
     expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
-      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
+      expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     });
-    // AND expect the non-empty import ids to have been mapped to the db id
-    expect(importIdToDBIdMap.set).toHaveBeenCalledTimes(2);
+    // AND the non-empty import ids to have been mapped to the db id
+    expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(2);
     expectedResults
       .filter((res: Omit<INewISCOGroupSpec, "modelId">) => isSpecified(res.importId))
       .forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">, index: number) => {
-        expect(importIdToDBIdMap.set).toHaveBeenNthCalledWith(
+        expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
           index + 1,
           expectedSpec.importId,
           "DB_ID_" + expectedSpec.importId
