@@ -20,8 +20,6 @@ describe("test parseOccupationHierarchy from", () => {
 
   test.each([
     ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
-      // WHEN the csv file is downloaded and parsed
-      // AND the response that returns the expected data
       const mockResponse = fs.createReadStream("./src/import/esco/occupationHierarchy/_test_data_/given.csv");
       // @ts-ignore
       mockResponse.statusCode = StatusCodes.OK; // Set the status code
@@ -38,10 +36,10 @@ describe("test parseOccupationHierarchy from", () => {
     }]
   ])
   ("should create Occupation Hierarchy from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
-// GIVEN a model id
+    // GIVEN a model id
     const givenModelId = "foo-model-id";
     // AND an OccupationHierarchy repository
-    const mockRepository: OccupationHierarchyRepository = {
+    const givenMockRepository: OccupationHierarchyRepository = {
       iscoGroupModel: undefined as any,
       occupationModel: undefined as any,
       hierarchyModel: undefined as any,
@@ -60,7 +58,7 @@ describe("test parseOccupationHierarchy from", () => {
       }),
     };
     // @ts-ignore
-    jest.spyOn(getRepositoryRegistry(), "occupationHierarchy", "get").mockReturnValue(mockRepository);
+    jest.spyOn(getRepositoryRegistry(), "occupationHierarchy", "get").mockReturnValue(givenMockRepository);
     // AND the ids of the CSV file are mapped to database ids
     const importIdToDBIdMap = new Map<string, string>();
     jest.spyOn(importIdToDBIdMap, "get").mockImplementation((key) => {
@@ -77,9 +75,9 @@ describe("test parseOccupationHierarchy from", () => {
       rowsSuccess: expectedResults.length,
       rowsFailed: 0
     });
-    // AND expect the repository to have been called with the correct spec
+    // AND the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewOccupationHierarchyPairSpec, "modelId">) => {
-      expect(mockRepository.createMany).toHaveBeenLastCalledWith(
+      expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
         givenModelId,
         expect.arrayContaining([{...expectedSpec}])
       )
