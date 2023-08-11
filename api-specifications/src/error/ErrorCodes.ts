@@ -5,6 +5,7 @@ export enum ErrorCodes {
   INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR",
   CREATED = "CREATED",
   UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE",
+  TOO_LARGE_PAYLOAD = "TOO_LARGE_PAYLOAD",
   BAD_REQUEST = "BAD_REQUEST",
   INVALID_JSON_SCHEMA = "INVALID_JSON_SCHEMA"
 }
@@ -16,6 +17,7 @@ export enum ReasonPhrases {
   NOT_FOUND = "Not Found",
   CREATED = "Created",
   UNSUPPORTED_MEDIA_TYPE = "Unsupported Media Type",
+  TOO_LARGE_PAYLOAD = "Payload is too long",
   BAD_REQUEST = "Bad Request",
   INVALID_JSON_SCHEMA = "Invalid json schema"
 }
