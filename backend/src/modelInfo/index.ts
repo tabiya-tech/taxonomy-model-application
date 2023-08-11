@@ -11,7 +11,7 @@ import {IModelInfo, INewModelInfoSpec} from "./modelInfoModel";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {ajvInstance, ParseValidationError} from "validator";
 import {
-  IModelInfoRequest,
+  IModelInfoRequest, MAX_PAYLOAD_LENGTH,
   ModelInfoRequestSchema,
   ModelInfoResponseErrorCodes
 } from 'api-specifications/modelInfo';
@@ -85,6 +85,12 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
   if (!event.headers['Content-Type'] || !event.headers['Content-Type'].includes('application/json')) { // application/json;charset=UTF-8
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
+  
+  // @ts-ignore
+  if(event.body?.length > MAX_PAYLOAD_LENGTH){
+    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${MAX_PAYLOAD_LENGTH}` );
+  }
+  
   let payload: IModelInfoRequest;
   try {
     payload = JSON.parse(event.body as string);
