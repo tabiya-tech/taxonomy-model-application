@@ -1,30 +1,40 @@
 import * as ImportHandler from "./index";
 import {HTTP_VERBS, response, StatusCodes} from "server/httpUtils";
 import * as AsyncImport from "./asyncImport";
-import {ImportRequest} from "api-specifications/import";
+import {ImportRequest, ImportFileTypes, FILEPATH_MAX_LENGTH, MAX_PAYLOAD_LENGTH} from "api-specifications/import";
 
 import {getMockId} from "_test_utilities/mockMongoId";
 import {APIGatewayProxyEvent} from "aws-lambda";
 import {
   testMethodsNotAllowed,
   testRequestJSONMalformed,
-  testRequestJSONSchema, testUnsupportedMediaType
+  testRequestJSONSchema,
+  testTooLargePayload,
+  testUnsupportedMediaType
 } from "_test_utilities/stdRESTHandlerTests";
+import {getTestString} from "../_test_utilities/specialCharacters";
 
 describe("test for trigger ImportHandler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test("POST should respond with the response from the lambda_invokeAsyncImport()", async () => {
+  test.each([
+     ["some of the file paths", { [ImportFileTypes.ESCO_SKILL]:"path/to/file"}],
+     ["max payload size", Object.values(ImportFileTypes).reduce((accumulated, current) => {
+       // @ts-ignore
+       accumulated[current] = getTestString(FILEPATH_MAX_LENGTH);
+       return accumulated;
+     },{})]
+   ]
+  )("POST should respond with the response from the lambda_invokeAsyncImport() for %s", async (description, givenFilePaths) => {
     // GIVEN a correct payload & event with 'Content-Type: application/json; charset=utf-8'
     const givenPayload: ImportRequest = {
       modelId: getMockId(2),
-      filePaths: {
-        ISCO_GROUP: "path/to/file6",
-        ESCO_OCCUPATION: "path/to/file7",
-      }
+      filePaths: givenFilePaths
     }
+    expect(Object.keys(givenPayload.filePaths).length).toBeGreaterThanOrEqual(1);
+    
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
@@ -60,4 +70,6 @@ describe("test for trigger ImportHandler", () => {
   testRequestJSONSchema(ImportHandler.handler);
 
   testUnsupportedMediaType(ImportHandler.handler);
+  
+  testTooLargePayload(HTTP_VERBS.POST, MAX_PAYLOAD_LENGTH, ImportHandler.handler);
 })

@@ -30,7 +30,10 @@ export enum ImportFileTypes {
   OCCUPATION_SKILL_RELATION = "OCCUPATION_SKILL_RELATION" // <--- occupationSkillRelations.csv
 }
 
+export const MAX_PAYLOAD_LENGTH = 4000; // chars
+
 export const FILEPATH_MAX_LENGTH = 255;
+
 export const ImportRequestSchema: SchemaObject = {
   $id: "/components/schemas/ImportRequestSchema",
   type: "object",

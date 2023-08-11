@@ -10,15 +10,17 @@ import {getRandomString} from "_test_utilities/specialCharacters";
 import {
   DESCRIPTION_MAX_LENGTH,
   IModelInfoRequest,
-  LOCALE_SHORTCODE_MAX_LENGTH,
+  LOCALE_SHORTCODE_MAX_LENGTH, MAX_PAYLOAD_LENGTH,
   ModelInfoResponseErrorCodes,
   NAME_MAX_LENGTH
 } from "api-specifications/modelInfo";
 import {getIModelInfoMockData} from "./testDataHelper";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {
-  testMethodsNotAllowed, testRequestJSONMalformed,
+  testMethodsNotAllowed,
+  testRequestJSONMalformed,
   testRequestJSONSchema,
+  testTooLargePayload,
   testUnsupportedMediaType
 } from "_test_utilities/stdRESTHandlerTests";
 
@@ -30,7 +32,7 @@ describe("Test for model handler", () => {
     jest.clearAllMocks();
   });
 
-  test("POST should respond with the CREATED status code and the newly created modelInfo", async () => {
+  test("POST should respond with the CREATED status code and the newly created modelInfo for a valid and a max size payload", async () => {
     // GIVEN a valid request (method & header & payload)
     const givenPayload: IModelInfoRequest = {
       name: getRandomString(NAME_MAX_LENGTH),
@@ -135,4 +137,6 @@ describe("Test for model handler", () => {
   testRequestJSONSchema(modelHandler);
   
   testRequestJSONMalformed(modelHandler);
+  
+  testTooLargePayload(HTTP_VERBS.POST, MAX_PAYLOAD_LENGTH , modelHandler)
 })

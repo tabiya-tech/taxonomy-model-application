@@ -17,6 +17,7 @@ export enum StatusCodes {
   METHOD_NOT_ALLOWED = 405,
   NOT_FOUND = 404,
   UNSUPPORTED_MEDIA_TYPE = 415,
+  TOO_LARGE_PAYLOAD = 413,
   OK = 200,
   CREATED = 201,
   ACCEPTED = 202,
@@ -64,6 +65,7 @@ export const STD_ERRORS_RESPONSES = {
   MALFORMED_BODY_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.MALFORMED_BODY, ReasonPhrases.MALFORMED_BODY, errorDetails),
   INVALID_JSON_SCHEMA_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.INVALID_JSON_SCHEMA, ReasonPhrases.INVALID_JSON_SCHEMA, errorDetails),
   UNSUPPORTED_MEDIA_TYPE_ERROR: errorResponse(StatusCodes.UNSUPPORTED_MEDIA_TYPE, ErrorCodes.UNSUPPORTED_MEDIA_TYPE, ReasonPhrases.UNSUPPORTED_MEDIA_TYPE, "Content-Type should be application/json"),
+  TOO_LARGE_PAYLOAD_ERROR: (errorDetails: string) => errorResponse(StatusCodes.TOO_LARGE_PAYLOAD, ErrorCodes.TOO_LARGE_PAYLOAD, ReasonPhrases.TOO_LARGE_PAYLOAD, errorDetails)
 };
 
 export function redactCredentialsFromURI(uri: string) {

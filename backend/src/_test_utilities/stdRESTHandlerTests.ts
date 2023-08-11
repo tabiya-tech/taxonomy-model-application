@@ -99,3 +99,25 @@ export function testUnsupportedMediaType(handler: (event: APIGatewayProxyEvent, 
     expect(actualResponse).toEqual(STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR);
   });
 }
+
+export function testTooLargePayload(httpMethod: HTTP_VERBS, maxPayload: number, handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>, ){
+  test("POST should respond with TOO_LARGE_PAYLOAD if request body is too long", async () => {
+    // GIVEN an event with a payload that is too long
+    const givenPayload = "a".repeat(maxPayload + 1);
+    const givenEvent = {
+      httpMethod: httpMethod,
+      body: givenPayload,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await handler(givenEvent);
+    
+    // THEN expect the handler to respond with TOO_LARGE_PAYLOAD status code and the error information
+    const expectedResponse = STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR("anything");
+    assertErrorResponse(actualResponse, expectedResponse);
+  });
+}

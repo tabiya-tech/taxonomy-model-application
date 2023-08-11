@@ -2,7 +2,7 @@ import {APIGatewayProxyEvent} from "aws-lambda";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {errorResponse, HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import {ajvInstance, ParseValidationError} from "validator";
-import {ImportRequest, ImportRequestSchema} from 'api-specifications/import';
+import {ImportRequest, ImportRequestSchema, MAX_PAYLOAD_LENGTH} from 'api-specifications/import';
 
 import {ErrorCodes} from "api-specifications/error";
 
@@ -62,6 +62,11 @@ async function postTriggerImport(event: APIGatewayProxyEvent) {
   // @ts-ignore
   if (!event.headers || !event.headers['Content-Type'] || !event.headers['Content-Type'].includes('application/json')) { //  application/json;charset=UTF-8
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
+  }
+  
+  // @ts-ignore
+  if(event.body?.length > MAX_PAYLOAD_LENGTH){
+    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${MAX_PAYLOAD_LENGTH}` );
   }
 
   let payload: ImportRequest;
