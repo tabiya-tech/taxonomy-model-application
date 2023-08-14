@@ -33,11 +33,11 @@ export const _baseRequestSchemaProperties: any = {
   }
 };
 export const ModelInfoRequestSchema: SchemaObject = {
-  $id: "/components/schemas/modelInfoRequestSchema",
+  $id: "/components/schemas/ModelInfoRequestSchema",
   type: "object",
   additionalProperties: false,
   properties: {
-    ..._baseRequestSchemaProperties
+    ...JSON.parse(JSON.stringify(_baseRequestSchemaProperties)) // deep copy the base properties
   },
   required: [
     "name",

@@ -8,7 +8,7 @@ export interface IPresignedResponse {
 }
 
 export const PresignedResponseSchema: SchemaObject = {
-  $id: "/components/schemas/presignedResponseSchema",
+  $id: "/components/schemas/PresignedResponseSchema",
 
   type: "object",
   additionalProperties: false,

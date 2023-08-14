@@ -1,13 +1,9 @@
 import Ajv from 'ajv';
 import addFormats from "ajv-formats";
 import 'jest-performance-matchers';
-import {
-  errorResponse, redactCredentialsFromURI,
-  response,
-  STD_ERRORS_RESPONSES
-} from "./httpUtils";
+import {errorResponse, redactCredentialsFromURI, response, STD_ERRORS_RESPONSES} from "./httpUtils";
 
-import {ErrorResponseSchema, IErrorResponse} from "api-specifications/error";
+import {ErrorCodes, ErrorResponseSchema, IErrorResponse} from "api-specifications/error";
 
 describe("test response function", () => {
 
@@ -56,7 +52,7 @@ describe("test the errorResponse function", () => {
     const givenStatusCode = 500;
     // AND some error details
     const givenError: IErrorResponse = {
-      errorCode: "error",
+      errorCode: ErrorCodes.INTERNAL_SERVER_ERROR,
       message: "message",
       details: "details"
     };
@@ -84,7 +80,7 @@ describe("test the errorResponse function", () => {
     const givenStatusCode = 500;
     // AND some error details
     const givenError: IErrorResponse = {
-      errorCode: "error",
+      errorCode: ErrorCodes.INTERNAL_SERVER_ERROR,
       // @ts-ignore
       message: value,
       // @ts-ignore

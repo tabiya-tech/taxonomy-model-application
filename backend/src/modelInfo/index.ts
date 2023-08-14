@@ -37,60 +37,48 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
  *
  * /models:
  *     post:
+ *       operationId: GetModel
  *       tags:
  *         - model
+ *       summary: Create a new taxonomy model.
+ *       description: Create a new taxonomy model that can be used to import data into it.
+ *       security: []
  *       requestBody:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '/components/schemas/modelInfoRequestSchema'
+ *               $ref: '#/components/schemas/ModelInfoRequestSchema'
  *         required: true
  *       responses:
  *         '201':
- *           description: Successfully created the model
+ *           description: Successfully created the model,
  *           content:
  *             application/json:
  *               schema:
- *                  $ref: '/components/schemas/modelInfoResponseSchema'
+ *                  $ref: '#/components/schemas/ModelInfoResponseSchema'
  *         '400':
  *           description: |
- *             Failed to process the  bad request.
- *             Further information can be found in the `message` of response body, which can have the following values:
- *              - `MODEL_COULD_NOT_VALIDATE`: One of the body parameter is invalid
- *              - `MALFORMED_BODY': body of request is malformed
+ *             Failed to create the model. Additional information can be found in the response body.
  *           content:
  *             application/json:
  *               schema:
- *                 $ref: '/components/schemas/errorResponseSchema'
- *          '415':
- *           description: |
- *             Failed to process the request with an invalid content type.
- *             Further information can be found in the `message` of response body, which can have the following values:
- *              - `UNSUPPORTED_MEDIA_TYPE`: The content type  should application/json
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '/components/schemas/errorResponseSchema'
+ *                 $ref: '#/components/schemas/ErrorResponseSchema'
+ *         '415':
+ *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
  *         '500':
- *           description: |
- *             Server failed to process the request.
- *             Further information can be found in the `message` of response body, which can have the following values:
- *              - `MODEL_COULD_NOT_BE_CREATED`: the server is unable to create the request
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '/components/schemas/errorResponseSchema'
+ *           $ref: '#/components/responses/InternalServerErrorResponse'
  */
 async function postModelInfo(event: APIGatewayProxyEvent) {
   if (!event.headers['Content-Type'] || !event.headers['Content-Type'].includes('application/json')) { // application/json;charset=UTF-8
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
-  
+
+
   // @ts-ignore
   if(event.body?.length > MAX_PAYLOAD_LENGTH){
     return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${MAX_PAYLOAD_LENGTH}` );
   }
-  
+
   let payload: IModelInfoRequest;
   try {
     payload = JSON.parse(event.body as string);

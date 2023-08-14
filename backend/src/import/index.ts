@@ -27,35 +27,32 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
  *
  * /import:
  *     post:
+ *       operationId: PostImport
  *       tags:
  *         - import
- *         - model
+ *       summary: Trigger the import process.
+ *       description: Asynchronously trigger the import process for a given model.
+ *       security: []
  *       requestBody:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '/components/schemas/ImportRequestSchema'
+ *               $ref: '#/components/schemas/ImportRequestSchema'
  *         required: true
  *       responses:
  *         '202':
- *           description: Successfully trigger import process
+ *           description: Import process was successfully triggered. The import process is running asynchronously.
  *         '400':
  *           description: |
- *             Failed to process the  bad request.
- *             Further information can be found in the `message` of response body, which can have the following values:
- *              - `INVALID_JSON_SCHEMA`: The body has an invalid json schema
- *              - `MALFORMED_BODY': The body is not a json
+ *             Failed to trigger the import process. Additional information can be found in the response body.
  *           content:
  *             application/json:
  *               schema:
- *                 $ref: '/components/schemas/errorResponseSchema'
+ *                 $ref: '#/components/schemas/ErrorResponseSchema'
+ *         '415':
+ *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
  *         '500':
- *           description: |
- *             Server failed to process the request.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '/components/schemas/errorResponseSchema'
+ *           $ref: '#/components/responses/InternalServerErrorResponse'
  */
 
 async function postTriggerImport(event: APIGatewayProxyEvent) {

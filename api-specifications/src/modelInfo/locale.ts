@@ -9,7 +9,7 @@ export interface ILocale {
 }
 
 export const LocaleSchema: SchemaObject = {
-  $id: "/components/schemas/localeSchema",
+  $id: "/components/schemas/LocaleSchema",
   type: "object",
   additionalProperties: false,
   properties: {
