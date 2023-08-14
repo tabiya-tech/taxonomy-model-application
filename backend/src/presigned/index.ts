@@ -24,24 +24,22 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
  *
  * /presigned:
  *     get:
+ *       operationId: GetPresignedUrl
  *       tags:
- *         - presigned
+ *         - import
+ *       summary: Get a presigned url that can be used to upload files to the import.
+ *       description: |
+ *         Returns a presigned url that can be used to upload files to the import. There url expires after 1 hour. The maximum file size is 10 MB.
+ *       security: []
  *       responses:
- *         '200':
- *           description: Successfully created the presigned url
+ *         200:
+ *           description: Successfully created the presigned url.
  *           content:
  *             application/json:
  *               schema:
- *                  $ref: '/components/schemas/PreSignedResponseSchema'
- *         '500':
- *           description: |
- *             Server failed to process the request.
- *             Further information can be found in the `message` of response body, which can have the following values:
- *              - `INTERNAL_SERVER_ERROR`: the server is unable to create the presigned url
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '/components/schemas/errorResponseSchema'
+ *                 $ref: '#/components/schemas/PresignedResponseSchema'
+ *         500:
+ *           $ref: '#/components/responses/InternalServerErrorResponse'
  */
 export const getPreSigned = async () => {
   try {

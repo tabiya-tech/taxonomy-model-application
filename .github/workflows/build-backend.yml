@@ -40,6 +40,12 @@ jobs:
       - name: Build
         run: yarn run build
         working-directory: backend
+      - name: Generate OpenAPI
+        run: |
+          yarn run generate:openapi
+          yarn run generate:swagger
+          yarn run generate:redoc
+        working-directory: backend
       - name: Archive build bundle
         uses: actions/upload-artifact@v3
         with:

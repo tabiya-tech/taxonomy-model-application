@@ -23,7 +23,7 @@ export enum ModelInfoResponseErrorCodes {
 }
 
 export const ModelInfoResponseSchema: SchemaObject = {
-  $id: "/components/schemas/modelInfoResponseSchema",
+  $id: "/components/schemas/ModelInfoResponseSchema",
 
   type: "object",
   additionalProperties: false,
@@ -74,7 +74,7 @@ export const ModelInfoResponseSchema: SchemaObject = {
     },
     createdAt: {type: "string", format: "date-time"},
     updatedAt: {type: "string", format: "date-time"},
-    ..._baseRequestSchemaProperties,
+    ...JSON.parse(JSON.stringify(_baseRequestSchemaProperties)), // deep copy the base properties
   },
 
   required: [

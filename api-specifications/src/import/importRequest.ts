@@ -1,8 +1,6 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_ID, RegExp_Str_NotEmptyString} from "../regex";
 
-
-
 export type  ImportFilePaths = { [key in ImportFileTypes]?: string }
 
 export interface ImportRequest {
@@ -40,12 +38,19 @@ export const ImportRequestSchema: SchemaObject = {
   additionalProperties: false,
   properties: {
     modelId: {
-      description: "The id of the model. It can be used to access the model from the server.",
+      description: "The identifier of the model for importing the files to.",
       type: "string",
       pattern: RegExp_Str_ID,
     },
     filePaths: {
+      description: "A key value map of the files to import. The key represents the type of the file, and the value the path to the file. The path is relative to the root of the upload bucket and starts with the folder name that the presigned url was generated for.",
       type: "object",
+      examples: [
+        {
+          [ImportFileTypes.ISCO_GROUP]: "some-random-folder/ISCOGroups_en.csv",
+          [ImportFileTypes.ESCO_SKILL_GROUP]: "some-random-folder/skillGroups_en.csv",
+        }
+      ],
       anyOf: Object.values(ImportFileTypes).map(value => {
         return {
           properties: {
