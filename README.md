@@ -19,10 +19,10 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 
 ## Table of Contents
 
-- **[API Specifications](api-specifications/)**: In-depth API documentation can be found in this directory.
-- **[Infrastructure As Code (IaC)](iac/)**: Details about the infrastructure-as-code components related to the taxonomy model app are available here.
-- **[Frontend](frontend/)**: This directory contains comprehensive information about the frontend, including how to get started, contribution steps, and more.
-- **[Backend](backend/)**: Explore the backend directory for detailed insights into the backend.
+- **[API Specifications](api-specifications)**: In-depth API documentation can be found in this directory.
+- **[Infrastructure As Code (IaC)](iac)**: Details about the infrastructure-as-code components related to the taxonomy model app are available here.
+- **[Frontend](frontend)**: This directory contains the backend Node.js project with comprehensive information about the frontend, including how to get started, contribution steps, and more.
+- **[Backend](backend)**: This directory contains the frontend React project comprehensive information about the backend, including how to get started, contribution steps, and more.
 - **[Contribution Guidelines](#contribution-guidelines)**: Help us improve the project by contributing to various aspects.
 - **[Getting Started](#getting-started)**: Easy steps to set up your environment and start contributing.
 - **[License](#license)**: The project is licensed under MIT License.
@@ -59,7 +59,7 @@ Please follow the **[Conventional Commits](https://www.conventionalcommits.org/)
 
 ### **Guidelines for Readable BDD Testing**
 
-To contribute to our 100% code coverage goal, refer to our "Guidelines for Readable BDD Testing" in the **[testing-guidelines.md](testing-guidelines.md/)**
+To contribute to our 100% code coverage goal, refer to our "Guidelines for Readable BDD Testing" in the **[testing-guidelines.md](testing-guidelines.md)**
 
 ## Getting Started
 
