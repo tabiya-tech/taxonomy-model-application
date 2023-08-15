@@ -30,7 +30,7 @@ export function processDownloadStream<T>(url: string, rowProcessor: RowProcessor
 
 export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>): Promise<RowsProcessedStats> {
   // eslint-disable-next-line no-async-promise-executor
-  return new Promise<RowsProcessedStats>(async (resolve, reject) => {
+  return new Promise<RowsProcessedStats>((resolve, reject) => {
     try {
       stream.on('error', (error: Error) => {
         console.error(`Error from the reading stream:`, error);
@@ -44,22 +44,26 @@ export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>
         console.error(`Error from the csv parser:`, error);
         reject(error);
       });
-      let count = 0;
-      for await (const record of parser) {
-        if(count === 0){
-          const headersValidated = await rowProcessor.validateHeaders(Object.keys(record));
-          if(!headersValidated){
-            const e = new Error(`Invalid headers: ${Object.keys(record)}`);
-            console.error(e);
-            reject(e);
-            return;
-          }
-        }
-        count++;
-        await rowProcessor.processRow(record, count);
-      }
-      const stats  = await rowProcessor.completed();
-      resolve(stats);
+
+        (async () => {
+            let count = 0;
+            for await (const record of parser) {
+                if(count === 0){
+                    const headersValidated = await rowProcessor.validateHeaders(Object.keys(record));
+                    if(!headersValidated){
+                        const e = new Error(`Invalid headers: ${Object.keys(record)}`);
+                        console.error(e);
+                        reject(e);
+                        return;
+                    }
+                }
+                count++;
+                await rowProcessor.processRow(record, count);
+            }
+
+            const stats  = await rowProcessor.completed();
+            resolve(stats);
+        })().catch(e => reject(e));
     } catch (e: unknown) {
       console.error("Error while processing the stream:", e);
       reject(e);
