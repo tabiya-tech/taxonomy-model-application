@@ -109,8 +109,8 @@ describe('Test the import director service', () => {
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
     const givenFilesPaths: ImportFilePaths = {};
-    Object.entries(givenFiles).map(([fileType, file])=> {
-      return givenFilesPaths[fileType as ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
+    Object.entries(givenFiles).forEach(([fileType, file])=> {
+      givenFilesPaths[fileType as ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
     });
     // THEN the import service is called with the given arguments (modelId, file paths)
     expect(importService.import).toHaveBeenCalledWith(givenMockModelId, givenFilesPaths);
