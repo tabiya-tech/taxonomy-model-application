@@ -19,10 +19,10 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 
 ## Table of Contents
 
-- **[API Specifications](api-specifications)**: In-depth API documentation can be found in this directory.
-- **[Infrastructure As Code (IaC)](iac)**: Details about the infrastructure-as-code components related to the taxonomy model app are available here.
-- **[Frontend](frontend)**: This directory contains the backend Node.js project with comprehensive information about the frontend, including how to get started, contribution steps, and more.
-- **[Backend](backend)**: This directory contains the frontend React project comprehensive information about the backend, including how to get started, contribution steps, and more.
+- **[API Specifications](api-specifications)**: Explore the API Specifications directory for detailed insights into the API documentation.
+- **[Infrastructure As Code (IaC)](iac)**: Explore the Infrastructure as code(IAC) directory for detailed insights about the infrastructure-as-code components.
+- **[Frontend](frontend)**: Explore the Frontend directory for detailed insights about the frontend react project.
+- **[Backend](backend)**: Explore the Backend directory for detailed insights about the backend Node.js project.
 - **[Contribution Guidelines](#contribution-guidelines)**: Help us improve the project by contributing to various aspects.
 - **[Getting Started](#getting-started)**: Easy steps to set up your environment and start contributing.
 - **[License](#license)**: The project is licensed under MIT License.
