@@ -39,7 +39,7 @@ export function generateRandomUrl() {
     const tld = tlds[randomTldIndex];
 
     // Generate a random path with 1 to 3 segments
-    const segments = Math.floor(Math.random() * 3) + 1;
+    const segments = Math.floor(Math.random() * 3) + 1; // NOSONAR
     let path = '';
     for (let i = 0; i < segments; i++) {
         const randomSegment = Math.random().toString(36).substr(2, 8);

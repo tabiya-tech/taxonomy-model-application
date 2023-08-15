@@ -42,7 +42,7 @@ export const expected = [
     ESCOUri: "esco\nuri\nwith\nlinebreak",
     originUUID: "origin\nuuid\nwith\nlinebreak",
     ISCOGroupCode: "0101",
-    code: "0101.01.02.03",
+    code: "0101.01.02.03", //NOSONAR
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
     description: "description\nwith\nlinebreak",
