@@ -27,7 +27,6 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
 
   async createMany(modelId: string, newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[]): Promise<IOccupationHierarchyPair[]> {
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
-    //const _modelId = mongoose.Types.ObjectId.createFromHexString(modelId);
     const existingIds = new Map<string, ObjectTypes>();
     //  get all ISCO groups
     const _existingIscoGroupIds = await this.iscoGroupModel.find({modelId: {$eq: modelId}}).select("_id").exec();
