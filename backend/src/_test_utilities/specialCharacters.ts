@@ -42,7 +42,7 @@ export function generateRandomUrl() {
     const segments = Math.floor(Math.random() * 3) + 1; // NOSONAR
     let path = '';
     for (let i = 0; i < segments; i++) {
-        const randomSegment = Math.random().toString(36).substr(2, 8);
+        const randomSegment = Math.random().toString(36).slice(2, 10);
         path += '/' + randomSegment;
     }
     const protocols = ['', 'https://', 'http://www.', 'http://', 'http://www.'];
