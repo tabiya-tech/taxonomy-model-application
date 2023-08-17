@@ -131,7 +131,7 @@ describe("test the redactCredentialsFromURI function", () => {
         ["http://foo/bar"],
         ["http://foo/bar?baz=qux"],
         ["https://example.com:8080"],
-        ["mongodb://example.com:8080/"],
+        ["mongodb://example.com:8080/"], // NOSONAR
       ]
     )
     ("should return the same URI %s if no credentials are present", (uri: string) => {
@@ -145,7 +145,7 @@ describe("test the redactCredentialsFromURI function", () => {
         ["http://user:password@foo/bar", "http://*:*@foo/bar"],
         ["http://user:password@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"],
         ["https://user:password@example.com:8080", "https://*:*@example.com:8080"],
-        ["mongodb://user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"],
+        ["mongodb://user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
       ]
     )("should return the redacted URI %s if credentials are present", (uriWithCredentials, uriWithoutCredential) => {
       const result = redactCredentialsFromURI(uriWithCredentials);
@@ -159,8 +159,8 @@ describe("test the redactCredentialsFromURI function", () => {
         ["://user:password@foo/bar", "://*:*@foo/bar"],
         ["http://user:@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"],
         ["https://user@example.com:8080", "https://*:*@example.com:8080"],
-        ["mongodb://:password@example.com:8080/", "mongodb://*:*@example.com:8080/"],
-        ["mongodb://user:password@user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"],
+        ["mongodb://:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
+        ["mongodb://user:password@user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
       ]
     )("should return the redacted URI %s if credentials are malformed", (uriWithCredentials, uriWithoutCredential) => {
       const result = redactCredentialsFromURI(uriWithCredentials);
