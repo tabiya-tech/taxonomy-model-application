@@ -1,5 +1,4 @@
 import * as aws from "@pulumi/aws";
-import {Distribution, Function} from "@pulumi/aws/cloudfront";
 import {Certificate} from "@pulumi/aws/acm";
 import {Zone} from "@pulumi/aws/route53";
 import * as fs from "fs";
