@@ -1,1 +1,1 @@
-export const DEBOUNCE_INTERVAL = 250;
+export const DEBOUNCE_INTERVAL = 250; // todo should be moved to a config file

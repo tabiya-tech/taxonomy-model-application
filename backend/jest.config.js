@@ -28,6 +28,7 @@ module.exports = {
     "src/**/*.{ts,tsx}",
     "!src/_test_utilities/*",
     "!src/**/_test_data_/*",
+    "!*.json",
   ],
   "coverageReporters": [
     ["lcov", {"projectRoot": "../"}],

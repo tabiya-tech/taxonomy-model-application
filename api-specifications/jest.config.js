@@ -22,7 +22,8 @@ module.exports = {
   testEnvironment: "node",
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}",
-    "!src/_test_utilities/*"
+    "!src/_test_utilities/*",
+      "!./generateJsonSchemaFiles.ts"
   ],
   "coverageReporters": [
     ["lcov", {"projectRoot": "../"}],
