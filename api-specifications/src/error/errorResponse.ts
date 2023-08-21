@@ -1,11 +1,11 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString} from "../regex";
 import {ImportResponseErrorCodes} from "../import";
-import {ModelInfoResponseErrorCodes} from "../modelInfo";
+import {ModelInfo} from "../modelInfo";
 import {ErrorCodes} from "./ErrorCodes";
 
 export interface IErrorResponse {
-  errorCode: ErrorCodes | ImportResponseErrorCodes | ModelInfoResponseErrorCodes, // The UI could use to display some useful information
+  errorCode: ErrorCodes | ImportResponseErrorCodes | ModelInfo.POST.Response.ErrorCodes | ModelInfo.GET.Response.ErrorCodes, // The UI could use to display some useful information
   message: string, // The error message offers better developer experience. UI should not display this message.
   details: string, // This may be some cryptic message only a developer can understand
 }
@@ -17,7 +17,7 @@ export const ErrorResponseSchema: SchemaObject = {
     errorCode: {
       description: "A code that API consumers can use to determine the type of error that occurred",
       type: "string",
-      enum: [Object.values(ErrorCodes), Object.values(ImportResponseErrorCodes), Object.values(ModelInfoResponseErrorCodes)].flat(),
+      enum: [Object.values(ErrorCodes), Object.values(ImportResponseErrorCodes), Object.values(ModelInfo.POST.Response.ErrorCodes)].flat(),
       pattern: RegExp_Str_NotEmptyString,
     },
     message: {

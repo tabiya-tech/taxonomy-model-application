@@ -1,10 +1,9 @@
 import Ajv, {ValidateFunction} from 'ajv/dist/2020';
 import addFormats from "ajv-formats";
 import {
-  IModelInfoRequest,
-  IModelInfoResponse,
-  LocaleSchema, ModelInfoRequestSchema,
-  ModelInfoResponseSchema
+  ModelInfo,
+  LocaleSchema, ModelInfoRequestSchemaPOST,
+  ModelInfoResponseSchemaPOST
 } from "api-specifications/modelInfo";
 
 import {ErrorCodes} from "src/error/errorCodes";
@@ -14,11 +13,11 @@ import {StatusCodes} from "http-status-codes/";
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);// To support the "date-time" format
 ajv.addSchema(LocaleSchema, LocaleSchema.$id);
-ajv.addSchema(ModelInfoRequestSchema, ModelInfoRequestSchema.$id);
-ajv.addSchema(ModelInfoResponseSchema, ModelInfoResponseSchema.$id);
-const responseValidator: ValidateFunction = ajv.getSchema(ModelInfoResponseSchema.$id as string) as ValidateFunction;
+ajv.addSchema(ModelInfoRequestSchemaPOST, ModelInfoRequestSchemaPOST.$id);
+ajv.addSchema(ModelInfoResponseSchemaPOST, ModelInfoResponseSchemaPOST.$id);
+const responseValidator: ValidateFunction = ajv.getSchema(ModelInfoResponseSchemaPOST.$id as string) as ValidateFunction;
 
-export type INewModelSpecification = IModelInfoRequest
+export type INewModelSpecification = ModelInfo.POST.Request.Payload
 
 export default class ModelService {
   readonly apiServerUrl: string;
@@ -65,7 +64,7 @@ export default class ModelService {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
 
-    let modelResponse: IModelInfoResponse;
+    let modelResponse: ModelInfo.POST.Response.Payload;
     try {
       modelResponse = JSON.parse(responseBody);
     } catch (e: any) {

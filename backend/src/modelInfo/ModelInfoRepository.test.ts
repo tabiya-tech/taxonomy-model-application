@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock"
 
 import {getMockId} from "_test_utilities/mockMongoId";
 import {Connection} from "mongoose";
-import {ModelRepository} from "./ModelRepository";
+import {ModelRepository} from "./ModelInfoRepository";
 import {
   IModelInfo,
   INewModelInfoSpec,
@@ -69,6 +69,10 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     expect(repository.Model).toBeDefined();
   });
 
+  afterEach(async () => {
+    await repository.Model.deleteMany({});
+  })
+
   test("Should have the ModelRepository registered", async () => {
     // GIVEN the environment mongo db uri is set
     expect(process.env.MONGODB_URI).toBeDefined();
@@ -84,9 +88,6 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() model ", () => {
-    afterEach(async () => {
-      await repository.Model.deleteMany({});
-    })
 
     test("Should create a new model successfully", async () => {
       // GIVEN a valid INewModelInfoSpec
@@ -206,6 +207,36 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       return repository.getModelByUUID(randomUUID())
     });
   })
+
+  describe("Test getModels()", () => {
+    test("should return all models that exist in the database", async () => {
+      // GIVEN N models exist in the database
+      const givenExistingModels = [];
+      for (let i = 0; i < 3; i++) {
+        givenExistingModels.push(await repository.create(getNewModelInfoSpec()));
+      }
+
+      // WHEN we retrieve all models from the database
+      const actualFoundModels = await repository.getModels();
+
+      // THEN expect to find all models that we created and only those
+      expect(actualFoundModels.length).toEqual(givenExistingModels.length);
+      givenExistingModels.forEach(givenExistingModel => {
+        expect(actualFoundModels).toContainEqual(givenExistingModel);
+      });
+    })
+
+    test("should return an empty array when no models exist in the database", async () => {
+      // GIVEN no models exist in the database
+      const givenEmptyArray: IModelInfo[] = [];
+
+      // WHEN we retrieve all models from the database
+      const actualFoundModels = await repository.getModels();
+
+      // THEN expect the result to be an empty array
+      expect(actualFoundModels).toEqual(givenEmptyArray);
+    });
+  });
 });
 
 function TestConnectionFailure(actionCallback: (repository: ModelRepository) => Promise<IModelInfo | null>) {

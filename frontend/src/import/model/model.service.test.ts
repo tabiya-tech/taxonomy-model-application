@@ -7,10 +7,10 @@ import ModelService, {INewModelSpecification} from "./model.service";
 import {ErrorCodes} from "src/error/errorCodes";
 
 import {
-  IModelInfoResponse,
+  ModelInfo,
   LocaleSchema,
-  ModelInfoResponseSchema,
-  ModelInfoRequestSchema,
+  ModelInfoResponseSchemaPOST,
+  ModelInfoRequestSchemaPOST,
   NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH, RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH
 } from "api-specifications/modelInfo";
 import addFormats from "ajv-formats";
@@ -33,12 +33,12 @@ function getNewModelSpecMockData(): INewModelSpecification {
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);
 ajv.addSchema(LocaleSchema);
-ajv.addSchema(ModelInfoRequestSchema);
-ajv.addSchema(ModelInfoResponseSchema);
-const validateResponse = ajv.compile(ModelInfoResponseSchema);
+ajv.addSchema(ModelInfoRequestSchemaPOST);
+ajv.addSchema(ModelInfoResponseSchemaPOST);
+const validateResponse = ajv.compile(ModelInfoResponseSchemaPOST);
 
-function getModelInfoMockResponse(): IModelInfoResponse {
-  const givenResponse: IModelInfoResponse = {
+function getModelInfoMockResponse(): ModelInfo.POST.Response.Payload {
+  const givenResponse: ModelInfo.POST.Response.Payload = {
     id: getTestString(24),
     originUUID: "",
     previousUUID: "",
@@ -92,7 +92,7 @@ describe("Test the service", () => {
     // AND a name, description, locale
     const givenModelSpec = getNewModelSpecMockData();
     // AND the create model REST API will respond with OK and some newly create model
-    const givenResponse: IModelInfoResponse = getModelInfoMockResponse()
+    const givenResponse: ModelInfo.POST.Response.Payload = getModelInfoMockResponse()
     const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the createModel function is called with the given arguments (name, description, ...)
@@ -111,7 +111,7 @@ describe("Test the service", () => {
     const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
 
     // AND the body conforms to the modelRequestSchema
-    const validateRequest = ajv.compile(ModelInfoRequestSchema);
+    const validateRequest = ajv.compile(ModelInfoRequestSchemaPOST);
     validateRequest(payload);
     // @ts-ignore
     expect(validateResponse.errors).toBeNull();

@@ -12,18 +12,24 @@ export interface IModelRepository {
   create(newModelSpec: INewModelInfoSpec): Promise<IModelInfo>;
 
   /**
-   * get model an entry by modelId
+   * Get model an entry by modelId
    * @param modelId
    * @return returns the model entry if found or null otherwise.
    */
   getModelById(modelId: string): Promise<IModelInfo | null>;
 
   /**
-   * get model an entry by model uuid
+   * Get model an entry by model uuid
    * @param uuid
    * @return returns the model entry if found or null otherwise.
    */
   getModelByUUID(uuid: string): Promise<IModelInfo | null>;
+
+  /**
+   * Get all models from the database
+   * @return An array of all model entries.
+   */
+  getModels(): Promise<IModelInfo[]>;
 }
 
 
@@ -78,6 +84,16 @@ export class ModelRepository implements IModelRepository {
       return (modelInfo != null ? modelInfo.toObject() : null);
     } catch (e: unknown) {
       console.error("getModelByUUID failed", e);
+      throw e;
+    }
+  }
+
+  async getModels():Promise<IModelInfo[]>{
+    try {
+      const modelInfos = await this.Model.find({}).exec();
+      return modelInfos.map((modelInfo) => modelInfo.toObject());
+    } catch (e: unknown) {
+      console.error("getModels failed", e);
       throw e;
     }
   }

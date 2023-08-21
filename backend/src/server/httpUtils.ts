@@ -1,7 +1,7 @@
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {ErrorCodes, IErrorResponse, ReasonPhrases} from "api-specifications/error";
 import {ImportResponseErrorCodes} from "api-specifications/import";
-import { ModelInfoResponseErrorCodes } from "api-specifications/modelInfo";
+import { ModelInfo } from "api-specifications/modelInfo";
 
 export enum HTTP_VERBS {
   GET = 'GET',
@@ -51,7 +51,7 @@ function _errorResponse(statusCode: StatusCodes, error: IErrorResponse): APIGate
   return response(statusCode, error);
 }
 
-export function errorResponse(statusCode: StatusCodes, errorCode: ErrorCodes | ImportResponseErrorCodes | ModelInfoResponseErrorCodes, message: string, details: string): APIGatewayProxyResult {
+export function errorResponse(statusCode: StatusCodes, errorCode: ErrorCodes | ImportResponseErrorCodes | ModelInfo.POST.Response.ErrorCodes | ModelInfo.GET.Response.ErrorCodes, message: string, details: string): APIGatewayProxyResult {
   return _errorResponse(statusCode, {
     errorCode: errorCode,
     message: message ?? "",
