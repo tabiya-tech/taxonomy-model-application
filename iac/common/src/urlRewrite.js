@@ -9,5 +9,11 @@ function handler(event) {
   if (uri.startsWith('/api/')) {
     request.uri = uri.replace(/^\/api\//,'/');
   }
+  if (uri.startsWith('/api-doc/swagger/')) {
+    request.uri = uri.replace(/^\/api-doc\/swagger\//,'/');
+  }
+  if (uri.startsWith('/api-doc/redoc/')) {
+    request.uri = uri.replace(/^\/api-doc\/redoc\//,'/');
+  }
   return request;
 }

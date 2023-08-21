@@ -1,5 +1,5 @@
 import * as aws from "@pulumi/aws";
-import {Distribution, Function} from "@pulumi/aws/cloudfront";
+import {Function} from "@pulumi/aws/cloudfront";
 import {Certificate} from "@pulumi/aws/acm";
 import {Zone} from "@pulumi/aws/route53";
 import * as fs from "fs";
@@ -64,16 +64,32 @@ function getFrontendNoCachingBehaviour(bucketArn: Output<string>, pathPattern: s
   });
 }
 
-export function setupCDN(frontendBucketOrigin: {
-  arn: Output<string>,
-  websiteEndpoint: Output<string>
-}, backendRestApiOrigin: {
-  restApiArn: Output<string>,
-  domainName: Output<string>,
-  path: Output<string>
-}, cert: Certificate, hostedZone: Zone, domainName: string): {
+export function setupCDN(
+  frontendBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  },
+  backendRestApiOrigin: {
+    restApiArn: Output<string>,
+    domainName: Output<string>,
+    path: Output<string>
+  },
+  swaggerBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  },
+  redocBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  },
+  cert: Certificate,
+  hostedZone: Zone,
+  domainName: string
+): {
   backendURLBase: Output<string>,
-  frontendURLBase: Output<string>
+  frontendURLBase: Output<string>,
+  swaggerURLBase: Output<string>,
+  redocURLBase: Output<string>
 } {
 
   const urlRewriteFunction = new aws.cloudfront.Function("urlRewrite", {
@@ -103,6 +119,26 @@ export function setupCDN(frontendBucketOrigin: {
         originPath: backendRestApiOrigin.path,
         customOriginConfig: {
           originProtocolPolicy: "https-only",
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ["TLSv1.2"],
+        },
+      },
+      {
+        originId: swaggerBucketOrigin.arn,
+        domainName: swaggerBucketOrigin.websiteEndpoint,
+        customOriginConfig: {
+          originProtocolPolicy: "http-only",
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ["TLSv1.2"],
+        },
+      },
+      {
+        originId: redocBucketOrigin.arn,
+        domainName: redocBucketOrigin.websiteEndpoint,
+        customOriginConfig: {
+          originProtocolPolicy: "http-only",
           httpPort: 80,
           httpsPort: 443,
           originSslProtocols: ["TLSv1.2"],
@@ -141,11 +177,22 @@ export function setupCDN(frontendBucketOrigin: {
     }],
     orderedCacheBehaviors: [
       // Ensure that some assets that are rebuild but do not change their name are always reloaded
+      //    for the APP
       ...getFrontendNoCachingBehaviour(
         frontendBucketOrigin.arn,
         ["/", "/app/",
           "index.html", "/app/index.html",
           "/data/version.json", "/app/data/version.json"],
+        urlRewriteFunction),
+      //    for the SWAGGER api-doc/swagger
+      ...getFrontendNoCachingBehaviour(
+        swaggerBucketOrigin.arn,
+        ["/api-doc/swagger/tabiya-api.json"],
+        urlRewriteFunction),
+      //    for the REDOC api-doc/redoc
+      ...getFrontendNoCachingBehaviour(
+        redocBucketOrigin.arn,
+        ["/api-doc/redoc/", "/api-doc/redoc/index.html"],
         urlRewriteFunction),
       // APP
       {
@@ -187,6 +234,44 @@ export function setupCDN(frontendBucketOrigin: {
         ],
         viewerProtocolPolicy: "redirect-to-https",
       },
+      // SWAGGER
+      {
+        compress: true,
+        allowedMethods: ["GET", "HEAD", "OPTIONS"],
+        cachedMethods: ["GET", "HEAD", "OPTIONS"],
+        targetOriginId: swaggerBucketOrigin.arn,
+        pathPattern: "/api-doc/swagger/*",
+        responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
+        cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
+        originRequestPolicyId: OriginRequest_ManagedPolicies.CORSS3Origin,
+        //defaultTtl: 86400,
+        functionAssociations: [
+          {
+            eventType: "viewer-request",
+            functionArn: urlRewriteFunction.arn,
+          }
+        ],
+        viewerProtocolPolicy: "redirect-to-https",
+      },
+      // REDOC
+      {
+        compress: true,
+        allowedMethods: ["GET", "HEAD", "OPTIONS"],
+        cachedMethods: ["GET", "HEAD", "OPTIONS"],
+        targetOriginId: redocBucketOrigin.arn,
+        pathPattern: "/api-doc/redoc/*",
+        responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
+        cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
+        originRequestPolicyId: OriginRequest_ManagedPolicies.CORSS3Origin,
+        //defaultTtl: 86400,
+        functionAssociations: [
+          {
+            eventType: "viewer-request",
+            functionArn: urlRewriteFunction.arn,
+          }
+        ],
+        viewerProtocolPolicy: "redirect-to-https",
+      },
     ],
     restrictions: {
       geoRestriction: {
@@ -217,7 +302,9 @@ export function setupCDN(frontendBucketOrigin: {
 
   return {
     backendURLBase: interpolate`https://${domainName}/api`,
-    frontendURLBase: interpolate`https://${domainName}/app`
+    frontendURLBase: interpolate`https://${domainName}/app`,
+    swaggerURLBase: interpolate`https://${domainName}/api-doc/swagger`,
+    redocURLBase: interpolate`https://${domainName}/api-doc/redoc`
   };
 }
 

@@ -49,6 +49,18 @@ const backendRestApi = backendStack.getOutput("backendRestApi").apply((t) => {
   domainName: Output<string>,
   path: Output<string>
 }
+const swaggerBucket = backendStack.getOutput("swaggerBucket").apply((t) => {
+  return {
+    arn: t.arn,
+    websiteEndpoint: t.websiteEndpoint
+  };
+}) as Output<{ arn: string, websiteEndpoint: string }>;
+const redocBucket = backendStack.getOutput("redocBucket").apply((t) => {
+  return {
+    arn: t.arn,
+    websiteEndpoint: t.websiteEndpoint
+  };
+}) as Output<{ arn: string, websiteEndpoint: string }>;
 
 /**
  * Get Frontend Stack
@@ -65,7 +77,7 @@ const frontendBucket = frontendStack.getOutput("frontendBucket").apply((t) => {
 /**
  *  Cloud Front
  */
-export const cdn = setupCDN(frontendBucket, backendRestApi, certificate, hostedZone, domainName);
+export const cdn = setupCDN(frontendBucket, backendRestApi, swaggerBucket, redocBucket, certificate, hostedZone, domainName);
 export const backendURLBase = cdn.backendURLBase;
 
 // The resources base URL is the base URL for accessing tabiya resources
