@@ -3,6 +3,7 @@ import * as aws from "@pulumi/aws";
 import {getRestApiDomainName, getRestApiPath, setupBackendRESTApi} from "./restApi";
 import {setupUploadBucket, setupUploadBucketPolicy} from "./uploadBucket";
 import {setupAsyncImportApi} from "./asyncImport";
+import {setupSwaggerBucket, setupRedocBucket} from "./openapiBuckets";
 
 export const environment = pulumi.getStack();
 export const domainName = `${environment}.tabiya.tech`
@@ -63,3 +64,26 @@ export const backedRestApiURLBase = pulumi.interpolate`https://${backendRestApi.
  */
 
 setupUploadBucketPolicy(uploadBucket, restApiLambdaRole, asyncLambdaRole);
+
+/**
+ * Set up the OpenApi buckets
+ */
+
+const _swaggerBucket = setupSwaggerBucket(domainName);
+
+export const swaggerBucket = {
+  id:  _swaggerBucket.id,
+  arn: _swaggerBucket.arn,
+  websiteUrl: pulumi.interpolate`http://${_swaggerBucket.websiteEndpoint}`,
+  websiteEndpoint: _swaggerBucket.websiteEndpoint
+};
+
+
+const _redocBucket = setupRedocBucket(domainName);
+
+export const redocBucket = {
+  id:  _redocBucket.id,
+  arn: _redocBucket.arn,
+  websiteUrl: pulumi.interpolate`http://${_redocBucket.websiteEndpoint}`,
+  websiteEndpoint: _redocBucket.websiteEndpoint
+};
