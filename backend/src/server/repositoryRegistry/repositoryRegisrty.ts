@@ -1,4 +1,4 @@
-import {IModelRepository, ModelRepository} from "modelInfo/ModelRepository";
+import {IModelRepository, ModelRepository} from "modelInfo/ModelInfoRepository";
 import mongoose, {Connection} from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
 import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";

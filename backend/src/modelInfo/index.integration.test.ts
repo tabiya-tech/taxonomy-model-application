@@ -7,9 +7,9 @@ import {Connection} from "mongoose";
 
 import {
   DESCRIPTION_MAX_LENGTH,
-  IModelInfoRequest,
-  LOCALE_SHORTCODE_MAX_LENGTH, LocaleSchema, ModelInfoRequestSchema, ModelInfoResponseSchema,
-  NAME_MAX_LENGTH
+  ModelInfo,
+  LOCALE_SHORTCODE_MAX_LENGTH, LocaleSchema, ModelInfoRequestSchemaPOST, ModelInfoResponseSchemaPOST,
+  NAME_MAX_LENGTH, ModelInfoResponseSchemaGET
 } from "api-specifications/modelInfo";
 
 import {getRandomString} from "_test_utilities/specialCharacters";
@@ -40,7 +40,7 @@ describe("Test for model handler with a DB", () => {
 
   test("POST should respond with the CREATED status code and the response passes the JSON Schema validation", async () => {
     // GIVEN a valid request (method & header & payload)
-    const givenPayload: IModelInfoRequest = {
+    const givenPayload: ModelInfo.POST.Request.Payload = {
       name: getRandomString(NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
@@ -67,9 +67,35 @@ describe("Test for model handler with a DB", () => {
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
     ajv.addSchema(LocaleSchema);
-    ajv.addSchema(ModelInfoRequestSchema);
-    ajv.addSchema(ModelInfoResponseSchema);
-    const validateResponse = ajv.compile(ModelInfoResponseSchema);
+    ajv.addSchema(ModelInfoRequestSchemaPOST);
+    ajv.addSchema(ModelInfoResponseSchemaPOST);
+    const validateResponse = ajv.compile(ModelInfoResponseSchemaPOST);
+    validateResponse(JSON.parse(actualResponse.body));
+    expect(validateResponse.errors).toBeNull();
+  });
+
+  //TODO: implement the test
+  test("GET should respond with the OK status code and the response passes the JSON Schema validation", async () => {
+    // GIVEN a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelHandler(givenEvent);
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    // AND a modelInfo object that validates against the ModelInfoResponseGET schema
+    const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+    addFormats(ajv);
+    ajv.addSchema(LocaleSchema);
+    ajv.addSchema(ModelInfoResponseSchemaGET);
+    const validateResponse = ajv.compile(ModelInfoResponseSchemaGET);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
   });

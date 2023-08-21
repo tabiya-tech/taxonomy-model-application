@@ -1,39 +1,40 @@
 import Ajv,{ValidateFunction} from "ajv";
 import addFormats from "ajv-formats";
-import {IModelInfoRequest, ModelInfoRequestSchema} from "./modelInfoRequest";
+import {ModelInfoRequestSchemaPOST} from "./modelInfoRequestPOST";
 import {LocaleSchema} from "./locale";
 import {getTestString} from "../_test_utilities/specialCharacters";
 import {LOCALE_SHORTCODE_MAX_LENGTH, NAME_MAX_LENGTH} from "./modelInfo.constants";
 import {randomUUID} from "crypto";
+import {ModelInfo} from "./modelInfo.types";
 
-describe('Test the ModelInfoRequestSchema Schema', () => {
-  test("The ModelInfoRequestSchema module can be required via the index", () => {
+describe('Test the ModelInfoRequestSchemaPOST Schema', () => {
+  test("The ModelInfoRequestSchemaPOST module can be required via the index", () => {
     expect(() => {
-      expect(require("modelInfo/index").ModelInfoRequestSchema).toBeDefined();
+      expect(require("modelInfo/index").ModelInfoResponseSchemaPOST).toBeDefined();
     }).not.toThrowError();
   })
 
-  test("The ModelInfoRequestSchema schema is a valid Schema", () => {
+  test("The ModelInfoRequestSchemaPOST schema is a valid Schema", () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     addFormats(ajv);
     expect(() => {
       ajv.addSchema(LocaleSchema, LocaleSchema.$id);
-      ajv.addSchema(ModelInfoRequestSchema, ModelInfoRequestSchema.$id);
-      ajv.getSchema(ModelInfoRequestSchema.$id as string);
+      ajv.addSchema(ModelInfoRequestSchemaPOST, ModelInfoRequestSchemaPOST.$id);
+      ajv.getSchema(ModelInfoRequestSchemaPOST.$id as string);
     }).not.toThrowError();
   });
 });
 
-describe('Validate JSON against the ModelInfoRequest Schema', () => {
+describe('Validate JSON against the ModelInfoRequestSchemaPOST Schema', () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
   ajv.addSchema(LocaleSchema, LocaleSchema.$id);
-  ajv.addSchema(ModelInfoRequestSchema, ModelInfoRequestSchema.$id);
+  ajv.addSchema(ModelInfoRequestSchemaPOST, ModelInfoRequestSchemaPOST.$id);
 
-  let validateFunction = ajv.getSchema(ModelInfoRequestSchema.$id as string) as ValidateFunction;
+  let validateFunction = ajv.getSchema(ModelInfoRequestSchemaPOST.$id as string) as ValidateFunction;
 
-  test("A valid ModelInfoRequest object validates", () => {
-    // GIVEN a valid ModelInfoRequest object
-    const validModelInfoRequest: IModelInfoRequest = {
+  test("A valid ModelInfo POST request object validates", () => {
+    // GIVEN a valid ModelInfo POST request object
+    const validModelInfoRequest: ModelInfo.POST.Request.Payload = {
       name: getTestString(NAME_MAX_LENGTH),
       description: getTestString(NAME_MAX_LENGTH),
       locale: {
@@ -51,9 +52,9 @@ describe('Validate JSON against the ModelInfoRequest Schema', () => {
     expect(result).toBeTruthy();
   });
 
-  test("A ModelInfoRequest object with extra properties does not validate", () => {
-    // GIVEN a ModelInfoRequest object with extra properties
-    const validModelInfoRequest: IModelInfoRequest = {
+  test("A ModelInfo POST request object with extra properties does not validate", () => {
+    // GIVEN a ModelInfo POST request object with extra properties
+    const validModelInfoRequest: ModelInfo.POST.Request.Payload = {
       name: getTestString(NAME_MAX_LENGTH),
       description: getTestString(NAME_MAX_LENGTH),
       locale: {

@@ -1,8 +1,9 @@
 import Ajv,{ValidateFunction} from "ajv";
-import {ILocale, LocaleSchema} from "./locale";
+import {LocaleSchema} from "./locale";
 import {randomUUID} from "crypto";
 import {getTestString} from "../_test_utilities/specialCharacters";
 import {LOCALE_SHORTCODE_MAX_LENGTH, NAME_MAX_LENGTH} from "./modelInfo.constants";
+import {ILocale} from "./modelInfo.types";
 
 
 describe('Test the LocaleSchema Schema', () => {

@@ -11,9 +11,9 @@ import {getRandomString} from "_test_utilities/specialCharacters";
 import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
 
 
-export function getIModelInfoMockData(): IModelInfo {
+export function getIModelInfoMockData(n : number = 1 ): IModelInfo {
   return {
-    id: getMockId(1),
+    id: getMockId(n),
     UUID: randomUUID(),
     previousUUID: randomUUID(),
     originUUID: randomUUID(),
@@ -31,5 +31,6 @@ export function getIModelInfoMockData(): IModelInfo {
     updatedAt: new Date() //.toISOString()
   };
 }
-
-
+export function getModelInfoMockDataArray(n: number): Array<IModelInfo> {
+  return Array.from({ length: n }, (_, index) => getIModelInfoMockData(index + 1));
+}

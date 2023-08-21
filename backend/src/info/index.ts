@@ -22,7 +22,7 @@ import {getConnectionManager} from "server/connection/connectionManager";
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/InfoResponseSchemaGET'
+ *                $ref: '#/components/schemas/InfoResponseSchema'
  *        500:
  *          $ref: '#/components/responses/InternalServerErrorResponse'
  */

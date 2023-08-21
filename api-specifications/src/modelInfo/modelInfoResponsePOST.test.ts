@@ -1,8 +1,9 @@
 import Ajv,{ValidateFunction} from "ajv";
 import addFormats from "ajv-formats";
-import {IModelInfoResponse, ModelInfoResponseSchema} from "./modelInfoResponse";
-import {ModelInfoRequestSchema} from "./modelInfoRequest";
+import {ModelInfoResponseSchemaPOST} from "./modelInfoResponsePOST"
+import {ModelInfoRequestSchemaPOST} from "./modelInfoRequestPOST";
 import {LocaleSchema} from "./locale";
+import {ModelInfo} from "./modelInfo.types";
 import {getTestString} from "../_test_utilities/specialCharacters";
 import {
   LOCALE_SHORTCODE_MAX_LENGTH,
@@ -12,38 +13,38 @@ import {
 } from "./modelInfo.constants";
 import {randomUUID} from "crypto";
 
-describe('Test the ModelInfoResponse Schema', () => {
+describe('Test the ModelInfoResponseSchemaPOST Schema', () => {
   test("The ModelInfoRequestSchema module can be required via the index", () => {
     expect(() => {
-      expect(require("modelInfo/index").ModelInfoResponseSchema).toBeDefined();
+      expect(require("modelInfo/index").ModelInfoResponseSchemaPOST).toBeDefined();
     }).not.toThrowError();
   })
 
-  test("The ModelInfoResponse schema is a valid Schema", () => {
+  test("The ModelInfoResponseSchemaPOST schema is a valid Schema", () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     addFormats(ajv);
     expect(() => {
-      ajv.addSchema(ModelInfoRequestSchema, ModelInfoRequestSchema.$id);
+      ajv.addSchema(ModelInfoRequestSchemaPOST, ModelInfoRequestSchemaPOST.$id);
       ajv.addSchema(LocaleSchema, LocaleSchema.$id);
-      ajv.addSchema(ModelInfoResponseSchema, ModelInfoResponseSchema.$id);
-      ajv.getSchema(ModelInfoResponseSchema.$id as string);
+      ajv.addSchema(ModelInfoResponseSchemaPOST, ModelInfoResponseSchemaPOST.$id);
+      ajv.getSchema(ModelInfoResponseSchemaPOST.$id as string);
     }).not.toThrowError();
   });
 });
 
 
-describe('Validate JSON against the ModelInfoResponse Schema', () => {
+describe('Validate JSON against the ModelInfoResponseSchemaPOST Schema', () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
   addFormats(ajv);
   ajv.addSchema(LocaleSchema, LocaleSchema.$id);
-  ajv.addSchema(ModelInfoRequestSchema, ModelInfoRequestSchema.$id);
-  ajv.addSchema(ModelInfoResponseSchema, ModelInfoResponseSchema.$id);
+  ajv.addSchema(ModelInfoRequestSchemaPOST, ModelInfoRequestSchemaPOST.$id);
+  ajv.addSchema(ModelInfoResponseSchemaPOST, ModelInfoResponseSchemaPOST.$id);
 
-  let validateFunction = ajv.getSchema(ModelInfoResponseSchema.$id as string) as ValidateFunction;
+  let validateFunction = ajv.getSchema(ModelInfoResponseSchemaPOST.$id as string) as ValidateFunction;
 
-  test("A valid ModelInfoResponse object validates", () => {
-    // GIVEN a valid ModelInfoResponse object
-    const validModelInfoResponse : IModelInfoResponse = {
+  test("A valid ModelInfo POST Response object validates", () => {
+    // GIVEN a valid ModelInfo POST Response object
+    const validModelInfoResponsePOST : ModelInfo.POST.Response.Payload = {
       id: "foo",
       UUID: randomUUID(),
       previousUUID: "",//randomUUID(),
@@ -64,7 +65,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
       version: getTestString(VERSION_MAX_LENGTH)
     }
     // WHEN the object is validated
-    const result = validateFunction(validModelInfoResponse);
+    const result = validateFunction(validModelInfoResponsePOST);
 
     // THEN no errors are returned
     expect(validateFunction.errors).toBeNull();
@@ -72,9 +73,9 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
     expect(result).toBeTruthy();
   });
 
-  test("A ModelInfoResponse object with extra properties does not validate", () => {
-    // GIVEN a ModelInfoResponse object with extra properties
-    const validModelInfoResponse : IModelInfoResponse = {
+  test("A ModelInfo POST Response object with extra properties does not validate", () => {
+    // GIVEN a ModelInfo POST Response object with extra properties
+    const validModelInfoResponsePOST : ModelInfo.POST.Response.Payload = {
       id: "foo",
       UUID: randomUUID(),
       previousUUID: randomUUID(),
@@ -97,7 +98,7 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
       extraProperty: "foo"
     }
     // WHEN the object is validated
-    const result = validateFunction(validModelInfoResponse);
+    const result = validateFunction(validModelInfoResponsePOST);
 
     // THEN errors are returned
     expect(validateFunction.errors).not.toBeNull();

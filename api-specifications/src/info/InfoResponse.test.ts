@@ -1,40 +1,31 @@
 import Ajv, {ValidateFunction} from "ajv";
 import addFormats from "ajv-formats";
-import {IInfoResponse, InfoResponseSchemaGET} from "./InfoResponse";
-import {
-    IModelInfoResponse,
-    LOCALE_SHORTCODE_MAX_LENGTH,
-    NAME_MAX_LENGTH,
-    RELEASE_NOTES_MAX_LENGTH,
-    VERSION_MAX_LENGTH
-} from "../modelInfo";
-import {randomUUID} from "crypto";
-import {getTestString} from "../_test_utilities/specialCharacters";
+import {IInfoResponse, InfoResponseSchema} from "./InfoResponse";
 
-describe('Test the InfoResponseSchemaGET', () => {
-    test("The InfoResponseSchemaGET can be required via the index", () => {
+describe('Test the InfoResponseSchema', () => {
+    test("The InfoResponseSchema can be required via the index", () => {
         expect(() => {
-            expect(require("info/index").InfoResponseSchemaGET).toBeDefined();
+            expect(require("info/index").InfoResponseSchema).toBeDefined();
         }).not.toThrowError();
     })
 
-    test("The InfoResponseSchemaGET is a valid schema", () => {
+    test("The InfoResponseSchema is a valid schema", () => {
         expect(() => {
             const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
             addFormats(ajv);
-            ajv.addSchema(InfoResponseSchemaGET, InfoResponseSchemaGET.$id);
-            ajv.getSchema(InfoResponseSchemaGET.$id as string);
+            ajv.addSchema(InfoResponseSchema, InfoResponseSchema.$id);
+            ajv.getSchema(InfoResponseSchema.$id as string);
         }).not.toThrowError();
     })
 })
 
-describe('Validate JSON against the InfoResponseSchemaGET', () => {
+describe('Validate JSON against the InfoResponseSchema', () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     addFormats(ajv);
-    ajv.addSchema(InfoResponseSchemaGET, InfoResponseSchemaGET.$id);
-    ajv.getSchema(InfoResponseSchemaGET.$id as string);
+    ajv.addSchema(InfoResponseSchema, InfoResponseSchema.$id);
+    ajv.getSchema(InfoResponseSchema.$id as string);
 
-    let validateFunction = ajv.getSchema(InfoResponseSchemaGET.$id as string) as ValidateFunction;
+    let validateFunction = ajv.getSchema(InfoResponseSchema.$id as string) as ValidateFunction;
 
     test("A valid InfoResponse object validates", () => {
         // GIVEN a valid ModelInfoResponse object

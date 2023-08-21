@@ -1,13 +1,7 @@
 import {SchemaObject} from "ajv";
-import {ILocale, LocaleSchema} from "./locale";
+import {LocaleSchema} from "./locale";
 import {DESCRIPTION_MAX_LENGTH, NAME_MAX_LENGTH} from "./modelInfo.constants";
 import {RegExp_Str_NotEmptyString} from "../regex";
-
-export interface IModelInfoRequest {
-  name: string,
-  description: string,
-  locale: ILocale
-}
 
 /**
  *  The base schema for the model info request
@@ -16,7 +10,7 @@ export interface IModelInfoRequest {
  *  and the suggested solution with unevaluatedProperties = false does not work either
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const _baseRequestSchemaProperties: any = {
+export const _baseRequestSchemaPOSTProperties: any = {
   name: {
     description: "The name of the model",
     type: "string",
@@ -32,12 +26,12 @@ export const _baseRequestSchemaProperties: any = {
     $ref: `${LocaleSchema.$id}`
   }
 };
-export const ModelInfoRequestSchema: SchemaObject = {
-  $id: "/components/schemas/ModelInfoRequestSchema",
+export const ModelInfoRequestSchemaPOST: SchemaObject = {
+  $id: "/components/schemas/ModelInfoRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
   properties: {
-    ...JSON.parse(JSON.stringify(_baseRequestSchemaProperties)) // deep copy the base properties
+    ...JSON.parse(JSON.stringify(_baseRequestSchemaPOSTProperties)) // deep copy the base properties
   },
   required: [
     "name",

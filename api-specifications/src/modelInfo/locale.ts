@@ -2,11 +2,6 @@ import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4} from "../regex";
 import {NAME_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH} from "./modelInfo.constants";
 
-export interface ILocale {
-  UUID: string
-  shortCode: string
-  name: string
-}
 
 export const LocaleSchema: SchemaObject = {
   $id: "/components/schemas/LocaleSchema",

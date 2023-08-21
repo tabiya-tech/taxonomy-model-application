@@ -1,8 +1,8 @@
 import {IModelInfo} from "./modelInfoModel";
 import {
-  IModelInfoResponse,
+  ModelInfo,
 } from 'api-specifications/modelInfo';
-export function transform(data: IModelInfo, baseURL: string): IModelInfoResponse {
+export function transform(data: IModelInfo, baseURL: string): ModelInfo.POST.Response.Payload {
   return  {
     id: data.id,
     UUID: data.UUID,

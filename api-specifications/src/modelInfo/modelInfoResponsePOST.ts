@@ -1,28 +1,10 @@
 import {SchemaObject} from "ajv";
-import {_baseRequestSchemaProperties, IModelInfoRequest} from "./modelInfoRequest";
+import {_baseRequestSchemaPOSTProperties} from "./modelInfoRequestPOST";
 import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty} from "../regex";
 import {RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH} from "./modelInfo.constants";
 
-export interface IModelInfoResponse extends IModelInfoRequest {
-  id: string,
-  UUID: string,
-  originUUID: string,
-  previousUUID: string,
-  path: string,
-  tabiyaPath: string,
-  released: boolean,
-  releaseNotes: string,
-  version: string,
-  createdAt: string,
-  updatedAt: string
-}
 
-export enum ModelInfoResponseErrorCodes {
-  DB_FAILED_TO_CREATE_MODEL = "DB_FAILED_TO_CREATE_MODEL",
-  MODEL_COULD_NOT_VALIDATE = "MODEL_COULD_NOT_VALIDATE",
-}
-
-export const ModelInfoResponseSchema: SchemaObject = {
+export const ModelInfoResponseSchemaPOST: SchemaObject = {
   $id: "/components/schemas/ModelInfoResponseSchema",
 
   type: "object",
@@ -74,7 +56,7 @@ export const ModelInfoResponseSchema: SchemaObject = {
     },
     createdAt: {type: "string", format: "date-time"},
     updatedAt: {type: "string", format: "date-time"},
-    ...JSON.parse(JSON.stringify(_baseRequestSchemaProperties)), // deep copy the base properties
+    ...JSON.parse(JSON.stringify(_baseRequestSchemaPOSTProperties)), // deep copy the base properties
   },
 
   required: [

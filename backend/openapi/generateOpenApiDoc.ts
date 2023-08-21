@@ -4,31 +4,38 @@ import * as path from "node:path";
 import {PresignedResponseSchema} from "api-specifications/presigned";
 import {ImportRequestSchema} from "api-specifications/import";
 import {ErrorResponseSchema} from "api-specifications/error";
-import {InfoResponseSchemaGET} from "api-specifications/info"
-import {LocaleSchema, ModelInfoRequestSchema, ModelInfoResponseSchema} from "api-specifications/modelInfo";
+
+import {
+  LocaleSchema,
+  ModelInfoRequestSchemaPOST,
+  ModelInfoResponseSchemaGET,
+  ModelInfoResponseSchemaPOST
+} from "api-specifications/modelInfo";
 /**
  *  In ajv the $ref is relative to the root of the schema, while in openapi the $ref is relative to the root of the document.
  *  Due to the different way that ajv and openapi handle $ref, we need to fix the $ref in the schema.
  */
-ModelInfoResponseSchema.properties.locale.$ref = "#" + ModelInfoResponseSchema.properties.locale.$ref;
-ModelInfoRequestSchema.properties.locale.$ref = "#" + ModelInfoRequestSchema.properties.locale.$ref;
+ModelInfoResponseSchemaPOST.properties.locale.$ref = "#" + ModelInfoResponseSchemaPOST.properties.locale.$ref;
+ModelInfoRequestSchemaPOST.properties.locale.$ref = "#" + ModelInfoRequestSchemaPOST.properties.locale.$ref;
+ModelInfoResponseSchemaGET.items.properties.locale.$ref = "#" + ModelInfoResponseSchemaGET.items.properties.locale.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
  * It does not resolve $ref from within the components sections e.g. it will not resolve "$ref": "#/components/schemas/LocaleSchema" from ModelInfoResponseSchema
  */
-delete ModelInfoResponseSchema.$id
-delete ModelInfoRequestSchema.$id
+delete ModelInfoResponseSchemaPOST.$id
+delete ModelInfoRequestSchemaPOST.$id
+delete ModelInfoResponseSchemaGET.$id
 delete LocaleSchema.$id
 delete PresignedResponseSchema.$id
 delete ImportRequestSchema.$id
 delete ErrorResponseSchema.$id
-delete InfoResponseSchemaGET.$id
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
 // @ts-ignore
 import version = require("../src/info/version.json");
+import {InfoResponseSchema} from "api-specifications/info";
 const specs = getOpenAPISpecification(`1.0.0 build:${version.buildNumber} sha:${version.sha}`, ["./src/**/index.ts"], false);
 
 //--------------------------------------------------------------------------------------------------
@@ -88,11 +95,12 @@ function getOpenAPISpecification(version: string, apiPaths: string[] = ['./src/*
           // Add here all schemas that are used in the api
           ErrorResponseSchema: ErrorResponseSchema,
           PresignedResponseSchema: PresignedResponseSchema,
-          ModelInfoResponseSchema: ModelInfoResponseSchema,
-          ModelInfoRequestSchema: ModelInfoRequestSchema,
+          ModelInfoResponseSchemaPOST: ModelInfoResponseSchemaPOST,
+          ModelInfoRequestSchemaPOST: ModelInfoRequestSchemaPOST,
+          ModelInfoResponseSchemaGET: ModelInfoResponseSchemaGET,
           LocaleSchema: LocaleSchema,
           ImportRequestSchema: ImportRequestSchema,
-          InfoResponseSchemaGET: InfoResponseSchemaGET
+          InfoResponseSchema: InfoResponseSchema,
         },
         securitySchemes: {
           api_key: {

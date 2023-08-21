@@ -8,8 +8,8 @@ export interface IInfoResponse {
     path: string,
     database:string,
 }
-export const InfoResponseSchemaGET: SchemaObject = {
-    $id: "/components/schemas/InfoResponseSchemaGET",
+export const InfoResponseSchema: SchemaObject = {
+    $id: "/components/schemas/InfoResponseSchema",
     type: "object",
     additionalProperties: false,
     properties: {

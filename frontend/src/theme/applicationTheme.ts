@@ -35,6 +35,13 @@ const applicationTheme = createTheme({
           textTransform: 'none',
         }
       }
+    },
+    MuiTableHead: {
+      defaultProps: {
+        style: {
+          background: "#dedede"
+        }
+      }
     }
   }
 });
