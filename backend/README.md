@@ -68,6 +68,25 @@ To run the linter, execute the following command:
 yarn lint
 ```
 
+## OpenAPI Documentation
+
+The [OpenAPI](https://spec.openapis.org/oas/v3.1.0) documentation for the backend is generated using the [Swagger-jsdoc](https://www.npmjs.com/package/swagger-jsdoc) library. The documentation is generated from comments annotated with `@openapi`. For additional information, see the [generateOpenApiDoc.ts](openapi/generateOpenApiDoc.ts) file.
+
+The API documentation is available in both [Swagger UI](https://swagger.io/tools/swagger-ui/) and [Redoc](https://redocly.com/redoc/).
+
+To generate the documentation locally, you can use the following commands:
+```
+yarn generate:openapi
+yarn generate:swagger
+yarn generate:redoc
+```
+
+To view the documentation locally, run:
+
+```
+yarn local-server:openapi
+```
+
 ## Contributing
 
 Contributions are highly valued in this project. 
