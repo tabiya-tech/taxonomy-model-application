@@ -4,7 +4,7 @@ import * as path from "node:path";
 import {PresignedResponseSchema} from "api-specifications/presigned";
 import {ImportRequestSchema} from "api-specifications/import";
 import {ErrorResponseSchema} from "api-specifications/error";
-
+import {InfoResponseSchemaGET} from "api-specifications/info"
 import {LocaleSchema, ModelInfoRequestSchema, ModelInfoResponseSchema} from "api-specifications/modelInfo";
 /**
  *  In ajv the $ref is relative to the root of the schema, while in openapi the $ref is relative to the root of the document.
@@ -23,6 +23,7 @@ delete LocaleSchema.$id
 delete PresignedResponseSchema.$id
 delete ImportRequestSchema.$id
 delete ErrorResponseSchema.$id
+delete InfoResponseSchemaGET.$id
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -91,6 +92,7 @@ function getOpenAPISpecification(version: string, apiPaths: string[] = ['./src/*
           ModelInfoRequestSchema: ModelInfoRequestSchema,
           LocaleSchema: LocaleSchema,
           ImportRequestSchema: ImportRequestSchema,
+          InfoResponseSchemaGET: InfoResponseSchemaGET
         },
         securitySchemes: {
           api_key: {
