@@ -99,9 +99,9 @@ describe('Validate JSON against the ModelInfoResponse Schema', () => {
     // WHEN the object is validated
     const result = validateFunction(validModelInfoResponse);
 
-    // THEN no errors are returned
+    // THEN errors are returned
     expect(validateFunction.errors).not.toBeNull();
-    // AND the object validates
+    // AND the object does not validate
     expect(result).toBeFalsy();
   });
 });

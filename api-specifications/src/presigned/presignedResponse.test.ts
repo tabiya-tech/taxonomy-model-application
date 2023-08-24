@@ -43,4 +43,22 @@ describe('Validate JSON against the PresignedResponseSchema', () => {
     // AND the object validates
     expect(result).toBeTruthy();
   });
+
+  test("A valid PresignedResponse object with extra properties does not validate", () => {
+    // GIVEN a valid ModelInfoResponse object with extra properties
+    const validPresignedResponse: IPresignedResponse = {
+      url: "https://foo.bar",
+      fields: [{name: "name1", value: getTestString(10)}, {name: "name2", value: getTestString(10)}],
+      folder: getTestString(10),
+      // @ts-ignore
+      extraProperty: "extraProperty"
+    }
+    // WHEN the object is validated
+    const result = validateFunction(validPresignedResponse);
+
+    // THEN errors are returned
+    expect(validateFunction.errors).not.toBeNull();
+    // AND the object does not validate
+    expect(result).toBeFalsy();
+  });
 });
