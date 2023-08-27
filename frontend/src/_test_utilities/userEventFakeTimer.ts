@@ -11,7 +11,7 @@ async function setup(callback: (user: UserEvent) => Promise<void>) {
   jest.useFakeTimers();
   const userEventFakeTimer = userEvent.setup({advanceTimers: jest.advanceTimersByTime});
   await callback(userEventFakeTimer);
-  await act(() => jest.runOnlyPendingTimers());
+  act(() => jest.runOnlyPendingTimers());
   jest.useRealTimers();
 }
 
