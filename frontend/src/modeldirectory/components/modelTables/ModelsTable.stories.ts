@@ -72,3 +72,10 @@ export const ShownWithLongData: Story = {
     models: getRandomModels(10)
   },
 };
+
+export const ShownInLoadingState: Story = {
+  args: {
+    models: [],
+    isLoading: true
+  },
+};
