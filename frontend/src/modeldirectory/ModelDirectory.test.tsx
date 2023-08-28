@@ -14,7 +14,10 @@ import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID} from "src/theme/Backdrop/Backdrop";
 import ModelsTable, {DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID} from "./components/modelTables/ModelsTable";
 import ModelInfoService from "src/service/modelInfo/modelInfo.service";
-import {getRandomModels} from "./components/modelTables/_test_utilities/mockModelData";
+import {
+  getOneRandomModelMaxLength,
+  getArrayOfRandomModelsMaxLength
+} from "./components/modelTables/_test_utilities/mockModelData";
 
 
 // mock the model info service, as we do not want the real service to be called during testing
@@ -213,7 +216,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     render(<ModelDirectory/>);
 
     // AND the import will succeed and a new model will be created
-    const givenNewModel = getRandomModels(1)[0]
+    const givenNewModel = getOneRandomModelMaxLength();
     ImportDirectorService.prototype.directImport = jest.fn().mockResolvedValueOnce(givenNewModel);
 
     // AND the user has opened the ImportDialog
@@ -308,7 +311,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
 
   test.each([
     [" has no existing models", []],
-    [" has N existing models", getRandomModels(3)],
+    [" has N existing models", getArrayOfRandomModelsMaxLength(3)],
   ])
   ("should add the new model to the table that %s", async (desc, givenExistingModels) => {
     // GIVEN the ModelDirectory is rendered with some existing models
@@ -316,7 +319,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     render(<ModelDirectory/>);
 
     // AND the import will succeed and a new model will be created
-    const givenNewModel = getRandomModels(1)[0]
+    const givenNewModel = getOneRandomModelMaxLength()
     ImportDirectorService.prototype.directImport = jest.fn().mockResolvedValueOnce(givenNewModel);
 
     // AND the user has opened the ImportDialog

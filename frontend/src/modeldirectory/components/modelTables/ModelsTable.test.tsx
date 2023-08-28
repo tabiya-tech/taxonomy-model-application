@@ -1,7 +1,9 @@
 import {render, screen, within} from "@testing-library/react";
-import ModelsTable, {DATA_TEST_ID, TEXT} from "./ModelsTable";
-import {getRandomModels} from "./_test_utilities/mockModelData";
-import {ModelDirectoryTypes} from "../../modelDirectory.types";
+import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
+import {getArrayOfRandomModelsMaxLength} from "./_test_utilities/mockModelData";
+import * as React from "react";
+import {getRandomLorem} from "src/_test_utilities/specialCharacters";
+import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
 
 function encodeHtmlAttribute(value: string) {
   const element = document.createElement('div');
@@ -16,7 +18,7 @@ jest.mock('src/modeldirectory/components/tableLoadingRows/TableLoadingRows', () 
   const mockTableLoadingBody = jest.fn().mockImplementation(() => {
     return <tr data-testid={actualModelsTable.DATA_TEST_ID.MODELS_LOADER}></tr>
   });
-  
+
   return {
     ...actual, __esModule: true, default: mockTableLoadingBody
   }
@@ -24,8 +26,8 @@ jest.mock('src/modeldirectory/components/tableLoadingRows/TableLoadingRows', () 
 
 describe("ModelsTable", () => {
   test("should render the table with the models", () => {
-    // GIVEN n models
-    const givenModels = getRandomModels(3);
+    // GIVEN n models with random data of max length
+    const givenModels = getArrayOfRandomModelsMaxLength(3);
 
     // WHEN the ModelsTable is rendered with the given models
     const {container} = render(<ModelsTable models={givenModels}/>);
@@ -51,6 +53,24 @@ describe("ModelsTable", () => {
     const actualModelLocaleNameHeaderCell = actualHeaderCells[actualModelLocaleNameHeaderIndex];
     expect(actualModelLocaleNameHeaderCell).toBeInTheDocument();
 
+    // AND the VERSION header cell to be shown
+    const actualModelVersionHeaderIndex = actualHeaderCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_VERSION);
+    expect(actualModelVersionHeaderIndex).toBeGreaterThanOrEqual(0);
+    const actualModelVersionHeaderCell = actualHeaderCells[actualModelVersionHeaderIndex];
+    expect(actualModelVersionHeaderCell).toBeInTheDocument();
+
+    // AND the RELEASED header cell to be shown
+    const actualModelReleasedHeaderIndex = actualHeaderCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_RELEASED);
+    expect(actualModelReleasedHeaderIndex).toBeGreaterThanOrEqual(0);
+    const actualModelReleasedHeaderCell = actualHeaderCells[actualModelReleasedHeaderIndex];
+    expect(actualModelReleasedHeaderCell).toBeInTheDocument();
+
+    // AND the DESCRIPTION header cell to be shown
+    const actualModelDescriptionHeaderIndex = actualHeaderCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_DESCRIPTION);
+    expect(actualModelDescriptionHeaderIndex).toBeGreaterThanOrEqual(0);
+    const actualModelDescriptionHeaderCell = actualHeaderCells[actualModelDescriptionHeaderIndex];
+    expect(actualModelDescriptionHeaderCell).toBeInTheDocument();
+
     // AND all models to be in the table
     const modelTableRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
     expect(modelTableRows.length).toEqual(givenModels.length);
@@ -67,7 +87,30 @@ describe("ModelsTable", () => {
       expect(actualModelCells[actualModelNameHeaderIndex]).toHaveTextContent(model.name);
 
       // AND the model's LOCALE to be shown in the correct column
-      expect(actualModelCells[actualModelLocaleNameHeaderIndex]).toHaveTextContent(model.locale.name);
+      expect(actualModelCells[actualModelLocaleNameHeaderIndex]).toHaveTextContent(model.locale.name && model.locale.shortCode);
+
+      // AND the model's VERSION to be shown in the correct column
+      expect(actualModelCells[actualModelVersionHeaderIndex]).toHaveTextContent(model.version);
+
+      // AND the model's RELEASE to be shown in the correct column
+      let expectedReleasedContent = "";
+      if (model.released) {
+        const icon = within(actualModelCells[actualModelReleasedHeaderIndex]).getByTestId(DATA_TEST_ID.MODEL_CELL_ICON);
+        expectedReleasedContent = icon.innerHTML;
+      } else {
+        expectedReleasedContent = "";
+      }
+      expect(actualModelCells[actualModelReleasedHeaderIndex]).toContainHTML(expectedReleasedContent);
+
+      // AND the model's DESCRIPTION to be shown in the correct column
+      let expectedDescription = ""
+      if (model.description.length > CELL_MAX_LENGTH) {
+        expectedDescription = model.description.substring(0, CELL_MAX_LENGTH) + '...';
+      } else {
+        expectedDescription = model.description
+      }
+      expect(actualModelCells[actualModelDescriptionHeaderIndex]).toHaveTextContent(expectedDescription);
+
     })
   });
 
@@ -94,20 +137,103 @@ describe("ModelsTable", () => {
     // AND the header row to have a locale cell
     const actualLocaleHeaderCell = await within(actualModelTableHeaderRow).findByText(TEXT.TABLE_HEADER_LABEL_LOCALE);
     expect(actualLocaleHeaderCell).toBeInTheDocument();
+    // AND the header row to have a Version cell
+    const actualVersionHeaderCell = await within(actualModelTableHeaderRow).findByText(TEXT.TABLE_HEADER_LABEL_VERSION);
+    expect(actualVersionHeaderCell).toBeInTheDocument();
+    // AND the header row to have a Released cell
+    const actualReleasedHeaderCell = await within(actualModelTableHeaderRow).findByText(TEXT.TABLE_HEADER_LABEL_RELEASED);
+    expect(actualReleasedHeaderCell).toBeInTheDocument();
+    // AND the header row to have a Description cell
+    const actualDescriptionHeaderCell = await within(actualModelTableHeaderRow).findByText(TEXT.TABLE_HEADER_LABEL_DESCRIPTION);
+    expect(actualDescriptionHeaderCell).toBeInTheDocument();
     // AND the table should not have any row
     const modelTableRows = screen.queryAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
     expect(modelTableRows).toHaveLength(0);
+  })
+
+  describe("should render the model.released", () => {
+    test.each(
+      [
+        [true],
+        [false]
+      ]
+    )
+    ("should render model.released = %s", (givenIsReleasedFlag) => {
+      // GIVEN n models with random data
+      const givenModels = getArrayOfRandomModelsMaxLength(1);
+      // AND a given released flag
+      givenModels[0].released = givenIsReleasedFlag;
+
+      // WHEN the ModelsTable is rendered
+      render(<ModelsTable models={givenModels}/>);
+
+      // THEN expect the released to be rendered based on the value
+      const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
+      const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+      const releasedCellIndex = headerCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_RELEASED);
+      const modelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+
+      modelRows.forEach((actualRow, index) => {
+        const actualRowCells = within(actualRow).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+        const actualReleasedCell = actualRowCells[releasedCellIndex];
+        let expectedReleasedContent = "";
+        if (givenIsReleasedFlag) {
+          const icon = within(actualReleasedCell).getByTestId(DATA_TEST_ID.MODEL_CELL_ICON);
+          expectedReleasedContent = icon.innerHTML;
+        } else {
+          expectedReleasedContent = "";
+        }
+        expect(actualReleasedCell).toContainHTML(expectedReleasedContent);
+      })
+    });
   });
-  
+
+  describe("should render the model.description", () => {
+    test.each(
+      [
+        ["empty", ""],
+        ["less than CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH - 1)],
+        ["equal to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH)],
+        ["longer than to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH + 1)],
+      ]
+    )("should render the 'model.description' then it is %s", (desc, givenDescription) => {
+      // GIVEN n models with random data of max length
+      const givenModels = getArrayOfRandomModelsMaxLength(1);
+      // AND a given description
+      givenModels[0].description = givenDescription;
+
+      // WHEN the ModelsTable is rendered
+      render(<ModelsTable models={givenModels}/>);
+
+      // THEN expected the description to render based on it's length
+      const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
+      const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+      const descriptionCellIndex = headerCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_DESCRIPTION);
+      const modelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+
+      modelRows.forEach((row, index) => {
+        const rowCells = within(row).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+        const descriptionCell = rowCells[descriptionCellIndex];
+        let expectedDescription = ""
+        if (givenDescription.length > CELL_MAX_LENGTH) {
+          expectedDescription = givenDescription.substring(0, CELL_MAX_LENGTH) + '...';
+        } else {
+          expectedDescription = givenDescription
+        }
+        expect(descriptionCell.textContent).toMatch(expectedDescription);
+      });
+    });
+  });
+
   test("should render the table with the loader component when the loading property is set to true", () => {
     // GIVEN  isLoading property is true
     const givenIsLoading = true;
     // AND an empty models list is provided
-    const givenModels : ModelDirectoryTypes.ModelInfo[] = [];
-    
+    const givenModels: ModelDirectoryTypes.ModelInfo[] = [];
+
     // WHEN the ModelsTable component is rendered with the given properties
-    render(<ModelsTable models={givenModels} isLoading={givenIsLoading} />)
-    
+    render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>)
+
     // THEN expect the table to be shown
     const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
     expect(tableElement).toBeInTheDocument();
@@ -121,16 +247,16 @@ describe("ModelsTable", () => {
     const modelTableDataRowElement = screen.queryByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
     expect(modelTableDataRowElement).not.toBeInTheDocument();
   });
-  
+
   test("should render the table without the loader component when the loading property is false", () => {
     // GIVEN the loading property is false
     const givenIsLoading = false;
     // AND n models are provided
-    const givenModels : ModelDirectoryTypes.ModelInfo[] = getRandomModels(3);
-    
+    const givenModels: ModelDirectoryTypes.ModelInfo[] = getArrayOfRandomModelsMaxLength(3);
+
     // WHEN the ModelsTable component is rendered with the given properties
-    render(<ModelsTable models={givenModels} isLoading={givenIsLoading} />);
-    
+    render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>);
+
     // THEN expect the table to be shown
     const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
     expect(tableElement).toBeInTheDocument();
@@ -144,14 +270,14 @@ describe("ModelsTable", () => {
     const modelsLoaderElement = screen.queryByTestId(DATA_TEST_ID.MODELS_LOADER);
     expect(modelsLoaderElement).not.toBeInTheDocument();
   });
-  
-  test("should not render the loader component when the table contains some models", () =>{
+
+  test("should not render the loader component when the table contains some models", () => {
     // GIVEN n models are provided
-    const givenModels = getRandomModels(3);
-    
+    const givenModels = getArrayOfRandomModelsMaxLength(3);
+
     // WHEN the ModelsTable component is rendered with the given models
-    render(<ModelsTable models={givenModels} />);
-    
+    render(<ModelsTable models={givenModels}/>);
+
     // THEN expect the given models to be shown
     const modelTableDataRowElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
     expect(modelTableDataRowElements).toHaveLength(givenModels.length);
@@ -159,4 +285,4 @@ describe("ModelsTable", () => {
     const modelsLoaderElement = screen.queryByTestId(DATA_TEST_ID.MODELS_LOADER);
     expect(modelsLoaderElement).not.toBeInTheDocument();
   });
-});
+})

@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import {faker} from '@faker-js/faker';
 
 import {
   ModelInfo,
@@ -10,8 +10,12 @@ import {
 import {v4 as uuidv4} from "uuid";
 
 import {getMockId} from "src/_test_utilities/mockMongoId";
-import {getRandomString, getTestString} from "src/_test_utilities/specialCharacters";
+import {getRandomLorem, getRandomString, getTestString} from "src/_test_utilities/specialCharacters";
 
+/**
+ * Get a mock ModelInfo payload with special character strings of maximum length
+ * @param number The number of ModelInfo objects to generate
+ */
 export function getMockModelInfoPayload(number: number): ModelInfo.GET.Response.Payload {
   return Array.from({length: number}, (_, i) => {
     return {
@@ -26,12 +30,10 @@ export function getMockModelInfoPayload(number: number): ModelInfo.GET.Response.
         shortCode: getTestString(LOCALE_SHORTCODE_MAX_LENGTH)
       },
       description: getTestString(DESCRIPTION_MAX_LENGTH),
-      released: false,
+      released: i % 2 === 0, // 50% chance of released
       releaseNotes: getTestString(RELEASE_NOTES_MAX_LENGTH),
       version: getTestString(VERSION_MAX_LENGTH),
-      // @ts-ignore
       createdAt: new Date().toISOString(),
-      // @ts-ignore
       updatedAt: new Date().toISOString(),
       path: "https://foo/bar",
       tabiyaPath: "https://foo/bar/baz"
@@ -39,6 +41,10 @@ export function getMockModelInfoPayload(number: number): ModelInfo.GET.Response.
   });
 }
 
+/**
+ * Get a mock ModelInfo payload with lorem ipsum strings of maximum length
+ * @param number
+ */
 export function getFakeModelInfoPayload(number: number): ModelInfo.GET.Response.Payload {
   return Array.from({length: number}, (_, i) => {
     return {
@@ -46,19 +52,17 @@ export function getFakeModelInfoPayload(number: number): ModelInfo.GET.Response.
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: faker.lorem.text().substr(0, NAME_MAX_LENGTH),
+      name: getRandomLorem(NAME_MAX_LENGTH),
       locale: {
         UUID: uuidv4(),
-        name: faker.location.country(),
-        shortCode: faker.lorem.text().substr(0,  LOCALE_SHORTCODE_MAX_LENGTH),
+        name: getRandomLorem(NAME_MAX_LENGTH),
+        shortCode: getRandomLorem(LOCALE_SHORTCODE_MAX_LENGTH),
       },
-      description: faker.lorem.text().substr(0, DESCRIPTION_MAX_LENGTH),
-      released: false,
-      releaseNotes: faker.lorem.text().substr(0, RELEASE_NOTES_MAX_LENGTH),
-      version: faker.lorem.text().substr(0, VERSION_MAX_LENGTH),
-      // @ts-ignore
+      description: getRandomLorem(DESCRIPTION_MAX_LENGTH),
+      released: i % 2 === 0, // 50% chance of released
+      releaseNotes: getRandomLorem(RELEASE_NOTES_MAX_LENGTH),
+      version: getRandomLorem(VERSION_MAX_LENGTH),
       createdAt: faker.date.anytime().toISOString(),
-      // @ts-ignore
       updatedAt: faker.date.anytime().toISOString(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url()
