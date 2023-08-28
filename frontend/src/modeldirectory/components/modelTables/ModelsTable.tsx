@@ -9,7 +9,8 @@ import Paper from '@mui/material/Paper';
 import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
 
 interface ModelsTableProps {
-  models: ModelDirectoryTypes.ModelInfo[]
+  models: ModelDirectoryTypes.ModelInfo[],
+  isLoading?: boolean
 }
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";
@@ -23,7 +24,8 @@ export const DATA_TEST_ID = {
   MODELS_TABLE_ID: `models-table-${uniqueId}`,
   MODEL_TABLE_HEADER_ROW: `model-table-header-row-${uniqueId}`,
   MODEL_TABLE_DATA_ROW: `model-table-row-${uniqueId}`,
-  MODEL_CELL: `model-cell-${uniqueId}`
+  MODEL_CELL: `model-cell-${uniqueId}`,
+  MODELS_LOADER: `models-loader-${uniqueId}`
 }
 
 const ModelsTable = (props: ModelsTableProps) => {
