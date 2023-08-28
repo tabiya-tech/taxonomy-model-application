@@ -18,3 +18,18 @@ export function getRandomString(length: number) {
     }
     return result;
 }
+
+export function getRandomLorem(length: number) {
+    let result = '';
+    const characters = "     abcdefghijklmnopqrstuvwxyz"; // 5 spaces for 20% chance of whitespace in the english language
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+        const newChar = characters.charAt(Math.floor(Math.random() * charactersLength));
+        if (!(newChar === " " && result.charAt(result.length))) {
+            result += newChar;
+            counter += 1;
+        }
+    }
+    return result;
+}

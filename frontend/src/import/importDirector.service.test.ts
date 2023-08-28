@@ -2,7 +2,7 @@
 // Setup mocks
 
 // Setup the mock for the model.service
-jest.mock("../service/modelInfo/modelInfo.service", () => {
+jest.mock("src/service/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelService = jest.fn(); // the constructor
   mockModelService.prototype.createModel = jest.fn();
@@ -46,14 +46,14 @@ import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
 import {ImportFiles} from "./ImportFiles.type";
-import {getRandomModels} from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
+import {getOneRandomModelMaxLength} from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
 
 describe('Test the import director service', () => {
   it("should successfully direct the import", async () => {
     // GIVEN a model service, a presigned service, an upload service, a import service
 
     const modelService = new ModelInfoService("foo");
-    const givenMockModel = getRandomModels(1)[0];
+    const givenMockModel = getOneRandomModelMaxLength();
     jest.spyOn(modelService, "createModel").mockResolvedValue(givenMockModel);
 
     const presignedService = new PresignedService("foo");
@@ -61,7 +61,7 @@ describe('Test the import director service', () => {
       fields: [
         {name: "foo", value: "bar"},
         {name: "baz", value: "qux"}
-      ], folder: "bar", url: "http://foo.bar"
+      ], folder: "bar", url: "https://foo.bar"
     }
     jest.spyOn(presignedService, "getPresignedPost").mockResolvedValue(givenMockPresignedResponse);
 
