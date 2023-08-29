@@ -108,7 +108,7 @@ describe("InfoService", () => {
         } else if (url === infoURL.backend) {
           return Promise.resolve(expectedBackendInfoData);
         } else {
-          return Promise.reject("Unexpected url");
+          return Promise.reject(new Error("Unexpected url"));
         }
       });
       // WHEN the loadInfo function is called

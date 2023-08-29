@@ -1,7 +1,6 @@
 import {Bucket} from "@pulumi/aws/s3";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import {Output} from "@pulumi/pulumi";
 
 export function setupUploadBucket(allowedOrigins: string[]): Bucket {
 

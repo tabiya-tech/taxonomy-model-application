@@ -2,13 +2,13 @@ import {
   SnackbarProvider as SNACKBAR_PROVIDER,
   SnackbarProviderProps as _SnackbarProviderProps,
   useSnackbar,
-  SnackbarKey
+  SnackbarKey,
+  MaterialDesignContent
 } from 'notistack';
 import {ReactNode} from 'react';
 import {IconButton, styled} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import * as React from 'react';
-import {MaterialDesignContent} from 'notistack'
 
 const uniqueId = "bade4e92-baed-40f8-a098-0e745563e786"
 export const DATA_TEST_ID = {
