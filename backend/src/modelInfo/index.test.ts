@@ -5,17 +5,14 @@ import {HTTP_VERBS, StatusCodes} from "server/httpUtils";
 
 import {IModelInfo} from "./modelInfoModel";
 import {randomUUID} from "crypto";
-import {IErrorResponse} from "api-specifications/error";
+import APIError from "api-specifications/error";
 import {getRandomString} from "_test_utilities/specialCharacters";
-import {
-  DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH, MAX_PAYLOAD_LENGTH, ModelInfo, NAME_MAX_LENGTH
-} from "api-specifications/modelInfo";
+import ModelInfo from "api-specifications/modelInfo";
 import {getIModelInfoMockData, getModelInfoMockDataArray} from "./testDataHelper";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {
   testMethodsNotAllowed, testRequestJSONMalformed, testRequestJSONSchema, testTooLargePayload, testUnsupportedMediaType
 } from "_test_utilities/stdRESTHandlerTests";
-import {IModelRepository} from "./ModelInfoRepository";
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 
@@ -31,11 +28,11 @@ describe("Test for model handler", () => {
 
       // GIVEN a valid request (method & header & payload)
       const givenPayload: ModelInfo.POST.Request.Payload = {
-        name: getRandomString(NAME_MAX_LENGTH), locale: {
+        name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH), locale: {
           UUID: randomUUID(),
-          name: getRandomString(NAME_MAX_LENGTH),
-          shortCode: getRandomString(LOCALE_SHORTCODE_MAX_LENGTH)
-        }, description: getRandomString(DESCRIPTION_MAX_LENGTH)
+          name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
+          shortCode: getRandomString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        }, description: getRandomString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH)
       }
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST, body: JSON.stringify(givenPayload), headers: {
@@ -105,8 +102,8 @@ describe("Test for model handler", () => {
       // AND to respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
-      const expectedErrorBody: IErrorResponse = {
-        "errorCode": ModelInfo.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_MODEL,
+      const expectedErrorBody: APIError.POST.Response.Payload = {
+        "errorCode": ModelInfo.POST.Response.Constants.ErrorCodes.DB_FAILED_TO_CREATE_MODEL,
         "message": "Failed to create the model in the DB",
         "details": "",
       }
@@ -119,7 +116,7 @@ describe("Test for model handler", () => {
 
     testRequestJSONMalformed(modelHandler);
 
-    testTooLargePayload(HTTP_VERBS.POST, MAX_PAYLOAD_LENGTH, modelHandler)
+    testTooLargePayload(HTTP_VERBS.POST, ModelInfo.Constants.MAX_PAYLOAD_LENGTH, modelHandler)
   });
 
   describe("GET", () => {
@@ -191,8 +188,8 @@ describe("Test for model handler", () => {
       // AND to respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
-      const expectedErrorBody: IErrorResponse = {
-        "errorCode": ModelInfo.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS,
+      const expectedErrorBody: APIError.POST.Response.Payload = {
+        "errorCode": ModelInfo.GET.Response.Constants.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS,
         "message": "Failed to retrieve models from the DB",
         "details": "",
       }

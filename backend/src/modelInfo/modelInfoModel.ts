@@ -3,16 +3,10 @@ import mongoose from 'mongoose';
 import {RegExp_UUIDv4} from "server/regex";
 import { stringRequired } from 'server/stringRequired';
 import {DescriptionProperty, OriginUUIDProperty} from "../esco/common/modelSchema";
+import ModelInfo from 'api-specifications/modelInfo';
 
 export const ModelName = "ModelInfo";
 
-export const NAME_MAX_LENGTH = 256;
-
-export const SHORTCODE_MAX_LENGTH = 3;
-
-export const RELEASE_NOTES_MAX_LENGTH = 100000;
-
-export const VERSION_MAX_LENGTH = 256;
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IModelInfo> {
   // Schema for Locale
@@ -20,13 +14,13 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     name: {
       type: String,
       required: stringRequired("locale", "name"),
-      maxlength: [NAME_MAX_LENGTH, `Name must be at most ${NAME_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfo.Constants.NAME_MAX_LENGTH, `Name must be at most ${ModelInfo.Constants.NAME_MAX_LENGTH} chars long`]
     },
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     shortCode: {
       type: String,
       required: stringRequired("locale", "shortCode"),
-      maxlength: [SHORTCODE_MAX_LENGTH, `Short code must be at most ${SHORTCODE_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH, `Short code must be at most ${ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`]
     },
   };
 
@@ -42,7 +36,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     name: {
       type: String,
       required: true,
-      maxlength: [NAME_MAX_LENGTH, `Name must be at most ${NAME_MAX_LENGTH} chars long`],
+      maxlength: [ModelInfo.Constants.NAME_MAX_LENGTH, `Name must be at most ${ModelInfo.Constants.NAME_MAX_LENGTH} chars long`],
       validate: function (value: string): boolean {
         return isSpecified(value);
       }
@@ -53,12 +47,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     releaseNotes: {
       type: String,
       required: stringRequired("releaseNotes"),
-      maxlength: [RELEASE_NOTES_MAX_LENGTH, `Release notes must be at most ${RELEASE_NOTES_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH, `Release notes must be at most ${ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH} chars long`]
     },
     version: {
       type: String,
       required: stringRequired("version"),
-      maxlength: [VERSION_MAX_LENGTH, `Version must be at most ${VERSION_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfo.Constants.VERSION_MAX_LENGTH, `Version must be at most ${ModelInfo.Constants.VERSION_MAX_LENGTH} chars long`]
     },
   }, {timestamps: true, strict: "throw"},);
 

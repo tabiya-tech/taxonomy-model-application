@@ -1,7 +1,7 @@
 import * as ImportHandler from "./index";
 import {HTTP_VERBS, response, StatusCodes} from "server/httpUtils";
 import * as AsyncImport from "./asyncImport";
-import {ImportRequest, ImportFileTypes, FILEPATH_MAX_LENGTH, MAX_PAYLOAD_LENGTH} from "api-specifications/import";
+import Import from "api-specifications/import";
 
 import {getMockId} from "_test_utilities/mockMongoId";
 import {APIGatewayProxyEvent} from "aws-lambda";
@@ -20,16 +20,16 @@ describe("test for trigger ImportHandler", () => {
   });
 
   test.each([
-     ["some of the file paths", { [ImportFileTypes.ESCO_SKILL]:"path/to/file"}],
-     ["max payload size", Object.values(ImportFileTypes).reduce((accumulated, current) => {
+     ["some of the file paths", { [Import.Constants.ImportFileTypes.ESCO_SKILL]:"path/to/file"}],
+     ["max payload size", Object.values(Import.Constants.ImportFileTypes).reduce((accumulated, current) => {
        // @ts-ignore
-       accumulated[current] = getTestString(FILEPATH_MAX_LENGTH);
+       accumulated[current] = getTestString(Import.Constants.FILEPATH_MAX_LENGTH);
        return accumulated;
      },{})]
    ]
   )("POST should respond with the response from the lambda_invokeAsyncImport() for %s", async (description, givenFilePaths) => {
     // GIVEN a correct payload & event with 'Content-Type: application/json; charset=utf-8'
-    const givenPayload: ImportRequest = {
+    const givenPayload: Import.POST.Request.Payload = {
       modelId: getMockId(2),
       filePaths: givenFilePaths
     }
@@ -71,5 +71,5 @@ describe("test for trigger ImportHandler", () => {
 
   testUnsupportedMediaType(ImportHandler.handler);
   
-  testTooLargePayload(HTTP_VERBS.POST, MAX_PAYLOAD_LENGTH, ImportHandler.handler);
+  testTooLargePayload(HTTP_VERBS.POST, Import.Constants.MAX_PAYLOAD_LENGTH, ImportHandler.handler);
 })

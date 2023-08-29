@@ -1,11 +1,11 @@
-import {ILocale} from 'api-specifications/modelInfo';
-import ModelInfoService from "src/service/modelInfo/modelInfo.service";
+import Locale from "api-specifications/locale"
+import ModelInfoService from "src/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
-import {ImportFileTypes, ImportFilePaths} from "api-specifications/import";
+import Import, {Constants as ImportConstants} from "api-specifications/import";
 import {ImportFiles} from "./ImportFiles.type";
-import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
+import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
 
 export default class ImportDirectorService {
   readonly apiServerUrl: string;
@@ -14,7 +14,7 @@ export default class ImportDirectorService {
     this.apiServerUrl = apiServerUrl;
   }
 
-  async directImport(name: string, description: string, locale: ILocale, files: ImportFiles): Promise<ModelDirectoryTypes.ModelInfo> {
+  async directImport(name: string, description: string, locale: Locale.Payload, files: ImportFiles): Promise<ModelInfoTypes.ModelInfo> {
 
     const modelService = new ModelInfoService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
@@ -24,9 +24,9 @@ export default class ImportDirectorService {
 
     const uploadService = new UploadService();
     await uploadService.uploadFiles(presigned, Object.entries(files).map(([, file]) => file));
-    const filesPaths: ImportFilePaths = {};
+    const filesPaths: Import.POST.Request.ImportFilePaths = {};
     Object.entries(files).forEach(([fileType, file]) => {
-      filesPaths[fileType as ImportFileTypes] = `${presigned.folder}/${file.name}`;
+      filesPaths[fileType as ImportConstants.ImportFileTypes] = `${presigned.folder}/${file.name}`;
     });
     const importService = new ImportService(this.apiServerUrl);
     await importService.import(newModel.id, filesPaths);

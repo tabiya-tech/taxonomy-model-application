@@ -1,26 +1,21 @@
-import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
+import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
 import {getServiceErrorFactory} from "src/error/error";
 import {ErrorCodes} from "src/error/errorCodes";
 import {StatusCodes} from "http-status-codes/";
-import {
-  LocaleSchema,
-  ModelInfo,
-  ModelInfoRequestSchemaPOST,
-  ModelInfoResponseSchemaGET, ModelInfoResponseSchemaPOST
-} from "api-specifications/modelInfo"
+import Locale from "api-specifications/locale";
+import ModelInfo from "api-specifications/modelInfo";
 import Ajv, {ValidateFunction} from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 
 export type INewModelSpecification = ModelInfo.POST.Request.Payload
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);// To support the "date-time" format
-ajv.addSchema(LocaleSchema, LocaleSchema.$id);
-ajv.addSchema(ModelInfoResponseSchemaGET, ModelInfoResponseSchemaGET.$id);
-ajv.addSchema(ModelInfoRequestSchemaPOST, ModelInfoRequestSchemaPOST.$id);
-ajv.addSchema(ModelInfoResponseSchemaPOST, ModelInfoResponseSchemaPOST.$id);
-const responseValidatorGET: ValidateFunction = ajv.getSchema(ModelInfoResponseSchemaGET.$id as string) as ValidateFunction;
-const responseValidatorPOST: ValidateFunction = ajv.getSchema(ModelInfoResponseSchemaPOST.$id as string) as ValidateFunction;
-
+ajv.addSchema(Locale.Schema, Locale.Schema.$id);
+ajv.addSchema(ModelInfo.GET.Response.Schema, ModelInfo.GET.Response.Schema.$id);
+ajv.addSchema(ModelInfo.POST.Response.Schema, ModelInfo.POST.Response.Schema.$id);
+ajv.addSchema(ModelInfo.POST.Request.Schema, ModelInfo.POST.Request.Schema.$id);
+const responseValidatorGET: ValidateFunction = ajv.getSchema(ModelInfo.GET.Response.Schema.$id as string) as ValidateFunction;
+const responseValidatorPOST: ValidateFunction = ajv.getSchema(ModelInfo.POST.Response.Schema.$id as string) as ValidateFunction;
 
 /**
  * Extracts the type of the elements of an array.
@@ -42,7 +37,7 @@ export default class ModelInfoService {
    * Resolves with the modelID or rejects with a ServiceError
    *
    */
-  public async createModel(newModelSpec: INewModelSpecification): Promise<ModelDirectoryTypes.ModelInfo> {
+  public async createModel(newModelSpec: INewModelSpecification): Promise<ModelInfoTypes.ModelInfo> {
     const errorFactory = getServiceErrorFactory("ModelInfoService", "createModel", "POST", this.modelInfoEndpointUrl);
     let response;
     let responseBody: string;
@@ -88,7 +83,7 @@ export default class ModelInfoService {
     return this.transform(modelResponse);
   }
 
-  public async getAllModels(): Promise<ModelDirectoryTypes.ModelInfo[]> {
+  public async getAllModels(): Promise<ModelInfoTypes.ModelInfo[]> {
     const errorFactory = getServiceErrorFactory("ModelInfoService", "getAllModels", "GET", this.modelInfoEndpointUrl);
 
     let response: Response;
@@ -136,7 +131,7 @@ export default class ModelInfoService {
     return allModelsResponse.map(this.transform);
   }
 
-  transform(payloadItem: IModelInfoType): ModelDirectoryTypes.ModelInfo {
+  transform(payloadItem: IModelInfoType): ModelInfoTypes.ModelInfo {
     return {
       id: payloadItem.id,
       UUID: payloadItem.UUID,

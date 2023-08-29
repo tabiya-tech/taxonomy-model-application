@@ -6,12 +6,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
+import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
 import TableLoadingRows from "../tableLoadingRows/TableLoadingRows";
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 
 interface ModelsTableProps {
-  models: ModelDirectoryTypes.ModelInfo[],
+  models: ModelInfoTypes.ModelInfo[],
   isLoading?: boolean
 }
 

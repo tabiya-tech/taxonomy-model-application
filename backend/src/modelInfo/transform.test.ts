@@ -1,6 +1,6 @@
 import {IModelInfo} from "./modelInfoModel";
 import {transform} from "./transform";
-import {ModelInfo,} from 'api-specifications/modelInfo';
+import ModelInfo from "api-specifications/modelInfo";
 import {getIModelInfoMockData} from "./testDataHelper";
 
 

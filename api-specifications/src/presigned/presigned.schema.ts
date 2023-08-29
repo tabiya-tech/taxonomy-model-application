@@ -1,14 +1,8 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString} from "../regex";
 
-export interface IPresignedResponse {
-  url: string,
-  fields: {name: string, value: string}[],
-  folder: string,
-}
-
-export const PresignedResponseSchema: SchemaObject = {
-  $id: "/components/schemas/PresignedResponseSchema",
+const PresignedResponseSchemaGET: SchemaObject = {
+  $id: "/components/schemas/PresignedSchema",
 
   type: "object",
   additionalProperties: false,
@@ -52,3 +46,5 @@ export const PresignedResponseSchema: SchemaObject = {
     "folder"
   ]
 };
+
+export default PresignedResponseSchemaGET;

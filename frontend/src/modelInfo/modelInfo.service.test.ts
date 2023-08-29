@@ -1,14 +1,7 @@
 import ModelInfoService, {INewModelSpecification} from "./modelInfo.service";
 import {getTestString} from "src/_test_utilities/specialCharacters";
-import {
-  DESCRIPTION_MAX_LENGTH,
-  LOCALE_SHORTCODE_MAX_LENGTH,
-  LocaleSchema,
-  ModelInfo,
-  ModelInfoRequestSchemaPOST,
-  ModelInfoResponseSchemaPOST,
-  NAME_MAX_LENGTH,
-} from "api-specifications/modelInfo"
+import ModelInfo from "api-specifications/modelInfo"
+import Locale from "api-specifications/locale";
 import * as MockPayload from "./_test_utilities/mockModelInfoPayload";
 import {StatusCodes} from "http-status-codes";
 import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
@@ -20,8 +13,8 @@ import addFormats from "ajv-formats";
 
 function getNewModelSpecMockData(): INewModelSpecification {
   return {
-    name: getTestString(NAME_MAX_LENGTH), description: getTestString(DESCRIPTION_MAX_LENGTH), locale: {
-      name: getTestString(NAME_MAX_LENGTH), shortCode: getTestString(LOCALE_SHORTCODE_MAX_LENGTH), UUID: randomUUID()
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH), locale: {
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH), UUID: randomUUID()
     }
   }
 }
@@ -148,10 +141,10 @@ describe("ModelInfoService", () => {
 
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    ajv.addSchema(LocaleSchema);
-    ajv.addSchema(ModelInfoRequestSchemaPOST);
-    ajv.addSchema(ModelInfoResponseSchemaPOST);
-    const validateResponse = ajv.compile(ModelInfoResponseSchemaPOST);
+    ajv.addSchema(Locale.Schema);
+    ajv.addSchema(ModelInfo.POST.Request.Schema);
+    ajv.addSchema(ModelInfo.POST.Response.Schema);
+    const validateResponse = ajv.compile(ModelInfo.POST.Response.Schema);
 
     test("should call the REST createModel API at the correct URL, with POST and the correct headers and payload successfully", async () => {
       // GIVEN a api server url
@@ -176,7 +169,7 @@ describe("ModelInfoService", () => {
       const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
 
       // AND the body conforms to the modelRequestSchema
-      const validateRequest = ajv.compile(ModelInfoRequestSchemaPOST);
+      const validateRequest = ajv.compile(ModelInfo.POST.Request.Schema);
       validateRequest(payload);
       // @ts-ignore
       expect(validateResponse.errors).toBeNull();

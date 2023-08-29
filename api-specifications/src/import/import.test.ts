@@ -1,35 +1,43 @@
 import Ajv, {ValidateFunction} from "ajv";
-import {FILEPATH_MAX_LENGTH, ImportFileTypes, ImportRequest, ImportRequestSchema} from "./importRequest";
+import Import from "./index";
+import * as Constants from "./import.constants";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {WHITESPACE} from "_test_utilities/specialCharacters";
 import {RegExp_Str_NotEmptyString} from "regex";
 
-describe('Test the ImportRequest Schema', () => {
-  test("The ImportRequestSchema module can be required via the index", () => {
+describe('Test the Import Schema', () => {
+  test("The ImportSchema module can be required via the index", () => {
+    //GIVEN the module
+    //WHEN the module is required via the index
     expect(() => {
-      expect(require("import").ImportRequestSchema).toBeDefined();
+      // THEN Check if the module can be required without error
+      expect(() => {
+        require('./index');
+      }).not.toThrowError();
+      // AND check if Schema is defined in it
+      expect(require("./index").default.POST.Request.Schema).toBeDefined();
     }).not.toThrowError();
   })
 
-  test("The ImportRequest schema is a valid Schema", () => {
+  test("The Import schema is a valid Schema", () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     expect(() => {
-      ajv.addSchema(ImportRequestSchema, ImportRequestSchema.$id);
+      ajv.addSchema(Import.POST.Request.Schema, Import.POST.Request.Schema.$id);
     }).not.toThrowError();
   });
 });
 
 
-describe('Validate JSON against the ImportRequest Schema', () => {
+describe('Validate JSON against the Import Schema', () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-  ajv.addSchema(ImportRequestSchema, ImportRequestSchema.$id);
+  ajv.addSchema(Import.POST.Request.Schema, Import.POST.Request.Schema.$id);
 
-  let validateFunction = ajv.getSchema(ImportRequestSchema.$id as string) as ValidateFunction;
+  let validateFunction = ajv.getSchema(Import.POST.Request.Schema.$id as string) as ValidateFunction;
 
-  describe('Successful validation of ImportRequest', () => {
-    test("A valid ImportRequest object validates", () => {
-      // GIVEN a valid ImportRequest object
-      const importRequest: ImportRequest = {
+  describe('Successful validation of Import', () => {
+    test("A valid Import object validates", () => {
+      // GIVEN a valid Import object
+      const importRequest: Import.POST.Request.Payload = {
         modelId: getMockId(2),
         filePaths: {
           ESCO_OCCUPATION: "folder/file1",
@@ -56,12 +64,12 @@ describe('Validate JSON against the ImportRequest Schema', () => {
       expect(result).toBeTruthy();
     });
 
-    describe("At least of urls files ImportRequest object should validate", () => {
+    describe("At least of urls files Import object should validate", () => {
 
-      Object.values(ImportFileTypes).forEach((value) => {
-        test(`ImportRequest object should validate because it has ${value}`, () => {
-          // GIVEN a valid ImportRequest object
-          const importRequest: ImportRequest = {
+      Object.values(Import.Constants.ImportFileTypes).forEach((value) => {
+        test(`Import object should validate because it has ${value}`, () => {
+          // GIVEN a valid Import object
+          const importRequest: Import.POST.Request.Payload = {
             modelId: getMockId(2),
             filePaths: {
               [value]: "folder/file6",
@@ -79,8 +87,8 @@ describe('Validate JSON against the ImportRequest Schema', () => {
     })
   })
 
-  describe('Failed validation of ImportRequest', () => {
-    function assertValidationErrors(importRequest: Partial<ImportRequest>, failure: {
+  describe('Failed validation of Import', () => {
+    function assertValidationErrors(importRequest: Partial<Import.POST.Request.Payload>, failure: {
       instancePath: string,
       keyword: string,
       message: string
@@ -110,8 +118,8 @@ describe('Validate JSON against the ImportRequest Schema', () => {
           keyword: "pattern",
           message: "must match pattern \"^[0-9a-f]{24}$\""
         }],
-      ])("Fail validation of ImportRequest 'modelId' because it is %s", (caseDescription, value, failure) => {
-        const importRequestSpec: Partial<ImportRequest> = {
+      ])("Fail validation of Import 'modelId' because it is %s", (caseDescription, value, failure) => {
+        const importRequestSpec: Partial<Import.POST.Request.Payload> = {
           // @ts-ignore
           modelId: value,
         }
@@ -133,8 +141,8 @@ describe('Validate JSON against the ImportRequest Schema', () => {
           keyword: "anyOf",
           message: "must match a schema in anyOf"
         }],
-      ])("Fail validation of ImportRequest 'filePaths' because it is %s", (caseDescription, value, failure) => {
-        const importRequestSpec: Partial<ImportRequest> = {
+      ])("Fail validation of Import 'filePaths' because it is %s", (caseDescription, value, failure) => {
+        const importRequestSpec: Partial<Import.POST.Request.Payload> = {
           // @ts-ignore
           filePaths: value,
         }
@@ -143,7 +151,7 @@ describe('Validate JSON against the ImportRequest Schema', () => {
     })
 
     describe("Fail validation of 'filePaths.{filetype}'", () => {
-      Object.values(ImportFileTypes).forEach((fileType) => {
+      Object.values(Import.Constants.ImportFileTypes).forEach((fileType) => {
         test.each([
           ["null", null, {instancePath: `/filePaths/${fileType}`, keyword: "type", message: "must be string"}],
           ["empty", "", {
@@ -156,13 +164,13 @@ describe('Validate JSON against the ImportRequest Schema', () => {
             keyword: "pattern",
             message: `must match pattern "${RegExp_Str_NotEmptyString}"`
           }],
-          [`more than ${FILEPATH_MAX_LENGTH} characters`, "a".repeat(FILEPATH_MAX_LENGTH + 1), {
+          [`more than ${Constants.FILEPATH_MAX_LENGTH} characters`, "a".repeat(Constants.FILEPATH_MAX_LENGTH + 1), {
             instancePath: `/filePaths/${fileType}`,
             keyword: "maxLength",
-            message: `must NOT have more than ${FILEPATH_MAX_LENGTH} characters`
+            message: `must NOT have more than ${Constants.FILEPATH_MAX_LENGTH} characters`
           }],
-        ])(`Fail validation of ImportRequest 'urls.${fileType}' because it is %s`, (caseDescription, value, failure) => {
-          const importRequestSpec: Partial<ImportRequest> = {
+        ])(`Fail validation of Import 'urls.${fileType}' because it is %s`, (caseDescription, value, failure) => {
+          const importRequestSpec: Partial<Import.POST.Request.Payload> = {
             // @ts-ignore
             filePaths: {
               [fileType]: value

@@ -1,10 +1,7 @@
-export interface ILocale {
-  UUID: string;
-  shortCode: string;
-  name: string;
-}
+import Locale from '../locale';
 
 // Have a common supertype for all the responses to inherit from
+// These types are hidden because they should only be referenced through the index.
 interface IModelInfoResponse extends IModelInfoRequest {
   id: string;
   UUID: string;
@@ -18,37 +15,29 @@ interface IModelInfoResponse extends IModelInfoRequest {
   createdAt: string;
   updatedAt: string;
 }
-
-
 interface IModelInfoRequest {
   name: string;
   description: string;
-  locale: ILocale;
+  locale: Locale.Payload;
 }
 
-export namespace ModelInfo {
-  export namespace GET {
-
-    export namespace Response {
-      export type Payload = Array<IModelInfoResponse>
-
-      export enum ErrorCodes {
-        DB_FAILED_TO_RETRIEVE_MODELS = "DB_FAILED_TO_RETRIEVE_MODELS"
-      }
+namespace ModelInfoTypes {
+  export namespace POST {
+    export namespace Response{
+      export type Payload = IModelInfoResponse
+    }
+    export namespace Request {
+      export type Payload = IModelInfoRequest;
     }
   }
-
-  export namespace POST {
+  export namespace GET {
     export namespace Response {
-      export type Payload = IModelInfoResponse
-
-      export enum ErrorCodes {
-        DB_FAILED_TO_CREATE_MODEL = "DB_FAILED_TO_CREATE_MODEL", MODEL_COULD_NOT_VALIDATE = "MODEL_COULD_NOT_VALIDATE",
-      }
+      export type Payload = IModelInfoResponse;
     }
-
     export namespace Request {
       export type Payload = IModelInfoRequest;
     }
   }
 }
+
+export default ModelInfoTypes;

@@ -7,11 +7,11 @@ import {
   DialogContent,
   DialogTitle, useMediaQuery, useTheme
 } from '@mui/material';
-import {ILocale} from "api-specifications/modelInfo";
+import Locale from "api-specifications/locale";
 import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
 import ModelDescriptionField from "./components/ModelDescriptionField";
-import {ImportFileTypes} from "api-specifications/import";
+import { Constants as ImportConstants} from "api-specifications/import";
 import {useStyles} from "src/theme/global.style";
 import CancelButton from "src/theme/CancelButton/CancelButton";
 import {ImportFiles} from "./ImportFiles.type";
@@ -27,7 +27,7 @@ export const DATA_TEST_ID = {
 export interface ImportData {
   name: string,
   description: string,
-  locale: ILocale,
+  locale: Locale.Payload,
   selectedFiles: ImportFiles
 }
 
@@ -35,7 +35,7 @@ export type CloseEvent = { name: "CANCEL" | "IMPORT", importData?: ImportData };
 
 export interface ImportModelDialogProps {
   isOpen: boolean, // if true, the dialog is open/shown
-  availableLocales: ILocale[],
+  availableLocales: Locale.Payload[],
   notifyOnClose: (event: CloseEvent) => void // callback function to notify the parent component when the dialog should close
 }
 
@@ -65,7 +65,7 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
     validateData();
   }
 
-  const handleLocaleChange = (newLocale: ILocale) => {
+  const handleLocaleChange = (newLocale: Locale.Payload) => {
     data.current.locale = {...newLocale};
     validateData();
   }
@@ -74,7 +74,7 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
     data.current.description = newDescription;
   }
 
-  const handleSelectedFileChange = (fileType: ImportFileTypes, file: File | null) => {
+  const handleSelectedFileChange = (fileType: ImportConstants.ImportFileTypes, file: File | null) => {
     if (file === null) {
       delete data.current.selectedFiles[fileType];
     } else {

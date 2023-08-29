@@ -2,9 +2,8 @@ import {APIGatewayProxyEvent} from "aws-lambda";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {errorResponse, HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import {ajvInstance, ParseValidationError} from "validator";
-import {ImportRequest, ImportRequestSchema, MAX_PAYLOAD_LENGTH} from 'api-specifications/import';
-
-import {ErrorCodes} from "api-specifications/error";
+import Import from 'api-specifications/import';
+import APIError from "api-specifications/error";
 
 import {ValidateFunction} from "ajv";
 import {lambda_invokeAsyncImport} from "./asyncImport";
@@ -37,7 +36,7 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ImportRequestSchema'
+ *               $ref: '#/components/schemas/ImportSchema'
  *         required: true
  *       responses:
  *         '202':
@@ -48,7 +47,7 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
  *           content:
  *             application/json:
  *               schema:
- *                 $ref: '#/components/schemas/ErrorResponseSchema'
+ *                 $ref: '#/components/schemas/ErrorSchema'
  *         '415':
  *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
  *         '500':
@@ -57,24 +56,24 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
 
 async function postTriggerImport(event: APIGatewayProxyEvent) {
   // @ts-ignore
-  if (!event.headers || !event.headers['Content-Type'] || !event.headers['Content-Type'].includes('application/json')) { //  application/json;charset=UTF-8
+  if (!event.headers['Content-Type']?.includes('application/json')) { //  application/json;charset=UTF-8
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
   
   // @ts-ignore
-  if(event.body?.length > MAX_PAYLOAD_LENGTH){
-    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${MAX_PAYLOAD_LENGTH}` );
+  if(event.body?.length > Import.Constants.MAX_PAYLOAD_LENGTH){
+    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${Import.Constants.MAX_PAYLOAD_LENGTH}` );
   }
 
-  let payload: ImportRequest;
+  let payload: Import.POST.Request.Payload;
   try {
     payload = JSON.parse(event.body as string);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    return errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.MALFORMED_BODY, "Payload is malformed, it should be a valid model json", error.message);
+    return errorResponse(StatusCodes.BAD_REQUEST, APIError.Constants.ErrorCodes.MALFORMED_BODY, "Payload is malformed, it should be a valid model json", error.message);
   }
 
-  const validateFunction = ajvInstance.getSchema(ImportRequestSchema.$id as string) as ValidateFunction;
+  const validateFunction = ajvInstance.getSchema(Import.POST.Request.Schema.$id as string) as ValidateFunction;
   const isValid = validateFunction(payload);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
