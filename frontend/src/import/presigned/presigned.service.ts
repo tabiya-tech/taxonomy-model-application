@@ -50,7 +50,7 @@ export default class PresignedService {
     // Presigned was issued
     // Expect that the responseBody is a PresignedResponse
     const contentType = response.headers.get("Content-Type");
-    if (!contentType || !contentType.includes("application/json")) {
+    if (!contentType?.includes("application/json")) {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
 

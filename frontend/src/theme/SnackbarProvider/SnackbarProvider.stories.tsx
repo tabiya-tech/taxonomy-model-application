@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import SnackbarProvider, {useSnackbar, VariantType} from './SnackbarProvider';
 import {Button} from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
 
 const meta: Meta<typeof SnackbarProvider> = {
   title: 'Components/SnackBar',
@@ -36,9 +37,9 @@ const TestButton = () => {
 
   return (
     <>
-      {buttons.map((button: ButtonConfig, index: number) => (
+      {buttons.map((button: ButtonConfig) => (
         <Button
-          key={index}
+          key={uuidv4()}
           color={button.color}
           onClick={() => handleSnackbar(button.message, button.variant)}
           style={{textTransform: 'uppercase'}}

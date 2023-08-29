@@ -60,7 +60,7 @@ export default class ModelService {
     // Resource was created
     // Expect that the responseBody is a ModelResponse
     const contentType = response.headers.get("Content-Type");
-    if(!contentType || !contentType.includes("application/json")) {
+    if(!contentType?.includes("application/json")) {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
 

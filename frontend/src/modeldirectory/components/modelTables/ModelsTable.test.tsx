@@ -1,5 +1,4 @@
-import {render, screen} from "@testing-library/react";
-import {within} from "@testing-library/react";
+import {render, screen, within} from "@testing-library/react";
 import ModelsTable, {DATA_TEST_ID, TEXT} from "./ModelsTable";
 import {getRandomModels} from "./_test_utilities/mockModelData";
 
