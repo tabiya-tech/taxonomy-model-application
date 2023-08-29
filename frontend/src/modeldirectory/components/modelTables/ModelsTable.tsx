@@ -58,6 +58,7 @@ const ModelsTable = (props: ModelsTableProps) => {
             <TableLoadingRows numberOfCols={5} numberOfRows={10}/> :
             props.models?.map(model => (
               <TableRow
+                tabIndex={0}
                 data-modelid={model.id}
                 key={model.id}
                 sx={{'&:last-child td, &:last-child th': {border: 0}}} // remove the last border
