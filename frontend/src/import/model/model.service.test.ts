@@ -1,0 +1,163 @@
+// test the service
+import Ajv from 'ajv/dist/2020';
+
+import {getTestString} from "src/_test_utilities/specialCharacters";
+import {randomUUID} from "crypto";
+import ModelService, {INewModelSpecification} from "./model.service";
+import {ErrorCodes} from "src/error/errorCodes";
+
+import * as ModelInfo from "api-specifications/modelInfo";
+import * as Locale from "api-specifications/locale";
+
+import addFormats from "ajv-formats";
+import {ServiceError} from "src/error/error";
+import {StatusCodes} from "http-status-codes/";
+import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
+
+function getNewModelSpecMockData(): INewModelSpecification {
+  return {
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH), locale: {
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH), UUID: randomUUID()
+    }
+  }
+}
+
+const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+addFormats(ajv);
+ajv.addSchema(Locale.Schema);
+ajv.addSchema(ModelInfo.Schema.POST.Request);
+ajv.addSchema(ModelInfo.Schema.POST.Response);
+const validateResponse = ajv.compile(ModelInfo.Schema.POST.Response);
+
+function getModelInfoMockResponse(): ModelInfo.Types.POST.Response.Payload {
+  const givenResponse: ModelInfo.Types.POST.Response.Payload = {
+    id: getTestString(24), originUUID: "", previousUUID: "", path: getTestString(24), tabiyaPath: getTestString(24), UUID: randomUUID(), name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH), locale: {
+      UUID: randomUUID(), shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH), name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    }, released: false, releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH), version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+  }
+  // guard against invalid response
+  validateResponse(givenResponse);
+  expect(validateResponse.errors).toBeNull();
+  return givenResponse;
+}
+
+describe("Test the service", () => {
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+
+  test("should construct the service successfully", () => {
+    // GIVEN an api server url
+    const apiServerUrl = getTestString(10);
+
+    // WHEN the service is constructed
+    const service = new ModelService(apiServerUrl);
+
+    // THEN expect the service to be constructed successfully
+    expect(service).toBeDefined();
+
+    // AND the service should have the correct api server url and create model endpoint url
+    expect(service.apiServerUrl).toEqual(apiServerUrl);
+    expect(service.createModelEndpointUrl).toEqual(`${apiServerUrl}/models`);
+  });
+
+  test("should call the REST createModel API at the correct URL, with POST and the correct headers and payload successfully", async () => {
+    // GIVEN a api server url
+    const givenApiServerUrl = "/path/to/api";
+    // AND a name, description, locale
+    const givenModelSpec = getNewModelSpecMockData();
+    // AND the create model REST API will respond with OK and some newly create model
+    const givenResponse: ModelInfo.Types.POST.Response.Payload = getModelInfoMockResponse()
+    const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
+
+    // WHEN the createModel function is called with the given arguments (name, description, ...)
+    const service = new ModelService(givenApiServerUrl);
+
+    await service.createModel(givenModelSpec);
+    // THEN expect it to make a POST request
+    // AND the headers
+    // AND the request payload to contain the given arguments (name, description, ...)
+    expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
+      method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(givenModelSpec)
+    });
+
+    const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
+
+    // AND the body conforms to the modelRequestSchema
+    const validateRequest = ajv.compile(ModelInfo.Schema.POST.Request);
+    validateRequest(payload);
+    // @ts-ignore
+    expect(validateResponse.errors).toBeNull();
+  });
+
+  test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
+    // GIVEN fetch rejects with some unknown error
+    const givenFetchError = new Error();
+    jest.spyOn(window, 'fetch').mockRejectedValue(givenFetchError);
+
+    // WHEN calling create model function
+    const service = new ModelService("/path/to/foo");
+
+    // THEN expected it to reject with the error response
+    const expectedError = {
+      ...new ServiceError(ModelService.name, "createModel", "POST", "/path/to/foo/models", 0, ErrorCodes.FAILED_TO_FETCH, "", ""), message: expect.any(String), details: expect.any(Error)
+    };
+    await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
+  });
+
+  test.each([["is a malformed json", '{'], ["is a string", 'foo'], ["is not conforming to ModelResponseSchema", {foo: "foo"}],])("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s", async (description, givenResponse) => {
+    // GIVEN a api server url
+    const givenApiServerUrl = "/path/to/api";
+    // AND the create model REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
+    setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
+
+    // WHEN the createModel function is called with the given arguments (name, description, ...)
+    const service = new ModelService(givenApiServerUrl);
+    const createModelPromise = service.createModel(getNewModelSpecMockData());
+
+    // THEN expected it to reject with the error response
+    const expectedError = {
+      ...new ServiceError(ModelService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_BODY, "", ""), message: expect.any(String), details: expect.anything()
+    };
+    await expect(createModelPromise).rejects.toMatchObject(expectedError);
+  });
+
+  test("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
+    // GIVEN a api server url
+    const givenApiServerUrl = "/path/to/api";
+    // AND the create model REST API will respond with OK and some response
+    // that conforms to the modelInfoResponseSchema
+    // but the content-type is not application/json;charset=UTF-8
+    setupFetchSpy(StatusCodes.CREATED, getModelInfoMockResponse(), "");
+
+    // WHEN the createModel function is called with the given arguments (name, description, ...)
+    const service = new ModelService(givenApiServerUrl);
+    const createModelPromise = service.createModel(getNewModelSpecMockData());
+
+    // THEN expected it to reject with the error response
+    const expectedError = {
+      ...new ServiceError(ModelService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_HEADER, "", ""), message: expect.any(String), details: expect.any(String)
+    };
+    await expect(createModelPromise).rejects.toMatchObject(expectedError);
+  });
+
+  test("on NOT 201, it should reject with an error ERROR_CODE.API_ERROR that contains the body of the response", async () => {
+    // GIVEN a api server url
+    const givenApiServerUrl = "/path/to/api";
+    // AND the create model REST API will respond with NOT OK and some response body
+    const givenResponse = {foo: "foo", bar: "bar"};
+    setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
+
+    // WHEN the createModel function is called with the given arguments (name, description, ...)
+    const service = new ModelService(givenApiServerUrl);
+
+    // THEN expected it to reject with the error response
+    const expectedError = {
+      ...new ServiceError(ModelService.name, "createModel", "POST", `${givenApiServerUrl}/models`, 0, ErrorCodes.API_ERROR, "", givenResponse), statusCode: expect.any(Number), message: expect.any(String), details: givenResponse
+    };
+    await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
+  });
+});
+

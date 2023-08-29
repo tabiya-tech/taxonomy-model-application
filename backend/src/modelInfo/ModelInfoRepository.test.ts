@@ -7,8 +7,6 @@ import {ModelRepository} from "./ModelInfoRepository";
 import {
   IModelInfo,
   INewModelInfoSpec,
-  NAME_MAX_LENGTH,
-  SHORTCODE_MAX_LENGTH
 } from "./modelInfoModel";
 
 import {randomUUID} from "crypto";
@@ -19,6 +17,8 @@ import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
+
+import * as ModelInfo from "api-specifications/modelInfo"
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -35,11 +35,11 @@ jest.mock("crypto", () => {
  */
 function getNewModelInfoSpec(): INewModelInfoSpec {
   return {
-    name: getTestString(NAME_MAX_LENGTH),
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: randomUUID(),
-      name: getTestString(NAME_MAX_LENGTH),
-      shortCode: getTestString(SHORTCODE_MAX_LENGTH)
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
     description: getTestString(DESCRIPTION_MAX_LENGTH),
   };

@@ -1,18 +1,15 @@
 import Ajv, {ValidateFunction} from "ajv";
-import {ModelInfoResponseSchemaGET} from "./modelInfoResponseGET";
+import * as ModelInfo from "./index"
 import addFormats from "ajv-formats";
-import {LocaleSchema} from "./locale";
+import * as Locale from "../locale"
 import {randomUUID} from "crypto";
 import {getTestString} from "../_test_utilities/specialCharacters";
-import {
-  LOCALE_SHORTCODE_MAX_LENGTH, NAME_MAX_LENGTH, RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH
-} from "./modelInfo.constants";
 
 describe("Test ModelInfoResponseGET Schema", () => {
   test("The ModelInfoResponseGET module can be required via the index", () => {
     //GIVEN the ModelInfoResponseGET module
     //WHEN the module is required via the index
-    const actualModelInfoResponseGETModule = require("./index").ModelInfoResponseSchemaGET
+    const actualModelInfoResponseGETModule = require("./index").Schema.GET.Response
     //THEN expect the module to be defined
     expect(() => {
       expect(actualModelInfoResponseGETModule).toBeDefined();
@@ -25,8 +22,8 @@ describe("Test ModelInfoResponseGET Schema", () => {
     expect(() => {
       const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
       addFormats(ajv);
-      ajv.compile(LocaleSchema);
-      ajv.compile(ModelInfoResponseSchemaGET);
+      ajv.compile(Locale.Schema.GET.Response);
+      ajv.compile(ModelInfo.Schema.GET.Response);
     }).not.toThrowError();
   })
 })
@@ -34,26 +31,26 @@ describe("Test ModelInfoResponseGET Schema", () => {
 describe("Validate JSON against the ModelInfoResponseGET Schema", () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
   addFormats(ajv);
-  ajv.addSchema(ModelInfoResponseSchemaGET, ModelInfoResponseSchemaGET.$id);
-  ajv.addSchema(LocaleSchema, LocaleSchema.$id)
-  ajv.getSchema(ModelInfoResponseSchemaGET.$id as string);
-  const validateFunction = ajv.getSchema(ModelInfoResponseSchemaGET.$id as string) as ValidateFunction;
+  ajv.addSchema(ModelInfo.Schema.GET.Response, ModelInfo.Schema.GET.Response.$id);
+  ajv.addSchema(Locale.Schema.GET.Response, Locale.Schema.GET.Response.$id)
+  ajv.getSchema(ModelInfo.Schema.GET.Response.$id as string);
+  const validateFunction = ajv.getSchema(ModelInfo.Schema.GET.Response.$id as string) as ValidateFunction;
   const givenValidModelInfoResponseGET = [{
     id: "foo", UUID: randomUUID(), previousUUID: "",//randomUUID(),
     originUUID: randomUUID(),
     path: "path/to/tabiya",
     tabiyaPath: "/path/to/tabiya",
-    name: getTestString(NAME_MAX_LENGTH),
-    description: getTestString(NAME_MAX_LENGTH),
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
     locale: {
-      name: getTestString(NAME_MAX_LENGTH),
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(LOCALE_SHORTCODE_MAX_LENGTH)
+      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
-    releaseNotes: getTestString(RELEASE_NOTES_MAX_LENGTH),
+    releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false, updatedAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
-    version: getTestString(VERSION_MAX_LENGTH)
+    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH)
   }];
   test.each([
     // GIVEN a valid ModelInfoResponseGET object

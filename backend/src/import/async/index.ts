@@ -1,4 +1,4 @@
-import {ImportFilePaths, ImportRequest, ImportRequestSchema} from "api-specifications/import";
+import * as Import from "api-specifications/import";
 import {initOnce} from "server/init";
 import {S3PresignerService} from "./S3PresignerService";
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
@@ -12,11 +12,11 @@ import {parseOccupationHierarchyFromUrl} from "import/esco/occupationHierarchy/o
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const handler = async (event: ImportRequest): Promise<any> => {
+export const handler = async (event: Import.Types.ImportRequest): Promise<any> => {
   console.info("Import started", event);
 
   // Validate the event against the schema
-  const validateFunction = ajvInstance.getSchema(ImportRequestSchema.$id as string) as ValidateFunction;
+  const validateFunction = ajvInstance.getSchema(Import.Schema.POST.Request.$id as string) as ValidateFunction;
   const isValid = validateFunction(event);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
@@ -69,7 +69,7 @@ export const handler = async (event: ImportRequest): Promise<any> => {
   }
 };
 
-const getPresignedUrls = async (filePaths: ImportFilePaths): Promise<ImportFilePaths> => {
+const getPresignedUrls = async (filePaths: Import.Types.ImportFilePaths): Promise<Import.Types.ImportFilePaths> => {
   const s3PresignedService = new S3PresignerService(getUploadBucketRegion(), getUploadBucketName());
   const promises = Object.entries(filePaths).map(async (entry) => {
     return {[entry[0]]: await s3PresignedService.getPresignedGet(entry[1])};

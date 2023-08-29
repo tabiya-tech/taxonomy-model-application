@@ -1,9 +1,4 @@
-import {
-  DESCRIPTION_MAX_LENGTH,
-  LOCALE_SHORTCODE_MAX_LENGTH,
-  NAME_MAX_LENGTH,
-  RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH
-} from "api-specifications/modelInfo";
+import * as ModelInfo from "api-specifications/modelInfo";
 import {v4 as uuidv4} from "uuid";
 
 import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
@@ -80,12 +75,22 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelDirectoryT
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: getRandomString(NAME_MAX_LENGTH),
+      name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: uuidv4(),
-        name: getRandomString(NAME_MAX_LENGTH),
-        shortCode: getTestString(LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
+        shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
+      description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH),
+      released: false,
+      releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
+      version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
+      // @ts-ignore
+      createdAt: new Date().toISOString(),
+      // @ts-ignore
+      updatedAt: new Date().toISOString(),
+      path: "https://foo/bar",
+      tabiyaPath: "https://foo/bar/baz"
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       released: i % 2 === 0,
       releaseNotes: getTestString(RELEASE_NOTES_MAX_LENGTH),

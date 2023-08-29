@@ -101,7 +101,7 @@ jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => 
 });
 // ##############
 import * as asyncIndex from "./index";
-import {ImportFileTypes, ImportRequest} from "api-specifications/import";
+import * as Import from "api-specifications/import";
 
 import {initOnce} from "server/init";
 import {getMockId} from "_test_utilities/mockMongoId";
@@ -124,14 +124,14 @@ describe("Test the main async handler", () => {
     // GIVEN some configuration
     const givenUploadBucketRegion = getUploadBucketRegion();
     const givenUploadBucketName = getUploadBucketName();
-    // AND an ImportRequest
-    const givenEvent: ImportRequest = {
+    // AND an Import
+    const givenEvent: Import.Types.ImportRequest = {
       filePaths: {
-        [ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-        [ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-        [ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
-        [ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+        [Import.Types.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+        [Import.Types.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [Import.Types.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+        [Import.Types.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+        [Import.Types.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
 
         // ADD additional file types here
       },
@@ -150,19 +150,19 @@ describe("Test the main async handler", () => {
       const expectedFileType = entry[0];
       const expectedPresignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
       switch (expectedFileType) {
-        case  ImportFileTypes.ISCO_GROUP:
+        case  Import.Types.ImportFileTypes.ISCO_GROUP:
           expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case ImportFileTypes.ESCO_SKILL_GROUP:
+        case Import.Types.ImportFileTypes.ESCO_SKILL_GROUP:
           expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case ImportFileTypes.ESCO_SKILL:
+        case Import.Types.ImportFileTypes.ESCO_SKILL:
           expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case ImportFileTypes.ESCO_OCCUPATION:
+        case Import.Types.ImportFileTypes.ESCO_OCCUPATION:
           expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case ImportFileTypes.OCCUPATION_HIERARCHY:
+        case Import.Types.ImportFileTypes.OCCUPATION_HIERARCHY:
           expect(parseOccupationHierarchyFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         // ADD additional file types here
@@ -171,9 +171,9 @@ describe("Test the main async handler", () => {
   })
 
   test("should throw error if event does not conform to schema", async () => {
-    // GIVEN an event that does not conform to the ImportRequest schema
+    // GIVEN an event that does not conform to the Import schema
     //@ts-ignore
-    const givenBadEvent: ImportRequest = {foo: "foo"} as ImportRequest;
+    const givenBadEvent: Import = {foo: "foo"} as Import;
 
     // WHEN the main handler is invoked with the given bad event
     const actualPromiseHandler = asyncIndex.handler(givenBadEvent);

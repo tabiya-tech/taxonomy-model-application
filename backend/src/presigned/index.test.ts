@@ -1,7 +1,7 @@
 // ############
 // Set up mocks
 // Set up crypto.randomUUID mock
-import {EXPIRES, MAX_FILE_SIZE} from "./presigned.constants";
+import * as Presigned from "api-specifications/presigned";
 import {randomUUID} from "crypto";
 import * as config from "server/config/config";
 import * as handlerModule from './index';
@@ -73,7 +73,7 @@ describe('test getPreSigned()', () => {
 
     // THEN expect that the getPreSigned function has called the awsSDKServiceModule.s3_getPresignedPost()
     // with the given region, bucket name, random key, MAX_FILE_SIZE and EXPIRES
-    expect(awsSDKServiceModule.s3_getPresignedPost).toHaveBeenCalledWith(givenRegion, givenBucketName, givenRandomKey, MAX_FILE_SIZE, EXPIRES);
+    expect(awsSDKServiceModule.s3_getPresignedPost).toHaveBeenCalledWith(givenRegion, givenBucketName, givenRandomKey, Presigned.Constants.MAX_FILE_SIZE, Presigned.Constants.EXPIRES);
 
     // AND has called the transformModule.transformPostData() with the given pre-signed post data
     expect(transformModule.transformPresignedPostDataToResponse).toHaveBeenCalledWith(givenPreSignedPost, givenRandomKey);

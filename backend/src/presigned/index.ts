@@ -2,7 +2,7 @@ import {APIGatewayProxyEvent} from "aws-lambda";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {HTTP_VERBS, responseJSON, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import {randomUUID} from "crypto";
-import {EXPIRES, MAX_FILE_SIZE} from "./presigned.constants";
+import * as Presigned from "api-specifications/presigned";
 
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
 import {s3_getPresignedPost} from "./awsSDKService";
@@ -37,14 +37,14 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
  *           content:
  *             application/json:
  *               schema:
- *                 $ref: '#/components/schemas/PresignedResponseSchema'
+ *                 $ref: '#/components/schemas/PresignedSchema'
  *         500:
  *           $ref: '#/components/responses/InternalServerErrorResponse'
  */
 export const getPreSigned = async () => {
   try {
     const folder = randomUUID();
-    const postData = await s3_getPresignedPost(getUploadBucketRegion(), getUploadBucketName(), folder, MAX_FILE_SIZE, EXPIRES);
+    const postData = await s3_getPresignedPost(getUploadBucketRegion(), getUploadBucketName(), folder, Presigned.Constants.MAX_FILE_SIZE, Presigned.Constants.EXPIRES);
     return responseJSON(StatusCodes.OK, transformPresignedPostDataToResponse(postData, folder));
   } catch (e: unknown) {
     return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;

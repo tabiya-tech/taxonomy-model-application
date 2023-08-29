@@ -3,7 +3,7 @@ import "src/_test_utilities/consoleMock"
 
 import ImportService from './import.service';
 import {ServiceError} from 'src/error/error';
-import {ImportFilePaths, ImportFileTypes, ImportRequest, ImportRequestSchema} from "api-specifications/import";
+import * as Import from "api-specifications/import";
 import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
 import {StatusCodes} from "http-status-codes/";
 import {ErrorCodes} from "src/error/errorCodes";
@@ -11,9 +11,9 @@ import Ajv from "ajv/dist/2020";
 import {getTestString} from "src/_test_utilities/specialCharacters";
 import {getMockId} from "src/_test_utilities/mockMongoId";
 
-const mockFilePaths: ImportFilePaths = {
-  [ImportFileTypes.ESCO_SKILL]: "foo/bar",
-  [ImportFileTypes.OCCUPATION_HIERARCHY]: "bar/baz",
+const mockFilePaths: Import.Types.ImportFilePaths = {
+  [Import.Types.ImportFileTypes.ESCO_SKILL]: "foo/bar",
+  [Import.Types.ImportFileTypes.OCCUPATION_HIERARCHY]: "bar/baz",
 };
 
 describe("Test the service", () => {
@@ -52,7 +52,7 @@ describe("Test the service", () => {
     // THEN Expect to make a POST request
     // AND the headers
     // AND the request jsonPayload to contain the given arguments (givenModelId, givenFilePaths)
-    const expectedPayload: ImportRequest = {
+    const expectedPayload: Import.Types.ImportRequest = {
       modelId: givenModelId,
       filePaths: givenFilePaths
     }
@@ -64,9 +64,9 @@ describe("Test the service", () => {
       },
       body: expectedJSONPayload,
     });
-    // AND the body conforms to the  ImportRequestSchema schema
+    // AND the body conforms to the  ImportSchema schema
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
-    const validateRequest = ajv.compile(ImportRequestSchema);
+    const validateRequest = ajv.compile(Import.Schema.POST.Request);
     validateRequest(expectedPayload);
     expect(validateRequest.errors).toBeNull();
   });

@@ -5,10 +5,7 @@ import {getTestString} from "src/_test_utilities/specialCharacters";
 
 import {ErrorCodes} from "src/error/errorCodes";
 
-import {
-  PresignedResponseSchema,
-  IPresignedResponse
-} from "api-specifications/presigned";
+import * as Presigned from "api-specifications/presigned";
 import {ServiceError} from "src/error/error";
 import {StatusCodes} from "http-status-codes/";
 import PresignedService from "./presigned.service";
@@ -18,10 +15,10 @@ import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
 
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);
-const validateResponse = ajv.compile(PresignedResponseSchema);
+const validateResponse = ajv.compile(Presigned.Schema.POST.Response);
 
-function getPresignedMockResponse(): IPresignedResponse {
-  const givenResponse: IPresignedResponse = {
+function getPresignedMockResponse(): Presigned.Types.IPresignedResponse {
+  const givenResponse: Presigned.Types.IPresignedResponse = {
     url: "https://somedomain/somepath",
     fields: [{name: "someName", value: "someValue"}, {name: "someOtherName", value: "someOtherValue"}],
     folder: getTestString(10)
@@ -58,7 +55,7 @@ describe("Test the service", () => {
     // GIVEN an api server url
     const givenApiServerUrl = "/path/to/api";
     // AND the presigned REST API will respond with OK and some newly created presigned data
-    const givenResponse: IPresignedResponse = getPresignedMockResponse()
+    const givenResponse: Presigned.Types.IPresignedResponse = getPresignedMockResponse()
     const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the getPresignedPost function is called
@@ -97,7 +94,7 @@ describe("Test the service", () => {
   test.each([
     ["is a malformed json", '{'],
     ["is a string", 'foo'],
-    ["is not conforming to PresignedResponseSchema", {foo: "foo"}],
+    ["is not conforming to Presigned.Schema", {foo: "foo"}],
   ])
   ("on 200, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s", async (description, givenResponse) => {
     // GIVEN a api server url
@@ -122,7 +119,7 @@ describe("Test the service", () => {
     // GIVEN a api server url
     const givenApiServerUrl = "/path/to/api";
     // AND the  REST API will respond with OK and some response
-    // that conforms to the PresignedResponseSchema
+    // that conforms to the Presigned.Schema
     // but the content-type is not application/json;charset=UTF-8
     setupFetchSpy(StatusCodes.OK, getPresignedMockResponse(), "");
 

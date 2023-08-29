@@ -1,6 +1,6 @@
 import {IModelInfo} from "./modelInfoModel";
 import {transform} from "./transform";
-import {ModelInfo,} from 'api-specifications/modelInfo';
+import * as ModelInfo from "api-specifications/modelInfo";
 import {getIModelInfoMockData} from "./testDataHelper";
 
 
@@ -12,7 +12,7 @@ describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () 
     const givenBasePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    const actual: ModelInfo.POST.Response.Payload = transform(givenObject, givenBasePath);
+    const actual: ModelInfo.Types.POST.Response.Payload = transform(givenObject, givenBasePath);
 
     // THEN expect the transformation function to return a IModelInfoResponse
     // that contains the input from the IModelInfo

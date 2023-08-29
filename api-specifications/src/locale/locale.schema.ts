@@ -1,9 +1,9 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4} from "../regex";
-import {NAME_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH} from "./modelInfo.constants";
+import {ModelInfoConstants} from "../modelInfo/modelInfo.constants";
 
 
-export const LocaleSchema: SchemaObject = {
+export const LocaleResponseSchemaGET: SchemaObject = {
   $id: "/components/schemas/LocaleSchema",
   type: "object",
   additionalProperties: false,
@@ -17,13 +17,13 @@ export const LocaleSchema: SchemaObject = {
       description: "The short code of the locale",
       type: "string",
       pattern: RegExp_Str_NotEmptyString,
-      maxLength: LOCALE_SHORTCODE_MAX_LENGTH
+      maxLength: ModelInfoConstants.LOCALE_SHORTCODE_MAX_LENGTH
     },
     name: {
       description: "The name of the locale",
       type: "string",
       pattern: RegExp_Str_NotEmptyString,
-      maxLength: NAME_MAX_LENGTH
+      maxLength: ModelInfoConstants.NAME_MAX_LENGTH
     }
   },
   required: [
@@ -32,3 +32,10 @@ export const LocaleSchema: SchemaObject = {
     "name"
   ]
 };
+
+export namespace LocaleSchema {
+  export namespace GET {
+    export const Response = LocaleResponseSchemaGET;
+  }
+}
+

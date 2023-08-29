@@ -1,4 +1,4 @@
-import {IPresignedResponse} from "api-specifications/presigned";
+import * as Presigned from "api-specifications/presigned";
 import {getServiceErrorFactory} from "../../error/error";
 import {ErrorCodes} from "../../error/errorCodes";
 import pLimit from 'p-limit';
@@ -8,7 +8,7 @@ export const MAX_CONCURRENT_UPLOADS = 20;
 export default class UploadService {
 
 
-  async uploadFiles(presigned: IPresignedResponse, files: File[]) {
+  async uploadFiles(presigned: Presigned.Types.IPresignedResponse, files: File[]) {
     try {
       const limit = pLimit(MAX_CONCURRENT_UPLOADS);
       const uploadPromises: Promise<void>[] = [];
@@ -22,7 +22,7 @@ export default class UploadService {
     }
   }
 
-  private async uploadFile(presigned: IPresignedResponse, file: File) {
+  private async uploadFile(presigned: Presigned.Types.IPresignedResponse, file: File) {
     const errorFactory = getServiceErrorFactory("UploadService", "uploadFiles", "POST", presigned.url);
 
     let responseStatus: number;

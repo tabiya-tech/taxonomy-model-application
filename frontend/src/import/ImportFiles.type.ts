@@ -1,3 +1,3 @@
-import {ImportFileTypes} from "api-specifications/import";
+import * as Import from "api-specifications/import";
 
-export type ImportFiles = { [key in ImportFileTypes]?: File };
+export type ImportFiles = { [key in Import.Types.ImportFileTypes]?: File };

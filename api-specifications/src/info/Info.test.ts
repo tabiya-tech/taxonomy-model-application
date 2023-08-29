@@ -1,35 +1,35 @@
 import Ajv, {ValidateFunction} from "ajv";
 import addFormats from "ajv-formats";
-import {IInfoResponse, InfoResponseSchema} from "./InfoResponse";
+import * as Info from './index';
 
-describe('Test the InfoResponseSchema', () => {
-    test("The InfoResponseSchema can be required via the index", () => {
+describe('Test the InfoSchema', () => {
+    test("The InfoSchema can be required via the index", () => {
         expect(() => {
-            expect(require("info/index").InfoResponseSchema).toBeDefined();
+            expect(require("info/index").Schema).toBeDefined();
         }).not.toThrowError();
     })
 
-    test("The InfoResponseSchema is a valid schema", () => {
+    test("The InfoSchema is a valid schema", () => {
         expect(() => {
             const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
             addFormats(ajv);
-            ajv.addSchema(InfoResponseSchema, InfoResponseSchema.$id);
-            ajv.getSchema(InfoResponseSchema.$id as string);
+            ajv.addSchema(Info.Schema.GET.Response, Info.Schema.GET.Response.$id);
+            ajv.getSchema(Info.Schema.GET.Response.$id as string);
         }).not.toThrowError();
     })
 })
 
-describe('Validate JSON against the InfoResponseSchema', () => {
+describe('Validate JSON against the InfoSchema', () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     addFormats(ajv);
-    ajv.addSchema(InfoResponseSchema, InfoResponseSchema.$id);
-    ajv.getSchema(InfoResponseSchema.$id as string);
+    ajv.addSchema(Info.Schema.GET.Response, Info.Schema.GET.Response.$id);
+    ajv.getSchema(Info.Schema.GET.Response.$id as string);
 
-    let validateFunction = ajv.getSchema(InfoResponseSchema.$id as string) as ValidateFunction;
+    let validateFunction = ajv.getSchema(Info.Schema.GET.Response.$id as string) as ValidateFunction;
 
     test("A valid InfoResponse object validates", () => {
         // GIVEN a valid ModelInfoResponse object
-        const givenValidInfoResponse: IInfoResponse = {
+        const givenValidInfoResponse: Info.Types.InfoResponse = {
             date: "2023-08-22T14:13:32.439Z",
             branch: "main",
             buildNumber: "972",
@@ -50,7 +50,7 @@ describe('Validate JSON against the InfoResponseSchema', () => {
 
     test("A InfoResponse object with extra properties does not validate", () => {
         // GIVEN a valid ModelInfoResponse object
-        const givenInvalidInfoResponse: IInfoResponse = {
+        const givenInvalidInfoResponse: Info.Types.InfoResponse = {
             date: "2023-08-22T14:13:32.439Z",
             branch: "main",
             buildNumber: "972",

@@ -5,7 +5,7 @@ import {ServiceError} from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {writeServiceErrorToLog} from "../error/logger";
-import {ILocale} from "api-specifications/modelInfo";
+import * as Locale from "api-specifications/locale";
 import {Backdrop} from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
 import {ModelDirectoryTypes} from "./modelDirectory.types";
@@ -19,7 +19,7 @@ export const DATA_TEST_ID = {
 
 const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
 const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
-export const availableLocales: ILocale[] = [{
+export const availableLocales: Locale.Types.ILocale[] = [{
   name: "South Africa",
   shortCode: "ZA",
   UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a"

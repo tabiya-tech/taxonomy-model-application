@@ -10,10 +10,8 @@ import {
 import {IModelInfo, INewModelInfoSpec} from "./modelInfoModel";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {ajvInstance, ParseValidationError} from "validator";
-import {
-  ModelInfo, MAX_PAYLOAD_LENGTH,
-  ModelInfoRequestSchemaPOST,
-} from 'api-specifications/modelInfo';
+
+import * as ModelInfo from 'api-specifications/modelInfo';
 
 import {ValidateFunction} from "ajv";
 import {transform} from "./transform";
@@ -63,7 +61,7 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
  *           content:
  *             application/json:
  *               schema:
- *                 $ref: '#/components/schemas/ErrorResponseSchema'
+ *                 $ref: '#/components/schemas/ErrorSchema'
  *         '415':
  *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
  *         '500':
@@ -74,20 +72,19 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
 
-
   // @ts-ignore
-  if (event.body?.length > MAX_PAYLOAD_LENGTH) {
-    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${MAX_PAYLOAD_LENGTH}`);
+  if (event.body?.length > ModelInfo.Constants.MAX_PAYLOAD_LENGTH) {
+    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${ModelInfo.Constants.MAX_PAYLOAD_LENGTH}`);
   }
 
-  let payload: ModelInfo.POST.Request.Payload;
+  let payload: ModelInfo.Types.POST.Request.Payload;
   try {
     payload = JSON.parse(event.body as string);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(error.message);
   }
-  const validateFunction = ajvInstance.getSchema(ModelInfoRequestSchemaPOST.$id as string) as ValidateFunction;
+  const validateFunction = ajvInstance.getSchema(ModelInfo.Schema.POST.Request.$id as string) as ValidateFunction;
   const isValid = validateFunction(payload);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
@@ -106,7 +103,7 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {  //
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
-    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfo.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_MODEL, "Failed to create the model in the DB", "");
+    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfo.Types.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_MODEL, "Failed to create the model in the DB", "");
   }
 }
 
@@ -133,7 +130,7 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponseSchema'
+ *               $ref: '#/components/schemas/ErrorSchema'
  */
 
 // Currently we do not need the event
@@ -144,7 +141,7 @@ async function getModelInfo(event: APIGatewayProxyEvent) {
     return responseJSON(StatusCodes.OK, models.map(model => transform(model, getResourcesBaseUrl())));
   } catch (error: unknown) {  //
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
-    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfo.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS, "Failed to retrieve models from the DB", "");
+    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfo.Types.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS, "Failed to retrieve models from the DB", "");
   }
 }
 

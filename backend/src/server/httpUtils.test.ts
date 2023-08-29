@@ -3,7 +3,7 @@ import addFormats from "ajv-formats";
 import 'jest-performance-matchers';
 import {errorResponse, redactCredentialsFromURI, response, STD_ERRORS_RESPONSES} from "./httpUtils";
 
-import {ErrorCodes, ErrorResponseSchema, IErrorResponse} from "api-specifications/error";
+import * as APIError from "api-specifications/error";
 
 describe("test response function", () => {
 
@@ -51,8 +51,8 @@ describe("test the errorResponse function", () => {
     // GIVEN a status code
     const givenStatusCode = 500;
     // AND some error details
-    const givenError: IErrorResponse = {
-      errorCode: ErrorCodes.INTERNAL_SERVER_ERROR,
+    const givenError: APIError.Types.IErrorResponse = {
+      errorCode: APIError.Types.ErrorCodes.INTERNAL_SERVER_ERROR,
       message: "message",
       details: "details"
     };
@@ -64,10 +64,10 @@ describe("test the errorResponse function", () => {
     expect(result.statusCode).toEqual(givenStatusCode);
     // AND body to be a json string of an array than contains given error
     expect(result.body).toEqual(JSON.stringify(givenError));
-    // AND a body should validate against the ErrorResponse schema
+    // AND a body should validate against the APIError schema
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    const validateResponse = ajv.compile(ErrorResponseSchema);
+    const validateResponse = ajv.compile(APIError.Schema.POST.Response);
     validateResponse(JSON.parse(result.body));
     expect(validateResponse.errors).toBeNull();
   });
@@ -79,8 +79,8 @@ describe("test the errorResponse function", () => {
     // GIVEN a status code
     const givenStatusCode = 500;
     // AND some error details
-    const givenError: IErrorResponse = {
-      errorCode: ErrorCodes.INTERNAL_SERVER_ERROR,
+    const givenError: APIError.Types.IErrorResponse = {
+      errorCode: APIError.Types.ErrorCodes.INTERNAL_SERVER_ERROR,
       // @ts-ignore
       message: value,
       // @ts-ignore
@@ -94,10 +94,10 @@ describe("test the errorResponse function", () => {
     expect(result.statusCode).toEqual(givenStatusCode);
     // AND body to be a json string of an array than contains given error
     expect(result.body).toEqual(JSON.stringify({...givenError, message: "", details: ""}));
-    // AND a body should validate against the ErrorResponse schema
+    // AND a body should validate against the APIError schema
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    const validateResponse = ajv.compile(ErrorResponseSchema);
+    const validateResponse = ajv.compile(APIError.Schema.POST.Response);
     validateResponse(JSON.parse(result.body));
     expect(validateResponse.errors).toBeNull();
   });

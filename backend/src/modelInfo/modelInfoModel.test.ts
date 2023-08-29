@@ -3,12 +3,9 @@ import "_test_utilities/consoleMock"
 
 import mongoose, {Connection} from "mongoose";
 import {
-  IModelInfo,
-  NAME_MAX_LENGTH,
-  RELEASE_NOTES_MAX_LENGTH, SHORTCODE_MAX_LENGTH,
-  VERSION_MAX_LENGTH,
-  ModelName, initializeSchemaAndModel
+  IModelInfo,  ModelName, initializeSchemaAndModel
 } from './modelInfoModel'
+import * as ModelInfo from "api-specifications/modelInfo"
 import {randomUUID} from "crypto";
 import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {getMockId} from "_test_utilities/mockMongoId";
@@ -43,16 +40,16 @@ describe('Test the definition of the ModelInfo Model', () => {
       UUID: randomUUID(),
       previousUUID: randomUUID(),
       originUUID: randomUUID(),
-      name: getTestString(NAME_MAX_LENGTH),
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
-        name: getTestString(NAME_MAX_LENGTH),
-        shortCode: getTestString(SHORTCODE_MAX_LENGTH)
+        name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+        shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       released: false,
-      releaseNotes: getTestString(RELEASE_NOTES_MAX_LENGTH),
-      version: getTestString(VERSION_MAX_LENGTH),
+      releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
+      version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
       // @ts-ignore
       createdAt: new Date().toISOString(),
       // @ts-ignore
@@ -75,11 +72,11 @@ describe('Test the definition of the ModelInfo Model', () => {
       UUID: randomUUID(),
       previousUUID: "",
       originUUID: "",
-      name: getTestString(NAME_MAX_LENGTH),
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
-        name: getTestString(NAME_MAX_LENGTH),
-        shortCode: getTestString(SHORTCODE_MAX_LENGTH)
+        name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+        shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
       description: "",
       released: false,
@@ -102,11 +99,11 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "Too long description", getTestString(DESCRIPTION_MAX_LENGTH + 1), `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long description", getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH + 1), `Description must be at most ${ModelInfo.Constants.DESCRIPTION_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
+        [CaseType.Success, "the longest", getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH), undefined],
       ])("(%s) Validate 'description' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfo>(ModelInfoModel, "description", caseType, value, expectedFailureMessage);
       });
@@ -116,11 +113,11 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "Too long releaseNotes", getTestString(RELEASE_NOTES_MAX_LENGTH + 1), `Release notes must be at most ${RELEASE_NOTES_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long releaseNotes", getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH + 1), `Release notes must be at most ${ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "the longest", getTestString(RELEASE_NOTES_MAX_LENGTH), undefined],
+        [CaseType.Success, "the longest", getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH), undefined],
       ])("(%s) Validate 'releaseNotes' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfo>(ModelInfoModel, "releaseNotes", caseType, value, expectedFailureMessage);
       });
@@ -130,11 +127,11 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "Too long version", getTestString(VERSION_MAX_LENGTH + 1), `Version must be at most ${VERSION_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long version", getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH + 1), `Version must be at most ${ModelInfo.Constants.VERSION_MAX_LENGTH} chars long`],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "the longest", getTestString(VERSION_MAX_LENGTH), undefined],
+        [CaseType.Success, "the longest", getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH), undefined],
       ])("(%s) Validate 'version' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfo>(ModelInfoModel, "version", caseType, value, expectedFailureMessage);
       });
@@ -145,10 +142,10 @@ describe('Test the definition of the ModelInfo Model', () => {
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [CaseType.Failure, "Too long name", getTestString(NAME_MAX_LENGTH + 1), `Name must be at most ${NAME_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long name", getTestString(ModelInfo.Constants.NAME_MAX_LENGTH + 1), `Name must be at most ${ModelInfo.Constants.NAME_MAX_LENGTH} chars long`],
         [CaseType.Failure, "only whitespace characters", WHITESPACE, `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``],
         [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "the longest", getTestString(NAME_MAX_LENGTH), undefined],
+        [CaseType.Success, "the longest", getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), undefined],
       ])("(%s) Validate 'name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfo>(ModelInfoModel, "name", caseType, value, expectedFailureMessage);
       });
@@ -222,9 +219,9 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "Too long locale name", getTestString(NAME_MAX_LENGTH + 1), `Name must be at most ${NAME_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long locale name", getTestString(ModelInfo.Constants.NAME_MAX_LENGTH + 1), `Name must be at most ${ModelInfo.Constants.NAME_MAX_LENGTH} chars long`],
         [CaseType.Success, "Empty locale.name", "", undefined],
-        [CaseType.Success, "Valid locale.name", getTestString(NAME_MAX_LENGTH), undefined]
+        [CaseType.Success, "Valid locale.name", getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), undefined]
       ])("(%s) Validate 'locale.name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfo>(ModelInfoModel, ["locale", "name"], caseType, value, expectedFailureMessage);
       });
@@ -234,9 +231,9 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "Too long locale name", getTestString(SHORTCODE_MAX_LENGTH + 1), `Short code must be at most ${SHORTCODE_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long locale name", getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1), `Short code must be at most ${ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`],
         [CaseType.Success, "Empty locale.shortCode", "", undefined],
-        [CaseType.Success, "Valid locale.shortCode", getTestString(SHORTCODE_MAX_LENGTH), undefined]
+        [CaseType.Success, "Valid locale.shortCode", getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH), undefined]
       ])("(%s) Validate 'locale.shortcode' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfo>(ModelInfoModel, ["locale", "shortCode"], caseType, value, expectedFailureMessage);
       });

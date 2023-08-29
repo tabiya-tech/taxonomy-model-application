@@ -1,14 +1,7 @@
 import ModelInfoService, {INewModelSpecification} from "./modelInfo.service";
 import {getTestString} from "src/_test_utilities/specialCharacters";
-import {
-  DESCRIPTION_MAX_LENGTH,
-  LOCALE_SHORTCODE_MAX_LENGTH,
-  LocaleSchema,
-  ModelInfo,
-  ModelInfoRequestSchemaPOST,
-  ModelInfoResponseSchemaPOST,
-  NAME_MAX_LENGTH,
-} from "api-specifications/modelInfo"
+import * as ModelInfo from "api-specifications/modelInfo"
+import * as Locale from "api-specifications/locale";
 import * as MockPayload from "./_test_utilities/mockModelInfoPayload";
 import {StatusCodes} from "http-status-codes";
 import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
@@ -17,11 +10,12 @@ import {ErrorCodes} from "src/error/errorCodes";
 import {randomUUID} from "crypto";
 import Ajv from "ajv/dist/2020";
 import addFormats from "ajv-formats";
+import {LocaleSchema} from "api-specifications/locale/locale.schema";
 
 function getNewModelSpecMockData(): INewModelSpecification {
   return {
-    name: getTestString(NAME_MAX_LENGTH), description: getTestString(DESCRIPTION_MAX_LENGTH), locale: {
-      name: getTestString(NAME_MAX_LENGTH), shortCode: getTestString(LOCALE_SHORTCODE_MAX_LENGTH), UUID: randomUUID()
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH), locale: {
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH), shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH), UUID: randomUUID()
     }
   }
 }
@@ -51,7 +45,7 @@ describe("ModelInfoService", () => {
       // GIVEN an api server url
       const givenApiServerUrl = "/path/to/api";
       // AND the GET models REST API will respond with OK and some models
-      const givenResponseBody: ModelInfo.GET.Response.Payload = MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
+      const givenResponseBody: ModelInfo.Types.GET.Response.Payload = MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
       const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called with the given arguments
@@ -148,10 +142,10 @@ describe("ModelInfoService", () => {
 
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    ajv.addSchema(LocaleSchema);
-    ajv.addSchema(ModelInfoRequestSchemaPOST);
-    ajv.addSchema(ModelInfoResponseSchemaPOST);
-    const validateResponse = ajv.compile(ModelInfoResponseSchemaPOST);
+    ajv.addSchema(Locale.Schema.GET.Response);
+    ajv.addSchema(ModelInfo.Schema.POST.Request);
+    ajv.addSchema(ModelInfo.Schema.POST.Response);
+    const validateResponse = ajv.compile(ModelInfo.Schema.POST.Response);
 
     test("should call the REST createModel API at the correct URL, with POST and the correct headers and payload successfully", async () => {
       // GIVEN a api server url
@@ -159,7 +153,7 @@ describe("ModelInfoService", () => {
       // AND a name, description, locale
       const givenModelSpec = getNewModelSpecMockData();
       // AND the create model REST API will respond with OK and some newly create model
-      const givenResponseBody: ModelInfo.POST.Response.Payload = MockPayload.POST.getPayloadWithOneRandomModelInfo();
+      const givenResponseBody: ModelInfo.Types.POST.Response.Payload = MockPayload.POST.getPayloadWithOneRandomModelInfo();
       const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
@@ -176,7 +170,7 @@ describe("ModelInfoService", () => {
       const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
 
       // AND the body conforms to the modelRequestSchema
-      const validateRequest = ajv.compile(ModelInfoRequestSchemaPOST);
+      const validateRequest = ajv.compile(ModelInfo.Schema.POST.Request);
       validateRequest(payload);
       // @ts-ignore
       expect(validateResponse.errors).toBeNull();

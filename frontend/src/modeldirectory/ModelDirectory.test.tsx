@@ -7,8 +7,8 @@ import ImportModelDialog, {DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportDat
 import userEvent from "@testing-library/user-event";
 import * as React from "react";
 import ImportDirectorService from "src/import/importDirector.service";
-import {ILocale} from "api-specifications/modelInfo";
-import {ImportFileTypes} from "api-specifications/import";
+import * as Locale from "api-specifications/locale";
+import * as Import from "api-specifications/import";
 import {ImportFiles} from "../import/ImportFiles.type";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID} from "src/theme/Backdrop/Backdrop";
@@ -90,12 +90,12 @@ function getTestImportData(): ImportData {
   const description = 'My Model Description';
   // the import files
   const selectedFiles: ImportFiles = {};
-  Object.values(ImportFileTypes).forEach((fileType: ImportFileTypes) => {
+  Object.values(Import.Types.ImportFileTypes).forEach((fileType: Import.Types.ImportFileTypes) => {
     selectedFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, {type: 'text/plain'});
   });
 
   //The locale
-  const locale: ILocale = {
+  const locale: Locale.Types.ILocale = {
     "UUID": "8e763c32-4c21-449c-94ee-7ddeb379369a", "name": "South Africa", "shortCode": "ZA"
   }
   return {name, description, locale, selectedFiles};

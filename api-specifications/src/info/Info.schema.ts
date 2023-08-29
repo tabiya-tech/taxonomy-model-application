@@ -1,15 +1,7 @@
 import { SchemaObject } from "ajv";
 
-export interface IInfoResponse {
-    date: string,
-    branch: string,
-    buildNumber: string,
-    sha: string,
-    path: string,
-    database:string,
-}
-export const InfoResponseSchema: SchemaObject = {
-    $id: "/components/schemas/InfoResponseSchema",
+export const InfoResponseSchemaGET: SchemaObject = {
+    $id: "/components/schemas/InfoSchema",
     type: "object",
     additionalProperties: false,
     properties: {
@@ -49,3 +41,9 @@ export const InfoResponseSchema: SchemaObject = {
         "database"
     ]
 };
+
+export namespace InfoSchema {
+    export namespace GET {
+        export const Response = InfoResponseSchemaGET;
+    }
+}

@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import {FileEntry} from './FileEntry';
-import {ImportFileTypes} from "api-specifications/import";
+import * as Import from "api-specifications/import";
 
 const meta: Meta<typeof FileEntry> = {
   title: 'Import/FileEntry',
@@ -14,6 +14,6 @@ type Story = StoryObj<typeof FileEntry>;
 
 export const ComponentRendered: Story = {
   args: {
-    fileType: ImportFileTypes.ESCO_OCCUPATION
+    fileType: Import.Types.ImportFileTypes.ESCO_OCCUPATION
   },
 };

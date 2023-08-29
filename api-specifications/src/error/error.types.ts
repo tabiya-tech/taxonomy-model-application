@@ -1,3 +1,12 @@
+import * as ImportRequest from "../import";
+import * as ModelInfo from "../modelInfo";
+
+export interface IErrorResponse {
+  errorCode: ErrorCodes | ImportRequest.Types.ImportResponseErrorCodes | ModelInfo.Types.POST.Response.ErrorCodes | ModelInfo.Types.GET.Response.ErrorCodes, // The UI could use to display some useful information
+  message: string, // The error message offers better developer experience. UI should not display this message.
+  details: string, // This may be some cryptic message only a developer can understand
+}
+
 export enum ErrorCodes {
   MALFORMED_BODY = "MALFORMED_BODY",
   METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED",

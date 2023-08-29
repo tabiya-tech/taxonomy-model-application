@@ -5,12 +5,9 @@ import Ajv from 'ajv';
 import {randomUUID} from "crypto";
 import {Connection} from "mongoose";
 
-import {
-  DESCRIPTION_MAX_LENGTH,
-  ModelInfo,
-  LOCALE_SHORTCODE_MAX_LENGTH, LocaleSchema, ModelInfoRequestSchemaPOST, ModelInfoResponseSchemaPOST,
-  NAME_MAX_LENGTH, ModelInfoResponseSchemaGET
-} from "api-specifications/modelInfo";
+import * as Locale from "api-specifications/locale";
+
+import * as ModelInfo from "api-specifications/modelInfo"
 
 import {getRandomString} from "_test_utilities/specialCharacters";
 import {HTTP_VERBS, StatusCodes} from "server/httpUtils";
@@ -40,14 +37,14 @@ describe("Test for model handler with a DB", () => {
 
   test("POST should respond with the CREATED status code and the response passes the JSON Schema validation", async () => {
     // GIVEN a valid request (method & header & payload)
-    const givenPayload: ModelInfo.POST.Request.Payload = {
-      name: getRandomString(NAME_MAX_LENGTH),
+    const givenPayload: ModelInfo.Types.POST.Request.Payload = {
+      name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
-        name: getRandomString(NAME_MAX_LENGTH),
-        shortCode: getRandomString(LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
+        shortCode: getRandomString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
-      description: getRandomString(DESCRIPTION_MAX_LENGTH)
+      description: getRandomString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH)
     }
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,
@@ -66,10 +63,10 @@ describe("Test for model handler with a DB", () => {
     // AND a modelInfo object that validates against the ModelInfoRequest schema
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    ajv.addSchema(LocaleSchema);
-    ajv.addSchema(ModelInfoRequestSchemaPOST);
-    ajv.addSchema(ModelInfoResponseSchemaPOST);
-    const validateResponse = ajv.compile(ModelInfoResponseSchemaPOST);
+    ajv.addSchema(Locale.Schema.GET.Response);
+    ajv.addSchema(ModelInfo.Schema.POST.Request);
+    ajv.addSchema(ModelInfo.Schema.POST.Response);
+    const validateResponse = ajv.compile(ModelInfo.Schema.POST.Response);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
   });
@@ -93,9 +90,9 @@ describe("Test for model handler with a DB", () => {
     // AND a modelInfo object that validates against the ModelInfoResponseGET schema
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    ajv.addSchema(LocaleSchema);
-    ajv.addSchema(ModelInfoResponseSchemaGET);
-    const validateResponse = ajv.compile(ModelInfoResponseSchemaGET);
+    ajv.addSchema(Locale.Schema.GET.Response);
+    ajv.addSchema(ModelInfo.Schema.GET.Response);
+    const validateResponse = ajv.compile(ModelInfo.Schema.GET.Response);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
   });

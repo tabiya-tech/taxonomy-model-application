@@ -1,7 +1,7 @@
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
-import {ErrorCodes, IErrorResponse, ReasonPhrases} from "api-specifications/error";
-import {ImportResponseErrorCodes} from "api-specifications/import";
-import { ModelInfo } from "api-specifications/modelInfo";
+import * as APIError from "api-specifications/error";
+import * as Import from "api-specifications/import";
+import * as ModelInfo from "api-specifications/modelInfo";
 
 export enum HTTP_VERBS {
   GET = 'GET',
@@ -47,11 +47,11 @@ export function responseJSON(statusCode: StatusCodes, body: object | string): AP
   return response(statusCode, body, {"Content-Type": "application/json"});
 }
 
-function _errorResponse(statusCode: StatusCodes, error: IErrorResponse): APIGatewayProxyResult {
+function _errorResponse(statusCode: StatusCodes, error: APIError.Types.IErrorResponse): APIGatewayProxyResult {
   return response(statusCode, error);
 }
 
-export function errorResponse(statusCode: StatusCodes, errorCode: ErrorCodes | ImportResponseErrorCodes | ModelInfo.POST.Response.ErrorCodes | ModelInfo.GET.Response.ErrorCodes, message: string, details: string): APIGatewayProxyResult {
+export function errorResponse(statusCode: StatusCodes, errorCode: APIError.Types.ErrorCodes | Import.Types.ImportResponseErrorCodes | ModelInfo.Types.POST.Response.ErrorCodes | ModelInfo.Types.GET.Response.ErrorCodes, message: string, details: string): APIGatewayProxyResult {
   return _errorResponse(statusCode, {
     errorCode: errorCode,
     message: message ?? "",
@@ -61,13 +61,13 @@ export function errorResponse(statusCode: StatusCodes, errorCode: ErrorCodes | I
 
 // Standard error responses used repeatedly
 export const STD_ERRORS_RESPONSES = {
-  METHOD_NOT_ALLOWED: errorResponse(StatusCodes.METHOD_NOT_ALLOWED, ErrorCodes.METHOD_NOT_ALLOWED, ReasonPhrases.METHOD_NOT_ALLOWED, "",),
-  NOT_FOUND: errorResponse(StatusCodes.NOT_FOUND, ErrorCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND, ""),
-  INTERNAL_SERVER_ERROR: errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ErrorCodes.INTERNAL_SERVER_ERROR, ReasonPhrases.INTERNAL_SERVER_ERROR, ""),
-  MALFORMED_BODY_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.MALFORMED_BODY, ReasonPhrases.MALFORMED_BODY, errorDetails),
-  INVALID_JSON_SCHEMA_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, ErrorCodes.INVALID_JSON_SCHEMA, ReasonPhrases.INVALID_JSON_SCHEMA, errorDetails),
-  UNSUPPORTED_MEDIA_TYPE_ERROR: errorResponse(StatusCodes.UNSUPPORTED_MEDIA_TYPE, ErrorCodes.UNSUPPORTED_MEDIA_TYPE, ReasonPhrases.UNSUPPORTED_MEDIA_TYPE, "Content-Type should be application/json"),
-  TOO_LARGE_PAYLOAD_ERROR: (errorDetails: string) => errorResponse(StatusCodes.TOO_LARGE_PAYLOAD, ErrorCodes.TOO_LARGE_PAYLOAD, ReasonPhrases.TOO_LARGE_PAYLOAD, errorDetails)
+  METHOD_NOT_ALLOWED: errorResponse(StatusCodes.METHOD_NOT_ALLOWED, APIError.Types.ErrorCodes.METHOD_NOT_ALLOWED, APIError.Types.ReasonPhrases.METHOD_NOT_ALLOWED, "",),
+  NOT_FOUND: errorResponse(StatusCodes.NOT_FOUND, APIError.Types.ErrorCodes.NOT_FOUND, APIError.Types.ReasonPhrases.NOT_FOUND, ""),
+  INTERNAL_SERVER_ERROR: errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, APIError.Types.ErrorCodes.INTERNAL_SERVER_ERROR, APIError.Types.ReasonPhrases.INTERNAL_SERVER_ERROR, ""),
+  MALFORMED_BODY_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, APIError.Types.ErrorCodes.MALFORMED_BODY, APIError.Types.ReasonPhrases.MALFORMED_BODY, errorDetails),
+  INVALID_JSON_SCHEMA_ERROR: (errorDetails: string) => errorResponse(StatusCodes.BAD_REQUEST, APIError.Types.ErrorCodes.INVALID_JSON_SCHEMA, APIError.Types.ReasonPhrases.INVALID_JSON_SCHEMA, errorDetails),
+  UNSUPPORTED_MEDIA_TYPE_ERROR: errorResponse(StatusCodes.UNSUPPORTED_MEDIA_TYPE, APIError.Types.ErrorCodes.UNSUPPORTED_MEDIA_TYPE, APIError.Types.ReasonPhrases.UNSUPPORTED_MEDIA_TYPE, "Content-Type should be application/json"),
+  TOO_LARGE_PAYLOAD_ERROR: (errorDetails: string) => errorResponse(StatusCodes.TOO_LARGE_PAYLOAD, APIError.Types.ErrorCodes.TOO_LARGE_PAYLOAD, APIError.Types.ReasonPhrases.TOO_LARGE_PAYLOAD, errorDetails)
 };
 
 export function redactCredentialsFromURI(uri: string) {

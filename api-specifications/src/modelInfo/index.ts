@@ -1,6 +1,5 @@
-export * from "./modelInfoRequestPOST";
-export * from "./modelInfoResponsePOST";
-export * from "./locale";
-export * from "./modelInfo.constants";
-export * from './modelInfoResponseGET';
-export * from './modelInfo.types';
+import { ModelInfoTypes } from './modelInfo.types';
+import { ModelInfoSchema } from './modelInfo.schema';
+import { ModelInfoConstants } from "./modelInfo.constants";
+
+export { ModelInfoTypes as Types, ModelInfoSchema as Schema, ModelInfoConstants as Constants };

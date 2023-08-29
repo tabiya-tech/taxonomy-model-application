@@ -1,10 +1,6 @@
-export interface ILocale {
-  UUID: string;
-  shortCode: string;
-  name: string;
-}
-
 // Have a common supertype for all the responses to inherit from
+import {ILocale} from "../locale/locale.types";
+
 interface IModelInfoResponse extends IModelInfoRequest {
   id: string;
   UUID: string;
@@ -26,7 +22,7 @@ interface IModelInfoRequest {
   locale: ILocale;
 }
 
-export namespace ModelInfo {
+export namespace ModelInfoTypes {
   export namespace GET {
 
     export namespace Response {

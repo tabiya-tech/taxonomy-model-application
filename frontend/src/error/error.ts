@@ -1,7 +1,7 @@
-import {IErrorResponse} from "api-specifications/error";
+import * as APIError from "api-specifications/error";
 import {ErrorCodes} from "./errorCodes";
 
-type ServiceErrorDetails = string | IErrorResponse | any;
+type ServiceErrorDetails = string | APIError.Types.IErrorResponse | any;
 export class ServiceError extends Error {
   serviceName: string;
   serviceFunction: string;
