@@ -1,3 +1,6 @@
+// Using var instead of let as CloudFront functions run on ES5 that does not support const or let.
+// noinspection ES6ConvertVarToLetConst
+
 function handler(event) {
   // This  function is for a viewer request event trigger.
   // Choose viewer request for event trigger when you associate this function with a distribution.
