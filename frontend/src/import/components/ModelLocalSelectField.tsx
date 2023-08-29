@@ -3,7 +3,7 @@ import {
 } from "@mui/material";
 import {useStyles} from "src/theme/global.style";
 import React, {useEffect} from "react";
-import {ILocale} from "api-specifications/modelInfo";
+import Locale from "api-specifications/locale"
 import {generateUniqueId} from "src/utils/generateUniqueId";
 import {isUnspecified} from "src/utils/isUnspecified";
 
@@ -21,8 +21,8 @@ export const DATA_TEST_ID = {
 }
 
 export interface ModelLocaleSelectProps {
-  locales: ILocale[],
-  notifyModelLocaleChanged?: (locale: ILocale) => any
+  locales: Locale.Payload[],
+  notifyModelLocaleChanged?: (locale: Locale.Payload) => any
 }
 
 const ModelLocalSelectField = (props: ModelLocaleSelectProps) => {

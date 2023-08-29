@@ -1,14 +1,9 @@
-import {
-  IModelInfo,
-  NAME_MAX_LENGTH,
-  RELEASE_NOTES_MAX_LENGTH,
-  SHORTCODE_MAX_LENGTH,
-  VERSION_MAX_LENGTH
-} from "./modelInfoModel";
+import {IModelInfo} from "./modelInfoModel";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {randomUUID} from "crypto";
 import {getRandomString} from "_test_utilities/specialCharacters";
 import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
+import ModelInfo from 'api-specifications/modelInfo';
 
 
 export function getIModelInfoMockData(n : number = 1 ): IModelInfo {
@@ -17,16 +12,16 @@ export function getIModelInfoMockData(n : number = 1 ): IModelInfo {
     UUID: randomUUID(),
     previousUUID: randomUUID(),
     originUUID: randomUUID(),
-    name: getRandomString(NAME_MAX_LENGTH),
+    name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: randomUUID(),
-      name: getRandomString(NAME_MAX_LENGTH),
-      shortCode: getRandomString(SHORTCODE_MAX_LENGTH)
+      name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
+      shortCode: getRandomString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
     description: getRandomString(DESCRIPTION_MAX_LENGTH),
     released: false,
-    releaseNotes: getRandomString(RELEASE_NOTES_MAX_LENGTH),
-    version: getRandomString(VERSION_MAX_LENGTH),
+    releaseNotes: getRandomString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
+    version: getRandomString(ModelInfo.Constants.VERSION_MAX_LENGTH),
     createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
     updatedAt: new Date() //.toISOString()
   };

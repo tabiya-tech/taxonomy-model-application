@@ -2,10 +2,10 @@
 import "_test_utilities/consoleMock";
 
 import {lambda_invokeAsyncImport} from "./asyncImport";
-import {ImportFileTypes, ImportRequest, ImportResponseErrorCodes} from "api-specifications/import";
+import Import from "api-specifications/import";
 import {StatusCodes} from "server/httpUtils";
 import * as config from "server/config/config";
-import {IErrorResponse} from "api-specifications/error";
+import APIError from "api-specifications/error";
 
 import {LambdaClient, InvokeCommand} from "@aws-sdk/client-lambda";
 
@@ -22,11 +22,11 @@ jest.mock("@aws-sdk/client-lambda", () => {
 
 describe("Test lambda_invokeAsyncImport()  ", () => {
   test("should return the ACCEPTED status", async () => {
-    // GIVEN an ImportRequest
-    const givenImportRequest: ImportRequest = {
+    // GIVEN an Import
+    const givenImport: Import.POST.Request.Payload = {
       filePaths: {
-        [ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
+        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
@@ -37,8 +37,8 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     const givenConfigAsyncLambdaFunctionRegion = "foo";
     jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
 
-    // WHEN calling the lambda_invokeAsyncImport() function with the given ImportRequest
-    const actualResponse = await lambda_invokeAsyncImport(givenImportRequest);
+    // WHEN calling the lambda_invokeAsyncImport() function with the given Import
+    const actualResponse = await lambda_invokeAsyncImport(givenImport);
 
     // THEN expect the function to return a response
     expect(actualResponse).toBeDefined();
@@ -53,18 +53,18 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
         FunctionName: givenConfigAsyncLambdaFunctionArn,
         // The invocation type to be event for asynchronous execution
         InvocationType: "Event",
-        // The payload is a Uint8Array of the string representation of the givenImportRequest
-        Payload: new TextEncoder().encode(JSON.stringify(givenImportRequest))
+        // The payload is a Uint8Array of the string representation of the givenImport
+        Payload: new TextEncoder().encode(JSON.stringify(givenImport))
       }
     );
   });
 
   test("should return the INTERNAL_SERVER_ERROR status if InvokeCommand throws an error", async () => {
-    // GIVEN an ImportRequest
-    const givenImportRequest: ImportRequest = {
+    // GIVEN an Import
+    const givenImport: Import.POST.Request.Payload = {
       filePaths: {
-        [ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
-        [ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
+        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
@@ -80,16 +80,16 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
       throw new Error("Failed to schedule import");
     });
 
-    // WHEN calling the lambda_invokeAsyncImport() function with the given ImportRequest
-    const actualResponse = await lambda_invokeAsyncImport(givenImportRequest);
+    // WHEN calling the lambda_invokeAsyncImport() function with the given Import
+    const actualResponse = await lambda_invokeAsyncImport(givenImport);
 
     // THEN expect the function to return a response
     expect(actualResponse).toBeDefined();
     // AND the actualResponse status code to be INTERNAL_SERVER_ERROR
     expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
     // AND the actualResponse body to have the error information
-    const expectedErrorBody: IErrorResponse = {
-      "errorCode": ImportResponseErrorCodes.FAILED_TO_TRIGGER_IMPORT,
+    const expectedErrorBody: APIError.POST.Response.Payload = {
+      "errorCode": Import.POST.Response.Constants.ImportResponseErrorCodes.FAILED_TO_TRIGGER_IMPORT,
       "message": "Failed to trigger import",
       "details": "",
     }

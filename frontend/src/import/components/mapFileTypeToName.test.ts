@@ -1,10 +1,10 @@
 import {mapFileTypeToName} from "./mapFileTypeToName";
-import {ImportFileTypes} from "api-specifications/import";
+import {Constants as ImportConstants} from "api-specifications/import";
 
 describe("mapFileTypeToName test only", () => {
   it("should successfully convert all known filetypes to readable text", () => {
     // GIVEN all known fileTypes
-    const givenAllKnownFileTypes = Object.values(ImportFileTypes);
+    const givenAllKnownFileTypes = Object.values(ImportConstants.ImportFileTypes);
 
     // WHEN the mapFileTypeToName is called for each of the known fileType
     const seenResults = [];

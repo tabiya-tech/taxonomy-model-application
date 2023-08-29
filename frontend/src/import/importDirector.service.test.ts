@@ -1,8 +1,7 @@
 // ###########
 // Setup mocks
 
-// Setup the mock for the model.service
-jest.mock("src/service/modelInfo/modelInfo.service", () => {
+jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelService = jest.fn(); // the constructor
   mockModelService.prototype.createModel = jest.fn();
@@ -11,7 +10,7 @@ jest.mock("src/service/modelInfo/modelInfo.service", () => {
 });
 
 // Setup the mock for the presigned.service
-import {IPresignedResponse} from "api-specifications/presigned";
+import  Presigned from "api-specifications/presigned";
 
 jest.mock("./presigned/presigned.service", () => {
   const mockPresignedService = jest.fn(); // the constructor
@@ -37,11 +36,11 @@ jest.mock("./import/import.service", () => {
 // ###########
 
 import {getTestString} from "src/_test_utilities/specialCharacters";
-import {NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH} from "api-specifications/modelInfo";
+import ModelInfo from "api-specifications/modelInfo";
 import {randomUUID} from "crypto";
 import ImportDirectorService from "./importDirector.service";
-import {ImportFilePaths, ImportFileTypes} from "api-specifications/import";
-import ModelInfoService from "src/service/modelInfo/modelInfo.service";
+import Import, {Constants as ImportConstants} from "api-specifications/import";
+import ModelInfoService from "src/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
@@ -57,7 +56,7 @@ describe('Test the import director service', () => {
     jest.spyOn(modelService, "createModel").mockResolvedValue(givenMockModel);
 
     const presignedService = new PresignedService("foo");
-    const givenMockPresignedResponse: IPresignedResponse = {
+    const givenMockPresignedResponse: Presigned.GET.Response.Payload = {
       fields: [
         {name: "foo", value: "bar"},
         {name: "baz", value: "qux"}
@@ -69,18 +68,18 @@ describe('Test the import director service', () => {
     const importService = new ImportService("foo");
 
     // AND a name, description, locale and files
-    const givenName = getTestString(NAME_MAX_LENGTH);
-    const givenDescription = getTestString(DESCRIPTION_MAX_LENGTH);
+    const givenName = getTestString(ModelInfo.Constants.NAME_MAX_LENGTH);
+    const givenDescription = getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH);
     const givenLocale = {
-      name: getTestString(NAME_MAX_LENGTH),
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(LOCALE_SHORTCODE_MAX_LENGTH)
+      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     }
     // AND a api server url
     const apiServerUrl = "https://somedomain/path/to/api";
     // AND some files
     const givenFiles: ImportFiles = {};
-    Object.values(ImportFileTypes).forEach((fileType: ImportFileTypes) => {
+    Object.values(ImportConstants.ImportFileTypes).forEach((fileType: ImportConstants.ImportFileTypes) => {
       givenFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, {type: 'text/plain'});
     });
 
@@ -108,9 +107,9 @@ describe('Test the import director service', () => {
     expect(uploadService.uploadFiles).toHaveBeenCalledWith(givenMockPresignedResponse, Object.entries(givenFiles).map(([, file]) => file));
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
-    const givenFilesPaths: ImportFilePaths = {};
+    const givenFilesPaths: Import.POST.Request.ImportFilePaths = {};
     Object.entries(givenFiles).forEach(([fileType, file])=> {
-      givenFilesPaths[fileType as ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
+      givenFilesPaths[fileType as ImportConstants.ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
     });
     // THEN the import service is called with the given arguments (modelId, file paths)
     expect(importService.import).toHaveBeenCalledWith(givenMockModel.id, givenFilesPaths);

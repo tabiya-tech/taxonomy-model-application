@@ -5,11 +5,11 @@ import {ServiceError} from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {writeServiceErrorToLog} from "../error/logger";
-import {ILocale} from "api-specifications/modelInfo";
+import Locale from "api-specifications/locale";
 import {Backdrop} from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
-import {ModelDirectoryTypes} from "./modelDirectory.types";
-import ModelInfoService from "src/service/modelInfo/modelInfo.service";
+import {ModelInfoTypes} from "../modelInfo/modelInfoTypes";
+import ModelInfoService from "src/modelInfo/modelInfo.service";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -19,7 +19,7 @@ export const DATA_TEST_ID = {
 
 const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
 const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
-export const availableLocales: ILocale[] = [{
+export const availableLocales: Locale.Payload[] = [{
   name: "South Africa",
   shortCode: "ZA",
   UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a"
@@ -32,7 +32,7 @@ export const availableLocales: ILocale[] = [{
 const ModelDirectory = () => {
   const [isImportDlgOpen, setImportDlgOpen] = React.useState(false);
   const [isBackDropShown, setBackDropShown] = React.useState(false);
-  const [models, setModels] = React.useState([] as ModelDirectoryTypes.ModelInfo[]);
+  const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
 
   const {enqueueSnackbar} = useSnackbar()
@@ -67,7 +67,6 @@ const ModelDirectory = () => {
         ) as any;
         enqueueSnackbar(`The model '${importData.name}' import has started.`, {variant: "success"});
         setModels([newModel, ...models]);
-        //console.log("Created model: " + JSON.stringify(newModel));
       } catch (e) {
         enqueueSnackbar(`The model '${importData.name}' import could not be started. Please try again.`, {variant: "error"})
         if (e instanceof ServiceError) {

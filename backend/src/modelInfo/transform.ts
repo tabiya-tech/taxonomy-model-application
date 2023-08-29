@@ -1,7 +1,5 @@
 import {IModelInfo} from "./modelInfoModel";
-import {
-  ModelInfo,
-} from 'api-specifications/modelInfo';
+import ModelInfo from 'api-specifications/modelInfo';
 export function transform(data: IModelInfo, baseURL: string): ModelInfo.POST.Response.Payload {
   return  {
     id: data.id,

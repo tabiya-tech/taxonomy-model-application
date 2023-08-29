@@ -1,4 +1,4 @@
-export namespace ModelDirectoryTypes {
+export namespace ModelInfoTypes {
     export type Locale = {
       UUID: string
       shortCode: string

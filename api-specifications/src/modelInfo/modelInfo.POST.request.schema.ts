@@ -1,6 +1,6 @@
 import {SchemaObject} from "ajv";
-import {LocaleSchema} from "./locale";
-import {DESCRIPTION_MAX_LENGTH, NAME_MAX_LENGTH} from "./modelInfo.constants";
+import Locale from "../locale";
+import {ModelInfoConstants} from "./modelInfo.constants";
 import {RegExp_Str_NotEmptyString} from "../regex";
 
 /**
@@ -15,18 +15,18 @@ export const _baseRequestSchemaPOSTProperties: any = {
     description: "The name of the model",
     type: "string",
     pattern: RegExp_Str_NotEmptyString,
-    maxLength: NAME_MAX_LENGTH
+    maxLength: ModelInfoConstants.NAME_MAX_LENGTH
   },
   description: {
     description: "The description of the model",
     type: "string",
-    maxLength: DESCRIPTION_MAX_LENGTH
+    maxLength: ModelInfoConstants.DESCRIPTION_MAX_LENGTH
   },
   locale: {
-    $ref: `${LocaleSchema.$id}`
+    $ref: `${Locale.Schema.$id}`
   }
 };
-export const ModelInfoRequestSchemaPOST: SchemaObject = {
+const ModelInfoRequestSchemaPOST: SchemaObject = {
   $id: "/components/schemas/ModelInfoRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
@@ -40,3 +40,5 @@ export const ModelInfoRequestSchemaPOST: SchemaObject = {
   ]
 
 };
+
+export default ModelInfoRequestSchemaPOST;

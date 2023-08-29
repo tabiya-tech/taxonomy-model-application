@@ -20,7 +20,7 @@ import * as config from "server/config/config";
 import * as handlerModule from "./index";
 import {HTTP_VERBS, StatusCodes} from "server/httpUtils";
 import Ajv from "ajv";
-import {PresignedResponseSchema} from "api-specifications/presigned";
+import Presigned from "api-specifications/presigned";
 import addFormats from "ajv-formats";
 
 describe('test main handler by mocking the aws S3', () => {
@@ -43,10 +43,10 @@ describe('test main handler by mocking the aws S3', () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     // AND to return the correct headers
     expect(actualResponse.headers).toMatchObject({"Content-Type": "application/json"});
-    // AND the body should successfully validate against the PresignedResponseSchema schema
+    // AND the body should successfully validate against the PresignedSchema schema
     const expectedAjv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(expectedAjv);
-    const validateResponse = expectedAjv.compile(PresignedResponseSchema);
+    const validateResponse = expectedAjv.compile(Presigned.GET.Response.Schema);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
   });

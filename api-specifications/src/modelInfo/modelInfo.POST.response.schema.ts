@@ -1,10 +1,10 @@
 import {SchemaObject} from "ajv";
-import {_baseRequestSchemaPOSTProperties} from "./modelInfoRequestPOST";
+import {_baseRequestSchemaPOSTProperties} from "./modelInfo.POST.request.schema";
 import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty} from "../regex";
-import {RELEASE_NOTES_MAX_LENGTH, VERSION_MAX_LENGTH} from "./modelInfo.constants";
+import {ModelInfoConstants} from "./modelInfo.constants";
 
 
-export const ModelInfoResponseSchemaPOST: SchemaObject = {
+const ModelInfoPOSTResponseSchema: SchemaObject = {
   $id: "/components/schemas/ModelInfoResponseSchema",
 
   type: "object",
@@ -47,12 +47,12 @@ export const ModelInfoResponseSchemaPOST: SchemaObject = {
     releaseNotes: {
       description: "The release notes of the model",
       type: "string",
-      maxLength: RELEASE_NOTES_MAX_LENGTH
+      maxLength: ModelInfoConstants.RELEASE_NOTES_MAX_LENGTH
     },
     version: {
       description: "The version of the model. It should follow the conventions of semantic versioning.",
       type: "string",
-      maxLength: VERSION_MAX_LENGTH
+      maxLength: ModelInfoConstants.VERSION_MAX_LENGTH
     },
     createdAt: {type: "string", format: "date-time"},
     updatedAt: {type: "string", format: "date-time"},
@@ -74,3 +74,5 @@ export const ModelInfoResponseSchemaPOST: SchemaObject = {
     "updatedAt"
   ]
 };
+
+export default ModelInfoPOSTResponseSchema;
