@@ -123,16 +123,16 @@ describe("ModelDirectory Render", () => {
     expect(modelsTable).toBeInTheDocument();
 
     // AND the ModelsTable should receive the correct default props.
-    expect(ModelsTable).toHaveBeenNthCalledWith(1, {"models": []}, {});
+    expect(ModelsTable).toHaveBeenNthCalledWith(1, {"models": [], isLoading: true}, {});
 
     // AND WHEN the ModelInfoService resolves
     await waitFor(() => {
       // THEN expect the ModelInfoService to have been called
       expect(ModelInfoService.prototype.getAllModels).toHaveBeenCalled();
     });
-    // AND the ModelsTable should re-render with the resolved data
+    // AND the ModelsTable should re-render with the resolved data and the loading prop should be set to false
     await waitFor(() => {
-      expect(ModelsTable).toHaveBeenNthCalledWith(2, {"models": givenMockData}, expect.anything());
+      expect(ModelsTable).toHaveBeenNthCalledWith(2, {"models": givenMockData, isLoading: false}, expect.anything());
     });
   });
 
