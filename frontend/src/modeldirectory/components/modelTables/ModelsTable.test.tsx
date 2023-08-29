@@ -10,6 +10,19 @@ function encodeHtmlAttribute(value: string) {
   return element.innerHTML;
 }
 
+// mock the TableLoadingBody
+jest.mock('src/modeldirectory/components/tableLoadingBody/TableLoadingBody', () => {
+  const actual = jest.requireActual('src/modeldirectory/components/tableLoadingBody/TableLoadingBody');
+  const actualModelsTable = jest.requireActual('src/modeldirectory/components/modelTables/ModelsTable')
+  const mockTableLoadingBody = jest.fn().mockImplementation(() => {
+    return <tr data-testid={actualModelsTable.DATA_TEST_ID.MODELS_LOADER}></tr>
+  });
+  
+  return {
+    ...actual, __esModule: true, default: mockTableLoadingBody
+  }
+})
+
 describe("ModelsTable", () => {
   test("should render the table with the models", () => {
     // GIVEN n models
