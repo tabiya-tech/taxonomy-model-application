@@ -2,12 +2,11 @@
 // Setup mocks
 
 // Setup the mock for the model.service
-import {getMockId} from "src/_test_utilities/mockMongoId";
-
 jest.mock("../service/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelService = jest.fn(); // the constructor
   mockModelService.prototype.createModel = jest.fn();
+  mockModelService.prototype.getAllModels = jest.fn();
   return mockModelService;
 });
 
@@ -42,19 +41,20 @@ import {NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH} fr
 import {randomUUID} from "crypto";
 import ImportDirectorService from "./importDirector.service";
 import {ImportFilePaths, ImportFileTypes} from "api-specifications/import";
-import ModelInfoService from "../service/modelInfo/modelInfo.service";
+import ModelInfoService from "src/service/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
 import {ImportFiles} from "./ImportFiles.type";
+import {getRandomModels} from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
 
 describe('Test the import director service', () => {
   it("should successfully direct the import", async () => {
     // GIVEN a model service, a presigned service, an upload service, a import service
 
     const modelService = new ModelInfoService("foo");
-    const givenMockModelId = getMockId(1);
-    jest.spyOn(modelService, "createModel").mockResolvedValue(givenMockModelId);
+    const givenMockModel = getRandomModels(1)[0];
+    jest.spyOn(modelService, "createModel").mockResolvedValue(givenMockModel);
 
     const presignedService = new PresignedService("foo");
     const givenMockPresignedResponse: IPresignedResponse = {
@@ -86,7 +86,7 @@ describe('Test the import director service', () => {
 
     // WHEN the directImport() is called with the given arguments (name, description, locale, files)
     const manager = new ImportDirectorService(apiServerUrl);
-    const actualModelId = await manager.directImport(givenName, givenDescription, givenLocale, givenFiles);
+    const actualModel = await manager.directImport(givenName, givenDescription, givenLocale, givenFiles);
 
     // #### MODEL SERVICE ####
     // THEN the model service is instantiated with the given api server url
@@ -113,10 +113,10 @@ describe('Test the import director service', () => {
       givenFilesPaths[fileType as ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
     });
     // THEN the import service is called with the given arguments (modelId, file paths)
-    expect(importService.import).toHaveBeenCalledWith(givenMockModelId, givenFilesPaths);
+    expect(importService.import).toHaveBeenCalledWith(givenMockModel.id, givenFilesPaths);
     // AND the processing of the files is started
 
     // AND when the processing is finished
-    expect(actualModelId).toEqual(givenMockModelId);
+    expect(actualModel).toEqual(givenMockModel);
   });
 });

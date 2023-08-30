@@ -165,7 +165,7 @@ describe("ModelInfoService", () => {
       // WHEN the createModel function is called with the given arguments (name, description, ...)
       const service = new ModelInfoService(givenApiServerUrl);
 
-      await service.createModel(givenModelSpec);
+      const actualCreatedModel = await service.createModel(givenModelSpec);
       // THEN expect it to make a POST request
       // AND the headers
       // AND the request payload to contain the given arguments (name, description, ...)
@@ -180,6 +180,13 @@ describe("ModelInfoService", () => {
       validateRequest(payload);
       // @ts-ignore
       expect(validateResponse.errors).toBeNull();
+
+      // AND returns the newly created model
+      expect(actualCreatedModel).toEqual({
+        ...givenResponse,
+        createdAt: new Date(givenResponse.createdAt),
+        updatedAt: new Date(givenResponse.updatedAt),
+      });
     });
 
     test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {

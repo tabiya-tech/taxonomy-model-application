@@ -13,13 +13,15 @@ import {ImportFiles} from "../import/ImportFiles.type";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID} from "src/theme/Backdrop/Backdrop";
 import ModelsTable, {DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID} from "./components/modelTables/ModelsTable";
-import ModelInfoService from "../service/modelInfo/modelInfo.service";
+import ModelInfoService from "src/service/modelInfo/modelInfo.service";
+import {getRandomModels} from "./components/modelTables/_test_utilities/mockModelData";
 
 
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/service/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelInfoService = jest.fn(); // the constructor
+  mockModelInfoService.prototype.createModel = jest.fn();// adding a mock method
   mockModelInfoService.prototype.getAllModels = jest.fn();// adding a mock method
   return mockModelInfoService;
 });
@@ -69,6 +71,7 @@ jest.mock("src/import/ImportModelDialog", () => {
 jest.mock("src/modeldirectory/components/modelTables/ModelsTable", () => {
   const actual = jest.requireActual("src/modeldirectory/components/modelTables/ModelsTable");
   const mockModelsTable = jest.fn().mockImplementation(() => {
+    console.log("ModelsTable mock");
     return <div data-testid={actual.DATA_TEST_ID.MODELS_TABLE_ID}> My Models Table</div>
   });
 
@@ -209,6 +212,10 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     // GIVEN the ModelDirectory is rendered
     render(<ModelDirectory/>);
 
+    // AND the import will succeed and a new model will be created
+    const givenNewModel = getRandomModels(1)[0]
+    ImportDirectorService.prototype.directImport = jest.fn().mockResolvedValueOnce(givenNewModel);
+
     // AND the user has opened the ImportDialog
     const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
@@ -219,7 +226,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     const givenImportData = getTestImportData();
 
     // AND the user clicks on import
-    await act(() => {
+    act(() => {
       const mock = (ImportModelDialog as jest.Mock).mock;
       mock.lastCall[0].notifyOnClose({name: 'IMPORT', importData: givenImportData})
     });
@@ -233,8 +240,14 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     // AND expect the import director service to have been called with the data entered by the user
     expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(givenImportData.name, givenImportData.description, givenImportData.locale, givenImportData.selectedFiles);
 
-    // AND the backdrop was eventually hidden
+    // AND expect the ModelsTable to have been called with the new model
+    const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
+    expect(modelsTable).toBeInTheDocument();
+    await waitFor(() => {
+      expect(ModelsTable).toHaveBeenCalledWith({"models": expect.arrayContaining([givenNewModel]), "isLoading": false}, expect.anything());
+    });
 
+    // AND the backdrop was eventually hidden
     await waitFor(() => {
       const backdrop = screen.queryByTestId(BACKDROP_DATA_TEST_ID.BACKDROP_CONTAINER);
       expect(backdrop).not.toBeInTheDocument();
@@ -244,7 +257,7 @@ describe("ModelDirectory.ImportDialog action tests", () => {
     expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`The model '${givenImportData.name}' import has started.`, {variant: "success"});
   });
 
-  it('should throw an error when import director fails to import', async () => {
+  test('should throw an error when import director fails to import', async () => {
 
     // GIVEN the ModelDirectory is rendered
     render(<ModelDirectory/>);
@@ -291,5 +304,39 @@ describe("ModelDirectory.ImportDialog action tests", () => {
 
     // AND the snackbar notification was shown
     expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`The model '${givenImportData.name}' import could not be started. Please try again.`, {variant: "error"});
+  });
+
+  test.each([
+    [" has no existing models", []],
+    [" has N existing models", getRandomModels(3)],
+  ])
+  ("should add the new model to the table that %s", async (desc, givenExistingModels) => {
+    // GIVEN the ModelDirectory is rendered with some existing models
+    jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValueOnce(givenExistingModels);
+    render(<ModelDirectory/>);
+
+    // AND the import will succeed and a new model will be created
+    const givenNewModel = getRandomModels(1)[0]
+    ImportDirectorService.prototype.directImport = jest.fn().mockResolvedValueOnce(givenNewModel);
+
+    // AND the user has opened the ImportDialog
+    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    await userEvent.click(importButton);
+
+    // AND the user has entered all the data required for the import
+    const givenImportData = getTestImportData();
+
+    // AND the user click on import
+    act(() => {
+      const mock = (ImportModelDialog as jest.Mock).mock;
+      mock.lastCall[0].notifyOnClose({name: 'IMPORT', importData: givenImportData})
+    });
+
+    // AND expect the ModelsTable to have been called with the existing and the new model
+    const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
+    expect(modelsTable).toBeInTheDocument();
+    await waitFor(() => {
+      expect(ModelsTable).toHaveBeenLastCalledWith({"models": [givenNewModel, ...givenExistingModels], "isLoading": false}, expect.anything());
+    });
   });
 });
