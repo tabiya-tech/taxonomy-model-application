@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
-import TableLoadingRows from "../tableLoadingRows/TableLoadingRows";
+import TableLoadingBody from "../tableLoadingBody/TableLoadingBody";
 
 interface ModelsTableProps {
   models: ModelDirectoryTypes.ModelInfo[],
@@ -44,7 +44,7 @@ const ModelsTable = (props: ModelsTableProps) => {
           </TableHead>
           <TableBody>
             {props.isLoading ?
-              <TableLoadingRows numberOfCols={2} numberOfRows={10} />:
+              <TableLoadingBody numberOfCols={2} />:
               props.models?.map(model => (
                 <TableRow
                   data-modelid={model.id}

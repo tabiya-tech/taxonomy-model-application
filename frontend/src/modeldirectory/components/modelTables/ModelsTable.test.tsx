@@ -9,9 +9,9 @@ function encodeHtmlAttribute(value: string) {
   return element.innerHTML;
 }
 
-// mock the TableLoadingRows
-jest.mock('src/modeldirectory/components/tableLoadingRows/TableLoadingRows', () => {
-  const actual = jest.requireActual('src/modeldirectory/components/tableLoadingRows/TableLoadingRows');
+// mock the TableLoadingBody
+jest.mock('src/modeldirectory/components/tableLoadingBody/TableLoadingBody', () => {
+  const actual = jest.requireActual('src/modeldirectory/components/tableLoadingBody/TableLoadingBody');
   const actualModelsTable = jest.requireActual('src/modeldirectory/components/modelTables/ModelsTable')
   const mockTableLoadingBody = jest.fn().mockImplementation(() => {
     return <tr data-testid={actualModelsTable.DATA_TEST_ID.MODELS_LOADER}></tr>
