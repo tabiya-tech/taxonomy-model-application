@@ -33,7 +33,6 @@ const ModelDirectory = () => {
   const [isImportDlgOpen, setImportDlgOpen] = React.useState(false);
   const [isBackDropShown, setBackDropShown] = React.useState(false);
   const [models, setModels] = React.useState([] as ModelDirectoryTypes.ModelInfo[]);
-  const [isLoadingModels, setIsLoadingModels] = React.useState(false);
 
   const {enqueueSnackbar} = useSnackbar()
   const showImportDialog = (b: boolean) => {
@@ -81,11 +80,8 @@ const ModelDirectory = () => {
   };
 
   useEffect(() => {
-    setIsLoadingModels(true)
     handleModelInfoFetch().then((modelInfos) => {
       modelInfos && setModels(modelInfos);
-    }).finally(() => {
-      setIsLoadingModels(false)
     });
   }, [handleModelInfoFetch]);
 
@@ -99,7 +95,7 @@ const ModelDirectory = () => {
           Import Model
         </Button>
       </Box>
-      <ModelsTable models={models} isLoading={isLoadingModels}/>
+      <ModelsTable models={models}/>
     </Box>
     {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
                                            notifyOnClose={handleOnImportDialogClose}/>}

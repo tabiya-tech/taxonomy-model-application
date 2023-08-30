@@ -45,19 +45,3 @@ export const ModelsFetchFailed: Story = {
     ],
   },
 };
-
-export const ModelsFetchIsSlow: Story = {
-  args: {},
-  parameters: {
-    docs: {disable: true},
-    mockData: [
-      {
-        url: 'https://dev.tabiya.tech/api/models',
-        method: 'GET',
-        status: 200,
-        response: getFakeModelInfoPayload(3),
-        delay: 5000
-      },
-    ],
-  },
-};

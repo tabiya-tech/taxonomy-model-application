@@ -7,7 +7,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
-import {CircularProgress} from "@mui/material";
 
 interface ModelsTableProps {
   models: ModelDirectoryTypes.ModelInfo[],
@@ -43,11 +42,7 @@ const ModelsTable = (props: ModelsTableProps) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.isLoading ?
-            <TableRow>
-              <CircularProgress data-testid={DATA_TEST_ID.MODELS_LOADER} />
-            </TableRow>:
-            props.models?.map(model => (
+          {props.models?.map(model => (
             <TableRow
               data-modelid={model.id}
               key={model.id}
