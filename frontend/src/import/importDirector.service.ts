@@ -1,5 +1,5 @@
 import {ILocale} from 'api-specifications/modelInfo';
-import ModelService from "./model/model.service";
+import ModelInfoService from "../service/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
@@ -15,7 +15,7 @@ export default class ImportDirectorService {
 
   async directImport(name: string, description: string, locale: ILocale, files: ImportFiles): Promise<string> {
 
-    const modelService = new ModelService(this.apiServerUrl);
+    const modelService = new ModelInfoService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
     const [modelid, presigned] = await Promise.all(
       [modelService.createModel({name, description, locale}),

@@ -13,11 +13,11 @@ import {ImportFiles} from "../import/ImportFiles.type";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID} from "src/theme/Backdrop/Backdrop";
 import ModelsTable, {DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID} from "./components/modelTables/ModelsTable";
-import ModelInfoService from "./modelInfo/modelInfo.service";
+import ModelInfoService from "../service/modelInfo/modelInfo.service";
 
 
 // mock the model info service, as we do not want the real service to be called during testing
-jest.mock("src/modeldirectory/modelInfo/modelInfo.service", () => {
+jest.mock("src/service/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelInfoService = jest.fn(); // the constructor
   mockModelInfoService.prototype.getAllModels = jest.fn();// adding a mock method

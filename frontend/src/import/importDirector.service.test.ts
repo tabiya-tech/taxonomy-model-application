@@ -4,7 +4,7 @@
 // Setup the mock for the model.service
 import {getMockId} from "src/_test_utilities/mockMongoId";
 
-jest.mock("./model/model.service", () => {
+jest.mock("../service/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelService = jest.fn(); // the constructor
   mockModelService.prototype.createModel = jest.fn();
@@ -42,7 +42,7 @@ import {NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALE_SHORTCODE_MAX_LENGTH} fr
 import {randomUUID} from "crypto";
 import ImportDirectorService from "./importDirector.service";
 import {ImportFilePaths, ImportFileTypes} from "api-specifications/import";
-import ModelService from "./model/model.service";
+import ModelInfoService from "../service/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
@@ -52,7 +52,7 @@ describe('Test the import director service', () => {
   it("should successfully direct the import", async () => {
     // GIVEN a model service, a presigned service, an upload service, a import service
 
-    const modelService = new ModelService("foo");
+    const modelService = new ModelInfoService("foo");
     const givenMockModelId = getMockId(1);
     jest.spyOn(modelService, "createModel").mockResolvedValue(givenMockModelId);
 
@@ -90,7 +90,7 @@ describe('Test the import director service', () => {
 
     // #### MODEL SERVICE ####
     // THEN the model service is instantiated with the given api server url
-    expect(ModelService).toHaveBeenCalledWith(apiServerUrl);
+    expect(ModelInfoService).toHaveBeenCalledWith(apiServerUrl);
     // AND the model service is called with the given arguments (name, description, locale),
     expect(modelService.createModel).toHaveBeenCalledWith({
       name: givenName,
