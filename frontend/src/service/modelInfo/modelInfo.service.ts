@@ -21,6 +21,13 @@ ajv.addSchema(ModelInfoResponseSchemaPOST, ModelInfoResponseSchemaPOST.$id);
 const responseValidatorGET: ValidateFunction = ajv.getSchema(ModelInfoResponseSchemaGET.$id as string) as ValidateFunction;
 const responseValidatorPOST: ValidateFunction = ajv.getSchema(ModelInfoResponseSchemaPOST.$id as string) as ValidateFunction;
 
+
+/**
+ * Extracts the type of the elements of an array.
+ */
+type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends  (infer ItemType)[] ? ItemType: never;
+type IModelInfoType = PayloadItem<ModelInfo.GET.Response.Payload> | ModelInfo.POST.Response.Payload;
+
 export default class ModelInfoService {
 
   readonly modelInfoEndpointUrl: string;
@@ -35,7 +42,7 @@ export default class ModelInfoService {
    * Resolves with the modelID or rejects with a ServiceError
    *
    */
-  public async createModel(newModelSpec: INewModelSpecification): Promise<string> {
+  public async createModel(newModelSpec: INewModelSpecification): Promise<ModelDirectoryTypes.ModelInfo> {
     const errorFactory = getServiceErrorFactory("ModelInfoService", "createModel", "POST", this.modelInfoEndpointUrl);
     let response;
     let responseBody: string;
@@ -78,8 +85,9 @@ export default class ModelInfoService {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not conform to the expected schema", {responseBody: modelResponse, errors: responseValidatorPOST.errors});
     }
 
-    return modelResponse.id;
+    return this.transform(modelResponse);
   }
+
   public async getAllModels(): Promise<ModelDirectoryTypes.ModelInfo[]> {
     const errorFactory = getServiceErrorFactory("ModelInfoService", "getAllModels", "GET", this.modelInfoEndpointUrl);
 
@@ -125,27 +133,29 @@ export default class ModelInfoService {
       });
     }
 
-    return allModelsResponse.map((modelInfo) => {
-      return {
-        id: modelInfo.id,
-        UUID: modelInfo.UUID,
-        previousUUID: modelInfo.previousUUID,
-        originUUID: modelInfo.originUUID,
-        name: modelInfo.name,
-        description: modelInfo.description,
-        locale: {
-          UUID: modelInfo.locale.UUID,
-          name: modelInfo.locale.name,
-          shortCode: modelInfo.locale.shortCode
-        },
-        released: modelInfo.released,
-        releaseNotes: modelInfo.releaseNotes,
-        version: modelInfo.version,
-        path: modelInfo.path,
-        tabiyaPath: modelInfo.tabiyaPath,
-        createdAt: new Date(modelInfo.createdAt),
-        updatedAt: new Date(modelInfo.createdAt),
-      } as ModelDirectoryTypes.ModelInfo;
-    });
+    return allModelsResponse.map(this.transform);
+  }
+
+  transform(payloadItem: IModelInfoType): ModelDirectoryTypes.ModelInfo {
+    return {
+      id: payloadItem.id,
+      UUID: payloadItem.UUID,
+      previousUUID: payloadItem.previousUUID,
+      originUUID: payloadItem.originUUID,
+      name: payloadItem.name,
+      description: payloadItem.description,
+      locale: {
+        UUID: payloadItem.locale.UUID,
+        name: payloadItem.locale.name,
+        shortCode: payloadItem.locale.shortCode
+      },
+      released: payloadItem.released,
+      releaseNotes: payloadItem.releaseNotes,
+      version: payloadItem.version,
+      path: payloadItem.path,
+      tabiyaPath: payloadItem.tabiyaPath,
+      createdAt: new Date(payloadItem.createdAt),
+      updatedAt: new Date(payloadItem.createdAt),
+    };
   }
 }

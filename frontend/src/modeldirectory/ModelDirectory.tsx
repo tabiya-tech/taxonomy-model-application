@@ -9,7 +9,7 @@ import {ILocale} from "api-specifications/modelInfo";
 import {Backdrop} from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
 import {ModelDirectoryTypes} from "./modelDirectory.types";
-import ModelInfoService from "../service/modelInfo/modelInfo.service";
+import ModelInfoService from "src/service/modelInfo/modelInfo.service";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -59,14 +59,15 @@ const ModelDirectory = () => {
       setBackDropShown(true);
       const importData = event.importData as ImportData;
       try {
-        const modelID = await importDirectorService.directImport(
+        const newModel = await importDirectorService.directImport(
           importData.name,
           importData.description,
           importData.locale,
           importData.selectedFiles
-        );
-        enqueueSnackbar(`The model '${importData.name}' import has started.`, {variant: "success"})
-        console.log("Created model: " + modelID);
+        ) as any;
+        enqueueSnackbar(`The model '${importData.name}' import has started.`, {variant: "success"});
+        setModels([newModel, ...models]);
+        //console.log("Created model: " + JSON.stringify(newModel));
       } catch (e) {
         enqueueSnackbar(`The model '${importData.name}' import could not be started. Please try again.`, {variant: "error"})
         if (e instanceof ServiceError) {

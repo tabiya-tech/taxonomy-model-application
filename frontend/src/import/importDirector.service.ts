@@ -1,10 +1,11 @@
 import {ILocale} from 'api-specifications/modelInfo';
-import ModelInfoService from "../service/modelInfo/modelInfo.service";
+import ModelInfoService from "src/service/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
 import {ImportFileTypes, ImportFilePaths} from "api-specifications/import";
 import {ImportFiles} from "./ImportFiles.type";
+import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
 
 export default class ImportDirectorService {
   readonly apiServerUrl: string;
@@ -13,11 +14,11 @@ export default class ImportDirectorService {
     this.apiServerUrl = apiServerUrl;
   }
 
-  async directImport(name: string, description: string, locale: ILocale, files: ImportFiles): Promise<string> {
+  async directImport(name: string, description: string, locale: ILocale, files: ImportFiles): Promise<ModelDirectoryTypes.ModelInfo> {
 
     const modelService = new ModelInfoService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
-    const [modelid, presigned] = await Promise.all(
+    const [newModel, presigned] = await Promise.all(
       [modelService.createModel({name, description, locale}),
         presignedService.getPresignedPost()]);
 
@@ -28,8 +29,8 @@ export default class ImportDirectorService {
       filesPaths[fileType as ImportFileTypes] = `${presigned.folder}/${file.name}`;
     });
     const importService = new ImportService(this.apiServerUrl);
-    await importService.import(modelid, filesPaths);
-    return modelid;
+    await importService.import(newModel.id, filesPaths);
+    return newModel;
   }
 
 }
