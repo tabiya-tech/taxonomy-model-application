@@ -9,7 +9,7 @@ import {ILocale} from "api-specifications/modelInfo";
 import {Backdrop} from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
 import {ModelDirectoryTypes} from "./modelDirectory.types";
-import ModelInfoService from "./modelInfo/modelInfo.service";
+import ModelInfoService from "../service/modelInfo/modelInfo.service";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {

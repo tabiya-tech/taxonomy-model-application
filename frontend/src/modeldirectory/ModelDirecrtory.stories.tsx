@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import ModelDirectory from './ModelDirectory';
-import {getFakeModelInfoPayload} from "./modelInfo/_test_utilities/mockModelInfoPayload";
+import {getFakeModelInfoPayload} from "../service/modelInfo/_test_utilities/mockModelInfoPayload";
 
 const meta: Meta<typeof ModelDirectory> = {
   title: 'ModelDirectory/ModelDirectory',
