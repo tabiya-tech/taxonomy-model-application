@@ -148,15 +148,13 @@ describe("ModelDirectory Render", () => {
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     // AND the ModelsTable should receive the correct default props.
-    expect(ModelsTable).toHaveBeenNthCalledWith(1, {"models": [], isLoading: true}, {});
+    expect(ModelsTable).toHaveBeenNthCalledWith(1, {"models": []}, {});
 
     // AND WHEN the ModelInfoService fails
     await waitFor(() => {
       // THEN expect a snackbar with the error message to be shown
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models. Please check your internet connection.`, {variant: "error"});
     });
-    // AND the ModelsTable props to be reset properly
-    expect(ModelsTable).toHaveBeenNthCalledWith(2, {models: [], isLoading: false}, {})
   });
 })
 describe("ModelDirectory.ImportDialog action tests", () => {

@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
-import TableLoadingBody from "../tableLoadingBody/TableLoadingBody";
+import {CircularProgress} from "@mui/material";
 
 interface ModelsTableProps {
   models: ModelDirectoryTypes.ModelInfo[],
@@ -33,33 +33,35 @@ const ModelsTable = (props: ModelsTableProps) => {
 
   return (
     <TableContainer component={Paper} data-testid={DATA_TEST_ID.MODELS_TABLE_ID}>
-        <Table aria-label="models table">
-          <TableHead>
-            <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
-              <TableCell sx={{fontWeight: "bold"}}
-                         data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_NAME}</TableCell>
-              <TableCell sx={{fontWeight: "bold"}}
-                         data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_LOCALE}</TableCell>
+      <Table aria-label="models table">
+        <TableHead>
+          <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
+            <TableCell sx={{fontWeight: "bold"}}
+                       data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_NAME}</TableCell>
+            <TableCell sx={{fontWeight: "bold"}}
+                       data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_LOCALE}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {props.isLoading ?
+            <TableRow>
+              <CircularProgress data-testid={DATA_TEST_ID.MODELS_LOADER} />
+            </TableRow>:
+            props.models?.map(model => (
+            <TableRow
+              data-modelid={model.id}
+              key={model.id}
+              sx={{'&:last-child td, &:last-child th': {border: 0}}} // remove the last border
+              data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
+            >
+              <TableCell component="th" scope="row" data-testid={DATA_TEST_ID.MODEL_CELL}>
+                {model.name}
+              </TableCell>
+              <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>{model.locale.name}</TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {props.isLoading ?
-              <TableLoadingBody numberOfCols={2} />:
-              props.models?.map(model => (
-                <TableRow
-                  data-modelid={model.id}
-                  key={model.id}
-                  sx={{'&:last-child td, &:last-child th': {border: 0}}} // remove the last border
-                  data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
-                >
-                  <TableCell component="th" scope="row" data-testid={DATA_TEST_ID.MODEL_CELL}>
-                    {model.name}
-                  </TableCell>
-                  <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>{model.locale.name}</TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+          ))}
+        </TableBody>
+      </Table>
     </TableContainer>
   );
 };
