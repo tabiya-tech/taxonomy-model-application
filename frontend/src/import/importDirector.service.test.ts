@@ -2,7 +2,9 @@
 // Setup mocks
 
 // Setup the mock for the model.service
-jest.mock("src/service/modelInfo/modelInfo.service", () => {
+import {getMockId} from "src/_test_utilities/mockMongoId";
+
+jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelService = jest.fn(); // the constructor
   mockModelService.prototype.createModel = jest.fn();

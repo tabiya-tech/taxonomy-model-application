@@ -13,7 +13,7 @@ import {ImportFiles} from "../import/ImportFiles.type";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID} from "src/theme/Backdrop/Backdrop";
 import ModelsTable, {DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID} from "./components/modelTables/ModelsTable";
-import ModelInfoService from "src/service/modelInfo/modelInfo.service";
+import ModelInfoService from "src/modelInfo/modelInfo.service";
 import {
   getOneRandomModelMaxLength,
   getArrayOfRandomModelsMaxLength
@@ -21,7 +21,7 @@ import {
 
 
 // mock the model info service, as we do not want the real service to be called during testing
-jest.mock("src/service/modelInfo/modelInfo.service", () => {
+jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelInfoService = jest.fn(); // the constructor
   mockModelInfoService.prototype.createModel = jest.fn();// adding a mock method
@@ -74,7 +74,6 @@ jest.mock("src/import/ImportModelDialog", () => {
 jest.mock("src/modeldirectory/components/modelTables/ModelsTable", () => {
   const actual = jest.requireActual("src/modeldirectory/components/modelTables/ModelsTable");
   const mockModelsTable = jest.fn().mockImplementation(() => {
-    console.log("ModelsTable mock");
     return <div data-testid={actual.DATA_TEST_ID.MODELS_TABLE_ID}> My Models Table</div>
   });
 

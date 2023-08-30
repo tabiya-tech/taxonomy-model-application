@@ -10,7 +10,6 @@ import {ErrorCodes} from "src/error/errorCodes";
 import {randomUUID} from "crypto";
 import Ajv from "ajv/dist/2020";
 import addFormats from "ajv-formats";
-import {LocaleSchema} from "api-specifications/locale/locale.schema";
 
 function getNewModelSpecMockData(): INewModelSpecification {
   return {

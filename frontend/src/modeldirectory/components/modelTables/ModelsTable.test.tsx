@@ -3,7 +3,7 @@ import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
 import {getArrayOfRandomModelsMaxLength} from "./_test_utilities/mockModelData";
 import * as React from "react";
 import {getRandomLorem} from "src/_test_utilities/specialCharacters";
-import {ModelDirectoryTypes} from "src/modeldirectory/modelDirectory.types";
+import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
 
 function encodeHtmlAttribute(value: string) {
   const element = document.createElement('div');
@@ -229,8 +229,8 @@ describe("ModelsTable", () => {
     // GIVEN  isLoading property is true
     const givenIsLoading = true;
     // AND an empty models list is provided
-    const givenModels: ModelDirectoryTypes.ModelInfo[] = [];
-
+    const givenModels : ModelInfoTypes.ModelInfo[] = [];
+    
     // WHEN the ModelsTable component is rendered with the given properties
     render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>)
 
@@ -252,8 +252,8 @@ describe("ModelsTable", () => {
     // GIVEN the loading property is false
     const givenIsLoading = false;
     // AND n models are provided
-    const givenModels: ModelDirectoryTypes.ModelInfo[] = getArrayOfRandomModelsMaxLength(3);
-
+    const givenModels : ModelInfoTypes.ModelInfo[] = getArrayOfRandomModelsMaxLength(3);
+    
     // WHEN the ModelsTable component is rendered with the given properties
     render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>);
 
