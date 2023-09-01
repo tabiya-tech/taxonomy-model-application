@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import {Box, Button, Container} from '@mui/material';
 import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelDialog";
 import {ServiceError} from "src/error/error";
@@ -89,6 +89,10 @@ const ModelDirectory = () => {
     });
   }, [handleModelInfoFetch]);
 
+  const memoizedModelsTable = useMemo(() => {
+    return <ModelsTable models={models} isLoading={isLoadingModels} />
+  }, [models, isLoadingModels]);
+
   return <Container maxWidth="xl" sx={{
     width: "100%", height: "100vh", justifyContent: 'center', alignItems: 'center', display: 'flex'
   }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
@@ -99,7 +103,7 @@ const ModelDirectory = () => {
           Import Model
         </Button>
       </Box>
-      <ModelsTable models={models} isLoading={isLoadingModels}/>
+      {memoizedModelsTable}
     </Box>
     {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
                                            notifyOnClose={handleOnImportDialogClose}/>}
