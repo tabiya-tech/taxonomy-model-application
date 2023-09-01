@@ -62,16 +62,24 @@ Please follow the **[Conventional Commits](https://www.conventionalcommits.org/)
 To contribute to our 100% code coverage goal, refer to our "Guidelines for Readable BDD Testing" in the **[testing-guidelines.md](testing-guidelines.md)**
 
 ## Getting Started
+To work with this repository you should have a system with a bash compatible terminal (linux, macOS, cygwin) as most of the scripts are written for bash and will not work on windows cmd or powershell. 
 
 1. Fork the repository and clone it to your local environment.
 
 2. Create a new branch for your changes.
 
-3. Make your changes, commit them, and push to your fork.
+3. After making your changes, ensure the code is clean, properly formatted and passes all tests.
 
-4. Use descriptive commit messages following [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+    You can use the provided script, `run-before-merge.sh`, for assistance. This script performs linting, building, and testing on the subprojects of the repository. To run it, use the following command:
+    
+    ```bash
+    ./run-before-merge.sh
+    ```
+4. Commit them, and push to your fork.
 
-5. Open a pull request to our main branch.
+5. Use descriptive commit messages following [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
+6. Open a pull request to our main branch.
 
 Happy contributing! 🚀
 
