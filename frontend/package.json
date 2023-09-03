@@ -92,7 +92,8 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!<rootDir>/node_modules/",
-      "!src/**/*.stories.{ts,tsx}"
+      "!src/**/*.stories.{ts,tsx}",
+      "!src/**/_test_utilities/*"
     ],
     "coverageReporters": [
       [
