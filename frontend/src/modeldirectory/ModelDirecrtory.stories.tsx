@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import ModelDirectory from './ModelDirectory';
-import {getFakeModelInfoPayload} from "../service/modelInfo/_test_utilities/mockModelInfoPayload";
+import * as MockPayload from "src/service/modelInfo/_test_utilities/mockModelInfoPayload";
 
 const meta: Meta<typeof ModelDirectory> = {
   title: 'ModelDirectory/ModelDirectory',
@@ -22,7 +22,7 @@ export const Shown: Story = {
         url: 'https://dev.tabiya.tech/api/models',
         method: 'GET',
         status: 200,
-        response: getFakeModelInfoPayload(3)
+        response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(3)
       },
     ],
   },
@@ -55,7 +55,7 @@ export const ModelsFetchIsSlow: Story = {
         url: 'https://dev.tabiya.tech/api/models',
         method: 'GET',
         status: 200,
-        response: getFakeModelInfoPayload(3),
+        response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(3),
         delay: 5000
       },
     ],

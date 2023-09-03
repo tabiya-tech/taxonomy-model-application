@@ -9,7 +9,7 @@ import {
   ModelInfoResponseSchemaPOST,
   NAME_MAX_LENGTH,
 } from "api-specifications/modelInfo"
-import {getMockModelInfoPayload} from "./_test_utilities/mockModelInfoPayload";
+import * as MockPayload from "./_test_utilities/mockModelInfoPayload";
 import {StatusCodes} from "http-status-codes";
 import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
 import {ServiceError} from "src/error/error";
@@ -51,8 +51,8 @@ describe("ModelInfoService", () => {
       // GIVEN an api server url
       const givenApiServerUrl = "/path/to/api";
       // AND the GET models REST API will respond with OK and some models
-      const givenResponse: ModelInfo.GET.Response.Payload = getMockModelInfoPayload(2);
-      const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
+      const givenResponseBody: ModelInfo.GET.Response.Payload = MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
+      const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called with the given arguments
       const service = new ModelInfoService(givenApiServerUrl);
@@ -64,8 +64,8 @@ describe("ModelInfoService", () => {
       });
 
       // AND expect it to return all the model the response contains
-      expect(actualModels.length).toEqual(givenResponse.length);
-      givenResponse.forEach((givenModel, index) => {
+      expect(actualModels.length).toEqual(givenResponseBody.length);
+      givenResponseBody.forEach((givenModel, index) => {
         expect(actualModels[index]).toEqual({
           ...givenModel, createdAt: new Date(givenModel.createdAt), updatedAt: new Date(givenModel.updatedAt)
         }); // currently we do not transform the response, so it should be the same
@@ -112,7 +112,7 @@ describe("ModelInfoService", () => {
       // AND the GET models REST API will respond with OK and some response that
       // that conforms to the modelInfoResponseSchemaGET
       // but the content-type is not application/json;charset=UTF-8
-      setupFetchSpy(StatusCodes.OK, getMockModelInfoPayload(1), "");
+      setupFetchSpy(StatusCodes.OK, MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(1), "");
 
       // WHEN the getAllModels function is called
       const service = new ModelInfoService(givenApiServerUrl);
@@ -159,8 +159,8 @@ describe("ModelInfoService", () => {
       // AND a name, description, locale
       const givenModelSpec = getNewModelSpecMockData();
       // AND the create model REST API will respond with OK and some newly create model
-      const givenResponse: ModelInfo.POST.Response.Payload = getMockModelInfoPayload(1)[0];
-      const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
+      const givenResponseBody: ModelInfo.POST.Response.Payload = MockPayload.POST.getPayloadWithOneRandomModelInfo();
+      const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
       const service = new ModelInfoService(givenApiServerUrl);
@@ -183,9 +183,9 @@ describe("ModelInfoService", () => {
 
       // AND returns the newly created model
       expect(actualCreatedModel).toEqual({
-        ...givenResponse,
-        createdAt: new Date(givenResponse.createdAt),
-        updatedAt: new Date(givenResponse.updatedAt),
+        ...givenResponseBody,
+        createdAt: new Date(givenResponseBody.createdAt),
+        updatedAt: new Date(givenResponseBody.updatedAt),
       });
     });
 
@@ -227,7 +227,7 @@ describe("ModelInfoService", () => {
       // AND the create model REST API will respond with OK and some response
       // that conforms to the modelInfoResponseSchema
       // but the content-type is not application/json;charset=UTF-8
-      setupFetchSpy(StatusCodes.CREATED, getMockModelInfoPayload(1)[0], "");
+      setupFetchSpy(StatusCodes.CREATED, MockPayload.POST.getPayloadWithOneRandomModelInfo(), "");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
       const service = new ModelInfoService(givenApiServerUrl);
@@ -259,5 +259,3 @@ describe("ModelInfoService", () => {
 
   });
 });
-
-
