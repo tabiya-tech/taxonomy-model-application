@@ -61,7 +61,7 @@ const ModelsTable = (props: ModelsTableProps) => {
                 tabIndex={0}
                 data-modelid={model.id}
                 key={model.id}
-                sx={{'&:last-child td, &:last-child th': {border: 0}}} // remove the last border
+                sx={{'&:last-child td, &:last-child th': {border: 0}, verticalAlign: 'top'}} // remove the last border and align content on top
                 data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
               >
                 <TableCell component="th" scope="row" data-testid={DATA_TEST_ID.MODEL_CELL}>
@@ -70,7 +70,7 @@ const ModelsTable = (props: ModelsTableProps) => {
                 <TableCell
                   data-testid={DATA_TEST_ID.MODEL_CELL}>{model.locale.name} ({model.locale.shortCode})</TableCell>
                 <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>{model.version}</TableCell>
-                <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>{model.released ?
+                <TableCell align="center" data-testid={DATA_TEST_ID.MODEL_CELL}>{model.released ?
                   <PublishedWithChangesIcon data-testid={DATA_TEST_ID.MODEL_CELL_ICON}
                                             color="disabled"/> : "" /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/}</TableCell>
                 <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
