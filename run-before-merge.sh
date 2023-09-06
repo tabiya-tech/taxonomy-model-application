@@ -15,7 +15,7 @@ function api-specifications() {
 function frontend() {
   local project="frontend"
     printTitle ${project}
-  (cd frontend/ && yarn && yarn run lint && yarn run compile && yarn run test)
+  (cd frontend/ && yarn && yarn run lint && yarn run compile && yarn run test && yarn build-storybook && yarn test:accessibility)
   # if the previous command fails, exit this script with a non-zero error code
   if [ $? -ne 0 ]; then
     printError ${project}
