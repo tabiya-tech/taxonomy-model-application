@@ -6,7 +6,7 @@
     "ajv": "~8.12.0"
   },
   "scripts": {
-    "lint": "eslint src --ext .ts --ext .tsx",
+    "lint": "eslint src --ext .ts --ext .tsx --max-warnings 0",
     "precompile": "rimraf -I dist coverage schemas",
     "compile": "tsc --build tsconfig.pub.json",
     "test": "jest --coverage",
