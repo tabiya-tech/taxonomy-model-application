@@ -17,7 +17,7 @@ To develop the frontend locally, you must install the following:
 - [React](https://react.dev/)
 - [MUI](https://mui.com/)
 - [Typescript](https://www.typescriptlang.org/)
-- [Storybook](https://storybook.js.org/)
+- [Storybook](https://storybook.js.org/) 
 - [Jest](https://jestjs.io/)
 - [AJV](https://ajv.js.org/)
 
@@ -69,6 +69,32 @@ To run the test cases for the application, execute the following command:
 yarn test
 ```
 
+## Accessibility Testing
+
+Complying to WAG 2.0 A rules is **mandatory** and failing to do so will generate errors.
+
+Complying to WAG 2.0 AA and WAG 2.0 AAA rules is optional and failing to do so will only  generate warnings.
+
+The application uses [Storybook](https://storybook.js.org/tutorials/ui-testing-handbook/react/en/accessibility-testing/) and [Axe-Playwright](
+https://github.com/abhinaba-ghosh/axe-playwright) to test the accessibility of the components.
+
+To run the accessibility tests cases locally, execute the following commands, open a shell and start storybook:
+
+```
+yarn storybook
+```
+
+Then, open another shell and run:
+
+```
+yarn test-storybook
+```
+
+Alternatively, you can run the following command in a single shell:
+```
+yarn build-storybook && yarn test:accessibility
+```
+
 ## Building
 
 To build the React application, execute the following command:
@@ -95,3 +121,4 @@ In addition to the [contribution guidelines](/README.md#contribution-guidelines)
   - [Run the linter](#linting)
   - [Build the application](#building)
   - [Test your code](#testing)
+  - [Run the accessibility tests](#accessibility-testing)
