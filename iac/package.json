@@ -1,9 +1,10 @@
 {
-    "devDependencies": {
-        "@types/node": "^16",
-        "@pulumi/pulumi": "^3.0.0",
-        "@pulumi/aws": "^5.0.0",
-        "@pulumi/awsx": "^1.0.0",
-        "@pulumi/synced-folder": "^0.10.2"
-    }
+  "devDependencies": {
+    "@pulumi/aws": "^5.0.0",
+    "@pulumi/awsx": "^1.0.0",
+    "@pulumi/pulumi": "^3.0.0",
+    "@pulumi/synced-folder": "^0.10.2",
+    "@types/node": "^16",
+    "typescript": "^5.2.2"
+  }
 }

@@ -27,10 +27,17 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 - **[Getting Started](#getting-started)**: Easy steps to set up your environment and start contributing.
 - **[License](#license)**: The project is licensed under MIT License.
 
+## Architecture Overview
+The image below shows a high level oveeview of the solution architecture of the Taxonomy Model App.
+
+![Tabiya Architecture Overview](https://lucid.app/publicSegments/view/7dc82517-6cc1-4920-9eb0-b1c8f8f8b807/image.png)
+
+There is a more detailed architecture diagram in the [IaC Readme](iac/README.md).
+
 ## Why Contribute?
 
 - **Make an Impact:** Your contributions will directly improve the user experience and functionality of our platform.
-- **Help achieve our goals:** Help improve the lives of individuals by assisting in our goal of provide access to labor market taxonomy data that is critical to job availabilty in lower and middle income counrties
+- **Help achieve our goals:** Help improve the lives of individuals by assisting in our goal of provide access to labor market taxonomy data that is critical to job availability in lower and middle income countries
 
 ## Ways to Contribute
 
