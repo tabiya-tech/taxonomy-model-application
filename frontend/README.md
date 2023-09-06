@@ -53,6 +53,7 @@ yarn start
 
 The server will run on port 3000, and you can preview the application in your browser by visiting [http://localhost:3000](http://localhost:3000).
 
+**NOTE**: This project uses `HashRouter` for routing. `HashRouter` uses the URL hash to simulate a full URL so that the page won't be reloaded when you navigate between routes. More on of how to define routes using [HashRouter](https://reactrouter.com/en/main/router-components/hash-router).
 ## Storybook
 
 We use Storybook to test and demonstrate components in the browser. To run Storybook, execute the following command:
