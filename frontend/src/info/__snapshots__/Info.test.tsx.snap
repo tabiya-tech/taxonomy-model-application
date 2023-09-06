@@ -11,6 +11,7 @@ exports[`Testing Info component it should show frontend and backend info success
     <legend>
       <label
         class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
+        id="37d307ae-4f1e-4d8d-bafe-fd642f8af4dc-backend"
       >
         Backend
       </label>
@@ -106,6 +107,7 @@ exports[`Testing Info component it should show frontend and backend info success
     <legend>
       <label
         class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
+        id="37d307ae-4f1e-4d8d-bafe-fd642f8af4dc-frontend"
       >
         Frontend
       </label>

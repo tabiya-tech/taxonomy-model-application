@@ -3,7 +3,6 @@ import {InfoProps} from './info.types';
 import InfoService from './info.service';
 import {Box, CircularProgress, FormLabel, List, ListItem, ListItemText} from "@mui/material";
 
-
 const uniqueId = "37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
 export const DATA_TEST_ID = {
   INFO_ROOT: `version-${uniqueId}`,
@@ -21,10 +20,10 @@ const Info = () => {
   return (
     <div data-testid={DATA_TEST_ID.INFO_ROOT}>
       <div id="frontend" data-testid={DATA_TEST_ID.VERSION_FRONTEND_ROOT}>
-        {RenderVersion("Frontend", version[0])}
+        {RenderVersion("Frontend", `${uniqueId}-frontend`, version[0])}
       </div>
       <div id="backend" data-testid={DATA_TEST_ID.VERSION_BACKEND_ROOT}>
-        {RenderVersion("Backend", version[1])}
+        {RenderVersion("Backend", `${uniqueId}-backend`, version[1])}
       </div>
     </div>
   );
@@ -32,17 +31,16 @@ const Info = () => {
 
 export default Info;
 
-const RenderVersion = (title: string, info: InfoProps) => {
-  if (!info) {
-    return <CircularProgress/>;
-  }
-  return <Box sx={{ width: 500}} component="fieldset">
-    <legend><FormLabel>{title}</FormLabel></legend>
-    <List dense={true}>
-      <ListItem><FormLabel>Date: </FormLabel><ListItemText primary={`${info.date}`}/></ListItem>
-      <ListItem><FormLabel>Branch: </FormLabel><ListItemText primary={`${info.branch}`}/></ListItem>
-      <ListItem><FormLabel>Build Number: </FormLabel><ListItemText primary={`${info.buildNumber}`}/></ListItem>
-      <ListItem><FormLabel>GIT SHA:</FormLabel><ListItemText primary={`${info.sha}`}/></ListItem>
-    </List>
+const RenderVersion = (title: string, uniqueId: string, info: InfoProps) => {
+  return <Box sx={{width: 500}} component="fieldset">
+    <legend><FormLabel id={uniqueId}>{title}</FormLabel></legend>
+    {info ? <List dense={true}>
+        <ListItem><FormLabel>Date: </FormLabel><ListItemText primary={`${info.date}`}/></ListItem>
+        <ListItem><FormLabel>Branch: </FormLabel><ListItemText primary={`${info.branch}`}/></ListItem>
+        <ListItem><FormLabel>Build Number: </FormLabel><ListItemText primary={`${info.buildNumber}`}/></ListItem>
+        <ListItem><FormLabel>GIT SHA:</FormLabel><ListItemText primary={`${info.sha}`}/></ListItem>
+      </List>
+      : <CircularProgress aria-labelledby={uniqueId}/>
+    }
   </Box>;
 };
