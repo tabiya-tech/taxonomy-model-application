@@ -3,7 +3,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint src --ext .ts --max-warnings 0",
     "clean": "rimraf -I build coverage deploy",
     "compile": "tsc --build tsconfig.prod.json",
     "prebuild": "npm run clean && npm run compile",
