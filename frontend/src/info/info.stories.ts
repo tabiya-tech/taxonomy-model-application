@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
-
 import Info from "./Info";
+import {faker} from "@faker-js/faker";
 
 const meta: Meta<typeof Info> = {
   title: 'Application/Info',
@@ -14,4 +14,53 @@ type Story = StoryObj<typeof Info>;
 
 export const Shown: Story = {
   args: {},
+  parameters: {
+    docs: {disable: true},
+    mockData: [
+      {
+        url: 'https://dev.tabiya.tech/api/info',
+        method: 'GET',
+        status: 200,
+        response: getFakerVersion()
+      },
+      {
+        url: 'data/version.json',
+        method: 'GET',
+        status: 200,
+        response: getFakerVersion()
+      },
+    ],
+  },
 };
+
+export const ShownFetchIsSlow: Story = {
+  args: {},
+  parameters: {
+    docs: {disable: true},
+    mockData: [
+      {
+        url: 'https://dev.tabiya.tech/api/info',
+        method: 'GET',
+        status: 200,
+        delay: 5000,
+        response: getFakerVersion()
+      },
+      {
+        url: 'data/version.json',
+        method: 'GET',
+        status: 200,
+        delay: 5000,
+        response: getFakerVersion()
+      },
+    ],
+  },
+};
+
+function getFakerVersion() {
+  return {
+    date: faker.date.recent().toISOString(),
+    branch: faker.git.branch(),
+    buildNumber: faker.number.int({min: 100, max: 1000}).toString(),
+    sha: faker.git.commitSha()
+  };
+}
