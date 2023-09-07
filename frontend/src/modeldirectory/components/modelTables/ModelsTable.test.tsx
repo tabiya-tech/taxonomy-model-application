@@ -1,6 +1,6 @@
 import {render, screen, within} from "@testing-library/react";
 import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
-import {getArrayOfRandomModelsMaxLength} from "./_test_utilities/mockModelData";
+import {getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength} from "./_test_utilities/mockModelData";
 import * as React from "react";
 import {getRandomLorem} from "src/_test_utilities/specialCharacters";
 import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
@@ -11,18 +11,38 @@ function encodeHtmlAttribute(value: string) {
   return element.innerHTML;
 }
 
+// mock the ImportProcessStateIcon
+jest.mock('src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon', () => {
+  const actual = jest.requireActual('src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon');
+  const mockImportProcessStateIcon = jest.fn().mockImplementation(() => {
+    return <div data-testid='mock-state-icon'></div>
+  });
+
+  return {
+    ...actual,
+    __esModule: true,
+    default: mockImportProcessStateIcon
+  }
+});
+
+import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
+
 // mock the TableLoadingRows
 jest.mock('src/modeldirectory/components/tableLoadingRows/TableLoadingRows', () => {
   const actual = jest.requireActual('src/modeldirectory/components/tableLoadingRows/TableLoadingRows');
-  const actualModelsTable = jest.requireActual('src/modeldirectory/components/modelTables/ModelsTable')
+  const actualModelsTable = jest.requireActual('src/modeldirectory/components/modelTables/ModelsTable'); // need this just to be able to access the DATA_TEST_ID.MODELS_LOADER
   const mockTableLoadingBody = jest.fn().mockImplementation(() => {
     return <tr data-testid={actualModelsTable.DATA_TEST_ID.MODELS_LOADER}></tr>
   });
 
   return {
-    ...actual, __esModule: true, default: mockTableLoadingBody
+    ...actual,
+    __esModule: true,
+    default: mockTableLoadingBody
   }
-})
+});
+
+import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 
 describe("ModelsTable", () => {
   test("should render the table with the models", () => {
@@ -65,6 +85,12 @@ describe("ModelsTable", () => {
     const actualModelReleasedHeaderCell = actualHeaderCells[actualModelReleasedHeaderIndex];
     expect(actualModelReleasedHeaderCell).toBeInTheDocument();
 
+    // AND the STATUS header cell to be shown
+    const actualModelStatusHeaderIndex = actualHeaderCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_STATUS);
+    expect(actualModelStatusHeaderIndex).toBeGreaterThanOrEqual(0);
+    const actualModelStatusHeaderCell = actualHeaderCells[actualModelStatusHeaderIndex];
+    expect(actualModelStatusHeaderCell).toBeInTheDocument();
+
     // AND the DESCRIPTION header cell to be shown
     const actualModelDescriptionHeaderIndex = actualHeaderCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_DESCRIPTION);
     expect(actualModelDescriptionHeaderIndex).toBeGreaterThanOrEqual(0);
@@ -92,10 +118,14 @@ describe("ModelsTable", () => {
       // AND the model's VERSION to be shown in the correct column
       expect(actualModelCells[actualModelVersionHeaderIndex]).toHaveTextContent(model.version);
 
+      // AND the model's STATUS icon to be shown in the correct column
+      const actualModelStatusIcon = within(actualModelCells[actualModelStatusHeaderIndex]).getByTestId(DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER);
+      expect(actualModelStatusIcon).toBeInTheDocument();
+
       // AND the model's RELEASE to be shown in the correct column
       let expectedReleasedContent = "";
       if (model.released) {
-        const icon = within(actualModelCells[actualModelReleasedHeaderIndex]).getByTestId(DATA_TEST_ID.MODEL_CELL_ICON);
+        const icon = within(actualModelCells[actualModelReleasedHeaderIndex]).getByTestId(DATA_TEST_ID.MODEL_CELL_RELEASED_ICON);
         expectedReleasedContent = icon.innerHTML;
       } else {
         expectedReleasedContent = "";
@@ -118,7 +148,8 @@ describe("ModelsTable", () => {
     ["empty", []],
     ["null ", null],
     ["undefined", undefined],
-  ])("should render an empty table with %s models array", async (description, givenModels) => {
+  ])
+  ("should render an empty table with %s models array", async (description, givenModels) => {
     // GIVEN an empty model list is provided
 
     // WHEN the ModelsTable is rendered
@@ -171,14 +202,14 @@ describe("ModelsTable", () => {
       const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
       const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
       const releasedCellIndex = headerCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_RELEASED);
-      const modelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+      const actualModelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
 
-      modelRows.forEach((actualRow, index) => {
+      actualModelRows.forEach((actualRow, index) => {
         const actualRowCells = within(actualRow).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
         const actualReleasedCell = actualRowCells[releasedCellIndex];
         let expectedReleasedContent = "";
         if (givenIsReleasedFlag) {
-          const icon = within(actualReleasedCell).getByTestId(DATA_TEST_ID.MODEL_CELL_ICON);
+          const icon = within(actualReleasedCell).getByTestId(DATA_TEST_ID.MODEL_CELL_RELEASED_ICON);
           expectedReleasedContent = icon.innerHTML;
         } else {
           expectedReleasedContent = "";
@@ -209,9 +240,9 @@ describe("ModelsTable", () => {
       const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
       const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
       const descriptionCellIndex = headerCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_DESCRIPTION);
-      const modelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+      const actualModelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
 
-      modelRows.forEach((row, index) => {
+      actualModelRows.forEach((row, index) => {
         const rowCells = within(row).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
         const descriptionCell = rowCells[descriptionCellIndex];
         let expectedDescription = ""
@@ -225,64 +256,94 @@ describe("ModelsTable", () => {
     });
   });
 
-  test("should render the table with the loader component when the loading property is set to true", () => {
-    // GIVEN  isLoading property is true
-    const givenIsLoading = true;
-    // AND an empty models list is provided
-    const givenModels : ModelInfoTypes.ModelInfo[] = [];
-    
-    // WHEN the ModelsTable component is rendered with the given properties
-    render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>)
+  describe("should render the model.importStatus", () => {
+    test("should render the model.importStatus", () => {
+      // GIVEN a model with some Import status
+      const givenModel = getOneRandomModelMaxLength();
+      expect(givenModel.importProcessState).toBeDefined();
 
-    // THEN expect the table to be shown
-    const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
-    expect(tableElement).toBeInTheDocument();
-    // AND the table to have a header row
-    const actualModelTableHeaderRow = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
-    expect(actualModelTableHeaderRow).toBeInTheDocument();
-    // AND the loader component to be shown
-    const modelsLoaderElement = screen.getByTestId(DATA_TEST_ID.MODELS_LOADER);
-    expect(modelsLoaderElement).toBeInTheDocument();
-    // AND no model should be shown
-    const modelTableDataRowElement = screen.queryByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
-    expect(modelTableDataRowElement).not.toBeInTheDocument();
+      // WHEN the ModelsTable is rendered with the given model
+      render(<ModelsTable models={[givenModel]}/>);
+
+      // THEN expect the icon to be shown
+      const actualModelCellStatusIconContainer = screen.getByTestId(DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER);
+      const actualImportStatusIcon = within(actualModelCellStatusIconContainer).getByTestId('mock-state-icon');
+      expect(actualImportStatusIcon).toBeInTheDocument();
+
+      // AND expect the ImportProcessStateIcon to have been called with the given import status
+      expect(ImportProcessStateIcon).toHaveBeenCalledWith({importProcessState: givenModel.importProcessState}, {});
+    });
   });
 
-  test("should render the table without the loader component when the loading property is false", () => {
-    // GIVEN the loading property is false
-    const givenIsLoading = false;
-    // AND n models are provided
-    const givenModels : ModelInfoTypes.ModelInfo[] = getArrayOfRandomModelsMaxLength(3);
-    
-    // WHEN the ModelsTable component is rendered with the given properties
-    render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>);
+  describe("should render the table with the loader component when the loading property is set to true", () => {
+    test("should render the table with the loader component when the loading property is set to true", () => {
+      // GIVEN isLoading property is true
+      const givenIsLoading = true;
+      // AND an empty models list is provided
+      const givenModels: ModelInfoTypes.ModelInfo[] = [];
 
-    // THEN expect the table to be shown
-    const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
-    expect(tableElement).toBeInTheDocument();
-    // AND the table to have a header row
-    const actualModelTableHeaderRow = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
-    expect(actualModelTableHeaderRow).toBeInTheDocument();
-    // AND the given models to be shown
-    const modelTableDataRowElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
-    expect(modelTableDataRowElements).toHaveLength(givenModels.length);
-    // AND the loader component to not be shown
-    const modelsLoaderElement = screen.queryByTestId(DATA_TEST_ID.MODELS_LOADER);
-    expect(modelsLoaderElement).not.toBeInTheDocument();
+      // WHEN the ModelsTable component is rendered with the given properties
+      render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>)
+
+      // THEN expect the table to be shown
+      const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
+      expect(tableElement).toBeInTheDocument();
+      // AND the table to have a header row
+      const actualModelTableHeaderRow = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
+      expect(actualModelTableHeaderRow).toBeInTheDocument();
+
+      // AND the loader component to be shown
+      const modelsLoaderElement = screen.getByTestId(DATA_TEST_ID.MODELS_LOADER);
+      expect(modelsLoaderElement).toBeInTheDocument();
+
+      // AND the loader component to have been called with same number of columns as the table header
+      const actualModelTableHeaderCells = within(actualModelTableHeaderRow).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+      expect(TableLoadingRows).toHaveBeenCalledWith({
+        numberOfCols: actualModelTableHeaderCells.length,
+        numberOfRows: expect.any(Number)
+      }, {});
+
+      // AND no model should be shown
+      const modelTableDataRowElement = screen.queryByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+      expect(modelTableDataRowElement).not.toBeInTheDocument();
+    });
+
+    test("should render the table without the loader component when the loading property is false", () => {
+      // GIVEN the loading property is false
+      const givenIsLoading = false;
+      // AND n models are provided
+      const givenModels: ModelInfoTypes.ModelInfo[] = getArrayOfRandomModelsMaxLength(3);
+
+      // WHEN the ModelsTable component is rendered with the given properties
+      render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>);
+
+      // THEN expect the table to be shown
+      const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
+      expect(tableElement).toBeInTheDocument();
+      // AND the table to have a header row
+      const actualModelTableHeaderRow = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
+      expect(actualModelTableHeaderRow).toBeInTheDocument();
+      // AND the given models to be shown
+      const modelTableDataRowElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+      expect(modelTableDataRowElements).toHaveLength(givenModels.length);
+      // AND the loader component to not be shown
+      const modelsLoaderElement = screen.queryByTestId(DATA_TEST_ID.MODELS_LOADER);
+      expect(modelsLoaderElement).not.toBeInTheDocument();
+    });
+
+    test("should not render the loader component when the table contains some models", () => {
+      // GIVEN n models are provided
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+
+      // WHEN the ModelsTable component is rendered with the given models
+      render(<ModelsTable models={givenModels}/>);
+
+      // THEN expect the given models to be shown
+      const modelTableDataRowElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+      expect(modelTableDataRowElements).toHaveLength(givenModels.length);
+      // AND the loader component to not be shown
+      const modelsLoaderElement = screen.queryByTestId(DATA_TEST_ID.MODELS_LOADER);
+      expect(modelsLoaderElement).not.toBeInTheDocument();
+    });
   });
-
-  test("should not render the loader component when the table contains some models", () => {
-    // GIVEN n models are provided
-    const givenModels = getArrayOfRandomModelsMaxLength(3);
-
-    // WHEN the ModelsTable component is rendered with the given models
-    render(<ModelsTable models={givenModels}/>);
-
-    // THEN expect the given models to be shown
-    const modelTableDataRowElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
-    expect(modelTableDataRowElements).toHaveLength(givenModels.length);
-    // AND the loader component to not be shown
-    const modelsLoaderElement = screen.queryByTestId(DATA_TEST_ID.MODELS_LOADER);
-    expect(modelsLoaderElement).not.toBeInTheDocument();
-  });
-})
+});

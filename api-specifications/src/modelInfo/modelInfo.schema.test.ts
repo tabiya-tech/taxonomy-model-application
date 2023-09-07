@@ -2,8 +2,10 @@ import Ajv, {ValidateFunction} from "ajv";
 import ModelInfo from "./index"
 import addFormats from "ajv-formats";
 import Locale from "../locale"
+import ImportProcessState from "../importProcessState";
 import {randomUUID} from "crypto";
 import {getTestString} from "../_test_utilities/specialCharacters";
+import {getMockId} from "../_test_utilities/mockMongoId";
 
 describe("Test ModelInfo Schema", () => {
   test("should be required without errors", () => {
@@ -54,7 +56,7 @@ describe("Validate JSON against the Schema", () => {
 
   // AND valid ModelInfoResponseGET, ModelInfoResponsePOST, ModelInfoRequestPOST objects
   const givenValidModelInfoGETResponse = [{
-    id: "foo",
+    id: getMockId(1),
     UUID: randomUUID(),
     previousUUID: "",//randomUUID(),
     originUUID: randomUUID(),
@@ -69,12 +71,21 @@ describe("Validate JSON against the Schema", () => {
     },
     releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
-    updatedAt: new Date().toISOString(),
+    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
+    importProcessState: {
+      id: getMockId(1),
+      status: ImportProcessState.Enums.Status.PENDING,
+      result: {
+        errored: false,
+        parsingErrors: false,
+        parsingWarnings: false,
+      }
+    },
     createdAt: new Date().toISOString(),
-    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH)
+    updatedAt: new Date().toISOString(),
   }]
   const givenValidModelInfoPOSTResponse = {
-    id: "foo",
+    id: getMockId(1),
     UUID: randomUUID(),
     previousUUID: "",//randomUUID(),
     originUUID: randomUUID(),
@@ -89,9 +100,18 @@ describe("Validate JSON against the Schema", () => {
     },
     releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
-    updatedAt: new Date().toISOString(),
+    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
+    importProcessState: {
+      id: getMockId(1),
+      status: ImportProcessState.Enums.Status.PENDING,
+      result: {
+        errored: false,
+        parsingErrors: false,
+        parsingWarnings: false,
+      }
+    },
     createdAt: new Date().toISOString(),
-    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH)
+    updatedAt: new Date().toISOString(),
   }
   const givenValidModelInfoPOSTRequest = {
     name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
@@ -105,13 +125,13 @@ describe("Validate JSON against the Schema", () => {
 
   test.each([
     // GIVEN a ModelInfoResponseGET object and corresponding schema
-    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.GET.Response.Schema ],
+    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.GET.Response.Schema],
     // GIVEN a ModelInfoResponsePOST object and corresponding schema
     ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.POST.Response.Schema],
     // GIVEN a ModelInfoRequestPOST object and corresponding schema
-    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.POST.Request.Schema ],
+    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.POST.Request.Schema],
   ])
-  ("Schema %s validates a valid object", (description,  givenValidObject,givenSchema ) => {
+  ("Schema %s validates a valid object", (description, givenValidObject, givenSchema) => {
     // WHEN the object is validated
     const validateFunction = ajv.getSchema(givenSchema.$id as string) as ValidateFunction;
     const isValid = validateFunction(givenValidObject);

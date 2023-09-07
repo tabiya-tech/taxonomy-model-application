@@ -1,184 +1,144 @@
 //mute console.log
 import "_test_utilities/consoleMock";
-
-// ##############
-// Mock the configuration
-jest.mock("server/config/config", () => {
-  const mockConfiguration = {
-    dbURI: "mongodb://username@password:server:port/database",
-    resourcesBaseUrl: "https://path/to/resource",
-    uploadBucketName: "bucket name",
-    uploadBucketRegion: "bucket region",
-    asyncLambdaFunctionRegion: "async function region",
-    asyncLambdaFunctionArn: "function arn"
-  }
-  return {
-    getUploadBucketName: jest.fn().mockImplementation(() => {
-      return mockConfiguration.uploadBucketName;
-    }),
-    getUploadBucketRegion: jest.fn().mockImplementation(() => {
-      return mockConfiguration.uploadBucketRegion;
-    }),
-  }
-});
-
-// Mock the init function
-jest.mock("server/init", () => {
-  const originalModule = jest.requireActual("server/init");
-  return {
-    ...originalModule,
-    initOnce: jest.fn().mockImplementation(() => {
-      return Promise.resolve();
-    })
-  };
-});
-
-// Mock the S3PresignerService
-const mockS3PresignerServiceInstance = {
-  getPresignedGet: jest.fn().mockImplementation((filePath: string) => {
-    return Promise.resolve(`presigned url for ${filePath}`);
-  })
-};
-
-jest.mock('./S3PresignerService', () => {
-  return {
-    S3PresignerService: jest.fn().mockReturnValue(mockS3PresignerServiceInstance)
-  };
-});
-
-// Mock the ISCOGroupsParser
-jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
-  return {
-    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1,
-      rowsSuccess: 1,
-      rowsFailed: 0,
-    } as RowsProcessedStats)
-  }
-});
-// Mock the ESCOSkillGroupsParser
-jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
-  return {
-    parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1,
-      rowsSuccess: 1,
-      rowsFailed: 0,
-    } as RowsProcessedStats)
-  }
-});
-
-// Mock the ESCOSkillParser
-jest.mock("import/esco/skills/skillsParser.ts", () => {
-  return {
-    parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1,
-      rowsSuccess: 1,
-      rowsFailed: 0,
-    } as RowsProcessedStats)
-  }
-});
-
-// Mock the OccupationsParser
-jest.mock("import/esco/occupations/occupationsParser.ts", () => {
-  return {
-    parseOccupationsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1,
-      rowsSuccess: 1,
-      rowsFailed: 0,
-    } as RowsProcessedStats)
-  }
-});
-
-// Mock the OccupationHierarchyParser
-jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
-  return {
-    parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1,
-      rowsSuccess: 1,
-      rowsFailed: 0,
-    } as RowsProcessedStats)
-  }
-});
 // ##############
 import * as asyncIndex from "./index";
 import Import from "api-specifications/import";
 
 import {initOnce} from "server/init";
 import {getMockId} from "_test_utilities/mockMongoId";
-import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
-import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
-import {S3PresignerService} from "./S3PresignerService";
-import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";
-import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
-import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
-import {parseOccupationHierarchyFromUrl} from "import/esco/occupationHierarchy/occupationHierarchyParser";
-import {RowsProcessedStats} from "import/rowsProcessedStats.types";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {parseFiles} from "./parseFiles";
+import ImportProcessStateAPISpec from "api-specifications/importProcessState"
+
+// ##############
+// Mock the init function
+jest.mock("server/init", () => {
+  return {
+    initOnce: jest.fn() // Just create a basic mock without any specific behavior.
+  };
+});
+
+//Mock the parseFiles function
+jest.mock('./parseFiles', () => ({
+  parseFiles: jest.fn()
+}));
+
+const getMockImportEvent = (): Import.POST.Request.Payload => {
+  return {
+    filePaths: {
+      [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+      [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+      [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+      [Import.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+      [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+      // ADD additional file types here
+    },
+    modelId: getMockId(1)
+  };
+}
 
 describe("Test the main async handler", () => {
-  beforeEach(
-    () => {
-      jest.clearAllMocks();
-    }
-  )
-  test("should successfully import", async () => {
-    // GIVEN some configuration
-    const givenUploadBucketRegion = getUploadBucketRegion();
-    const givenUploadBucketName = getUploadBucketName();
-    // AND an Import
-    const givenEvent: Import.POST.Request.Payload = {
-      filePaths: {
-        [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-        [Import.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
-        [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
 
-        // ADD additional file types here
-      },
-      modelId: getMockId(1)
-    }
+  test("should successfully import", async () => {
+    //GIVEN initOnce will successfully resolve
+    (initOnce as jest.Mock).mockResolvedValue(Promise.resolve());
+    // AND a valid Import event
+    const givenEvent = getMockImportEvent();
 
     // WHEN the handler is invoked with the given event param
     await asyncIndex.handler(givenEvent);
 
     // THEN expect the initOnce function to be called
     expect(initOnce).toBeCalledTimes(1);
-    // AND expect the S3PresignerService to have been instantiated with the correct region and bucket name
-    expect(S3PresignerService).toHaveBeenCalledWith(givenUploadBucketRegion, givenUploadBucketName);
-    // AND for each of the givenEvent.filePaths to call the correct processing function with the giveModelId and the presigned URL for the file path
-    for (const entry of Object.entries(givenEvent.filePaths)) {
-      const expectedFileType = entry[0];
-      const expectedPresignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
-      switch (expectedFileType) {
-        case  Import.Constants.ImportFileTypes.ISCO_GROUP:
-          expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
-          break;
-        case Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP:
-          expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
-          break;
-        case Import.Constants.ImportFileTypes.ESCO_SKILL:
-          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
-          break;
-        case Import.Constants.ImportFileTypes.ESCO_OCCUPATION:
-          expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
-          break;
-        case Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
-          expect(parseOccupationHierarchyFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
-          break;
-        // ADD additional file types here
-      }
-    }
-  })
-
-  test("should throw error if event does not conform to schema", async () => {
-    // GIVEN an event that does not conform to the Import schema
-    //@ts-ignore
-    const givenBadEvent: Import = {foo: "foo"} as Import;
-
-    // WHEN the main handler is invoked with the given bad event
-    const actualPromiseHandler = asyncIndex.handler(givenBadEvent);
-
-    // THEN expect it to reject with an error
-    await expect(actualPromiseHandler).rejects.toThrowError("Import failed, the event does not conform to the expected schema");
+    // AND expect the parseFiles function to be called
+    expect(parseFiles).toHaveBeenNthCalledWith(1, givenEvent);
   });
-})
+
+  describe("should fail to import", () => {
+    beforeAll(() => {
+      // GIVEN the importProcessStatRepository that will successfully create or update the importProcessState
+      const givenImportProcessStateRepositoryMock = {
+        Model: undefined as any,
+        create: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue(null)
+      }
+      jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
+    })
+
+    test("should not throw error and not call parseFiles and InitOnce when event does not conform to schema", async () => {
+      // GIVEN an event that does not conform to the Import schema
+      //@ts-ignore
+      const givenBadEvent: Import = {foo: "foo"} as Import;
+      // WHEN the main handler is invoked with the given bad event
+      const actualPromiseHandler = () => asyncIndex.handler(givenBadEvent);
+
+      // THEN expect it to return without throwing an error
+      expect(actualPromiseHandler).not.toThrowError()
+      // AND importProcessStateRepository.create should not have been called
+      expect(getRepositoryRegistry().importProcessState.create).not.toHaveBeenCalled()
+      // AND importProcessStateRepository.update should not have been called
+      expect(getRepositoryRegistry().importProcessState.update).not.toHaveBeenCalled()
+    });
+
+    test("should throw error and not call parseFiles when initOnce fails", async () => {
+      // GIVEN initOnce will fail
+      (initOnce as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+
+      // WHEN the handler is invoked with a valid event
+      const actualPromiseHandler = () => asyncIndex.handler(getMockImportEvent());
+
+      // THEN expect the handler to throw an error
+      await expect(actualPromiseHandler).rejects.toThrow("foo")
+      // AND parseFiles not to have been called
+      expect(parseFiles).not.toHaveBeenCalled();
+      // AND expect the status to not have been updated or created
+      expect(getRepositoryRegistry().importProcessState.create).not.toHaveBeenCalled()
+      expect(getRepositoryRegistry().importProcessState.update).not.toHaveBeenCalled()
+    });
+
+    test("should not throw error when parseFiles fails", async () => {
+      // GIVEN a valid event
+      const givenEvent = getMockImportEvent();
+      // AND the event refers to a model that exists in the db and has an importProcessStateId
+
+      const givenImportProcessStateId = getMockId(2);
+
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as any,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue({
+          id: givenEvent.modelId,
+          importProcessState: {
+            id: givenImportProcessStateId,
+          }
+        }), getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue([])
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // AND parseFiles will fail
+      (parseFiles as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+
+      // WHEN the handler is invoked
+      await asyncIndex.handler(getMockImportEvent());
+
+      // THEN expect the handler not to throw an error
+      expect(asyncIndex.handler).not.toThrowError()
+      // AND expect the importProcessState to have been updated with a status of COMPLETED and a results object with errored true
+      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(
+        givenImportProcessStateId,
+        {
+          status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
+          result: {
+            errored: true,
+            parsingErrors: false,
+            parsingWarnings: false,
+          }
+        });
+    });
+  });
+});

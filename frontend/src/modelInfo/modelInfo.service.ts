@@ -1,27 +1,30 @@
 import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
-import {getServiceErrorFactory} from "src/error/error";
+import {getServiceErrorFactory, ServiceError} from "src/error/error";
 import {ErrorCodes} from "src/error/errorCodes";
 import {StatusCodes} from "http-status-codes/";
 import Locale from "api-specifications/locale";
-import ModelInfo from "api-specifications/modelInfo";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import Ajv, {ValidateFunction} from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 
-export type INewModelSpecification = ModelInfo.POST.Request.Payload
+export type INewModelSpecification = ModelInfoAPISpecs.POST.Request.Payload
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);// To support the "date-time" format
 ajv.addSchema(Locale.Schema, Locale.Schema.$id);
-ajv.addSchema(ModelInfo.GET.Response.Schema, ModelInfo.GET.Response.Schema.$id);
-ajv.addSchema(ModelInfo.POST.Response.Schema, ModelInfo.POST.Response.Schema.$id);
-ajv.addSchema(ModelInfo.POST.Request.Schema, ModelInfo.POST.Request.Schema.$id);
-const responseValidatorGET: ValidateFunction = ajv.getSchema(ModelInfo.GET.Response.Schema.$id as string) as ValidateFunction;
-const responseValidatorPOST: ValidateFunction = ajv.getSchema(ModelInfo.POST.Response.Schema.$id as string) as ValidateFunction;
+ajv.addSchema(ModelInfoAPISpecs.GET.Response.Schema, ModelInfoAPISpecs.GET.Response.Schema.$id);
+ajv.addSchema(ModelInfoAPISpecs.POST.Response.Schema, ModelInfoAPISpecs.POST.Response.Schema.$id);
+ajv.addSchema(ModelInfoAPISpecs.POST.Request.Schema, ModelInfoAPISpecs.POST.Request.Schema.$id);
+const responseValidatorGET: ValidateFunction = ajv.getSchema(ModelInfoAPISpecs.GET.Response.Schema.$id as string) as ValidateFunction;
+const responseValidatorPOST: ValidateFunction = ajv.getSchema(ModelInfoAPISpecs.POST.Response.Schema.$id as string) as ValidateFunction;
 
 /**
  * Extracts the type of the elements of an array.
  */
-type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends  (infer ItemType)[] ? ItemType: never;
-type IModelInfoType = PayloadItem<ModelInfo.GET.Response.Payload> | ModelInfo.POST.Response.Payload;
+type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends (infer ItemType)[] ? ItemType : never;
+type ModelInfoTypeAPISpecs =
+  PayloadItem<ModelInfoAPISpecs.GET.Response.Payload>
+  | ModelInfoAPISpecs.POST.Response.Payload;
+export const UPDATE_INTERVAL = 10000; // In milliseconds
 
 export default class ModelInfoService {
 
@@ -65,19 +68,25 @@ export default class ModelInfoService {
     // Resource was created
     // Expect that the responseBody is a ModelResponse
     const contentType = response.headers.get("Content-Type");
-    if(!contentType?.includes("application/json")) {
+    if (!contentType?.includes("application/json")) {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
 
-    let modelResponse: ModelInfo.POST.Response.Payload;
+    let modelResponse: ModelInfoAPISpecs.POST.Response.Payload;
     try {
       modelResponse = JSON.parse(responseBody);
     } catch (e: any) {
-      throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not contain valid JSON", {responseBody, error: e});
+      throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not contain valid JSON", {
+        responseBody,
+        error: e
+      });
     }
     const result = responseValidatorPOST(modelResponse);
     if (!result) {
-      throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not conform to the expected schema", {responseBody: modelResponse, errors: responseValidatorPOST.errors});
+      throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not conform to the expected schema", {
+        responseBody: modelResponse,
+        errors: responseValidatorPOST.errors
+      });
     }
 
     return this.transform(modelResponse);
@@ -111,7 +120,7 @@ export default class ModelInfoService {
     if (!contentType?.includes("application/json")) {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
-    let allModelsResponse: ModelInfo.GET.Response.Payload;
+    let allModelsResponse: ModelInfoAPISpecs.GET.Response.Payload;
     try {
       allModelsResponse = JSON.parse(responseBody);
     } catch (e: any) {
@@ -131,7 +140,36 @@ export default class ModelInfoService {
     return allModelsResponse.map(this.transform);
   }
 
-  transform(payloadItem: IModelInfoType): ModelInfoTypes.ModelInfo {
+  public fetchAllModelsPeriodically(onSuccessCallback: (models: ModelInfoTypes.ModelInfo[]) => void, onErrorCallBack: (error: ServiceError | Error) => void) {
+    let isFetching = true;
+
+    // Fetch the models once immediately
+    this.getAllModels().then((models) => {
+      onSuccessCallback(models);
+    }, (e: ServiceError) => {
+      onErrorCallBack(e);
+    }).finally(() => {
+      isFetching = false;
+    });
+
+    // Fetch the models periodically
+    return setInterval(() => {
+      if (isFetching) {
+        console.info("Skipping fetching the models, because a fetch is already in progress.");
+        return;
+      }
+      isFetching = true;
+      this.getAllModels().then((models) => {
+        onSuccessCallback(models);
+      }, (e: ServiceError) => {
+        onErrorCallBack(e);
+      }).finally(() => {
+        isFetching = false;
+      });
+    }, UPDATE_INTERVAL);
+  }
+
+  transform(payloadItem: ModelInfoTypeAPISpecs): ModelInfoTypes.ModelInfo {
     return {
       id: payloadItem.id,
       UUID: payloadItem.UUID,
@@ -149,6 +187,15 @@ export default class ModelInfoService {
       version: payloadItem.version,
       path: payloadItem.path,
       tabiyaPath: payloadItem.tabiyaPath,
+      importProcessState: {
+        id: payloadItem.importProcessState.id,
+        status: payloadItem.importProcessState.status,
+        result: {
+          errored: payloadItem.importProcessState.result.errored,
+          parsingErrors: payloadItem.importProcessState.result.parsingErrors,
+          parsingWarnings: payloadItem.importProcessState.result.parsingWarnings,
+        }
+      },
       createdAt: new Date(payloadItem.createdAt),
       updatedAt: new Date(payloadItem.updatedAt),
     };
