@@ -4,8 +4,8 @@ import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty
 import {ModelInfoConstants} from "./modelInfo.constants";
 
 
-const ModelInfoPOSTResponseSchema: SchemaObject = {
-  $id: "/components/schemas/ModelInfoResponseSchema",
+const ModelInfoResponseSchemaPOST: SchemaObject = {
+  $id: "/components/schemas/ModelInfoResponseSchemaPOST",
 
   type: "object",
   additionalProperties: false,
@@ -75,4 +75,4 @@ const ModelInfoPOSTResponseSchema: SchemaObject = {
   ]
 };
 
-export default ModelInfoPOSTResponseSchema;
+export default ModelInfoResponseSchemaPOST;

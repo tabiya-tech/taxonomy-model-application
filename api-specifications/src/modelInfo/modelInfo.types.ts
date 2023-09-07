@@ -15,6 +15,7 @@ interface IModelInfoResponse extends IModelInfoRequest {
   createdAt: string;
   updatedAt: string;
 }
+
 interface IModelInfoRequest {
   name: string;
   description: string;
@@ -23,7 +24,7 @@ interface IModelInfoRequest {
 
 namespace ModelInfoTypes {
   export namespace POST {
-    export namespace Response{
+    export namespace Response {
       export type Payload = IModelInfoResponse
     }
     export namespace Request {

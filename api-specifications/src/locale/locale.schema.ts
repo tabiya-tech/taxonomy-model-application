@@ -2,8 +2,7 @@ import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4} from "../regex";
 import {ModelInfoConstants} from "../modelInfo/modelInfo.constants";
 
-
-const LocaleResponseSchema: SchemaObject = {
+const LocaleSchema: SchemaObject = {
   $id: "/components/schemas/LocaleSchema",
   type: "object",
   additionalProperties: false,
@@ -33,4 +32,4 @@ const LocaleResponseSchema: SchemaObject = {
   ]
 };
 
-export default LocaleResponseSchema;
+export default LocaleSchema;

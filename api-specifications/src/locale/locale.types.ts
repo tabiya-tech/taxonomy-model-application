@@ -5,7 +5,7 @@ interface ILocale {
 }
 
 namespace LocaleTypes {
-      export type Payload = ILocale
+  export type Payload = ILocale
 }
 
 export default LocaleTypes;
