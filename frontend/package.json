@@ -77,7 +77,7 @@
     "postinstall": "run-script-os",
     "storybook": "storybook dev -p 6006",
     "test-storybook": "test-storybook",
-    "test:accessibility": "npx concurrently -k -s first -n 'STORYBOOK,TEST' -c 'magenta,blue' 'npx http-server storybook-static --port 6007 --silent' 'npx wait-on tcp:6007 && yarn test-storybook --url http://localhost:6007'",
+    "test:accessibility": "npx concurrently -k -s first -n 'STORYBOOK,TEST' -c 'magenta,blue' 'npx http-server storybook-static --port 6007 --silent' 'npx wait-on http://127.0.0.1:6007 && yarn test-storybook --url http://127.0.0.1:6007'",
     "build-storybook": "storybook build"
   },
   "eslintConfig": {
