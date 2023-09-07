@@ -73,7 +73,7 @@ function getRandomModelInfo(_id: number) {
     released: _id % 2 === 0,
     releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
     version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
     updatedAt: new Date().toISOString(),
     path: "https://foo/bar",
     tabiyaPath: "https://foo/bar/baz"
