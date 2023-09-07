@@ -150,7 +150,7 @@ export default class ModelInfoService {
       path: payloadItem.path,
       tabiyaPath: payloadItem.tabiyaPath,
       createdAt: new Date(payloadItem.createdAt),
-      updatedAt: new Date(payloadItem.createdAt),
+      updatedAt: new Date(payloadItem.updatedAt),
     };
   }
 }
