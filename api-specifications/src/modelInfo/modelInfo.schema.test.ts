@@ -30,7 +30,8 @@ describe("Test ModelInfo Schema", () => {
     expect(Constants.VERSION_MAX_LENGTH).toBeDefined();
   });
 
-  test.each([["ModelInfoResponseGET", ModelInfo.GET.Response.Schema], ["ModelInfoResponsePOST", ModelInfo.POST.Response.Schema], ["ModelInfoRequestPOST", ModelInfo.POST.Request.Schema]])("%s schema is a valid Schema", (description, givenSchema) => {
+  test.each([["ModelInfo.GET.Response.Schema", ModelInfo.GET.Response.Schema], ["ModelInfo.POST.Response.Schema", ModelInfo.POST.Response.Schema], ["ModelInfo.POST.Request.Schema", ModelInfo.POST.Request.Schema]])
+  ("%s schema is a valid Schema", (description, givenSchema) => {
     // GIVEN the givenSchema
     // WHEN the givenSchema is validated
     // THEN expect the givenSchema to be valid
@@ -43,97 +44,99 @@ describe("Test ModelInfo Schema", () => {
   })
 })
 
-  describe("Validate JSON against the Schema", () => {
-    const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-    addFormats(ajv);
-    //GIVEN the modelInfo schemas
-    const givenSchemas = [ModelInfo.GET.Response.Schema, ModelInfo.POST.Response.Schema, ModelInfo.POST.Request.Schema];
-    givenSchemas.forEach(schema => ajv.addSchema(schema, schema.$id));
-    ajv.addSchema(Locale.Schema, Locale.Schema.$id)
+describe("Validate JSON against the Schema", () => {
+  const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
+  addFormats(ajv);
+  //GIVEN the modelInfo schemas
+  const givenSchemas = [ModelInfo.GET.Response.Schema, ModelInfo.POST.Response.Schema, ModelInfo.POST.Request.Schema];
+  givenSchemas.forEach(schema => ajv.addSchema(schema, schema.$id));
+  ajv.addSchema(Locale.Schema, Locale.Schema.$id)
 
-    // AND valid ModelInfoResponseGET, ModelInfoResponsePOST, ModelInfoRequestPOST objects
-    const givenValidModelInfoGETResponse = [{
-      id: "foo",
+  // AND valid ModelInfoResponseGET, ModelInfoResponsePOST, ModelInfoRequestPOST objects
+  const givenValidModelInfoGETResponse = [{
+    id: "foo",
+    UUID: randomUUID(),
+    previousUUID: "",//randomUUID(),
+    originUUID: randomUUID(),
+    path: "path/to/tabiya",
+    tabiyaPath: "/path/to/tabiya",
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    locale: {
+      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      previousUUID: "",//randomUUID(),
-      originUUID: randomUUID(),
-      path: "path/to/tabiya",
-      tabiyaPath: "/path/to/tabiya",
+      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+    },
+    releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
+    released: false,
+    updatedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH)
+  }]
+  const givenValidModelInfoPOSTResponse = {
+    id: "foo",
+    UUID: randomUUID(),
+    previousUUID: "",//randomUUID(),
+    originUUID: randomUUID(),
+    path: "path/to/tabiya",
+    tabiyaPath: "/path/to/tabiya",
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    locale: {
       name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      locale: {
-        name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-        UUID: randomUUID(),
-        shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
-      },
-      releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
-      released: false,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH)
-    }]
-    const givenValidModelInfoPOSTResponse = {
-      id: "foo",
       UUID: randomUUID(),
-      previousUUID: "",//randomUUID(),
-      originUUID: randomUUID(),
-      path: "path/to/tabiya",
-      tabiyaPath: "/path/to/tabiya",
+      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+    },
+    releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
+    released: false,
+    updatedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH)
+  }
+  const givenValidModelInfoPOSTRequest = {
+    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    locale: {
       name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      locale: {
-        name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-        UUID: randomUUID(),
-        shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
-      },
-      releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
-      released: false,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH)
+      UUID: randomUUID(),
+      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     }
-    const givenValidModelInfoPOSTRequest = {
-      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      locale: {
-        name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-        UUID: randomUUID(),
-        shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
-      }
-    }
+  }
 
-    test.each(
-      // GIVEN a valid ModelInfoResponseGET object
-      [["ModelInfoResponseGET", "a valid ModelInfoResponseGET object", givenSchemas[0], givenValidModelInfoGETResponse],
-        // GIVEN an empty array
-        ["ModelInfoResponseGET", "an empty array", givenSchemas[0], []],
-        // GIVEN a valid  ModelInfoResponsePOST object
-        ["ModelInfoResponsePOST", "a valid ModelInfoResponsePost object", givenSchemas[1], givenValidModelInfoPOSTResponse],
-        // GIVEN a valid  ModelInfoRequestPOST object
-        ["ModelInfoRequestPOST", "a valid ModelInfoRequestPOST object", givenSchemas[2], givenValidModelInfoPOSTRequest]])("%s validates with %s", (testDescription, payloadDescription, schema, payload) => {
-      // WHEN the object is validated
-      const validateFunction = ajv.getSchema(schema.$id as string) as ValidateFunction;
-      const isValid = validateFunction(payload);
+  test.each([
+    // GIVEN a ModelInfoResponseGET object and corresponding schema
+    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.GET.Response.Schema ],
+    // GIVEN a ModelInfoResponsePOST object and corresponding schema
+    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.POST.Response.Schema],
+    // GIVEN a ModelInfoRequestPOST object and corresponding schema
+    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.POST.Request.Schema ],
+  ])
+  ("Schema %s validates a valid object", (description,  givenValidObject,givenSchema ) => {
+    // WHEN the object is validated
+    const validateFunction = ajv.getSchema(givenSchema.$id as string) as ValidateFunction;
+    const isValid = validateFunction(givenValidObject);
 
-      // THEN expect the object to validate successfully
-      expect(isValid).toBe(true);
-    });
-
-    test.each([
-      // GIVEN a ModelInfoResponseGET object with additional properties
-      [{...givenValidModelInfoGETResponse, foo:"bar"},givenSchemas[0]],
-      // GIVEN a ModelInfoResponsePOST object with additional properties
-      [{...givenValidModelInfoPOSTResponse, foo:"bar"}, givenSchemas[1]],
-      // GIVEN a ModelInfoRequestPOST object with additional properties
-      [{...givenValidModelInfoPOSTRequest, foo: "bar"}, givenSchemas[2]],
-    ])("An object with additional properties does not validate", ( payload, schema ) => {
-
-      // WHEN the object is validated
-      const validateFunction = ajv.getSchema(schema.$id as string) as ValidateFunction;
-      const isValid = validateFunction(payload);
-
-      // THEN expect the object to not validate
-      expect(isValid).toBe(false);
-      expect(validateFunction.errors).not.toBeNull();
-    })
+    // THEN expect the object to validate successfully
+    expect(isValid).toBe(true);
   });
+
+  test.each([
+    // GIVEN a ModelInfoResponseGET object and corresponding schema
+    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.GET.Response.Schema],
+    // GIVEN a ModelInfoResponsePOST object and corresponding schema
+    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.POST.Response.Schema],
+    // GIVEN a ModelInfoRequestPOST object and corresponding schema
+    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.POST.Request.Schema],
+  ])("Schema %s does not validate object with additional properties", (description, givenValidObject, givenSchema) => {
+    // GIVEN the object has an additional property
+    const givenObjectWithAdditionalProperties = {...givenValidObject, foo: "bar"};
+
+    // WHEN the object is validated
+    const validateFunction = ajv.getSchema(givenSchema.$id as string) as ValidateFunction;
+    const isValid = validateFunction(givenObjectWithAdditionalProperties);
+
+    // THEN expect the object to not validate
+    expect(isValid).toBe(false);
+    expect(validateFunction.errors).not.toBeNull();
+  })
+});

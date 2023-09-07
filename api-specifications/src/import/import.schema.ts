@@ -3,7 +3,7 @@ import {RegExp_Str_ID, RegExp_Str_NotEmptyString} from "../regex";
 import * as ImportConstants from "./import.constants";
 
 export const ImportRequestSchemaPOST: SchemaObject = {
-  $id: "/components/schemas/ImportSchema",
+  $id: "/components/schemas/ImportRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
   properties: {

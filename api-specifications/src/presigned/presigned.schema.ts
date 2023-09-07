@@ -2,7 +2,7 @@ import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString} from "../regex";
 
 const PresignedResponseSchemaGET: SchemaObject = {
-  $id: "/components/schemas/PresignedSchema",
+  $id: "/components/schemas/PresignedResponseSchemaGET",
 
   type: "object",
   additionalProperties: false,

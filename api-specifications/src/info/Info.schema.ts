@@ -1,7 +1,7 @@
 import { SchemaObject } from "ajv";
 
 const InfoResponseSchemaGET: SchemaObject = {
-    $id: "/components/schemas/InfoSchema",
+    $id: "/components/schemas/InfoResponseSchemaGET",
     type: "object",
     additionalProperties: false,
     properties: {

@@ -10,7 +10,6 @@ namespace ImportTypes {
     export namespace Request {
       export type Payload = IImportRequest;
       export type ImportFilePaths = { [key in ImportConstants.ImportFileTypes]?: string }
-
     }
   }
 }
