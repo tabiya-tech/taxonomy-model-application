@@ -12,6 +12,7 @@ export async function lambda_invokeAsyncImport(request: Import.POST.Request.Payl
       Payload: new TextEncoder().encode(JSON.stringify(request)) // make sure it is utf-8
     };
     await client.send(new InvokeCommand(input));
+
     return response(StatusCodes.ACCEPTED, {});
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

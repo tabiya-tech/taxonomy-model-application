@@ -1,7 +1,13 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
 import ModelsTable from "./ModelsTable";
-import {getArrayOfFakeModels, getArrayOfFakeModelsMaxLength} from "./_test_utilities/mockModelData";
+import {
+  getArrayOfFakeModels,
+  getArrayOfFakeModelsMaxLength, getOneFakeModel,
+} from "./_test_utilities/mockModelData";
+import {
+  getAllImportProcessStatePermutations
+} from "../importProcessStateIcon/_test_utilities/importProcesStateTestData";
 
 const meta: Meta<typeof ModelsTable> = {
   title: 'ModelDirectory/ModelsTable',
@@ -33,3 +39,14 @@ export const ShownInLoadingState: Story = {
     isLoading: true
   },
 };
+
+export const ShownWithDifferentImportStates: Story = {
+  args: {
+    models: getAllImportProcessStatePermutations().map((importProcessState, index) => {
+      const model = getOneFakeModel(index);
+      model.importProcessState = importProcessState;
+      return model;
+    }),
+    isLoading: false
+  }
+}

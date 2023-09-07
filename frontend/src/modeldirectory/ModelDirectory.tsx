@@ -40,17 +40,18 @@ const ModelDirectory = () => {
     setImportDlgOpen(b);
   }
 
-  const handleModelInfoFetch = useCallback(async () => {
-    try {
-      return await modelInfoService.getAllModels();
-    } catch (e) {
+  const handleModelInfoFetch = useCallback(() => {
+    return modelInfoService.fetchAllModelsPeriodically((models) => {
+      setModels(models);
+      setIsLoadingModels(false);
+    }, e => {
       enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, {variant: "error"})
       if (e instanceof ServiceError) {
         writeServiceErrorToLog(e, console.error);
       } else {
         console.error(e);
       }
-    }
+    });
   }, [enqueueSnackbar]);
 
   const handleOnImportDialogClose = async (event: CloseEvent) => {
@@ -81,11 +82,11 @@ const ModelDirectory = () => {
   };
 
   useEffect(() => {
-    handleModelInfoFetch().then((modelInfos) => {
-      modelInfos && setModels(modelInfos);
-    }).finally(() => {
-      setIsLoadingModels(false)
-    });
+    const timerId = handleModelInfoFetch();
+
+    return () => {
+      clearInterval(timerId);
+    };
   }, [handleModelInfoFetch]);
 
   return <Container maxWidth="xl" sx={{

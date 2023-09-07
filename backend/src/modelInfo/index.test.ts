@@ -3,7 +3,6 @@ import * as transformModule from "./transform";
 import {handler as modelHandler} from "./index";
 import {HTTP_VERBS, StatusCodes} from "server/httpUtils";
 
-import {IModelInfo} from "./modelInfoModel";
 import {randomUUID} from "crypto";
 import APIError from "api-specifications/error";
 import {getRandomString} from "_test_utilities/specialCharacters";
@@ -13,6 +12,7 @@ import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrt
 import {
   testMethodsNotAllowed, testRequestJSONMalformed, testRequestJSONSchema, testTooLargePayload, testUnsupportedMediaType
 } from "_test_utilities/stdRESTHandlerTests";
+import {IModelInfo} from "./modelInfo.types";
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 

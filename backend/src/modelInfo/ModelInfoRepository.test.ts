@@ -4,11 +4,6 @@ import "_test_utilities/consoleMock"
 import {getMockId} from "_test_utilities/mockMongoId";
 import {Connection} from "mongoose";
 import {ModelRepository} from "./ModelInfoRepository";
-import {
-  IModelInfo,
-  INewModelInfoSpec,
-} from "./modelInfoModel";
-
 import {randomUUID} from "crypto";
 import {getTestString} from "_test_utilities/specialCharacters";
 import {getNewConnection} from "server/connection/newConnection";
@@ -16,9 +11,9 @@ import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegist
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
-import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
-
 import ModelInfo from "api-specifications/modelInfo"
+import {IModelInfo, INewModelInfoSpec} from "./modelInfo.types";
+import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -28,10 +23,8 @@ jest.mock("crypto", () => {
   }
 });
 
-
 /**
- * Helper function to create an INewModelInfoSpec with random values,
- * that can be used for creating a new ISkillGroup
+ * Helper function to create an INewModelInfoSpec with random values
  */
 function getNewModelInfoSpec(): INewModelInfoSpec {
   return {
@@ -41,7 +34,7 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
       name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
       shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH),
   };
 }
 
@@ -49,11 +42,12 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
   let dbConnection: Connection;
   let repository: ModelRepository;
+  const repositoryRegistry = new RepositoryRegistry()
+
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("ModelRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    const repositoryRegistry = new RepositoryRegistry()
     await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.modelInfo;
   });
@@ -106,6 +100,16 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
         version: "",
         releaseNotes: "",
         released: false,
+        // AND the importProcessState to be set to pending as there is no import process yet
+        importProcessState: {
+          id: expect.any(String),
+          status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+          result: {
+            errored: false,
+            parsingErrors: false,
+            parsingWarnings: false
+          }
+        },
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       }
@@ -150,7 +154,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
   describe("Test getModelById()", () => {
     test("Should return an existing model by its id", async () => {
-      // GIVEN a model info exists in the database
+      // GIVEN a new model info exists in the database
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
 
       // WHEN retrieving a model by its id
@@ -180,7 +184,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
   describe("Test getModelByUUID()", () => {
 
-   test("Should return an existing model by model uuid", async () => {
+    test("Should return an existing model by model uuid", async () => {
       // GIVEN a model info exists in the database
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
 

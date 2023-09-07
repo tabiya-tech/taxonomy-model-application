@@ -1,4 +1,5 @@
-import ModelInfo from "api-specifications/modelInfo";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import {v4 as uuidv4} from "uuid";
 
 import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
@@ -6,6 +7,10 @@ import {getMockId} from "src/_test_utilities/mockMongoId";
 import {getRandomLorem, getRandomString, getTestString} from "src/_test_utilities/specialCharacters";
 import {faker} from "@faker-js/faker";
 import {CELL_MAX_LENGTH} from "../ModelsTable";
+
+export function getOneFakeModel(id?: number): ModelInfoTypes.ModelInfo {
+  return getArrayOfFakeModels(id ? id : 1)[0];
+}
 
 export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[] {
   const models: ModelInfoTypes.ModelInfo[] = [];
@@ -15,20 +20,29 @@ export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[]
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: Array.from({length: 20}, (_, i) => faker.lorem.word()).join(" ").substring(0, ModelInfo.Constants.NAME_MAX_LENGTH),
+      name: Array.from({length: 20}, (_, i) => faker.lorem.word()).join(" ").substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: uuidv4(),
-        name: faker.location.country().substring(0, ModelInfo.Constants.NAME_MAX_LENGTH),
-        shortCode: faker.location.countryCode("alpha-3").substring(0, ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        name: faker.location.country().substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: faker.location.countryCode("alpha-3").substring(0, ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
-      description: i % 2 === 0 ? getRandomLorem(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH) : getRandomLorem(CELL_MAX_LENGTH / 2), // 50% chance of long description
+      description: i % 2 === 0 ? getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) : getRandomLorem(CELL_MAX_LENGTH / 2), // 50% chance of long description
       released: i % 2 === 0, // 50% chance of released
-      releaseNotes: faker.lorem.text().substring(0, ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
-      version: faker.system.semver().substring(0, ModelInfo.Constants.VERSION_MAX_LENGTH),
+      releaseNotes: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
+      version: faker.system.semver().substring(0, ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
       createdAt: new Date(),
       updatedAt: new Date(),
       path: faker.internet.url(),
-      tabiyaPath: faker.internet.url()
+      tabiyaPath: faker.internet.url(),
+      importProcessState: {
+        id: getMockId(10000 + i),
+        status: getRandomStatus(i),
+        result: {
+          errored: i % 2 === 0,
+          parsingErrors: i % 2 === 0,
+          parsingWarnings: i % 2 === 0,
+        }
+      }
     };
     models.push(model);
   }
@@ -43,20 +57,29 @@ export function getArrayOfFakeModelsMaxLength(number: number): ModelInfoTypes.Mo
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: getRandomLorem(ModelInfo.Constants.NAME_MAX_LENGTH),
+      name: getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: uuidv4(),
-        name: getRandomLorem(ModelInfo.Constants.NAME_MAX_LENGTH),
-        shortCode: getRandomLorem(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: getRandomLorem(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
-      description: getRandomLorem(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH),
+      description: getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       released: i % 2 === 0, // 50% chance of released
-      releaseNotes: getRandomLorem(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
-      version: getRandomLorem(ModelInfo.Constants.VERSION_MAX_LENGTH),
+      releaseNotes: getRandomLorem(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
+      version: getRandomLorem(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
       createdAt: new Date(),
       updatedAt: new Date(),
       path: faker.internet.url(),
-      tabiyaPath: faker.internet.url()
+      tabiyaPath: faker.internet.url(),
+      importProcessState: {
+        id: getMockId(10000 + i),
+        status: getRandomStatus(i),
+        result: {
+          errored: i % 2 === 0,
+          parsingErrors: i % 2 === 0,
+          parsingWarnings: i % 2 === 0,
+        }
+      }
     };
     models.push(model);
   }
@@ -75,22 +98,36 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
+      name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: uuidv4(),
-        name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
-      description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH),
+      description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       released: i % 2 === 0,
-      releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
-      version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
+      releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
+      version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
       createdAt: new Date(),
       updatedAt: new Date(),
       path: faker.internet.url(),
-      tabiyaPath: faker.internet.url()
+      tabiyaPath: faker.internet.url(),
+      importProcessState: {
+        id: getMockId(10000 + i),
+        status: getRandomStatus(i),
+        result: {
+          errored: i % 2 === 0,
+          parsingErrors: i % 2 === 0,
+          parsingWarnings: i % 2 === 0,
+        }
+      }
     };
     models.push(model);
   }
   return models
+}
+
+export function getRandomStatus(id: number) {
+  const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  return allStatuses[id % allStatuses.length];
 }

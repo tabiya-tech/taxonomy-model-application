@@ -6,12 +6,21 @@ import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
 import * as occupationModel from "esco/occupation/occupationModel";
 import * as occupationHierarchyModel from "esco/occupationHierarchy/occupationHierarchyModel";
+import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
 
 import {IISCOGroupRepository, ISCOGroupRepository} from "esco/iscoGroup/ISCOGroupRepository";
 import {ISkillGroupRepository, SkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
 import {ISkillRepository, SkillRepository} from "esco/skill/SkillRepository";
 import {IOccupationRepository, OccupationRepository} from "esco/occupation/OccupationRepository";
-import {IOccupationHierarchyRepository, OccupationHierarchyRepository} from "esco/occupationHierarchy/occupationHierarchyRepository";
+import {
+  IOccupationHierarchyRepository,
+  OccupationHierarchyRepository
+} from "esco/occupationHierarchy/occupationHierarchyRepository";
+import {
+  IImportProcessStateRepository,
+  ImportProcessStateRepository
+} from "import/ImportProcessState/importProcessStateRepository";
+
 export class RepositoryRegistry {
   // eslint-disable-next-line
   private readonly _repositories: Map<string, any> = new Map<string, any>();
@@ -36,6 +45,7 @@ export class RepositoryRegistry {
   public get skillGroup(): ISkillGroupRepository {
     return this._repositories.get("ISkillGroupRepository");
   }
+
   public set skillGroup(repository: ISkillGroupRepository) {
     this._repositories.set("ISkillGroupRepository", repository);
   }
@@ -43,6 +53,7 @@ export class RepositoryRegistry {
   public get skill(): ISkillRepository {
     return this._repositories.get("ISkillRepository");
   }
+
   public set skill(repository: ISkillRepository) {
     this._repositories.set("ISkillRepository", repository);
   }
@@ -50,6 +61,7 @@ export class RepositoryRegistry {
   public get occupation(): IOccupationRepository {
     return this._repositories.get("IOccupationRepository");
   }
+
   public set occupation(repository: IOccupationRepository) {
     this._repositories.set("IOccupationRepository", repository);
   }
@@ -57,8 +69,17 @@ export class RepositoryRegistry {
   public get occupationHierarchy(): IOccupationHierarchyRepository {
     return this._repositories.get("IOccupationHierarchyRepository");
   }
+
   public set occupationHierarchy(repository: IOccupationHierarchyRepository) {
     this._repositories.set("IOccupationHierarchyRepository", repository);
+  }
+
+  public get importProcessState(): IImportProcessStateRepository {
+    return this._repositories.get("IImportProcessStateRepository");
+  }
+
+  public set importProcessState(repository: IImportProcessStateRepository) {
+    this._repositories.set("IImportProcessStateRepository", repository);
   }
 
   async initialize(connection: Connection | undefined) {
@@ -83,6 +104,9 @@ export class RepositoryRegistry {
         if (ret.childId && ret.childId instanceof mongoose.Types.ObjectId) {
           ret.childId = ret.childId.toString(); // Convert childId to string
         }
+        if (ret.importProcessState?.id && ret.importProcessState?.id instanceof mongoose.Types.ObjectId) {
+          ret.importProcessState.id = ret.importProcessState.id.toString(); // Convert importProcessStateId to string
+        }
 
         delete ret._id;
         delete ret.__v;
@@ -101,7 +125,8 @@ export class RepositoryRegistry {
     this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
     this.occupation = new OccupationRepository(occupationModel.initializeSchemaAndModel(connection));
-    this.occupationHierarchy = new OccupationHierarchyRepository(occupationHierarchyModel.initializeSchemaAndModel(connection),this.ISCOGroup.Model, this.occupation.Model);
+    this.occupationHierarchy = new OccupationHierarchyRepository(occupationHierarchyModel.initializeSchemaAndModel(connection), this.ISCOGroup.Model, this.occupation.Model);
+    this.importProcessState = new ImportProcessStateRepository(importStateModel.initializeSchemaAndModel(connection));
 
     // Set up the indexes
     // This is done here because the autoIndex is turned off in production
@@ -115,6 +140,7 @@ export class RepositoryRegistry {
     await this.skill.Model.createIndexes();
     await this.occupation.Model.createIndexes();
     await this.occupationHierarchy.hierarchyModel.createIndexes();
+    await this.importProcessState.Model.createIndexes();
   }
 }
 

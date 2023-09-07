@@ -12,7 +12,7 @@
     "test": "jest --coverage",
     "postcompile": "cp package.json dist/package.json",
     "pregenerateSchemas": "rimraf -I schemas",
-    "generateSchemas": "ts-node generateJsonSchemaFiles.ts './src/error/index.ts' './src/modelInfo/index.ts' './src/import/index.ts'"
+    "generateSchemas": "ts-node generateJsonSchemaFiles.ts './src/error/index.ts' './src/importProcessState/index.ts' './src/info/index.ts' './src/locale/index.ts' './src/modelInfo/index.ts' './src/presigned/index.ts'"
   },
   "devDependencies": {
     "@types/archiver": "^5.3.1",

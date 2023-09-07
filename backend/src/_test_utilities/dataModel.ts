@@ -46,6 +46,28 @@ export function assertCaseForProperty<T>(model: mongoose.Model<T>, propertyNames
   }
 }
 
+/**
+ * Assert that the value is stored in the database and returned as expected.
+ * This is especially useful for testing values that are transformed by setters and getters.
+ * @param model
+ * @param propertyNames
+ * @param valueToStore
+ * @param expectedValue
+ */
+export async function assertValueStored<T>(model: mongoose.Model<T>, propertyNames: string|string[], valueToStore: unknown, expectedValue: unknown) {
+  if (typeof propertyNames === "string") {
+    propertyNames = [propertyNames];
+  }
+  // @ts-ignore
+  const docSpec: Partial<T> =   createNestedObject(propertyNames, valueToStore);
+
+  const propertyPath = propertyNames.join(".");
+
+  const newDoc = new model(docSpec);
+  await newDoc.save({validateBeforeSave: false});
+  expect(newDoc.get(propertyPath)).toEqual(expectedValue);
+}
+
 const createNestedObject = (keys: string[], value: unknown): unknown => {
   if (keys.length === 0) {
     return value; // Assign value to innermost property

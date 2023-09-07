@@ -1,6 +1,6 @@
-import {IModelInfo} from "./modelInfoModel";
-import ModelInfo from 'api-specifications/modelInfo';
-export function transform(data: IModelInfo, baseURL: string): ModelInfo.POST.Response.Payload {
+import ModelInfoAPISpecs from 'api-specifications/modelInfo';
+import {IModelInfo} from "./modelInfo.types";
+export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.POST.Response.Payload {
   return  {
     id: data.id,
     UUID: data.UUID,
@@ -14,6 +14,7 @@ export function transform(data: IModelInfo, baseURL: string): ModelInfo.POST.Res
     locale: data.locale,
     path: `${baseURL}/${data.id}`,
     tabiyaPath: `${baseURL}/${data.UUID}`,
+    importProcessState: data.importProcessState,
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString()
   };

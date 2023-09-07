@@ -1,86 +1,76 @@
 import {isSpecified} from 'server/isUnspecified';
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 import {RegExp_UUIDv4} from "server/regex";
-import { stringRequired } from 'server/stringRequired';
-import {DescriptionProperty, OriginUUIDProperty} from "../esco/common/modelSchema";
-import ModelInfo from 'api-specifications/modelInfo';
+import {stringRequired} from 'server/stringRequired';
+import ModelInfoAPISpecs from 'api-specifications/modelInfo';
+import {IModelInfoDoc} from "./modelInfo.types";
 
 export const ModelName = "ModelInfo";
 
-
-export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IModelInfo> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IModelInfoDoc> {
   // Schema for Locale
   const localeSchema = {
     name: {
       type: String,
       required: stringRequired("locale", "name"),
-      maxlength: [ModelInfo.Constants.NAME_MAX_LENGTH, `Name must be at most ${ModelInfo.Constants.NAME_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH, `Name must be at most ${ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH} chars long`]
     },
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     shortCode: {
       type: String,
       required: stringRequired("locale", "shortCode"),
-      maxlength: [ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH, `Short code must be at most ${ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH, `Short code must be at most ${ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`]
     },
   };
 
   // Schema
-  const modelInfoSchema = new mongoose.Schema<IModelInfo>({
+  const modelInfoSchema = new mongoose.Schema<IModelInfoDoc>({
     UUID: {type: String, required: true, validate: RegExp_UUIDv4},
     previousUUID: {
       type: String, required: stringRequired("previousUUID"), validate: function (value: string): boolean {
         return (value.length === 0 || RegExp_UUIDv4.test(value));
       }
     },
-    originUUID: OriginUUIDProperty,
+    originUUID: {
+      type: String, required: stringRequired("originUUID"), validate: function (value: string): boolean {
+        return (value.length === 0 || RegExp_UUIDv4.test(value));
+      }
+    },
     name: {
       type: String,
       required: true,
-      maxlength: [ModelInfo.Constants.NAME_MAX_LENGTH, `Name must be at most ${ModelInfo.Constants.NAME_MAX_LENGTH} chars long`],
+      maxlength: [ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH, `Name must be at most ${ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH} chars long`],
       validate: function (value: string): boolean {
         return isSpecified(value);
       }
     },
     locale: localeSchema,
-    description: DescriptionProperty,
+    description: {
+      type: String,
+      required: stringRequired("description"),
+      maxlength: [ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH, `Description must be at most ${ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH} chars long`]
+    },
     released: {type: Boolean, required: true},
     releaseNotes: {
       type: String,
       required: stringRequired("releaseNotes"),
-      maxlength: [ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH, `Release notes must be at most ${ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH, `Release notes must be at most ${ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH} chars long`]
     },
     version: {
       type: String,
       required: stringRequired("version"),
-      maxlength: [ModelInfo.Constants.VERSION_MAX_LENGTH, `Version must be at most ${ModelInfo.Constants.VERSION_MAX_LENGTH} chars long`]
+      maxlength: [ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH, `Version must be at most ${ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH} chars long`]
+    },
+    importProcessState: {
+      type: Schema.Types.ObjectId,
+      ref: 'ImportProcessState',
+      required: true,
     },
   }, {timestamps: true, strict: "throw"},);
 
   modelInfoSchema.index({UUID: 1}, {unique: true});
   // Model
-  return dbConnection.model<IModelInfo>(ModelName, modelInfoSchema);
-}
-
-export interface ILocale {
-  UUID: string
-  shortCode: string
-  name: string
+  return dbConnection.model<IModelInfoDoc>(ModelName, modelInfoSchema);
 }
 
 
-export interface INewModelInfoSpec {
-  name: string
-  locale: ILocale
-  description: string
-}
-export interface IModelInfo extends INewModelInfoSpec {
-  id: string
-  UUID: string
-  previousUUID: string
-  originUUID: string
-  released: boolean
-  releaseNotes: string
-  version: string,
-  createdAt: Date,
-  updatedAt: Date
-}

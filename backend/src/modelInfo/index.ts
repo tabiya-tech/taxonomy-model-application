@@ -7,7 +7,6 @@ import {
   StatusCodes,
   STD_ERRORS_RESPONSES
 } from "server/httpUtils";
-import {IModelInfo, INewModelInfoSpec} from "./modelInfoModel";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
 import {ajvInstance, ParseValidationError} from "validator";
 
@@ -16,6 +15,7 @@ import ModelInfo from 'api-specifications/modelInfo';
 import {ValidateFunction} from "ajv";
 import {transform} from "./transform";
 import {getResourcesBaseUrl} from "server/config/config";
+import {IModelInfo, INewModelInfoSpec} from "./modelInfo.types";
 
 
 export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback: Callback*/)

@@ -1,7 +1,7 @@
-import {IModelInfo} from "./modelInfoModel";
 import {transform} from "./transform";
 import ModelInfo from "api-specifications/modelInfo";
 import {getIModelInfoMockData} from "./testDataHelper";
+import {IModelInfo} from "./modelInfo.types";
 
 
 describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () => {
