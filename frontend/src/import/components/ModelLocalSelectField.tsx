@@ -48,7 +48,9 @@ const ModelLocalSelectField = (props: ModelLocaleSelectProps) => {
   function callNotifyModelLocaleChanged(UUID: string) {
     if (props.notifyModelLocaleChanged) {
       const selected = props.locales.find((locale) => locale.UUID === UUID);
-      props.notifyModelLocaleChanged(selected!);
+      if(selected) {
+        props.notifyModelLocaleChanged(selected);
+      }
     }
   }
 

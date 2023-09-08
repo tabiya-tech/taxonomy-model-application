@@ -85,7 +85,9 @@ describe("Locale Selector Component actions tests only", () => {
     expect(dropdownList).toHaveLength(2);
 
     const secondLocaleElement = dropdownList.find((item) => item.getAttribute('data-value') === givenLocales[1].UUID);
-    await userEvent.click(secondLocaleElement!);
+    if(secondLocaleElement){
+      await userEvent.click(secondLocaleElement);
+    }
     // THEN expect the notifyChangeHandler to be called with the selected locale
     expect(givenNotifyChangeHandler).toHaveBeenLastCalledWith(givenLocales[1]);
   })

@@ -12,6 +12,6 @@ export function stringRequired(...fieldName: string[]) {
       // @ts-ignore
     }, this);
 
-    return typeof value === 'string' ? false : true;
+    return typeof value !== 'string';
   };
 }
