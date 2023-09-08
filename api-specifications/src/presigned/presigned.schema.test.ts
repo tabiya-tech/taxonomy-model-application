@@ -9,10 +9,10 @@ describe('Test the PresignedSchema', () => {
     // WHEN the module is required via the index
     // THEN it should not throw an error
     expect(() => {
-      require('./index');
+      require('./');
     }).not.toThrowError();
 
-    let presignedModule = require('./index').default;
+    let presignedModule = require('./').default;
     // AND the schema should be defined
     expect(presignedModule.GET.Response.Schema).toBeDefined();
 

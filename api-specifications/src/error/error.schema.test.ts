@@ -9,9 +9,9 @@ describe('Test the ErrorResponse Schema', () => {
     expect(() => {
       // THEN Check if the module can be required without error
       expect(() => {
-        require('./index');
+        require('./');
       }).not.toThrowError();
-      let apiErrorModule = require('./index').default;
+      let apiErrorModule = require('./').default;
       // AND check if Schema is defined in it
       expect(apiErrorModule.POST.Response.Schema).toBeDefined();
       // AND check if all the Constants are defined
