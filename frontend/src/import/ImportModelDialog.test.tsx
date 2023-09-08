@@ -228,7 +228,6 @@ describe('ImportModel dialog action tests', () => {
     const givenFileTypeToRemove = Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP;
 
     const fileEntries = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.FILE_ENTRY);
-    //const removeSelectedFileButtons: HTMLInputElement[] = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON);
 
     let removedFile: boolean = false;
     for (const element of fileEntries) {
@@ -248,7 +247,9 @@ describe('ImportModel dialog action tests', () => {
 
     // THEN the notifyOnClose is called with event name IMPORT and the data the user entered except the removed file
     const expectedFiles = givenData.selectedFiles;
-    delete expectedFiles![givenFileTypeToRemove];
+    if (expectedFiles && givenFileTypeToRemove in expectedFiles) {
+      delete expectedFiles[givenFileTypeToRemove];
+    }
 
     expect(notifyOnCloseMock).toHaveBeenCalledWith({
       name: 'IMPORT',

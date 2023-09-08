@@ -127,8 +127,6 @@ describe("ModelsTable", () => {
       if (model.released) {
         const icon = within(actualModelCells[actualModelReleasedHeaderIndex]).getByTestId(DATA_TEST_ID.MODEL_CELL_RELEASED_ICON);
         expectedReleasedContent = icon.innerHTML;
-      } else {
-        expectedReleasedContent = "";
       }
       expect(actualModelCells[actualModelReleasedHeaderIndex]).toContainHTML(expectedReleasedContent);
 
@@ -211,8 +209,6 @@ describe("ModelsTable", () => {
         if (givenIsReleasedFlag) {
           const icon = within(actualReleasedCell).getByTestId(DATA_TEST_ID.MODEL_CELL_RELEASED_ICON);
           expectedReleasedContent = icon.innerHTML;
-        } else {
-          expectedReleasedContent = "";
         }
         expect(actualReleasedCell).toContainHTML(expectedReleasedContent);
       })
