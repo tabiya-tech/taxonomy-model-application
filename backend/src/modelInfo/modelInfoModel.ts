@@ -43,7 +43,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     },
     locale: localeSchema,
     description: DescriptionProperty,
-    released: {type: Boolean, required: stringRequired("released")},
+    released: {type: Boolean, required: true},
     releaseNotes: {
       type: String,
       required: stringRequired("releaseNotes"),
