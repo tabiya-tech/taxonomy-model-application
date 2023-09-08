@@ -11,10 +11,10 @@ describe("Test ModelInfo Schema", () => {
     // WHEN the module is required via the index
     // THEN it should not throw an error
     expect(() => {
-      require('./index');
+      require('./');
     }).not.toThrowError();
 
-    let modelInfoModule = require('./index').default;
+    let modelInfoModule = require('./').default;
     // AND the schemas should be defined
     expect(modelInfoModule.GET.Response.Schema).toBeDefined();
     expect(modelInfoModule.POST.Response.Schema).toBeDefined();
