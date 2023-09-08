@@ -12,10 +12,10 @@ describe('Test the Import Schema', () => {
     expect(() => {
       // THEN Check if the module can be required without error
       expect(() => {
-        require('./index');
+        require('./');
       }).not.toThrowError();
       // AND check if Schema is defined in it
-      expect(require("./index").default.POST.Request.Schema).toBeDefined();
+      expect(require("./").default.POST.Request.Schema).toBeDefined();
     }).not.toThrowError();
   })
 

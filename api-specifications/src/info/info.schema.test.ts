@@ -9,10 +9,10 @@ describe('Test the InfoSchema', () => {
       expect(() => {
         // THEN Check if the module can be required without error
         expect(() => {
-          require('./index');
+          require('./');
         }).not.toThrowError();
         // AND check if Schema is defined in it
-        expect(require("./index").default.GET.Response.Schema).toBeDefined();
+        expect(require("./").default.GET.Response.Schema).toBeDefined();
       }).not.toThrowError();
     })
 
