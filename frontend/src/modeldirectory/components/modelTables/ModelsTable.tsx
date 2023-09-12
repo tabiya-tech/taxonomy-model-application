@@ -83,9 +83,9 @@ const ModelsTable = (props: ModelsTableProps) => {
                 <TableCell
                   data-testid={DATA_TEST_ID.MODEL_CELL}>{model.locale.name} ({model.locale.shortCode})</TableCell>
                 <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>{model.version}</TableCell>
-                <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>{model.released ?
+                <TableCell align="center" data-testid={DATA_TEST_ID.MODEL_CELL}>{model.released ?
                   <PublishedWithChangesIcon data-testid={DATA_TEST_ID.MODEL_CELL_RELEASED_ICON}
-                                            color="disabled"/> : "" /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/}</TableCell>
+                                            color="disabled" titleAccess="Released"/> : "" /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/}</TableCell>
                 <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
                   {model.description.length > CELL_MAX_LENGTH ? model.description.substring(0, CELL_MAX_LENGTH) + '...' : model.description}
                 </TableCell>
