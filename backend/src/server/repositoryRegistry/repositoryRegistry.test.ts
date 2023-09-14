@@ -1,7 +1,7 @@
 // Suppress chatty console during the tests
 import "_test_utilities/consoleMock"
 
-import {getRepositoryRegistry, RepositoryRegistry} from "./repositoryRegisrty";
+import {getRepositoryRegistry, RepositoryRegistry} from "./repositoryRegistry";
 import {Connection} from "mongoose";
 import {getNewConnection} from "server/connection/newConnection";
 

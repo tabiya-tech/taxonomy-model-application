@@ -8,7 +8,7 @@ import APIError from "api-specifications/error";
 import {getRandomString} from "_test_utilities/specialCharacters";
 import ModelInfo from "api-specifications/modelInfo";
 import {getIModelInfoMockData, getModelInfoMockDataArray} from "./testDataHelper";
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {
   testMethodsNotAllowed, testRequestJSONMalformed, testRequestJSONSchema, testTooLargePayload, testUnsupportedMediaType
 } from "_test_utilities/stdRESTHandlerTests";

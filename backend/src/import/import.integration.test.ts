@@ -6,7 +6,7 @@ import {getConnectionManager} from "server/connection/connectionManager";
 import * as process from "process";
 import {ENV_VAR_NAMES} from "server/config/config";
 
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {randomUUID} from "crypto";
 import {parseISCOGroupsFromFile} from "./esco/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromFile} from "./esco/skillGroups/skillGroupsParser";

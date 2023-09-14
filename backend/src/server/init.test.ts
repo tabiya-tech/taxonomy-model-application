@@ -36,8 +36,8 @@ jest.mock("./connection/connectionManager", () => {
 });
 
 // mock the repository registry
-jest.mock("./repositoryRegistry/repositoryRegisrty", () => {
-  const originalModule = jest.requireActual("./repositoryRegistry/repositoryRegisrty");
+jest.mock("./repositoryRegistry/repositoryRegistry", () => {
+  const originalModule = jest.requireActual("./repositoryRegistry/repositoryRegistry");
   const repositoryRegistryMock = {
     initialize: jest.fn().mockImplementation(() => {
       return Promise.resolve();
@@ -51,7 +51,7 @@ jest.mock("./repositoryRegistry/repositoryRegisrty", () => {
 // ##############
 
 import {getConfiguration, readEnvironmentConfiguration} from "./config/config";
-import {getRepositoryRegistry} from "./repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "./repositoryRegistry/repositoryRegistry";
 import {getConnectionManager} from "./connection/connectionManager";
 
 describe('Test initialization', () => {

@@ -2,7 +2,7 @@ import Import from "api-specifications/import";
 import {initOnce} from "server/init";
 import {ajvInstance, ParseValidationError} from "validator";
 import {ValidateFunction} from "ajv";
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState";
 import {IModelInfo} from "modelInfo/modelInfo.types";
 import {parseFiles} from "./parseFiles";

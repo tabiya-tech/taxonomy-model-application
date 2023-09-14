@@ -7,7 +7,7 @@ import {ModelRepository} from "./ModelInfoRepository";
 import {randomUUID} from "crypto";
 import {getTestString} from "_test_utilities/specialCharacters";
 import {getNewConnection} from "server/connection/newConnection";
-import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";

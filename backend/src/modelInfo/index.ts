@@ -7,7 +7,7 @@ import {
   StatusCodes,
   STD_ERRORS_RESPONSES
 } from "server/httpUtils";
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {ajvInstance, ParseValidationError} from "validator";
 
 import ModelInfo from 'api-specifications/modelInfo';
