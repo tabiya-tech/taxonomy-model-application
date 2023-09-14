@@ -43,11 +43,22 @@ jobs:
           name: frontend.build.folder
           path: frontend/build/
           retention-days: 1
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: frontend
       - name: Test
         run: yarn run test
-        working-directory: frontend
-      - name: Accessibility Tests
-        run: yarn run build-storybook && yarn run test:accessibility
         working-directory: frontend
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
@@ -55,3 +66,20 @@ jobs:
           name: frontend.lcov.info
           path: frontend/coverage/lcov.info
           retention-days: 1
+  accessibility:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: frontend
+      - name: Accessibility Tests
+        run: yarn run build-storybook && yarn run test:accessibility
+        working-directory: frontend
