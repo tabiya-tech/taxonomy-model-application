@@ -1,7 +1,7 @@
 // mute console.log
 import "_test_utilities/consoleMock";
 
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {
   parseISCOGroupsFromFile,
   parseISCOGroupsFromUrl

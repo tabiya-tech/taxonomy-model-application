@@ -5,7 +5,7 @@ import {getMockId} from "_test_utilities/mockMongoId";
 import {Connection} from "mongoose";
 
 import {getNewConnection} from "server/connection/newConnection";
-import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";

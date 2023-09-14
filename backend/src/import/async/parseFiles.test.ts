@@ -84,7 +84,7 @@ import {parseSkillsFromUrl} from "import/esco/skills/skillsParser";
 import {parseOccupationsFromUrl} from "import/esco/occupations/occupationsParser";
 import {parseOccupationHierarchyFromUrl} from "import/esco/occupationHierarchy/occupationHierarchyParser";
 import {RowsProcessedStats} from "import/rowsProcessedStats.types";
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState"
 
 // ##############

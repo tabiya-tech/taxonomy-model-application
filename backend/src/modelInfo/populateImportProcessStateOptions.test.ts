@@ -5,7 +5,7 @@ import {Connection} from "mongoose";
 import {randomUUID} from "crypto";
 import {getTestString} from "_test_utilities/specialCharacters";
 import {getNewConnection} from "server/connection/newConnection";
-import {RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {RepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
 import ModelInfoAPISpecs from "api-specifications/modelInfo"
 import {IModelInfo, INewModelInfoSpec} from "./modelInfo.types";

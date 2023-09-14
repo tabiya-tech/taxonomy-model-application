@@ -6,7 +6,7 @@ import mongoose, {Connection} from "mongoose";
 import {randomUUID} from "crypto";
 import {generateRandomUrl, getRandomString, getTestString} from "_test_utilities/specialCharacters";
 import {getNewConnection} from "server/connection/newConnection";
-import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {IISCOGroupRepository} from "./ISCOGroupRepository";

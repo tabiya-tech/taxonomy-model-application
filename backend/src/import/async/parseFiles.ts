@@ -1,6 +1,6 @@
 import {S3PresignerService} from "./S3PresignerService";
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {IModelInfo} from "modelInfo/modelInfo.types";
 import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
 import {parseSkillGroupsFromUrl} from "import/esco/skillGroups/skillGroupsParser";

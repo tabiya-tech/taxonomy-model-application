@@ -1,7 +1,7 @@
 // mute console.log
 import "_test_utilities/consoleMock";
 
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import fs from "fs";
 import https from "https";
 import {StatusCodes} from "server/httpUtils";

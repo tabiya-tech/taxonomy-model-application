@@ -1,5 +1,5 @@
 import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {
   processDownloadStream,
   processStream,

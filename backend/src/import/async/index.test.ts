@@ -6,7 +6,7 @@ import Import from "api-specifications/import";
 
 import {initOnce} from "server/init";
 import {getMockId} from "_test_utilities/mockMongoId";
-import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegisrty";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {parseFiles} from "./parseFiles";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState"
 
