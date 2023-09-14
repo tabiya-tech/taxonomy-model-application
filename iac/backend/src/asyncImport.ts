@@ -10,6 +10,8 @@ const LAMBDA_TIMEOUT_IN_SECONDS = 180;
 
 const LAMBDA_MEMORY_IN_MB = 1024;
 
+const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 2;
+
 export function setupAsyncImportApi(environment: string, config: {
   mongodb_uri: string,
   resourcesBaseUrl: string,
@@ -60,6 +62,7 @@ export function setupAsyncImportApi(environment: string, config: {
     runtime: 'nodejs16.x',
     timeout: LAMBDA_TIMEOUT_IN_SECONDS,
     memorySize: LAMBDA_MEMORY_IN_MB,
+    reservedConcurrentExecutions: LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS,
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
