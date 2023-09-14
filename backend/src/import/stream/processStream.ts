@@ -14,7 +14,7 @@ export function processDownloadStream<T>(url: string, rowProcessor: RowProcessor
           reject(new Error(`Failed to download file ${url}. Status Code: ${response.statusCode}`));
           return;
         }
-       const stats =  await processStream<T>(response, rowProcessor);
+        const stats = await processStream<T>(response, rowProcessor);
         resolve(stats);
       } catch (e: unknown) {
         console.error(`Error while processing  ${url}`, e);
@@ -30,7 +30,7 @@ export function processDownloadStream<T>(url: string, rowProcessor: RowProcessor
 
 export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>): Promise<RowsProcessedStats> {
   // eslint-disable-next-line no-async-promise-executor
-  return new Promise<RowsProcessedStats>((resolve, reject) => {
+  return new Promise<RowsProcessedStats>(async (resolve, reject) => {
     try {
       stream.on('error', (error: Error) => {
         console.error(`Error from the reading stream:`, error);
@@ -40,10 +40,14 @@ export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>
         // Convert the header to uppercase, to avoid case sensitivity issues
         columns: header => header.map((column: string) => column.toUpperCase())
       }));
-      parser.on('error', (error: Error) => {
-        console.error(`Error from the csv parser:`, error);
-        reject(error);
-      });
+
+      // Handling error here is not necessary as it is handled by the catch() in the async loop bellow
+      // In fact, as the promise is already rejected in the catch() bellow, whoever is waiting for the promise has already been notified
+      // and calling reject again here would result in unexpected side effects
+      // parser.on('error', (error: Error) => {
+      //  console.error(`Error from the csv parser:`, error);
+      //  reject(error);
+      // });
 
         (async () => {
             let count = 0;
@@ -63,9 +67,12 @@ export function processStream<T>(stream: Readable, rowProcessor: RowProcessor<T>
 
             const stats  = await rowProcessor.completed();
             resolve(stats);
-        })().catch(e => reject(e));
+        })().catch((e) => {
+          console.error("Error while processing the stream:", e);
+          reject(e);
+        });
     } catch (e: unknown) {
-      console.error("Error while processing the stream:", e);
+      console.error("Error while preparing to stream:", e);
       reject(e);
     }
   });
