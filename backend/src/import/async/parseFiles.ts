@@ -35,39 +35,49 @@ export const parseFiles = async (event: ImportAPISpecs.POST.Request.Payload) => 
   });
 
   // Process the files
+  let parsingErrors: boolean = false;
+  let parsingWarnings: boolean = false;
+
   let countISCOGroups = 0;
   if (downloadUrls.ISCO_GROUP) {
     const stats = await parseISCOGroupsFromUrl(modelId, downloadUrls.ISCO_GROUP, importIdToDBIdMap);
+    parsingErrors = parsingErrors || stats.rowsFailed > 0;
     countISCOGroups = stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} ISCO Groups`);
   }
   if (downloadUrls.ESCO_SKILL_GROUP) {
     const stats = await parseSkillGroupsFromUrl(modelId, downloadUrls.ESCO_SKILL_GROUP, importIdToDBIdMap);
+    parsingErrors = parsingErrors || stats.rowsFailed > 0;
     console.info(`Processed ${JSON.stringify(stats)} Skill Groups`);
   }
   if (downloadUrls.ESCO_SKILL) {
     const stats = await parseSkillsFromUrl(modelId, downloadUrls.ESCO_SKILL, importIdToDBIdMap);
+    parsingErrors = parsingErrors || stats.rowsFailed > 0;
     console.info(`Processed ${JSON.stringify(stats)} Skills`);
   }
   let countOccupations = 0;
   if (downloadUrls.ESCO_OCCUPATION) {
     const stats = await parseOccupationsFromUrl(modelId, downloadUrls.ESCO_OCCUPATION, importIdToDBIdMap);
+    parsingErrors = parsingErrors || stats.rowsFailed > 0;
     countOccupations = stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} Occupations`);
   }
   if (downloadUrls.OCCUPATION_HIERARCHY) {
     const stats = await parseOccupationHierarchyFromUrl(modelId, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);
+    parsingErrors = parsingErrors || stats.rowsFailed > 0;
     console.info(`Processed ${JSON.stringify(stats)} Occupation hierarchy entries`);
     if (stats.rowsSuccess !== countISCOGroups + countOccupations - 10) {
       console.warn(`Expected to successfully process ${countISCOGroups + countOccupations - 10} (ISCO groups + Occupations - 10) hierarchy entries.`);
+      parsingWarnings = true;
     }
   }
 
   // Set the import process status to COMPLETED
   await getRepositoryRegistry().importProcessState.update(importProcessStateId, {
     status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED, result: {
-      errored: false, parsingErrors: false, // checking parsing errors and warning is an upcoming feature
-      parsingWarnings: false
+      errored: false,
+      parsingErrors: parsingErrors,
+      parsingWarnings: parsingWarnings
     }
   });
   console.info("Import successfully finished");

@@ -4,7 +4,12 @@ import "_test_utilities/consoleMock";
 // Mock the configuration
 jest.mock("server/config/config", () => {
   const mockConfiguration = {
-    dbURI: "mongodb://username@password:server:port/database", resourcesBaseUrl: "https://path/to/resource", uploadBucketName: "bucket name", uploadBucketRegion: "bucket region", asyncLambdaFunctionRegion: "async function region", asyncLambdaFunctionArn: "function arn"
+    dbURI: "mongodb://username@password:server:port/database",
+    resourcesBaseUrl: "https://path/to/resource",
+    uploadBucketName: "bucket name",
+    uploadBucketRegion: "bucket region",
+    asyncLambdaFunctionRegion: "async function region",
+    asyncLambdaFunctionArn: "function arn"
   }
   return {
     getUploadBucketName: jest.fn().mockImplementation(() => {
@@ -32,7 +37,7 @@ jest.mock('./S3PresignerService', () => {
 jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
   return {
     parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1, rowsSuccess: 1, rowsFailed: 0,
+      rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
     } as RowsProcessedStats)
   }
 });
@@ -40,7 +45,7 @@ jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
 jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
   return {
     parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1, rowsSuccess: 1, rowsFailed: 0,
+      rowsProcessed: 200, rowsSuccess: 200, rowsFailed: 0,
     } as RowsProcessedStats)
   }
 });
@@ -49,7 +54,7 @@ jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
 jest.mock("import/esco/skills/skillsParser.ts", () => {
   return {
     parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1, rowsSuccess: 1, rowsFailed: 0,
+      rowsProcessed: 300, rowsSuccess: 300, rowsFailed: 0,
     } as RowsProcessedStats)
   }
 });
@@ -58,7 +63,7 @@ jest.mock("import/esco/skills/skillsParser.ts", () => {
 jest.mock("import/esco/occupations/occupationsParser.ts", () => {
   return {
     parseOccupationsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1, rowsSuccess: 1, rowsFailed: 0,
+      rowsProcessed: 200, rowsSuccess: 200, rowsFailed: 0,
     } as RowsProcessedStats)
   }
 });
@@ -67,7 +72,8 @@ jest.mock("import/esco/occupations/occupationsParser.ts", () => {
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
   return {
     parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 1, rowsSuccess: 1, rowsFailed: 0,
+      // countISCOGroups + countOccupations - 10
+      rowsProcessed: 100 + 200 - 10, rowsSuccess: 100 + 200 - 10, rowsFailed: 0,
     } as RowsProcessedStats)
   }
 });
@@ -93,6 +99,7 @@ describe("Test the main async handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   })
+
   test("should successfully parse all files", async () => {
     // GIVEN some configuration
     const givenUploadBucketRegion = getUploadBucketRegion();
@@ -111,7 +118,10 @@ describe("Test the main async handler", () => {
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
     // AND the importProcessState will be successfully updated
     const givenImportProcessStateRepositoryMock = {
-      Model: undefined as any, create: jest.fn().mockResolvedValue(null), update: jest.fn().mockResolvedValue(null), upsert: jest.fn().mockResolvedValue(null)
+      Model: undefined as any,
+      create: jest.fn().mockResolvedValue(null),
+      update: jest.fn().mockResolvedValue(null),
+      upsert: jest.fn().mockResolvedValue(null)
     }
     jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
     // AND an Import
@@ -133,11 +143,16 @@ describe("Test the main async handler", () => {
     // THEN expect the S3PresignerService to have been instantiated with the correct region and bucket name
     expect(S3PresignerService).toHaveBeenCalledWith(givenUploadBucketRegion, givenUploadBucketName);
     // AND expect the importProcessState to have been created with a status of RUNNING
-    expect(getRepositoryRegistry().importProcessState.create).toHaveBeenCalledWith({id: givenImportProcessStateId, modelId: givenModelId, status: ImportProcessStateAPISpec.Enums.Status.RUNNING, result: {
+    expect(getRepositoryRegistry().importProcessState.create).toHaveBeenCalledWith({
+      id: givenImportProcessStateId,
+      modelId: givenModelId,
+      status: ImportProcessStateAPISpec.Enums.Status.RUNNING,
+      result: {
         errored: false,
         parsingErrors: false,
         parsingWarnings: false,
-      }});
+      }
+    });
     // AND for each of the givenEvent.filePaths to call the correct processing function with the giveModelId and the presigned URL for the file path
     for (const entry of Object.entries(givenEvent.filePaths)) {
       const expectedFileType = entry[0];
@@ -161,16 +176,173 @@ describe("Test the main async handler", () => {
         // ADD additional file types here
       }
       // AND expect the importProcessState to have been updated with a status of COMPLETED
-       expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(
-         givenImportProcessStateId,
-         {
-           status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
-           result: {
-             errored: false,
-             parsingErrors: false,
-             parsingWarnings: false,
-        }
-     });
+      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(
+        givenImportProcessStateId,
+        {
+          status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
+          result: {
+            errored: false,
+            parsingErrors: false,
+            parsingWarnings: false,
+          }
+        });
     }
+  })
+
+  describe("should parse files with errors", () => {
+    test.each([
+      [Import.Constants.ImportFileTypes.ISCO_GROUP, () => {
+        (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 101, rowsSuccess: 100, rowsFailed: 1,
+        } as RowsProcessedStats);
+        (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 200, rowsSuccess: 200, rowsFailed: 0,
+        } as RowsProcessedStats);
+        (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 100 + 200 - 10, rowsSuccess: 100 + 200 - 10, rowsFailed: 0,
+        } as RowsProcessedStats)
+      }],
+      [Import.Constants.ImportFileTypes.ESCO_OCCUPATION, () => {
+        (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
+        } as RowsProcessedStats);
+        (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 201, rowsSuccess: 200, rowsFailed: 1,
+        } as RowsProcessedStats);
+        (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 100 + 200 - 10, rowsSuccess: 100 + 200 - 10, rowsFailed: 0,
+        } as RowsProcessedStats)
+      }],
+      [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY, () => {
+        (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
+        } as RowsProcessedStats);
+        (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 201, rowsSuccess: 200, rowsFailed: 1,
+        } as RowsProcessedStats);
+        (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
+          rowsProcessed: 100 + 200 - 10, rowsSuccess: 100 + 200 - 10, rowsFailed: 0,
+        } as RowsProcessedStats)
+      }],
+      [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP, () => (parseSkillGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
+        rowsProcessed: 1, rowsSuccess: 0, rowsFailed: 1,
+      } as RowsProcessedStats)],
+      [Import.Constants.ImportFileTypes.ESCO_SKILL, () => (parseSkillsFromUrl as jest.Mock).mockResolvedValueOnce({
+        rowsProcessed: 1, rowsSuccess: 0, rowsFailed: 1,
+      } as RowsProcessedStats)]
+
+    ])
+    ("should parse files with errors when %s.csv has failed rows", async (desc, setupMockCallBack) => {
+      // GIVEN the model to import into with a given modelId and a given importProcessStateId
+      const givenModelId = getMockId(1);
+      const givenImportProcessStateId = getMockId(2);
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as any, create: jest.fn().mockResolvedValue(null), getModelById: jest.fn().mockResolvedValue({
+          id: givenModelId, importProcessState: {
+            id: givenImportProcessStateId,
+          }
+        }), getModelByUUID: jest.fn().mockResolvedValue(null), getModels: jest.fn().mockResolvedValue([])
+      };
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+      // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
+      // AND the importProcessState will be successfully updated
+      const givenImportProcessStateRepositoryMock = {
+        Model: undefined as any,
+        create: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue(null),
+        upsert: jest.fn().mockResolvedValue(null)
+      }
+      jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
+      // AND an Import
+      const givenEvent: Import.POST.Request.Payload = {
+        filePaths: {
+          [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+          [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+          [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+          [Import.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+          [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+
+          // ADD additional file types here
+        }, modelId: givenModelId
+      };
+      // AND the parser will fail
+      setupMockCallBack();
+
+      // WHEN the handler is invoked with the given event param
+      await parseFiles(givenEvent);
+
+      // THEN expect the importProcessState to have been updated with a status of COMPLETED
+      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(
+        givenImportProcessStateId,
+        {
+          status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
+          result: {
+            errored: false,
+            parsingErrors: true,
+            parsingWarnings: false, // this will happen as the warning is currently triggered whenever the occupation hierarchy is not fully populated
+          }
+        });
+    })
+  });
+  test("should parse files with warnings when some the  occupations hierarchy seems to have more or less rows than expected", async () => {
+    // GIVEN the model to import into with a given modelId and a given importProcessStateId
+    const givenModelId = getMockId(1);
+    const givenImportProcessStateId = getMockId(2);
+    const givenModelInfoRepositoryMock = {
+      Model: undefined as any, create: jest.fn().mockResolvedValue(null), getModelById: jest.fn().mockResolvedValue({
+        id: givenModelId, importProcessState: {
+          id: givenImportProcessStateId,
+        }
+      }), getModelByUUID: jest.fn().mockResolvedValue(null), getModels: jest.fn().mockResolvedValue([])
+    };
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+    // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
+    // AND the importProcessState will be successfully updated
+    const givenImportProcessStateRepositoryMock = {
+      Model: undefined as any,
+      create: jest.fn().mockResolvedValue(null),
+      update: jest.fn().mockResolvedValue(null),
+      upsert: jest.fn().mockResolvedValue(null)
+    }
+    jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
+    // AND an Import
+    const givenEvent: Import.POST.Request.Payload = {
+      filePaths: {
+        [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+        [Import.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+        [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+
+        // ADD additional file types here
+      }, modelId: givenModelId
+    };
+    // AND the parser will generate a warning
+    (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
+      rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
+    } as RowsProcessedStats);
+    (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
+      rowsProcessed: 200, rowsSuccess: 200, rowsFailed: 0,
+    } as RowsProcessedStats);
+    (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
+      rowsProcessed: 1, //<------- should have been 100 + 200 - 10
+      rowsSuccess: 1, //<------- should have been 100 + 200 - 10
+      rowsFailed: 0,
+    } as RowsProcessedStats);
+
+    // WHEN the handler is invoked with the given event param
+    await parseFiles(givenEvent);
+
+    // THEN expect the importProcessState to have been updated with a status of COMPLETED
+    expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(
+      givenImportProcessStateId,
+      {
+        status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
+        result: {
+          errored: false,
+          parsingErrors: false,
+          parsingWarnings: true, // this will happen as the warning is currently triggered whenever the occupation hierarchy is not fully populated
+        }
+      });
   })
 });
