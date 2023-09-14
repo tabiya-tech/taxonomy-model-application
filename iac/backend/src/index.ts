@@ -13,7 +13,6 @@ export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 export const currentRegion = pulumi.output(aws.getRegion()).name;
 
 
-
 /**
  * Setup Upload Bucket
  */

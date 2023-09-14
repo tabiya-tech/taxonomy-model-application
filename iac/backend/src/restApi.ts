@@ -12,6 +12,8 @@ const LAMBDA_TIMEOUT_IN_SECONDS = 30;
 
 const LAMBDA_MEMORY_IN_MB = 512;
 
+const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 10;
+
 export function setupBackendRESTApi(environment: string, config: {
   mongodb_uri: string,
   resourcesBaseUrl: string,
@@ -86,6 +88,7 @@ export function setupBackendRESTApi(environment: string, config: {
     runtime: 'nodejs16.x',
     timeout: LAMBDA_TIMEOUT_IN_SECONDS,
     memorySize: LAMBDA_MEMORY_IN_MB,
+    reservedConcurrentExecutions: LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS,
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
