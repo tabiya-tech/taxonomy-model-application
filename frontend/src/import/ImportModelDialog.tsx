@@ -7,15 +7,15 @@ import {
   DialogContent,
   DialogTitle, useMediaQuery, useTheme
 } from '@mui/material';
-import Locale from "api-specifications/locale";
 import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
 import ModelDescriptionField from "./components/ModelDescriptionField";
-import { Constants as ImportConstants} from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import {useStyles} from "src/theme/global.style";
 import CancelButton from "src/theme/CancelButton/CancelButton";
 import {ImportFiles} from "./ImportFiles.type";
 import ModelLocalSelectField from "./components/ModelLocalSelectField";
+import LocaleAPISpecs from "api-specifications/locale";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -27,7 +27,7 @@ export const DATA_TEST_ID = {
 export interface ImportData {
   name: string,
   description: string,
-  locale: Locale.Payload,
+  locale: LocaleAPISpecs.Types.Payload,
   selectedFiles: ImportFiles
 }
 
@@ -35,7 +35,7 @@ export type CloseEvent = { name: "CANCEL" | "IMPORT", importData?: ImportData };
 
 export interface ImportModelDialogProps {
   isOpen: boolean, // if true, the dialog is open/shown
-  availableLocales: Locale.Payload[],
+  availableLocales: LocaleAPISpecs.Types.Payload[],
   notifyOnClose: (event: CloseEvent) => void // callback function to notify the parent component when the dialog should close
 }
 
@@ -65,7 +65,7 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
     validateData();
   }
 
-  const handleLocaleChange = (newLocale: Locale.Payload) => {
+  const handleLocaleChange = (newLocale: LocaleAPISpecs.Types.Payload) => {
     data.current.locale = {...newLocale};
     validateData();
   }
@@ -74,7 +74,7 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
     data.current.description = newDescription;
   }
 
-  const handleSelectedFileChange = (fileType: ImportConstants.ImportFileTypes, file: File | null) => {
+  const handleSelectedFileChange = (fileType: ImportAPISpecs.Constants.ImportFileTypes, file: File | null) => {
     if (file === null) {
       delete data.current.selectedFiles[fileType];
     } else {

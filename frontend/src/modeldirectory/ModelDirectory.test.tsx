@@ -9,17 +9,17 @@ import ImportModelDialog, {DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportDat
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import ImportDirectorService from 'src/import/importDirector.service';
-import Locale from "api-specifications/locale";
 import {ImportFiles} from 'src/import/ImportFiles.type';
 import {useSnackbar} from 'src/theme/SnackbarProvider/SnackbarProvider';
 import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID,} from 'src/theme/Backdrop/Backdrop';
 import ModelsTable, {DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID,} from './components/modelTables/ModelsTable';
 import ModelInfoService from "src/modelInfo/modelInfo.service";
-import {Constants as ImportConstants} from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 
 import {
   getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength,
 } from './components/modelTables/_test_utilities/mockModelData';
+import LocaleAPISpecs from "api-specifications/locale";
 
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock('src/modelInfo/modelInfo.service', () => {
@@ -111,12 +111,12 @@ function getTestImportData(): ImportData {
   const description = 'My Model Description';
   // the import files
   const selectedFiles: ImportFiles = {};
-  Object.values(ImportConstants.ImportFileTypes).forEach((fileType: ImportConstants.ImportFileTypes) => {
+  Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach((fileType: ImportAPISpecs.Constants.ImportFileTypes) => {
     selectedFiles[fileType] = new File(['foo bits'], `My File-${fileType}`, {type: 'text/plain'});
   });
 
   //The locale
-  const locale: Locale.Payload = {
+  const locale: LocaleAPISpecs.Types.Payload = {
     UUID: '8e763c32-4c21-449c-94ee-7ddeb379369a', name: 'South Africa', shortCode: 'ZA',
   };
   return {name, description, locale, selectedFiles};

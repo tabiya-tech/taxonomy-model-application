@@ -10,7 +10,7 @@ import {
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {ajvInstance, ParseValidationError} from "validator";
 
-import ModelInfo from 'api-specifications/modelInfo';
+import ModelInfoAPISpecs from 'api-specifications/modelInfo';
 
 import {ValidateFunction} from "ajv";
 import {transform} from "./transform";
@@ -73,18 +73,18 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
   }
 
   // @ts-ignore
-  if (event.body?.length > ModelInfo.Constants.MAX_PAYLOAD_LENGTH) {
-    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${ModelInfo.Constants.MAX_PAYLOAD_LENGTH}`);
+  if (event.body?.length > ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
+    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`);
   }
 
-  let payload: ModelInfo.POST.Request.Payload;
+  let payload: ModelInfoAPISpecs.Types.POST.Request.Payload;
   try {
     payload = JSON.parse(event.body as string);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(error.message);
   }
-  const validateFunction = ajvInstance.getSchema(ModelInfo.POST.Request.Schema.$id as string) as ValidateFunction;
+  const validateFunction = ajvInstance.getSchema(ModelInfoAPISpecs.Schemas.POST.Request.Payload.$id as string) as ValidateFunction;
   const isValid = validateFunction(payload);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
@@ -103,7 +103,7 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {  //
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
-    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfo.POST.Response.Constants.ErrorCodes.DB_FAILED_TO_CREATE_MODEL, "Failed to create the model in the DB", "");
+    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_MODEL, "Failed to create the model in the DB", "");
   }
 }
 
@@ -141,7 +141,7 @@ async function getModelInfo(event: APIGatewayProxyEvent) {
     return responseJSON(StatusCodes.OK, models.map(model => transform(model, getResourcesBaseUrl())));
   } catch (error: unknown) {  //
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
-    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfo.GET.Response.Constants.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS, "Failed to retrieve models from the DB", "");
+    return errorResponse(StatusCodes.INTERNAL_SERVER_ERROR, ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS, "Failed to retrieve models from the DB", "");
   }
 }
 

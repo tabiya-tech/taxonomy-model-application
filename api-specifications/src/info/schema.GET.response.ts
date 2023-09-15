@@ -1,6 +1,6 @@
 import { SchemaObject } from "ajv";
 
-const InfoResponseSchemaGET: SchemaObject = {
+const SchemaGETResponse: SchemaObject = {
     $id: "/components/schemas/InfoResponseSchemaGET",
     type: "object",
     additionalProperties: false,
@@ -42,4 +42,4 @@ const InfoResponseSchemaGET: SchemaObject = {
     ]
 };
 
-export default InfoResponseSchemaGET;
+export default SchemaGETResponse;

@@ -2,7 +2,7 @@ import * as React from "react";
 import {ChangeEvent, useState} from "react";
 import AddIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveIcon from "@mui/icons-material/RemoveCircleOutline";
-import {Constants as ImportConstants} from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import {Fab, FabProps} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
 import {mapFileTypeToName} from "./mapFileTypeToName";
@@ -10,8 +10,8 @@ import debounce from "lodash.debounce";
 import {DEBOUNCE_INTERVAL} from "./debouncing";
 
 export interface FileEntryProps {
-  fileType: ImportConstants.ImportFileTypes,
-  notifySelectedFileChange?: (fileType: ImportConstants.ImportFileTypes, newFile: File | null) => void
+  fileType: ImportAPISpecs.Constants.ImportFileTypes,
+  notifySelectedFileChange?: (fileType: ImportAPISpecs.Constants.ImportFileTypes, newFile: File | null) => void
 }
 
 const baseTestID = "d2bc4d5d-7760-450d-bac6-a8857affeb89"

@@ -5,8 +5,8 @@ import {randomUUID} from "crypto";
 import {getTestString} from "../_test_utilities/specialCharacters";
 
 
-describe('Test the LocaleSchema Schema', () => {
-  test("The LocaleSchema module can be required via the index", () => {
+describe('Test the Schema Schema', () => {
+  test("The Schema module can be required via the index", () => {
     //GIVEN the  module
     //WHEN the module is required via the index
     expect(() => {
@@ -15,27 +15,27 @@ describe('Test the LocaleSchema Schema', () => {
        require('./');
       }).not.toThrowError();
       // AND check if Schema is defined in it
-      expect(require("./").default.Schema).toBeDefined();
+      expect(require("./").default.Schemas.Payload).toBeDefined();
     }).not.toThrowError();
   })
 
-  test("The LocaleSchema schema is a valid Schema", () => {
+  test("The Schema schema is a valid Schema", () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     expect(() => {
-      ajv.addSchema(Locale.Schema, Locale.Schema.$id);
-      ajv.getSchema(Locale.Schema.$id as string);
+      ajv.addSchema(Locale.Schemas.Payload, Locale.Schemas.Payload.$id);
+      ajv.getSchema(Locale.Schemas.Payload.$id as string);
     }).not.toThrowError();
   });
 });
 
 describe('Validate JSON against the Locale Schema', () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-  ajv.addSchema(Locale.Schema, Locale.Schema.$id);
-  let validateFunction = ajv.getSchema(Locale.Schema.$id as string) as ValidateFunction;
+  ajv.addSchema(Locale.Schemas.Payload, Locale.Schemas.Payload.$id);
+  let validateFunction = ajv.getSchema(Locale.Schemas.Payload.$id as string) as ValidateFunction;
 
   test("A valid Locale object validates", () => {
     // GIVEN a valid Locale object
-    const validLocale:Locale.Payload = {
+    const validLocale : Locale.Types.Payload = {
       name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
       shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
@@ -51,7 +51,7 @@ describe('Validate JSON against the Locale Schema', () => {
 
   test("A Locale object with extra properties does not validate", () => {
     // GIVEN a Locale object with extra properties
-    const validLocale:Locale.Payload = {
+    const validLocale:Locale.Types.Payload = {
       name: "foo",
       UUID: randomUUID(),
       shortCode: "baz",

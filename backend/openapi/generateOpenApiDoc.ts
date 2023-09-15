@@ -12,22 +12,22 @@ import Info from "api-specifications/info";
  *  In ajv the $ref is relative to the root of the schema, while in openapi the $ref is relative to the root of the document.
  *  Due to the different way that ajv and openapi handle $ref, we need to fix the $ref in the schema.
  */
-ModelInfo.POST.Response.Schema.properties.locale.$ref = "#" + ModelInfo.POST.Response.Schema.properties.locale.$ref;
-ModelInfo.POST.Request.Schema.properties.locale.$ref = "#" + ModelInfo.POST.Request.Schema.properties.locale.$ref;
-ModelInfo.GET.Response.Schema.items.properties.locale.$ref = "#" + ModelInfo.GET.Response.Schema.items.properties.locale.$ref;
+ModelInfo.Schemas.POST.Response.Payload.properties.locale.$ref = "#" + ModelInfo.Schemas.POST.Response.Payload.properties.locale.$ref;
+ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref = "#" + ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref;
+ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref = "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
- * It does not resolve $ref from within the components sections e.g. it will not resolve "$ref": "#/components/schemas/LocaleSchema" from ModelInfoResponseSchema
+ * It does not resolve $ref from within the components sections e.g. it will not resolve "$ref": "#/components/schemas/Schema" from ModelInfoResponseSchema
  */
-delete ModelInfo.POST.Response.Schema.$id
-delete ModelInfo.POST.Request.Schema.$id
-delete ModelInfo.GET.Response.Schema.$id
-delete Locale.Schema.$id
-delete Presigned.GET.Response.Schema.$id
-delete Import.POST.Request.Schema.$id
-delete Info.GET.Response.Schema.$id
-delete APIError.POST.Response.Schema.$id
+delete ModelInfo.Schemas.POST.Response.Payload.$id
+delete ModelInfo.Schemas.POST.Request.Payload.$id
+delete ModelInfo.Schemas.GET.Response.Payload.$id
+delete Locale.Schemas.Payload.$id
+delete Presigned.Schemas.GET.Response.Payload.$id
+delete Import.Schemas.POST.Request.Payload.$id
+delete Info.Schemas.GET.Response.Payload.$id
+delete APIError.Schemas.Payload.$id
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -90,14 +90,14 @@ function getOpenAPISpecification(version: string, apiPaths: string[] = ['./src/*
         },
         schemas: {
           // Add here all schemas that are used in the api
-          ErrorSchema: APIError.POST.Response.Schema,
-          PresignedSchema: Presigned.GET.Response.Schema,
-          ModelInfoResponseSchemaPOST: ModelInfo.POST.Response.Schema,
-          ModelInfoRequestSchemaPOST: ModelInfo.POST.Request.Schema,
-          ModelInfoResponseSchemaGET: ModelInfo.GET.Response.Schema,
-          LocaleSchema: Locale.Schema,
-          ImportSchema: Import.POST.Request.Schema,
-          InfoSchema: Info.GET.Response.Schema,
+          ErrorSchema: APIError.Schemas.Payload,
+          PresignedSchema: Presigned.Schemas.GET.Response.Payload,
+          ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
+          ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
+          ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
+          LocaleSchema: Locale.Schemas.Payload,
+          ImportSchema: Import.Schemas.POST.Request.Payload,
+          InfoSchema: Info.Schemas.GET.Response.Payload,
         },
         securitySchemes: {
           api_key: {

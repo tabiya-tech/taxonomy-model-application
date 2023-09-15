@@ -1,4 +1,4 @@
-import Import from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import {initOnce} from "server/init";
 import {ajvInstance, ParseValidationError} from "validator";
 import {ValidateFunction} from "ajv";
@@ -10,13 +10,13 @@ import importLogger from "../importLogger/importLogger";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const handler = async (event: Import.POST.Request.Payload): Promise<any> => {
+export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<any> => {
   console.info("Import started", event);
   // Clear the importLogger from previous runs
   importLogger.clear();
 
   // Validate the event against the schema
-  const validateFunction = ajvInstance.getSchema(Import.POST.Request.Schema.$id as string) as ValidateFunction;
+  const validateFunction = ajvInstance.getSchema(ImportAPISpecs.Schemas.POST.Request.Payload.$id as string) as ValidateFunction;
   const isValid = validateFunction(event);
 
   // If the event is not valid, log and return

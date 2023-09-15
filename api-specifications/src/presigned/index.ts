@@ -1,26 +1,31 @@
-import PresignedResponseSchemaGET from "./presigned.schema";
-import PresignedTypes from "./presigned.types";
-import {PresignedConstants} from "./presigned.constants";
+// we need to disable the eslint rule here because this is a top level export
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import SchemaGETResponse from "./schema.GET.response";
+import PresignedTypes from "./types";
+import PresignedConstants from "./constants";
 
 /**
  * This file should be imported in the following way
 
- import as Presigned from "api-specifications/presigned";
+ import as PresignedAPISpecs from "api-specifications/presigned";
 
- * And the general pattern is Presigned.[VERB].{Request/Response}
- * It is also possible to get the common constants as Presigned.Constants
+ * And the general pattern is PresignedAPISpecs.{Schemas/Types/Constants}[VERB].{Request/Response}
  */
 
-export { PresignedConstants as Constants };
 
-namespace Presigned {
-  export const Constants = PresignedConstants;
+namespace PresignedSchemas {
   export namespace GET {
     export namespace Response {
-      export type Payload = PresignedTypes.GET.Response.Payload
-      export const Schema = PresignedResponseSchemaGET;
+      export const Payload = SchemaGETResponse;
     }
   }
 }
 
-export default Presigned;
+namespace PresignedAPISpecs {
+  export import Constants = PresignedConstants;
+  export import Types = PresignedTypes;
+  export import Schemas = PresignedSchemas;
+}
+
+export default PresignedAPISpecs;

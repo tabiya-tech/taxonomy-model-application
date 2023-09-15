@@ -28,7 +28,7 @@ interface IModelInfoResponse extends IModelInfoRequest {
 interface IModelInfoRequest {
   name: string;
   description: string;
-  locale: Locale.Payload;
+  locale: Locale.Types.Payload;
 }
 
 namespace ModelInfoTypes {
@@ -42,10 +42,7 @@ namespace ModelInfoTypes {
   }
   export namespace GET {
     export namespace Response {
-      export type Payload = IModelInfoResponse;
-    }
-    export namespace Request {
-      export type Payload = IModelInfoRequest;
+      export type Payload = IModelInfoResponse[];
     }
   }
 }

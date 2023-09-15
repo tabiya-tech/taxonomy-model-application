@@ -3,7 +3,7 @@ import addFormats from "ajv-formats";
 import 'jest-performance-matchers';
 import {errorResponse, redactCredentialsFromURI, response, STD_ERRORS_RESPONSES} from "./httpUtils";
 
-import APIError from "api-specifications/error";
+import ErrorAPISpecs from "api-specifications/error";
 
 describe("test response function", () => {
 
@@ -51,8 +51,8 @@ describe("test the errorResponse function", () => {
     // GIVEN a status code
     const givenStatusCode = 500;
     // AND some error details
-    const givenError: APIError.POST.Response.Payload = {
-      errorCode: APIError.Constants.ErrorCodes.INTERNAL_SERVER_ERROR,
+    const givenError: ErrorAPISpecs.Types.Payload = {
+      errorCode: ErrorAPISpecs.Constants.ErrorCodes.INTERNAL_SERVER_ERROR,
       message: "message",
       details: "details"
     };
@@ -67,7 +67,7 @@ describe("test the errorResponse function", () => {
     // AND a body should validate against the APIError schema
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    const validateResponse = ajv.compile(APIError.POST.Response.Schema);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.Payload);
     validateResponse(JSON.parse(result.body));
     expect(validateResponse.errors).toBeNull();
   });
@@ -79,8 +79,8 @@ describe("test the errorResponse function", () => {
     // GIVEN a status code
     const givenStatusCode = 500;
     // AND some error details
-    const givenError: APIError.POST.Response.Payload = {
-      errorCode: APIError.Constants.ErrorCodes.INTERNAL_SERVER_ERROR,
+    const givenError: ErrorAPISpecs.Types.Payload = {
+      errorCode: ErrorAPISpecs.Constants.ErrorCodes.INTERNAL_SERVER_ERROR,
       // @ts-ignore
       message: value,
       // @ts-ignore
@@ -97,7 +97,7 @@ describe("test the errorResponse function", () => {
     // AND a body should validate against the APIError schema
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    const validateResponse = ajv.compile(APIError.POST.Response.Schema);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.Payload);
     validateResponse(JSON.parse(result.body));
     expect(validateResponse.errors).toBeNull();
   });

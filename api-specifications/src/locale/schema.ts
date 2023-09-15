@@ -1,6 +1,6 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4} from "../regex";
-import {ModelInfoConstants} from "../modelInfo/modelInfo.constants";
+import ModelInfoConstants from "../modelInfo/constants";
 
 const LocaleSchema: SchemaObject = {
   $id: "/components/schemas/LocaleSchema",

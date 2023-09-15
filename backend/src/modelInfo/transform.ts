@@ -1,6 +1,6 @@
 import ModelInfoAPISpecs from 'api-specifications/modelInfo';
 import {IModelInfo} from "./modelInfo.types";
-export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.POST.Response.Payload {
+export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.Types.POST.Response.Payload {
   return  {
     id: data.id,
     UUID: data.UUID,

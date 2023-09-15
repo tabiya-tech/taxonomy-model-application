@@ -52,7 +52,7 @@ describe("ModelInfoService", () => {
     test("getAllModels() should call the REST API at the correct URL, with GET and the correct headers and payload successfully", async () => {
 
       // AND the GET models REST API will respond with OK and some models
-      const givenResponseBody: ModelInfoAPISpecs.GET.Response.Payload = MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
+      const givenResponseBody: ModelInfoAPISpecs.Types.GET.Response.Payload = MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
       const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called with the given arguments
@@ -329,10 +329,10 @@ describe("ModelInfoService", () => {
 
     const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
     addFormats(ajv);
-    ajv.addSchema(LocaleAPISpecs.Schema);
-    ajv.addSchema(ModelInfoAPISpecs.POST.Request.Schema);
-    ajv.addSchema(ModelInfoAPISpecs.POST.Response.Schema);
-    const validateResponse = ajv.compile(ModelInfoAPISpecs.POST.Response.Schema);
+    ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
+    ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Request.Payload);
+    ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload);
+    const validateResponse = ajv.compile(ModelInfoAPISpecs.Schemas.POST.Response.Payload);
 
     test("should call the REST createModel API at the correct URL, with POST and the correct headers and payload successfully", async () => {
       // GIVEN a api server url
@@ -340,7 +340,7 @@ describe("ModelInfoService", () => {
       // AND a name, description, locale
       const givenModelSpec = getNewModelSpecMockData();
       // AND the create model REST API will respond with OK and some newly create model
-      const givenResponseBody: ModelInfoAPISpecs.POST.Response.Payload = MockPayload.POST.getPayloadWithOneRandomModelInfo();
+      const givenResponseBody: ModelInfoAPISpecs.Types.POST.Response.Payload = MockPayload.POST.getPayloadWithOneRandomModelInfo();
       const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
@@ -357,7 +357,7 @@ describe("ModelInfoService", () => {
       const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
 
       // AND the body conforms to the modelRequestSchema
-      const validateRequest = ajv.compile(ModelInfoAPISpecs.POST.Request.Schema);
+      const validateRequest = ajv.compile(ModelInfoAPISpecs.Schemas.POST.Request.Payload);
       validateRequest(payload);
       // @ts-ignore
       expect(validateResponse.errors).toBeNull();

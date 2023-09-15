@@ -4,14 +4,13 @@
 import ImportProcessStateTypes from "./types";
 import SchemaGETResponse from "./schema.GET.response";
 import ImportProcessStateEnums from "./enums";
-import {ImportProcessStateConstants} from "./constants";
 
 /**
  * This file should be imported in the following way
 
- import Info from "api-specifications/info";
+ import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
- * And the general pattern is Info.[VERB].{Request/Response}
+ * And the general pattern is ImportProcessStateAPISpecs.{Schemas/Types/Enums}.[VERB].{Request/Response}
  */
 
 namespace ImportProcessSchemas {
@@ -22,11 +21,10 @@ namespace ImportProcessSchemas {
   }
 }
 
-namespace ImportProcessState {
+namespace ImportProcessStateAPISpecs {
   export import Enums = ImportProcessStateEnums;
-  export import Constants = ImportProcessStateConstants;
   export import Types = ImportProcessStateTypes;
   export import Schemas = ImportProcessSchemas;
 }
 
-export default ImportProcessState;
+export default ImportProcessStateAPISpecs;

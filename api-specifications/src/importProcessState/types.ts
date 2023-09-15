@@ -1,6 +1,5 @@
 import {ImportProcessState} from "./enums";
 
-
 namespace ImportProcessStateTypes {
   export type Result = {
     errored: boolean

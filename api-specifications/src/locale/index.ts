@@ -1,14 +1,24 @@
-import LocaleResponseSchema from "./locale.schema";
-import LocaleTypes from "./locale.types";
+// we need to disable the eslint rule here because this is a top level export
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import LocaleResponseSchema from "./schema";
+import LocaleTypes from "./types";
 
 /**
  * This module should be imported in the following way
 
- import Locale from "api-specifications/locale";
+ import LocaleAPISpecs from "api-specifications/locale";
+
+ And the general pattern is LocaleAPISpecs.{Schemas/Types}
  */
 
-export namespace Locale {
-    export type Payload = LocaleTypes.Payload;
-    export const Schema = LocaleResponseSchema;
+namespace LocaleSchemas {
+    export const Payload = LocaleResponseSchema;
 }
-export default Locale;
+
+namespace LocaleAPISpecs {
+    export import Types = LocaleTypes;
+    export import Schemas = LocaleSchemas;
+}
+
+export default LocaleAPISpecs;

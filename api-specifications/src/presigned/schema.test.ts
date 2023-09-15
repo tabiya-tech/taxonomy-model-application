@@ -14,7 +14,7 @@ describe('Test the PresignedSchema', () => {
 
     let presignedModule = require('./').default;
     // AND the schema should be defined
-    expect(presignedModule.GET.Response.Schema).toBeDefined();
+    expect(presignedModule.Schemas.GET.Response.Payload).toBeDefined();
 
     // AND the constants should be defined
     const Constants = presignedModule.Constants;
@@ -26,8 +26,8 @@ describe('Test the PresignedSchema', () => {
     expect(() => {
       const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
       addFormats(ajv);
-      ajv.addSchema(Presigned.GET.Response.Schema, Presigned.GET.Response.Schema.$id);
-      ajv.getSchema(Presigned.GET.Response.Schema.$id as string);
+      ajv.addSchema(Presigned.Schemas.GET.Response.Payload, Presigned.Schemas.GET.Response.Payload.$id);
+      ajv.getSchema(Presigned.Schemas.GET.Response.Payload.$id as string);
     }).not.toThrowError();
   });
 });
@@ -35,14 +35,14 @@ describe('Test the PresignedSchema', () => {
 describe('Validate JSON against the PresignedSchema', () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
   addFormats(ajv);
-  ajv.addSchema(Presigned.GET.Response.Schema, Presigned.GET.Response.Schema.$id);
-  ajv.getSchema(Presigned.GET.Response.Schema.$id as string);
+  ajv.addSchema(Presigned.Schemas.GET.Response.Payload, Presigned.Schemas.GET.Response.Payload.$id);
+  ajv.getSchema(Presigned.Schemas.GET.Response.Payload.$id as string);
 
-  let validateFunction = ajv.getSchema(Presigned.GET.Response.Schema.$id as string) as ValidateFunction;
+  let validateFunction = ajv.getSchema(Presigned.Schemas.GET.Response.Payload.$id as string) as ValidateFunction;
 
   test("A valid PresignedResponse object validates", () => {
     // GIVEN a valid ModelInfoResponse object
-    const validPresignedResponse: Presigned.GET.Response.Payload = {
+    const validPresignedResponse: Presigned.Types.GET.Response.Payload = {
       url: "https://foo.bar",
       fields: [{name: "name1", value: getTestString(10)}, {name: "name2", value: getTestString(10)}],
       folder: getTestString(10),
@@ -58,7 +58,7 @@ describe('Validate JSON against the PresignedSchema', () => {
 
   test("A valid PresignedResponse object with extra properties does not validate", () => {
     // GIVEN a valid ModelInfoResponse object with extra properties
-    const validPresignedResponse: Presigned.GET.Response.Payload = {
+    const validPresignedResponse: Presigned.Types.GET.Response.Payload = {
       url: "https://foo.bar",
       fields: [{name: "name1", value: getTestString(10)}, {name: "name2", value: getTestString(10)}],
       folder: getTestString(10),

@@ -1,7 +1,7 @@
 import {SchemaObject} from "ajv";
 import {_baseProperties} from "./schemas.base";
 
-const ModelInfoRequestSchemaPOST: SchemaObject = {
+const SchemaPOSTRequest: SchemaObject = {
   $id: "/components/schemas/ModelInfoRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
@@ -15,4 +15,4 @@ const ModelInfoRequestSchemaPOST: SchemaObject = {
   ]
 };
 
-export default ModelInfoRequestSchemaPOST;
+export default SchemaPOSTRequest;

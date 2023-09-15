@@ -1,6 +1,8 @@
 // ###########
 // Setup mocks
 
+import PresignedAPISpecs from "api-specifications/presigned";
+
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelService = jest.fn(); // the constructor
@@ -10,7 +12,6 @@ jest.mock("src/modelInfo/modelInfo.service", () => {
 });
 
 // Setup the mock for the presigned.service
-import  Presigned from "api-specifications/presigned";
 
 jest.mock("./presigned/presigned.service", () => {
   const mockPresignedService = jest.fn(); // the constructor
@@ -39,7 +40,7 @@ import {getTestString} from "src/_test_utilities/specialCharacters";
 import ModelInfo from "api-specifications/modelInfo";
 import {randomUUID} from "crypto";
 import ImportDirectorService from "./importDirector.service";
-import Import, {Constants as ImportConstants} from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
@@ -56,7 +57,7 @@ describe('Test the import director service', () => {
     jest.spyOn(modelService, "createModel").mockResolvedValue(givenMockModel);
 
     const presignedService = new PresignedService("foo");
-    const givenMockPresignedResponse: Presigned.GET.Response.Payload = {
+    const givenMockPresignedResponse: PresignedAPISpecs.Types.GET.Response.Payload = {
       fields: [
         {name: "foo", value: "bar"},
         {name: "baz", value: "qux"}
@@ -79,7 +80,7 @@ describe('Test the import director service', () => {
     const apiServerUrl = "https://somedomain/path/to/api";
     // AND some files
     const givenFiles: ImportFiles = {};
-    Object.values(ImportConstants.ImportFileTypes).forEach((fileType: ImportConstants.ImportFileTypes) => {
+    Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach((fileType: ImportAPISpecs.Constants.ImportFileTypes) => {
       givenFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, {type: 'text/plain'});
     });
 
@@ -107,9 +108,9 @@ describe('Test the import director service', () => {
     expect(uploadService.uploadFiles).toHaveBeenCalledWith(givenMockPresignedResponse, Object.entries(givenFiles).map(([, file]) => file));
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
-    const givenFilesPaths: Import.POST.Request.ImportFilePaths = {};
+    const givenFilesPaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths = {};
     Object.entries(givenFiles).forEach(([fileType, file])=> {
-      givenFilesPaths[fileType as ImportConstants.ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
+      givenFilesPaths[fileType as ImportAPISpecs.Constants.ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
     });
     // THEN the import service is called with the given arguments (modelId, file paths)
     expect(importService.import).toHaveBeenCalledWith(givenMockModel.id, givenFilesPaths);

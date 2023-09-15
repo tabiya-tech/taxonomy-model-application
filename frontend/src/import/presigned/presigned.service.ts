@@ -1,6 +1,6 @@
 import Ajv, {ValidateFunction} from 'ajv/dist/2020';
 import addFormats from "ajv-formats";
-import Presigned from "api-specifications/presigned";
+import PresignedAPISpecs from "api-specifications/presigned";
 
 import {ErrorCodes} from "src/error/errorCodes";
 import {getServiceErrorFactory} from "src/error/error";
@@ -9,8 +9,8 @@ import {StatusCodes} from "http-status-codes/";
 
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);// To support the "date-time" format
-ajv.addSchema(Presigned.GET.Response.Schema, Presigned.GET.Response.Schema.$id);
-const responseValidator: ValidateFunction = ajv.getSchema(Presigned.GET.Response.Schema.$id as string) as ValidateFunction;
+ajv.addSchema(PresignedAPISpecs.Schemas.GET.Response.Payload, PresignedAPISpecs.Schemas.GET.Response.Payload.$id);
+const responseValidator: ValidateFunction = ajv.getSchema(PresignedAPISpecs.Schemas.GET.Response.Payload.$id as string) as ValidateFunction;
 
 export default class PresignedService {
   readonly apiServerUrl: string;
@@ -25,7 +25,7 @@ export default class PresignedService {
    * Resolves with a IPresignedResponse or rejects with a ServiceError
    *
    */
-  async getPresignedPost(): Promise<Presigned.GET.Response.Payload> {
+  async getPresignedPost(): Promise<PresignedAPISpecs.Types.GET.Response.Payload> {
     const errorFactory = getServiceErrorFactory("PresignedService", "getPresignedPost", "GET", this.presignedEndpointUrl);
     let response;
     let responseBody: string;
@@ -51,7 +51,7 @@ export default class PresignedService {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
 
-    let presignedResponse: Presigned.GET.Response.Payload;
+    let presignedResponse: PresignedAPISpecs.Types.GET.Response.Payload;
     try {
       presignedResponse = JSON.parse(responseBody);
     } catch (e: any) {

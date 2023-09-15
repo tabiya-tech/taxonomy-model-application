@@ -1,3 +1,3 @@
-import {Constants as ImportConstants} from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 
-export type ImportFiles = { [key in ImportConstants.ImportFileTypes]?: File };
+export type ImportFiles = { [key in ImportAPISpecs.Constants.ImportFileTypes]?: File };

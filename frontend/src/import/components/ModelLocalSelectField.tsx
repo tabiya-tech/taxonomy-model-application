@@ -21,8 +21,8 @@ export const DATA_TEST_ID = {
 }
 
 export interface ModelLocaleSelectProps {
-  locales: Locale.Payload[],
-  notifyModelLocaleChanged?: (locale: Locale.Payload) => any
+  locales: Locale.Types.Payload[],
+  notifyModelLocaleChanged?: (locale: Locale.Types.Payload) => any
 }
 
 const ModelLocalSelectField = (props: ModelLocaleSelectProps) => {
