@@ -2,28 +2,28 @@ import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
 import {getServiceErrorFactory, ServiceError} from "src/error/error";
 import {ErrorCodes} from "src/error/errorCodes";
 import {StatusCodes} from "http-status-codes/";
-import Locale from "api-specifications/locale";
+import LocaleAPISpecs from "api-specifications/locale";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import Ajv, {ValidateFunction} from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 
-export type INewModelSpecification = ModelInfoAPISpecs.POST.Request.Payload
+export type INewModelSpecification = ModelInfoAPISpecs.Types.POST.Request.Payload
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);// To support the "date-time" format
-ajv.addSchema(Locale.Schema, Locale.Schema.$id);
-ajv.addSchema(ModelInfoAPISpecs.GET.Response.Schema, ModelInfoAPISpecs.GET.Response.Schema.$id);
-ajv.addSchema(ModelInfoAPISpecs.POST.Response.Schema, ModelInfoAPISpecs.POST.Response.Schema.$id);
-ajv.addSchema(ModelInfoAPISpecs.POST.Request.Schema, ModelInfoAPISpecs.POST.Request.Schema.$id);
-const responseValidatorGET: ValidateFunction = ajv.getSchema(ModelInfoAPISpecs.GET.Response.Schema.$id as string) as ValidateFunction;
-const responseValidatorPOST: ValidateFunction = ajv.getSchema(ModelInfoAPISpecs.POST.Response.Schema.$id as string) as ValidateFunction;
+ajv.addSchema(LocaleAPISpecs.Schemas.Payload, LocaleAPISpecs.Schemas.Payload.$id);
+ajv.addSchema(ModelInfoAPISpecs.Schemas.GET.Response.Payload, ModelInfoAPISpecs.Schemas.GET.Response.Payload.$id);
+ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id);
+ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Request.Payload, ModelInfoAPISpecs.Schemas.POST.Request.Payload.$id);
+const responseValidatorGET: ValidateFunction = ajv.getSchema(ModelInfoAPISpecs.Schemas.GET.Response.Payload.$id as string) as ValidateFunction;
+const responseValidatorPOST: ValidateFunction = ajv.getSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id as string) as ValidateFunction;
 
 /**
  * Extracts the type of the elements of an array.
  */
 type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends (infer ItemType)[] ? ItemType : never;
 type ModelInfoTypeAPISpecs =
-  PayloadItem<ModelInfoAPISpecs.GET.Response.Payload>
-  | ModelInfoAPISpecs.POST.Response.Payload;
+  PayloadItem<ModelInfoAPISpecs.Types.GET.Response.Payload>
+  | ModelInfoAPISpecs.Types.POST.Response.Payload;
 export const UPDATE_INTERVAL = 10000; // In milliseconds
 
 export default class ModelInfoService {
@@ -72,7 +72,7 @@ export default class ModelInfoService {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
 
-    let modelResponse: ModelInfoAPISpecs.POST.Response.Payload;
+    let modelResponse: ModelInfoAPISpecs.Types.POST.Response.Payload;
     try {
       modelResponse = JSON.parse(responseBody);
     } catch (e: any) {
@@ -120,7 +120,7 @@ export default class ModelInfoService {
     if (!contentType?.includes("application/json")) {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
     }
-    let allModelsResponse: ModelInfoAPISpecs.GET.Response.Payload;
+    let allModelsResponse: ModelInfoAPISpecs.Types.GET.Response.Payload;
     try {
       allModelsResponse = JSON.parse(responseBody);
     } catch (e: any) {

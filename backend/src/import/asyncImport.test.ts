@@ -2,10 +2,10 @@
 import "_test_utilities/consoleMock";
 
 import {lambda_invokeAsyncImport} from "./asyncImport";
-import Import from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import {StatusCodes} from "server/httpUtils";
 import * as config from "server/config/config";
-import APIError from "api-specifications/error";
+import ErrorAPISpecs from "api-specifications/error";
 
 import {LambdaClient, InvokeCommand} from "@aws-sdk/client-lambda";
 
@@ -23,10 +23,10 @@ jest.mock("@aws-sdk/client-lambda", () => {
 describe("Test lambda_invokeAsyncImport()  ", () => {
   test("should return the ACCEPTED status", async () => {
     // GIVEN an Import
-    const givenImport: Import.POST.Request.Payload = {
+    const givenImport: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
@@ -61,10 +61,10 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
 
   test("should return the INTERNAL_SERVER_ERROR status if InvokeCommand throws an error", async () => {
     // GIVEN an Import
-    const givenImport: Import.POST.Request.Payload = {
+    const givenImport: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
       },
       modelId: "foo"
     }
@@ -88,8 +88,8 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     // AND the actualResponse status code to be INTERNAL_SERVER_ERROR
     expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
     // AND the actualResponse body to have the error information
-    const expectedErrorBody: APIError.POST.Response.Payload = {
-      "errorCode": Import.POST.Response.Constants.ImportResponseErrorCodes.FAILED_TO_TRIGGER_IMPORT,
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      "errorCode": ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes.FAILED_TO_TRIGGER_IMPORT,
       "message": "Failed to trigger import",
       "details": "",
     }

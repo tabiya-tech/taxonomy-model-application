@@ -3,7 +3,7 @@
 import {SchemaObject} from "ajv";
 import {_baseResponseSchema} from "./schemas.base";
 
-const ModelInfoResponseSchemaGET: SchemaObject = {
+const SchemaGETResponse: SchemaObject = {
   $id: "/components/schemas/ModelInfoResponseSchemaGET",
   type: "array",
   items: {
@@ -11,4 +11,4 @@ const ModelInfoResponseSchemaGET: SchemaObject = {
   }
 };
 
-export default ModelInfoResponseSchemaGET;
+export default SchemaGETResponse;

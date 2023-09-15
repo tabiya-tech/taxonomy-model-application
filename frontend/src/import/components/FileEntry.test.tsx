@@ -1,6 +1,6 @@
 import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
 import {DATA_TEST_ID, FileEntry} from "./FileEntry";
-import {Constants as ImportConstants} from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import {mapFileTypeToName} from "./mapFileTypeToName";
 import {waitFor} from "@testing-library/react";
 import {clickDebouncedButton} from "src/_test_utilities/userEventFakeTimer";
@@ -8,9 +8,9 @@ import {clickDebouncedButton} from "src/_test_utilities/userEventFakeTimer";
 describe("FileEntry render tests", () => {
 
   it.each(
-    [...Object.values(ImportConstants.ImportFileTypes).map((fileType) => [fileType as ImportConstants.ImportFileTypes, mapFileTypeToName(fileType)] as [ImportConstants.ImportFileTypes, string])]
+    [...Object.values(ImportAPISpecs.Constants.ImportFileTypes).map((fileType) => [fileType as ImportAPISpecs.Constants.ImportFileTypes, mapFileTypeToName(fileType)] as [ImportAPISpecs.Constants.ImportFileTypes, string])]
   )
-  ("should render default state %s -> %s", (fileType: ImportConstants.ImportFileTypes, expectedFileTypeName: string) => {
+  ("should render default state %s -> %s", (fileType: ImportAPISpecs.Constants.ImportFileTypes, expectedFileTypeName: string) => {
     // WHEN fileEntry is rendered with some fileType
     render(<FileEntry fileType={fileType}/>)
 
@@ -40,7 +40,7 @@ describe("FileEntry render tests", () => {
 
   it("multiple components should have a unique id", () => {
     // GIVEN some filetype
-    const givenFileType = ImportConstants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
 
     // WHEN fileEntry is rendered multiples
     render(<FileEntry fileType={givenFileType}/>)
@@ -59,7 +59,7 @@ describe("FileEntry action tests", () => {
 
   it("should selected file", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportConstants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
     // AND some file
     const givenAFile = new File([], "foo.csv", {type: "text/csv"})
 
@@ -83,7 +83,7 @@ describe("FileEntry action tests", () => {
 
   it("should remove selected file", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportConstants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
     // AND some file
     const givenAFile = new File([], "foo.csv", {type: "text/csv"})
     // AND fileEntry is rendered
@@ -110,7 +110,7 @@ describe("FileEntry action tests", () => {
 
   it("should correctly notify the notifySelectedFileChange handler when file is selected", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportConstants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
     // AND a notification handler
     const givenMockNotification = jest.fn();
     // AND some file
@@ -128,7 +128,7 @@ describe("FileEntry action tests", () => {
 
   it("should correctly notify the notifySelectedFileChange handler when file is removed", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportConstants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
     // AND someNotificationHandler
     const givenMockNotification = jest.fn();
     // AND some file
@@ -151,7 +151,7 @@ describe("FileEntry action tests", () => {
 
   it("should handle file changes even if notifySelectedFileChange handler is not set", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportConstants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
     // AND some file
     const givenAFile = new File([], "foo.csv", {type: "text/csv"})
 

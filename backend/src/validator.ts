@@ -1,15 +1,15 @@
 import Ajv, {ErrorObject} from "ajv";
-import Locale from 'api-specifications/locale';
-import ModelInfo from "api-specifications/modelInfo";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import addFormats from "ajv-formats";
-import Import from "api-specifications/import";
+import LocaleAPISpecs from "api-specifications/locale";
+import ImportAPISpecs from "api-specifications/import";
 
 export const ajvInstance = new Ajv({validateSchema: true, allErrors: true, strict: true});
 addFormats(ajvInstance);
-ajvInstance.addSchema(Locale.Schema, Locale.Schema.$id);
-ajvInstance.addSchema(ModelInfo.POST.Request.Schema, ModelInfo.POST.Request.Schema.$id);
-ajvInstance.addSchema(ModelInfo.POST.Response.Schema, ModelInfo.POST.Response.Schema.$id);
-ajvInstance.addSchema(Import.POST.Request.Schema, Import.POST.Request.Schema.$id);
+ajvInstance.addSchema(LocaleAPISpecs.Schemas.Payload, LocaleAPISpecs.Schemas.Payload.$id);
+ajvInstance.addSchema(ModelInfoAPISpecs.Schemas.POST.Request.Payload, ModelInfoAPISpecs.Schemas.POST.Request.Payload.$id);
+ajvInstance.addSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id);
+ajvInstance.addSchema(ImportAPISpecs.Schemas.POST.Request.Payload, ImportAPISpecs.Schemas.POST.Request.Payload.$id);
 /**
  * Turn the errors from ajv and turn into a string that consumers can read.
  * @param errors

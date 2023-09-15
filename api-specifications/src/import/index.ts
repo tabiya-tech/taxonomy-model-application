@@ -1,34 +1,32 @@
-import ImportRequestSchemaPOST from "./import.schema";
-import * as ImportConstants from "./import.constants";
-import ImportTypes from "./import.types";
+// we need to disable the eslint rule here because this is a top level export
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import SchemaPOSTRequest from "./schema.POST.request";
+import ImportConstants from "./constants";
+import ImportTypes from "./types";
+import ImportEnums from "./enums";
 
 /**
  * This file should be imported in the following way
 
- import Import from "api-specifications/import";
+ import ImportAPISpecs from "api-specifications/import";
 
- * And the general pattern is Import.[VERB].{Request/Response}
+ * And the general pattern is ImportAPISpecs.{Schemas/Constants/Types/Enums}.[VERB].{Request/Response}
  * It is also possible to get the common constants as Import.Constants
  */
 
-export { ImportConstants as Constants };
-
-namespace Import {
-  export const Constants = ImportConstants;
+namespace ImportSchemas {
   export namespace POST {
     export namespace Request {
-      export type Payload = ImportTypes.POST.Request.Payload;
-      export type ImportFilePaths = ImportTypes.POST.Request.ImportFilePaths;
-      export const Schema = ImportRequestSchemaPOST;
-    }
-    export namespace Response {
-      export namespace Constants {
-        export enum ImportResponseErrorCodes {
-          FAILED_TO_TRIGGER_IMPORT = "FAILED_TO_TRIGGER_IMPORT"
-        }
-      }
+      export const Payload = SchemaPOSTRequest;
     }
   }
 }
 
-export default Import;
+namespace ImportAPISpecs {
+  export import Enums = ImportEnums;
+  export import Constants = ImportConstants;
+  export import Types = ImportTypes;
+  export import Schemas = ImportSchemas;
+}
+export default ImportAPISpecs;

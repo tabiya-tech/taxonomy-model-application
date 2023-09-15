@@ -13,7 +13,7 @@ describe('Test the ErrorResponse Schema', () => {
       }).not.toThrowError();
       let apiErrorModule = require('./').default;
       // AND check if Schema is defined in it
-      expect(apiErrorModule.POST.Response.Schema).toBeDefined();
+      expect(apiErrorModule.Schemas.Payload).toBeDefined();
       // AND check if all the Constants are defined
       const Constants = apiErrorModule.Constants;
       expect(Constants.ErrorCodes).toBeDefined();
@@ -25,8 +25,8 @@ describe('Test the ErrorResponse Schema', () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     addFormats(ajv);
     expect(() => {
-      ajv.addSchema(APIError.POST.Response.Schema, APIError.POST.Response.Schema.$id);
-      ajv.getSchema(APIError.POST.Response.Schema.$id as string);
+      ajv.addSchema(APIError.Schemas.Payload, APIError.Schemas.Payload.$id);
+      ajv.getSchema(APIError.Schemas.Payload.$id as string);
     }).not.toThrowError();
   });
 });

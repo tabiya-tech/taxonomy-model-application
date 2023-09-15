@@ -7,7 +7,7 @@ jest.mock("./FileEntry", () => {
 });
 
 import {render, screen} from "src/_test_utilities/test-utils";
-import {Constants as ImportConstants} from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import ImportFilesSelection, {DATA_TEST_ID} from "./ImportFilesSelection";
 import React from "react";
 
@@ -24,10 +24,10 @@ describe("ImportFilesSelection render tests", () => {
 
     // AND expect file entries for the all the ImportFileTypes  to be rendered
     const fileEntries = screen.getAllByTestId("mock-file-entry");
-    expect(fileEntries.length).toBe(Object.values(ImportConstants.ImportFileTypes).length);
+    expect(fileEntries.length).toBe(Object.values(ImportAPISpecs.Constants.ImportFileTypes).length);
 
     // AND expect the file entries to be rendered with the correct file types
-    Object.values(ImportConstants.ImportFileTypes).forEach((fileType) => {
+    Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach((fileType) => {
       expect(spyOnFileEntry).toHaveBeenCalledWith({
         fileType: fileType,
         notifySelectedFileChange: undefined
@@ -46,7 +46,7 @@ describe("ImportFilesSelection action tests", () => {
     render(<ImportFilesSelection notifySelectedFileChange={givenNotifySelectedFileChangeMock}/>);
 
     // THEN expect that the given notifySelectedFileChange mock to have been passed to the file entries components
-    Object.values(ImportConstants.ImportFileTypes).forEach((fileType) => {
+    Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach((fileType) => {
       expect(spyOnFileEntry).toHaveBeenCalledWith({
         fileType: fileType,
         notifySelectedFileChange: givenNotifySelectedFileChangeMock

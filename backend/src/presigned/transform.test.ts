@@ -1,5 +1,5 @@
 import {transformPresignedPostDataToResponse} from "./transform";
-import Presigned from "api-specifications/presigned";
+import PresignedAPISpecs from "api-specifications/presigned";
 import {PresignedPost} from "@aws-sdk/s3-presigned-post";
 
 describe("test the transformPresignedPostDataToResponse()", () => {
@@ -14,7 +14,7 @@ describe("test the transformPresignedPostDataToResponse()", () => {
     const givenFolder = "bar";
 
     // WHEN the transformPresignedPostDataToResponse function is called with the given presigned post data
-    const actualPresignedResponse: Presigned.GET.Response.Payload = transformPresignedPostDataToResponse(givenPresignedPostData, givenFolder);
+    const actualPresignedResponse: PresignedAPISpecs.Types.GET.Response.Payload = transformPresignedPostDataToResponse(givenPresignedPostData, givenFolder);
 
     // THEN expect the function to return a correct IPreSignedResponse
     expect(actualPresignedResponse).toEqual({

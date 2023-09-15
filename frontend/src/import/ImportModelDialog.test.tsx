@@ -9,7 +9,7 @@ import {DATA_TEST_ID as MODEL_DESCRIPTION_FIELD_DATA_TEST_ID} from "src/import/c
 import {DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID} from "src/import/components/ImportFilesSelection";
 import {DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID} from "src/import/components/FileEntry";
 import {fireEvent, within} from "@testing-library/react";
-import Import, { Constants as ImportConstants } from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import {clickDebouncedButton, typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
 import {ImportFiles} from "./ImportFiles.type";
 import {isSpecified} from "../utils/isUnspecified";
@@ -35,7 +35,7 @@ function getImportDataTestValues(): ImportData {
     name: 'foo model name',
     description: 'foo model description',
     locale: testProps.availableLocales[1],
-    selectedFiles: Object.values(Import.Constants.ImportFileTypes).reduce((acc, fileType) => {
+    selectedFiles: Object.values(ImportAPISpecs.Constants.ImportFileTypes).reduce((acc, fileType) => {
       acc[fileType] = new File([fileType], fileType, {type: 'text/plain'});
       return acc;
     }, {} as ImportFiles)
@@ -66,7 +66,7 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
   // Select the import files
   const importFilesSelectionElement: HTMLInputElement[] = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.FILE_INPUT);
   importFilesSelectionElement.forEach((element) => {
-    const elementFileType = element.getAttribute('data-filetype') as ImportConstants.ImportFileTypes
+    const elementFileType = element.getAttribute('data-filetype') as ImportAPISpecs.Constants.ImportFileTypes
     if (inputData.selectedFiles[elementFileType] !== undefined) {
       fireEvent.change(element, {target: {files: [inputData.selectedFiles[elementFileType]]}});
     }
@@ -225,7 +225,7 @@ describe('ImportModel dialog action tests', () => {
     await fillInImportDialog(givenData);
 
     // AND the user removes one of the files
-    const givenFileTypeToRemove = Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP;
+    const givenFileTypeToRemove = ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP;
 
     const fileEntries = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.FILE_ENTRY);
 

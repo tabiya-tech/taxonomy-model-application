@@ -1,4 +1,4 @@
-import * as ImportConstants from './import.constants';
+import ImportConstants from './constants';
 
 export interface IImportRequest {
   modelId: string

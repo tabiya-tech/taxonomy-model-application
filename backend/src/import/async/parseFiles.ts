@@ -11,7 +11,7 @@ import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ImportAPISpecs from "api-specifications/import";
 import importLogger from "import/importLogger/importLogger";
 
-const getPresignedUrls = async (filePaths: ImportAPISpecs.POST.Request.ImportFilePaths): Promise<ImportAPISpecs.POST.Request.ImportFilePaths> => {
+const getPresignedUrls = async (filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths): Promise<ImportAPISpecs.Types.POST.Request.ImportFilePaths> => {
   const s3PresignedService = new S3PresignerService(getUploadBucketRegion(), getUploadBucketName());
   const promises = Object.entries(filePaths).map(async (entry) => {
     return {[entry[0]]: await s3PresignedService.getPresignedGet(entry[1])};
@@ -19,7 +19,7 @@ const getPresignedUrls = async (filePaths: ImportAPISpecs.POST.Request.ImportFil
   return Object.assign({}, ...await Promise.all(promises));
 };
 
-export const parseFiles = async (event: ImportAPISpecs.POST.Request.Payload) => {
+export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payload) => {
   const modelId = event.modelId;
   // Get the model to import into
   const importProcessStateId = (await getRepositoryRegistry().modelInfo.getModelById(event.modelId) as IModelInfo).importProcessState.id;

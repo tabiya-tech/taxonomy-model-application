@@ -5,20 +5,20 @@ import {getTestString} from "src/_test_utilities/specialCharacters";
 
 import {ErrorCodes} from "src/error/errorCodes";
 
-import Presigned from "api-specifications/presigned";
 import {ServiceError} from "src/error/error";
 import {StatusCodes} from "http-status-codes/";
 import PresignedService from "./presigned.service";
 import addFormats from "ajv-formats";
 import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
+import PresignedAPISpecs from "api-specifications/presigned";
 
 
 const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
 addFormats(ajv);
-const validateResponse = ajv.compile(Presigned.GET.Response.Schema);
+const validateResponse = ajv.compile(PresignedAPISpecs.Schemas.GET.Response.Payload);
 
-function getPresignedMockResponse(): Presigned.GET.Response.Payload {
-  const givenResponse: Presigned.GET.Response.Payload = {
+function getPresignedMockResponse(): PresignedAPISpecs.Types.GET.Response.Payload {
+  const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = {
     url: "https://somedomain/somepath",
     fields: [{name: "someName", value: "someValue"}, {name: "someOtherName", value: "someOtherValue"}],
     folder: getTestString(10)
@@ -55,7 +55,7 @@ describe("Test the service", () => {
     // GIVEN an api server url
     const givenApiServerUrl = "/path/to/api";
     // AND the presigned REST API will respond with OK and some newly created presigned data
-    const givenResponse: Presigned.GET.Response.Payload = getPresignedMockResponse()
+    const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = getPresignedMockResponse()
     const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the getPresignedPost function is called

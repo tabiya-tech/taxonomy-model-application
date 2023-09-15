@@ -12,7 +12,7 @@ describe('Test the InfoSchema', () => {
           require('./');
         }).not.toThrowError();
         // AND check if Schema is defined in it
-        expect(require("./").default.GET.Response.Schema).toBeDefined();
+        expect(require("./").default.Schemas.GET.Response.Payload).toBeDefined();
       }).not.toThrowError();
     })
 
@@ -20,8 +20,8 @@ describe('Test the InfoSchema', () => {
         expect(() => {
             const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
             addFormats(ajv);
-            ajv.addSchema(Info.GET.Response.Schema, Info.GET.Response.Schema.$id);
-            ajv.getSchema(Info.GET.Response.Schema.$id as string);
+            ajv.addSchema(Info.Schemas.GET.Response.Payload, Info.Schemas.GET.Response.Payload.$id);
+            ajv.getSchema(Info.Schemas.GET.Response.Payload.$id as string);
         }).not.toThrowError();
     })
 })
@@ -29,14 +29,14 @@ describe('Test the InfoSchema', () => {
 describe('Validate JSON against the InfoSchema', () => {
     const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
     addFormats(ajv);
-    ajv.addSchema(Info.GET.Response.Schema, Info.GET.Response.Schema.$id);
-    ajv.getSchema(Info.GET.Response.Schema.$id as string);
+    ajv.addSchema(Info.Schemas.GET.Response.Payload, Info.Schemas.GET.Response.Payload.$id);
+    ajv.getSchema(Info.Schemas.GET.Response.Payload.$id as string);
 
-    let validateFunction = ajv.getSchema(Info.GET.Response.Schema.$id as string) as ValidateFunction;
+    let validateFunction = ajv.getSchema(Info.Schemas.GET.Response.Payload.$id as string) as ValidateFunction;
 
     test("A valid InfoResponse object validates", () => {
         // GIVEN a valid ModelInfoResponse object
-        const givenValidInfoResponse: Info.GET.Response.Payload = {
+        const givenValidInfoResponse: Info.Types.GET.Response.Payload = {
             date: "2023-08-22T14:13:32.439Z",
             branch: "main",
             buildNumber: "972",
@@ -57,7 +57,7 @@ describe('Validate JSON against the InfoSchema', () => {
 
     test("A InfoResponse object with extra properties does not validate", () => {
         // GIVEN a valid ModelInfoResponse object
-        const givenInvalidInfoResponse: Info.GET.Response.Payload = {
+        const givenInvalidInfoResponse: Info.Types.GET.Response.Payload = {
             date: "2023-08-22T14:13:32.439Z",
             branch: "main",
             buildNumber: "972",

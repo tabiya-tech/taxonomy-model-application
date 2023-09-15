@@ -1,8 +1,8 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_ID, RegExp_Str_NotEmptyString} from "../regex";
-import * as ImportConstants from "./import.constants";
+import ImportConstants from "./constants";
 
-export const ImportRequestSchemaPOST: SchemaObject = {
+export const SchemaPOSTRequest: SchemaObject = {
   $id: "/components/schemas/ImportRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
@@ -41,4 +41,4 @@ export const ImportRequestSchemaPOST: SchemaObject = {
   ]
 };
 
-export default ImportRequestSchemaPOST;
+export default SchemaPOSTRequest;

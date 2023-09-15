@@ -1,5 +1,5 @@
 import {RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty} from "../regex";
-import {ModelInfoConstants} from "./modelInfo.constants";
+import ModelInfoConstants from "./constants";
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
 
@@ -23,7 +23,7 @@ export const _baseProperties: any = {
     maxLength: ModelInfoConstants.DESCRIPTION_MAX_LENGTH
   },
   locale: {
-    $ref: `${Locale.Schema.$id}`
+    $ref: `${Locale.Schemas.Payload.$id}`
   }
 };
 

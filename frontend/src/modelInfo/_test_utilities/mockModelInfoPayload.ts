@@ -12,7 +12,7 @@ export namespace POST {
   /**
    * Get a mock ModelInfo payload with special character strings of maximum length
    */
-  export function getPayloadWithOneRandomModelInfo(): ModelInfoAPISpecs.POST.Response.Payload {
+  export function getPayloadWithOneRandomModelInfo(): ModelInfoAPISpecs.Types.POST.Response.Payload {
     return getRandomModelInfo(1);
   }
 }
@@ -23,7 +23,7 @@ export namespace GET {
    * Get a mock ModelInfo payload with special character strings of maximum length
    * @param number The number of ModelInfo objects to generate
    */
-  export function getPayloadWithArrayOfRandomModelInfo(number: number): ModelInfoAPISpecs.GET.Response.Payload {
+  export function getPayloadWithArrayOfRandomModelInfo(number: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
     return Array.from({length: number}, (_, i) => {
       return getRandomModelInfo(i);
     });
@@ -33,7 +33,7 @@ export namespace GET {
    * Get a mock ModelInfo payload with lorem ipsum strings of maximum length
    * @param number
    */
-  export function getPayloadWithArrayOfFakeModelInfo(number: number): ModelInfoAPISpecs.GET.Response.Payload {
+  export function getPayloadWithArrayOfFakeModelInfo(number: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
     const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
 
     return Array.from({length: number}, (_, i) => {

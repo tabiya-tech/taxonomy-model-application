@@ -6,7 +6,7 @@ import userEvent from "@testing-library/user-event";
 import {within} from "@testing-library/react";
 
 // Given a list of locales
-const givenLocales: Locale.Payload[] = [
+const givenLocales: Locale.Types.Payload[] = [
   {
     UUID: "1",
     shortCode: "ZA",

@@ -18,9 +18,9 @@ describe("Test ModelInfo Schema", () => {
 
     let modelInfoModule = require('./').default;
     // AND the schemas should be defined
-    expect(modelInfoModule.GET.Response.Schema).toBeDefined();
-    expect(modelInfoModule.POST.Response.Schema).toBeDefined();
-    expect(modelInfoModule.POST.Request.Schema).toBeDefined();
+    expect(modelInfoModule.Schemas.GET.Response.Payload).toBeDefined();
+    expect(modelInfoModule.Schemas.POST.Response.Payload).toBeDefined();
+    expect(modelInfoModule.Schemas.POST.Request.Payload).toBeDefined();
 
     // AND the constants should be defined
     const Constants = modelInfoModule.Constants;
@@ -32,7 +32,7 @@ describe("Test ModelInfo Schema", () => {
     expect(Constants.VERSION_MAX_LENGTH).toBeDefined();
   });
 
-  test.each([["ModelInfo.GET.Response.Schema", ModelInfo.GET.Response.Schema], ["ModelInfo.POST.Response.Schema", ModelInfo.POST.Response.Schema], ["ModelInfo.POST.Request.Schema", ModelInfo.POST.Request.Schema]])
+  test.each([["ModelInfo.GET.Response.Schema", ModelInfo.Schemas.GET.Response.Payload], ["ModelInfo.POST.Response.Schema", ModelInfo.Schemas.POST.Response.Payload], ["ModelInfo.POST.Request.Schema", ModelInfo.Schemas.POST.Request.Payload]])
   ("%s schema is a valid Schema", (description, givenSchema) => {
     // GIVEN the givenSchema
     // WHEN the givenSchema is validated
@@ -40,7 +40,7 @@ describe("Test ModelInfo Schema", () => {
     expect(() => {
       const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
       addFormats(ajv);
-      ajv.compile(Locale.Schema);
+      ajv.compile(Locale.Schemas.Payload);
       ajv.compile(givenSchema);
     }).not.toThrowError();
   })
@@ -50,9 +50,9 @@ describe("Validate JSON against the Schema", () => {
   const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
   addFormats(ajv);
   //GIVEN the modelInfo schemas
-  const givenSchemas = [ModelInfo.GET.Response.Schema, ModelInfo.POST.Response.Schema, ModelInfo.POST.Request.Schema];
+  const givenSchemas = [ModelInfo.Schemas.GET.Response.Payload, ModelInfo.Schemas.POST.Response.Payload, ModelInfo.Schemas.POST.Request.Payload];
   givenSchemas.forEach(schema => ajv.addSchema(schema, schema.$id));
-  ajv.addSchema(Locale.Schema, Locale.Schema.$id)
+  ajv.addSchema(Locale.Schemas.Payload, Locale.Schemas.Payload.$id)
 
   // AND valid ModelInfoResponseGET, ModelInfoResponsePOST, ModelInfoRequestPOST objects
   const givenValidModelInfoGETResponse = [{
@@ -125,11 +125,11 @@ describe("Validate JSON against the Schema", () => {
 
   test.each([
     // GIVEN a ModelInfoResponseGET object and corresponding schema
-    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.GET.Response.Schema],
+    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.Schemas.GET.Response.Payload],
     // GIVEN a ModelInfoResponsePOST object and corresponding schema
-    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.POST.Response.Schema],
+    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.Schemas.POST.Response.Payload],
     // GIVEN a ModelInfoRequestPOST object and corresponding schema
-    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.POST.Request.Schema],
+    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.Schemas.POST.Request.Payload],
   ])
   ("Schema %s validates a valid object", (description, givenValidObject, givenSchema) => {
     // WHEN the object is validated
@@ -142,11 +142,11 @@ describe("Validate JSON against the Schema", () => {
 
   test.each([
     // GIVEN a ModelInfoResponseGET object and corresponding schema
-    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.GET.Response.Schema],
+    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.Schemas.GET.Response.Payload],
     // GIVEN a ModelInfoResponsePOST object and corresponding schema
-    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.POST.Response.Schema],
+    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.Schemas.POST.Response.Payload],
     // GIVEN a ModelInfoRequestPOST object and corresponding schema
-    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.POST.Request.Schema],
+    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.Schemas.POST.Request.Payload],
   ])("Schema %s does not validate object with additional properties", (description, givenValidObject, givenSchema) => {
     // GIVEN the object has an additional property
     const givenObjectWithAdditionalProperties = {...givenValidObject, foo: "bar"};

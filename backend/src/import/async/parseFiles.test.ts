@@ -80,7 +80,7 @@ jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => 
 
 // ##############
 import {parseFiles} from "./parseFiles";
-import Import from "api-specifications/import";
+import ImportAPISpecs from "api-specifications/import";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {parseISCOGroupsFromUrl} from "import/esco/ISCOGroups/ISCOGroupsParser";
 import {getUploadBucketName, getUploadBucketRegion} from "server/config/config";
@@ -130,13 +130,13 @@ describe("Test the main async handler", () => {
     }
     jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
     // AND an Import event
-    const givenEvent: Import.POST.Request.Payload = {
+    const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-        [Import.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
-        [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
 
         // ADD additional file types here
       }, modelId: givenModelId
@@ -163,19 +163,19 @@ describe("Test the main async handler", () => {
       const expectedFileType = entry[0];
       const expectedPresignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
       switch (expectedFileType) {
-        case  Import.Constants.ImportFileTypes.ISCO_GROUP:
+        case  ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP:
           expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP:
+        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP:
           expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case Import.Constants.ImportFileTypes.ESCO_SKILL:
+        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL:
           expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case Import.Constants.ImportFileTypes.ESCO_OCCUPATION:
+        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION:
           expect(parseOccupationsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
+        case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
           expect(parseOccupationHierarchyFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         // ADD additional file types here
@@ -269,13 +269,13 @@ describe("Test the main async handler", () => {
       }
       jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
       // AND an Import event
-      const givenEvent: Import.POST.Request.Payload = {
+      const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
         filePaths: {
-          [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-          [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-          [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-          [Import.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
-          [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
 
           // ADD additional file types here
         }, modelId: givenModelId
