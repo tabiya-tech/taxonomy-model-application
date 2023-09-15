@@ -60,6 +60,11 @@ We aim to achieve the following metrics on SonarCloud:
 - **Reliability Rating**: A
 - **Maintainability Rating**: A
 
+### **Code Formatting**
+
+We follow the **[Prettier](https://prettier.io/)** code formatting guidelines to make sure the code is properly formatted in a uniform way.
+As a highlight, we use 2 spaces for indentation, and we end each variable declaration and function call with a semicolon.
+
 ### **Conventional Commits**
 
 Please follow the **[Conventional Commits](https://www.conventionalcommits.org/)** format for your commit messages.
