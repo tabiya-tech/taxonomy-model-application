@@ -127,7 +127,13 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
       const actualUpdatedImportProcessState = await repository.update(givenExistingImportProcessState.id, givenUpdateSpecs);
 
       // THEN expect the ImportProcessState to be updated with the specific attributes
-      expect(actualUpdatedImportProcessState.status).toEqual(givenUpdateSpecs.status);
+      expect(actualUpdatedImportProcessState).toEqual({
+        ...givenUpdateSpecs,
+        id: givenExistingImportProcessState.id,
+        modelId: givenExistingImportProcessState.modelId.toString(),
+        createdAt: givenExistingImportProcessState.createdAt,
+        updatedAt: expect.any(Date),
+      });
     });
 
     test("should reject with an error when updating an ImportProcessState that does not exist", async () => {

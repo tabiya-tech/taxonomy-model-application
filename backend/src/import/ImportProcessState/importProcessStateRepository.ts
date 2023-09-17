@@ -55,6 +55,9 @@ export class ImportProcessStateRepository implements IImportProcessStateReposito
       if (updateSpecs.status !== undefined) {
         doc.status = updateSpecs.status;
       }
+      if (updateSpecs.result !== undefined) {
+        doc.result = updateSpecs.result;
+      }
       await doc.save();
       return doc.toObject();
     } catch (e: unknown) {
