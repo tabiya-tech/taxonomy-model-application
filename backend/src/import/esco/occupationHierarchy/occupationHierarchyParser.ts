@@ -8,9 +8,14 @@ import {BatchProcessor} from "import/batch/BatchProcessor";
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
-import {INewOccupationHierarchyPairSpec} from "esco/occupationHierarchy/occupationHierarchy.types";
+import {
+  INewOccupationHierarchyPairSpec,
+  IOccupationHierarchyPair
+} from "esco/occupationHierarchy/occupationHierarchy.types";
 import {ObjectTypes} from "esco/common/objectTypes";
 import {RowsProcessedStats} from "import/rowsProcessedStats.types";
+import importLogger from "import/importLogger/importLogger";
+import {getProcessHierarchyBatchFunction} from "../common/processHierarchyBatchFunction";
 
 // expect all columns to be in upper case
 export interface OccupationHierarchyHierarchyRow {
@@ -25,28 +30,13 @@ const enum CSV_OBJECT_TYPES {
   Occupation = 'ESCOOCCUPATION'
 }
 
-function getHeadersValidator(modelid: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(modelid, ['PARENTOBJECTTYPE', 'PARENTID', 'CHILDID', 'CHILDOBJECTTYPE']);
+function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
+  return getStdHeadersValidator(validatorName, ['PARENTOBJECTTYPE', 'PARENTID', 'CHILDID', 'CHILDOBJECTTYPE']);
 }
 
 function getBatchProcessor(modelId: string,) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = async (specs: INewOccupationHierarchyPairSpec[]) => {
-    const stats: RowsProcessedStats = {
-      rowsProcessed: specs.length,
-      rowsSuccess: 0,
-      rowsFailed: 0
-    };
-    try {
-      const repository = getRepositoryRegistry().occupationHierarchy;
-      const hierarchyEntries = await repository.createMany(modelId, specs);
-      stats.rowsSuccess = hierarchyEntries.length;
-    } catch (e: unknown) {
-      console.error("Failed to process batch", e);
-    }
-    stats.rowsFailed = specs.length - stats.rowsSuccess;
-    return stats;
-  };
+  const batchProcessFn = getProcessHierarchyBatchFunction<IOccupationHierarchyPair, INewOccupationHierarchyPairSpec>(modelId, "OccupationHierarchy", getRepositoryRegistry().occupationHierarchy);
   return new BatchProcessor<INewOccupationHierarchyPairSpec>(BATCH_SIZE, batchProcessFn);
 }
 
@@ -66,11 +56,13 @@ function getRowToSpecificationTransformFn(modelId: string, importIdToDBIdMap: Ma
     const parentType = csv2EscoObjectType(row.PARENTOBJECTTYPE);
     const childType = csv2EscoObjectType(row.CHILDOBJECTTYPE);
     if (!parentType || !childType) {
+      importLogger.logWarning(`Failed to import OccupationHierarchy row with parentType:'${row.PARENTOBJECTTYPE}' and childType:'${row.CHILDOBJECTTYPE}'`);
       return null;
     }
     const parentId = importIdToDBIdMap.get(row.PARENTID);
     const childId = importIdToDBIdMap.get(row.CHILDID);
     if (!parentId || !childId) {
+      importLogger.logWarning(`Failed to import OccupationHierarchy row with parent importId:'${row.PARENTID}' and child importId:'${row.CHILDID}'`);
       return null;
     }
     return {
@@ -84,18 +76,18 @@ function getRowToSpecificationTransformFn(modelId: string, importIdToDBIdMap: Ma
 
 // function to parse from url
 export async function parseOccupationHierarchyFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
-  const headersValidator = getHeadersValidator(modelId);
+  const headersValidator = getHeadersValidator("OccupationHierarchy");
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processDownloadStream(url, batchRowProcessor);
+  return await processDownloadStream(url, "OccupationHierarchy",  batchRowProcessor);
 }
 
 export async function parseOccupationHierarchyFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
   const iscoGroupsCSVFileStream = fs.createReadStream(filePath);
-  const headersValidator = getHeadersValidator(modelId);
+  const headersValidator = getHeadersValidator("OccupationHierarchy");
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<OccupationHierarchyHierarchyRow>(iscoGroupsCSVFileStream, batchRowProcessor);
+  return await processStream<OccupationHierarchyHierarchyRow>("OccupationHierarchy", iscoGroupsCSVFileStream, batchRowProcessor);
 }

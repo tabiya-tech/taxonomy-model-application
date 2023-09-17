@@ -2,24 +2,6 @@ import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
 
 export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
   {
-    ESCOUri: "",
-    originUUID: "",
-    code: "",
-    preferredLabel: "",
-    altLabels: [],
-    description: "",
-    importId: ""
-  },
-  {
-    ESCOUri: "",
-    originUUID: "",
-    code: "",
-    preferredLabel: "",
-    altLabels: [],
-    description: "",
-    importId: ""
-  },
-  {
     ESCOUri: "esco uri",
     originUUID: "origin uuid",
     code: "01",

@@ -9,6 +9,7 @@ import {getMockId} from "_test_utilities/mockMongoId";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {parseFiles} from "./parseFiles";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState"
+import importLogger from "import/importLogger/importLogger";
 
 // ##############
 // Mock the init function
@@ -49,10 +50,15 @@ describe("Test the main async handler", () => {
     const givenEvent = getMockImportEvent();
 
     // WHEN the handler is invoked with the given event param
+    jest.spyOn(importLogger, "clear"); // spy on the logger clear function
     await asyncIndex.handler(givenEvent);
 
     // THEN expect the initOnce function to be called
     expect(initOnce).toBeCalledTimes(1);
+
+    // AND the importLogger to be cleared
+    expect(importLogger.clear).toBeCalledTimes(1);
+
     // AND expect the parseFiles function to be called
     expect(parseFiles).toHaveBeenNthCalledWith(1, givenEvent);
   });

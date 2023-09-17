@@ -8,9 +8,9 @@ import {BatchProcessor} from "import/batch/BatchProcessor";
 import {BatchRowProcessor, TransformRowToSpecificationFunction} from "import/parse/BatchRowProcessor";
 import {HeadersValidatorFunction} from "import/parse/RowProcessor.types";
 import {getStdHeadersValidator} from "import/parse/stdHeadersValidator";
-import {INewOccupationSpec} from "esco/occupation/occupation.types";
-import {isSpecified} from "server/isUnspecified";
+import {INewOccupationSpec, IOccupation} from "esco/occupation/occupation.types";
 import {RowsProcessedStats} from "import/rowsProcessedStats.types";
+import {getProcessEntityBatchFunction} from "import/esco/common/processEntityBatchFunction";
 
 // expect all columns to be in upper case
 export interface IOccupationRow {
@@ -27,9 +27,9 @@ export interface IOccupationRow {
   ID: string
 }
 
-function getHeadersValidator(modelid: string): HeadersValidatorFunction {
+function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(
-    modelid,
+    validatorName,
     ['ESCOURI',
       'ID',
       'ORIGINUUID',
@@ -46,29 +46,7 @@ function getHeadersValidator(modelid: string): HeadersValidatorFunction {
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = async (specs: INewOccupationSpec[]) => {
-    const stats: RowsProcessedStats = {
-      rowsProcessed: specs.length,
-      rowsSuccess: 0,
-      rowsFailed: 0
-    };
-    try {
-      const OccupationRepository = getRepositoryRegistry().occupation;
-      const occupations = await OccupationRepository.createMany(specs);
-      // map the importId to the db id
-      // They will be used in a later stage to build the hierarchy and associations
-      occupations.forEach((occupation) => {
-        if (isSpecified(occupation.importId)) {
-          importIdToDBIdMap.set(occupation.importId, occupation.id);
-        }
-      });
-      stats.rowsSuccess = occupations.length;
-    } catch (e: unknown) {
-      console.error("Failed to process batch", e);
-    }
-    stats.rowsFailed = specs.length - stats.rowsSuccess;
-    return stats;
-  };
+  const batchProcessFn = getProcessEntityBatchFunction<IOccupation, INewOccupationSpec>("Occupation", getRepositoryRegistry().occupation, importIdToDBIdMap);
   return new BatchProcessor<INewOccupationSpec>(BATCH_SIZE, batchProcessFn);
 }
 
@@ -93,18 +71,18 @@ function getRowToSpecificationTransformFn(modelId: string): TransformRowToSpecif
 
 // function to parse from url
 export async function parseOccupationsFromUrl(modelId: string, url: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
-  const headersValidator = getHeadersValidator(modelId);
+  const headersValidator = getHeadersValidator("Occupation");
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processDownloadStream(url, batchRowProcessor);
+  return await processDownloadStream(url, "Occupation", batchRowProcessor);
 }
 
 export async function parseOccupationsFromFile(modelId: string, filePath: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> {
   const OccupationsCSVFileStream = fs.createReadStream(filePath);
-  const headersValidator = getHeadersValidator(modelId);
+  const headersValidator = getHeadersValidator("Occupation");
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<IOccupationRow>(OccupationsCSVFileStream, batchRowProcessor);
+  return await processStream<IOccupationRow>("Occupation", OccupationsCSVFileStream, batchRowProcessor);
 }

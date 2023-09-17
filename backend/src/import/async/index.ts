@@ -6,11 +6,14 @@ import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistr
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState";
 import {IModelInfo} from "modelInfo/modelInfo.types";
 import {parseFiles} from "./parseFiles";
+import importLogger from "../importLogger/importLogger";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event: Import.POST.Request.Payload): Promise<any> => {
   console.info("Import started", event);
+  // Clear the importLogger from previous runs
+  importLogger.clear();
 
   // Validate the event against the schema
   const validateFunction = ajvInstance.getSchema(Import.POST.Request.Schema.$id as string) as ValidateFunction;
@@ -46,15 +49,17 @@ export const handler = async (event: Import.POST.Request.Payload): Promise<any> 
 
  const  importErrored = async (modelId: string) => {
    try {
-     const importProcessStateId = (await getRepositoryRegistry().modelInfo.getModelById(modelId) as IModelInfo).importProcessState.id;
-     await getRepositoryRegistry().importProcessState.update(importProcessStateId, {
+     const state = {
        status: ImportProcessStateApiSpecs.Enums.Status.COMPLETED, result: {
          errored: true,
          // checking parsing errors and warning is an upcoming feature
          parsingErrors: false,
          parsingWarnings: false
        }
-     });
+     };
+     console.info("Import failed", state);
+     const importProcessStateId = (await getRepositoryRegistry().modelInfo.getModelById(modelId) as IModelInfo).importProcessState.id;
+     await getRepositoryRegistry().importProcessState.update(importProcessStateId, state);
    } catch (e: unknown) {
      console.error(e);
    }
