@@ -6,10 +6,18 @@ import {Readable} from "node:stream";
 import https from 'https';
 import {StatusCodes} from "server/httpUtils";
 import {RowProcessor} from "import/parse/RowProcessor.types";
+import importLogger from "import/importLogger/importLogger";
 
 jest.mock('https');
 
 describe("test processStream", () => {
+  beforeAll(() => {
+    jest.spyOn(importLogger, "logError");
+    jest.spyOn(importLogger, "logWarning");
+  });
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test("should parse data", async () => {
     // GIVEN a stream of data
     const givenData =
@@ -18,6 +26,8 @@ describe("test processStream", () => {
       'Alice,25\n' +
       'Bob,35\n';
     const givenStream = Readable.from(givenData);
+    // AND a given stream name
+    const givenStreamName = "some stream";
     // AND some stats
     const givenStats = {
       rowsProcessed: 3,
@@ -32,22 +42,26 @@ describe("test processStream", () => {
     };
 
     // WHEN processing the stream
-    const actualStats = await processStream(givenStream, givenRowProcessor);
+    const actualStats = await processStream(givenStreamName, givenStream, givenRowProcessor);
 
     // THEN expect the given stats to be returned
     expect(actualStats).toEqual(givenStats);
     // AND the headersValidator to have been called once
-    expect( givenRowProcessor.validateHeaders).toHaveBeenCalledTimes(1);
+    expect(givenRowProcessor.validateHeaders).toHaveBeenCalledTimes(1);
     // AND with the correct headers
-    expect( givenRowProcessor.validateHeaders).toHaveBeenCalledWith(['NAME', 'AGE']);
+    expect(givenRowProcessor.validateHeaders).toHaveBeenCalledWith(['NAME', 'AGE']);
     // AND the row processor to have been called 3 times
-    expect( givenRowProcessor.processRow).toHaveBeenCalledTimes(3);
+    expect(givenRowProcessor.processRow).toHaveBeenCalledTimes(3);
     // AND with the correct data (header is converted to uppercase)
-    expect( givenRowProcessor.processRow).toHaveBeenNthCalledWith(1, {NAME: 'John', AGE: '30'}, 1);
-    expect( givenRowProcessor.processRow).toHaveBeenNthCalledWith(2, {NAME: 'Alice', AGE: '25'}, 2);
-    expect( givenRowProcessor.processRow).toHaveBeenNthCalledWith(3, {NAME: 'Bob', AGE: '35'}, 3);
+    expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(1, {NAME: 'John', AGE: '30'}, 1);
+    expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(2, {NAME: 'Alice', AGE: '25'}, 2);
+    expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(3, {NAME: 'Bob', AGE: '35'}, 3);
     // AND the completed processor to have been called once
-    expect( givenRowProcessor.completed).toHaveBeenCalledTimes(1);
+    expect(givenRowProcessor.completed).toHaveBeenCalledTimes(1);
+
+    // AND no error or warning to have been logged
+    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(importLogger.logWarning).not.toHaveBeenCalled();
   })
 
   describe("test processStream with errors", () => {
@@ -59,6 +73,8 @@ describe("test processStream", () => {
         'Alice,25\n' +
         'Bob,35\n';
       const givenStream = Readable.from(givenData);
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND a row processor that will throw an error when processing a row
       const givenError = new Error("some error");
       const givenRowProcessor: RowProcessor<any> = {
@@ -66,12 +82,15 @@ describe("test processStream", () => {
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true)
       };
-
       // WHEN processing the stream
-      const actualProcessPromise = processStream(givenStream, givenRowProcessor);
+      const actualProcessPromise = processStream(givenStreamName, givenStream, givenRowProcessor);
 
       // THEN expect it to reject with the given error
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
+
+      // AND an error to have been logged
+      expect(importLogger.logError).toHaveBeenCalledWith(`Error while processing the stream:${givenStreamName}`, givenError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("readable stream throws an error", async () => {
@@ -82,6 +101,8 @@ describe("test processStream", () => {
         'Alice,25\n' +
         'Bob,35\n';
       const givenStream = Readable.from(givenData);
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND row processor that will throw an error when processing a row
       const givenError = new Error("some error");
       givenStream.on('data', () => {
@@ -94,11 +115,14 @@ describe("test processStream", () => {
       };
 
       // WHEN processing the stream
-      const actualProcessPromise = processStream(givenStream, givenRowProcessor);
+      const actualProcessPromise = processStream(givenStreamName, givenStream, givenRowProcessor);
 
       // THEN expect it to reject with the given error
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
 
+      // AND an error to have been logged
+      expect(importLogger.logError).toHaveBeenCalledWith(`Error from the reading the stream:${givenStreamName}`, givenError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("csv parser throws error due to invalid data", async () => {
@@ -108,6 +132,8 @@ describe("test processStream", () => {
         'John,30, INVALID\n' +
         'Alice,25\n' +
         'Bob,35\n';
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND a row processor that will throw an error when processing a row
       const givenRowProcessor: RowProcessor<any> = {
         processRow: jest.fn().mockResolvedValue(undefined),
@@ -116,19 +142,26 @@ describe("test processStream", () => {
       };
 
       // WHEN processing the stream of the given data
-      const actualProcessPromise = processStream(Readable.from(givenData), givenRowProcessor);
+      const actualProcessPromise = processStream(givenStreamName, Readable.from(givenData), givenRowProcessor);
 
       // THEN expect it to reject with the error
-      await expect(actualProcessPromise).rejects.toThrowError("Invalid Record Length: columns length is 2, got 3 on line 2");
+      const expectedError = new Error("Invalid Record Length: columns length is 2, got 3 on line 2");
+      await expect(actualProcessPromise).rejects.toThrowError(expectedError);
+
+      // AND an error to have been logged
+      expect(importLogger.logError).toHaveBeenCalledWith(`Error while processing the stream:${givenStreamName}`, expectedError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
 
-    test("csv parser throws an error due to invalid headers", async () => {
+    test("csv parser logs error due to invalid headers", async () => {
       // GIVEN some data
       const givenData =
         'name,age\n' +
         'John,30\n' +
         'Alice,25\n' +
         'Bob,35\n';
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND a row processor that will throw an error when processing a row
       const givenRowProcessor: RowProcessor<any> = {
         processRow: jest.fn().mockResolvedValue(undefined),
@@ -138,18 +171,33 @@ describe("test processStream", () => {
       };
 
       // WHEN processing the stream of data
-      const actualProcessPromise = processStream(Readable.from(givenData), givenRowProcessor);
+      const actualProcessPromise = processStream(givenStreamName, Readable.from(givenData), givenRowProcessor);
 
-      // THEN expect it to reject with the error
-      await expect(actualProcessPromise).rejects.toThrowError("Invalid headers");
+      // THEN expect it to resolve with no row processed
+      const expectedStats = {rowsProcessed: 0, rowsFailed: 0, rowsSuccess: 0};
+      await expect(actualProcessPromise).resolves.toEqual(expectedStats);
+
+      // AND an error to have been logged
+      const expectedError = new Error(`Invalid headers:NAME,AGE in stream:${givenStreamName}`);
+      expect(importLogger.logError).toHaveBeenCalledWith(expectedError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
   })
 });
 
 describe("test processDownloadStream", () => {
+  beforeAll(() => {
+    jest.spyOn(importLogger, "logError");
+    jest.spyOn(importLogger, "logWarning");
+  });
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test("should download and parse data", async () => {
     // GIVEN a url to a csv file
     const givenUrl = 'https://foo/bar.csv';
+    // AND a given stream name
+    const givenStreamName = "some stream";
     // AND some data to be downloaded
     const givenData =
       'name,age\n' +
@@ -180,7 +228,7 @@ describe("test processDownloadStream", () => {
     };
 
     // WHEN downloading and processing the file
-    const actualStats = await processDownloadStream(givenUrl, givenRowProcessor);
+    const actualStats = await processDownloadStream(givenStreamName, givenUrl, givenRowProcessor);
 
     // THEN expect the returned stats to be the same as the given ones
     expect(actualStats).toEqual(givenStats);
@@ -188,12 +236,17 @@ describe("test processDownloadStream", () => {
     expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(1, {NAME: 'John', AGE: '30'}, 1);
     expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(2, {NAME: 'Alice', AGE: '25'}, 2);
     expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(3, {NAME: 'Bob', AGE: '35'}, 3);
+    // AND no error or warning to have been logged
+    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(importLogger.logWarning).not.toHaveBeenCalled();
   });
 
   describe("test processDownloadStream with errors", () => {
     test("should reject if the request fails", async () => {
       // GIVEN a url to a csv file
       const givenUrl = 'https://foo/bar.csv';
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND a request that fails (responding with some error)
       const givenError = new Error("some error");
       // @ts-ignore
@@ -212,15 +265,21 @@ describe("test processDownloadStream", () => {
       };
 
       // WHEN downloading and processing the file
-      const actualProcessPromise = processDownloadStream(givenUrl, givenRowProcessor);
+      const actualProcessPromise = processDownloadStream(givenUrl, givenStreamName, givenRowProcessor);
 
       // THEN expect it to reject with the given error
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
+
+      // AND an error to have been logged
+      expect(importLogger.logError).toHaveBeenCalledWith(`Failed to download file ${givenUrl} for ${givenStreamName}`, givenError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("should reject if the response status code is not 200", async () => {
       // GIVEN a url to a csv file
       const givenUrl = 'https://foo/bar.csv';
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND a request that fails (responding with 404 status code)
       const givenMockResponse = Readable.from("");
       // @ts-ignore
@@ -239,15 +298,21 @@ describe("test processDownloadStream", () => {
       };
 
       // WHEN downloading and processing the file
-      const actualProcessPromise = processDownloadStream(givenUrl, givenRowProcessor);
+      const actualProcessPromise = processDownloadStream(givenUrl, givenStreamName, givenRowProcessor);
 
       // THEN expect it to reject with the error
-      await expect(actualProcessPromise).rejects.toThrowError("Failed to download file https://foo/bar.csv. Status Code: 404");
+      const expectedError = new Error(`Failed to download file ${givenUrl} for ${givenStreamName}. Status Code: ${StatusCodes.NOT_FOUND}`);
+      await expect(actualProcessPromise).rejects.toThrowError(expectedError);
+      // AND an error to have been logged
+      expect(importLogger.logError).toHaveBeenCalledWith(expectedError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("should reject if the response is not readable", async () => {
       // GIVEN a url to a csv file
       const givenUrl = 'https://foo/bar.csv';
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND a mock response that will throw an error when the stream is read
       const givenData =
         'name,age\n' +
@@ -275,15 +340,20 @@ describe("test processDownloadStream", () => {
       };
 
       // WHEN downloading and processing the file
-      const actualProcessPromise = processDownloadStream(givenUrl, givenRowProcessor);
+      const actualProcessPromise = processDownloadStream(givenUrl, givenStreamName, givenRowProcessor);
 
       // THEN expect it to reject with the given error
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
+      // AND an error to have been logged
+      expect(importLogger.logError).toHaveBeenCalledWith(`Error while processing ${givenUrl} for ${givenStreamName}`, givenError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("should reject if processStream rejects", async () => {
       // GIVEN a url to a csv file
       const givenUrl = 'https://foo/bar.csv';
+      // AND a given stream name
+      const givenStreamName = "some stream";
       // AND some data to be downloaded
       const givenData =
         'name,age\n' +
@@ -309,10 +379,14 @@ describe("test processDownloadStream", () => {
       };
 
       // WHEN downloading and processing the file
-      const actualProcessPromise = processDownloadStream(givenUrl, givenRowProcessor);
+      const actualProcessPromise = processDownloadStream(givenUrl, givenStreamName, givenRowProcessor);
 
       // THEN expect it to reject with the given error
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
+
+      // AND an error to have been logged
+      expect(importLogger.logError).toHaveBeenCalledWith(`Error while processing ${givenUrl} for ${givenStreamName}`, givenError);
+      expect(importLogger.logWarning).not.toHaveBeenCalled();
     });
   });
 });

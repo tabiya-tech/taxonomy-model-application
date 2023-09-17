@@ -1,24 +1,6 @@
-export const expected = [
-  {
-    ESCOUri: "",
-    originUUID: "",
-    code: "",
-    preferredLabel: "",
-    altLabels: [],
-    description: "",
-    scopeNote: "",
-    importId: ""
-  },
-  {
-    ESCOUri: "",
-    originUUID: "",
-    code: "",
-    preferredLabel: "",
-    altLabels: [],
-    description: "",
-    scopeNote: "",
-    importId: ""
-  },
+import {INewSkillGroupSpec} from "esco/skillGroup/skillGroup.types";
+
+export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
   {
     ESCOUri: "esco uri",
     originUUID: "origin uuid",

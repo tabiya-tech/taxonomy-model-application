@@ -92,13 +92,18 @@ import {parseOccupationHierarchyFromUrl} from "import/esco/occupationHierarchy/o
 import {RowsProcessedStats} from "import/rowsProcessedStats.types";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState"
+import importLogger from "import/importLogger/importLogger";
 
 // ##############
 
 describe("Test the main async handler", () => {
+  beforeAll(() => {
+    jest.spyOn(importLogger, "logError");
+    jest.spyOn(importLogger, "logWarning");
+  });
   beforeEach(() => {
     jest.clearAllMocks();
-  })
+  });
 
   test("should successfully parse all files", async () => {
     // GIVEN some configuration
@@ -124,7 +129,7 @@ describe("Test the main async handler", () => {
       upsert: jest.fn().mockResolvedValue(null)
     }
     jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
-    // AND an Import
+    // AND an Import event
     const givenEvent: Import.POST.Request.Payload = {
       filePaths: {
         [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
@@ -189,50 +194,60 @@ describe("Test the main async handler", () => {
     }
   })
 
-  describe("should parse files with errors", () => {
+  describe("should report parsing errors and parsing warning", () => {
     test.each([
-      [Import.Constants.ImportFileTypes.ISCO_GROUP, () => {
+      ["not report parsingWarnings or parsingErrors when the importLogger has not logged neither errors nor warnings", () => {
+        jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(0);
+        jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(0);
+      }, {
+        errored: false,
+        parsingErrors: false,
+        parsingWarnings: false,
+      }],
+      ["report parsingWarnings when the importLogger has logged a warning", () => {
+        jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(0);
+        jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(1);
+      }, {
+        errored: false,
+        parsingErrors: false,
+        parsingWarnings: true,
+      }],
+      ["report parsingErrors when the importLogger has logged an error", () => {
+        jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(1);
+        jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(0);
+      }, {
+        errored: false,
+        parsingErrors: true,
+        parsingWarnings: false,
+      }],
+      ["report parsingErrors and parsingWarnings when the importLogger has logged an error and a warning", () => {
+        jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(1);
+        jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(1);
+      }, {
+        errored: false,
+        parsingErrors: true,
+        parsingWarnings: true,
+      }],
+      ["report parsingWarnings when the occupations hierarchy has more or less rows than expected", () => {
+        // AND the parser will parse a different number of occupation hierarchy rows than expected
         (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 101, rowsSuccess: 100, rowsFailed: 1,
+          rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
         } as RowsProcessedStats);
         (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
           rowsProcessed: 200, rowsSuccess: 200, rowsFailed: 0,
         } as RowsProcessedStats);
         (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 100 + 200 - 10, rowsSuccess: 100 + 200 - 10, rowsFailed: 0,
-        } as RowsProcessedStats)
+          rowsProcessed: 1, //<------- should have been 100 + 200 - 10
+          rowsSuccess: 1, //<------- should have been 100 + 200 - 10
+          rowsFailed: 0,
+        } as RowsProcessedStats);
+      }, {
+        errored: false,
+        parsingErrors: false,
+        parsingWarnings: true,
       }],
-      [Import.Constants.ImportFileTypes.ESCO_OCCUPATION, () => {
-        (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
-        } as RowsProcessedStats);
-        (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 201, rowsSuccess: 200, rowsFailed: 1,
-        } as RowsProcessedStats);
-        (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 100 + 200 - 10, rowsSuccess: 100 + 200 - 10, rowsFailed: 0,
-        } as RowsProcessedStats)
-      }],
-      [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY, () => {
-        (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
-        } as RowsProcessedStats);
-        (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 201, rowsSuccess: 200, rowsFailed: 1,
-        } as RowsProcessedStats);
-        (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
-          rowsProcessed: 100 + 200 - 10, rowsSuccess: 100 + 200 - 10, rowsFailed: 0,
-        } as RowsProcessedStats)
-      }],
-      [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP, () => (parseSkillGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
-        rowsProcessed: 1, rowsSuccess: 0, rowsFailed: 1,
-      } as RowsProcessedStats)],
-      [Import.Constants.ImportFileTypes.ESCO_SKILL, () => (parseSkillsFromUrl as jest.Mock).mockResolvedValueOnce({
-        rowsProcessed: 1, rowsSuccess: 0, rowsFailed: 1,
-      } as RowsProcessedStats)]
-
     ])
-    ("should parse files with errors when %s.csv has failed rows", async (desc, setupMockCallBack) => {
+    ("should %s", async (desc, setupTestcaseCallBack, expectedResult) => {
       // GIVEN the model to import into with a given modelId and a given importProcessStateId
       const givenModelId = getMockId(1);
       const givenImportProcessStateId = getMockId(2);
@@ -253,7 +268,7 @@ describe("Test the main async handler", () => {
         upsert: jest.fn().mockResolvedValue(null)
       }
       jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
-      // AND an Import
+      // AND an Import event
       const givenEvent: Import.POST.Request.Payload = {
         filePaths: {
           [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
@@ -265,8 +280,8 @@ describe("Test the main async handler", () => {
           // ADD additional file types here
         }, modelId: givenModelId
       };
-      // AND the parser will fail
-      setupMockCallBack();
+      // AND the parser will cause the importLogger to log an error or a warning
+      setupTestcaseCallBack();
 
       // WHEN the handler is invoked with the given event param
       await parseFiles(givenEvent);
@@ -276,73 +291,9 @@ describe("Test the main async handler", () => {
         givenImportProcessStateId,
         {
           status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
-          result: {
-            errored: false,
-            parsingErrors: true,
-            parsingWarnings: false, // this will happen as the warning is currently triggered whenever the occupation hierarchy is not fully populated
-          }
+          // AND expect the importProcessState to have been updated with the expected import result
+          result: expectedResult,
         });
-    })
+    });
   });
-  test("should parse files with warnings when some the  occupations hierarchy seems to have more or less rows than expected", async () => {
-    // GIVEN the model to import into with a given modelId and a given importProcessStateId
-    const givenModelId = getMockId(1);
-    const givenImportProcessStateId = getMockId(2);
-    const givenModelInfoRepositoryMock = {
-      Model: undefined as any, create: jest.fn().mockResolvedValue(null), getModelById: jest.fn().mockResolvedValue({
-        id: givenModelId, importProcessState: {
-          id: givenImportProcessStateId,
-        }
-      }), getModelByUUID: jest.fn().mockResolvedValue(null), getModels: jest.fn().mockResolvedValue([])
-    };
-    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
-    // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
-    // AND the importProcessState will be successfully updated
-    const givenImportProcessStateRepositoryMock = {
-      Model: undefined as any,
-      create: jest.fn().mockResolvedValue(null),
-      update: jest.fn().mockResolvedValue(null),
-      upsert: jest.fn().mockResolvedValue(null)
-    }
-    jest.spyOn(getRepositoryRegistry(), "importProcessState", "get").mockReturnValue(givenImportProcessStateRepositoryMock);
-    // AND an Import
-    const givenEvent: Import.POST.Request.Payload = {
-      filePaths: {
-        [Import.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [Import.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-        [Import.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
-        [Import.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
-
-        // ADD additional file types here
-      }, modelId: givenModelId
-    };
-    // AND the parser will generate a warning
-    (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
-      rowsProcessed: 100, rowsSuccess: 100, rowsFailed: 0,
-    } as RowsProcessedStats);
-    (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
-      rowsProcessed: 200, rowsSuccess: 200, rowsFailed: 0,
-    } as RowsProcessedStats);
-    (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
-      rowsProcessed: 1, //<------- should have been 100 + 200 - 10
-      rowsSuccess: 1, //<------- should have been 100 + 200 - 10
-      rowsFailed: 0,
-    } as RowsProcessedStats);
-
-    // WHEN the handler is invoked with the given event param
-    await parseFiles(givenEvent);
-
-    // THEN expect the importProcessState to have been updated with a status of COMPLETED
-    expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(
-      givenImportProcessStateId,
-      {
-        status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
-        result: {
-          errored: false,
-          parsingErrors: false,
-          parsingWarnings: true, // this will happen as the warning is currently triggered whenever the occupation hierarchy is not fully populated
-        }
-      });
-  })
 });

@@ -13,29 +13,42 @@ import {ISkillGroupRepository} from "esco/skillGroup/SkillGroupRepository";
 import {INewSkillGroupSpec, ISkillGroup} from "esco/skillGroup/skillGroup.types";
 import {isSpecified} from "server/isUnspecified";
 import {RowsProcessedStats} from "import/rowsProcessedStats.types";
+import importLogger from "import/importLogger/importLogger";
 
 jest.mock('https');
 
+const parseFromUrlCallback = (file: string, givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
+  const mockResponse = fs.createReadStream(file);
+  // @ts-ignore
+  mockResponse.statusCode = StatusCodes.OK; // Set the status code
+  (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
+    callback(mockResponse);
+    return {
+      on: jest.fn(),
+    };
+  });
+  return parseSkillGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
+};
+
+const parseFromFileCallback = (file: string, givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
+  return parseSkillGroupsFromFile(givenModelId, file, importIdToDBIdMap);
+}
+
 describe("test parseSkillGroups from", () => {
+  beforeAll(() => {
+    jest.spyOn(importLogger, "logError");
+    jest.spyOn(importLogger, "logWarning");
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   test.each([
-    ["url file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
-      const mockResponse = fs.createReadStream("./src/import/esco/skillGroups/_test_data_/given.csv");
-      // @ts-ignore
-      mockResponse.statusCode = StatusCodes.OK; // Set the status code
-      (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
-        callback(mockResponse);
-        return {
-          on: jest.fn(),
-        };
-      });
-      return parseSkillGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
-    }],
-    ["csv file", (givenModelId: string, importIdToDBIdMap: Map<string, string>): Promise<RowsProcessedStats> => {
-      return parseSkillGroupsFromFile(givenModelId, "./src/import/esco/skillGroups/_test_data_/given.csv", importIdToDBIdMap);
-    }]
+    ["url file", "./src/import/esco/skillGroups/_test_data_/given.csv", parseFromUrlCallback],
+    ["csv file", "./src/import/esco/skillGroups/_test_data_/given.csv", parseFromFileCallback]
   ])
-  ("should create SkillGroups from %s", async (description, parseCallBack: (givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
+  ("should create SkillGroups from %s", async (description, file, parseCallBack: (file: string, givenModelId: string, importIdToDBIdMap: Map<string, string>) => Promise<RowsProcessedStats>) => {
     // GIVEN a model id
     const givenModelId = "foo-model-id";
     // AND a SkillGroup repository
@@ -63,21 +76,21 @@ describe("test parseSkillGroups from", () => {
     jest.spyOn(givenImportIdToDBIdMap, "set")
 
     // WHEN the data are parsed
-    const actualStats = await parseCallBack(givenModelId, givenImportIdToDBIdMap);
+    const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
-    // THEN expect all the SkillGroups to have been processed successfully
+    // THEN expect the repository to have been called with the expected spec
     const expectedResults = require("./_test_data_/expected.ts").expected;
-    expect(actualStats).toEqual({
-      rowsProcessed: expectedResults.length,
-      rowsSuccess: expectedResults.length,
-      rowsFailed: 0
-    });
-    // AND the repository to have been called with the correct spec
     expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">) => {
       expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
         expect.arrayContaining([{...expectedSpec, modelId: givenModelId}])
       )
     })
+    // AND all the expected rows to have been processed successfully
+    expect(actualStats).toEqual({
+      rowsProcessed: 4,
+      rowsSuccess: expectedResults.length,
+      rowsFailed: 4 - expectedResults.length
+    });
     // AND the non-empty import ids to have been mapped to the db id
     expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(2);
 
@@ -90,5 +103,10 @@ describe("test parseSkillGroups from", () => {
           "DB_ID_" + expectedSpec.importId
         )
       });
+    // AND no error should be logged
+    expect(importLogger.logError).not.toHaveBeenCalled();
+    // AND warning should be logged fo reach of the failed rows
+    expect(importLogger.logWarning).toHaveBeenNthCalledWith(1, "Failed to import SkillGroup from row:1 with importId:");
+    expect(importLogger.logWarning).toHaveBeenNthCalledWith(2, "Failed to import SkillGroup from row:2 with importId:");
   })
 });

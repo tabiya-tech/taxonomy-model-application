@@ -1,30 +1,6 @@
-export const expected = [
-  {
-    ESCOUri: "",
-    originUUID: "",
-    ISCOGroupCode: "",
-    code: "",
-    preferredLabel: "",
-    altLabels: [],
-    description: "",
-    definition: "",
-    scopeNote: "",
-    regulatedProfessionNote: "",
-    importId: ""
-  },
-  {
-    ESCOUri: "",
-    originUUID: "",
-    ISCOGroupCode: "",
-    code: "",
-    preferredLabel: "",
-    altLabels: [],
-    description: "",
-    definition: "",
-    scopeNote: "",
-    regulatedProfessionNote: "",
-    importId: ""
-  },
+import {INewOccupationSpec} from "esco/occupation/occupation.types";
+
+export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     ESCOUri: "esco uri",
     originUUID: "origin uuid",
