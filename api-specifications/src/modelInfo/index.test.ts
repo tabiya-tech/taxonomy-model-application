@@ -17,7 +17,6 @@ describe("Test the modelInfo module", () => {
       // AND the constants should be defined
       const Constants = modelInfoModule.Constants;
       expect(Constants.NAME_MAX_LENGTH).toBeDefined();
-      expect(Constants.LOCALE_SHORTCODE_MAX_LENGTH).toBeDefined();
       expect(Constants.MAX_PAYLOAD_LENGTH).toBeDefined();
       expect(Constants.DESCRIPTION_MAX_LENGTH).toBeDefined();
       expect(Constants.RELEASE_NOTES_MAX_LENGTH).toBeDefined();

@@ -37,7 +37,8 @@ jest.mock("./import/import.service", () => {
 // ###########
 
 import {getTestString} from "src/_test_utilities/specialCharacters";
-import ModelInfo from "api-specifications/modelInfo";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LocaleAPISpecs from "api-specifications/locale";
 import {randomUUID} from "crypto";
 import ImportDirectorService from "./importDirector.service";
 import ImportAPISpecs from "api-specifications/import";
@@ -69,12 +70,12 @@ describe('Test the import director service', () => {
     const importService = new ImportService("foo");
 
     // AND a name, description, locale and files
-    const givenName = getTestString(ModelInfo.Constants.NAME_MAX_LENGTH);
-    const givenDescription = getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH);
+    const givenName = getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH);
+    const givenDescription = getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH);
     const givenLocale = {
-      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+      name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     }
     // AND a api server url
     const apiServerUrl = "https://somedomain/path/to/api";

@@ -23,8 +23,8 @@ async function createModelsInDB(count: number) {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
-        name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
       description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
     });
@@ -61,8 +61,8 @@ describe("Test for model handler with a DB", () => {
       name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
-        name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getRandomString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
       description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)
     }

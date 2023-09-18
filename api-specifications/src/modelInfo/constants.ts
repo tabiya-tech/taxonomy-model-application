@@ -1,6 +1,5 @@
 namespace ModelInfoConstants {
   export const NAME_MAX_LENGTH = 256;
-  export const LOCALE_SHORTCODE_MAX_LENGTH = 3;
   export const DESCRIPTION_MAX_LENGTH = 4000;
   export const RELEASE_NOTES_MAX_LENGTH = 100000;
   export const VERSION_MAX_LENGTH = 256;

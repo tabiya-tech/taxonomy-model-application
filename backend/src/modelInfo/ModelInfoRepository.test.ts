@@ -11,7 +11,8 @@ import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegist
 import {initOnce} from "server/init";
 import {getConnectionManager} from "server/connection/connectionManager";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
-import ModelInfo from "api-specifications/modelInfo"
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LocaleAPISpecs from "api-specifications/locale";
 import {IModelInfo, INewModelInfoSpec} from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 
@@ -28,13 +29,13 @@ jest.mock("crypto", () => {
  */
 function getNewModelInfoSpec(): INewModelInfoSpec {
   return {
-    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: randomUUID(),
-      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
-    description: getTestString(ModelInfo.Constants.DESCRIPTION_MAX_LENGTH),
+    description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
   };
 }
 

@@ -19,9 +19,9 @@ describe('Test the Locale Schema', () => {
 describe('Validate JSON against the Locale Schema', () => {
   // GIVEN a valid Locale object
   const givenValidLocale : LocaleAPISpecs.Types.Payload = {
-    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
     UUID: randomUUID(),
-    shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+    shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
   }
 
   // WHEN the object is validated

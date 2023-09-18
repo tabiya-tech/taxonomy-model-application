@@ -3,6 +3,7 @@ import mongoose, {Schema} from 'mongoose';
 import {RegExp_UUIDv4} from "server/regex";
 import {stringRequired} from 'server/stringRequired';
 import ModelInfoAPISpecs from 'api-specifications/modelInfo';
+import LocaleAPISpecs from "api-specifications/locale";
 import {IModelInfoDoc} from "./modelInfo.types";
 
 export const ModelName = "ModelInfo";
@@ -19,7 +20,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     shortCode: {
       type: String,
       required: stringRequired("locale", "shortCode"),
-      maxlength: [ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH, `Short code must be at most ${ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`]
+      maxlength: [LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH, `Short code must be at most ${LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`]
     },
   };
 
