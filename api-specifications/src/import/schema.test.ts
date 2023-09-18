@@ -1,182 +1,160 @@
-import Ajv, {ValidateFunction} from "ajv";
-import Import from "./index";
-import * as Constants from "./constants";
+import ImportAPISpecs from "./index";
 import {getMockId} from "_test_utilities/mockMongoId";
 import {WHITESPACE} from "_test_utilities/specialCharacters";
 import {RegExp_Str_NotEmptyString} from "regex";
+import {
+  assertValidationErrors, testSchemaWithInvalidObject, testSchemaWithValidObject, testValidSchema
+} from "../_test_utilities/stdSchemaTests";
 
 describe('Test the Import Schema', () => {
-  test("The ImportSchema module can be required via the index", () => {
-    //GIVEN the module
-    //WHEN the module is required via the index
-    expect(() => {
-      // THEN Check if the module can be required without error
-      expect(() => {
-        require('./');
-      }).not.toThrowError();
-      // AND check if Schema is defined in it
-      expect(require("./").default.Schemas.POST.Request.Payload).toBeDefined();
-    }).not.toThrowError();
-  })
+  // GIVEN the ImportAPISpecs.Schemas.POST.Request.Payload schema
 
-  test("The Import schema is a valid Schema", () => {
-    const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-    expect(() => {
-      ajv.addSchema(Import.Schemas.POST.Request.Payload, Import.Schemas.POST.Request.Payload.$id);
-    }).not.toThrowError();
-  });
+  // WHEN the schema is validated
+  // THEN expect the schema to be valid
+  testValidSchema("ImportAPISpecs.Schemas.POST.Request.Payload", ImportAPISpecs.Schemas.POST.Request.Payload);
 });
 
 
 describe('Validate JSON against the Import Schema', () => {
-  const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-  ajv.addSchema(Import.Schemas.POST.Request.Payload, Import.Schemas.POST.Request.Payload.$id);
 
-  let validateFunction = ajv.getSchema(Import.Schemas.POST.Request.Payload.$id as string) as ValidateFunction;
+  // GIVEN a valid ImportRequest object
+  const givenValidImportRequest: ImportAPISpecs.Types.POST.Request.Payload = {
+    modelId: getMockId(2), filePaths: {
+      ESCO_OCCUPATION: "folder/file1",
+      ESCO_SKILL_HIERARCHY: "folder/file2",
+      ESCO_SKILL_GROUP: "folder/file3",
+      ESCO_SKILL: "folder/file4",
+      ESCO_SKILL_SKILL_RELATIONS: "folder/file5",
+      ISCO_GROUP: "folder/file6",
+      LOCAL_OCCUPATION: "folder/file7",
+      LOCALIZED_OCCUPATION: "folder/file8",
+      MODEL_INFO: "folder/file9",
+      OCCUPATION_HIERARCHY: "folder/file10",
+      OCCUPATION_LOGS: "folder/file11",
+      OCCUPATION_LOG_CHANGES: "folder/file12",
+      OCCUPATION_SKILL_RELATION: "folder/file13"
+    }
+  }
 
   describe('Successful validation of Import', () => {
-    test("A valid Import object validates", () => {
-      // GIVEN a valid Import object
-      const importRequest: Import.Types.POST.Request.Payload = {
-        modelId: getMockId(2),
-        filePaths: {
-          ESCO_OCCUPATION: "folder/file1",
-          ESCO_SKILL_HIERARCHY: "folder/file2",
-          ESCO_SKILL_GROUP: "folder/file3",
-          ESCO_SKILL: "folder/file4",
-          ESCO_SKILL_SKILL_RELATIONS: "folder/file5",
-          ISCO_GROUP: "folder/file6",
-          LOCAL_OCCUPATION: "folder/file7",
-          LOCALIZED_OCCUPATION: "folder/file8",
-          MODEL_INFO: "folder/file9",
-          OCCUPATION_HIERARCHY: "folder/file10",
-          OCCUPATION_LOGS: "folder/file11",
-          OCCUPATION_LOG_CHANGES: "folder/file12",
-          OCCUPATION_SKILL_RELATION: "folder/file13"
-        }
-      }
-      // WHEN the object is validated
-      const result = validateFunction(importRequest);
+    // WHEN the object is validated
+    // THEN expect the object to validate successfully
+    testSchemaWithValidObject("ImportAPISpecs.Schemas.POST.Request.Payload", ImportAPISpecs.Schemas.POST.Request.Payload, givenValidImportRequest)
 
-      // THEN no errors are returned
-      expect(validateFunction.errors).toBeNull();
-      // AND the object validates
-      expect(result).toBeTruthy();
-    });
-
-    describe("At least of urls files Import object should validate", () => {
-
-      Object.values(Import.Constants.ImportFileTypes).forEach((value) => {
-        test(`Import object should validate because it has ${value}`, () => {
+    // AND for each of the possible filetypes given in the filepaths
+    describe("Should validate with any of the possible filetypes", () => {
+      Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach((value) => {
+        describe(`Import object should validate because it has ${value}`, () => {
           // GIVEN a valid Import object
-          const importRequest: Import.Types.POST.Request.Payload = {
-            modelId: getMockId(2),
-            filePaths: {
+          const givenValidImportRequestWithValue: ImportAPISpecs.Types.POST.Request.Payload = {
+            modelId: getMockId(2), filePaths: {
               [value]: "folder/file6",
             }
           }
-          // WHEN the object is validated
-          const result = validateFunction(importRequest);
 
-          // THEN no errors are returned
-          expect(validateFunction.errors).toBeNull();
-          // AND the object validates
-          expect(result).toBeTruthy();
+          // WHEN the object is validated
+          // THEN expect the object to validate successfully
+          testSchemaWithValidObject(`ImportAPISpecs.Schemas.POST.Request.Payload`, ImportAPISpecs.Schemas.POST.Request.Payload, givenValidImportRequestWithValue)
         });
       });
     })
   })
 
   describe('Failed validation of Import', () => {
-    function assertValidationErrors(importRequest: Partial<Import.Types.POST.Request.Payload>, failure: {
-      instancePath: string,
-      keyword: string,
-      message: string
-    }) {
-      const result = validateFunction(importRequest);
-      expect(result).toBeFalsy();
-      expect(validateFunction.errors).not.toBeNull()
-      expect(validateFunction.errors).toEqual(expect.arrayContaining(
-        [expect.objectContaining({
-          instancePath: failure.instancePath,
-          keyword: failure.keyword,
-          message: failure.message
-        })]
-      ));
-    }
+
+    // WHEN the object has additional properties
+    // THEN expect the object to not validate
+    testSchemaWithInvalidObject("ImportAPISpecs.Schemas.POST.Request.Payload", ImportAPISpecs.Schemas.POST.Request.Payload, givenValidImportRequest)
 
     describe("Fail validation of 'modelId'", () => {
       test.each([
-        ["undefined", undefined, {
-          instancePath: "",
-          keyword: "required",
-          message: "must have required property 'modelId'"
-        }],
+        // GIVEN an undefined modelId
+        ["undefined", undefined, { instancePath: "", keyword: "required", message: "must have required property 'modelId'"}],
+        // OR GIVEN a null modelId
         ["null", null, {instancePath: "/modelId", keyword: "type", message: "must be string"}],
-        ["malformed", "foo", {
-          instancePath: "/modelId",
-          keyword: "pattern",
-          message: "must match pattern \"^[0-9a-f]{24}$\""
-        }],
+        // OR GIVEN a malformed modelId
+        ["malformed", "foo", { instancePath: "/modelId", keyword: "pattern", message: "must match pattern \"^[0-9a-f]{24}$\""}],
       ])("Fail validation of Import 'modelId' because it is %s", (caseDescription, value, failure) => {
-        const importRequestSpec: Partial<Import.Types.POST.Request.Payload> = {
+
+        // GIVEN an Import object with the given modelId
+        const importRequestSpec: Partial<ImportAPISpecs.Types.POST.Request.Payload> = {
           // @ts-ignore
           modelId: value,
         }
-        assertValidationErrors(importRequestSpec, failure);
+
+        // WHEN the object is validated
+
+        // THEN expect the object to not validate with the expected errors
+        assertValidationErrors(importRequestSpec, ImportAPISpecs.Schemas.POST.Request.Payload, [expect.objectContaining({
+          instancePath: failure.instancePath, keyword: failure.keyword, message: failure.message
+        })]);
       })
     })
 
     describe("Fail validation of 'filePaths'", () => {
-      test.each([
-        ["undefined", undefined, {
-          instancePath: "",
-          keyword: "required",
-          message: "must have required property 'filePaths'"
-        }],
-        ["null", null, {instancePath: "/filePaths", keyword: "type", message: "must be object"}],
-        ["malformed", "foo", {instancePath: "/filePaths", keyword: "type", message: "must be object"}],
-        ["all files missing", {}, {
-          instancePath: "/filePaths",
-          keyword: "anyOf",
-          message: "must match a schema in anyOf"
-        }],
+      test.each([["undefined", undefined, {
+        instancePath: "", keyword: "required", message: "must have required property 'filePaths'"
+      }],
+
+        // GIVEN a null filePaths object
+        ["null", null, { instancePath: "/filePaths", keyword: "type", message: "must be object" }],
+        // OR GIVEN a malformed filePaths object
+        ["malformed", "foo", { instancePath: "/filePaths", keyword: "type", message: "must be object" }],
+        // OR GIVEN an empty filePaths object
+        ["all files missing", {}, { instancePath: "/filePaths", keyword: "anyOf", message: "must match a schema in anyOf" }],
       ])("Fail validation of Import 'filePaths' because it is %s", (caseDescription, value, failure) => {
-        const importRequestSpec: Partial<Import.Types.POST.Request.Payload> = {
+        // GIVEN an Import object with the given filePaths
+        const importRequestSpec: Partial<ImportAPISpecs.Types.POST.Request.Payload> = {
           // @ts-ignore
           filePaths: value,
         }
-        assertValidationErrors(importRequestSpec, failure);
+
+        // WHEN the object is validated
+
+        // THEN expect the object to not validate with the expected errors
+        assertValidationErrors(importRequestSpec, ImportAPISpecs.Schemas.POST.Request.Payload, [expect.objectContaining({
+          instancePath: failure.instancePath, keyword: failure.keyword, message: failure.message
+        })]);
       })
     })
 
     describe("Fail validation of 'filePaths.{filetype}'", () => {
-      Object.values(Import.Constants.ImportFileTypes).forEach((fileType) => {
-        test.each([
-          ["null", null, {instancePath: `/filePaths/${fileType}`, keyword: "type", message: "must be string"}],
+      Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach((fileType) => {
+        test.each([["null", null, {
+          instancePath: `/filePaths/${fileType}`, keyword: "type", message: "must be string"
+        }],
+
+          // GIVEN a filePaths object with an empty string
           ["empty", "", {
-            instancePath: `/filePaths/${fileType}`,
-            keyword: "pattern",
-            message: `must match pattern "${RegExp_Str_NotEmptyString}"`
-          }],
+          instancePath: `/filePaths/${fileType}`,
+          keyword: "pattern",
+          message: `must match pattern "${RegExp_Str_NotEmptyString}"`  }],
+          // OR GIVEN a filePaths object with only whitespace characters
           ["only whitespace characters", WHITESPACE, {
-            instancePath: `/filePaths/${fileType}`,
-            keyword: "pattern",
-            message: `must match pattern "${RegExp_Str_NotEmptyString}"`
-          }],
-          [`more than ${Import.Constants.FILEPATH_MAX_LENGTH} characters`, "a".repeat(Import.Constants.FILEPATH_MAX_LENGTH + 1), {
-            instancePath: `/filePaths/${fileType}`,
-            keyword: "maxLength",
-            message: `must NOT have more than ${Import.Constants.FILEPATH_MAX_LENGTH} characters`
-          }],
+          instancePath: `/filePaths/${fileType}`,
+          keyword: "pattern",
+          message: `must match pattern "${RegExp_Str_NotEmptyString}"` }],
+          // OR GIVEN a filePaths object with a string that is too long
+          [`more than ${ImportAPISpecs.Constants.FILEPATH_MAX_LENGTH} characters`, "a".repeat(ImportAPISpecs.Constants.FILEPATH_MAX_LENGTH + 1), {
+          instancePath: `/filePaths/${fileType}`,
+          keyword: "maxLength",
+          message: `must NOT have more than ${ImportAPISpecs.Constants.FILEPATH_MAX_LENGTH} characters` }],
         ])(`Fail validation of Import 'urls.${fileType}' because it is %s`, (caseDescription, value, failure) => {
-          const importRequestSpec: Partial<Import.Types.POST.Request.Payload> = {
+
+          // GIVEN an Import object with the given filePaths
+          const importRequestSpec: Partial<ImportAPISpecs.Types.POST.Request.Payload> = {
             // @ts-ignore
             filePaths: {
               [fileType]: value
             },
           }
-          assertValidationErrors(importRequestSpec, failure);
+
+          // WHEN the object is validated
+
+          // THEN expect the object to not validate with the expected errors
+          assertValidationErrors(importRequestSpec, ImportAPISpecs.Schemas.POST.Request.Payload, [expect.objectContaining({
+            instancePath: failure.instancePath, keyword: failure.keyword, message: failure.message
+          })]);
         })
       })
     })

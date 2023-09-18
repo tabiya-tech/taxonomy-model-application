@@ -1,76 +1,31 @@
-import Ajv, {ValidateFunction} from "ajv";
-import Presigned from "./index";
-import addFormats from "ajv-formats";
+import PresignedAPISpecs from "./index";
 import {getTestString} from "../_test_utilities/specialCharacters";
+import {
+  testSchemaWithInvalidObject,
+  testSchemaWithValidObject,
+  testValidSchema
+} from "../_test_utilities/stdSchemaTests";
 
-describe('Test the PresignedSchema', () => {
-  test("The PresignedSchema can be required via the index", () => {
-    // GIVEN the ModelInfo module
-    // WHEN the module is required via the index
-    // THEN it should not throw an error
-    expect(() => {
-      require('./');
-    }).not.toThrowError();
-
-    let presignedModule = require('./').default;
-    // AND the schema should be defined
-    expect(presignedModule.Schemas.GET.Response.Payload).toBeDefined();
-
-    // AND the constants should be defined
-    const Constants = presignedModule.Constants;
-    expect(Constants.EXPIRES).toBeDefined();
-    expect(Constants.MAX_FILE_SIZE).toBeDefined();
-  })
-
-  test("The PresignedSchema is a valid Schema", () => {
-    expect(() => {
-      const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-      addFormats(ajv);
-      ajv.addSchema(Presigned.Schemas.GET.Response.Payload, Presigned.Schemas.GET.Response.Payload.$id);
-      ajv.getSchema(Presigned.Schemas.GET.Response.Payload.$id as string);
-    }).not.toThrowError();
-  });
+describe('Test the Presigned Schema', () => {
+  // GIVEN the Locale.Schemas.Payload schema
+  // WHEN the schema is validated
+  // THEN expect the schema to be valid
+  testValidSchema("PresignedAPISpecs.Schemas.GET.Response.Payload", PresignedAPISpecs.Schemas.GET.Response.Payload);
 });
 
-describe('Validate JSON against the PresignedSchema', () => {
-  const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-  addFormats(ajv);
-  ajv.addSchema(Presigned.Schemas.GET.Response.Payload, Presigned.Schemas.GET.Response.Payload.$id);
-  ajv.getSchema(Presigned.Schemas.GET.Response.Payload.$id as string);
+describe('Validate JSON against the Presigned Schema', () => {
+  // GIVEN a valid Presigned object
+  const givenValidPresignedResponse: PresignedAPISpecs.Types.GET.Response.Payload = {
+    url: "https://foo.bar",
+    fields: [{name: "name1", value: getTestString(10)}, {name: "name2", value: getTestString(10)}],
+    folder: getTestString(10),
+  }
 
-  let validateFunction = ajv.getSchema(Presigned.Schemas.GET.Response.Payload.$id as string) as ValidateFunction;
+  // WHEN the object is validated
+  // THEN expect the object to validate successfully
+  testSchemaWithValidObject("PresignedAPISpecs.Schemas.GET.Response.Payload", PresignedAPISpecs.Schemas.GET.Response.Payload, givenValidPresignedResponse);
 
-  test("A valid PresignedResponse object validates", () => {
-    // GIVEN a valid ModelInfoResponse object
-    const validPresignedResponse: Presigned.Types.GET.Response.Payload = {
-      url: "https://foo.bar",
-      fields: [{name: "name1", value: getTestString(10)}, {name: "name2", value: getTestString(10)}],
-      folder: getTestString(10),
-    }
-    // WHEN the object is validated
-    const result = validateFunction(validPresignedResponse);
-
-    // THEN no errors are returned
-    expect(validateFunction.errors).toBeNull();
-    // AND the object validates
-    expect(result).toBeTruthy();
-  });
-
-  test("A valid PresignedResponse object with extra properties does not validate", () => {
-    // GIVEN a valid ModelInfoResponse object with extra properties
-    const validPresignedResponse: Presigned.Types.GET.Response.Payload = {
-      url: "https://foo.bar",
-      fields: [{name: "name1", value: getTestString(10)}, {name: "name2", value: getTestString(10)}],
-      folder: getTestString(10),
-      // @ts-ignore
-      extraProperty: "extraProperty"
-    }
-    // WHEN the object is validated
-    const result = validateFunction(validPresignedResponse);
-
-    // THEN errors are returned
-    expect(validateFunction.errors).not.toBeNull();
-    // AND the object does not validate
-    expect(result).toBeFalsy();
-  });
+  // AND WHEN the object has additional properties
+  // THEN expect the object to not validate
+  testSchemaWithInvalidObject("PresignedAPISpecs.Schemas.GET.Response.Payload", PresignedAPISpecs.Schemas.GET.Response.Payload, givenValidPresignedResponse);
 });
