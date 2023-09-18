@@ -86,4 +86,3 @@ export const redocBucket = {
   websiteUrl: pulumi.interpolate`http://${_redocBucket.websiteEndpoint}`,
   websiteEndpoint: _redocBucket.websiteEndpoint
 };
-
