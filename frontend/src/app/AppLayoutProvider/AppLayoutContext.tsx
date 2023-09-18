@@ -1,16 +1,16 @@
 import React, { createContext, useContext } from 'react';
 
-const defaultAppLayoutState: {
-  // make it easy to manage other logic on the component level
+type AppLayoutStateType = {
   contentHeader?: React.ReactNode;
   setContentHeader: React.Dispatch<
     React.SetStateAction<React.ReactNode>
   >;
-} = {
+};
+const defaultAppLayoutState: AppLayoutStateType = {
   setContentHeader: () => {},
 };
 
-export const AppLayoutContext = createContext(
+export const AppLayoutContext = createContext<AppLayoutStateType>(
   defaultAppLayoutState
 );
 
