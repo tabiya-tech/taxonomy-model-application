@@ -1,9 +1,9 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
-import {getRestApiDomainName, getRestApiPath, setupBackendRESTApi} from "./restApi";
-import {setupUploadBucket, setupUploadBucketPolicy} from "./uploadBucket";
-import {setupAsyncImportApi} from "./asyncImport";
-import {setupSwaggerBucket, setupRedocBucket} from "./openapiBuckets";
+import { getRestApiDomainName, getRestApiPath, setupBackendRESTApi } from "./restApi";
+import { setupUploadBucket, setupUploadBucketPolicy } from "./uploadBucket";
+import { setupAsyncImportApi } from "./asyncImport";
+import { setupSwaggerBucket, setupRedocBucket } from "./openapiBuckets";
 
 export const environment = pulumi.getStack();
 export const domainName = `${environment}.tabiya.tech`
@@ -17,7 +17,7 @@ export const currentRegion = pulumi.output(aws.getRegion()).name;
  * Setup Upload Bucket
  */
 const allowedOrigins = [`https://${domainName}`];
-if(environment === "dev") {
+if (environment === "dev") {
   allowedOrigins.push("http://localhost:3000"); // Local web server for frontend
   allowedOrigins.push("http://localhost:6006"); // Storybook
 }
@@ -30,7 +30,7 @@ export const uploadBucketName = uploadBucket.id;
  * Setup Async Import
  */
 
-const {asyncLambdaRole, asyncLambdaFunction} = setupAsyncImportApi(environment, {
+const { asyncLambdaRole, asyncLambdaFunction } = setupAsyncImportApi(environment, {
   mongodb_uri: process.env.MONGODB_URI ?? "",
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
@@ -40,7 +40,7 @@ const {asyncLambdaRole, asyncLambdaFunction} = setupAsyncImportApi(environment, 
 /**
  * Setup Backend Rest API
  */
-const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
+const { restApi, stage, restApiLambdaRole } = setupBackendRESTApi(environment, {
   mongodb_uri: process.env.MONGODB_URI ?? "",
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
@@ -71,7 +71,7 @@ setupUploadBucketPolicy(uploadBucket, restApiLambdaRole, asyncLambdaRole);
 const _swaggerBucket = setupSwaggerBucket(domainName);
 
 export const swaggerBucket = {
-  id:  _swaggerBucket.id,
+  id: _swaggerBucket.id,
   arn: _swaggerBucket.arn,
   websiteUrl: pulumi.interpolate`http://${_swaggerBucket.websiteEndpoint}`,
   websiteEndpoint: _swaggerBucket.websiteEndpoint
@@ -81,7 +81,7 @@ export const swaggerBucket = {
 const _redocBucket = setupRedocBucket(domainName);
 
 export const redocBucket = {
-  id:  _redocBucket.id,
+  id: _redocBucket.id,
   arn: _redocBucket.arn,
   websiteUrl: pulumi.interpolate`http://${_redocBucket.websiteEndpoint}`,
   websiteEndpoint: _redocBucket.websiteEndpoint
