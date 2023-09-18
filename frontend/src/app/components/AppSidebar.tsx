@@ -1,0 +1,1 @@
+export const AppSidebar = () => <div>App Sidebar</div>;

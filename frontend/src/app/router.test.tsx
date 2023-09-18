@@ -5,8 +5,8 @@ import {
 } from "react-router-dom";
 
 import routesConfig, {DATA_TEST_ID as LANDING_PAGE_DATA_TEST_ID, routerPaths} from "./routerConfig";
-import {DATA_TEST_ID as INFO_DATA_TEST_ID} from "./info/Info";
-import {DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID} from "./modeldirectory/ModelDirectory";
+import {DATA_TEST_ID as INFO_DATA_TEST_ID} from "../info/Info";
+import {DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID} from "../modeldirectory/ModelDirectory";
 
 // Mock the Info component as it has dependencies to the backend and we do not want to test that here
 jest.mock("src/info/Info", () => {

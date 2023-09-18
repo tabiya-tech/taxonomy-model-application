@@ -1,0 +1,1 @@
+export const AppLayout = () => <div>App Layout</div>;
