@@ -1,10 +1,25 @@
 import {createTheme} from '@mui/material/styles';
 
 const applicationTheme = createTheme({
-
+  palette: {
+    primary: {
+      main: '#002147',
+    },
+    secondary: {
+      main: '#EEFF41',
+      light: '#5CFF9F',
+    },
+    text: {
+      primary: '#002147'
+    },
+    common: {
+      white: '#ffffff',
+      black: '#000000',
+    }
+  },
   typography: {
     htmlFontSize: 16, // Set the base font size
-    fontFamily: 'Roboto, sans-serif', // Set the desired font family
+    fontFamily: 'Inter, sans-serif', // Set the desired font family
     fontSize: 16, // Set the base font size
     // Define additional typography styles if needed
   },

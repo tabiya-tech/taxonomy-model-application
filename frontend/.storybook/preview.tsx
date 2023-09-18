@@ -1,5 +1,7 @@
+import React from 'react'
 import {withThemeFromJSXProvider} from "@storybook/addon-styling";
-import {ThemeProvider} from "@mui/material";
+import {CssBaseline, ThemeProvider} from "@mui/material";
+import { BrowserRouter as Router } from 'react-router-dom';
 import applicationsTheme from "../src/theme/applicationTheme";
 // Load fonts
 // The application font are typically loaded in the index.html, index.css or index.tsx file
@@ -17,7 +19,6 @@ import "@fontsource/roboto/700.css";
 
 import type {Preview} from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
-
 const preview: Preview = {
   parameters: {
     actions: {argTypesRegex: "^on[A-Z].*"},
@@ -39,10 +40,12 @@ export const decorators = [
     },
     defaultTheme: "applicationsTheme",
     Provider: ThemeProvider,
-    //GlobalStyles: CssBaseline,
+    GlobalStyles: CssBaseline,
   }),(Story) => (
-    <CustomSnackbarProvider>
-      <Story />
-    </CustomSnackbarProvider>
+    <Router>
+      <CustomSnackbarProvider>
+        <Story />
+      </CustomSnackbarProvider>
+    </Router>
   ),
 ];
