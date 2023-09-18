@@ -10,7 +10,21 @@ import {ModelInfoTypes} from "../modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale"
 import ModelDirectoryHeader from './components/ModelDirectoryHeader/ModelDirectoryHeader';
-import { ModelDirectoryContainer } from './ModelDirectory.styles';
+import {AppBar, Box} from "@mui/material";
+import {styled} from '@mui/material/styles';
+
+ const StyledContainer = styled(Box)`
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const StyledTableContainer = styled(Box)`
+  flex: 1;
+  background-color: ${({theme}) => theme.palette.background.paper};
+  border-radius: 16px 16px 0 0;
+  padding: 24px 24px 24px 24px;
+`;
+
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -91,15 +105,15 @@ const ModelDirectory = () => {
     };
   }, [handleModelInfoFetch]);
 
-
   return (
-    <ModelDirectoryContainer
-      data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}
-    >
-      <ModelDirectoryHeader onModalImport={() => showImportDialog(true)} />
-      <div className='model-table-container'>
-        <ModelsTable models={models} isLoading={isLoadingModels} />
-      </div>
+    <StyledContainer data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
+      <AppBar style={{paddingBottom:"24px"}} variant={"outlined"} sx={{border:"none"}} color={"secondary"}  position={"sticky"}>
+        <ModelDirectoryHeader onModalImport={() => showImportDialog(true)}/>
+      </AppBar>
+      <StyledTableContainer>
+        <ModelsTable models={models} isLoading={isLoadingModels}/>
+      </StyledTableContainer>
+
       {isImportDlgOpen && (
         <ImportModelDialog
           isOpen={isImportDlgOpen}
@@ -113,7 +127,7 @@ const ModelDirectory = () => {
           message='The model is being created and the files uploaded. Please wait ... '
         />
       )}
-    </ModelDirectoryContainer>
+    </StyledContainer>
   );
 };
 export default ModelDirectory;
