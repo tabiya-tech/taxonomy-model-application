@@ -1,0 +1,1 @@
+export const ContentHeaderContainer = () => <div>Content Header Container</div>;
