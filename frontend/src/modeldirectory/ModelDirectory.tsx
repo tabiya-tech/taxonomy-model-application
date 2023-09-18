@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect} from "react";
-import {Box, Button, Container} from '@mui/material';
 import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelDialog";
 import {ServiceError} from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
@@ -10,6 +9,8 @@ import ModelsTable from "./components/modelTables/ModelsTable";
 import {ModelInfoTypes} from "../modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale"
+import ModelDirectoryHeader from './components/ModelDirectoryHeader/ModelDirectoryHeader';
+import { ModelDirectoryContainer } from './ModelDirectory.styles';
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -36,6 +37,7 @@ const ModelDirectory = () => {
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
 
   const {enqueueSnackbar} = useSnackbar()
+
   const showImportDialog = (b: boolean) => {
     setImportDlgOpen(b);
   }
@@ -89,22 +91,29 @@ const ModelDirectory = () => {
     };
   }, [handleModelInfoFetch]);
 
-  return <Container maxWidth="xl" sx={{
-    width: "100%", height: "100vh", justifyContent: 'center', alignItems: 'center', display: 'flex'
-  }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-    <Box display="flex" flexDirection="column" alignItems='flex-end'  height="100vh" width="100vw">
-      <Box>
-        <Button onClick={() => showImportDialog(true)} data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}
-                style={{width: "auto"}}>
-          Import Model
-        </Button>
-      </Box>
-      <ModelsTable models={models} isLoading={isLoadingModels}/>
-    </Box>
-    {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
-                                           notifyOnClose={handleOnImportDialogClose}/>}
-    {isBackDropShown && <Backdrop isShown={isBackDropShown}
-                                  message="The model is being created and the files uploaded. Please wait ... "/>}
-  </Container>
+
+  return (
+    <ModelDirectoryContainer
+      data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}
+    >
+      <ModelDirectoryHeader onModalImport={() => showImportDialog(true)} />
+      <div className='model-table-container'>
+        <ModelsTable models={models} isLoading={isLoadingModels} />
+      </div>
+      {isImportDlgOpen && (
+        <ImportModelDialog
+          isOpen={isImportDlgOpen}
+          availableLocales={availableLocales}
+          notifyOnClose={handleOnImportDialogClose}
+        />
+      )}
+      {isBackDropShown && (
+        <Backdrop
+          isShown={isBackDropShown}
+          message='The model is being created and the files uploaded. Please wait ... '
+        />
+      )}
+    </ModelDirectoryContainer>
+  );
 };
 export default ModelDirectory;

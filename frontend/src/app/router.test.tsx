@@ -4,9 +4,9 @@ import {
   createMemoryRouter
 } from "react-router-dom";
 
-import routesConfig, {DATA_TEST_ID as LANDING_PAGE_DATA_TEST_ID, routerPaths} from "./routerConfig";
-import {DATA_TEST_ID as INFO_DATA_TEST_ID} from "./info/Info";
-import {DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID} from "./modeldirectory/ModelDirectory";
+import routesConfig, { routerPaths} from "./routerConfig";
+import {DATA_TEST_ID as INFO_DATA_TEST_ID} from "../info/Info";
+import {DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID} from "../modeldirectory/ModelDirectory";
 
 // Mock the Info component as it has dependencies to the backend and we do not want to test that here
 jest.mock("src/info/Info", () => {
@@ -24,9 +24,7 @@ function renderWithRouter(route: string) {
   const router = createMemoryRouter(routesConfig, {
     initialEntries: [route],
   });
-  render(
-    <RouterProvider router={router}/>
-  );
+  render(<RouterProvider router={router}/>);
 }
 
 describe("Tests for router config", () => {
@@ -34,8 +32,8 @@ describe("Tests for router config", () => {
     // WHEN  the root path is chosen
     renderWithRouter(routerPaths.ROOT);
 
-    // THEN expect the landing page to be available
-    expect(screen.getByTestId(LANDING_PAGE_DATA_TEST_ID.LANDING_PAGE)).toBeInTheDocument();
+    // THEN expect model directory to be the landing page
+    expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toBeInTheDocument();
   });
 
   it("should render the info", async () => {

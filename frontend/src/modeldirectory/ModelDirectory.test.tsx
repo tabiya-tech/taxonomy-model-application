@@ -3,7 +3,7 @@ import 'src/_test_utilities/consoleMock';
 
 import {act, render, screen, waitFor,} from '@testing-library/react';
 import ModelDirectory, {
-  availableLocales, DATA_TEST_ID, DATA_TEST_ID as MODEL_DIR_DATA_TEST_ID,
+  availableLocales, DATA_TEST_ID,
 } from './ModelDirectory';
 import ImportModelDialog, {DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportData,} from 'src/import/ImportModelDialog';
 import userEvent from '@testing-library/user-event';
@@ -20,6 +20,7 @@ import {
   getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength,
 } from './components/modelTables/_test_utilities/mockModelData';
 import LocaleAPISpecs from "api-specifications/locale";
+import {DATA_TEST_ID as MODEL_HEADER_DATA_TEST_ID} from './components/ModelDirectoryHeader/ModelDirectoryHeader'
 
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock('src/modelInfo/modelInfo.service', () => {
@@ -138,7 +139,7 @@ describe('ModelDirectory Render', () => {
     render(<ModelDirectory/>);
 
     // THEN expect the ImportButton to be visible
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     expect(importButton).toBeVisible();
   });
 
@@ -280,7 +281,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     render(<ModelDirectory/>);
 
     // WHEN the import button is clicked
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     // THEN expect the ImportDialog to be visible
@@ -298,7 +299,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     render(<ModelDirectory/>);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -330,7 +331,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       .mockResolvedValueOnce(givenNewModel);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -388,7 +389,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       }));
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -443,7 +444,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       .mockResolvedValueOnce(givenNewModel);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     // AND the user has entered all the data required for the import
