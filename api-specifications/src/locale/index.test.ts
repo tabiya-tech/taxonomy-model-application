@@ -8,7 +8,12 @@ describe("Test the locale module", () => {
         require('./');
       }).not.toThrowError();
       // AND check if Schema is defined in it
-      expect(require("./").default.Schemas.Payload).toBeDefined();
+      const localeModule = require('./').default;
+      expect(localeModule.Schemas.Payload).toBeDefined();
+
+      // AND check if Constants is defined in it
+      expect(localeModule.Constants.LOCALE_SHORTCODE_MAX_LENGTH).toBeDefined();
+      expect(localeModule.Constants.NAME_MAX_LENGTH).toBeDefined();
     }).not.toThrowError();
   })
 });

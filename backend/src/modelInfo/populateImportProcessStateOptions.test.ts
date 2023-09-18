@@ -7,7 +7,8 @@ import {getTestString} from "_test_utilities/specialCharacters";
 import {getNewConnection} from "server/connection/newConnection";
 import {RepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
-import ModelInfoAPISpecs from "api-specifications/modelInfo"
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LocaleAPISpecs from "api-specifications/locale";
 import {IModelInfo, INewModelInfoSpec} from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import {IImportProcessState} from "../import/ImportProcessState/importProcessState.types";
@@ -21,8 +22,8 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: randomUUID(),
-      name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-      shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
   };

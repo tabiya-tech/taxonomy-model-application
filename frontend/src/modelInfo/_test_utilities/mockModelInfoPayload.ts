@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 
-import ModelInfoAPISpecs from "api-specifications/modelInfo"
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LocaleAPISpecs from "api-specifications/locale";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
 import {v4 as uuidv4} from "uuid";
@@ -46,8 +47,8 @@ export namespace GET {
         name: getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
         locale: {
           UUID: uuidv4(),
-          name: getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-          shortCode: getRandomLorem(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+          name: getRandomLorem(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+          shortCode: getRandomLorem(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
         },
         description: getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
         released: i % 2 === 0, // 50% chance of released
@@ -83,8 +84,8 @@ export function getRandomModelInfo(_id: number) {
     name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: uuidv4(),
-      name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-      shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
     released: _id % 2 === 0,

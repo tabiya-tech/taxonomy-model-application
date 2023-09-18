@@ -1,6 +1,6 @@
 import {SchemaObject} from "ajv";
 import {RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4} from "../regex";
-import ModelInfoConstants from "../modelInfo/constants";
+import LocaleConstants from "./constants";
 
 const LocaleSchema: SchemaObject = {
   $id: "/components/schemas/LocaleSchema",
@@ -16,13 +16,13 @@ const LocaleSchema: SchemaObject = {
       description: "The short code of the locale",
       type: "string",
       pattern: RegExp_Str_NotEmptyString,
-      maxLength: ModelInfoConstants.LOCALE_SHORTCODE_MAX_LENGTH
+      maxLength: LocaleConstants.LOCALE_SHORTCODE_MAX_LENGTH
     },
     name: {
       description: "The name of the locale",
       type: "string",
       pattern: RegExp_Str_NotEmptyString,
-      maxLength: ModelInfoConstants.NAME_MAX_LENGTH
+      maxLength: LocaleConstants.NAME_MAX_LENGTH
     }
   },
   required: [

@@ -7,6 +7,7 @@ import {randomUUID} from "crypto";
 import ErrorAPISpecs from "api-specifications/error";
 import {getRandomString} from "_test_utilities/specialCharacters";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LocaleAPISpecs from "api-specifications/locale";
 import {getIModelInfoMockData, getModelInfoMockDataArray} from "./testDataHelper";
 import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
 import {
@@ -30,8 +31,8 @@ describe("Test for model handler", () => {
       const givenPayload: ModelInfoAPISpecs.Types.POST.Request.Payload = {
         name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH), locale: {
           UUID: randomUUID(),
-          name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-          shortCode: getRandomString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+          name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+          shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
         }, description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)
       }
       const givenEvent = {

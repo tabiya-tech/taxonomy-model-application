@@ -2,7 +2,8 @@ import {getMockId} from "_test_utilities/mockMongoId";
 import {randomUUID} from "crypto";
 import {getRandomString} from "_test_utilities/specialCharacters";
 import {DESCRIPTION_MAX_LENGTH} from "esco/common/modelSchema";
-import ModelInfo from 'api-specifications/modelInfo';
+import ModelInfoAPISpecs from 'api-specifications/modelInfo';
+import LocaleAPISpecs from "api-specifications/locale";
 import {IModelInfo} from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 
@@ -12,16 +13,16 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
     UUID: randomUUID(),
     previousUUID: randomUUID(),
     originUUID: randomUUID(),
-    name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: randomUUID(),
-      name: getRandomString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      shortCode: getRandomString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+      shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
     description: getRandomString(DESCRIPTION_MAX_LENGTH),
     released: false,
-    releaseNotes: getRandomString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
-    version: getRandomString(ModelInfo.Constants.VERSION_MAX_LENGTH),
+    releaseNotes: getRandomString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
+    version: getRandomString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
     importProcessState: {
       id: getMockId(100000 + n),
       status: ImportProcessStateAPISpecs.Enums.Status.PENDING,

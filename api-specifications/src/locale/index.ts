@@ -3,6 +3,7 @@
 
 import LocaleResponseSchema from "./schema";
 import LocaleTypes from "./types";
+import LocaleConstants from "./constants";
 
 /**
  * This module should be imported in the following way
@@ -17,6 +18,7 @@ namespace LocaleSchemas {
 }
 
 namespace LocaleAPISpecs {
+    export import Constants = LocaleConstants;
     export import Types = LocaleTypes;
     export import Schemas = LocaleSchemas;
 }

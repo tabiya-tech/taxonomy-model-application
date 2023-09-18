@@ -5,7 +5,8 @@ import mongoose, {Connection} from "mongoose";
 import {
   ModelName, initializeSchemaAndModel
 } from './modelInfoModel'
-import ModelInfoAPISpecs from "api-specifications/modelInfo"
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LocaleAPISpecs from "api-specifications/locale";
 import {randomUUID} from "crypto";
 import {getTestString, WHITESPACE} from "_test_utilities/specialCharacters";
 import {getMockId} from "_test_utilities/mockMongoId";
@@ -43,8 +44,8 @@ describe('Test the definition of the ModelInfo Model', () => {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
-        name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
       description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       released: false,
@@ -74,8 +75,8 @@ describe('Test the definition of the ModelInfo Model', () => {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: randomUUID(),
-        name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
       },
       description: "",
       released: false,
@@ -219,9 +220,9 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "Too long locale name", getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH + 1), `Name must be at most ${ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long locale name", getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH + 1), `Name must be at most ${ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH} chars long`],
         [CaseType.Success, "Empty locale.name", "", undefined],
-        [CaseType.Success, "Valid locale.name", getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH), undefined]
+        [CaseType.Success, "Valid locale.name", getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH), undefined]
       ])("(%s) Validate 'locale.name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, ["locale", "name"], caseType, value, expectedFailureMessage);
       });
@@ -231,9 +232,9 @@ describe('Test the definition of the ModelInfo Model', () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "Too long locale name", getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1), `Short code must be at most ${ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`],
+        [CaseType.Failure, "Too long locale name", getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1), `Short code must be at most ${LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`],
         [CaseType.Success, "Empty locale.shortCode", "", undefined],
-        [CaseType.Success, "Valid locale.shortCode", getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH), undefined]
+        [CaseType.Success, "Valid locale.shortCode", getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH), undefined]
       ])("(%s) Validate 'locale.shortcode' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, ["locale", "shortCode"], caseType, value, expectedFailureMessage);
       });
