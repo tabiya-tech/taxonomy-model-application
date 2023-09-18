@@ -1,89 +1,34 @@
-import Ajv, {ValidateFunction} from "ajv";
-import ModelInfo from "./index"
-import addFormats from "ajv-formats";
-import Locale from "../locale"
+import ModelInfoAPISpecs from "./index"
 import ImportProcessState from "../importProcessState";
 import {randomUUID} from "crypto";
 import {getTestString} from "../_test_utilities/specialCharacters";
 import {getMockId} from "../_test_utilities/mockMongoId";
+import {
+  testSchemaWithInvalidObject,
+  testSchemaWithValidObject,
+  testValidSchema
+} from "../_test_utilities/stdSchemaTests";
+import LocaleAPISpecs from "../locale";
 
-describe("Test ModelInfo Schema", () => {
-  test("should be required without errors", () => {
-    // GIVEN the ModelInfo module
-    // WHEN the module is required via the index
-    // THEN it should not throw an error
-    expect(() => {
-      require('./');
-    }).not.toThrowError();
+describe("Test ModelInfoAPISpecs Schema", () => {
 
-    let modelInfoModule = require('./').default;
-    // AND the schemas should be defined
-    expect(modelInfoModule.Schemas.GET.Response.Payload).toBeDefined();
-    expect(modelInfoModule.Schemas.POST.Response.Payload).toBeDefined();
-    expect(modelInfoModule.Schemas.POST.Request.Payload).toBeDefined();
+  // WHEN the ModelInfoAPISpecs.Schemas.GET.Response.Schema.Payload schema
+  // THEN expect the givenSchema to be valid
+  testValidSchema("ModelInfoAPISpecs.Schemas.GET.Response.Schema.Payload", ModelInfoAPISpecs.Schemas.GET.Response.Payload, [LocaleAPISpecs.Schemas.Payload])
 
-    // AND the constants should be defined
-    const Constants = modelInfoModule.Constants;
-    expect(Constants.NAME_MAX_LENGTH).toBeDefined();
-    expect(Constants.LOCALE_SHORTCODE_MAX_LENGTH).toBeDefined();
-    expect(Constants.MAX_PAYLOAD_LENGTH).toBeDefined();
-    expect(Constants.DESCRIPTION_MAX_LENGTH).toBeDefined();
-    expect(Constants.RELEASE_NOTES_MAX_LENGTH).toBeDefined();
-    expect(Constants.VERSION_MAX_LENGTH).toBeDefined();
-  });
+  // AND WHEN the ModelInfoAPISpecs.POST.Response.Schema.Payload schema
+  // THEN expect the givenSchema to be valid
+  testValidSchema("ModelInfoAPISpecs.Schemas.POST.Response.Schema.Payload", ModelInfoAPISpecs.Schemas.POST.Response.Payload, [LocaleAPISpecs.Schemas.Payload])
 
-  test.each([["ModelInfo.GET.Response.Schema", ModelInfo.Schemas.GET.Response.Payload], ["ModelInfo.POST.Response.Schema", ModelInfo.Schemas.POST.Response.Payload], ["ModelInfo.POST.Request.Schema", ModelInfo.Schemas.POST.Request.Payload]])
-  ("%s schema is a valid Schema", (description, givenSchema) => {
-    // GIVEN the givenSchema
-    // WHEN the givenSchema is validated
-    // THEN expect the givenSchema to be valid
-    expect(() => {
-      const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-      addFormats(ajv);
-      ajv.compile(Locale.Schemas.Payload);
-      ajv.compile(givenSchema);
-    }).not.toThrowError();
-  })
+  // AND WHEN the ModelInfoAPISpecs.Schemas.POST.Request.Schema.Payload schemama
+  // THEN expect the givenSchema to be valid
+  testValidSchema("ModelInfoAPISpecs.Schemas.POST.Request.Schema.Payload", ModelInfoAPISpecs.Schemas.POST.Request.Payload, [LocaleAPISpecs.Schemas.Payload])
+
 })
 
 describe("Validate JSON against the Schema", () => {
-  const ajv = new Ajv({validateSchema: true, allErrors: true, strict: true});
-  addFormats(ajv);
-  //GIVEN the modelInfo schemas
-  const givenSchemas = [ModelInfo.Schemas.GET.Response.Payload, ModelInfo.Schemas.POST.Response.Payload, ModelInfo.Schemas.POST.Request.Payload];
-  givenSchemas.forEach(schema => ajv.addSchema(schema, schema.$id));
-  ajv.addSchema(Locale.Schemas.Payload, Locale.Schemas.Payload.$id)
 
-  // AND valid ModelInfoResponseGET, ModelInfoResponsePOST, ModelInfoRequestPOST objects
-  const givenValidModelInfoGETResponse = [{
-    id: getMockId(1),
-    UUID: randomUUID(),
-    previousUUID: "",//randomUUID(),
-    originUUID: randomUUID(),
-    path: "path/to/tabiya",
-    tabiyaPath: "/path/to/tabiya",
-    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-    description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-    locale: {
-      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-      UUID: randomUUID(),
-      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
-    },
-    releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
-    released: false,
-    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
-    importProcessState: {
-      id: getMockId(1),
-      status: ImportProcessState.Enums.Status.PENDING,
-      result: {
-        errored: false,
-        parsingErrors: false,
-        parsingWarnings: false,
-      }
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }]
+   // GIVEN the valid ModelInfoPOSTResponse and ModelInfoPOSTRequest objects
   const givenValidModelInfoPOSTResponse = {
     id: getMockId(1),
     UUID: randomUUID(),
@@ -91,16 +36,16 @@ describe("Validate JSON against the Schema", () => {
     originUUID: randomUUID(),
     path: "path/to/tabiya",
     tabiyaPath: "/path/to/tabiya",
-    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-    description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    description: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
-      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+      name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     },
-    releaseNotes: getTestString(ModelInfo.Constants.RELEASE_NOTES_MAX_LENGTH),
+    releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
-    version: getTestString(ModelInfo.Constants.VERSION_MAX_LENGTH),
+    version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
     importProcessState: {
       id: getMockId(1),
       status: ImportProcessState.Enums.Status.PENDING,
@@ -114,49 +59,43 @@ describe("Validate JSON against the Schema", () => {
     updatedAt: new Date().toISOString(),
   }
   const givenValidModelInfoPOSTRequest = {
-    name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
-    description: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    description: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
-      name: getTestString(ModelInfo.Constants.NAME_MAX_LENGTH),
+      name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(ModelInfo.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      shortCode: getTestString(ModelInfoAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
     }
   }
-
-  test.each([
-    // GIVEN a ModelInfoResponseGET object and corresponding schema
-    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.Schemas.GET.Response.Payload],
-    // GIVEN a ModelInfoResponsePOST object and corresponding schema
-    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.Schemas.POST.Response.Payload],
-    // GIVEN a ModelInfoRequestPOST object and corresponding schema
-    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.Schemas.POST.Request.Payload],
-  ])
-  ("Schema %s validates a valid object", (description, givenValidObject, givenSchema) => {
+  
+  describe("Test against the ModelInfoAPISpecs.Schemas.GET.Response.Payload schema", () => {
     // WHEN the object is validated
-    const validateFunction = ajv.getSchema(givenSchema.$id as string) as ValidateFunction;
-    const isValid = validateFunction(givenValidObject);
-
     // THEN expect the object to validate successfully
-    expect(isValid).toBe(true);
-  });
+    testSchemaWithValidObject("ModelInfoAPISpecs.Schemas.GET.Response.Payload", ModelInfoAPISpecs.Schemas.GET.Response.Payload, [givenValidModelInfoPOSTResponse], [LocaleAPISpecs.Schemas.Payload])
 
-  test.each([
-    // GIVEN a ModelInfoResponseGET object and corresponding schema
-    ["ModelInfo.GET.Response.Schema", givenValidModelInfoGETResponse, ModelInfo.Schemas.GET.Response.Payload],
-    // GIVEN a ModelInfoResponsePOST object and corresponding schema
-    ["ModelInfo.POST.Response.Schema", givenValidModelInfoPOSTResponse, ModelInfo.Schemas.POST.Response.Payload],
-    // GIVEN a ModelInfoRequestPOST object and corresponding schema
-    ["ModelInfo.POST.Request.Schema", givenValidModelInfoPOSTRequest, ModelInfo.Schemas.POST.Request.Payload],
-  ])("Schema %s does not validate object with additional properties", (description, givenValidObject, givenSchema) => {
-    // GIVEN the object has an additional property
-    const givenObjectWithAdditionalProperties = {...givenValidObject, foo: "bar"};
-
-    // WHEN the object is validated
-    const validateFunction = ajv.getSchema(givenSchema.$id as string) as ValidateFunction;
-    const isValid = validateFunction(givenObjectWithAdditionalProperties);
-
+    // AND WHEN the object has additional properties
     // THEN expect the object to not validate
-    expect(isValid).toBe(false);
-    expect(validateFunction.errors).not.toBeNull();
+    testSchemaWithInvalidObject("ModelInfoAPISpecs.Schemas.GET.Response.Payload", ModelInfoAPISpecs.Schemas.GET.Response.Payload, [givenValidModelInfoPOSTResponse], [LocaleAPISpecs.Schemas.Payload])
+  })
+
+  describe("Test against the  ModelInfoAPISpecs.Schemas.POST.Response.Payload schema", () => {
+    // WHEN the object is validated
+    // THEN expect the object to validate successfully
+    testSchemaWithValidObject("ModelInfoAPISpecs.Schemas.POST.Response.Payload", ModelInfoAPISpecs.Schemas.POST.Response.Payload, givenValidModelInfoPOSTResponse, [LocaleAPISpecs.Schemas.Payload])
+
+    // AND WHEN the object has additional properties
+    // THEN expect the object to not validate
+    testSchemaWithInvalidObject("ModelInfoAPISpecs.Schemas.POST.Response.Payload", ModelInfoAPISpecs.Schemas.POST.Response.Payload, givenValidModelInfoPOSTResponse, [LocaleAPISpecs.Schemas.Payload])
+  })
+
+  describe("Test against the ModelInfoAPISpecs.Schemas.POST.Request.Payload schema", () => {
+    // WHEN the object is validated
+    // THEN expect the object to validate successfully
+    testSchemaWithValidObject("ModelInfoAPISpecs.Schemas.POST.Request.Payload", ModelInfoAPISpecs.Schemas.POST.Request.Payload, givenValidModelInfoPOSTRequest, [LocaleAPISpecs.Schemas.Payload])
+
+    // AND WHEN the object has additional properties
+    // THEN expect the object to not validate
+    testSchemaWithInvalidObject("ModelInfoAPISpecs.Schemas.POST.Request.Payload", ModelInfoAPISpecs.Schemas.POST.Request.Payload, givenValidModelInfoPOSTRequest, [LocaleAPISpecs.Schemas.Payload])
+
   })
 });
