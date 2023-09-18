@@ -1,1 +1,6 @@
-export const ContentHeaderContainer = () => <div>Content Header Container</div>;
+import { useAppLayout } from '../AppLayoutProvider';
+
+export const ContentHeaderContainer = () => {
+    const {contentHeader}  = useAppLayout()
+    return <>{contentHeader}</>
+};

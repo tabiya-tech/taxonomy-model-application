@@ -4,24 +4,14 @@ import {
   Routes,
 } from 'react-router-dom';
 import routerConfig from './routerConfig';
-import { Container } from '@mui/material';
 import { AppLayoutProvider } from './AppLayoutProvider';
-
+import { AppLayout } from './components';
 
 export const TaxonomyModelApp = () => {
   return (
-    <Container
-      sx={{
-        height: '100vh',
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-      data-testid={'TaxonomyModelApp'}
-    >
-      <HashRouter>
-        <AppLayoutProvider>
+    <HashRouter>
+      <AppLayoutProvider>
+        <AppLayout data-testid={'TaxonomyModelApp'}>
           <Routes>
             {routerConfig.map((route) => (
               <Route
@@ -32,9 +22,9 @@ export const TaxonomyModelApp = () => {
               />
             ))}
           </Routes>
-        </AppLayoutProvider>
-      </HashRouter>
-    </Container>
+        </AppLayout>
+      </AppLayoutProvider>
+    </HashRouter>
   );
 };
 
