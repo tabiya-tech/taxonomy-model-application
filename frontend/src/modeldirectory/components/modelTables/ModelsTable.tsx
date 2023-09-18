@@ -5,12 +5,11 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
-import TableLoadingRows from "../tableLoadingRows/TableLoadingRows";
+import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import {Container} from "@mui/material";
-import ImportProcessStateIcon from "../importProcessStateIcon/ImportProcessStateIcon";
+import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
 import {useMemo} from "react";
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[],
@@ -52,8 +51,8 @@ const ModelsTable = (props: ModelsTableProps) => {
   }, [props.models]);
 
   return (
-    <TableContainer component={Paper} data-testid={DATA_TEST_ID.MODELS_TABLE_ID}>
-      <Table tabIndex={0} aria-label="models table">
+    <TableContainer data-testid={DATA_TEST_ID.MODELS_TABLE_ID} sx={{borderRadius:"10px 10px 0 0"}}>
+      <Table tabIndex={0} aria-label="models table" >
         <TableHead>
           <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
             <TableCell variant='body' sx={{fontWeight: "bold"}} data-testid={DATA_TEST_ID.MODEL_CELL}>

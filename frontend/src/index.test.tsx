@@ -20,7 +20,7 @@ jest.doMock("react-dom/client", () => {
 });
 
 // mock TaxonomyModelApp
-jest.mock("./TaxonomyModelApp", () => {
+jest.mock("./app/index", () => {
   const mTaxonomyModelApp = () => (<div id="tabiya-app-id" data-testid="tabiya-app-id">Mock TaxonomyModelApp</div>);
   return {
     __esModule: true,

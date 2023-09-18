@@ -1,18 +1,20 @@
 // mute the console
 import 'src/_test_utilities/consoleMock';
 
-import {act, render, screen, waitFor,} from '@testing-library/react';
+import {act, render, screen, waitFor,} from 'src/_test_utilities/test-utils';
 import ModelDirectory, {
-  availableLocales, DATA_TEST_ID, DATA_TEST_ID as MODEL_DIR_DATA_TEST_ID,
+  availableLocales, DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID,
 } from './ModelDirectory';
 import ImportModelDialog, {DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportData,} from 'src/import/ImportModelDialog';
-import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import ImportDirectorService from 'src/import/importDirector.service';
 import {ImportFiles} from 'src/import/ImportFiles.type';
 import {useSnackbar} from 'src/theme/SnackbarProvider/SnackbarProvider';
 import {Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID,} from 'src/theme/Backdrop/Backdrop';
 import ModelsTable, {DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID,} from './components/modelTables/ModelsTable';
+import ModelDirectoryHeader, {
+  DATA_TEST_ID as MODEL_DIRECTORY_HEADER_DATA_TEST_ID
+} from './components/ModelDirectoryHeader/ModelDirectoryHeader';
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import ImportAPISpecs from "api-specifications/import";
 
@@ -41,7 +43,9 @@ jest.mock('src/import/importDirector.service', () => {
 
 // mock the snackbar
 jest.mock('src/theme/SnackbarProvider/SnackbarProvider', () => {
+  const actual = jest.requireActual('src/theme/SnackbarProvider/SnackbarProvider');
   return {
+    ...actual, __esModule: true,
     useSnackbar: jest.fn().mockReturnValue({
       enqueueSnackbar: jest.fn(),
     }),
@@ -53,11 +57,11 @@ jest.mock('src/theme/Backdrop/Backdrop', () => {
   const actual = jest.requireActual('src/theme/Backdrop/Backdrop');
   const mockBackDrop = jest.fn().mockImplementation(() => {
     return (<div
-        data-testid={actual.DATA_TEST_ID.BACKDROP_CONTAINER}
-      >
-        {' '}
-        My BackDrop Mock
-      </div>);
+      data-testid={actual.DATA_TEST_ID.BACKDROP_CONTAINER}
+    >
+      {' '}
+      My BackDrop Mock
+    </div>);
   });
 
   return {
@@ -72,11 +76,11 @@ jest.mock('src/import/ImportModelDialog', () => {
     .fn()
     .mockImplementation(() => {
       return (<div
-          data-testid={actual.DATA_TEST_ID.IMPORT_MODEL_DIALOG}
-        >
-          {' '}
-          My Import Dialog Mock
-        </div>);
+        data-testid={actual.DATA_TEST_ID.IMPORT_MODEL_DIALOG}
+      >
+        {' '}
+        My Import Dialog Mock
+      </div>);
     });
 
   return {
@@ -90,13 +94,30 @@ jest.mock('src/modeldirectory/components/modelTables/ModelsTable', () => {
   const mockModelsTable = jest
     .fn()
     .mockImplementation(() => {
-      console.log('ModelsTable mock');
       return (<div
-          data-testid={actual.DATA_TEST_ID.MODELS_TABLE_ID}
-        >
-          {' '}
-          My Models Table
-        </div>);
+        data-testid={actual.DATA_TEST_ID.MODELS_TABLE_ID}
+      >
+        {' '}
+        My Models Table
+      </div>);
+    });
+
+  return {
+    ...actual, __esModule: true, default: mockModelsTable,
+  };
+});
+
+// mock the ModelDirectoryHeader
+jest.mock('src/modeldirectory/components/ModelDirectoryHeader/ModelDirectoryHeader', () => {
+  const actual = jest.requireActual('src/modeldirectory/components/ModelDirectoryHeader/ModelDirectoryHeader');
+  const mockModelsTable = jest
+    .fn()
+    .mockImplementation(() => {
+      return (<div
+        data-testid={actual.DATA_TEST_ID.MODEL_DIRECTORY_HEADER}
+      >
+        My Model Directory Header
+      </div>);
     });
 
   return {
@@ -133,16 +154,8 @@ afterEach(() => {
 })
 
 describe('ModelDirectory Render', () => {
-  test('Button renders', () => {
-    // WHEN the ModelDirectory is mounted
-    render(<ModelDirectory/>);
 
-    // THEN expect the ImportButton to be visible
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
-    expect(importButton).toBeVisible();
-  });
-
-  test('ModelsTable initial render tests', async () => {
+  test('ModelDirectory initial render tests', async () => {
     // GIVEN the model info service fetchPeriodically will resolve with some data and call the callback provided by the modeldirectory with that data
     const givenMockData = ['foo'] as any;
     jest
@@ -155,7 +168,14 @@ describe('ModelDirectory Render', () => {
     // WHEN the ModelDirectory is mounted
     render(<ModelDirectory/>);
 
-    // THEN expect the ModelsTable to be visible
+    // THEN expect the ModelDirectoryHeader to be visible
+    const modelDirectoryHeader = screen.getByTestId(MODEL_DIRECTORY_HEADER_DATA_TEST_ID.MODEL_DIRECTORY_HEADER);
+    expect(modelDirectoryHeader).toBeInTheDocument();
+
+    // AND the modelDirectoryHeader should receive the onModelImport callback
+    expect(ModelDirectoryHeader).toHaveBeenNthCalledWith(1, {onModelImport: expect.any(Function)}, {});
+
+    // AND expect the ModelsTable to be visible
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
 
@@ -258,7 +278,7 @@ describe('ModelDirectory Render', () => {
     const {unmount, container} = render(<ModelDirectory/>);
 
     // THEN expect the ModelDirectory to be visible
-    const actualModelDirectory = screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_PAGE);
+    const actualModelDirectory = screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE);
     expect(container).toBeInTheDocument();
     // AND expect the model info service to have been called
     expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalled();
@@ -275,13 +295,14 @@ describe('ModelDirectory Render', () => {
   });
 });
 describe('ModelDirectory.ImportDialog action tests', () => {
-  test('should show ImportDialog when import button is clicked', async () => {
+  test('should show ImportDialog when import button is clicked', () => {
     // GIVEN the ModelDirectory is rendered
     render(<ModelDirectory/>);
 
-    // WHEN the import button is clicked
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
-    await userEvent.click(importButton);
+    // WHEN the user click the import button
+    act(() => {
+      (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+    });
 
     // THEN expect the ImportDialog to be visible
     const importDialog = screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
@@ -293,14 +314,16 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     }), {});
   });
 
-  test('should close ImportDialog and not import the model when cancel button is clicked', async () => {
+  test('should close ImportDialog and not import the model when cancel button is clicked',  () => {
     // GIVEN the ModelDirectory is rendered
     render(<ModelDirectory/>);
 
-    // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
-    await userEvent.click(importButton);
+    // AND the user clicks the import button
+    act(() => {
+      (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+    });
 
+    // AND the ImportDialog is shown
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
 
     // AND the user clicks on cancel
@@ -329,10 +352,12 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       .fn()
       .mockResolvedValueOnce(givenNewModel);
 
-    // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
-    await userEvent.click(importButton);
+    // AND the user clicked the import button
+    act(() => {
+      (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+    });
 
+    // AND the ImportDialog is shown
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
 
     // WHEN the user has entered all the data required for the import
@@ -387,13 +412,15 @@ describe('ModelDirectory.ImportDialog action tests', () => {
         reject(mockError);
       }));
 
-    // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
-    await userEvent.click(importButton);
+    // WHEN the user clicks the import button
+    act(() => {
+      (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+    });
 
+    // AND the ImportDialog is shown
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
 
-    // WHEN the user has entered all the data required for the import
+    // AND the user has entered all the data required for the import
     const givenImportData = getTestImportData();
 
     // AND the user click on import
@@ -442,14 +469,18 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       .fn()
       .mockResolvedValueOnce(givenNewModel);
 
-    // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
-    await userEvent.click(importButton);
+    // WHEN the user clicks the import button
+    act(() => {
+      (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+    });
+
+    // AND the ImportDialog is shown
+    expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
 
     // AND the user has entered all the data required for the import
     const givenImportData = getTestImportData();
 
-    // AND the user click on import
+    // AND the user clicked on import
     act(() => {
       const mock = (ImportModelDialog as jest.Mock).mock;
       mock.lastCall[0].notifyOnClose({
@@ -457,7 +488,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       });
     });
 
-    // AND expect the ModelsTable to have been called with the existing and the new model
+    // THEN expect the ModelsTable to have been called with the existing and the new model
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     await waitFor(() => {
