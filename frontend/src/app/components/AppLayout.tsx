@@ -1,6 +1,6 @@
 import React from 'react';
 import Box from '@mui/material/Box';
-import { AppHeader } from './AppHeader';
+import AppHeader from './AppHeader';
 import { ContentHeaderContainer } from './ContentHeaderContainer';
 import { AppSidebar } from './AppSidebar';
 
@@ -19,12 +19,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       data-testid='TaxonomyModelApp'
     >
       <Box display='flex' flexDirection='column'>
-        <Box
-          style={{ backgroundColor: '#806e6e' }} // TODO: remove this
-          padding={2}
-        >
-          <AppHeader/>
-        </Box>
+        <AppHeader/>
         <Box
           style={{ backgroundColor: '#e78a8a' }} // TODO: remove this
           padding={2}
