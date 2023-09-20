@@ -14,11 +14,7 @@ export const DATA_TEST_ID = {
 export const routerConfig = [
   {
     path: routerPaths.ROOT,
-    element: (
-      <div data-testid={DATA_TEST_ID.LANDING_PAGE}>
-        Welcome Page
-      </div>
-    ),
+    element:<ModelDirectory />,
     errorElement: <div>Sorry something went wrong</div>,
   },
   {

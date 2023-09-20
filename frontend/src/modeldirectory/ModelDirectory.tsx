@@ -92,7 +92,7 @@ const ModelDirectory = () => {
   return <Container maxWidth="xl" sx={{
     width: "100%", height: "100vh", justifyContent: 'center', alignItems: 'center', display: 'flex'
   }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-    <Box display="flex" flexDirection="column" alignItems='flex-end'  height="100vh" width="100vw">
+    <Box display="flex" flexDirection="column" alignItems='flex-end'  height="100vh" width="100%">
       <Box>
         <Button onClick={() => showImportDialog(true)} data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}
                 style={{width: "auto"}}>
