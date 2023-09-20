@@ -10,6 +10,8 @@ import {Backdrop} from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
 import {ModelInfoTypes} from "../modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
+import { useAppLayout } from 'src/app/AppLayoutProvider';
+import ModelDirectoryHeader from './components/ModelDirectoryHeader/ModelDirectoryHeader';
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -36,6 +38,8 @@ const ModelDirectory = () => {
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
 
   const {enqueueSnackbar} = useSnackbar()
+  const {setContentHeader} = useAppLayout()
+
   const showImportDialog = (b: boolean) => {
     setImportDlgOpen(b);
   }
@@ -88,6 +92,12 @@ const ModelDirectory = () => {
       clearInterval(timerId);
     };
   }, [handleModelInfoFetch]);
+
+  useEffect(() => {
+    setContentHeader(
+    <ModelDirectoryHeader onModalImport={() => showImportDialog(true)}/>
+    )
+  },[setContentHeader])
 
   return <Container maxWidth="xl" sx={{
     width: "100%", height: "100vh", justifyContent: 'center', alignItems: 'center', display: 'flex'
