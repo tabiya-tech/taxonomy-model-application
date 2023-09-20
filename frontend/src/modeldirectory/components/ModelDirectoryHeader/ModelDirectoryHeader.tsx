@@ -17,19 +17,9 @@ const ImportButton = styled(Button)`
   border-radius: 100px;
 `;
 
-const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
-  onModalImport,
-}) => (
-  <Box
-    display='flex'
-    width='100%'
-    justifyContent='space-between'
-    alignItems='center'
-  >
-    <Typography
-      fontSize='28px'
-      data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}
-    >
+const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({ onModalImport }) => (
+  <Box display='flex' width='100%' justifyContent='space-between' alignItems='center'>
+    <Typography fontSize='28px' data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>
       Labour Taxonomies
     </Typography>
     <ImportButton
