@@ -7,6 +7,7 @@ import {
 import routesConfig, { routerPaths} from "./routerConfig";
 import {DATA_TEST_ID as INFO_DATA_TEST_ID} from "../info/Info";
 import {DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID} from "../modeldirectory/ModelDirectory";
+import { AppLayoutProvider } from './AppLayoutProvider';
 
 // Mock the Info component as it has dependencies to the backend and we do not want to test that here
 jest.mock("src/info/Info", () => {
@@ -25,7 +26,9 @@ function renderWithRouter(route: string) {
     initialEntries: [route],
   });
   render(
-    <RouterProvider router={router}/>
+    <AppLayoutProvider>
+      <RouterProvider router={router}/>
+    </AppLayoutProvider>
   );
 }
 
