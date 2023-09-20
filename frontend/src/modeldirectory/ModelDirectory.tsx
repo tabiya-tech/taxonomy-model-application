@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect} from "react";
-import {Box,  Container} from '@mui/material';
 import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelDialog";
 import {ServiceError} from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
@@ -12,6 +11,7 @@ import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale"
 import { useAppLayout } from 'src/app/AppLayoutProvider';
 import ModelDirectoryHeader from './components/ModelDirectoryHeader/ModelDirectoryHeader';
+import {Box} from "@mui/material";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -100,16 +100,13 @@ const ModelDirectory = () => {
     )
   },[setContentHeader])
 
-  return <Container maxWidth="xl" sx={{
-    width: "100%", height: "100vh", justifyContent: 'center', alignItems: 'center', display: 'flex'
-  }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-    <Box display="flex" flexDirection="column" alignItems='flex-end'  height="100vh" width="100%">
-      <ModelsTable models={models} isLoading={isLoadingModels}/>
+    return <Box data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}
+                sx={{backgroundColor: "common.white", borderRadius: "16px 16px 0 0", margin: "0 24px 0 24px", padding: "24px 24px 0 24px", flex:1}}>
+        <ModelsTable models={models} isLoading={isLoadingModels}/>
+        {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
+                                               notifyOnClose={handleOnImportDialogClose}/>}
+        {isBackDropShown && <Backdrop isShown={isBackDropShown}
+                                      message="The model is being created and the files uploaded. Please wait ... "/>}
     </Box>
-    {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
-                                           notifyOnClose={handleOnImportDialogClose}/>}
-    {isBackDropShown && <Backdrop isShown={isBackDropShown}
-                                  message="The model is being created and the files uploaded. Please wait ... "/>}
-  </Container>
 };
 export default ModelDirectory;

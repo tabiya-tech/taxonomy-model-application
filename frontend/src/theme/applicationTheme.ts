@@ -4,12 +4,16 @@ const applicationTheme = createTheme({
   palette: {
     primary: {
       main: '#002147'
-},
+    },
     secondary: {
       main: '#EEFF41',
     },
     text: {
       primary: '#002147'
+    },
+    common: {
+      white: '#ffffff',
+      black: '#000000',
     }
   },
   typography: {
