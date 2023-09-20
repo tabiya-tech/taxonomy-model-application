@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { ContentHeaderContainer } from './ContentHeaderContainer';
+import ContentHeaderContainer from './ContentHeaderContainer';
 import { useAppLayout } from '../AppLayoutProvider';
 
 const TEST_HEADER_TITLE = 'Test Header Content';

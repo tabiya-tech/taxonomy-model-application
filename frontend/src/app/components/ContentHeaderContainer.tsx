@@ -5,7 +5,7 @@ const ContentHeaderContainer = () => {
   const {contentHeader} = useAppLayout()
   return <>
     <Box
-      sx={{ bgcolor: 'background.default' }}
+      sx={{ bgcolor: 'secondary.main' }}
       padding={2}
     >{contentHeader}
     </Box>
