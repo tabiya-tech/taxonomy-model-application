@@ -1,7 +1,7 @@
 import React, { useState, createContext, useContext } from 'react';
 import {AppLayoutProviderProps, AppLayoutStateType} from './app.type'
 
-const AppLayoutContext = createContext<
+export const AppLayoutContext = createContext<
   AppLayoutStateType | undefined
 >(undefined);
 
