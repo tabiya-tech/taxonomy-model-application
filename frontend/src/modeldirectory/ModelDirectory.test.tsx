@@ -15,11 +15,15 @@ import ModelsTable, {DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID,} from './compone
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import ImportAPISpecs from "api-specifications/import";
 
+import LocaleAPISpecs from "api-specifications/locale";
+
+import {Constants as ImportConstants} from "api-specifications/import";
 import {
   getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength,
 } from './components/modelTables/_test_utilities/mockModelData';
-import LocaleAPISpecs from "api-specifications/locale";
-
+import * as LayoutProvider from "src/app/AppLayoutProvider";
+import AppLayout from "src/app/components/AppLayout";
+import {DATA_TEST_ID as MODEL_DIR_HEADER_DATA_TEST_ID} from './components/ModelDirectoryHeader/ModelDirectoryHeader';
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock('src/modelInfo/modelInfo.service', () => {
   // Mocking the ES5 class
@@ -104,17 +108,6 @@ jest.mock('src/modeldirectory/components/modelTables/ModelsTable', () => {
 });
 
 
-const setContentHeaderMock = jest.fn();
-const useAppLayoutMock = () =>({
-  setContentHeader: setContentHeaderMock
-})
-// mock useAppLayout hook
-jest.mock('src/app/AppLayoutProvider', () => {
-  const actual = jest.requireActual('src/app/AppLayoutProvider');
-  return {
-    ...actual, __esModule: true, useAppLayout: useAppLayoutMock,
-  };
-});
 
 function getTestImportData(): ImportData {
   // model name
@@ -142,26 +135,25 @@ afterEach(() => {
   // run the timers so that the timers are cleared before the next test
   jest.runOnlyPendingTimers();
   jest.useRealTimers()
-  setContentHeaderMock.mockClear();
 })
 
-describe('ModelDirectory Render', () => {
-  test('Button renders', () => {
-    // WHEN the ModelDirectory is mounted
-    render(<ModelDirectory/>);
 
-    // THEN expect the ImportButton to be visible
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
-    expect(importButton).toBeVisible();
-  });
-   
-  test('should set the content header', () =>{
-    // WHEN the ModelDirectory is mounted
-    render(<ModelDirectory/>);
-    // THEN expect the content header to be set
-    expect(setContentHeaderMock).toHaveBeenCalled()
+
+describe('ModelDirectory Render', () => {
+  let appLayoutSpy: jest.SpyInstance;
+  beforeAll( () =>{
+    const setContentHeader = jest.fn();
+    const useAppLayout = jest.fn().mockReturnValue({setContentHeader});
+   appLayoutSpy = jest
+      .spyOn(LayoutProvider, 'useAppLayout')
+      .mockImplementation(useAppLayout);
   })
 
+  afterAll(() =>{
+    appLayoutSpy.mockRestore()
+  })
+
+ 
   test('ModelsTable initial render tests', async () => {
     // GIVEN the model info service fetchPeriodically will resolve with some data and call the callback provided by the modeldirectory with that data
     const givenMockData = ['foo'] as any;
@@ -294,13 +286,60 @@ describe('ModelDirectory Render', () => {
 
   });
 });
+
+// mock AppHeader component
+jest.mock('src/app/components/AppHeader', () => {
+  const actual = jest.requireActual('src/app/components/AppHeader');
+  const mockAppHeader = jest
+    .fn()
+    .mockImplementation(() => {
+      return (<div>My App Header</div>);
+    });
+
+  return {
+    ...actual, __esModule: true, default: mockAppHeader,
+  };
+});
+
+// mock AppSidebar component
+jest.mock('src/app/components/AppSidebar', () => {
+  const actual = jest.requireActual('src/app/components/AppSidebar');
+  const mockAppSidebar = jest
+    .fn()
+    .mockImplementation(() => {
+      return (<div>My App Sidebar</div>);
+    });
+
+  return {
+    ...actual, __esModule: true, AppSidebar: mockAppSidebar,
+  };
+});
+
+const renderWithAppLayoutProvider = (children: React.ReactNode) => {
+  return render(
+    <LayoutProvider.AppLayoutProvider>
+      <AppLayout>{children}</AppLayout>
+    </LayoutProvider.AppLayoutProvider>
+  );
+}
+
+
 describe('ModelDirectory.ImportDialog action tests', () => {
+  test('Button renders', () => {
+    // WHEN the ModelDirectory is mounted with layout and provider
+    renderWithAppLayoutProvider(<ModelDirectory/>);
+
+    // THEN expect the ImportButton to be visible
+    const importButton = screen.getByTestId(MODEL_DIR_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    expect(importButton).toBeVisible();
+  });
+
   test('should show ImportDialog when import button is clicked', async () => {
     // GIVEN the ModelDirectory is rendered
-    render(<ModelDirectory/>);
+    renderWithAppLayoutProvider(<ModelDirectory/>);
 
     // WHEN the import button is clicked
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     // THEN expect the ImportDialog to be visible
@@ -315,10 +354,10 @@ describe('ModelDirectory.ImportDialog action tests', () => {
 
   test('should close ImportDialog and not import the model when cancel button is clicked', async () => {
     // GIVEN the ModelDirectory is rendered
-    render(<ModelDirectory/>);
+    renderWithAppLayoutProvider(<ModelDirectory/>);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -341,7 +380,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
 
   test('should close the Import Dialog and import the model when the user clicks the import button', async () => {
     // GIVEN the ModelDirectory is rendered
-    render(<ModelDirectory/>);
+    renderWithAppLayoutProvider(<ModelDirectory/>);
 
     // AND the import will succeed and a new model will be created
     const givenNewModel = getOneRandomModelMaxLength();
@@ -350,7 +389,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       .mockResolvedValueOnce(givenNewModel);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -396,7 +435,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
 
   test('should throw an error when import director fails to import', async () => {
     // GIVEN the ModelDirectory is rendered
-    render(<ModelDirectory/>);
+    renderWithAppLayoutProvider(<ModelDirectory/>);
     // AND the import will fail
     const mockError = new Error('Import failed');
     let errorWasThrown = false;
@@ -408,7 +447,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       }));
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
@@ -454,7 +493,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
         onSuccess(givenExistingModels);
         return 1 as unknown as NodeJS.Timer;
       });
-    render(<ModelDirectory/>);
+    renderWithAppLayoutProvider(<ModelDirectory/>);
 
     // AND the import will succeed and a new model will be created
     const givenNewModel = getOneRandomModelMaxLength();
@@ -463,7 +502,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
       .mockResolvedValueOnce(givenNewModel);
 
     // AND the user has opened the ImportDialog
-    const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
+    const importButton = screen.getByTestId(MODEL_DIR_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     await userEvent.click(importButton);
 
     // AND the user has entered all the data required for the import

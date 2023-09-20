@@ -31,3 +31,5 @@ export const AppLayoutProvider: React.FC<
     </AppLayoutContext.Provider>
   );
 };
+
+export default AppLayoutProvider;

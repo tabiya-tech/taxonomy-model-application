@@ -29,3 +29,5 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     </Box>
   );
 };
+
+export default AppLayout;
