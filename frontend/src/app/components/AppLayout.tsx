@@ -17,7 +17,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </Box>
       <Box display='flex' flexDirection='row' flex={1}>
         <AppSidebar />
-        <Box flex={1} padding={2} bgcolor="white">
+        <Box flex={1} padding={2}>
           {children}
         </Box>
       </Box>
