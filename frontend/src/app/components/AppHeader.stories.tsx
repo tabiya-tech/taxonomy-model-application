@@ -1,5 +1,5 @@
 import {Meta, StoryObj} from "@storybook/react";
-import {AppHeader} from "./AppHeader";
+import AppHeader from "./AppHeader";
 
 const meta: Meta<typeof AppHeader> = {
   title: 'AppHeader/AppHeader',
@@ -13,4 +13,5 @@ export default meta;
 type Story = StoryObj<typeof AppHeader>;
 
 export const Shown: Story = {
+  args: { },
 };

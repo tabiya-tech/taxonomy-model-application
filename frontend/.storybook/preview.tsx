@@ -1,5 +1,6 @@
 import {withThemeFromJSXProvider} from "@storybook/addon-styling";
 import {CssBaseline, ThemeProvider} from "@mui/material";
+import { BrowserRouter as Router } from 'react-router-dom';
 import applicationsTheme from "../src/theme/applicationTheme";
 // Load fonts
 // The application font are typically loaded in the index.html, index.css or index.tsx file
@@ -41,8 +42,10 @@ export const decorators = [
     Provider: ThemeProvider,
     GlobalStyles: CssBaseline,
   }),(Story) => (
-    <CustomSnackbarProvider>
-      <Story />
-    </CustomSnackbarProvider>
+    <Router>
+      <CustomSnackbarProvider>
+        <Story />
+      </CustomSnackbarProvider>
+    </Router>
   ),
 ];
