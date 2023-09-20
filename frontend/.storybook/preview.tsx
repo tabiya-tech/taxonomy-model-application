@@ -1,5 +1,5 @@
 import {withThemeFromJSXProvider} from "@storybook/addon-styling";
-import {ThemeProvider} from "@mui/material";
+import {CssBaseline, ThemeProvider} from "@mui/material";
 import applicationsTheme from "../src/theme/applicationTheme";
 // Load fonts
 // The application font are typically loaded in the index.html, index.css or index.tsx file
@@ -39,7 +39,7 @@ export const decorators = [
     },
     defaultTheme: "applicationsTheme",
     Provider: ThemeProvider,
-    //GlobalStyles: CssBaseline,
+    GlobalStyles: CssBaseline,
   }),(Story) => (
     <CustomSnackbarProvider>
       <Story />
