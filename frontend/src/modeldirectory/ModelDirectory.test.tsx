@@ -7,7 +7,6 @@ import ModelDirectory, {
 } from './ModelDirectory';
 import ImportModelDialog, {DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportData,} from 'src/import/ImportModelDialog';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import ImportDirectorService from 'src/import/importDirector.service';
 import {ImportFiles} from 'src/import/ImportFiles.type';
 import {useSnackbar} from 'src/theme/SnackbarProvider/SnackbarProvider';
@@ -104,6 +103,19 @@ jest.mock('src/modeldirectory/components/modelTables/ModelsTable', () => {
   };
 });
 
+
+const setContentHeaderMock = jest.fn();
+const useAppLayoutMock = () =>({
+  setContentHeader: setContentHeaderMock
+})
+// mock useAppLayout hook
+jest.mock('src/app/AppLayoutProvider', () => {
+  const actual = jest.requireActual('src/app/AppLayoutProvider');
+  return {
+    ...actual, __esModule: true, useAppLayout: useAppLayoutMock,
+  };
+});
+
 function getTestImportData(): ImportData {
   // model name
   const name = 'My Model';
@@ -130,6 +142,7 @@ afterEach(() => {
   // run the timers so that the timers are cleared before the next test
   jest.runOnlyPendingTimers();
   jest.useRealTimers()
+  setContentHeaderMock.mockClear();
 })
 
 describe('ModelDirectory Render', () => {
@@ -141,6 +154,13 @@ describe('ModelDirectory Render', () => {
     const importButton = screen.getByTestId(MODEL_DIR_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     expect(importButton).toBeVisible();
   });
+   
+  test('should set the content header', () =>{
+    // WHEN the ModelDirectory is mounted
+    render(<ModelDirectory/>);
+    // THEN expect the content header to be set
+    expect(setContentHeaderMock).toHaveBeenCalled()
+  })
 
   test('ModelsTable initial render tests', async () => {
     // GIVEN the model info service fetchPeriodically will resolve with some data and call the callback provided by the modeldirectory with that data
