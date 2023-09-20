@@ -1,6 +1,15 @@
-import { useAppLayout } from '../AppLayoutProvider';
+import {useAppLayout} from '../AppLayoutProvider';
+import {Box} from "@mui/material";
 
-export const ContentHeaderContainer = () => {
-    const {contentHeader}  = useAppLayout()
-    return <>{contentHeader}</>
+const ContentHeaderContainer = () => {
+  const {contentHeader} = useAppLayout()
+  return <>
+    <Box
+      sx={{ bgcolor: 'background.default' }}
+      padding={2}
+    >{contentHeader}
+    </Box>
+  </>
 };
+
+export default ContentHeaderContainer;
