@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect} from "react";
-import {Box, Button, Container} from '@mui/material';
+import {Box,  Container} from '@mui/material';
 import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelDialog";
 import {ServiceError} from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
@@ -93,6 +93,7 @@ const ModelDirectory = () => {
     };
   }, [handleModelInfoFetch]);
 
+
   useEffect(() => {
     setContentHeader(
     <ModelDirectoryHeader onModalImport={() => showImportDialog(true)}/>
@@ -103,12 +104,6 @@ const ModelDirectory = () => {
     width: "100%", height: "100vh", justifyContent: 'center', alignItems: 'center', display: 'flex'
   }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
     <Box display="flex" flexDirection="column" alignItems='flex-end'  height="100vh" width="100%">
-      <Box>
-        <Button onClick={() => showImportDialog(true)} data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}
-                style={{width: "auto"}}>
-          Import Model
-        </Button>
-      </Box>
       <ModelsTable models={models} isLoading={isLoadingModels}/>
     </Box>
     {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}

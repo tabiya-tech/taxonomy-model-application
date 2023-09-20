@@ -45,10 +45,12 @@ describe('AppLayoutProvider and useAppLayout', () => {
   });
 
   it('throws an error if useAppLayout is not used within AppLayoutProvider', () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     // WHEN the TestComponent is rendered out side of AppLayoutProvider
     // THEN expect an error to be thrown
     expect(() => render(<TestComponent />)).toThrow(
       'useAppLayout must be used within an AppLayoutProvider'
     );
+    jest.restoreAllMocks();
   });
 });
