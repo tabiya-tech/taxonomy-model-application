@@ -3,7 +3,7 @@ import 'src/_test_utilities/consoleMock';
 
 import {act, render, screen, waitFor,} from '@testing-library/react';
 import ModelDirectory, {
-  availableLocales, DATA_TEST_ID, DATA_TEST_ID as MODEL_DIR_DATA_TEST_ID,
+  availableLocales, DATA_TEST_ID,
 } from './ModelDirectory';
 import ImportModelDialog, {DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID, ImportData,} from 'src/import/ImportModelDialog';
 import userEvent from '@testing-library/user-event';
@@ -24,6 +24,7 @@ import {
 import * as LayoutProvider from "src/app/AppLayoutProvider";
 import AppLayout from "src/app/components/AppLayout";
 import {DATA_TEST_ID as MODEL_DIR_HEADER_DATA_TEST_ID} from './components/ModelDirectoryHeader/ModelDirectoryHeader';
+import {HashRouter} from "react-router-dom";
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock('src/modelInfo/modelInfo.service', () => {
   // Mocking the ES5 class
@@ -317,9 +318,11 @@ jest.mock('src/app/components/AppSidebar', () => {
 
 const renderWithAppLayoutProvider = (children: React.ReactNode) => {
   return render(
-    <LayoutProvider.AppLayoutProvider>
-      <AppLayout>{children}</AppLayout>
-    </LayoutProvider.AppLayoutProvider>
+    <HashRouter>
+      <LayoutProvider.AppLayoutProvider>
+        <AppLayout>{children}</AppLayout>
+      </LayoutProvider.AppLayoutProvider>
+    </HashRouter>
   );
 }
 
