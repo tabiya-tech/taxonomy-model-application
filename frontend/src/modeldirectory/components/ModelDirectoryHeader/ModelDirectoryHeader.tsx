@@ -19,7 +19,7 @@ const ImportButton = styled(Button)`
 
 const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({ onModalImport }) => (
   <Box display='flex' width='100%' justifyContent='space-between' alignItems='center'>
-    <Typography fontSize='28px' data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>
+    <Typography fontSize='28px' lineHeight="36px" data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>
       Labour Taxonomies
     </Typography>
     <ImportButton
