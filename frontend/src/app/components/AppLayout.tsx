@@ -10,14 +10,14 @@ interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
-    <Box display='flex' flexDirection='column' height='100%' data-testid='TaxonomyModelApp'>
+    <Box display='flex' flexDirection='column' height='100%' data-testid='TaxonomyModelApp' bgcolor="secondary.main">
       <Box display='flex' flexDirection='column'>
         <AppHeader />
         <ContentHeaderContainer />
       </Box>
       <Box display='flex' flexDirection='row' flex={1}>
         <AppSidebar />
-        <Box flex={1} padding={2}>
+        <Box flex={1} padding={2} bgcolor="white">
           {children}
         </Box>
       </Box>
