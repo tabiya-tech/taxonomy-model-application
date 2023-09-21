@@ -2,7 +2,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import AppHeader from './AppHeader';
 import ContentHeaderContainer from './ContentHeaderContainer';
-import { AppSidebar } from './AppSidebar';
+import AppSidebar from './AppSidebar';
 
 interface AppLayoutProps {
   children: React.ReactNode;
