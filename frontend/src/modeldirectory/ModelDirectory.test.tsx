@@ -322,11 +322,11 @@ const renderWithAppLayoutProvider = (children: React.ReactNode) => {
 
 
 describe('ModelDirectory.ImportDialog action tests', () => {
-  test('Button renders', () => {
+  test('content header with import button to be rendered', () => {
     // WHEN the ModelDirectory is mounted with layout and provider
     renderWithAppLayoutProvider(<ModelDirectory/>);
 
-    // THEN expect the ImportButton to be visible
+    // THEN expect the ImportButton from ModelHeader component to be visible
     const importButton = screen.getByTestId(MODEL_DIR_HEADER_DATA_TEST_ID.IMPORT_MODEL_BUTTON);
     expect(importButton).toBeVisible();
   });
