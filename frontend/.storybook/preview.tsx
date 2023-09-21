@@ -1,3 +1,4 @@
+import React from 'react'
 import {withThemeFromJSXProvider} from "@storybook/addon-styling";
 import {CssBaseline, ThemeProvider} from "@mui/material";
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -18,7 +19,7 @@ import "@fontsource/roboto/700.css";
 
 import type {Preview} from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
-
+import AppLayoutProvider from "../src/app/AppLayoutProvider";
 const preview: Preview = {
   parameters: {
     actions: {argTypesRegex: "^on[A-Z].*"},
@@ -44,7 +45,9 @@ export const decorators = [
   }),(Story) => (
     <Router>
       <CustomSnackbarProvider>
-        <Story />
+        <AppLayoutProvider>
+          <Story />
+        </AppLayoutProvider>
       </CustomSnackbarProvider>
     </Router>
   ),
