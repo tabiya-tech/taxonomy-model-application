@@ -10,15 +10,15 @@ describe('ModelDirectoryHeader', () => {
     defaultProps.onModalImport.mockClear();
   })
 
-  it('render model directory header component', () => {
+  test('should render model directory header component', () => {
     // GIVEN a ModelDirectoryHeader component
     render(<ModelDirectoryHeader {...defaultProps} />);
     // THEN expect the header to be shown
     expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument()
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toBeInTheDocument()
   });
 
-  it('should call onModalImport when import button is clicked', () => {
+  test('should call onModalImport when import button is clicked', () => {
     // GIVEN a ModelDirectoryHeader component
     render(<ModelDirectoryHeader {...defaultProps} />);
     // WHEN the import button is clicked
