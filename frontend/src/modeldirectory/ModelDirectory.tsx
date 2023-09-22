@@ -11,7 +11,7 @@ import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale"
 import { useAppLayout } from 'src/app/AppLayoutProvider';
 import ModelDirectoryHeader from './components/ModelDirectoryHeader/ModelDirectoryHeader';
-import {Box} from "@mui/material";
+import { ModelDirectoryContainer } from './ModelDirectory.styles';
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -95,18 +95,28 @@ const ModelDirectory = () => {
 
 
   useEffect(() => {
-    setContentHeader(
-    <ModelDirectoryHeader onModalImport={() => showImportDialog(true)}/>
-    )
-  },[setContentHeader])
+    setContentHeader(<ModelDirectoryHeader onModalImport={() => showImportDialog(true)} />);
+  }, [setContentHeader]);
 
-    return <Box data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}
-                sx={{backgroundColor: "common.white", borderRadius: "16px 16px 0 0", margin: "0 24px 0 24px", padding: "24px 24px 0 24px", flex:1}}>
-        <ModelsTable models={models} isLoading={isLoadingModels}/>
-        {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
-                                               notifyOnClose={handleOnImportDialogClose}/>}
-        {isBackDropShown && <Backdrop isShown={isBackDropShown}
-                                      message="The model is being created and the files uploaded. Please wait ... "/>}
-    </Box>
+  return (
+    <ModelDirectoryContainer
+      data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}
+    >
+      <ModelsTable models={models} isLoading={isLoadingModels} />
+      {isImportDlgOpen && (
+        <ImportModelDialog
+          isOpen={isImportDlgOpen}
+          availableLocales={availableLocales}
+          notifyOnClose={handleOnImportDialogClose}
+        />
+      )}
+      {isBackDropShown && (
+        <Backdrop
+          isShown={isBackDropShown}
+          message='The model is being created and the files uploaded. Please wait ... '
+        />
+      )}
+    </ModelDirectoryContainer>
+  );
 };
 export default ModelDirectory;

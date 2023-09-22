@@ -18,9 +18,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <AppHeader/>
         <ContentHeaderContainer/>
       </Box>
-      <Box display='flex' flexDirection='row' flex={1} gap={3}>
+      <Box display='flex' flexDirection='row' flex={1} gap={3} overflow="hidden">
         <AppSidebar/>
-        <Box flex={1} display='flex' sx={{overflowX: 'auto'}}>
+        <Box flex={1}>
           {children}
         </Box>
       </Box>
