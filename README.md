@@ -26,7 +26,7 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 - **[Contribution Guidelines](#contribution-guidelines)**: Help us improve the project by contributing to various aspects.
 - **[Getting Started](#getting-started)**: Easy steps to set up your environment and start contributing.
 - **[License](#license)**: The project is licensed under MIT License.
-
+- **[@tabiya/prettier-config](%40tabiya%2Fprettier-config)**: The configuration for [prettier](#code-formatting).
 ## Architecture Overview
 The image below shows a high level oveeview of the solution architecture of the Taxonomy Model App.
 
@@ -57,13 +57,18 @@ We aim to achieve the following metrics on SonarCloud:
 
 - **Code Coverage**: 100%
 - **Bugs**: 0
+- **Security Rating**: A
 - **Reliability Rating**: A
 - **Maintainability Rating**: A
 
 ### **Code Formatting**
 
 We follow the **[Prettier](https://prettier.io/)** code formatting guidelines to make sure the code is properly formatted in a uniform way.
-As a highlight, we use 2 spaces for indentation, and we end each variable declaration and function call with a semicolon.
+
+You can find the configuration in the **[.prettierrc.json](link-tabiya-prettier-config.sh/.prettierrc.json)** file.
+
+> **Note:**  
+For Intellij IDEA, if you make any changes to the prettier config file, you many have to restart your IDE to make sure the changes are applied, before you can format the code using the IDE's formatting function.
 
 ### **Conventional Commits**
 
@@ -82,11 +87,14 @@ To work with this repository you should have a system with a bash compatible ter
 
 3. After making your changes, ensure the code is clean, properly formatted and passes all tests.
 
-    You can use the provided script, `run-before-merge.sh`, for assistance. This script performs linting, building, and testing on the subprojects of the repository. To run it, use the following command:
+    You can use the provided script, `run-before-merge.sh`, for assistance. This script performs checking of the code formatting, linting, building, and testing on the subprojects of the repository. To run it, use the following command:
     
     ```bash
     ./run-before-merge.sh
     ```
+   
+   If you get any errors, fix them before proceeding.
+
 4. Commit them, and push to your fork.
 
 5. Use descriptive commit messages following [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
