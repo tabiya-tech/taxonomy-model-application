@@ -17,7 +17,8 @@
     "generate:openapi": "ts-node ./openapi/generateOpenApiDoc.ts",
     "generate:swagger": "swagger-cli validate ./build/openapi/tabiya-api.json && cp -r ./openapi/swagger-ui-5.3.1-dist ./build/openapi/swagger && cp ./build/openapi/tabiya-api.json ./build/openapi/swagger/",
     "generate:redoc": "redocly lint build/openapi/tabiya-api.json && redocly build-docs ./build/openapi/tabiya-api.json --output ./build/openapi/redoc/index.html",
-    "local-server:openapi": "http-server -c-1 build/openapi"
+    "local-server:openapi": "http-server -c-1 build/openapi",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@aws-sdk/s3-presigned-post": "^3.328.0",
@@ -35,8 +36,10 @@
     "@redocly/cli": "~1.0.2",
     "esbuild": "~0.17.17",
     "eslint": "^8.40.0",
+    "eslint-config-prettier": "^9.0.0",
     "jest": "~29.5.0",
     "jest-performance-matchers": "~1.0.0",
+    "prettier": "^3.0.3",
     "rimraf": "~3.0.2",
     "run-script-os": "~1.1.6",
     "supertest": "~6.3.3",

@@ -4,7 +4,7 @@ NC='\033[0m' # No Color
 function api-specifications() {
   local project="api-specifications"
   printTitle ${project}
-  (cd api-specifications/ && yarn && yarn run lint && yarn run compile && yarn run test)
+  (cd api-specifications/ && yarn && yarn run lint && yarn run format && yarn run compile && yarn run test)
   # if the previous command fails, exit this script with a non-zero error code
   if [ $? -ne 0 ]; then
     printError ${project}
@@ -15,7 +15,7 @@ function api-specifications() {
 function frontend() {
   local project="frontend"
     printTitle ${project}
-  (cd frontend/ && yarn && yarn run lint && yarn run compile && yarn run test && yarn build-storybook && yarn test:accessibility)
+  (cd frontend/ && yarn && yarn run lint && yarn run format && yarn run compile && yarn run test && yarn build-storybook && yarn test:accessibility)
   # if the previous command fails, exit this script with a non-zero error code
   if [ $? -ne 0 ]; then
     printError ${project}
@@ -27,7 +27,7 @@ function frontend() {
 function backend() {
   local project="backend"
     printTitle ${project}
-  (cd backend/ && yarn && yarn run lint && yarn run compile && yarn run test && yarn run generate:openapi && yarn run generate:swagger && yarn run generate:redoc)
+  (cd backend/ && yarn && yarn run lint && yarn run format && yarn run compile && yarn run test && yarn run generate:openapi && yarn run generate:swagger && yarn run generate:redoc)
   # if the previous command fails, exit this script with a non-zero error code
   if [ $? -ne 0 ]; then
     printError ${project}

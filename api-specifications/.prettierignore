@@ -1,0 +1,14 @@
+coverage/**/*
+dist/**/*
+*.md
+*.txt
+*.yml
+*.yaml
+*.json
+*.lock
+*.log
+*.sh
+*.html
+*.css
+*.xml
+*.svg
