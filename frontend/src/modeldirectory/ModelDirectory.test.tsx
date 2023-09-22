@@ -16,8 +16,6 @@ import ModelInfoService from "src/modelInfo/modelInfo.service";
 import ImportAPISpecs from "api-specifications/import";
 
 import LocaleAPISpecs from "api-specifications/locale";
-
-import {Constants as ImportConstants} from "api-specifications/import";
 import {
   getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength,
 } from './components/modelTables/_test_utilities/mockModelData';
