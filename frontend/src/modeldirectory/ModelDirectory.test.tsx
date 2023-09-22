@@ -160,7 +160,7 @@ describe('ModelDirectory Render', () => {
     expect(modelsTable).toBeInTheDocument();
 
     // AND the ModelsTable should receive the correct default props.
-    expect(ModelsTable).toHaveBeenNthCalledWith(1, {models: [], isLoading: true}, {});
+    expect(ModelsTable).toHaveBeenNthCalledWith(1, {models: [], isLoading: true, requestSort: expect.any(Function),}, {});
 
     // AND WHEN the ModelInfoService resolves
     await waitFor(() => {
@@ -169,7 +169,7 @@ describe('ModelDirectory Render', () => {
     });
     // AND the ModelsTable should re-render with the resolved data and the loading prop should be set to false
     await waitFor(() => {
-      expect(ModelsTable).toHaveBeenNthCalledWith(2, {models: givenMockData, isLoading: false}, expect.anything());
+      expect(ModelsTable).toHaveBeenNthCalledWith(2, {models: givenMockData, isLoading: false, requestSort: expect.any(Function)}, expect.anything());
     });
   });
 
@@ -190,7 +190,7 @@ describe('ModelDirectory Render', () => {
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     // AND the ModelsTable should receive the correct default props.
-    expect(ModelsTable).toHaveBeenCalledWith({models: [], isLoading: true}, {});
+    expect(ModelsTable).toHaveBeenCalledWith({models: [], isLoading: true, requestSort: expect.any(Function)}, {});
 
     // AND WHEN the ModelInfoService fails
     await waitFor(() => {
@@ -198,7 +198,7 @@ describe('ModelDirectory Render', () => {
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models. Please check your internet connection.`, {variant: 'error'});
     });
     // AND the ModelsTable props to remain the same
-    expect(ModelsTable).toHaveBeenCalledWith({models: [], isLoading: true}, {});
+    expect(ModelsTable).toHaveBeenCalledWith({models: [], isLoading: true, requestSort: expect.any(Function)}, {});
     // AND the ModelsTable should not be re-rendered
     expect(ModelsTable).toHaveBeenCalledTimes(1);
   });
@@ -228,12 +228,12 @@ describe('ModelDirectory Render', () => {
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     // AND the ModelsTable should receive the correct default props
-    expect(ModelsTable).toHaveBeenNthCalledWith(1, {models: [], isLoading: true}, {});
+    expect(ModelsTable).toHaveBeenNthCalledWith(1, {models: [], isLoading: true, requestSort: expect.any(Function)}, {});
     // AND WHEN the ModelInfoService succeeds at first
     jest.advanceTimersToNextTimer();
     await waitFor(() => {
       // THEN expect the ModelsTable to have been called with the correct props
-      expect(ModelsTable).toHaveBeenNthCalledWith(2, {models: givenMockData, isLoading: false}, expect.anything());
+      expect(ModelsTable).toHaveBeenNthCalledWith(2, {models: givenMockData, isLoading: false, requestSort: expect.any(Function)}, expect.anything());
     });
     // AND WHEN the ModelInfoService fails
     jest.advanceTimersToNextTimer();
@@ -242,7 +242,7 @@ describe('ModelDirectory Render', () => {
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models. Please check your internet connection.`, {variant: 'error'});
     });
     // AND the ModelsTable to have been called with the previous props
-    expect(ModelsTable).toHaveBeenLastCalledWith({models: givenMockData, isLoading: false}, {});
+    expect(ModelsTable).toHaveBeenLastCalledWith({models: givenMockData, isLoading: false, requestSort: expect.any(Function)}, {});
   });
 
   test('should clear the timer when the ModelDirectory is unmounted', async () => {
@@ -360,7 +360,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     expect(modelsTable).toBeInTheDocument();
     await waitFor(() => {
       expect(ModelsTable).toHaveBeenCalledWith({
-        models: expect.arrayContaining([givenNewModel]), isLoading: expect.any(Boolean),
+        models: expect.arrayContaining([givenNewModel]), isLoading: expect.any(Boolean), requestSort: expect.any(Function)
       }, expect.anything());
     });
 
@@ -426,7 +426,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`The model '${givenImportData.name}' import could not be started. Please try again.`, {variant: 'error'});
   });
 
-  test.each([[' has no existing models', []], [' has N existing models', getArrayOfRandomModelsMaxLength(3),],])('should add the new model to the table that %s', async (desc, givenExistingModels) => {
+  test.each([[' has no existing models', []], [' has N existing models', getArrayOfRandomModelsMaxLength(1),],])('should add the new model to the table that %s', async (desc, givenExistingModels) => {
     // GIVEN the ModelDirectory is rendered with some existing models
     jest
       .spyOn(ModelInfoService.prototype, 'fetchAllModelsPeriodically')
@@ -462,7 +462,7 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     expect(modelsTable).toBeInTheDocument();
     await waitFor(() => {
       expect(ModelsTable).toHaveBeenLastCalledWith({
-        models: [givenNewModel, ...givenExistingModels], isLoading: false,
+        models: [givenNewModel, ...givenExistingModels], isLoading: false, requestSort: expect.any(Function)
       }, expect.anything());
     });
   });

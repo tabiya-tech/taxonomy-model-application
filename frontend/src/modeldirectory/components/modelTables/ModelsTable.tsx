@@ -11,9 +11,12 @@ import TableLoadingRows from "../tableLoadingRows/TableLoadingRows";
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import {Container} from "@mui/material";
 import ImportProcessStateIcon from "../importProcessStateIcon/ImportProcessStateIcon";
-interface ModelsTableProps {
+import {SortableKeys, SortDirection} from "./withSorting.types";
+
+export interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[],
   isLoading?: boolean
+  requestSort?: (key: SortableKeys, direction?: SortDirection) => void;
 }
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";

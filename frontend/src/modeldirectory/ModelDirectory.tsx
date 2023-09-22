@@ -10,6 +10,7 @@ import ModelsTable from "./components/modelTables/ModelsTable";
 import {ModelInfoTypes} from "../modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale"
+import withSorting from "./components/modelTables/withSorting";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -65,9 +66,11 @@ const ModelDirectory = () => {
           importData.description,
           importData.locale,
           importData.selectedFiles
-        ) as any;
+        );
         enqueueSnackbar(`The model '${importData.name}' import has started.`, {variant: "success"});
-        setModels([newModel, ...models]);
+        if (!models.some(model => model.UUID === newModel.UUID)) {
+          setModels([newModel, ...models]);
+        }
       } catch (e) {
         enqueueSnackbar(`The model '${importData.name}' import could not be started. Please try again.`, {variant: "error"})
         if (e instanceof ServiceError) {
@@ -80,6 +83,8 @@ const ModelDirectory = () => {
       }
     }
   };
+
+  const SortedModelsTable = withSorting(ModelsTable);
 
   useEffect(() => {
     const timerId = handleModelInfoFetch();
@@ -99,7 +104,7 @@ const ModelDirectory = () => {
           Import Model
         </Button>
       </Box>
-      <ModelsTable models={models} isLoading={isLoadingModels}/>
+      <SortedModelsTable models={models} isLoading={isLoadingModels}/>
     </Box>
     {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
                                            notifyOnClose={handleOnImportDialogClose}/>}
