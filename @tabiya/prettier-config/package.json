@@ -1,0 +1,6 @@
+{
+  "name": "@tabiya/prettier-config",
+  "version": "1.0.0",
+  "license": "MIT License",
+  "main": ".prettierrc.json"
+}

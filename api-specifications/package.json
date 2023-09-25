@@ -5,15 +5,18 @@
   "dependencies": {
     "ajv": "~8.12.0"
   },
+  "prettier": "@tabiya/prettier-config",
   "scripts": {
     "lint": "eslint src --ext .ts --ext .tsx --max-warnings 0",
     "precompile": "rimraf -I dist coverage schemas",
     "compile": "tsc --build tsconfig.pub.json",
     "test": "jest --coverage",
     "postcompile": "cp package.json dist/package.json",
+    "postinstall": "(cd .. && ./link-tabiyaconfig.sh)",
     "pregenerateSchemas": "rimraf -I schemas",
     "generateSchemas": "ts-node generateJsonSchemaFiles.ts './src/error/index.ts' './src/importProcessState/index.ts' './src/info/index.ts' './src/locale/index.ts' './src/modelInfo/index.ts' './src/presigned/index.ts'",
-    "format": "prettier --write ."
+    "format": "prettier --write src/",
+    "check": "prettier --check src/"
   },
   "devDependencies": {
     "@types/archiver": "^5.3.1",

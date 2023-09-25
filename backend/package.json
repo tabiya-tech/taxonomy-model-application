@@ -12,7 +12,7 @@
     "test": "jest --coverage",
     "test:smoke": "jest --config jest.smoke.config.js --runInBand test/smoke/*.test.ts",
     "postinstall:win32": "cd .. & link-api-specifications.bat",
-    "postinstall:darwin:linux": "(cd .. && ./link-api-specifications.sh)",
+    "postinstall:darwin:linux": "(cd .. && ./link-api-specifications.sh && ./link-tabiyaconfig.sh)",
     "postinstall": "run-script-os",
     "generate:openapi": "ts-node ./openapi/generateOpenApiDoc.ts",
     "generate:swagger": "swagger-cli validate ./build/openapi/tabiya-api.json && cp -r ./openapi/swagger-ui-5.3.1-dist ./build/openapi/swagger && cp ./build/openapi/tabiya-api.json ./build/openapi/swagger/",
