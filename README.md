@@ -63,7 +63,8 @@ We aim to achieve the following metrics on SonarCloud:
 ### **Code Formatting**
 
 We follow the **[Prettier](https://prettier.io/)** code formatting guidelines to make sure the code is properly formatted in a uniform way.
-As a highlight, we use 2 spaces for indentation, and we end each variable declaration and function call with a semicolon.
+We have customized the Prettier configuration to match our code style. You can find the configuration in the **[.prettierrc.json)](@tabiya/prettier-config/.prettierrc.json)** file.
+These configurations are automatically set to be used by Intellij IDEA through the **[prettier.xml](/.idea/prettier.xml)** file. If you make any changes to prettier config, restart your IDE to make sure the changes are applied.
 
 ### **Conventional Commits**
 
@@ -82,11 +83,14 @@ To work with this repository you should have a system with a bash compatible ter
 
 3. After making your changes, ensure the code is clean, properly formatted and passes all tests.
 
-    You can use the provided script, `run-before-merge.sh`, for assistance. This script performs linting, building, and testing on the subprojects of the repository. To run it, use the following command:
+    You can use the provided script, `run-before-merge.sh`, for assistance. This script performs checking of the code formatting, linting, building, and testing on the subprojects of the repository. To run it, use the following command:
     
     ```bash
     ./run-before-merge.sh
     ```
+   
+   If you get any errors, fix them before proceeding.
+
 4. Commit them, and push to your fork.
 
 5. Use descriptive commit messages following [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).

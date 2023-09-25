@@ -11,14 +11,15 @@
     "postbuild": "cp ./package.json ./build/ && (cd ./build; npm pkg delete devDependencies; npm pkg delete dependencies; npm pkg delete scripts) && cp ./build/package.json ./build/import/async && mkdir build/rest && mv build/index.js build/index.js.map build/package.json ./build/rest/",
     "test": "jest --coverage",
     "test:smoke": "jest --config jest.smoke.config.js --runInBand test/smoke/*.test.ts",
-    "postinstall:win32": "cd .. & link-api-specifications.bat",
+    "postinstall:win32": "cd .. & link-api-specifications.bat & link-tabiyaconfig.bat",
     "postinstall:darwin:linux": "(cd .. && ./link-api-specifications.sh && ./link-tabiyaconfig.sh)",
     "postinstall": "run-script-os",
     "generate:openapi": "ts-node ./openapi/generateOpenApiDoc.ts",
     "generate:swagger": "swagger-cli validate ./build/openapi/tabiya-api.json && cp -r ./openapi/swagger-ui-5.3.1-dist ./build/openapi/swagger && cp ./build/openapi/tabiya-api.json ./build/openapi/swagger/",
     "generate:redoc": "redocly lint build/openapi/tabiya-api.json && redocly build-docs ./build/openapi/tabiya-api.json --output ./build/openapi/redoc/index.html",
     "local-server:openapi": "http-server -c-1 build/openapi",
-    "format": "prettier --write ."
+    "check": "prettier --check src/ *.js",
+    "format": "prettier --write src/ *.js"
   },
   "devDependencies": {
     "@aws-sdk/s3-presigned-post": "^3.328.0",
