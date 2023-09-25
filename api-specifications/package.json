@@ -12,8 +12,8 @@
     "compile": "tsc --build tsconfig.pub.json",
     "test": "jest --coverage",
     "postcompile": "cp package.json dist/package.json",
-    "postinstall:win32": "cd .. & link-api-specifications.bat & link-tabiyaconfig.bat",
-    "postinstall:darwin:linux": "(cd .. && ./link-api-specifications.sh && ./link-tabiyaconfig.sh)",
+    "postinstall:win32": "cd .. & link-tabiyaconfig.bat",
+    "postinstall:darwin:linux": "(cd .. && ./link-tabiyaconfig.sh)",
     "postinstall": "run-script-os",
     "pregenerateSchemas": "rimraf -I schemas",
     "generateSchemas": "ts-node generateJsonSchemaFiles.ts './src/error/index.ts' './src/importProcessState/index.ts' './src/info/index.ts' './src/locale/index.ts' './src/modelInfo/index.ts' './src/presigned/index.ts'",
@@ -34,6 +34,7 @@
     "jest-performance-matchers": "~1.0.0",
     "prettier": "^3.0.3",
     "rimraf": "~3.0.2",
+    "run-script-os": "^1.1.6",
     "ts-jest": "~29.1.0",
     "ts-node": "~10.4.0",
     "typescript": "~4.4.4"
