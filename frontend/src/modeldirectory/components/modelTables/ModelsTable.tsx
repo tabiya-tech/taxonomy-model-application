@@ -5,13 +5,15 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
 import TableLoadingRows from "../tableLoadingRows/TableLoadingRows";
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
-import {Container} from "@mui/material";
+import {Chip, Container} from "@mui/material";
 import ImportProcessStateIcon from "../importProcessStateIcon/ImportProcessStateIcon";
 import {SortableKeys, SortDirection} from "./withSorting.types";
+import withSorting, { SortedModelsTableProps} from "./withSorting";
 
 export interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[],
@@ -20,7 +22,6 @@ export interface ModelsTableProps {
 }
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";
-
 export const TEXT = {
   TABLE_HEADER_LABEL_NAME: "Name",
   TABLE_HEADER_LABEL_LOCALE: "Locale",
@@ -29,6 +30,15 @@ export const TEXT = {
   TABLE_HEADER_LABEL_DESCRIPTION: "Description",
   TABLE_HEADER_LABEL_STATUS: ""
 }
+
+const tableHeaders = [
+  { key: 'status', label: TEXT.TABLE_HEADER_LABEL_STATUS, sortable: false },
+  { key: 'name', label: TEXT.TABLE_HEADER_LABEL_NAME, sortable: true },
+  { key: 'locale', label: TEXT.TABLE_HEADER_LABEL_LOCALE, sortable: false },
+  { key: 'version', label: TEXT.TABLE_HEADER_LABEL_VERSION, sortable: true },
+  { key: 'released', label: TEXT.TABLE_HEADER_LABEL_RELEASED, sortable: false },
+  { key: 'description', label: TEXT.TABLE_HEADER_LABEL_DESCRIPTION, sortable: false },
+];
 
 export const DATA_TEST_ID = {
   MODELS_TABLE_ID: `models-table-${uniqueId}`,
@@ -41,26 +51,55 @@ export const DATA_TEST_ID = {
 }
 
 export const CELL_MAX_LENGTH = 256;
-const ModelsTable = (props: ModelsTableProps) => {
+export const ModelsTable = (props: SortedModelsTableProps) => {
+
+  const sortingState = props?.sortingState?.[0] ?? { key: 'updatedAt', direction: SortDirection.DESCENDING };
+  const handleHeaderClick = (key: SortableKeys) => {
+      if (props.requestSort) {
+        props.requestSort(key);
+      }
+    }
 
   return (
     <TableContainer component={Paper} data-testid={DATA_TEST_ID.MODELS_TABLE_ID}>
       <Table tabIndex={0} aria-label="models table">
         <TableHead>
           <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
-            <TableCell variant='body' sx={{fontWeight: "bold"}} data-testid={DATA_TEST_ID.MODEL_CELL}>
-              {TEXT.TABLE_HEADER_LABEL_STATUS}
-            </TableCell>
-            <TableCell  sx={{fontWeight: "bold"}}
-                       data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_NAME}</TableCell>
-            <TableCell sx={{fontWeight: "bold"}}
-                       data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_LOCALE}</TableCell>
-            <TableCell sx={{fontWeight: "bold"}}
-                       data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_VERSION}</TableCell>
-            <TableCell sx={{fontWeight: "bold"}}
-                       data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_RELEASED}</TableCell>
-            <TableCell sx={{fontWeight: "bold"}}
-                       data-testid={DATA_TEST_ID.MODEL_CELL}>{TEXT.TABLE_HEADER_LABEL_DESCRIPTION}</TableCell>
+            {
+              tableHeaders.map(header => (
+                <TableCell
+                  key={header.key}
+                  sx={{
+                    fontWeight: "bold",
+                    cursor: header.sortable ? "pointer" : "default"
+                  }}
+                  onClick={() => header.sortable && handleHeaderClick(header.key as SortableKeys)}
+                  data-testid={DATA_TEST_ID.MODEL_CELL}
+                >
+                  {
+                    header.sortable ? (
+                      <Box
+                        sx={{display: 'flex', alignItems: 'center', flexDirection: "row"}}
+                        onClick={() => handleHeaderClick(header.key as SortableKeys)}
+                      >
+                        {header.label}
+                        {sortingState.key === header.key ? (
+                          <Chip size="small" variant="outlined" label={sortingState.direction === SortDirection.DESCENDING ? 'DEC' : 'ASC'} sx={{
+                            marginLeft: "0.5rem",
+                            height: '1.25rem',
+                            padding: '0 0.3125rem',
+                            fontSize: '0.625rem',
+                            borderRadius: '0.2rem',
+                            backgroundColor: 'common.white',
+                            cursor: "pointer"
+                          }}/>
+                        ) : null}
+                      </Box>
+                    ) : header.label
+                  }
+                </TableCell>
+              ))
+            }
           </TableRow>
         </TableHead>
         <TableBody>
@@ -99,4 +138,9 @@ const ModelsTable = (props: ModelsTableProps) => {
     </TableContainer>
   );
 };
-export default ModelsTable;
+
+const SortedModelsTable: React.FC<SortedModelsTableProps> = (props) => {
+  return <ModelsTable {...props} />;
+};
+
+export default withSorting(SortedModelsTable);

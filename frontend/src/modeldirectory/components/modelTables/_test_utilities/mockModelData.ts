@@ -128,6 +128,86 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
   return models
 }
 
+export function getArrayOfFakeModelsForSorting(): ModelInfoTypes.ModelInfo[] {
+  const baseModel: Omit<ModelInfoTypes.ModelInfo, 'name' | 'version' | 'createdAt' | 'updatedAt'> = {
+    id: 'base',
+    UUID: uuidv4(),
+    previousUUID: uuidv4(),
+    originUUID: uuidv4(),
+    locale: {
+      UUID: uuidv4(),
+      name: faker.location.country().substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+      shortCode: faker.location.countryCode("alpha-3").substring(0, LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+    },
+    description: getRandomLorem(CELL_MAX_LENGTH / 2),
+    released: true,
+    releaseNotes: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
+    path: faker.internet.url(),
+    tabiyaPath: faker.internet.url(),
+    importProcessState: {
+      id: getMockId(10000),
+      status: getRandomStatus(1),
+      result: {
+        errored: true,
+        parsingErrors: true,
+        parsingWarnings: true,
+      }
+    }
+  };
+
+  return [
+    {
+      ...baseModel,
+      id: '1',
+      name: 'older',
+      version: '1.0.0',
+      createdAt: new Date('2022-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2022-01-01T00:00:00.000Z'),
+    },
+    {
+      ...baseModel,
+      id: '2',
+      name: 'old',
+      version: '1.1.0',
+      createdAt: new Date('2022-01-02T00:00:00.000Z'),
+      updatedAt: new Date('2022-01-02T00:00:00.000Z'),
+    },
+    {
+      ...baseModel,
+      id: '3',
+      name: 'new',
+      version: '1.1.1',
+      createdAt: new Date('2022-01-03T00:00:00.000Z'),
+      updatedAt: new Date('2022-01-03T00:00:00.000Z'),
+    },
+    {
+      ...baseModel,
+      id: '4',
+      name: 'newest',
+      version: '1.1.2',
+      createdAt: new Date('2022-01-04T00:00:00.000Z'),
+      updatedAt: new Date('2022-01-04T00:00:00.000Z'),
+    },
+    {
+      ...baseModel,
+      id: '5',
+      name: 'newer',
+      version: '1.1.3',
+      createdAt: new Date('2022-01-05T00:00:00.000Z'),
+      updatedAt: new Date('2022-01-05T00:00:00.000Z'),
+    },
+    {
+      ...baseModel,
+      id: '6',
+      name: 'ancient',
+      version: '1.0.9',
+      createdAt: new Date('2022-01-06T00:00:00.000Z'),
+      updatedAt: new Date('2022-01-06T00:00:00.000Z'),
+    }
+  ];
+}
+
+
 export function getRandomStatus(id: number) {
   const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
   return allStatuses[id % allStatuses.length];

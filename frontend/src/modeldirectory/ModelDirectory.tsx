@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Box, Button, Container} from '@mui/material';
 import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelDialog";
 import {ServiceError} from "src/error/error";
@@ -6,11 +6,12 @@ import ImportDirectorService from "src/import/importDirector.service";
 import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
 import {writeServiceErrorToLog} from "../error/logger";
 import {Backdrop} from "src/theme/Backdrop/Backdrop";
-import ModelsTable from "./components/modelTables/ModelsTable";
+import SortedModelsTable from "./components/modelTables/ModelsTable";
 import {ModelInfoTypes} from "../modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale"
-import withSorting from "./components/modelTables/withSorting";
+import {SortDirection} from "./components/modelTables/withSorting.types";
+import {SortConfig} from "./components/modelTables/withSorting";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
 export const DATA_TEST_ID = {
@@ -35,6 +36,7 @@ const ModelDirectory = () => {
   const [isBackDropShown, setBackDropShown] = React.useState(false);
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
+  const sortingState = useState<SortConfig>({ key: 'updatedAt', direction: SortDirection.DESCENDING });
 
   const {enqueueSnackbar} = useSnackbar()
   const showImportDialog = (b: boolean) => {
@@ -43,6 +45,7 @@ const ModelDirectory = () => {
 
   const handleModelInfoFetch = useCallback(() => {
     return modelInfoService.fetchAllModelsPeriodically((models) => {
+      console.log('polling')
       setModels(models);
       setIsLoadingModels(false);
     }, e => {
@@ -84,8 +87,6 @@ const ModelDirectory = () => {
     }
   };
 
-  const SortedModelsTable = withSorting(ModelsTable);
-
   useEffect(() => {
     const timerId = handleModelInfoFetch();
 
@@ -104,7 +105,7 @@ const ModelDirectory = () => {
           Import Model
         </Button>
       </Box>
-      <SortedModelsTable models={models} isLoading={isLoadingModels}/>
+      <SortedModelsTable models={models} isLoading={isLoadingModels} sortingState={sortingState}/>
     </Box>
     {isImportDlgOpen && <ImportModelDialog isOpen={isImportDlgOpen} availableLocales={availableLocales}
                                            notifyOnClose={handleOnImportDialogClose}/>}

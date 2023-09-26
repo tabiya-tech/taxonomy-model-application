@@ -2,21 +2,34 @@ import type {Meta, StoryObj} from '@storybook/react';
 
 import ModelsTable from "./ModelsTable";
 import {
-  getArrayOfFakeModels,
+  getArrayOfFakeModels, getArrayOfFakeModelsForSorting,
   getArrayOfFakeModelsMaxLength, getOneFakeModel,
 } from "./_test_utilities/mockModelData";
 import {
   getAllImportProcessStatePermutations
 } from "../importProcessStateIcon/_test_utilities/importProcesStateTestData";
+import {useState} from "react";
+import {SortConfig} from "./withSorting";
+import {SortDirection} from "./withSorting.types";
 
-const meta: Meta<typeof ModelsTable> = {
+export default {
   title: 'ModelDirectory/ModelsTable',
   component: ModelsTable,
   tags: ['autodocs'],
-  argTypes: {},
-};
+  decorators: [
+    (Story) => {
+      const sortingState = useState<SortConfig>({
+        key: 'updatedAt',
+        direction: SortDirection.DESCENDING
+      });
 
-export default meta;
+      console.log('Sorting State: ', sortingState);
+
+      return <Story sortingState={sortingState} />;
+    },
+  ],
+} as Meta;
+
 type Story = StoryObj<typeof ModelsTable>;
 
 export const Shown: Story = {
@@ -47,6 +60,13 @@ export const ShownWithDifferentImportStates: Story = {
       model.importProcessState = importProcessState;
       return model;
     }),
+    isLoading: false
+  }
+}
+
+export const ShownWithSorting: Story = {
+  args: {
+    models: getArrayOfFakeModelsForSorting(),
     isLoading: false
   }
 }
