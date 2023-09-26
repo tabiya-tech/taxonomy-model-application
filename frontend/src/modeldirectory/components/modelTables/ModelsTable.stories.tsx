@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
-import ModelsTable from "./ModelsTable";
+import ModelsTable, {ModelsTableProps} from "./ModelsTable";
 import {
   getArrayOfFakeModels, getArrayOfFakeModelsForSorting,
   getArrayOfFakeModelsMaxLength, getOneFakeModel,
@@ -17,15 +17,17 @@ export default {
   component: ModelsTable,
   tags: ['autodocs'],
   decorators: [
-    (Story) => {
-      const sortingState = useState<SortConfig>({
-        key: 'updatedAt',
-        direction: SortDirection.DESCENDING
-      });
+    (Story, context) => {
+      const DecoratorComponent = () => {
+        const sortingState = useState<SortConfig>({
+          key: 'updatedAt',
+          direction: SortDirection.DESCENDING
+        });
 
-      console.log('Sorting State: ', sortingState);
+        return <ModelsTable sortingState={sortingState} {...context.args as ModelsTableProps}/>;
+      };
 
-      return <Story sortingState={sortingState} />;
+      return <DecoratorComponent />;
     },
   ],
 } as Meta;
@@ -67,6 +69,6 @@ export const ShownWithDifferentImportStates: Story = {
 export const ShownWithSorting: Story = {
   args: {
     models: getArrayOfFakeModelsForSorting(),
-    isLoading: false
+    isLoading: false,
   }
-}
+};

@@ -1,5 +1,5 @@
 import {render, screen, within} from "@testing-library/react";
-import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
+import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, ModelsTableProps, TEXT} from "./ModelsTable";
 import {getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength} from "./_test_utilities/mockModelData";
 import * as React from "react";
 import {getRandomLorem} from "src/_test_utilities/specialCharacters";
@@ -43,14 +43,22 @@ jest.mock('src/modeldirectory/components/tableLoadingRows/TableLoadingRows', () 
 });
 
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
+import {useState} from "react";
+import withSorting, {SortConfig} from "./withSorting";
+import {SortableKeys, SortDirection} from "./withSorting.types";
 
 describe("ModelsTable", () => {
+  const SortedModelsTable = (args: ModelsTableProps) => {
+    const sortingState = useState<SortConfig>({ key: '_' as SortableKeys, direction: SortDirection.DESCENDING });
+    const SortedTable = withSorting(ModelsTable);
+    return <SortedTable {...args} sortingState={sortingState} />;
+  };
   test("should render the table with the models", () => {
     // GIVEN n models with random data of max length
     const givenModels = getArrayOfRandomModelsMaxLength(3);
 
     // WHEN the ModelsTable is rendered with the given models
-    const {container} = render(<ModelsTable models={givenModels}/>);
+    const {container} = render(<SortedModelsTable models={givenModels} />);
 
     // THEN expect the table to be shown
     const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
@@ -152,7 +160,7 @@ describe("ModelsTable", () => {
 
     // WHEN the ModelsTable is rendered
     // @ts-ignore
-    render(<ModelsTable models={givenModels}/>);
+    render(<SortedModelsTable models={givenModels}/>);
 
     // THEN expect the table to be shown
     const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
@@ -194,7 +202,7 @@ describe("ModelsTable", () => {
       givenModels[0].released = givenIsReleasedFlag;
 
       // WHEN the ModelsTable is rendered
-      render(<ModelsTable models={givenModels}/>);
+      render(<SortedModelsTable models={givenModels}/>);
 
       // THEN expect the released to be rendered based on the value
       const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
@@ -230,7 +238,7 @@ describe("ModelsTable", () => {
       givenModels[0].description = givenDescription;
 
       // WHEN the ModelsTable is rendered
-      render(<ModelsTable models={givenModels}/>);
+      render(<SortedModelsTable models={givenModels}/>);
 
       // THEN expected the description to render based on it's length
       const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
@@ -259,7 +267,7 @@ describe("ModelsTable", () => {
       expect(givenModel.importProcessState).toBeDefined();
 
       // WHEN the ModelsTable is rendered with the given model
-      render(<ModelsTable models={[givenModel]}/>);
+      render(<SortedModelsTable models={[givenModel]}/>);
 
       // THEN expect the icon to be shown
       const actualModelCellStatusIconContainer = screen.getByTestId(DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER);
@@ -279,7 +287,7 @@ describe("ModelsTable", () => {
       const givenModels: ModelInfoTypes.ModelInfo[] = [];
 
       // WHEN the ModelsTable component is rendered with the given properties
-      render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>)
+      render(<SortedModelsTable models={givenModels} isLoading={givenIsLoading}/>)
 
       // THEN expect the table to be shown
       const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
@@ -311,7 +319,7 @@ describe("ModelsTable", () => {
       const givenModels: ModelInfoTypes.ModelInfo[] = getArrayOfRandomModelsMaxLength(3);
 
       // WHEN the ModelsTable component is rendered with the given properties
-      render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>);
+      render(<SortedModelsTable models={givenModels} isLoading={givenIsLoading}/>);
 
       // THEN expect the table to be shown
       const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
@@ -332,7 +340,7 @@ describe("ModelsTable", () => {
       const givenModels = getArrayOfRandomModelsMaxLength(3);
 
       // WHEN the ModelsTable component is rendered with the given models
-      render(<ModelsTable models={givenModels}/>);
+      render(<SortedModelsTable models={givenModels}/>);
 
       // THEN expect the given models to be shown
       const modelTableDataRowElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);

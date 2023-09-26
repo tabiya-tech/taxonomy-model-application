@@ -53,7 +53,7 @@ export const DATA_TEST_ID = {
 export const CELL_MAX_LENGTH = 256;
 export const ModelsTable = (props: SortedModelsTableProps) => {
 
-  const sortingState = props?.sortingState?.[0] ?? { key: 'updatedAt', direction: SortDirection.DESCENDING };
+  const sortingState = props.sortingState[0]
   const handleHeaderClick = (key: SortableKeys) => {
       if (props.requestSort) {
         props.requestSort(key);

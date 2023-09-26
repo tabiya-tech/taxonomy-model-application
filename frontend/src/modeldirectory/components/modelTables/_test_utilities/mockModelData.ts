@@ -159,7 +159,7 @@ export function getArrayOfFakeModelsForSorting(): ModelInfoTypes.ModelInfo[] {
     {
       ...baseModel,
       id: '1',
-      name: 'older',
+      name: 'ancient',
       version: '1.0.0',
       createdAt: new Date('2022-01-01T00:00:00.000Z'),
       updatedAt: new Date('2022-01-01T00:00:00.000Z'),
@@ -167,7 +167,7 @@ export function getArrayOfFakeModelsForSorting(): ModelInfoTypes.ModelInfo[] {
     {
       ...baseModel,
       id: '2',
-      name: 'old',
+      name: 'older',
       version: '1.1.0',
       createdAt: new Date('2022-01-02T00:00:00.000Z'),
       updatedAt: new Date('2022-01-02T00:00:00.000Z'),
@@ -175,7 +175,7 @@ export function getArrayOfFakeModelsForSorting(): ModelInfoTypes.ModelInfo[] {
     {
       ...baseModel,
       id: '3',
-      name: 'new',
+      name: 'old',
       version: '1.1.1',
       createdAt: new Date('2022-01-03T00:00:00.000Z'),
       updatedAt: new Date('2022-01-03T00:00:00.000Z'),
@@ -183,7 +183,7 @@ export function getArrayOfFakeModelsForSorting(): ModelInfoTypes.ModelInfo[] {
     {
       ...baseModel,
       id: '4',
-      name: 'newest',
+      name: 'new',
       version: '1.1.2',
       createdAt: new Date('2022-01-04T00:00:00.000Z'),
       updatedAt: new Date('2022-01-04T00:00:00.000Z'),
@@ -199,8 +199,8 @@ export function getArrayOfFakeModelsForSorting(): ModelInfoTypes.ModelInfo[] {
     {
       ...baseModel,
       id: '6',
-      name: 'ancient',
-      version: '1.0.9',
+      name: 'newest',
+      version: '1.2.2',
       createdAt: new Date('2022-01-06T00:00:00.000Z'),
       updatedAt: new Date('2022-01-06T00:00:00.000Z'),
     }

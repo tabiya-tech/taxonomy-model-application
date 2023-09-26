@@ -36,7 +36,7 @@ const ModelDirectory = () => {
   const [isBackDropShown, setBackDropShown] = React.useState(false);
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
-  const sortingState = useState<SortConfig>({ key: 'updatedAt', direction: SortDirection.DESCENDING });
+  const sortingState = useState<SortConfig>({ key: 'updatedAt', direction: SortDirection.DESCENDING});
 
   const {enqueueSnackbar} = useSnackbar()
   const showImportDialog = (b: boolean) => {

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {ModelsTableProps} from "./ModelsTable";
 import {SortableKeys, SortDirection} from "./withSorting.types";
 import sortItems from "./sortByHeader";
@@ -9,21 +9,22 @@ export interface SortConfig {
 }
 
 export interface SortedModelsTableProps extends ModelsTableProps {
-  sortingState?: [SortConfig, React.Dispatch<React.SetStateAction<SortConfig>>]
+  sortingState: [SortConfig, React.Dispatch<React.SetStateAction<SortConfig>>]
 }
 
 const withSorting = <P extends ModelsTableProps>(WrappedComponent: React.ComponentType<P>) => {
   return (props: P & SortedModelsTableProps) => {
-    const [sortConfig, setSortConfig] = props.sortingState ?? useState<SortConfig>({ key: 'updatedAt', direction: SortDirection.DESCENDING });
+    const [sortConfig, setSortConfig] = props.sortingState
     const sortedModels = useMemo(() => {
-      let sortableItems = [...props.models];
+      let sortableItems = [...props?.models ?? [] as ModelsTableProps['models']] as ModelsTableProps['models'];
       if (sortConfig !== null) {
         sortableItems.sort((a, b) => {
 
           let comparison = sortItems(a[sortConfig.key], b[sortConfig.key], sortConfig.key)
           return sortConfig.direction === SortDirection.ASCENDING ? comparison : -comparison;
         });
-      }
+      } else console.warn("Sorting Configuration is not set")
+
       return sortableItems;
     }, [props.models, sortConfig]);
 
@@ -39,11 +40,7 @@ const withSorting = <P extends ModelsTableProps>(WrappedComponent: React.Compone
         direction = sortConfig.direction === SortDirection.ASCENDING ? SortDirection.DESCENDING : SortDirection.ASCENDING;
       }
       setSortConfig({ key, direction });
-    }, [sortConfig.key, sortConfig.direction]);
-
-    useEffect(() => {
-      requestSort('updatedAt', SortDirection.DESCENDING)
-    }, []);
+    }, [sortConfig.key, sortConfig.direction, setSortConfig]);
 
     return <WrappedComponent {...props} models={sortedModels} requestSort={requestSort} />;
   };

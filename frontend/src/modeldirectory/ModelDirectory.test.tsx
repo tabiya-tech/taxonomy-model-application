@@ -160,7 +160,7 @@ describe('ModelDirectory Render', () => {
     expect(modelsTable).toBeInTheDocument();
 
     // AND the ModelsTable should receive the correct default props.
-    expect(ModelsTable).toHaveBeenNthCalledWith(1, {models: [], isLoading: true, requestSort: expect.any(Function),}, {});
+    expect(ModelsTable).toHaveBeenNthCalledWith(1, expect.objectContaining({models: [], isLoading: true}), expect.anything());
 
     // AND WHEN the ModelInfoService resolves
     await waitFor(() => {
@@ -169,7 +169,7 @@ describe('ModelDirectory Render', () => {
     });
     // AND the ModelsTable should re-render with the resolved data and the loading prop should be set to false
     await waitFor(() => {
-      expect(ModelsTable).toHaveBeenNthCalledWith(2, {models: givenMockData, isLoading: false, requestSort: expect.any(Function)}, expect.anything());
+      expect(ModelsTable).toHaveBeenNthCalledWith(2, expect.objectContaining({models: givenMockData, isLoading: false}), expect.anything());
     });
   });
 
@@ -190,7 +190,7 @@ describe('ModelDirectory Render', () => {
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     // AND the ModelsTable should receive the correct default props.
-    expect(ModelsTable).toHaveBeenCalledWith({models: [], isLoading: true, requestSort: expect.any(Function)}, {});
+    expect(ModelsTable).toHaveBeenCalledWith(expect.objectContaining({models: [], isLoading: true}), expect.anything());
 
     // AND WHEN the ModelInfoService fails
     await waitFor(() => {
@@ -198,7 +198,7 @@ describe('ModelDirectory Render', () => {
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models. Please check your internet connection.`, {variant: 'error'});
     });
     // AND the ModelsTable props to remain the same
-    expect(ModelsTable).toHaveBeenCalledWith({models: [], isLoading: true, requestSort: expect.any(Function)}, {});
+    expect(ModelsTable).toHaveBeenCalledWith(expect.objectContaining({models: [], isLoading: true}), expect.anything());
     // AND the ModelsTable should not be re-rendered
     expect(ModelsTable).toHaveBeenCalledTimes(1);
   });
@@ -228,12 +228,12 @@ describe('ModelDirectory Render', () => {
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     // AND the ModelsTable should receive the correct default props
-    expect(ModelsTable).toHaveBeenNthCalledWith(1, {models: [], isLoading: true, requestSort: expect.any(Function)}, {});
+    expect(ModelsTable).toHaveBeenNthCalledWith(1, expect.objectContaining({models: [], isLoading: true}), expect.anything());
     // AND WHEN the ModelInfoService succeeds at first
     jest.advanceTimersToNextTimer();
     await waitFor(() => {
       // THEN expect the ModelsTable to have been called with the correct props
-      expect(ModelsTable).toHaveBeenNthCalledWith(2, {models: givenMockData, isLoading: false, requestSort: expect.any(Function)}, expect.anything());
+      expect(ModelsTable).toHaveBeenNthCalledWith(2, expect.objectContaining({models: givenMockData, isLoading: false}), expect.anything());
     });
     // AND WHEN the ModelInfoService fails
     jest.advanceTimersToNextTimer();
@@ -242,7 +242,7 @@ describe('ModelDirectory Render', () => {
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models. Please check your internet connection.`, {variant: 'error'});
     });
     // AND the ModelsTable to have been called with the previous props
-    expect(ModelsTable).toHaveBeenLastCalledWith({models: givenMockData, isLoading: false, requestSort: expect.any(Function)}, {});
+    expect(ModelsTable).toHaveBeenLastCalledWith(expect.objectContaining({models: givenMockData, isLoading: false}), expect.anything());
   });
 
   test('should clear the timer when the ModelDirectory is unmounted', async () => {
@@ -359,9 +359,9 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     await waitFor(() => {
-      expect(ModelsTable).toHaveBeenCalledWith({
-        models: expect.arrayContaining([givenNewModel]), isLoading: expect.any(Boolean), requestSort: expect.any(Function)
-      }, expect.anything());
+      expect(ModelsTable).toHaveBeenCalledWith(expect.objectContaining({
+        models: expect.arrayContaining([givenNewModel]), isLoading: expect.any(Boolean)
+      }), expect.anything());
     });
 
     // AND the backdrop was eventually hidden
@@ -461,9 +461,9 @@ describe('ModelDirectory.ImportDialog action tests', () => {
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     await waitFor(() => {
-      expect(ModelsTable).toHaveBeenLastCalledWith({
-        models: [givenNewModel, ...givenExistingModels], isLoading: false, requestSort: expect.any(Function)
-      }, expect.anything());
+      expect(ModelsTable).toHaveBeenLastCalledWith(expect.objectContaining({
+        models: [givenNewModel, ...givenExistingModels], isLoading: false
+      }), expect.anything());
     });
   });
 });

@@ -1,15 +1,21 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {act, render} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import withSorting from './withSorting';
-import ModelsTable, {ModelsTableProps} from './ModelsTable';
-import {SortDirection} from "./withSorting.types";
+import { ModelsTable,ModelsTableProps} from './ModelsTable';
+import {SortableKeys, SortDirection} from "./withSorting.types";
 import {getOneFakeModel} from "./_test_utilities/mockModelData";
 import {ModelInfoTypes} from "../../../modelInfo/modelInfoTypes";
+import withSorting, {SortConfig} from "./withSorting";
 
 // Mocking ModelsTable component
-jest.mock('./ModelsTable', () => jest.fn(() => null));
-
+jest.mock('./ModelsTable', () => ({
+  ModelsTable: jest.fn(({ sortingState, ...props } = {}) => {
+    const CustomComponent = (props: ModelsTableProps) => {
+      return <></>
+    }
+    return <CustomComponent {...props} />
+  }),
+}));
 
 describe('withSorting HOC', () => {
 
@@ -17,7 +23,13 @@ describe('withSorting HOC', () => {
     jest.clearAllMocks();
   });
 
-  const SortedModelsTable = withSorting(ModelsTable);
+
+  const SortedModelsTable = (args: ModelsTableProps) => {
+    const sortingState = useState<SortConfig>({ key: '_' as SortableKeys, direction: SortDirection.DESCENDING });
+    const SortedTable = withSorting(ModelsTable);
+    return <SortedTable {...args} sortingState={sortingState} />;
+  };
+
   const givenModel= getOneFakeModel()
 
   test('should sort models by updatedAt in descending order initially', () => {
@@ -27,10 +39,17 @@ describe('withSorting HOC', () => {
       { ...givenModel, id: '2', name: 'B', updatedAt: new Date('2022-01-02T00:00:00.000Z') }
     ];
 
+    const InitiallySortedModelsTable = (args: ModelsTableProps) => {
+      const sortingState = useState<SortConfig>({ key: 'updatedAt', direction: SortDirection.DESCENDING });
+      const SortedTable = withSorting(ModelsTable);
+      return <SortedTable {...args} sortingState={sortingState} />;
+    }
+
     // WHEN the component renders
-    render(<SortedModelsTable models={givenUnsortedModels} />);
+    render(<InitiallySortedModelsTable models={givenUnsortedModels} />);
 
     // THEN the models should be sorted by updatedAt in descending order
+    expect(ModelsTable).not.toThrowError();
     expect(ModelsTable).toHaveBeenCalledWith(
       expect.objectContaining({
         models: [
@@ -112,7 +131,7 @@ describe('withSorting HOC', () => {
           const timeA = a.updatedAt.getTime();
           const timeB = b.updatedAt.getTime();
           return direction === SortDirection.ASCENDING ? timeA - timeB : timeB - timeA;
-        })
+        }),
       }),
       expect.anything()
     );
