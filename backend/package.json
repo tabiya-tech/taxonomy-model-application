@@ -2,6 +2,7 @@
   "name": "backend",
   "main": "index.js",
   "license": "MIT",
+  "prettier": "@tabiya/prettier-config",
   "scripts": {
     "lint": "eslint src --ext .ts --max-warnings 0",
     "clean": "rimraf -I build coverage deploy",

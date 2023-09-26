@@ -1,8 +1,16 @@
 {
   "devDependencies": {
+    "husky": ">=6",
+    "lint-staged": ">=10",
+    "prettier": "^3.0.3",
     "sonarqube-scanner": "~3.0.1"
   },
+  "prettier": "@tabiya/prettier-config",
   "scripts": {
-    "sonar": "sonar-scanner -X"
+    "sonar": "sonar-scanner -X",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
   }
 }

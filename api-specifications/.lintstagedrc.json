@@ -1,0 +1,4 @@
+{
+  "src/**": "prettier --check",
+  "*.ts": "prettier --check"
+}

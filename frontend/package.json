@@ -65,6 +65,7 @@
     "react-scripts": "^5.0.1",
     "web-vitals": "~2.1.0"
   },
+  "prettier": "@tabiya/prettier-config",
   "scripts": {
     "lint": "eslint src --ext .ts --ext .tsx --max-warnings 0",
     "clean": "rimraf -I build coverage storybook-static",
