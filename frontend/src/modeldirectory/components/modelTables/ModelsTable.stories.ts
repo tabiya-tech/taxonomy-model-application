@@ -43,7 +43,7 @@ export const ShownInLoadingState: Story = {
 export const ShownWithDifferentImportStates: Story = {
   args: {
     models: getAllImportProcessStatePermutations().map((importProcessState, index) => {
-      const model = getOneFakeModel(index);
+      const model = getOneFakeModel(index  + 1);
       model.importProcessState = importProcessState;
       return model;
     }),
