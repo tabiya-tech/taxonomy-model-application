@@ -1,4 +1,3 @@
-import ModelInfo from '../modelInfo'
 import {randomUUID} from "crypto";
 import {getTestString} from "../_test_utilities/specialCharacters";
 import {
