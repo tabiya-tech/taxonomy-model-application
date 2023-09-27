@@ -10,7 +10,7 @@ import {faker} from "@faker-js/faker";
 import {CELL_MAX_LENGTH} from "../ModelsTable";
 
 export function getOneFakeModel(id?: number): ModelInfoTypes.ModelInfo {
-  return getArrayOfFakeModels(id ? id : 1)[0];
+  return getArrayOfFakeModels(id ?? 1)[0];
 }
 
 export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[] {
