@@ -1,6 +1,10 @@
 import {render, screen, within} from "@testing-library/react";
 import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
-import {getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength} from "./_test_utilities/mockModelData";
+import {
+  getArrayOfFakeModels,
+  getArrayOfRandomModelsMaxLength,
+  getOneRandomModelMaxLength
+} from "./_test_utilities/mockModelData";
 import * as React from "react";
 import {getRandomLorem} from "src/_test_utilities/specialCharacters";
 import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
@@ -179,6 +183,21 @@ describe("ModelsTable", () => {
     const modelTableRows = screen.queryAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
     expect(modelTableRows).toHaveLength(0);
   })
+
+  test("should initially render the models in descending order by createdAt", () => {
+    // GIVEN an array of models
+    const givenModels = getArrayOfFakeModels(5); // Adjust the number as needed
+    const expectedModels = [...givenModels].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    // WHEN we render the ModelsTable
+    render(<ModelsTable models={givenModels} />);
+
+    // THEN the models should be in sorted in Descending order by createdAt
+    const renderedRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+    renderedRows.forEach((row, index) => {
+      expect(row.getAttribute('data-modelid')).toBe(expectedModels[index].id);
+    });
+  });
 
   describe("should render the model.released", () => {
     test.each(
