@@ -11,6 +11,7 @@ import TableLoadingRows from "../tableLoadingRows/TableLoadingRows";
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import {Container} from "@mui/material";
 import ImportProcessStateIcon from "../importProcessStateIcon/ImportProcessStateIcon";
+import {useMemo} from "react";
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[],
   isLoading?: boolean
@@ -40,6 +41,16 @@ export const DATA_TEST_ID = {
 export const CELL_MAX_LENGTH = 256;
 const ModelsTable = (props: ModelsTableProps) => {
 
+  const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
+    if(!models?.length) return [];
+    // sorts the incoming in descending order of createdAt
+    return models.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime()))
+    }
+
+  const sortedModels = useMemo(() : ModelInfoTypes.ModelInfo[] => {
+    return  sortModels(props.models)
+  }, [props.models]);
+
   return (
     <TableContainer component={Paper} data-testid={DATA_TEST_ID.MODELS_TABLE_ID}>
       <Table tabIndex={0} aria-label="models table">
@@ -64,7 +75,7 @@ const ModelsTable = (props: ModelsTableProps) => {
           {props.isLoading ?
             // Number of cols is 6 because we have 6 columns in the table
             <TableLoadingRows numberOfCols={6} numberOfRows={10}/> :
-            props.models?.map(model => (
+            sortedModels.map(model => (
               <TableRow
                 tabIndex={0}
                 data-modelid={model.id}
