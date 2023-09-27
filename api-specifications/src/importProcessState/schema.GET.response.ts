@@ -3,8 +3,7 @@ import {RegExp_Str_ID} from "../regex";
 import {ImportProcessState} from "./enums";
 
 const SchemaGETResponse: SchemaObject = {
-  description: "The state of the import process of the model. \
-Since the import process is asynchronous, use the status to check if the import process has completed and the result to check if the process encountered any issues",
+  description: "The state of the import process of the model. Since the import process is asynchronous, use the status to check if the import process has completed and the result to check if the process encountered any issues",
   $id: "/components/schemas/ImportProcessStateSchema",
   type: "object",
   additionalProperties: false,
