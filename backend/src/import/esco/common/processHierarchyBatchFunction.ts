@@ -5,7 +5,6 @@ export function getProcessHierarchyBatchFunction<HierarchyType extends { id: str
   modelId: string,
   hierarchyName: string,
   repository: { createMany: (modelId: string, specs: SpecificationType[]) => Promise<(HierarchyType)[]> }) {
-  //let totalRowsProcessed = 0;
   return async (specs: SpecificationType[]) => {
 
     const stats: RowsProcessedStats = {
@@ -26,7 +25,6 @@ export function getProcessHierarchyBatchFunction<HierarchyType extends { id: str
     if (stats.rowsFailed > 0) {
       importLogger.logWarning(`${stats.rowsFailed} of the ${hierarchyName} entries could not be imported. Currently no further information is available.`);
     }
-    //totalRowsProcessed += stats.rowsProcessed;
     return stats;
   };
 }
