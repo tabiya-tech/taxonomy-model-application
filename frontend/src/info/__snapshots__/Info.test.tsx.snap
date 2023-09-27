@@ -2,192 +2,146 @@
 
 exports[`Testing Info component it should show frontend and backend info successfully: version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc 1`] = `
 <div
+  class="MuiBox-root css-cg26xm"
   data-testid="version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
-  id="backend"
 >
-  <fieldset
-    class="MuiBox-root css-qxh7fn"
+  <h6
+    class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
   >
-    <legend>
-      <label
-        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        id="37d307ae-4f1e-4d8d-bafe-fd642f8af4dc-backend"
-      >
-        Backend
-      </label>
-    </legend>
-    <ul
-      class="MuiList-root MuiList-padding MuiList-dense css-h4y409-MuiList-root"
+    Backend
+  </h6>
+  <div
+    class="MuiBox-root css-1hdbc19"
+  >
+    <div
+      class="MuiBox-root css-0"
     >
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          Date: 
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            fooBackend
-          </span>
-        </div>
-      </li>
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+        Date
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          Branch: 
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            barBackend
-          </span>
-        </div>
-      </li>
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+        fooBackend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          Build Number: 
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            bazBackend
-          </span>
-        </div>
-      </li>
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+        Branch
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          GIT SHA:
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            gooBackend
-          </span>
-        </div>
-      </li>
-    </ul>
-  </fieldset>
+        barBackend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
+      >
+        Build Number
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
+      >
+        bazBackend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
+      >
+        GIT SHA
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
+      >
+        gooBackend
+      </p>
+    </div>
+  </div>
 </div>
 `;
 
 exports[`Testing Info component it should show frontend and backend info successfully: version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc 1`] = `
 <div
+  class="MuiBox-root css-cg26xm"
   data-testid="version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
-  id="frontend"
 >
-  <fieldset
-    class="MuiBox-root css-qxh7fn"
+  <h6
+    class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
   >
-    <legend>
-      <label
-        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        id="37d307ae-4f1e-4d8d-bafe-fd642f8af4dc-frontend"
-      >
-        Frontend
-      </label>
-    </legend>
-    <ul
-      class="MuiList-root MuiList-padding MuiList-dense css-h4y409-MuiList-root"
+    Frontend
+  </h6>
+  <div
+    class="MuiBox-root css-1hdbc19"
+  >
+    <div
+      class="MuiBox-root css-0"
     >
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          Date: 
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            fooFrontend
-          </span>
-        </div>
-      </li>
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+        Date
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          Branch: 
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            barFrontend
-          </span>
-        </div>
-      </li>
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+        fooFrontend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          Build Number: 
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            bazFrontend
-          </span>
-        </div>
-      </li>
-      <li
-        class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-6lnq02-MuiListItem-root"
+        Branch
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
       >
-        <label
-          class="MuiFormLabel-root MuiFormLabel-colorPrimary css-u4tvz2-MuiFormLabel-root"
-        >
-          GIT SHA:
-        </label>
-        <div
-          class="MuiListItemText-root MuiListItemText-dense css-tlelie-MuiListItemText-root"
-        >
-          <span
-            class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-et1ao3-MuiTypography-root"
-          >
-            gooFrontend
-          </span>
-        </div>
-      </li>
-    </ul>
-  </fieldset>
+        barFrontend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
+      >
+        Build Number
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
+      >
+        bazFrontend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
+      >
+        GIT SHA
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1gqyz35-MuiTypography-root"
+      >
+        gooFrontend
+      </p>
+    </div>
+  </div>
 </div>
 `;
