@@ -9,20 +9,23 @@ fs.mkdirSync(outputDirName, {recursive: true});
 const filesToArchive: string[] =[];
 schemaFiles.forEach((schemaFile)=>{
     const exportedObject = require(schemaFile);
-    Object.entries(exportedObject).forEach((entry)=>{
-        // @ts-ignore
-        if ( typeof entry[1] === "object" && (entry[1].$id !== undefined || entry[1].$ref !== undefined ) ){
-            const filename = path.join(outputDirName, `${entry[0]}.json`);
-            fs.writeFileSync(filename, JSON.stringify(entry[1], undefined, 2));
-            filesToArchive.push(filename);
-        }
-    })
+    findSchemasRecursive(exportedObject);
 });
 
 createZip(outputDirName, filesToArchive);
 
-
-
+function findSchemasRecursive(object: any){
+    Object.entries(object).forEach((entry)=>{
+        const currentEntry = entry[1] as any;
+        if ( typeof currentEntry === "object" && (currentEntry.$id !== undefined || currentEntry.$ref !== undefined ) ){
+            const filename = path.join(outputDirName,`${currentEntry.$id.substr(1).replace(/\//g, ".")}.json`);
+            fs.writeFileSync(filename, JSON.stringify(currentEntry, undefined, 2));
+            filesToArchive.push(filename);
+        }else if ( typeof currentEntry === "object" ){
+            findSchemasRecursive(currentEntry);
+        }
+    })
+}
 function createZip(outputDirName: string, filesToArchive: string[]){
 //create a file to stream archive data to
     const output = fs.createWriteStream(path.join(outputDirName + '/schema-archive.zip'));
