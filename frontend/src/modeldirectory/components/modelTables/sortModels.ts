@@ -1,3 +1,6 @@
+import {SortableKeys, SortDirection} from "./withSorting.types";
+import {ModelInfoTypes} from "../../../modelInfo/modelInfoTypes";
+
 const sortItems = (aValue: any, bValue: any, key: string): number => {
   let comparison = 0;
   if (aValue instanceof Date && bValue instanceof Date) {
@@ -31,5 +34,22 @@ const sortItems = (aValue: any, bValue: any, key: string): number => {
   }
   return comparison;
 };
+export const sortModels = (models: ModelInfoTypes.ModelInfo[], sortConfig: SortConfig): ModelInfoTypes.ModelInfo[] => {
+  if (sortConfig === null) {
+    console.warn("Sorting Configuration is not set")
+    return models;
+  }
 
-export default sortItems;
+  let sortableItems = [...models]; // make a shallow copy of the array
+  return sortableItems.sort((a, b) => {
+    let comparison = sortItems(a[sortConfig.key], b[sortConfig.key], sortConfig.key)
+    return sortConfig.direction === SortDirection.ASCENDING ? comparison : -comparison;
+  });
+}
+
+export interface SortConfig {
+  key: SortableKeys;
+  direction: SortDirection;
+}
+
+export default sortModels;

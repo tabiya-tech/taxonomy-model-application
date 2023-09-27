@@ -1,7 +1,8 @@
 import React, {useCallback, useMemo} from 'react';
 import {ModelsTableProps} from "./ModelsTable";
 import {SortableKeys, SortDirection} from "./withSorting.types";
-import sortItems from "./sortByHeader";
+import sortItems from "./sortModels";
+import sortModels from "./sortModels";
 
 export interface SortConfig {
   key: SortableKeys;
@@ -16,16 +17,7 @@ const withSorting = <P extends ModelsTableProps>(WrappedComponent: React.Compone
   return (props: P & SortedModelsTableProps) => {
     const [sortConfig, setSortConfig] = props.sortingState
     const sortedModels = useMemo(() => {
-      let sortableItems = [...props?.models ?? [] as ModelsTableProps['models']] as ModelsTableProps['models'];
-      if (sortConfig !== null) {
-        sortableItems.sort((a, b) => {
-
-          let comparison = sortItems(a[sortConfig.key], b[sortConfig.key], sortConfig.key)
-          return sortConfig.direction === SortDirection.ASCENDING ? comparison : -comparison;
-        });
-      } else console.warn("Sorting Configuration is not set")
-
-      return sortableItems;
+      return  sortModels(props.models, sortConfig)
     }, [props.models, sortConfig]);
 
     /*
@@ -42,7 +34,7 @@ const withSorting = <P extends ModelsTableProps>(WrappedComponent: React.Compone
       setSortConfig({ key, direction });
     }, [sortConfig.key, sortConfig.direction, setSortConfig]);
 
-    return <WrappedComponent {...props} models={sortedModels} requestSort={requestSort} />;
+      return <WrappedComponent {...props} models={sortedModels} requestSort={requestSort} />;
   };
 };
 
