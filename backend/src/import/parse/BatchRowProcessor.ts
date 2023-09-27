@@ -11,10 +11,10 @@ export class BatchRowProcessor<RowType, SpecificationType> implements RowProcess
 
   constructor(validateHeadersFn: HeadersValidatorFunction,
               transformRowToSpecificationFn: TransformRowToSpecificationFunction<RowType, SpecificationType>,
-              batchProcessor: BatchProcessor<SpecificationType>,//processBatchFn: ProcessBatchFunction<SpecificationType>,
+              batchProcessor: BatchProcessor<SpecificationType>,
   ) {
     this.validateHeadersFn = validateHeadersFn;
-    this.batchProcessor = batchProcessor; //new BatchProcessor<SpecificationType>(batchSize, processBatchFn);
+    this.batchProcessor = batchProcessor;
     this.transformRowToSpecificationFn = transformRowToSpecificationFn;
   }
 
