@@ -5,14 +5,13 @@ interface CancelButtonProps extends ButtonProps {
   // Add additional props specific to Cancel Button here
 }
 
-const StyledButton = styled(Button)(({theme}) => ({
-  // Define your default custom styles here using the theme object or CSS-in-JS
-  // ...
-}));
+const StyledButton = styled(Button)`
+  border-radius: 6.25rem;
+`;
 
 const CancelButton: React.FC<CancelButtonProps> = ({style, children, ...props}) => {
   return (
-    <StyledButton style={style} {...props}>
+    <StyledButton variant={'outlined'} style={style} {...props}>
       {children ?? "Cancel"}
     </StyledButton>
   );

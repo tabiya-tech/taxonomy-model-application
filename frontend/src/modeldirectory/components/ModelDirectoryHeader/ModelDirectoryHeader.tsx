@@ -1,7 +1,7 @@
 import React from 'react';
-import AddIcon from '@mui/icons-material/Add';
-import {Box, Button, Typography} from '@mui/material';
-import styled from '@emotion/styled';
+import {Box, Typography} from '@mui/material';
+import PrimaryButton from "../../../theme/PrimaryButton/PrimaryButton";
+import {AddCircleOutlined} from "@mui/icons-material";
 
 const uniqueId = '8482f1cc-0786-423f-821e-34b6b712d78u';
 export const DATA_TEST_ID = {
@@ -14,25 +14,22 @@ export interface ModelDirectoryHeaderProps {
   onModelImport: () => void;
 }
 
-const StyledButton = styled(Button)`
-  border-radius: 6.25rem;
-`;
 
 const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({onModelImport}) => (
   <Box display='flex' width='100%' justifyContent='space-between' alignItems='center' data-testid={DATA_TEST_ID.MODEL_DIRECTORY_HEADER}>
-    <Typography fontSize='2rem' data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>
-      Labour Taxonomies
+    <Typography variant={"h2"} fontSize='2rem' data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE} color={"text.primary"}>
+      Model Directory
     </Typography>
-    <StyledButton
+    <PrimaryButton
       onClick={()=>onModelImport()}
       data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}
       variant='contained'
       color='primary'
-      startIcon={<AddIcon/>}
+      startIcon={<AddCircleOutlined/>}
       disableElevation
     >
       Import Model
-    </StyledButton>
+    </PrimaryButton>
   </Box>
 );
 

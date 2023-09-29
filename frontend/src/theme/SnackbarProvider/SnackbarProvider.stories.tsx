@@ -24,7 +24,7 @@ export default meta;
 
 type Story = StoryObj<typeof SnackbarProvider>;
 
-type Color = 'success' | 'error' | 'warning';
+type Color = 'info' | 'success' | 'error' | 'warning';
 
 interface ButtonConfig {
   color: Color;
@@ -39,6 +39,7 @@ const TestButton = () => {
     {color: 'success', message: 'Success message', variant: 'success'},
     {color: 'error', message: 'Failed message', variant: 'error'},
     {color: 'warning', message: 'Warning message', variant: 'warning'},
+    {color: 'info', message: 'Info message', variant: 'info'},
   ];
 
   const handleSnackbar = (message: string, variant: VariantType) => {
@@ -97,7 +98,7 @@ export const ShownMixed: Story = {
     return (<ShowNotifications notifications={notifications}/>
     )
   }
-};
+}
 
 function getRandomNotificationProps(count: number, variant: VariantType): { message: string, variant: VariantType }[] {
   return Array(count).fill(undefined).map(() => ({message: faker.lorem.words(10), variant: variant}));

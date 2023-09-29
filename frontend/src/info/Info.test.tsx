@@ -6,7 +6,8 @@ import InfoService from "./info.service";
 
 import {InfoProps} from "./info.types";
 import Info, {DATA_TEST_ID} from "./Info";
-import {act, render, screen} from "@testing-library/react";
+import {act, screen} from "@testing-library/react";
+import { render } from "src/_test_utilities/test-utils";
 
 jest.mock("./info.service");
 

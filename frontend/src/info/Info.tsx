@@ -3,6 +3,7 @@ import {InfoProps} from './info.types';
 import InfoService from './info.service';
 import {Box, Skeleton, Typography} from "@mui/material";
 import ContentTitle from "src/theme/ContentTitle";
+import {styled} from "@mui/material/styles";
 
 
 const uniqueId = "37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
@@ -11,6 +12,13 @@ export const DATA_TEST_ID = {
     VERSION_FRONTEND_ROOT: `version-frontend-${uniqueId}`,
     VERSION_BACKEND_ROOT: `version-backend-${uniqueId}`,
 };
+
+const StyledContainer = styled(Box)`
+  flex: 1;
+  border-radius: 16px 16px 0 0;
+  overflow-y: auto;
+  background-color: ${({theme}) => theme.palette.containerBackground.light};
+`;
 
 const VersionInfoItem = ({ title, value, skeleton }: {title: string, value: string, skeleton?: boolean}) => {
     return (
@@ -55,13 +63,13 @@ const Info = () => {
     }, [infoService]);
 
     return (
-        <Box data-testid={DATA_TEST_ID.INFO_ROOT} display="flex" flexDirection="column" gap="28px">
+        <StyledContainer data-testid={DATA_TEST_ID.INFO_ROOT} display="flex" flexDirection="column" gap="28px" sx={{padding: (theme) => theme.tabiyaSpacing.lg}}>
             <ContentTitle text="Info" />
             <Box display="flex" flexDirection="column" gap="40px">
                 <VersionContainer title="Frontend" info={version[0]} dataTestId={DATA_TEST_ID.VERSION_FRONTEND_ROOT} />
                 <VersionContainer title="Backend" info={version[1]} dataTestId={DATA_TEST_ID.VERSION_BACKEND_ROOT} />
             </Box>
-        </Box>
+        </StyledContainer>
     );
 };
 
