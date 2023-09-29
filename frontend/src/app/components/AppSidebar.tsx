@@ -5,7 +5,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VerticalSplitOutlinedIcon from '@mui/icons-material/VerticalSplitOutlined';
-import {styled, Typography} from '@mui/material';
+import {styled, Typography, useTheme} from '@mui/material';
 import {routerPaths} from "src/app/routerConfig";
 
 const uniqueId = '579896ed-8a99-4a1e-8dc4-e4236d7b06df';
@@ -109,9 +109,11 @@ const CustomNavLink = styled(NavLink)`
 
 
 const AppSidebar = () => {
+  const theme = useTheme();
+
   return (
     <Box
-      gap='1rem'
+      gap={theme.tabiyaSpacing.lg}
       display="flex"
       flexDirection="column"
       height="100%"
@@ -119,10 +121,10 @@ const AppSidebar = () => {
     >
       {appSidebarItems.map((item) => (
         <CustomNavLink key={item.pathName} to={item.pathName} data-testid={item.dataTestId}>
-          <Box paddingY="0.25rem" paddingX="0.8rem" borderRadius="1rem">
+          <Box lineHeight={"0"} paddingY={theme.tabiyaSpacing.xs} paddingX={theme.tabiyaSpacing.md}  borderRadius={theme.tabiyaSpacing.md} >
             {item.icon}
           </Box>
-          <Typography fontSize="0.8rem">
+          <Typography variant="caption">
             {item.label}
           </Typography>
         </CustomNavLink>
