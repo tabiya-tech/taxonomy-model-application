@@ -97,12 +97,18 @@ const CustomNavLink = styled(NavLink)`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: ${({theme}) => theme.palette.text.primary};
+  color: ${({theme}) => theme.palette.containerBackground.contrastText};
 
-  &.active, &:hover {
+  &.active {
     > .MuiBox-root {
-      background-color: ${({theme}) => theme.palette.secondary.light};
-      color: ${({theme}) => theme.palette.getContrastText(theme.palette.secondary.light)};
+      background-color: ${({theme}) => theme.palette.primary.main};
+      color: ${({theme}) => theme.palette.primary.contrastText};
+    }
+  }
+  &:hover {
+    > .MuiBox-root {
+        background-color: ${({theme}) => theme.palette.primary.light};
+        color: ${({theme}) => theme.palette.primary.contrastText};
     }
   }
 `;
@@ -121,7 +127,7 @@ const AppSidebar = () => {
     >
       {appSidebarItems.map((item) => (
         <CustomNavLink key={item.pathName} to={item.pathName} data-testid={item.dataTestId}>
-          <Box lineHeight={"0"} paddingY={theme.tabiyaSpacing.xs} paddingX={theme.tabiyaSpacing.md}  borderRadius={theme.tabiyaSpacing.md} >
+          <Box lineHeight={"0"} paddingY={theme.tabiyaSpacing.xs} paddingX={theme.tabiyaSpacing.md}  borderRadius={theme.tabiyaRounding.sm} >
             {item.icon}
           </Box>
           <Typography variant="caption">

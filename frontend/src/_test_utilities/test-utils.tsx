@@ -3,12 +3,12 @@
 import React, {ReactElement} from 'react'
 import {render, RenderOptions} from '@testing-library/react'
 import {ThemeProvider} from "@mui/material";
-import applicationTheme from "src/theme/applicationTheme";
+import applicationTheme, {ThemeMode} from "src/theme/applicationTheme";
 import SnackbarProvider from "src/theme/SnackbarProvider/SnackbarProvider";
 
 const AllTheProviders = ({children}: { children: React.ReactNode }) => {
   return (
-    <ThemeProvider theme={applicationTheme}>
+    <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
       <SnackbarProvider>
         {children}
       </SnackbarProvider>

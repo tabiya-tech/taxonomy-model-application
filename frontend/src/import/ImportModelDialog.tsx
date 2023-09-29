@@ -1,6 +1,5 @@
 import React, {KeyboardEvent, useRef} from "react";
 import {
-  Button,
   Stack,
   Dialog,
   DialogActions,
@@ -16,6 +15,7 @@ import CancelButton from "src/theme/CancelButton/CancelButton";
 import {ImportFiles} from "./ImportFiles.type";
 import ModelLocalSelectField from "./components/ModelLocalSelectField";
 import LocaleAPISpecs from "api-specifications/locale";
+import PrimaryButton from "../theme/PrimaryButton/PrimaryButton";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f"
 export const DATA_TEST_ID = {
@@ -108,9 +108,9 @@ const ImportModelDialog = (props: ImportModelDialogProps) => {
       <CancelButton onClick={() => {
         handleClose({name: "CANCEL"})
       }} data-testid={DATA_TEST_ID.CANCEL_BUTTON}/>
-      <Button onClick={() => handleClose({name: "IMPORT", importData: data.current})}
+      <PrimaryButton onClick={() => handleClose({name: "IMPORT", importData: data.current})}
               disabled={isImportButtonDisabled}
-              data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</Button>
+              data-testid={DATA_TEST_ID.IMPORT_BUTTON}>Import</PrimaryButton>
     </DialogActions>
   </Dialog>
 };

@@ -25,7 +25,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <Container
       data-testid={DATA_TEST_ID.LAYOUT}
-      bgcolor='secondary.main'
+      bgcolor='containerBackground.main'
     >
       <AppHeader />
       <Box display='flex' flexDirection='row' flex={1} gap={3} overflow='hidden'>

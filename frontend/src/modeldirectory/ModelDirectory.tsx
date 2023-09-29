@@ -18,14 +18,13 @@ import { styled } from "@mui/material/styles";
 
 const StyledContainer = styled(Box)`
   flex: 1;
+  border-radius: 16px 16px 0 0;
   overflow-y: auto;
 `;
 
 const StyledTableContainer = styled(Box)`
   flex: 1;
-  background-color: ${({ theme }) => theme.palette.background.paper};
-  border-radius: 16px 16px 0 0;
-  padding: 24px 24px 24px 24px;
+  background-color: ${({theme}) => theme.palette.containerBackground.light};
 `;
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
@@ -125,34 +124,31 @@ const ModelDirectory = () => {
 
   return (
     <StyledContainer data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-      <AppBar
-        variant={"outlined"}
-        sx={{
-          paddingBottom: (theme) => theme.tabiyaSpacing.lg,
-          border: "none",
-        }}
-        color={"secondary"}
-        position={"sticky"}
-      >
-        <ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />
-      </AppBar>
-      <StyledTableContainer>
-        <ModelsTable models={models} isLoading={isLoadingModels} />
-      </StyledTableContainer>
+        <StyledTableContainer sx={{paddingX: (theme) => theme.tabiyaSpacing.lg}}>
+          <AppBar variant={"outlined"} elevation={0} sx={{
 
-      {isImportDlgOpen && (
-        <ImportModelDialog
-          isOpen={isImportDlgOpen}
-          availableLocales={availableLocales}
-          notifyOnClose={handleOnImportDialogClose}
-        />
-      )}
-      {isBackDropShown && (
-        <Backdrop
-          isShown={isBackDropShown}
-          message="The model is being created and the files uploaded. Please wait ... "
-        />
-      )}
+              paddingY: (theme) => theme.tabiyaSpacing.lg,
+              border: "none", backgroundColor:"containerBackground.light"
+          }}
+                  position={"sticky"}>
+            <ModelDirectoryHeader onModelImport={() => showImportDialog(true)}/>
+          </AppBar>
+          <ModelsTable models={models} isLoading={isLoadingModels}/>
+        </StyledTableContainer>
+
+        {isImportDlgOpen && (
+            <ImportModelDialog
+                isOpen={isImportDlgOpen}
+                availableLocales={availableLocales}
+                notifyOnClose={handleOnImportDialogClose}
+            />
+        )}
+        {isBackDropShown && (
+            <Backdrop
+                isShown={isBackDropShown}
+                message='The model is being created and the files uploaded. Please wait ... '
+            />
+        )}
     </StyledContainer>
   );
 };
