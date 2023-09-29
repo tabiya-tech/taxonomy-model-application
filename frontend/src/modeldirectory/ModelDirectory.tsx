@@ -1,17 +1,20 @@
-import React, {useCallback, useEffect} from "react";
-import ImportModelDialog, {CloseEvent, ImportData} from "src/import/ImportModelDialog";
-import {ServiceError} from "src/error/error";
+import React, { useCallback, useEffect } from "react";
+import ImportModelDialog, {
+  CloseEvent,
+  ImportData,
+} from "src/import/ImportModelDialog";
+import { ServiceError } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
-import {useSnackbar} from "src/theme/SnackbarProvider/SnackbarProvider";
-import {writeServiceErrorToLog} from "../error/logger";
-import {Backdrop} from "src/theme/Backdrop/Backdrop";
+import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
+import { writeServiceErrorToLog } from "../error/logger";
+import { Backdrop } from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
-import {ModelInfoTypes} from "../modelInfo/modelInfoTypes";
+import { ModelInfoTypes } from "../modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
-import LocaleAPISpecs from "api-specifications/locale"
-import ModelDirectoryHeader from './components/ModelDirectoryHeader/ModelDirectoryHeader';
-import {AppBar, Box} from "@mui/material";
-import {styled} from '@mui/material/styles';
+import LocaleAPISpecs from "api-specifications/locale";
+import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
+import { AppBar, Box } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 const StyledContainer = styled(Box)`
   flex: 1;
@@ -20,29 +23,33 @@ const StyledContainer = styled(Box)`
 
 const StyledTableContainer = styled(Box)`
   flex: 1;
-  background-color: ${({theme}) => theme.palette.background.paper};
+  background-color: ${({ theme }) => theme.palette.background.paper};
   border-radius: 16px 16px 0 0;
   padding: 24px 24px 24px 24px;
 `;
 
-
-const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f"
+const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
   MODEL_DIRECTORY_PAGE: `model-directory-root-${uniqueId}`,
-  IMPORT_MODEL_BUTTON: `import-model-button-${uniqueId}`
-}
+  IMPORT_MODEL_BUTTON: `import-model-button-${uniqueId}`,
+};
 
-const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
+const importDirectorService = new ImportDirectorService(
+  "https://dev.tabiya.tech/api"
+);
 const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
-export const availableLocales: LocaleAPISpecs.Types.Payload[] = [{
-  name: "South Africa",
-  shortCode: "ZA",
-  UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a"
-}, {
-  name: "Ethiopia",
-  shortCode: "ETH",
-  UUID: "1df3d395-2a3d-4334-8fec-9d990bc8e3e4"
-}]
+export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
+  {
+    name: "South Africa",
+    shortCode: "ZA",
+    UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a",
+  },
+  {
+    name: "Ethiopia",
+    shortCode: "ETH",
+    UUID: "1df3d395-2a3d-4334-8fec-9d990bc8e3e4",
+  },
+];
 
 const ModelDirectory = () => {
   const [isImportDlgOpen, setImportDlgOpen] = React.useState(false);
@@ -50,24 +57,30 @@ const ModelDirectory = () => {
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
 
-  const {enqueueSnackbar} = useSnackbar()
+  const { enqueueSnackbar } = useSnackbar();
 
   const showImportDialog = (b: boolean) => {
     setImportDlgOpen(b);
-  }
+  };
 
   const handleModelInfoFetch = useCallback(() => {
-    return modelInfoService.fetchAllModelsPeriodically((models) => {
-      setModels(models);
-      setIsLoadingModels(false);
-    }, e => {
-      enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, {variant: "error"})
-      if (e instanceof ServiceError) {
-        writeServiceErrorToLog(e, console.error);
-      } else {
-        console.error(e);
+    return modelInfoService.fetchAllModelsPeriodically(
+      (models) => {
+        setModels(models);
+        setIsLoadingModels(false);
+      },
+      (e) => {
+        enqueueSnackbar(
+          `Failed to fetch the models. Please check your internet connection.`,
+          { variant: "error" }
+        );
+        if (e instanceof ServiceError) {
+          writeServiceErrorToLog(e, console.error);
+        } else {
+          console.error(e);
+        }
       }
-    });
+    );
   }, [enqueueSnackbar]);
 
   const handleOnImportDialogClose = async (event: CloseEvent) => {
@@ -76,16 +89,21 @@ const ModelDirectory = () => {
       setBackDropShown(true);
       const importData = event.importData as ImportData;
       try {
-        const newModel = await importDirectorService.directImport(
+        const newModel = (await importDirectorService.directImport(
           importData.name,
           importData.description,
           importData.locale,
           importData.selectedFiles
-        ) as any;
-        enqueueSnackbar(`The model '${importData.name}' import has started.`, {variant: "success"});
+        )) as any;
+        enqueueSnackbar(`The model '${importData.name}' import has started.`, {
+          variant: "success",
+        });
         setModels([newModel, ...models]);
       } catch (e) {
-        enqueueSnackbar(`The model '${importData.name}' import could not be started. Please try again.`, {variant: "error"})
+        enqueueSnackbar(
+          `The model '${importData.name}' import could not be started. Please try again.`,
+          { variant: "error" }
+        );
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
@@ -107,11 +125,19 @@ const ModelDirectory = () => {
 
   return (
     <StyledContainer data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-      <AppBar variant={"outlined"} sx={{paddingBottom:"24px", border:"none"}} color={"secondary"} position={"sticky"}>
-        <ModelDirectoryHeader onModelImport={() => showImportDialog(true)}/>
+      <AppBar
+        variant={"outlined"}
+        sx={{
+          paddingBottom: (theme) => theme.tabiyaSpacing.lg,
+          border: "none",
+        }}
+        color={"secondary"}
+        position={"sticky"}
+      >
+        <ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />
       </AppBar>
       <StyledTableContainer>
-        <ModelsTable models={models} isLoading={isLoadingModels}/>
+        <ModelsTable models={models} isLoading={isLoadingModels} />
       </StyledTableContainer>
 
       {isImportDlgOpen && (
@@ -124,7 +150,7 @@ const ModelDirectory = () => {
       {isBackDropShown && (
         <Backdrop
           isShown={isBackDropShown}
-          message='The model is being created and the files uploaded. Please wait ... '
+          message="The model is being created and the files uploaded. Please wait ... "
         />
       )}
     </StyledContainer>
