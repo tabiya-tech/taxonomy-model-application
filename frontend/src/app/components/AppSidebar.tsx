@@ -102,6 +102,7 @@ const CustomNavLink = styled(NavLink)`
   &.active, &:hover {
     > .MuiBox-root {
       background-color: ${({theme}) => theme.palette.secondary.light};
+      color: ${({theme}) => theme.palette.getContrastText(theme.palette.secondary.light)};
     }
   }
 `;
