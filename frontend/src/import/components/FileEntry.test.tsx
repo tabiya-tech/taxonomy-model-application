@@ -1,9 +1,17 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
 import {DATA_TEST_ID, FileEntry} from "./FileEntry";
 import ImportAPISpecs from "api-specifications/import";
 import {mapFileTypeToName} from "./mapFileTypeToName";
 import {waitFor} from "@testing-library/react";
 import {clickDebouncedButton} from "src/_test_utilities/userEventFakeTimer";
+
+beforeEach(() => {
+  (console.error as jest.Mock).mockClear();
+  (console.warn as jest.Mock).mockClear();
+});
 
 describe("FileEntry render tests", () => {
 
@@ -14,7 +22,10 @@ describe("FileEntry render tests", () => {
     // WHEN fileEntry is rendered with some fileType
     render(<FileEntry fileType={fileType}/>)
 
-    // THEN  expect the component to be rendered
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the component to be rendered
     const fileEntry = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY);
     expect(fileEntry).toBeInTheDocument();
     // AND to have the correct file type
