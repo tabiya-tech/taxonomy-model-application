@@ -4,6 +4,9 @@
 import InfoService from "./info.service";
 // ##############################
 
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {InfoProps} from "./info.types";
 import Info, {DATA_TEST_ID} from "./Info";
 import {act, render, screen} from "@testing-library/react";
@@ -13,6 +16,10 @@ jest.mock("./info.service");
 describe("Testing Info component", () => {
 
   test("it should show frontend and backend info successfully", async () => {
+    // Clear any possible mock for the console
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+
     // GIVEN some frontend and backend info data are available and loaded
     const expectedFrontendInfoData: InfoProps = {
       date: "fooFrontend",
@@ -43,7 +50,10 @@ describe("Testing Info component", () => {
       await infoDataPromise;
     });
 
-    // THEN the frontend and backend info should be displayed
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the frontend and backend info should be displayed
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONTEND_ROOT)).toBeDefined();
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_FRONTEND_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_FRONTEND_ROOT);
 
