@@ -1,9 +1,17 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen} from "src/_test_utilities/test-utils";
 import ModelLocalSelectField, {DATA_TEST_ID, TEXT} from "./ModelLocalSelectField";
 import Locale from "api-specifications/locale";
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import {within} from "@testing-library/react";
+
+beforeEach(() => {
+  (console.error as jest.Mock).mockClear();
+  (console.warn as jest.Mock).mockClear();
+});
 
 // Given a list of locales
 const givenLocales: Locale.Types.Payload[] = [
@@ -25,7 +33,10 @@ describe("Locale Selector Component render tests", () => {
     render(<ModelLocalSelectField locales={givenLocales}/>)
     const modelLocalSelectField = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD);
 
-    // THEN expect local selector to be in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the local selector to be in the document
     expect(modelLocalSelectField).toBeInTheDocument();
 
     // AND expect the selected value to be the first from the given locales
