@@ -168,7 +168,10 @@ describe('ModelDirectory Render', () => {
     // WHEN the ModelDirectory is mounted
     render(<ModelDirectory/>);
 
-    // THEN expect the ModelDirectoryHeader to be visible
+    // THEN expect no errors or warning to have occurred
+    // expect(console.error).not.toHaveBeenCalled();
+    // expect(console.warn).not.toHaveBeenCalled();
+    // AND the ModelDirectoryHeader to be visible
     const modelDirectoryHeader = screen.getByTestId(MODEL_DIRECTORY_HEADER_DATA_TEST_ID.MODEL_DIRECTORY_HEADER);
     expect(modelDirectoryHeader).toBeInTheDocument();
 
