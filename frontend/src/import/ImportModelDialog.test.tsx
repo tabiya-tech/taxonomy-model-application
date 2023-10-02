@@ -76,6 +76,8 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
 beforeEach(
   () => {
     notifyOnCloseMock.mockReset();
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
   }
 )
 
@@ -84,7 +86,10 @@ describe("ImportModel dialog render tests", () => {
     //GIVEN the dialog is visible
     render(<ImportModelDialog {...testProps}/>);
 
-    //THEN expect the dialog to be in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the dialog to be in the document
     const dialogBox = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG);
     expect(dialogBox).toBeInTheDocument();
     // AND expect the Import button to exist
