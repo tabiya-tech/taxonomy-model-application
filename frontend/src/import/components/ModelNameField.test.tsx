@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen} from "src/_test_utilities/test-utils";
 import ModelNameField, {DATA_TEST_ID, TEXT} from "./ModelNameField";
 import {getTestString} from "src/_test_utilities/specialCharacters";
@@ -5,12 +8,20 @@ import {isSpecified} from "src/utils/isUnspecified";
 import React from "react";
 import {typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
 
+beforeEach(() => {
+  (console.error as jest.Mock).mockClear();
+  (console.warn as jest.Mock).mockClear();
+});
+
 describe("ModelNameField render tests", () => {
   test("should render default state", () => {
     // WHEN the model name field is rendered
     render(<ModelNameField/>);
 
-    // THEN  expect modelNameField to be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the modelNameField to be visible
     const modelNameField = screen.getByTestId(DATA_TEST_ID.MODEL_NAME_FIELD)
     expect(modelNameField).toBeInTheDocument();
     // AND expect input to be visible
