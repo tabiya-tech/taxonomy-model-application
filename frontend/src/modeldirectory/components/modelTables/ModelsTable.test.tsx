@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen, within} from "@testing-library/react";
 import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
 import {
@@ -48,6 +51,11 @@ jest.mock('src/modeldirectory/components/tableLoadingRows/TableLoadingRows', () 
 
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 
+beforeEach(() => {
+  (console.error as jest.Mock).mockClear();
+  (console.warn as jest.Mock).mockClear();
+});
+
 describe("ModelsTable", () => {
   test("should render the table with the models", () => {
     // GIVEN n models with random data of max length
@@ -56,7 +64,10 @@ describe("ModelsTable", () => {
     // WHEN the ModelsTable is rendered with the given models
     const {container} = render(<ModelsTable models={givenModels}/>);
 
-    // THEN expect the table to be shown
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the table to be shown
     const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
     expect(tableElement).toBeInTheDocument();
 
