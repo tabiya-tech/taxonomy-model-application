@@ -1,6 +1,14 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import ModelDirectoryHeader, {DATA_TEST_ID} from './ModelDirectoryHeader';
 import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+beforeEach(() => {
+  (console.error as jest.Mock).mockClear();
+  (console.warn as jest.Mock).mockClear();
+});
 
 describe('ModelDirectoryHeader', () => {
   test('should render model directory header component', () => {
@@ -11,7 +19,10 @@ describe('ModelDirectoryHeader', () => {
     // WHEN a ModelDirectoryHeader component is rendered with the given callback
     render(<ModelDirectoryHeader onModelImport={givenOnModelImportCallback}/>);
 
-    // THEN expect specific elements to be present in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND specific elements to be present in the document
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toBeInTheDocument()
