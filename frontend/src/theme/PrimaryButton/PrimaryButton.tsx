@@ -1,19 +1,17 @@
-import {styled, Button, ButtonProps} from "@mui/material";
+import { Button, ButtonProps, useTheme} from "@mui/material";
 import React from "react";
 
 interface PrimaryButtonProps extends ButtonProps {
     // Add additional props specific to PrimaryButton Button here
 }
 
-const StyledButton = styled(Button)`
-    border-radius: 6.25rem;
-`;
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({style, children, ...props}) => {
+    const theme = useTheme()
     return (
-        <StyledButton variant={'contained'} style={style} {...props}>
+        <Button variant={'contained'} style={style} {...props} sx={{borderRadius: theme.tabiyaRounding.xl}}>
             {children ?? "Click here"}
-        </StyledButton>
+        </Button>
     );
 };
 

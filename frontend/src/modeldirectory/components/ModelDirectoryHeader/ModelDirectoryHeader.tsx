@@ -27,6 +27,7 @@ const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({onModelImpor
       color='primary'
       startIcon={<AddCircleOutlined/>}
       disableElevation
+      sx={{borderRadius: theme => theme.tabiyaRounding.lg}}
     >
       Import Model
     </PrimaryButton>

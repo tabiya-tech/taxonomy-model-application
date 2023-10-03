@@ -1,4 +1,4 @@
-import {Box} from "@mui/material";
+import {Box, useTheme} from "@mui/material";
 import {NavLink} from "react-router-dom";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -16,19 +16,18 @@ export const DATA_TEST_ID = {
   APP_HEADER_ICON_USER: `app-header-icon-user-${uniqueId}`
 };
 const AppHeader = () => {
+  const theme = useTheme()
   return (
     <Box
       display="flex"
       justifyContent="space-between"
       alignItems="center"
-      paddingY="26px"
-      paddingX="16px"
       data-testid={DATA_TEST_ID.APP_HEADER_CONTAINER}
     >
-      <NavLink to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
-        <img src='/logo.svg' alt="Tabiya" height={30} data-testid={DATA_TEST_ID.APP_HEADER_LOGO}/>
+      <NavLink style={{lineHeight:0}} to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
+        <img src='/logo.svg' alt="Tabiya" height={"30px"} data-testid={DATA_TEST_ID.APP_HEADER_LOGO}/>
       </NavLink>
-      <Box display="flex" alignItems="center" gap={{xs: '14px', md: '28px'}}
+      <Box display="flex" alignItems="center" gap={{xs: theme.tabiyaSpacing.md, md: theme.tabiyaSpacing.lg}}
            data-testid={DATA_TEST_ID.APP_HEADER_ICONS_CONTAINER}>
         <SettingsIcon sx={{width: "24px", height: "24px"}} data-testid={DATA_TEST_ID.APP_HEADER_ICON_SETTINGS}/>
         <LanguageIcon sx={{width: "24px", height: "24px"}} data-testid={DATA_TEST_ID.APP_HEADER_ICON_LANGUAGE}/>

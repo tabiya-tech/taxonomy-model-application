@@ -59,11 +59,8 @@ const ModelsTable = (props: ModelsTableProps) => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" ,  width: "100%", height: "100%"}}>
-      <Paper elevation={2} style={{ width: "98%", height: "100%" }}>
-        <TableContainer
-          data-testid={DATA_TEST_ID.MODELS_TABLE_ID}
-          sx={{ borderRadius: "4px 4px 0 0" }}
-        >
+      <Paper elevation={2} sx={{ width: "98%", height: "100%" }}>
+        <TableContainer data-testid={DATA_TEST_ID.MODELS_TABLE_ID} sx={{borderRadius: theme => theme.tabiyaSpacing.sm}}>
           <Table tabIndex={0} aria-label="models table">
             <TableHead>
               <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>

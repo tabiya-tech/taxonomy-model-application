@@ -1,7 +1,7 @@
 import * as React from "react";
 import FileEntry from './FileEntry';
 import ImportAPISpecs from "api-specifications/import";
-import {FormLabel, Grid, Stack} from "@mui/material";
+import {Box, FormLabel, Grid, Stack} from "@mui/material";
 import {generateUniqueId} from "src/utils/generateUniqueId";
 import {useStyles} from "src/theme/global.style";
 
@@ -20,14 +20,14 @@ const ImportFilesSelection = (props: ImportFilesSelectionProps) => {
   const classes = useStyles();
   return <Stack className={classes.fieldStack} spacing={0.5} data-testid={DATA_TEST_ID.IMPORT_FILES_SELECTION}>
       <FormLabel required htmlFor={uniqueId}>Select files to import</FormLabel>
-      <Grid id={uniqueId} style={{display: 'flex', flexWrap: 'wrap'}}>
+      <Grid id={uniqueId} sx={{display: 'flex', flexWrap: 'wrap'}}>
         {Object.entries(ImportAPISpecs.Constants.ImportFileTypes).map((entry) => (
-          <div key={entry[0]} style={{flex: '0 0 auto', marginBottom: '10px', marginRight: '10px'}}>
+          <Box key={entry[0]} sx={{flex: '0 0 auto', marginBottom: theme => theme.tabiyaSpacing.sm, marginRight: theme => theme.tabiyaRounding.sm}}>
             <FileEntry
               fileType={entry[0] as ImportAPISpecs.Constants.ImportFileTypes}
               notifySelectedFileChange={props.notifySelectedFileChange}
             />
-          </div>
+          </Box>
         ))}
       </Grid>
     </Stack>

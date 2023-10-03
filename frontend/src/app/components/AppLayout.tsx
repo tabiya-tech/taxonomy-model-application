@@ -2,15 +2,16 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
-import { styled } from '@mui/material';
+import { styled, useTheme } from '@mui/material';
 
 
 const Container = styled(Box)`
   display: flex;
   flex-direction: column;
-  font-family: ${({ theme }) => theme.typography.fontFamily};
   height: 100%;
-  padding-left: 24px;
+  padding: ${({theme}) => theme.spacing(theme.tabiyaSpacing.lg)};
+  padding-bottom: ${({theme}) => theme.spacing(theme.tabiyaSpacing.none)};
+  gap: ${({theme}) => theme.spacing(theme.tabiyaSpacing.xl)};
 `;
 
 interface AppLayoutProps {
@@ -22,15 +23,16 @@ export const DATA_TEST_ID = {
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+  const theme = useTheme()
   return (
     <Container
       data-testid={DATA_TEST_ID.LAYOUT}
       bgcolor='containerBackground.main'
     >
       <AppHeader />
-      <Box display='flex' flexDirection='row' flex={1} gap={3} overflow='hidden'>
+      <Box display='flex' flexDirection='row' flex={1} gap={theme.tabiyaSpacing.xl} overflow='hidden'>
         <AppSidebar />
-        <Box flex={1} display='flex' marginX='24px'>
+        <Box flex={1} display='flex'>
           {children}
         </Box>
       </Box>

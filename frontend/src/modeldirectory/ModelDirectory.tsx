@@ -18,13 +18,15 @@ import { styled } from "@mui/material/styles";
 
 const StyledContainer = styled(Box)`
   flex: 1;
-  border-radius: 16px 16px 0 0;
+  border-top-right-radius: ${({ theme }) => theme.spacing(theme.tabiyaRounding.md)};
+  border-top-left-radius: ${({ theme }) => theme.spacing(theme.tabiyaRounding.md)};
   overflow-y: auto;
 `;
 
 const StyledTableContainer = styled(Box)`
   flex: 1;
   background-color: ${({theme}) => theme.palette.containerBackground.light};
+  padding: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
 `;
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
