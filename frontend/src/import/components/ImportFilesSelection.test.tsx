@@ -6,18 +6,29 @@ jest.mock("./FileEntry", () => {
   };
 });
 
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen} from "src/_test_utilities/test-utils";
 import ImportAPISpecs from "api-specifications/import";
 import ImportFilesSelection, {DATA_TEST_ID} from "./ImportFilesSelection";
 import React from "react";
 
 describe("ImportFilesSelection render tests", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   test("should render default state", () => {
     // WHEN the import files selection is rendered
     const spyOnFileEntry = jest.spyOn(require("./FileEntry"), "default");
     render(<ImportFilesSelection/>);
 
-    // THEN expect the import files selection to be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the import files selection to be visible
     const importFilesSelection = screen.getByTestId(DATA_TEST_ID.IMPORT_FILES_SELECTION);
     expect(importFilesSelection).toBeInTheDocument();
 

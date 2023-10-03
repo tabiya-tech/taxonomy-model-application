@@ -1,7 +1,16 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen} from "src/_test_utilities/test-utils";
 import {Backdrop, DATA_TEST_ID} from "./Backdrop";
 
+
 describe("Backdrop render tests", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   it("should be shown", () => {
     // GIVEN a message
     const givenMessage = "foo-message";
@@ -9,7 +18,11 @@ describe("Backdrop render tests", () => {
     // WHEN the Backdrop is opened with the message
     render(<Backdrop isShown={true} message={givenMessage}/>);
 
-    // THEN the Backdrop should be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    // AND the Backdrop should be visible
     const backdrop = screen.getByTestId(DATA_TEST_ID.BACKDROP_CONTAINER);
     expect(backdrop).toBeVisible();
 
@@ -26,7 +39,11 @@ describe("Backdrop render tests", () => {
     // WHEN the Backdrop is hidden
     render(<Backdrop isShown={false}/>);
 
-    // THEN the Backdrop should not be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    // AND the Backdrop should not be visible
     const backdrop = screen.queryByTestId(DATA_TEST_ID.BACKDROP_CONTAINER);
     expect(backdrop).not.toBeVisible();
   });
@@ -35,7 +52,11 @@ describe("Backdrop render tests", () => {
     // WHEN the Backdrop is opened without message or data-testid
     render(<Backdrop isShown={true}/>);
 
-    // THEN the Backdrop should be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    // AND the Backdrop should be visible
     const backdrop = screen.getByTestId(DATA_TEST_ID.BACKDROP_CONTAINER);
     expect(backdrop).toBeVisible();
 

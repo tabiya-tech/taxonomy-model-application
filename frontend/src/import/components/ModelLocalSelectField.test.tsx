@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen, within} from "src/_test_utilities/test-utils";
 import ModelLocalSelectField, {DATA_TEST_ID, TEXT} from "./ModelLocalSelectField";
 import Locale from "api-specifications/locale";
@@ -17,14 +20,21 @@ const givenLocales: Locale.Types.Payload[] = [
   }
 ];
 describe("Locale Selector Component render tests", () => {
-  //should render the locale selector component
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   it("should render the locale selector component", () => {
 
     // WHEN the modelSelectionComponent is rendered
     render(<ModelLocalSelectField locales={givenLocales}/>)
     const modelLocalSelectField = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD);
 
-    // THEN expect local selector to be in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the local selector to be in the document
     expect(modelLocalSelectField).toBeInTheDocument();
 
     // AND expect the selected value to be the first from the given locales
@@ -49,7 +59,10 @@ describe("Locale Selector Component render tests", () => {
       </div>
     );
 
-    // THEN expect each dropdownElement to have different ids
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND expect each dropdownElement to have different ids
     const labelElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_LOCALE_LABEL);
     expect(labelElements.length).toBe(2);
     expect(labelElements[0].id).not.toBe(labelElements[1].id);
