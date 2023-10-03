@@ -168,7 +168,10 @@ describe('ModelDirectory Render', () => {
     // WHEN the ModelDirectory is mounted
     render(<ModelDirectory/>);
 
-    // THEN expect the ModelDirectoryHeader to be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND  expect the ModelDirectoryHeader to be visible
     const modelDirectoryHeader = screen.getByTestId(MODEL_DIRECTORY_HEADER_DATA_TEST_ID.MODEL_DIRECTORY_HEADER);
     expect(modelDirectoryHeader).toBeInTheDocument();
 
@@ -206,7 +209,7 @@ describe('ModelDirectory Render', () => {
     // WHEN the ModelDirectory is mounted
     render(<ModelDirectory/>);
 
-    // THEN expect the ModelsTable to be visible
+    // AND  expect the ModelsTable to be visible
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     // AND the ModelsTable should receive the correct default props.
@@ -244,7 +247,10 @@ describe('ModelDirectory Render', () => {
     // WHEN the ModelDirectory is mounted
     render(<ModelDirectory/>);
 
-    // THEN expect the ModelsTable to be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND  expect the ModelsTable to be visible
     const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
     expect(modelsTable).toBeInTheDocument();
     // AND the ModelsTable should receive the correct default props
@@ -277,7 +283,10 @@ describe('ModelDirectory Render', () => {
     // WHEN the ModelDirectory is mounted
     const {unmount, container} = render(<ModelDirectory/>);
 
-    // THEN expect the ModelDirectory to be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND  expect the ModelDirectory to be visible
     const actualModelDirectory = screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE);
     expect(container).toBeInTheDocument();
     // AND expect the model info service to have been called
