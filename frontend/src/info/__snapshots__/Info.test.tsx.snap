@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing Info component it should show frontend and backend info successfully: version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc 1`] = `
+<div
+  class="MuiBox-root css-13t3iqc"
+  data-testid="version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
+>
+  <h6
+    class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+  >
+    Backend
+  </h6>
+  <div
+    class="MuiBox-root css-1821gv5"
+  >
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        Date
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        fooBackend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        Branch
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        barBackend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        Build Number
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        bazBackend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        GIT SHA
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        gooBackend
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Testing Info component it should show frontend and backend info successfully: version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc 1`] = `
+<div
+  class="MuiBox-root css-13t3iqc"
+  data-testid="version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
+>
+  <h6
+    class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+  >
+    Frontend
+  </h6>
+  <div
+    class="MuiBox-root css-1821gv5"
+  >
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        Date
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        fooFrontend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        Branch
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        barFrontend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        Build Number
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        bazFrontend
+      </p>
+    </div>
+    <div
+      class="MuiBox-root css-0"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-10iihcu-MuiTypography-root"
+      >
+        GIT SHA
+      </h6>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-183oh07-MuiTypography-root"
+      >
+        gooFrontend
+      </p>
+    </div>
+  </div>
+</div>
+`;

@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useMemo} from 'react';
 import {InfoProps} from './info.types';
 import InfoService from './info.service';
-import {Box, Skeleton, Typography} from "@mui/material";
+import {Box, Skeleton, Typography, useTheme} from "@mui/material";
 import ContentTitle from "src/theme/ContentTitle";
 import {styled} from "@mui/material/styles";
 
@@ -15,7 +15,7 @@ export const DATA_TEST_ID = {
 
 const StyledContainer = styled(Box)`
   flex: 1;
-  border-radius: 16px 16px 0 0;
+  border-radius: ${({theme}) => theme.spacing(theme.tabiyaRounding.md,theme.tabiyaRounding.md, 0, 0)};
   overflow-y: auto;
   background-color: ${({theme}) => theme.palette.containerBackground.light};
 `;
@@ -32,18 +32,19 @@ const VersionInfoItem = ({ title, value, skeleton }: {title: string, value: stri
 };
 
 const VersionContainer = ({ dataTestId, title, info }: {dataTestId: string, title: string, info: InfoProps}) => {
+    const theme = useTheme()
     return (
-        <Box display="flex" gap="30px" data-testid={dataTestId}>
+        <Box display="flex" gap={theme.tabiyaSpacing.xl} data-testid={dataTestId}>
             <Typography variant="h6">{title}</Typography>
             {info ? (
-                <Box display="flex" flexDirection="column" gap="12px">
+                <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm}>
                     <VersionInfoItem title="Date" value={info.date} />
                     <VersionInfoItem title="Branch" value={info.branch} />
                     <VersionInfoItem title="Build Number" value={info.buildNumber} />
                     <VersionInfoItem title="GIT SHA" value={info.sha} />
                 </Box>
             ) : (
-                <Box display="flex" flexDirection="column" gap="12px">
+                <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm}>
                     <VersionInfoItem title="Date" value={"0000-00-00T00:00:00.000Z"} skeleton={true}/>
                     <VersionInfoItem title="Branch" value={"foo"} skeleton={true}/>
                     <VersionInfoItem title="Build Number" value={"000"} skeleton={true}/>
@@ -57,15 +58,15 @@ const VersionContainer = ({ dataTestId, title, info }: {dataTestId: string, titl
 const Info = () => {
     const [version, setVersions] = useState<InfoProps[]>([]);
     const infoService = useMemo(() => new InfoService(), []);
-
+    const theme = useTheme();
     useEffect(() => {
         infoService.loadInfo().then((data) => setVersions(data));
     }, [infoService]);
 
     return (
-        <StyledContainer data-testid={DATA_TEST_ID.INFO_ROOT} display="flex" flexDirection="column" gap="28px" sx={{padding: (theme) => theme.tabiyaSpacing.lg}}>
+        <StyledContainer data-testid={DATA_TEST_ID.INFO_ROOT} display="flex" flexDirection="column" sx={{padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.lg}}>
             <ContentTitle text="Info" />
-            <Box display="flex" flexDirection="column" gap="40px">
+            <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.xl}>
                 <VersionContainer title="Frontend" info={version[0]} dataTestId={DATA_TEST_ID.VERSION_FRONTEND_ROOT} />
                 <VersionContainer title="Backend" info={version[1]} dataTestId={DATA_TEST_ID.VERSION_BACKEND_ROOT} />
             </Box>

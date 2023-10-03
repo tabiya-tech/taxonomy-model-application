@@ -119,7 +119,7 @@ const AppSidebar = () => {
 
   return (
     <Box
-      gap={theme.tabiyaSpacing.lg}
+      gap={theme.tabiyaSpacing.xs}
       display="flex"
       flexDirection="column"
       height="100%"

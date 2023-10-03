@@ -1,19 +1,18 @@
-import {styled, Button, ButtonProps} from "@mui/material";
+import { Button, ButtonProps, useTheme} from "@mui/material";
 import React from "react";
 
 interface CancelButtonProps extends ButtonProps {
   // Add additional props specific to Cancel Button here
 }
 
-const StyledButton = styled(Button)`
-  border-radius: 6.25rem;
-`;
+
 
 const CancelButton: React.FC<CancelButtonProps> = ({style, children, ...props}) => {
+  const theme = useTheme()
   return (
-    <StyledButton variant={'outlined'} style={style} {...props}>
+    <Button variant={'outlined'} style={style} {...props} sx={{borderRadius: theme.tabiyaRounding.xl}}>
       {children ?? "Cancel"}
-    </StyledButton>
+    </Button>
   );
 };
 
