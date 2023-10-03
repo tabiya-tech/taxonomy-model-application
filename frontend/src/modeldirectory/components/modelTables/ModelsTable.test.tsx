@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen, within} from "src/_test_utilities/test-utils";
 import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
 import {
@@ -49,6 +52,11 @@ jest.mock('src/modeldirectory/components/tableLoadingRows/TableLoadingRows', () 
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 
 describe("ModelsTable", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   test("should render the table with the models", () => {
     // GIVEN n models with random data of max length
     const givenModels = getArrayOfRandomModelsMaxLength(3);
@@ -56,7 +64,11 @@ describe("ModelsTable", () => {
     // WHEN the ModelsTable is rendered with the given models
     const {container} = render(<ModelsTable models={givenModels}/>);
 
-    // THEN expect the table to be shown
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    // AND the table to be shown
     const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
     expect(tableElement).toBeInTheDocument();
 
@@ -158,7 +170,11 @@ describe("ModelsTable", () => {
     // @ts-ignore
     render(<ModelsTable models={givenModels}/>);
 
-    // THEN expect the table to be shown
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    // AND expect the table to be shown
     const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
     expect(tableElement).toBeInTheDocument();
     // AND the table to have a header row
@@ -192,7 +208,11 @@ describe("ModelsTable", () => {
     // WHEN we render the ModelsTable
     render(<ModelsTable models={givenModels} />);
 
-    // THEN the models should be in sorted in Descending order by createdAt
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    // AND the models should be in sorted in Descending order by createdAt
     const renderedRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
     renderedRows.forEach((row, index) => {
       expect(row.getAttribute('data-modelid')).toBe(expectedModels[index].id);
@@ -215,7 +235,11 @@ describe("ModelsTable", () => {
       // WHEN the ModelsTable is rendered
       render(<ModelsTable models={givenModels}/>);
 
-      // THEN expect the released to be rendered based on the value
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND expect the released to be rendered based on the value
       const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
       const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
       const releasedCellIndex = headerCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_RELEASED);
@@ -251,7 +275,11 @@ describe("ModelsTable", () => {
       // WHEN the ModelsTable is rendered
       render(<ModelsTable models={givenModels}/>);
 
-      // THEN expected the description to render based on it's length
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND expected the description to render based on it's length
       const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
       const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
       const descriptionCellIndex = headerCells.findIndex(headerCell => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_DESCRIPTION);
@@ -280,7 +308,11 @@ describe("ModelsTable", () => {
       // WHEN the ModelsTable is rendered with the given model
       render(<ModelsTable models={[givenModel]}/>);
 
-      // THEN expect the icon to be shown
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND expect the icon to be shown
       const actualModelCellStatusIconContainer = screen.getByTestId(DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER);
       const actualImportStatusIcon = within(actualModelCellStatusIconContainer).getByTestId('mock-state-icon');
       expect(actualImportStatusIcon).toBeInTheDocument();
@@ -300,7 +332,11 @@ describe("ModelsTable", () => {
       // WHEN the ModelsTable component is rendered with the given properties
       render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>)
 
-      // THEN expect the table to be shown
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND expect the table to be shown
       const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
       expect(tableElement).toBeInTheDocument();
       // AND the table to have a header row
@@ -332,7 +368,11 @@ describe("ModelsTable", () => {
       // WHEN the ModelsTable component is rendered with the given properties
       render(<ModelsTable models={givenModels} isLoading={givenIsLoading}/>);
 
-      // THEN expect the table to be shown
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND expect the table to be shown
       const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
       expect(tableElement).toBeInTheDocument();
       // AND the table to have a header row
@@ -353,7 +393,11 @@ describe("ModelsTable", () => {
       // WHEN the ModelsTable component is rendered with the given models
       render(<ModelsTable models={givenModels}/>);
 
-      // THEN expect the given models to be shown
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND expect the given models to be shown
       const modelTableDataRowElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
       expect(modelTableDataRowElements).toHaveLength(givenModels.length);
       // AND the loader component to not be shown

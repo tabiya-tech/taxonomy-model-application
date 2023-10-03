@@ -75,6 +75,8 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
 beforeEach(
   () => {
     notifyOnCloseMock.mockReset();
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
   }
 )
 
@@ -83,7 +85,10 @@ describe("ImportModel dialog render tests", () => {
     //GIVEN the dialog is visible
     render(<ImportModelDialog {...testProps}/>);
 
-    //THEN expect the dialog to be in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the dialog to be in the document
     const dialogBox = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG);
     expect(dialogBox).toBeInTheDocument();
     // AND expect the Import button to exist
@@ -114,7 +119,11 @@ describe("ImportModel dialog render tests", () => {
     }
     // WHEN the dialog is rendered
     render(<ImportModelDialog {...givenProps}/>);
-    // THEN expect the dialog to not be in the document
+
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the dialog to not be in the document
     const dialogBox = screen.queryByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG);
     expect(dialogBox).not.toBeInTheDocument();
   });
@@ -146,7 +155,10 @@ describe("ImportModel dialog render tests", () => {
     await fillInImportDialog(getTestData());
     const importButton: HTMLButtonElement = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
 
-    // THEN expect importButton to be disabled
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND importButton to be disabled
     expect(importButton).toBeDisabled();
   });
 
@@ -160,7 +172,10 @@ describe("ImportModel dialog render tests", () => {
     await fillInImportDialog(givenMandatoryFields);
     const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
 
-    // THEN expect import button to be enabled
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND import button to be enabled
     expect(importButton).toBeEnabled();
   });
 });

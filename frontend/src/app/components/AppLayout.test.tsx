@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import { render } from 'src/_test_utilities/test-utils';
 import AppLayout, { DATA_TEST_ID } from './AppLayout';
 import {DATA_TEST_ID as APP_SIDE_BAR_ID} from './AppSidebar';
@@ -29,6 +32,11 @@ jest.mock('./AppHeader', () => {
 });
 
 describe('AppLayout Render', () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   test('should render app layout component', () => {
     // GIVEN a Layout Children component
     const LayoutChildren = () => <div>foo</div>
@@ -36,7 +44,11 @@ describe('AppLayout Render', () => {
     // WHEN the AppLayout component is rendered
     const { getByTestId, queryByText } = render(<AppLayout><LayoutChildren/></AppLayout>);
 
-    // THEN expect layout to be present in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    // AND layout to be present in the document
     expect(getByTestId(DATA_TEST_ID.LAYOUT)).toBeInTheDocument();
     
     // AND expect the AppSidebar and AppHeader to be in the document

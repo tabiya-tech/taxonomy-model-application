@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen} from "src/_test_utilities/test-utils";
 import TaxonomyModelApp from "./index";
 import {Route} from "react-router-dom";
@@ -24,12 +27,21 @@ jest.mock("react-router-dom", () => {
       <div data-testid="routes-id">{children}</div>)),
   }
 });
+
 describe("main taxonomy app test", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   it("should render TaxonomyModelApp app", () => {
     // WHEN the app is rendered
     render(<TaxonomyModelApp/>);
 
-    // THEN expect the HASH ROUTER to be in the document and the
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the HASH ROUTER to be in the document and the
     const router = screen.getByTestId("hash-router-id");
     expect(router).toBeInTheDocument();
 

@@ -1,13 +1,24 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen} from "src/_test_utilities/test-utils";
 import CancelButton from "./CancelButton";
 
 describe("Cancel Button tests", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   test("should render cancel button", () => {
     // GIVEN a CancelButton component
     // WHEN the component is rendered
     render(<CancelButton data-testid={"foo"}/>)
 
-    // THEN the component should be in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the component should be in the document
     const cancelButton = screen.getByTestId("foo");
     expect(cancelButton).toBeInTheDocument();
   });
@@ -19,9 +30,12 @@ describe("Cancel Button tests", () => {
     // WHEN the component is rendered
     render(<CancelButton>{customName}</CancelButton>);
 
-    // THEN the component should be findable by the custom name
-    // AND the component should be in the document
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the component should be findable by the custom name
     const cancelButton = screen.getByText(customName);
+    // AND the component should be in the document
     expect(cancelButton).toBeInTheDocument();
   });
 

@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen, within} from '@testing-library/react' //we don't have to import from test_utils since index already have everything
 
 // mock the react-dom/client
@@ -50,12 +53,21 @@ jest.mock("@mui/material", () => {
 
 describe('test the application bootstrapping', () => {
 
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   it('should render the app', () => {
     jest.isolateModules(() => {
       // WHEN the main index module is imported
       require('./index');
 
-      // THEN expect the theme provider to be in the DOM
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND expect the theme provider to be in the DOM
       const themeProviderElement = screen.getByTestId("theme-provider-id");
       expect(themeProviderElement).toBeInTheDocument();
 

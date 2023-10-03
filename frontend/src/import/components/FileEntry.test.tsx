@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {fireEvent, render, screen, waitFor} from "src/_test_utilities/test-utils";
 import {DATA_TEST_ID, FileEntry} from "./FileEntry";
 import ImportAPISpecs from "api-specifications/import";
@@ -6,6 +9,11 @@ import {clickDebouncedButton} from "src/_test_utilities/userEventFakeTimer";
 
 describe("FileEntry render tests", () => {
 
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   it.each(
     [...Object.values(ImportAPISpecs.Constants.ImportFileTypes).map((fileType) => [fileType as ImportAPISpecs.Constants.ImportFileTypes, mapFileTypeToName(fileType)] as [ImportAPISpecs.Constants.ImportFileTypes, string])]
   )
@@ -13,7 +21,10 @@ describe("FileEntry render tests", () => {
     // WHEN fileEntry is rendered with some fileType
     render(<FileEntry fileType={fileType}/>)
 
-    // THEN  expect the component to be rendered
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the component to be rendered
     const fileEntry = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY);
     expect(fileEntry).toBeInTheDocument();
     // AND to have the correct file type
@@ -45,7 +56,10 @@ describe("FileEntry render tests", () => {
     render(<FileEntry fileType={givenFileType}/>)
     render(<FileEntry fileType={givenFileType}/>)
 
-    // THEN expect to find two inputEntries
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND to find two inputEntries
     let inputEntries = screen.getAllByTestId(DATA_TEST_ID.FILE_INPUT)
     expect(inputEntries.length).toBe(2);
 

@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import {render, screen} from "src/_test_utilities/test-utils";
 import ModelDescriptionField, {DATA_TEST_ID, TEXT} from "./ModelDescriptionField";
 import {getTestString} from "src/_test_utilities/specialCharacters";
@@ -6,11 +9,19 @@ import React from "react";
 import {typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
 
 describe("ModelDescriptionField render tests", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   test("should render default state", () => {
     // WHEN the model name field is rendered
     render(<ModelDescriptionField/>);
 
-    // THEN expect descriptionField to be visible
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the descriptionField to be visible
     const descField = screen.getByTestId(DATA_TEST_ID.MODEL_DESCRIPTION_FIELD)
     expect(descField).toBeInTheDocument();
 
@@ -37,7 +48,10 @@ describe("ModelDescriptionField render tests", () => {
     render(<ModelDescriptionField/>);
     render(<ModelDescriptionField/>);
 
-    // THEN expect the two inputs to have different ids
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the two inputs to have different ids
     const inputs = screen.getAllByTestId(DATA_TEST_ID.MODEL_DESC_INPUT);
     expect(inputs.length).toBe(2);
     expect(inputs[0].id).not.toBe(inputs[1].id);

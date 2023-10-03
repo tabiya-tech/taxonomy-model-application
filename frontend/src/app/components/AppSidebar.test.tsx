@@ -1,3 +1,6 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import AppSidebar, {DATA_TEST_ID, ITEMS_LABEL_TEXT} from "./AppSidebar";
 import {HashRouter} from "react-router-dom";
 import {render, screen, within} from "src/_test_utilities/test-utils";
@@ -5,6 +8,10 @@ import {routerPaths} from "src/app/routerConfig";
 import {testNavigateToPath} from "src/_test_utilities/routeNavigation";
 
 describe("AppSidebar render tests", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
 
   test("renders correctly", () => {
     // GIVEN a AppSidebar component that has access to the router
@@ -17,7 +24,10 @@ describe("AppSidebar render tests", () => {
     // WHEN it is rendered
     render(givenAppSidebar);
 
-    // THEN expect it to be shown
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+      // AND it to be shown
     const appSidebarContainer = screen.getByTestId(DATA_TEST_ID.CONTAINER);
     expect(appSidebarContainer).toBeInTheDocument();
   });
@@ -29,19 +39,23 @@ describe("AppSidebar render tests", () => {
     ["Settings", DATA_TEST_ID.SETTINGS_LINK, DATA_TEST_ID.SETTINGS_ICON, ITEMS_LABEL_TEXT.SETTINGS],
   ];
 
-  it.each(allIconsCases)
-  ("should render %s link correct", (description, linkDataTestId, iconDataTestId, expectedLinkText) => {
+  it.each(allIconsCases)(
+    "should render %s link correct",
+    (description, linkDataTestId, iconDataTestId, expectedLinkText) => {
       // GIVEN a AppSidebar component that has access to the router
       const givenAppSidebar = (
         <HashRouter>
-          <AppSidebar/>
+          <AppSidebar />
         </HashRouter>
       );
 
       // WHEN it is rendered
       render(givenAppSidebar);
 
-      // THEN expect the link to be shown
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+      // AND the link to be shown
       const linkElement = screen.getByTestId(linkDataTestId);
       expect(linkElement).toBeInTheDocument();
 
@@ -51,7 +65,7 @@ describe("AppSidebar render tests", () => {
 
       // AND expect the link to have the correct label
       expect(linkElement).toHaveTextContent(expectedLinkText);
-    },
+    }
   );
 });
 
