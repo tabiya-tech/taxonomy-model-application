@@ -1,8 +1,16 @@
+// mute the console
+import 'src/_test_utilities/consoleMock';
+
 import * as React from "react";
 import {render, screen} from "@testing-library/react";
 import {getAllImportProcessStatePermutations} from "./_test_utilities/importProcesStateTestData";
 import ImportProcessStateIcon, {DATA_TEST_ID} from "./ImportProcessStateIcon";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+
+beforeEach(() => {
+  (console.error as jest.Mock).mockClear();
+  (console.warn as jest.Mock).mockClear();
+});
 
 describe("ImportProcessStateIcon", () => {
   const allIconTestIds = [
@@ -26,7 +34,10 @@ describe("ImportProcessStateIcon", () => {
           }
         </>
       );
-      // THEN expect every icon to be rendered
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+      // AND every icon to be rendered
       allIconTestIds.forEach((testId) => {
         expect(screen.queryAllByTestId(testId).length).toBeGreaterThan(0);
       });
