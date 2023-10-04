@@ -207,6 +207,11 @@ export const applicationTheme = (theme: ThemeMode) => {
       },
     },
     components: {
+      MuiDialogTitle: {
+        defaultProps: {
+          variant: "h2",
+        }
+      },
       MuiFormLabel: {
         styleOverrides: {
           asterisk: {
