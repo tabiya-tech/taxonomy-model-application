@@ -40,7 +40,6 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(({theme}) => (
       color: theme.palette.success.dark,
     }
   },
-
   '&.notistack-MuiContent-error': {
     color: theme.palette.error.dark,
     backgroundColor: theme.palette.error.light,

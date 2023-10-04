@@ -17,14 +17,21 @@ const meta: Meta<typeof SnackbarProvider> = {
       // See also frontend/src/theme/SnackbarProvider/SnackbarProvider.tsx
       disable: true,
     }
-  }
+  },
+  decorators: [
+    (Story) => (
+      <SnackbarProvider>
+        <Story/>
+      </SnackbarProvider>
+    ),
+  ]
 };
 
 export default meta;
 
 type Story = StoryObj<typeof SnackbarProvider>;
 
-type Color = 'info' | 'success' | 'error' | 'warning';
+type Color = 'success' | 'error' | 'warning' | 'info';
 
 interface ButtonConfig {
   color: Color;
@@ -67,11 +74,7 @@ export const Shown: Story = {
     docs: { disable: false },
     a11y: {disable: true}
   },
-  render: () => (
-    <SnackbarProvider>
-      <TestButton/>
-    </SnackbarProvider>
-  ),
+  render: () => (<TestButton/>)
 };
 
 export const ShownInfo: Story = {
@@ -92,13 +95,19 @@ export const ShownError: Story = {
   }
 };
 
+export const ShownSuccess: Story = {
+    render: () => {
+        return (<ShowNotifications notifications={getRandomNotificationProps(5, "success")}/>)
+    }
+};
+
 export const ShownMixed: Story = {
   render: () => {
-    const notifications = [...getRandomNotificationProps(3, "info"), ...getRandomNotificationProps(3, "warning"), ...getRandomNotificationProps(3, "error")]
+    const notifications = [...getRandomNotificationProps(3, "info"), ...getRandomNotificationProps(3, "warning"), ...getRandomNotificationProps(3, "error"), ...getRandomNotificationProps(3, "success")]
     return (<ShowNotifications notifications={notifications}/>
     )
   }
-}
+};
 
 function getRandomNotificationProps(count: number, variant: VariantType): { message: string, variant: VariantType }[] {
   return Array(count).fill(undefined).map(() => ({message: faker.lorem.words(10), variant: variant}));
