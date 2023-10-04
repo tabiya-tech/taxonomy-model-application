@@ -22,7 +22,7 @@ const SnackbarCloseButton = (key: SnackbarKey) => {
   // the title will be the same for all of them violating the WAG2A rule of unique id. See https://tabiya-tech.atlassian.net/browse/PLAT-129
   return <IconButton title={"Close notification"} data-testid={DATA_TEST_ID.SNACKBAR_CLOSE_BUTTON}
                      onClick={() => closeSnackbar(key)}>
-    <CloseIcon/>
+    <CloseIcon fontSize="small"/>
   </IconButton>;
 }
 
@@ -39,6 +39,9 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(({theme}) => (
     '& .MuiSvgIcon-root': {
       color: theme.palette.success.dark,
     }
+  },
+  '& #notistack-snackbar svg': {
+    fontSize: theme.typography.h4.fontSize + "!important",
   },
   '&.notistack-MuiContent-error': {
     color: theme.palette.error.dark,
