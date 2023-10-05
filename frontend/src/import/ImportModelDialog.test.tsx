@@ -1,14 +1,13 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import {getByTestId, render, screen} from "src/_test_utilities/test-utils";
+import {getByTestId, render, screen, fireEvent, within} from "src/_test_utilities/test-utils";
 import ImportModelDialog, {DATA_TEST_ID, ImportData, ImportModelDialogProps} from "./ImportModelDialog";
 import {DATA_TEST_ID as MODEL_NAME_FIELD_DATA_TEST_ID} from "src/import/components/ModelNameField";
 import {DATA_TEST_ID as MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID} from "src/import/components/ModelLocalSelectField";
 import {DATA_TEST_ID as MODEL_DESCRIPTION_FIELD_DATA_TEST_ID} from "src/import/components/ModelDescriptionField";
 import {DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID} from "src/import/components/ImportFilesSelection";
 import {DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID} from "src/import/components/FileEntry";
-import {fireEvent, within} from "@testing-library/react";
 import ImportAPISpecs from "api-specifications/import";
 import {clickDebouncedButton, typeDebouncedInput} from "src/_test_utilities/userEventFakeTimer";
 import {ImportFiles} from "./ImportFiles.type";

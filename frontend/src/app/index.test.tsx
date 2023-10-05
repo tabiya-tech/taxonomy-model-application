@@ -1,4 +1,4 @@
-import {render, screen} from "@testing-library/react";
+import {render, screen} from "src/_test_utilities/test-utils";
 import TaxonomyModelApp from "./index";
 import {Route} from "react-router-dom";
 import routerConfig from "./routerConfig";

@@ -1,9 +1,8 @@
-import {render, screen} from "src/_test_utilities/test-utils";
+import {render, screen, within} from "src/_test_utilities/test-utils";
 import ModelLocalSelectField, {DATA_TEST_ID, TEXT} from "./ModelLocalSelectField";
 import Locale from "api-specifications/locale";
 import React from "react";
 import userEvent from "@testing-library/user-event";
-import {within} from "@testing-library/react";
 
 // Given a list of locales
 const givenLocales: Locale.Types.Payload[] = [

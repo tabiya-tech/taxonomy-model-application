@@ -1,5 +1,5 @@
 import { Table } from "@mui/material";
-import {render, screen} from "@testing-library/react";
+import {render, screen} from "src/_test_utilities/test-utils";
 import TableLoadingRows, {DATA_TEST_ID} from "./TableLoadingRows";
 import TableBody from "@mui/material/TableBody";
 

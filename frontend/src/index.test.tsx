@@ -1,4 +1,4 @@
-import {render, screen, within} from '@testing-library/react'
+import {render, screen, within} from '@testing-library/react' //we don't have to import from test_utils since index already have everything
 
 // mock the react-dom/client
 // Using jest.doMock() so that the render function can be accessed from within the mock
