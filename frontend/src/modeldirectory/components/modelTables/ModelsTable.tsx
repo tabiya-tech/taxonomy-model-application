@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
+import { useTheme } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -54,6 +55,8 @@ const ModelsTable = (props: ModelsTableProps) => {
     return sortModels(props.models);
   }, [props.models]);
 
+  const theme = useTheme();
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" ,  width: "100%", height: "100%"}}>
       <Paper elevation={2} style={{ width: "98%", height: "100%" }}>
@@ -66,37 +69,37 @@ const ModelsTable = (props: ModelsTableProps) => {
               <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
                 <TableCell
                   variant="body"
-                  sx={{ fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_STATUS}
                 </TableCell>
                 <TableCell
-                  sx={{ fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_NAME}
                 </TableCell>
                 <TableCell
-                  sx={{ fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_LOCALE}
                 </TableCell>
                 <TableCell
-                  sx={{ fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_VERSION}
                 </TableCell>
                 <TableCell
-                  sx={{ fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_RELEASED}
                 </TableCell>
                 <TableCell
-                  sx={{ fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_DESCRIPTION}
@@ -129,18 +132,26 @@ const ModelsTable = (props: ModelsTableProps) => {
                     <TableCell
                       component="th"
                       scope="row"
+                      sx={{ fontSize: theme.typography.body2 }}
                       data-testid={DATA_TEST_ID.MODEL_CELL}
                     >
                       {model.name}
                     </TableCell>
-                    <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
+                    <TableCell
+                        sx={{ fontSize: theme.typography.body2 }}
+                        data-testid={DATA_TEST_ID.MODEL_CELL}
+                    >
                       {model.locale.name} ({model.locale.shortCode})
                     </TableCell>
-                    <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
+                    <TableCell
+                        sx={{ fontSize: theme.typography.body2 }}
+                        data-testid={DATA_TEST_ID.MODEL_CELL}
+                    >
                       {model.version}
                     </TableCell>
                     <TableCell
                       align="center"
+                      sx={{ fontSize: theme.typography.body2 }}
                       data-testid={DATA_TEST_ID.MODEL_CELL}
                     >
                       {
@@ -155,7 +166,10 @@ const ModelsTable = (props: ModelsTableProps) => {
                         ) /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/
                       }
                     </TableCell>
-                    <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
+                    <TableCell
+                        sx={{ fontSize: theme.typography.body2 }}
+                        data-testid={DATA_TEST_ID.MODEL_CELL}
+                    >
                       {model.description.length > CELL_MAX_LENGTH
                         ? model.description.substring(0, CELL_MAX_LENGTH) +
                           "..."
