@@ -1,5 +1,5 @@
 import ModelDirectoryHeader, {DATA_TEST_ID} from './ModelDirectoryHeader';
-import {render, screen} from '@testing-library/react';
+import {render, screen} from 'src/_test_utilities/test-utils';
 import userEvent from '@testing-library/user-event';
 
 describe('ModelDirectoryHeader', () => {

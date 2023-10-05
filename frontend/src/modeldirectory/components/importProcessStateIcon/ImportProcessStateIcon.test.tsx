@@ -1,5 +1,5 @@
 import * as React from "react";
-import {render, screen} from "@testing-library/react";
+import {render, screen} from "src/_test_utilities/test-utils";
 import {getAllImportProcessStatePermutations} from "./_test_utilities/importProcesStateTestData";
 import ImportProcessStateIcon, {DATA_TEST_ID} from "./ImportProcessStateIcon";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";

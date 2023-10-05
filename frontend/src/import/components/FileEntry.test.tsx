@@ -1,8 +1,7 @@
-import {fireEvent, render, screen} from "src/_test_utilities/test-utils";
+import {fireEvent, render, screen, waitFor} from "src/_test_utilities/test-utils";
 import {DATA_TEST_ID, FileEntry} from "./FileEntry";
 import ImportAPISpecs from "api-specifications/import";
 import {mapFileTypeToName} from "./mapFileTypeToName";
-import {waitFor} from "@testing-library/react";
 import {clickDebouncedButton} from "src/_test_utilities/userEventFakeTimer";
 
 describe("FileEntry render tests", () => {

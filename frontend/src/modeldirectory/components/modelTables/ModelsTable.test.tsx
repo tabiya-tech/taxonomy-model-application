@@ -1,4 +1,4 @@
-import {render, screen, within} from "@testing-library/react";
+import {render, screen, within} from "src/_test_utilities/test-utils";
 import ModelsTable, {CELL_MAX_LENGTH, DATA_TEST_ID, TEXT} from "./ModelsTable";
 import {
   getArrayOfFakeModels,
