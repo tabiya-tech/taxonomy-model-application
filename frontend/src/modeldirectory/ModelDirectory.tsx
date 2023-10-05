@@ -26,7 +26,8 @@ const StyledContainer = styled(Box)`
 const StyledTableContainer = styled(Box)`
   flex: 1;
   background-color: ${({theme}) => theme.palette.containerBackground.light};
-  padding: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
+  padding-left: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
+  padding-right: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
 `;
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
@@ -126,10 +127,9 @@ const ModelDirectory = () => {
 
   return (
     <StyledContainer data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-        <StyledTableContainer sx={{paddingX: (theme) => theme.tabiyaSpacing.lg}}>
+        <StyledTableContainer>
           <AppBar variant={"outlined"} elevation={0} sx={{
-
-              paddingY: (theme) => theme.tabiyaSpacing.lg,
+              paddingY: (theme) => theme.tabiyaSpacing.xl,
               border: "none", backgroundColor:"containerBackground.light"
           }}
                   position={"sticky"}>
