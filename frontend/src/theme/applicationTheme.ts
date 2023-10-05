@@ -223,7 +223,7 @@ export const applicationTheme = (theme: ThemeMode) => {
         styleOverrides: {
           input: {
             "::placeholder": {
-              color: activePalette.text.disabled,
+              color: activePalette.text.secondary,
             },
           },
         },
