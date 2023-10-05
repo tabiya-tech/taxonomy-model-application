@@ -72,10 +72,6 @@ yarn test
 
 ## Accessibility Testing
 
-Complying to WAG 2.0 A rules is **mandatory** and failing to do so will generate errors.
-
-Complying to WAG 2.0 AA and WAG 2.0 AAA rules is optional and failing to do so will only  generate warnings.
-
 The application uses [Storybook](https://storybook.js.org/tutorials/ui-testing-handbook/react/en/accessibility-testing/) and [Axe-Playwright](
 https://github.com/abhinaba-ghosh/axe-playwright) to test the accessibility of the components.
 
@@ -95,6 +91,12 @@ Alternatively, you can run the following command in a single shell:
 ```
 yarn build-storybook && yarn test:accessibility
 ```
+
+Failing to comply to WAG 2.0 A rules will generate errors.
+
+Failing to comply to WAG 2.0 AA or WAG 2.0 AAA rules will only generate warnings.
+
+See [UI Guidlines](ui-guidelines.md#accessibility) for more information on accessibility.
 
 ## Building
 
@@ -117,6 +119,8 @@ yarn lint
 Contributions are highly valued in this project. 
 
 In addition to the [contribution guidelines](/README.md#contribution-guidelines) mentioned in the parent directory, please follow these specific rules while working on the frontend project:
+
+- Please consult our [UI Guidelines](ui-guidelines.md) before proceeding with frontend work.
 
 - Before pushing your work, make sure to:
   - [Run the linter](#linting)
