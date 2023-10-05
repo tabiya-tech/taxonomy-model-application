@@ -17,7 +17,7 @@ export interface ModelDirectoryHeaderProps {
 
 const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({onModelImport}) => (
   <Box display='flex' width='100%' justifyContent='space-between' alignItems='center' data-testid={DATA_TEST_ID.MODEL_DIRECTORY_HEADER}>
-    <Typography variant={"h2"} fontSize='2rem' data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE} color={"text.primary"}>
+    <Typography variant="h2" data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>
       Model Directory
     </Typography>
     <PrimaryButton

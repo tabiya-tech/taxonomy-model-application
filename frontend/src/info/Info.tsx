@@ -24,7 +24,7 @@ const VersionInfoItem = ({ title, value, skeleton }: {title: string, value: stri
     return (
       <Box>
         <Typography variant="h6">{title}</Typography>
-        <Typography variant="body1" color="text.primary">
+        <Typography variant="body1">
           {skeleton ? <Skeleton>{value.replace(/./g,'\u00A0\u00A0')}</Skeleton> : value}
         </Typography>
       </Box>
