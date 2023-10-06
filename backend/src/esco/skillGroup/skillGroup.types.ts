@@ -1,46 +1,35 @@
+import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
-import { ImportIdentifiable } from "esco/common/objectTypes";
+import { ISkillReference } from "../skill/skills.types";
 
 export interface ISkillGroupDoc extends ImportIdentifiable {
-  UUID: string;
-  code: string;
-  preferredLabel: string;
+  id: string | mongoose.Types.ObjectId;
   modelId: string | mongoose.Types.ObjectId;
+  UUID: string;
   originUUID: string;
+  code: string;
   ESCOUri: string;
+  preferredLabel: string;
   altLabels: string[];
   description: string;
   scopeNote: string;
-  parentGroups: string[] | mongoose.Types.ObjectId[];
   createdAt: Date | string;
   updatedAt: Date | string;
 }
 
-export interface ISkillGroup extends ImportIdentifiable {
+export interface ISkillGroupReferenceDoc extends Pick<ISkillGroupDoc, "id" | "UUID" | "code" | "preferredLabel"> {
+  objectType: ObjectTypes.SkillGroup;
+}
+
+export interface ISkillGroup extends ISkillGroupDoc {
   id: string;
-  UUID: string;
-  code: string;
-  preferredLabel: string;
   modelId: string;
-  originUUID: string;
-  ESCOUri: string;
-  altLabels: string[];
-  description: string;
-  scopeNote: string;
-  parentGroups: ISkillGroupReference[];
-  childrenGroups: ISkillGroupReference[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  parents: ISkillGroupReference[];
+  children: (ISkillGroupReference | ISkillReference)[];
 }
 
-export interface ISkillGroupReference {
-  id: string;
-  UUID: string;
-  code: string;
-  preferredLabel: string;
-}
+export type INewSkillGroupSpec = Omit<ISkillGroup, "id" | "UUID" | "parents" | "children" | "createdAt" | "updatedAt">;
 
-export type INewSkillGroupSpec = Omit<
-  ISkillGroup,
-  "id" | "UUID" | "parentGroups" | "childrenGroups" | "createdAt" | "updatedAt"
->;
+export interface ISkillGroupReference extends Pick<ISkillGroup, "id" | "UUID" | "code" | "preferredLabel"> {
+  objectType: ObjectTypes.SkillGroup;
+}

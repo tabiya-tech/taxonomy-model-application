@@ -34,7 +34,7 @@ export interface IOccupationReferenceDoc
 export interface IOccupation extends IOccupationDoc {
   id: string;
   modelId: string;
-  parent: (IISCOGroupReference | IOccupationReference)[] | null;
+  parent: IISCOGroupReference | IOccupationReference | null;
   children: (IISCOGroupReference | IOccupationReference)[];
 }
 

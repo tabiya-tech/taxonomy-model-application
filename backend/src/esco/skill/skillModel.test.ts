@@ -42,6 +42,7 @@ describe("Test the definition of the skill Model", () => {
   test("Successfully validate skill with mandatory fields", async () => {
     // GIVEN a skill object with all mandatory fields filled & a document
     const givenObject: ISkillDoc = {
+      id: getMockId(1),
       UUID: randomUUID(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
       modelId: getMockId(2),

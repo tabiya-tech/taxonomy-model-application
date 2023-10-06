@@ -23,6 +23,11 @@ export interface IISCOGroupRepository {
    */
   createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]>;
 
+  /**
+   * Resolves to the ISCOGroup entry with the given id, or it resolves to null if no ISCOGroup entry with the given id exists.
+   * @param id
+   */
+
   findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null>;
 }
 

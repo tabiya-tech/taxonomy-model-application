@@ -16,6 +16,9 @@ import { parseOccupationHierarchyFromFile } from "./esco/occupationHierarchy/occ
 import { RowsProcessedStats } from "./rowsProcessedStats.types";
 import { IModelInfo, INewModelInfoSpec } from "../modelInfo/modelInfo.types";
 import importLogger from "./importLogger/importLogger";
+import { parseSkillHierarchyFromFile } from "./esco/skillHierarchy/skillHierarchyParser";
+import fs from "fs";
+import { parse } from "csv-parse";
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -62,10 +65,10 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
 
   // The actual tests
   test("should import the sample CSV files", async () => {
+    // GIVEN some sample csv files
     const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
     const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
-
-    // 01. Create a new ModelInfo
+    // AND a model to import into
     const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
       name: "CSVImport",
       description: "CSVImport",
@@ -77,69 +80,139 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
     } as INewModelInfoSpec);
 
     const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
+
     const dataFolder = "../data-sets/csv/tabiya-sample/";
 
-    // 02. Import the ISCOGroup CSV files
+    // WHEN the CSV files are parsed and data is imported
     const statsISCOGroups = await parseISCOGroupsFromFile(
       modelInfo.id,
       dataFolder + "ISCOGroups.csv",
       importIdToDBIdMap
     );
-    asserSuccessfullyImported(statsISCOGroups, consoleErrorSpy, consoleWarnSpy);
-    expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed);
-
-    // 03. Import the ESCO Skill Groups CSV files
     const statsSkillGroups = await parseSkillGroupsFromFile(
       modelInfo.id,
       dataFolder + "skillGroups.csv",
       importIdToDBIdMap
     );
-    asserSuccessfullyImported(statsSkillGroups, consoleErrorSpy, consoleWarnSpy);
-    expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed);
-
-    // 04. Import the ESCO Skills CSV files
     const statsSkills = await parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap);
-    asserSuccessfullyImported(statsSkills, consoleErrorSpy, consoleWarnSpy);
-    expect(importIdToDBIdMap.size).toEqual(
-      statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed + statsSkills.rowsProcessed
-    );
-
-    // 05. Import the Occupations CSV files
     const statsOccupations = await parseOccupationsFromFile(
       modelInfo.id,
       dataFolder + "occupations.csv",
       importIdToDBIdMap
     );
-    asserSuccessfullyImported(statsOccupations, consoleErrorSpy, consoleWarnSpy);
-    expect(importIdToDBIdMap.size).toEqual(
-      statsISCOGroups.rowsProcessed +
-        statsSkillGroups.rowsProcessed +
-        statsSkills.rowsProcessed +
-        statsOccupations.rowsProcessed
-    );
-
-    // 06. Import occupation hierarchy
     const statsOccHierarchy = await parseOccupationHierarchyFromFile(
       modelInfo.id,
       dataFolder + "occupations_hierarchy.csv",
       importIdToDBIdMap
     );
-    asserSuccessfullyImported(statsOccHierarchy, consoleErrorSpy, consoleWarnSpy);
-    // every occupation should have one parent occupation, except for the 10 top level occupations (the 10 top level ISCO groups)
-    expect(statsOccHierarchy.rowsSuccess).toEqual(statsISCOGroups.rowsSuccess + statsOccupations.rowsSuccess - 10);
-  }, 30000); // 30 seconds timeout to allow for the import to complete
+    const statsSkillHierarchy = await parseSkillHierarchyFromFile(
+      modelInfo.id,
+      dataFolder + "skills_hierarchy.csv",
+      importIdToDBIdMap
+    );
+
+    const [
+      ISCOGroupsCSVRowCount,
+      SkillGroupsCSVRowCount,
+      SkillsCSVRowCount,
+      OccupationsCSVRowCount,
+      OccupationHierarchyCSVRowCount,
+      SkillHierarchyCSVRowCount,
+    ] = await Promise.all([
+      countRowsInCSV(dataFolder + "ISCOGroups.csv"),
+      countRowsInCSV(dataFolder + "skillGroups.csv"),
+      countRowsInCSV(dataFolder + "skills.csv"),
+      countRowsInCSV(dataFolder + "occupations.csv"),
+      countRowsInCSV(dataFolder + "occupations_hierarchy.csv"),
+      countRowsInCSV(dataFolder + "skills_hierarchy.csv"),
+    ]);
+
+    const [
+      ISCOGroupsDBRowCount,
+      SkillGroupsDBRowCount,
+      SkillsDBRowCount,
+      OccupationsDBRowCount,
+      OccupationHierarchyDBRowCount,
+      SkillHierarchyDBRowCount,
+    ] = await Promise.all([
+      getRepositoryRegistry().ISCOGroup.Model.countDocuments({}),
+      getRepositoryRegistry().skillGroup.Model.countDocuments({}),
+      getRepositoryRegistry().skill.Model.countDocuments({}),
+      getRepositoryRegistry().occupation.Model.countDocuments({}),
+      getRepositoryRegistry().occupationHierarchy.hierarchyModel.countDocuments({}),
+      getRepositoryRegistry().skillHierarchy.hierarchyModel.countDocuments({}),
+    ]);
+
+    // THEN expect all the files to have been imported successfully
+    assertSuccessfullyImported(
+      statsISCOGroups,
+      ISCOGroupsCSVRowCount,
+      ISCOGroupsDBRowCount,
+      consoleErrorSpy,
+      consoleWarnSpy
+    );
+    assertSuccessfullyImported(
+      statsSkillGroups,
+      SkillGroupsCSVRowCount,
+      SkillGroupsDBRowCount,
+      consoleErrorSpy,
+      consoleWarnSpy
+    );
+    assertSuccessfullyImported(statsSkills, SkillsCSVRowCount, SkillsDBRowCount, consoleErrorSpy, consoleWarnSpy);
+    assertSuccessfullyImported(
+      statsOccupations,
+      OccupationsCSVRowCount,
+      OccupationsDBRowCount,
+      consoleErrorSpy,
+      consoleWarnSpy
+    );
+    assertSuccessfullyImported(
+      statsOccHierarchy,
+      OccupationHierarchyCSVRowCount,
+      OccupationHierarchyDBRowCount,
+      consoleErrorSpy,
+      consoleWarnSpy
+    );
+    assertSuccessfullyImported(
+      statsSkillHierarchy,
+      SkillHierarchyCSVRowCount,
+      SkillHierarchyDBRowCount,
+      consoleErrorSpy,
+      consoleWarnSpy
+    );
+  }, 30000);
 });
 
-function asserSuccessfullyImported(
+function assertSuccessfullyImported(
   stats: RowsProcessedStats,
+  csvRowCount: number,
+  dbRowCount: number,
   consoleErrorSpy: jest.SpyInstance,
   consoleWarnSpy: jest.SpyInstance
 ) {
+  // expect all the rows to have been processed
   expect(stats.rowsProcessed).toBeGreaterThan(0);
+  expect(stats.rowsProcessed).toEqual(csvRowCount);
+  // expect all the rows to have been successfully parsed into the database
+  expect(stats.rowsSuccess).toEqual(csvRowCount);
+  expect(stats.rowsSuccess).toEqual(dbRowCount);
+  // expect no errors or warnings to have been logged
   expect(stats.rowsSuccess).toEqual(stats.rowsProcessed);
   expect(stats.rowsFailed).toEqual(0);
   expect(importLogger.errorCount).toEqual(0);
   expect(importLogger.warningCount).toEqual(0);
   expect(consoleErrorSpy).not.toHaveBeenCalled();
   expect(consoleWarnSpy).not.toHaveBeenCalled();
+}
+
+// utility function to count the number of rows in a CSV file
+async function countRowsInCSV(filePath: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    let rowCount = -1; // start from -1 to compensate for the header row
+    fs.createReadStream(filePath)
+      .pipe(parse({ delimiter: "," }))
+      .on("data", () => rowCount++)
+      .on("end", () => resolve(rowCount))
+      .on("error", (error) => reject(error));
+  });
 }

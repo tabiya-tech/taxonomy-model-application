@@ -72,7 +72,10 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) =>
   },
 }));
 
-const SnackbarProvider: React.FC<OriginalSnackbarProviderProps> = ({ children, ...props }: Readonly<OriginalSnackbarProviderProps>) => {
+const SnackbarProvider: React.FC<OriginalSnackbarProviderProps> = ({
+  children,
+  ...props
+}: Readonly<OriginalSnackbarProviderProps>) => {
   const notistackOptions: OriginalSnackbarProviderProps = {
     maxSnack: 10,
     autoHideDuration: null,

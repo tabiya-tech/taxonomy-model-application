@@ -19,7 +19,7 @@ export function getRandomString(length: number) {
   const charactersLength = characters.length;
   let counter = 0;
   while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));  // NOSONAR
+    result += characters.charAt(Math.floor(Math.random() * charactersLength)); // NOSONAR
     counter += 1;
   }
   return result;
@@ -44,11 +44,11 @@ export function generateRandomUrl() {
   const segments = Math.floor(Math.random() * 3) + 1; // NOSONAR
   let path = "";
   for (let i = 0; i < segments; i++) {
-    const randomSegment = Math.random().toString(36).slice(2, 10);  // NOSONAR
+    const randomSegment = Math.random().toString(36).slice(2, 10); // NOSONAR
     path += "/" + randomSegment;
   }
-  const protocols = ["", "https://", "http://www.", "http://", "http://www."];  // NOSONAR
-  const protocol = protocols[Math.floor(Math.random() * protocols.length)];  // NOSONAR
+  const protocols = ["", "https://", "http://www.", "http://", "http://www."]; // NOSONAR
+  const protocol = protocols[Math.floor(Math.random() * protocols.length)]; // NOSONAR
 
   return protocol + domain + tld + path;
 }
@@ -56,11 +56,11 @@ export function generateRandomUrl() {
 export function generateRandomDigitString(minDigits: number, maxDigits: number): string {
   let result = "";
   const characters = "0123456789";
-  const digitCount = Math.floor(Math.random() * (maxDigits - minDigits + 1)) + minDigits;  // NOSONAR
+  const digitCount = Math.floor(Math.random() * (maxDigits - minDigits + 1)) + minDigits; // NOSONAR
   const charactersLength = characters.length;
 
   for (let i = 0; i < digitCount; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));  // NOSONAR
+    result += characters.charAt(Math.floor(Math.random() * charactersLength)); // NOSONAR
   }
   return result;
 }

@@ -14,7 +14,9 @@ export interface ModelDirectoryHeaderProps {
   onModelImport: () => void;
 }
 
-const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({ onModelImport }: Readonly<ModelDirectoryHeaderProps>) => (
+const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
+  onModelImport,
+}: Readonly<ModelDirectoryHeaderProps>) => (
   <Box
     display="flex"
     width="100%"

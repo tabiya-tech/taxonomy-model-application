@@ -12,4 +12,5 @@ export enum MongooseModelName {
   Skill = "SkillModel",
   SkillGroup = "SkillGroupModel",
   OccupationHierarchy = "OccupationHierarchyModel",
+  SkillHierarchy = "SkillHierarchyModel",
 }

@@ -3,15 +3,15 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IHierarchyPairSpec } from "esco/common/hierarchy";
 
-export type OccupationHierarchyParentType = ObjectTypes.ISCOGroup | ObjectTypes.Occupation;
-export type OccupationHierarchyChildType = ObjectTypes.ISCOGroup | ObjectTypes.Occupation;
+export type SkillHierarchyParentType = ObjectTypes.Skill | ObjectTypes.SkillGroup;
+export type SkillHierarchyChildType = ObjectTypes.Skill | ObjectTypes.SkillGroup;
 
-interface IOccupationHierarchyPairType {
-  parentType: OccupationHierarchyParentType;
-  childType: OccupationHierarchyChildType;
+interface ISkillsHierarchyPairType {
+  parentType: SkillHierarchyParentType;
+  childType: SkillHierarchyChildType;
 }
 
-export interface IOccupationHierarchyPairDoc extends IOccupationHierarchyPairType {
+export interface ISkillHierarchyPairDoc extends ISkillsHierarchyPairType {
   modelId: string | mongoose.Types.ObjectId;
 
   parentId: string | mongoose.Types.ObjectId;
@@ -24,11 +24,11 @@ export interface IOccupationHierarchyPairDoc extends IOccupationHierarchyPairTyp
   updatedAt: Date | string;
 }
 
-export interface IOccupationHierarchyPair extends IOccupationHierarchyPairDoc {
+export interface ISkillHierarchyPair extends ISkillHierarchyPairDoc {
   id: string;
   modelId: string;
   parentId: string;
   childId: string;
 }
 
-export type INewOccupationHierarchyPairSpec = IOccupationHierarchyPairType & IHierarchyPairSpec;
+export type INewSkillHierarchyPairSpec = ISkillsHierarchyPairType & IHierarchyPairSpec;

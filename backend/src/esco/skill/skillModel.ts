@@ -41,6 +41,18 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     },
     { timestamps: true, strict: "throw" }
   );
+  SkillSchema.virtual("parents", {
+    ref: "SkillHierarchyModel",
+    localField: "_id",
+    foreignField: "childId",
+    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+  });
+  SkillSchema.virtual("children", {
+    ref: "SkillHierarchyModel",
+    localField: "_id",
+    foreignField: "parentId",
+    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+  });
   SkillSchema.index({ UUID: 1 }, { unique: true });
   SkillSchema.index({ modelId: 1 });
 

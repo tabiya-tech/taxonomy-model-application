@@ -151,10 +151,14 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
 
   describe("Test createMany()", () => {
     afterEach(async () => {
-      await repository.hierarchyModel.deleteMany({}).exec();
+      for (const collection of Object.values(dbConnection.collections)) {
+        await collection.deleteMany({});
+      }
     });
     beforeEach(async () => {
-      await repository.hierarchyModel.deleteMany({}).exec();
+      for (const collection of Object.values(dbConnection.collections)) {
+        await collection.deleteMany({});
+      }
     });
 
     test("should successfully create the hierarchy of the ISCOGroups", async () => {
@@ -221,28 +225,28 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         children: [expectedISCOGroupReference(givenGroup_1_1), expectedISCOGroupReference(givenGroup_1_2)],
         parent: null,
         updatedAt: expect.any(Date),
-      });
+      } as IISCOGroup);
       const actualGroup_1_1 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1_1.id);
       expect(actualGroup_1_1).toEqual({
         ...givenGroup_1_1,
         children: [],
         parent: expectedISCOGroupReference(givenGroup_1),
         updatedAt: expect.any(Date),
-      });
+      } as IISCOGroup);
       const actualGroup_1_2 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1_2.id);
       expect(actualGroup_1_2).toEqual({
         ...givenGroup_1_2,
         children: [expectedISCOGroupReference(givenGroup_1_2_1)],
         parent: expectedISCOGroupReference(givenGroup_1),
         updatedAt: expect.any(Date),
-      });
+      } as IISCOGroup);
       const actualGroup_1_2_1 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1_2_1.id);
       expect(actualGroup_1_2_1).toEqual({
         ...givenGroup_1_2_1,
         children: [],
         parent: expectedISCOGroupReference(givenGroup_1_2),
         updatedAt: expect.any(Date),
-      });
+      } as IISCOGroup);
     });
 
     test("should successfully create the hierarchy of Occupations", async () => {
@@ -312,28 +316,28 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         ],
         parent: null,
         updatedAt: expect.any(Date),
-      });
+      } as IISCOGroup);
       const actual_occupation_1_1 = await repositoryRegistry.occupation.findById(givenOccupation_1_1.id);
       expect(actual_occupation_1_1).toEqual({
         ...givenOccupation_1_1,
         children: [],
         parent: expectedOccupationReference(givenOccupation_1),
         updatedAt: expect.any(Date),
-      });
+      } as IOccupation);
       const actual_occupation_1_2 = await repositoryRegistry.occupation.findById(givenOccupation_1_1_1.id);
       expect(actual_occupation_1_2).toEqual({
         ...givenOccupation_1_1_1,
         children: [expectedOccupationReference(givenOccupation_1_2_1)],
         parent: expectedOccupationReference(givenOccupation_1),
         updatedAt: expect.any(Date),
-      });
+      } as IOccupation);
       const actual_occupation_1_2_1 = await repositoryRegistry.occupation.findById(givenOccupation_1_2_1.id);
       expect(actual_occupation_1_2_1).toEqual({
         ...givenOccupation_1_2_1,
         children: [],
         parent: expectedOccupationReference(givenOccupation_1_1_1),
         updatedAt: expect.any(Date),
-      });
+      } as IOccupation);
     });
 
     test("should successfully create the hierarchy of ISCO Groups/Occupations", async () => {
@@ -380,7 +384,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         parent: null,
         children: [expectedOccupationReference(givenOccupation_1)],
         updatedAt: expect.any(Date),
-      });
+      } as IISCOGroup);
 
       const actualOccupation_1 = await repositoryRegistry.occupation.findById(givenOccupation_1.id);
       expect(actualOccupation_1).toEqual({
@@ -388,7 +392,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         children: [],
         parent: expectedISCOGroupReference(givenGroup_1),
         updatedAt: expect.any(Date),
-      });
+      } as IOccupation);
     });
 
     test("should successfully update the hierarchy even if some don't validate", async () => {
@@ -422,7 +426,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
           childType: ObjectTypes.ISCOGroup,
         },
         {
-          // invalid
+          // invalid <--- is duplicate
           parentId: givenGroup_1.id,
           parentType: ObjectTypes.ISCOGroup,
           childId: givenGroup_1_1.id,

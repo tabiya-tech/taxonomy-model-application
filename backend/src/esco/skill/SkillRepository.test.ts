@@ -2,7 +2,7 @@
 import "_test_utilities/consoleMock";
 
 import { getMockId } from "_test_utilities/mockMongoId";
-import { Connection } from "mongoose";
+import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { generateRandomUrl, getTestString } from "_test_utilities/specialCharacters";
 import { getNewConnection } from "server/connection/newConnection";
@@ -60,6 +60,8 @@ function expectedFromGivenSpec(givenSpec: INewSkillSpec): ISkill {
     UUID: expect.any(String),
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
+    parents: [],
+    children: [],
   };
 }
 
@@ -265,6 +267,39 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     // TestConnectionFailure((repository) => {
     //    return repository.createMany([getNewSkillSpec()]);
     //  });
+  });
+  describe("Test findById()", () => {
+    test("should find an Skill by its id", async () => {
+      // GIVEN an Skill exists in the database
+      const givenSkillSpecs = getNewSkillSpec();
+      const givenSkill = await repository.create(givenSkillSpecs);
+
+      // WHEN searching for the Skill by its id
+      const actualFoundSkill = await repository.findById(givenSkill.id);
+
+      // THEN expect the Skill to be found
+      expect(actualFoundSkill).toEqual(givenSkill);
+    });
+
+    test("should return null if no Skill with the given id exists", async () => {
+      // GIVEN no Skill exists in the database
+
+      // WHEN searching for the Skill by its id
+      const actualFoundSkill = await repository.findById(new mongoose.Types.ObjectId().toHexString());
+
+      // THEN expect no Skill to be found
+      expect(actualFoundSkill).toBeNull();
+    });
+
+    test("should return null if given id is not a valid object id", async () => {
+      // GIVEN no Skill exists in the database
+
+      // WHEN searching for the Skill by its id
+      const actualFoundSkill = await repository.findById("non_existing_id");
+
+      // THEN expect no Skill to be found
+      expect(actualFoundSkill).toBeNull();
+    });
   });
 });
 
