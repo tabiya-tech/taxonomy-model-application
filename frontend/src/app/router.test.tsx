@@ -1,10 +1,9 @@
 import { render, screen } from "src/_test_utilities/test-utils";
 import { RouterProvider, createMemoryRouter } from "react-router-dom";
-
 import routesConfig, { routerPaths } from "./routerConfig";
 import { DATA_TEST_ID as INFO_DATA_TEST_ID } from "src/info/Info";
 import { DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID } from "src/modeldirectory/ModelDirectory";
-
+import { DATA_TEST_ID as NOT_FOUND_DATA_TEST_ID } from "src/errorPage/NotFound";
 // Mock the Info component as it has dependencies to the backend, and we do not want to test that here
 jest.mock("src/info/Info", () => {
   const actual = jest.requireActual("src/info/Info");
@@ -26,6 +25,18 @@ jest.mock("src/modeldirectory/ModelDirectory", () => {
     __esModule: true,
     default: () => {
       return <div data-testid={actual.DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>Model Directory</div>;
+    },
+  };
+});
+
+// Mock the not found page as
+jest.mock("src/errorPage/NotFound", () => {
+  const actual = jest.requireActual("src/errorPage/NotFound");
+  return {
+    ...actual,
+    __esModule: true,
+    default: () => {
+      return <div data-testid={actual.DATA_TEST_ID.NOT_FOUND_CONTAINER}>Oops, page not found!</div>;
     },
   };
 });
@@ -84,5 +95,13 @@ describe("Tests for router config", () => {
 
     // THEN expect exploring the model to be available
     expect(screen.getByText("Coming soon, exploring the model")).toBeInTheDocument();
+  });
+
+  it("should render not found page", () => {
+    // WHEN an unknown path is chosen
+    renderWithRouter("/unknown");
+
+    // THEN expect the not found page to be available
+    expect(screen.getByTestId(NOT_FOUND_DATA_TEST_ID.NOT_FOUND_CONTAINER)).toBeInTheDocument();
   });
 });
