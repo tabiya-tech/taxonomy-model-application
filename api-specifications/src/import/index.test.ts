@@ -5,7 +5,7 @@ describe("Test the import module", () => {
     expect(() => {
       // THEN Check if the module can be required without error
       expect(() => {
-        require('./');
+        require("./");
       }).not.toThrowError();
       // AND check if Schema is defined in it
       expect(require("./").default.Schemas.POST.Request.Payload).toBeDefined();
@@ -13,4 +13,4 @@ describe("Test the import module", () => {
   });
 });
 
-export {}
+export {};

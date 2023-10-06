@@ -1,5 +1,5 @@
-import {SchemaObject} from "ajv";
-import {RegExp_Str_NotEmptyString} from "../regex";
+import { SchemaObject } from "ajv";
+import { RegExp_Str_NotEmptyString } from "../regex";
 
 const SchemaGETResponse: SchemaObject = {
   $id: "/components/schemas/PresignedResponseSchemaGET",
@@ -13,7 +13,8 @@ const SchemaGETResponse: SchemaObject = {
       format: "uri",
     },
     fields: {
-      description: "The fields should be added to the form-data when uploading the files",
+      description:
+        "The fields should be added to the form-data when uploading the files",
       type: "array",
       minItems: 1,
       items: {
@@ -28,23 +29,16 @@ const SchemaGETResponse: SchemaObject = {
             pattern: RegExp_Str_NotEmptyString,
           },
         },
-        required: [
-          "name",
-          "value",
-        ],
-      }
+        required: ["name", "value"],
+      },
     },
     folder: {
       description: "The folder name to upload the files to",
       type: "string",
-      pattern: RegExp_Str_NotEmptyString
+      pattern: RegExp_Str_NotEmptyString,
     },
   },
-  required: [
-    "url",
-    "fields",
-    "folder"
-  ]
+  required: ["url", "fields", "folder"],
 };
 
 export default SchemaGETResponse;

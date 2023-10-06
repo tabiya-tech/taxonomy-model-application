@@ -7,7 +7,7 @@ namespace ErrorConstants {
     UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE",
     TOO_LARGE_PAYLOAD = "TOO_LARGE_PAYLOAD",
     BAD_REQUEST = "BAD_REQUEST",
-    INVALID_JSON_SCHEMA = "INVALID_JSON_SCHEMA"
+    INVALID_JSON_SCHEMA = "INVALID_JSON_SCHEMA",
   }
 
   export enum ReasonPhrases {
@@ -18,7 +18,7 @@ namespace ErrorConstants {
     UNSUPPORTED_MEDIA_TYPE = "Unsupported Media Type",
     TOO_LARGE_PAYLOAD = "Payload is too long",
     BAD_REQUEST = "Bad Request",
-    INVALID_JSON_SCHEMA = "Invalid json schema"
+    INVALID_JSON_SCHEMA = "Invalid json schema",
   }
 }
 export default ErrorConstants;

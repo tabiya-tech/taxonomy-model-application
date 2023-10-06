@@ -5,9 +5,9 @@ describe("Test the error module", () => {
     expect(() => {
       // THEN Check if the module can be required without error
       expect(() => {
-        require('./');
+        require("./");
       }).not.toThrowError();
-      let apiErrorModule = require('./').default;
+      let apiErrorModule = require("./").default;
 
       // AND check if Schema is defined in it
       expect(apiErrorModule.Schemas.Payload).toBeDefined();
@@ -17,7 +17,7 @@ describe("Test the error module", () => {
       expect(Constants.ErrorCodes).toBeDefined();
       expect(Constants.ReasonPhrases).toBeDefined();
     }).not.toThrowError();
-  })
-})
+  });
+});
 
-export {}
+export {};

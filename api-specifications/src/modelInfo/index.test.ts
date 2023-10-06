@@ -5,10 +5,10 @@ describe("Test the modelInfo module", () => {
     expect(() => {
       // THEN Check if the module can be required without error
       expect(() => {
-        require('./');
+        require("./");
       }).not.toThrowError();
 
-      let modelInfoModule = require('./').default;
+      let modelInfoModule = require("./").default;
       // AND the schemas should be defined
       expect(modelInfoModule.Schemas.GET.Response.Payload).toBeDefined();
       expect(modelInfoModule.Schemas.POST.Response.Payload).toBeDefined();
@@ -22,7 +22,7 @@ describe("Test the modelInfo module", () => {
       expect(Constants.RELEASE_NOTES_MAX_LENGTH).toBeDefined();
       expect(Constants.VERSION_MAX_LENGTH).toBeDefined();
     }).not.toThrowError();
-  })
+  });
 });
 
-export {}
+export {};

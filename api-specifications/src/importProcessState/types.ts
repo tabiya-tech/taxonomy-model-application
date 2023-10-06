@@ -1,20 +1,20 @@
-import {ImportProcessState} from "./enums";
+import { ImportProcessState } from "./enums";
 
 namespace ImportProcessStateTypes {
   export type Result = {
-    errored: boolean
-    parsingErrors: boolean
-    parsingWarnings: boolean
+    errored: boolean;
+    parsingErrors: boolean;
+    parsingWarnings: boolean;
   };
   export namespace GET {
     export namespace Response {
       export interface Payload {
-        id: string,
-        modelId: string,
-        status: ImportProcessState.Enums.Status,
-        result: ImportProcessStateTypes.Result,
-        createdAt: string,
-        updatedAt: string
+        id: string;
+        modelId: string;
+        status: ImportProcessState.Enums.Status;
+        result: ImportProcessStateTypes.Result;
+        createdAt: string;
+        updatedAt: string;
       }
     }
   }

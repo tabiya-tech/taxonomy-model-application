@@ -5,9 +5,9 @@ describe("Test the presigned module", () => {
     expect(() => {
       // THEN Check if the module can be required without error
       expect(() => {
-        require('./');
+        require("./");
       }).not.toThrowError();
-      const presignedModule = require('./').default;
+      const presignedModule = require("./").default;
       // AND the schema should be defined
       expect(presignedModule.Schemas.GET.Response.Payload).toBeDefined();
 
@@ -16,7 +16,7 @@ describe("Test the presigned module", () => {
       expect(Constants.EXPIRES).toBeDefined();
       expect(Constants.MAX_FILE_SIZE).toBeDefined();
     }).not.toThrowError();
-  })
+  });
 });
 
-export {}
+export {};

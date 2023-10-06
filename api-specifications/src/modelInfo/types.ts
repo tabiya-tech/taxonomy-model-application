@@ -1,4 +1,4 @@
-import Locale from '../locale';
+import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
 // Have a common supertype for all the responses to inherit from
 // These types are hidden because they should only be referenced through the index.
@@ -19,8 +19,8 @@ interface IModelInfoResponse extends IModelInfoRequest {
       errored: boolean;
       parsingErrors: boolean;
       parsingWarnings: boolean;
-    }
-  }
+    };
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -34,7 +34,7 @@ interface IModelInfoRequest {
 namespace ModelInfoTypes {
   export namespace POST {
     export namespace Response {
-      export type Payload = IModelInfoResponse
+      export type Payload = IModelInfoResponse;
     }
     export namespace Request {
       export type Payload = IModelInfoRequest;

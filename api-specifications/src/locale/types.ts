@@ -3,7 +3,7 @@ namespace LocaleTypes {
     UUID: string;
     shortCode: string;
     name: string;
-  }
+  };
 }
 
 export default LocaleTypes;

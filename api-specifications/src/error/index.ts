@@ -14,9 +14,8 @@ import ErrorTypes from "./types";
  * It is also possible to get the common constants as APIError.Constants
  */
 
-
 namespace ErrorSchemas {
-      export const Payload = ErrorSchema;
+  export const Payload = ErrorSchema;
 }
 
 namespace ErrorAPISpecs {

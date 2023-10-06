@@ -1,5 +1,5 @@
-import {SchemaObject} from "ajv";
-import {_baseResponseSchema} from "./schemas.base";
+import { SchemaObject } from "ajv";
+import { _baseResponseSchema } from "./schemas.base";
 
 const SchemaPOSTResponse: SchemaObject = {
   $id: "/components/schemas/ModelInfoResponseSchemaPOST",

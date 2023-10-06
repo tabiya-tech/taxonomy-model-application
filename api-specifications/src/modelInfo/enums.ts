@@ -2,7 +2,7 @@ namespace ModelInfoEnums {
   export namespace GET {
     export namespace Response {
       export enum ErrorCodes {
-        DB_FAILED_TO_RETRIEVE_MODELS = "DB_FAILED_TO_RETRIEVE_MODELS"
+        DB_FAILED_TO_RETRIEVE_MODELS = "DB_FAILED_TO_RETRIEVE_MODELS",
       }
     }
   }
