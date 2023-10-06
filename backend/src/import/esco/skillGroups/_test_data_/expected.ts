@@ -1,4 +1,4 @@
-import {INewSkillGroupSpec} from "esco/skillGroup/skillGroup.types";
+import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 
 export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
   {
@@ -9,7 +9,7 @@ export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
     altLabels: ["label1", "label2"],
     description: "description",
     scopeNote: "scopeNote",
-    importId: "key_1"
+    importId: "key_1",
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -19,6 +19,6 @@ export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
     altLabels: ["label1", "label2"],
     description: "description\nwith\nlinebreak",
     scopeNote: "scopeNote\nwith\nlinebreak",
-    importId: "key_2"
-  }
+    importId: "key_2",
+  },
 ];

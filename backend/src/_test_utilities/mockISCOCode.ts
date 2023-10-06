@@ -4,5 +4,5 @@ export function getMockRandomISCOGroupCode(): string {
     console.warn("ISCO codes is exhausted! Recycling");
     _iscoCode = 0;
   }
-  return (_iscoCode++).toString().padStart(4, '0');
+  return (_iscoCode++).toString().padStart(4, "0");
 }

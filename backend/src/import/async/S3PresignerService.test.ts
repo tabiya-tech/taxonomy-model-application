@@ -2,19 +2,19 @@
 jest.mock("@aws-sdk/client-s3", () => {
   return {
     S3Client: jest.fn(),
-    GetObjectCommand: jest.fn()
-  }
+    GetObjectCommand: jest.fn(),
+  };
 });
 // Set up the mock for the getSignedUrl
 jest.mock("@aws-sdk/s3-request-presigner", () => {
   return {
-    getSignedUrl: jest.fn().mockResolvedValue("foo/url")
-  }
+    getSignedUrl: jest.fn().mockResolvedValue("foo/url"),
+  };
 });
 
-import {S3PresignerService} from "./S3PresignerService";
-import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
-import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
+import { S3PresignerService } from "./S3PresignerService";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 describe("Test S3PresignerService", () => {
   test("should construct a new S3PresignerService", () => {
@@ -24,7 +24,10 @@ describe("Test S3PresignerService", () => {
     const givenBucket = "bar";
 
     // WHEN constructing a new S3PresignerService with the given region and bucket
-    const actualS3PresignerService = new S3PresignerService(givenRegion, givenBucket);
+    const actualS3PresignerService = new S3PresignerService(
+      givenRegion,
+      givenBucket
+    );
 
     // THEN expect the service to be constructed
     expect(actualS3PresignerService).toBeDefined();
@@ -36,7 +39,10 @@ describe("Test S3PresignerService", () => {
     // AND a bucket
     const givenBucket = "bar";
     // AND a S3PresignerService constructed with the given region and bucket
-    const givenS3PresignerService = new S3PresignerService(givenRegion, givenBucket);
+    const givenS3PresignerService = new S3PresignerService(
+      givenRegion,
+      givenBucket
+    );
     // AND a file key
     const givenFileKey = "baz";
 
@@ -44,13 +50,15 @@ describe("Test S3PresignerService", () => {
     const actualPromise = givenS3PresignerService.getPresignedGet(givenFileKey);
 
     // THEN expect the S3Client to have been called with the correct region
-    expect(S3Client).toHaveBeenCalledWith({region: givenRegion});
+    expect(S3Client).toHaveBeenCalledWith({ region: givenRegion });
     // AND expect the GetObjectCommand to be called with the correct parameters
     expect(GetObjectCommand).toHaveBeenCalledWith({
       Bucket: givenBucket,
-      Key: givenFileKey
+      Key: givenFileKey,
     });
     // AND expect the getSignedUrl to return whatever the getSignedUrl returns
-    expect(actualPromise).toEqual((getSignedUrl as jest.Mock).mock.results[0].value);
+    expect(actualPromise).toEqual(
+      (getSignedUrl as jest.Mock).mock.results[0].value
+    );
   });
 });

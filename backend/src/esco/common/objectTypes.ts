@@ -10,6 +10,8 @@ export enum ObjectTypes {
   SkillGroup = "SkillGroup",
 }
 
-export type ReferenceWithModelId<T> = T & { modelId: string | mongoose.Types.ObjectId };
+export type ReferenceWithModelId<T> = T & {
+  modelId: string | mongoose.Types.ObjectId;
+};
 
 export type ImportIdentifiable = { importId: string };

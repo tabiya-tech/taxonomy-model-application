@@ -1,8 +1,7 @@
-import {generateRandomDigitString} from "./specialCharacters";
+import { generateRandomDigitString } from "./specialCharacters";
 
 const currentSegments: number[] = [0];
 const MAX_SEGMENT_ITEMS = 15;
-
 
 export function getMockRandomOccupationCode(): string {
   const code = generateRandomDigitString(2, 4);
@@ -22,4 +21,3 @@ function incrementSegment(index: number) {
     incrementSegment(index - 1);
   }
 }
-

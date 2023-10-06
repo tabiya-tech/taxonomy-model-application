@@ -1,4 +1,4 @@
-import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
+import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 
 export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
   {
@@ -8,7 +8,7 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description",
-    importId: "key_1"
+    importId: "key_1",
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -17,6 +17,6 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
     description: "description\nwith\nlinebreak",
-    importId: "key_2"
-  }
+    importId: "key_2",
+  },
 ];

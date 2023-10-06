@@ -1,5 +1,5 @@
 // mock the console
-import "_test_utilities/consoleMock"
+import "_test_utilities/consoleMock";
 
 describe("Test importLogger", () => {
   beforeEach(() => {
@@ -122,4 +122,3 @@ describe("Test importLogger", () => {
     });
   });
 });
-

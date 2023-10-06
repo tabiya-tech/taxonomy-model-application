@@ -1,4 +1,4 @@
-import {INewSkillSpec} from "esco/skill/skills.types";
+import { INewSkillSpec } from "esco/skill/skills.types";
 
 export const expected: Omit<INewSkillSpec, "modelId">[] = [
   {
@@ -11,7 +11,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     definition: "definition",
     skillType: "skill/competence",
     reuseLevel: "sector-specific",
-    importId: "key_1"
+    importId: "key_1",
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -23,6 +23,6 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     scopeNote: "scopeNote\nwith\nlinebreak",
     skillType: "knowledge",
     reuseLevel: "cross-sector",
-    importId: "key_2"
-  }
+    importId: "key_2",
+  },
 ];

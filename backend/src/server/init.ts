@@ -1,6 +1,10 @@
-import {getConfiguration, readEnvironmentConfiguration, setConfiguration} from "./config/config";
-import {getConnectionManager} from "./connection/connectionManager";
-import {getRepositoryRegistry} from "./repositoryRegistry/repositoryRegistry";
+import {
+  getConfiguration,
+  readEnvironmentConfiguration,
+  setConfiguration,
+} from "./config/config";
+import { getConnectionManager } from "./connection/connectionManager";
+import { getRepositoryRegistry } from "./repositoryRegistry/repositoryRegistry";
 
 let _initialized = false;
 

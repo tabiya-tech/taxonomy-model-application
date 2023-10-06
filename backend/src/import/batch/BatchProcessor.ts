@@ -1,6 +1,8 @@
-import {RowsProcessedStats} from "import/rowsProcessedStats.types";
+import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 
-export type ProcessBatchFunction<T> = (batch: T[]) => Promise<RowsProcessedStats>;
+export type ProcessBatchFunction<T> = (
+  batch: T[]
+) => Promise<RowsProcessedStats>;
 
 export class BatchProcessor<T> {
   private readonly batchSize: number;
@@ -9,7 +11,7 @@ export class BatchProcessor<T> {
   private stats: RowsProcessedStats = {
     rowsProcessed: 0,
     rowsSuccess: 0,
-    rowsFailed: 0
+    rowsFailed: 0,
   };
 
   constructor(batchSize: number, processFn: ProcessBatchFunction<T>) {

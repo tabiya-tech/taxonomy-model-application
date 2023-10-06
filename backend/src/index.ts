@@ -1,14 +1,16 @@
-import {Handler, APIGatewayProxyEvent, Context, Callback} from "aws-lambda";
-import {handler as InfoHandler} from "./info";
-import {handler as ModelHandler } from "./modelInfo";
-import {handler as ImportHandler } from "./import";
-import {STD_ERRORS_RESPONSES} from "./server/httpUtils";
-import {handler as presignedHandler} from "./presigned";
-import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
-import {initOnce} from "server/init";
+import { Handler, APIGatewayProxyEvent, Context, Callback } from "aws-lambda";
+import { handler as InfoHandler } from "./info";
+import { handler as ModelHandler } from "./modelInfo";
+import { handler as ImportHandler } from "./import";
+import { STD_ERRORS_RESPONSES } from "./server/httpUtils";
+import { handler as presignedHandler } from "./presigned";
+import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
+import { initOnce } from "server/init";
 
-export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult>
-  = async (event: APIGatewayProxyEvent, context, callback) => {
+export const handler: Handler<
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult
+> = async (event: APIGatewayProxyEvent, context, callback) => {
   try {
     // Initialize the application
     await initOnce();
@@ -21,8 +23,11 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult>
   }
 };
 
-export const handleRouteEvent
-  = async (event: APIGatewayProxyEvent, context: Context, callback: Callback<APIGatewayProxyResult>) => {
+export const handleRouteEvent = async (
+  event: APIGatewayProxyEvent,
+  context: Context,
+  callback: Callback<APIGatewayProxyResult>
+) => {
   if (event.path === "/info") {
     return InfoHandler(event, context, callback);
   } else if (event.path === "/models") {

@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
-import {randomUUID} from "crypto";
-import {IModelInfo, IModelInfoDoc, INewModelInfoSpec} from "./modelInfo.types";
-import {populateImportProcessStateOptions} from "./populateImportProcessStateOptions";
+import { randomUUID } from "crypto";
+import {
+  IModelInfo,
+  IModelInfoDoc,
+  INewModelInfoSpec,
+} from "./modelInfo.types";
+import { populateImportProcessStateOptions } from "./populateImportProcessStateOptions";
 
 export interface IModelRepository {
   readonly Model: mongoose.Model<IModelInfoDoc>;
@@ -37,7 +41,6 @@ export interface IModelRepository {
 }
 
 export class ModelRepository implements IModelRepository {
-
   public readonly Model: mongoose.Model<IModelInfoDoc>;
 
   constructor(model: mongoose.Model<IModelInfoDoc>) {
@@ -58,7 +61,7 @@ export class ModelRepository implements IModelRepository {
         version: "",
         releaseNotes: "",
         released: false,
-        importProcessState: new mongoose.Types.ObjectId() // models are created empty and are populated asynchronously with data via an import process
+        importProcessState: new mongoose.Types.ObjectId(), // models are created empty and are populated asynchronously with data via an import process
       });
       await newModelInfo.save();
       await newModelInfo.populate(populateImportProcessStateOptions);
@@ -71,11 +74,10 @@ export class ModelRepository implements IModelRepository {
 
   async getModelById(modelId: string): Promise<IModelInfo | null> {
     try {
-      const modelInfo = await this.Model
-        .findById(modelId)
+      const modelInfo = await this.Model.findById(modelId)
         .populate(populateImportProcessStateOptions)
         .exec();
-      return (modelInfo != null ? modelInfo.toObject() : null);
+      return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
       console.error("getModelById failed", e);
       throw e;
@@ -86,13 +88,12 @@ export class ModelRepository implements IModelRepository {
     try {
       // Without the $eq, the NoSQL injection can be prevented by setting the sanitizeFilter = true
       const filter = {
-        UUID: {$eq: modelUUID},
+        UUID: { $eq: modelUUID },
       };
-      const modelInfo = await this.Model
-        .findOne(filter)
+      const modelInfo = await this.Model.findOne(filter)
         .populate(populateImportProcessStateOptions)
         .exec();
-      return (modelInfo != null ? modelInfo.toObject() : null);
+      return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
       console.error("getModelByUUID failed", e);
       throw e;
@@ -101,8 +102,7 @@ export class ModelRepository implements IModelRepository {
 
   async getModels(): Promise<IModelInfo[]> {
     try {
-      const modelInfos = await this.Model
-        .find({})
+      const modelInfos = await this.Model.find({})
         .populate(populateImportProcessStateOptions)
         .exec();
       return modelInfos.map((modelInfo) => modelInfo.toObject());

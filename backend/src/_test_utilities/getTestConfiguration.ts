@@ -1,4 +1,4 @@
-import {IConfiguration} from "server/config/config";
+import { IConfiguration } from "server/config/config";
 
 export function getTestConfiguration(dbname: string): IConfiguration {
   return {
@@ -7,6 +7,6 @@ export function getTestConfiguration(dbname: string): IConfiguration {
     uploadBucketRegion: "us-east-1",
     uploadBucketName: "test-bucket",
     asyncLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz",
-    asyncLambdaFunctionRegion: "foo"
+    asyncLambdaFunctionRegion: "foo",
   };
 }

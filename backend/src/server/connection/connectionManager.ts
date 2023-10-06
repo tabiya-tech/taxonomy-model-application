@@ -1,5 +1,5 @@
-import {Connection} from 'mongoose';
-import {getNewConnection} from "./newConnection";
+import { Connection } from "mongoose";
+import { getNewConnection } from "./newConnection";
 
 export class ConnectionManager {
   private _connection: Connection | undefined;

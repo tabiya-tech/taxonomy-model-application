@@ -1,18 +1,19 @@
 // Suppress chatty console during the tests
-import "_test_utilities/consoleMock"
+import "_test_utilities/consoleMock";
 
-import {getRepositoryRegistry, RepositoryRegistry} from "./repositoryRegistry";
-import {Connection} from "mongoose";
-import {getNewConnection} from "server/connection/newConnection";
+import {
+  getRepositoryRegistry,
+  RepositoryRegistry,
+} from "./repositoryRegistry";
+import { Connection } from "mongoose";
+import { getNewConnection } from "server/connection/newConnection";
 
 describe("test the RepositoryRegistry", () => {
-
-
   let dbConnection: Connection;
 
   afterAll(async () => {
     if (dbConnection) {
-      await dbConnection.close(false);  // do not force close as there might be pending mongo operations
+      await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
 
@@ -47,12 +48,13 @@ describe("test the RepositoryRegistry", () => {
   });
 
   test("should reject the connection is not defined", async () => {
-
     // WHEN trying to initialize the RepositoryRegistry with an undefined connection
     const repositoryRegistry = new RepositoryRegistry();
     const initializePromise = repositoryRegistry.initialize(undefined);
 
     // THEN it should reject with an error
-    await expect(initializePromise).rejects.toThrowError("Connection is undefined");
+    await expect(initializePromise).rejects.toThrowError(
+      "Connection is undefined"
+    );
   });
 });
