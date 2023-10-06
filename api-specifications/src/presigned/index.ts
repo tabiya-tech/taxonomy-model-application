@@ -13,7 +13,6 @@ import PresignedConstants from "./constants";
  * And the general pattern is PresignedAPISpecs.{Schemas/Types/Constants}[VERB].{Request/Response}
  */
 
-
 namespace PresignedSchemas {
   export namespace GET {
     export namespace Response {

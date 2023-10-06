@@ -14,13 +14,13 @@ import LocaleConstants from "./constants";
  */
 
 namespace LocaleSchemas {
-    export const Payload = LocaleResponseSchema;
+  export const Payload = LocaleResponseSchema;
 }
 
 namespace LocaleAPISpecs {
-    export import Constants = LocaleConstants;
-    export import Types = LocaleTypes;
-    export import Schemas = LocaleSchemas;
+  export import Constants = LocaleConstants;
+  export import Types = LocaleTypes;
+  export import Schemas = LocaleSchemas;
 }
 
 export default LocaleAPISpecs;

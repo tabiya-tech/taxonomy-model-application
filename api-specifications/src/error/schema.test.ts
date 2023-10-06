@@ -1,12 +1,11 @@
-import APIError from "./index"
+import APIError from "./index";
 import {
   testSchemaWithInvalidObject,
   testSchemaWithValidObject,
-  testValidSchema
+  testValidSchema,
 } from "../_test_utilities/stdSchemaTests";
 
-describe('Test the Error Schema', () => {
-
+describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.Payload schema
 
   // WHEN the schema is validated
@@ -15,19 +14,27 @@ describe('Test the Error Schema', () => {
   testValidSchema("APIError.Schemas.Payload", APIError.Schemas.Payload);
 });
 
-describe('Validate JSON against the APIError Schema', () => {
+describe("Validate JSON against the APIError Schema", () => {
   // GIVEN a valid APIError object
-  const givenValidAPIError : APIError.Types.Payload = {
+  const givenValidAPIError: APIError.Types.Payload = {
     details: "Foo",
     errorCode: APIError.Constants.ErrorCodes.INTERNAL_SERVER_ERROR,
-    message: "Bar"
-  }
+    message: "Bar",
+  };
 
   // WHEN the object is validated
   // THEN expect the object to validate successfully
-  testSchemaWithValidObject("APIError.Schemas.Payload", APIError.Schemas.Payload, givenValidAPIError)
+  testSchemaWithValidObject(
+    "APIError.Schemas.Payload",
+    APIError.Schemas.Payload,
+    givenValidAPIError
+  );
 
   // AND WHEN the object has additional properties
   // THEN expect the object to not validate
-  testSchemaWithInvalidObject( "APIError.Schemas.Payload", APIError.Schemas.Payload, givenValidAPIError)
+  testSchemaWithInvalidObject(
+    "APIError.Schemas.Payload",
+    APIError.Schemas.Payload,
+    givenValidAPIError
+  );
 });
