@@ -1,5 +1,6 @@
 import Info from "../info/Info";
 import ModelDirectory from "../modeldirectory/ModelDirectory";
+import NotFound from "src/errorPage/NotFound";
 
 export const routerPaths = {
   ROOT: "/",
@@ -40,6 +41,11 @@ export const routerConfig = [
     path: routerPaths.MODEL_DIRECTORY,
     element: <ModelDirectory />,
     errorElement: <div>Sorry, model directory could not be shown</div>,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+    errorElement: <div>Sorry, something went wrong</div>,
   },
 ];
 
