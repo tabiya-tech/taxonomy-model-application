@@ -6,6 +6,7 @@ import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
 import * as occupationModel from "esco/occupation/occupationModel";
 import * as occupationHierarchyModel from "esco/occupationHierarchy/occupationHierarchyModel";
+import * as skillHierarchyModel from "esco/skillHierarchy/skillHierarchyModel";
 import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
 
 import { IISCOGroupRepository, ISCOGroupRepository } from "esco/iscoGroup/ISCOGroupRepository";
@@ -20,6 +21,10 @@ import {
   IImportProcessStateRepository,
   ImportProcessStateRepository,
 } from "import/ImportProcessState/importProcessStateRepository";
+import {
+  ISkillHierarchyRepository,
+  SkillHierarchyRepository,
+} from "../../esco/skillHierarchy/skillHierarchyRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -71,6 +76,14 @@ export class RepositoryRegistry {
 
   public set occupationHierarchy(repository: IOccupationHierarchyRepository) {
     this._repositories.set("IOccupationHierarchyRepository", repository);
+  }
+
+  public get skillHierarchy(): ISkillHierarchyRepository {
+    return this._repositories.get("ISkillHierarchyRepository");
+  }
+
+  public set skillHierarchy(repository: ISkillHierarchyRepository) {
+    this._repositories.set("ISkillHierarchyRepository", repository);
   }
 
   public get importProcessState(): IImportProcessStateRepository {
@@ -129,6 +142,11 @@ export class RepositoryRegistry {
       this.ISCOGroup.Model,
       this.occupation.Model
     );
+    this.skillHierarchy = new SkillHierarchyRepository(
+      skillHierarchyModel.initializeSchemaAndModel(connection),
+      this.skill.Model,
+      this.skillGroup.Model
+    );
     this.importProcessState = new ImportProcessStateRepository(importStateModel.initializeSchemaAndModel(connection));
 
     // Set up the indexes
@@ -143,6 +161,7 @@ export class RepositoryRegistry {
     await this.skill.Model.createIndexes();
     await this.occupation.Model.createIndexes();
     await this.occupationHierarchy.hierarchyModel.createIndexes();
+    await this.skillHierarchy.hierarchyModel.createIndexes();
     await this.importProcessState.Model.createIndexes();
   }
 }

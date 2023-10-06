@@ -77,8 +77,8 @@ describe("test parseSkillGroups from", () => {
                 ...spec,
                 id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
                 UUID: "",
-                parentGroups: [],
-                childrenGroups: [],
+                children: [],
+                parents: [],
                 createdAt: new Date(),
                 updatedAt: new Date(),
               };

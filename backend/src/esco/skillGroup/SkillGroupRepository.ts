@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
+import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc, ISkillGroupReferenceDoc } from "./skillGroup.types";
+import { ReferenceWithModelId } from "esco/common/objectTypes";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { getSkillGroupReferenceWithModelId } from "./skillGroupReference";
+import { getSkillReferenceWithModelId } from "esco/skill/skillReference";
+import { ISkillReferenceDoc } from "esco/skill/skills.types";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -17,6 +22,13 @@ export interface ISkillGroupRepository {
    * @param newSkillGroupSpecs
    */
   createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
+
+  /**
+   * Resolves to the ISkillGroup entry with the given id, or it resolves to null if no ISkillGroup entry with the given id exists.
+   * @param id
+   */
+
+  findById(id: string): Promise<ISkillGroup | null>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -33,15 +45,14 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       console.error("create failed", e);
       throw e;
     }
+
     try {
       const newSkillGroupModel = new this.Model({
         ...newSkillGroupSpec,
-        parentGroups: [],
         UUID: randomUUID(),
       });
       await newSkillGroupModel.save();
-      await newSkillGroupModel.populate({ path: "parentGroups" });
-      await newSkillGroupModel.populate({ path: "childrenGroups" });
+      await newSkillGroupModel.populate([{ path: "parents" }, { path: "children" }]);
       return newSkillGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -56,7 +67,6 @@ export class SkillGroupRepository implements ISkillGroupRepository {
           try {
             return new this.Model({
               ...spec,
-              parentGroups: [],
               UUID: randomUUID(), // override UUID silently
             });
           } catch (e: unknown) {
@@ -66,7 +76,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         .filter(Boolean);
       const newSkillGroups = await this.Model.insertMany(newSkillGroupModels, {
         ordered: false,
-        populate: ["parentGroups", "childrenGroups"],
+        populate: ["parents", "children"],
       });
       return newSkillGroups.map((skillGroup) => skillGroup.toObject());
     } catch (e: unknown) {
@@ -77,14 +87,80 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
         const newSkillGroups: ISkillGroup[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate("parentGroups");
-          await doc.populate("childrenGroups");
+          await doc.populate("parents");
+          await doc.populate("children");
           newSkillGroups.push(doc.toObject());
         }
         return newSkillGroups;
       }
       console.error("batch create failed", e);
       throw e;
+    }
+  }
+
+  async findById(id: string): Promise<ISkillGroup | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const skillGroup = await this.Model.findById(id)
+        .populate({
+          path: "parents",
+          populate: {
+            path: "parentId",
+            transform: function (doc): ReferenceWithModelId<ISkillGroupReferenceDoc> | null {
+              // return only the relevant fields
+              if (doc.constructor.modelName === MongooseModelName.SkillGroup) {
+                return getSkillGroupReferenceWithModelId(doc);
+              }
+              console.error(`Parent is not a SkillGroup: ${doc.constructor.modelName}`);
+              return null;
+            },
+          },
+          transform: function (doc): ISkillGroupReferenceDoc | null {
+            // return only the relevant fields
+            if (!doc?.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
+            if (!doc?.parentId?.modelId?.equals(doc?.modelId)) {
+              console.error(`Parent is not in the same model as the child`);
+              return null;
+            }
+            delete doc.parentId.modelId;
+            return doc.parentId;
+          },
+        })
+        .populate({
+          path: "children",
+          populate: {
+            path: "childId",
+            transform: function (
+              doc
+            ): ReferenceWithModelId<ISkillGroupReferenceDoc> | ReferenceWithModelId<ISkillReferenceDoc> | null {
+              // return only the relevant fields
+              if (doc.constructor.modelName === MongooseModelName.SkillGroup) {
+                return getSkillGroupReferenceWithModelId(doc);
+              }
+              if (doc.constructor.modelName === MongooseModelName.Skill) {
+                return getSkillReferenceWithModelId(doc);
+              }
+              console.error(`Child is not a SkillGroup or Skill: ${doc.constructor.modelName}`);
+              return null;
+            },
+          },
+          transform: function (doc): ISkillGroupReferenceDoc | ISkillReferenceDoc | null {
+            // return only the relevant fields
+            if (!doc?.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
+            if (!doc?.childId?.modelId?.equals(doc?.modelId)) {
+              console.error(`Child is not in the same model as the parent`);
+              return null;
+            }
+            delete doc.childId.modelId;
+            return doc.childId;
+          },
+        })
+        .exec();
+
+      return skillGroup != null ? skillGroup.toObject() : null;
+    } catch (e: unknown) {
+      console.error("findById failed", e);
+      return null;
     }
   }
 }

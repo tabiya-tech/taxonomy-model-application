@@ -4,13 +4,12 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { getMockId } from "_test_utilities/mockMongoId";
-import { WHITESPACE } from "_test_utilities/specialCharacters";
 import { initializeSchemaAndModel } from "./occupationHierarchyModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
+import { testDocModel, testObjectIdField, testObjectType } from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the OccupationHierarchy Model", () => {
   let dbConnection: Connection;
@@ -59,97 +58,24 @@ describe("Test the definition of the OccupationHierarchy Model", () => {
 
     testObjectIdField<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "childId");
 
-    testObjectType<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "parentType");
+    testObjectType<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "parentType", [
+      ObjectTypes.ISCOGroup,
+      ObjectTypes.Occupation,
+    ]);
 
-    testObjectType<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "childType");
+    testObjectType<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "childType", [
+      ObjectTypes.ISCOGroup,
+      ObjectTypes.Occupation,
+    ]);
 
-    testDocModel<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "parentDocModel");
+    testDocModel<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "parentDocModel", [
+      MongooseModelName.Occupation,
+      MongooseModelName.ISCOGroup,
+    ]);
 
-    testDocModel<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "childDocModel");
+    testDocModel<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "childDocModel", [
+      MongooseModelName.Occupation,
+      MongooseModelName.ISCOGroup,
+    ]);
   });
 });
-
-function testObjectIdField<T>(getModel: () => mongoose.Model<T>, fieldName: string) {
-  return describe(`Test validation of '${fieldName}'`, () => {
-    test.each([
-      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-      [CaseType.Failure, "null", null, "Path `{0}` is required."],
-      [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-      [
-        CaseType.Failure,
-        "only whitespace characters",
-        WHITESPACE,
-        'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-      ],
-      [
-        CaseType.Failure,
-        "not a objectId (string)",
-        "foo",
-        'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-      ],
-      [
-        CaseType.Failure,
-        "not a objectId (object)",
-        { foo: "bar" },
-        'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-      ],
-      [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-      [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
-    ])(
-      `(%s) Validate '${fieldName}' when it is %s`,
-      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<T>(getModel(), fieldName, caseType, value, expectedFailureMessage);
-      }
-    );
-  });
-}
-
-function testObjectType<T>(getModel: () => mongoose.Model<T>, fieldName: string) {
-  describe(`Test validation of '${fieldName}'`, () => {
-    test.each([
-      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-      [CaseType.Failure, "null", null, "Path `{0}` is required."],
-      [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
-      [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
-      [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-      [
-        CaseType.Failure,
-        ObjectTypes.Skill,
-        ObjectTypes.Skill,
-        `\`${ObjectTypes.Skill}\` is not a valid enum value for path \`{0}\`.`,
-      ],
-      [
-        CaseType.Failure,
-        ObjectTypes.SkillGroup,
-        ObjectTypes.SkillGroup,
-        `\`${ObjectTypes.SkillGroup}\` is not a valid enum value for path \`{0}\`.`,
-      ],
-      [CaseType.Success, ObjectTypes.ISCOGroup, ObjectTypes.ISCOGroup, undefined],
-      [CaseType.Success, ObjectTypes.Occupation, ObjectTypes.Occupation, undefined],
-    ])(
-      `(%s) Validate ''${fieldName}' when it is %s`,
-      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<T>(getModel(), fieldName, caseType, value, expectedFailureMessage);
-      }
-    );
-  });
-}
-
-function testDocModel<T>(getModel: () => mongoose.Model<T>, fieldName: string) {
-  describe(`Test validation of '${fieldName}'`, () => {
-    test.each([
-      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-      [CaseType.Failure, "null", null, "Path `{0}` is required."],
-      [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
-      [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
-      [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-      [CaseType.Success, MongooseModelName.Occupation, MongooseModelName.Occupation, undefined],
-      [CaseType.Success, MongooseModelName.ISCOGroup, MongooseModelName.ISCOGroup, undefined],
-    ])(
-      `(%s) Validate ''${fieldName}' when it is %s`,
-      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<T>(getModel(), fieldName, caseType, value, expectedFailureMessage);
-      }
-    );
-  });
-}

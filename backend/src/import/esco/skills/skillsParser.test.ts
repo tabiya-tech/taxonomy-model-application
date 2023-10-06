@@ -77,6 +77,8 @@ describe("test parseSkills from", () => {
                 UUID: "",
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                children: [],
+                parents: [],
               };
             })
           );

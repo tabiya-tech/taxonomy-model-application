@@ -89,6 +89,18 @@ jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => 
   };
 });
 
+// Mock the SkillHierarchyParser
+jest.mock("import/esco/skillHierarchy/skillHierarchyParser.ts", () => {
+  return {
+    parseSkillHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      // countISCOGroups + countOccupations - 10
+      rowsProcessed: 300 + 200 - 4,
+      rowsSuccess: 300 + 200 - 4,
+      rowsFailed: 0,
+    } as RowsProcessedStats),
+  };
+});
+
 // ##############
 import { parseFiles } from "./parseFiles";
 import ImportAPISpecs from "api-specifications/import";
@@ -104,6 +116,7 @@ import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState";
 import importLogger from "import/importLogger/importLogger";
+import { parseSkillHierarchyFromUrl } from "../esco/skillHierarchy/skillHierarchyParser";
 
 // ##############
 
@@ -155,6 +168,7 @@ describe("Test the main async handler", () => {
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
 
         // ADD additional file types here
       },
@@ -208,6 +222,13 @@ describe("Test the main async handler", () => {
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
           expect(parseOccupationHierarchyFromUrl).toHaveBeenCalledWith(
+            givenEvent.modelId,
+            expectedPresignedUrl,
+            expect.any(Map)
+          );
+          break;
+        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY:
+          expect(parseSkillHierarchyFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
             expect.any(Map)
@@ -339,6 +360,7 @@ describe("Test the main async handler", () => {
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
 
           // ADD additional file types here
         },

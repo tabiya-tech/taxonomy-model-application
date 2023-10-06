@@ -4,7 +4,7 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
-import { initializeSchemaAndModel, PARENT_MAX_ITEMS } from "./skillGroupModel";
+import { initializeSchemaAndModel } from "./skillGroupModel";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
@@ -42,6 +42,7 @@ describe("Test the definition of the skillGroup Model", () => {
   test("Successfully validate skillGroup with mandatory fields", async () => {
     // GIVEN a skillGroup object with all mandatory fields filled & a document
     const givenObject: ISkillGroupDoc = {
+      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
@@ -51,7 +52,6 @@ describe("Test the definition of the skillGroup Model", () => {
       altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-      parentGroups: [getMockId(2), getMockId(3), getMockId(4)],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
@@ -75,7 +75,6 @@ describe("Test the definition of the skillGroup Model", () => {
       modelId: getMockId(2),
       originUUID: "",
       altLabels: [],
-      parentGroups: [],
       ESCOUri: "",
       description: "",
       scopeNote: "",
@@ -308,48 +307,6 @@ describe("Test the definition of the skillGroup Model", () => {
         `(%s) Validate 'scopeNote' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "scopeNote", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
-
-    describe("Test validation of 'parentGroups'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "too long array",
-          new Array(PARENT_MAX_ITEMS + 1).fill(undefined).map(() => new mongoose.Types.ObjectId()),
-          `Validator failed for path \`{0}\` with value`,
-        ],
-        [
-          CaseType.Failure,
-          "not unique",
-          [getMockId(2), getMockId(2)],
-          `Validator failed for path \`{0}\` with value \`${getMockId(2)},${getMockId(2)}\``,
-        ],
-        [CaseType.Failure, "array of numbers", [123], `Path \`{0}\` is required.`],
-        [CaseType.Failure, "array of string", ["foo"], `Path \`{0}\` is required.`],
-        [CaseType.Failure, "a string", "foo", `Path \`{0}\` is required.`],
-        [CaseType.Failure, "null", null, `Path \`{0}\` is required.`],
-        [CaseType.Failure, "undefined", undefined, `Path \`{0}\` is required.`],
-        [CaseType.Success, "empty array", [], undefined],
-        [CaseType.Success, "ObjectID", [new mongoose.Types.ObjectId()], undefined],
-        [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
-        [
-          CaseType.Success,
-          "valid longest array with objects ids",
-          new Array(PARENT_MAX_ITEMS).fill(undefined).map(() => new mongoose.Types.ObjectId()),
-          undefined,
-        ],
-      ])(
-        `(%s) Validate 'parentGroups' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillGroupDoc>(
-            skillGroupModel,
-            "parentGroups",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
         }
       );
     });
