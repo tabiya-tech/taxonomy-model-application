@@ -1,7 +1,6 @@
 // mute the console
 import 'src/_test_utilities/consoleMock';
-
-import { render } from 'src/_test_utilities/test-utils';
+import { render, screen } from 'src/_test_utilities/test-utils';
 import AppLayout, { DATA_TEST_ID } from './AppLayout';
 import {DATA_TEST_ID as APP_SIDE_BAR_ID} from './AppSidebar';
 import {DATA_TEST_ID as APP_HEADER_ID} from './AppHeader';
@@ -42,20 +41,20 @@ describe('AppLayout Render', () => {
     const LayoutChildren = () => <div>foo</div>
 
     // WHEN the AppLayout component is rendered
-    const { getByTestId, queryByText } = render(<AppLayout><LayoutChildren/></AppLayout>);
+    render(<AppLayout><LayoutChildren/></AppLayout>);
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
 
-    // AND layout to be present in the document
-    expect(getByTestId(DATA_TEST_ID.LAYOUT)).toBeInTheDocument();
+    // AND expect layout to be present in the document
+    expect(screen.getByTestId(DATA_TEST_ID.LAYOUT)).toBeInTheDocument();
     
     // AND expect the AppSidebar and AppHeader to be in the document
-    expect(getByTestId(APP_SIDE_BAR_ID.CONTAINER)).toBeInTheDocument();
-    expect(getByTestId(APP_HEADER_ID.APP_HEADER_CONTAINER)).toBeInTheDocument();
+    expect(screen.getByTestId(APP_SIDE_BAR_ID.CONTAINER)).toBeInTheDocument();
+    expect(screen.getByTestId(APP_HEADER_ID.APP_HEADER_CONTAINER)).toBeInTheDocument();
 
     // AND expect the child component to be in the document
-    expect(queryByText('foo')).toBeInTheDocument();
+    expect(screen.getByText('foo')).toBeInTheDocument();
   });
 });
