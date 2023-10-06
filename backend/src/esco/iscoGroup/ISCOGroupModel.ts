@@ -1,55 +1,63 @@
-import mongoose from 'mongoose';
-import {RegExp_UUIDv4} from "server/regex";
+import mongoose from "mongoose";
+import { RegExp_UUIDv4 } from "server/regex";
 import {
-  AltLabelsProperty, DescriptionProperty,
-  ESCOUriProperty, ImportIDProperty, ISCOCodeProperty,
+  AltLabelsProperty,
+  DescriptionProperty,
+  ESCOUriProperty,
+  ImportIDProperty,
+  ISCOCodeProperty,
   OriginUUIDProperty,
-  PreferredLabelProperty
+  PreferredLabelProperty,
 } from "esco/common/modelSchema";
-import {MongooseModelName} from "esco/common/mongooseModelNames";
-import {IISCOGroupDoc} from "./ISCOGroup.types";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { IISCOGroupDoc } from "./ISCOGroup.types";
 
-export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IISCOGroupDoc> {
-
+export function initializeSchemaAndModel(
+  dbConnection: mongoose.Connection
+): mongoose.Model<IISCOGroupDoc> {
   // Main Schema
-  const ISCOGroupSchema = new mongoose.Schema<IISCOGroupDoc>({
-    UUID: {type: String, required: true, validate: RegExp_UUIDv4},
-    code: ISCOCodeProperty,
-    preferredLabel: PreferredLabelProperty,
-    modelId: {type: mongoose.Schema.Types.ObjectId, required: true},
-    originUUID: OriginUUIDProperty,
-    ESCOUri: ESCOUriProperty,
-    altLabels: AltLabelsProperty,
-    description: DescriptionProperty,
-    importId: ImportIDProperty,
-  }, {
-    timestamps: true, strict: "throw"
-  });
-  ISCOGroupSchema.virtual('parent', {
+  const ISCOGroupSchema = new mongoose.Schema<IISCOGroupDoc>(
+    {
+      UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
+      code: ISCOCodeProperty,
+      preferredLabel: PreferredLabelProperty,
+      modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
+      originUUID: OriginUUIDProperty,
+      ESCOUri: ESCOUriProperty,
+      altLabels: AltLabelsProperty,
+      description: DescriptionProperty,
+      importId: ImportIDProperty,
+    },
+    {
+      timestamps: true,
+      strict: "throw",
+    }
+  );
+  ISCOGroupSchema.virtual("parent", {
     ref: "OccupationHierarchyModel",
-    localField: '_id',
-    foreignField: 'childId',
-    match: (iscoGroup: IISCOGroupDoc) => ({modelId: iscoGroup.modelId}),
+    localField: "_id",
+    foreignField: "childId",
+    match: (iscoGroup: IISCOGroupDoc) => ({ modelId: iscoGroup.modelId }),
     justOne: true,
   });
-  ISCOGroupSchema.virtual('children', {
+  ISCOGroupSchema.virtual("children", {
     ref: "OccupationHierarchyModel",
-    localField: '_id',
-    foreignField: 'parentId',
-    match: (iscoGroup: IISCOGroupDoc) => ({modelId: iscoGroup.modelId}),
+    localField: "_id",
+    foreignField: "parentId",
+    match: (iscoGroup: IISCOGroupDoc) => ({ modelId: iscoGroup.modelId }),
   });
 
-  ISCOGroupSchema.index({UUID: 1}, {unique: true});
+  ISCOGroupSchema.index({ UUID: 1 }, { unique: true });
 
-  ISCOGroupSchema.index({modelId: 1});
+  ISCOGroupSchema.index({ modelId: 1 });
 
   // Two isco groups cannot have the same isco code in the same model
-  ISCOGroupSchema.index({code: 1, modelId: 1}, {unique: true});
+  ISCOGroupSchema.index({ code: 1, modelId: 1 }, { unique: true });
   // Preferred label must be unique in the same model
   // ISCOGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
 
-  return dbConnection.model<IISCOGroupDoc>(MongooseModelName.ISCOGroup, ISCOGroupSchema);
+  return dbConnection.model<IISCOGroupDoc>(
+    MongooseModelName.ISCOGroup,
+    ISCOGroupSchema
+  );
 }
-
-
-

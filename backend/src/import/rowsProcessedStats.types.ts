@@ -1,5 +1,5 @@
 export type RowsProcessedStats = {
-  rowsProcessed: number,
-  rowsSuccess: number,
-  rowsFailed: number
-}
+  rowsProcessed: number;
+  rowsSuccess: number;
+  rowsFailed: number;
+};

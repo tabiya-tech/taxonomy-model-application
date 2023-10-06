@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
-import {randomUUID} from "crypto";
-import {IOccupationReferenceDoc} from "esco/occupation/occupation.types";
-import {MongooseModelName} from "esco/common/mongooseModelNames";
+import { randomUUID } from "crypto";
+import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   IISCOGroup,
   IISCOGroupDoc,
   IISCOGroupReferenceDoc,
-  INewISCOGroupSpec
+  INewISCOGroupSpec,
 } from "./ISCOGroup.types";
-import {ReferenceWithModelId} from "esco/common/objectTypes";
-import {getISCOGroupReferenceWithModelId} from "./ISCOGroupReference";
-import {getOccupationReferenceWithModelId} from "esco/occupation/occupationReference";
+import { ReferenceWithModelId } from "esco/common/objectTypes";
+import { getISCOGroupReferenceWithModelId } from "./ISCOGroupReference";
+import { getOccupationReferenceWithModelId } from "esco/occupation/occupationReference";
 
 export interface IISCOGroupRepository {
   readonly Model: mongoose.Model<IISCOGroupDoc>;
@@ -26,13 +26,12 @@ export interface IISCOGroupRepository {
    * The promise will reject with an error if the ISCOGroup entries could not be created due to reasons other than not passing the validation.
    * @param newISCOGroupSpecs
    */
-  createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]>
+  createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]>;
 
-  findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null>
+  findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null>;
 }
 
 export class ISCOGroupRepository implements IISCOGroupRepository {
-
   public readonly Model: mongoose.Model<IISCOGroupDoc>;
 
   constructor(model: mongoose.Model<IISCOGroupDoc>) {
@@ -50,10 +49,13 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     try {
       const newISCOGroupModel = new this.Model({
         ...newISCOGroupSpec,
-        UUID: randomUUID()
+        UUID: randomUUID(),
       });
       await newISCOGroupModel.save();
-      await newISCOGroupModel.populate([{path: "parent"}, {path: "children"}]);
+      await newISCOGroupModel.populate([
+        { path: "parent" },
+        { path: "children" },
+      ]);
       return newISCOGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -61,21 +63,25 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     }
   }
 
-  async createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> {
+  async createMany(
+    newISCOGroupSpecs: INewISCOGroupSpec[]
+  ): Promise<IISCOGroup[]> {
     try {
-      const newISCOGroupModels = newISCOGroupSpecs.map((spec) => {
-        try {
-          return new this.Model({
-            ...spec,
-            UUID: randomUUID() // override UUID silently
-          });
-        } catch (e: unknown) {
-          return null;
-        }
-      }).filter(Boolean);
+      const newISCOGroupModels = newISCOGroupSpecs
+        .map((spec) => {
+          try {
+            return new this.Model({
+              ...spec,
+              UUID: randomUUID(), // override UUID silently
+            });
+          } catch (e: unknown) {
+            return null;
+          }
+        })
+        .filter(Boolean);
       const newISCOGroups = await this.Model.insertMany(newISCOGroupModels, {
         ordered: false,
-        populate: ["parent", "children"]
+        populate: ["parent", "children"],
       });
       return newISCOGroups.map((iscoGroup) => iscoGroup.toObject());
     } catch (e: unknown) {
@@ -86,7 +92,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
         const newISCOGroups: IISCOGroup[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate([{path: "parent"}, {path: "children"}]);
+          await doc.populate([{ path: "parent" }, { path: "children" }]);
           newISCOGroups.push(doc.toObject());
         }
         return newISCOGroups;
@@ -96,7 +102,9 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     }
   }
 
-  async findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null> {
+  async findById(
+    id: string | mongoose.Types.ObjectId
+  ): Promise<IISCOGroup | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const iscoGroup = await this.Model.findById(id)
@@ -104,15 +112,21 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
           path: "parent",
           populate: {
             path: "parentId",
-            transform: function (doc): ReferenceWithModelId<IISCOGroupReferenceDoc> | null { // return only the relevant fields
+            transform: function (
+              doc
+            ): ReferenceWithModelId<IISCOGroupReferenceDoc> | null {
+              // return only the relevant fields
               if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
                 return getISCOGroupReferenceWithModelId(doc);
               }
-              console.error(`Parent is not an ISCOGroup: ${doc.constructor.modelName}`);
+              console.error(
+                `Parent is not an ISCOGroup: ${doc.constructor.modelName}`
+              );
               return null;
             },
           },
-          transform: function (doc): IISCOGroupReferenceDoc | null { // return only the relevant fields
+          transform: function (doc): IISCOGroupReferenceDoc | null {
+            // return only the relevant fields
             if (!doc?.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
             if (!doc?.parentId?.modelId?.equals(doc?.modelId)) {
               console.error(`Parent is not in the same model as the child`);
@@ -120,23 +134,35 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
             }
             delete doc.parentId.modelId;
             return doc.parentId;
-          }
-        }).populate({
+          },
+        })
+        .populate({
           path: "children",
           populate: {
             path: "childId",
-            transform: function (doc): ReferenceWithModelId<IISCOGroupReferenceDoc> | ReferenceWithModelId<IOccupationReferenceDoc> | null { // return only the relevant fields
+            transform: function (
+              doc
+            ):
+              | ReferenceWithModelId<IISCOGroupReferenceDoc>
+              | ReferenceWithModelId<IOccupationReferenceDoc>
+              | null {
+              // return only the relevant fields
               if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
                 return getISCOGroupReferenceWithModelId(doc);
               }
               if (doc.constructor.modelName === MongooseModelName.Occupation) {
                 return getOccupationReferenceWithModelId(doc);
               }
-              console.error(`Child is not an ISCOGroup or Occupation: ${doc.constructor.modelName}`);
+              console.error(
+                `Child is not an ISCOGroup or Occupation: ${doc.constructor.modelName}`
+              );
               return null;
             },
           },
-          transform: function (doc): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null { // return only the relevant fields
+          transform: function (
+            doc
+          ): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
+            // return only the relevant fields
             if (!doc?.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
             if (!doc?.childId?.modelId?.equals(doc?.modelId)) {
               console.error(`Child is not in the same model as the parent`);
@@ -144,9 +170,10 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
             }
             delete doc.childId.modelId;
             return doc.childId;
-          }
-        }).exec();
-      return (iscoGroup != null ? iscoGroup.toObject() : null);
+          },
+        })
+        .exec();
+      return iscoGroup != null ? iscoGroup.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
       return null;

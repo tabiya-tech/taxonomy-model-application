@@ -1,25 +1,29 @@
-import {APIGatewayProxyEvent} from "aws-lambda";
-import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
-import {errorResponse, HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
-import {ajvInstance, ParseValidationError} from "validator";
-import ImportAPISpecs from 'api-specifications/import';
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
+import {
+  errorResponse,
+  HTTP_VERBS,
+  StatusCodes,
+  STD_ERRORS_RESPONSES,
+} from "server/httpUtils";
+import { ajvInstance, ParseValidationError } from "validator";
+import ImportAPISpecs from "api-specifications/import";
 import ErrorAPISpecs from "api-specifications/error";
 
-import {ValidateFunction} from "ajv";
-import {lambda_invokeAsyncImport} from "./asyncImport";
+import { ValidateFunction } from "ajv";
+import { lambda_invokeAsyncImport } from "./asyncImport";
 
-
-export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback: Callback*/)
-  => Promise<APIGatewayProxyResult>
-  = async (event: APIGatewayProxyEvent/*, context: Context, callback: Callback*/) => {
-
+export const handler: (
+  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
+) => Promise<APIGatewayProxyResult> = async (
+  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
+) => {
   //POST /triggerImport
   if (event?.httpMethod === HTTP_VERBS.POST) {
     return postTriggerImport(event);
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };
-
 
 /**
  * @openapi
@@ -56,13 +60,16 @@ export const handler: (event: APIGatewayProxyEvent/*, context: Context, callback
 
 async function postTriggerImport(event: APIGatewayProxyEvent) {
   // @ts-ignore
-  if (!event.headers['Content-Type']?.includes('application/json')) { //  application/json;charset=UTF-8
+  if (!event.headers["Content-Type"]?.includes("application/json")) {
+    //  application/json;charset=UTF-8
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
-  
+
   // @ts-ignore
-  if(event.body?.length > ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH){
-    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(`Expected maximum length is ${ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH}` );
+  if (event.body?.length > ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
+    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
+      `Expected maximum length is ${ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`
+    );
   }
 
   let payload: ImportAPISpecs.Types.POST.Request.Payload;
@@ -70,10 +77,17 @@ async function postTriggerImport(event: APIGatewayProxyEvent) {
     payload = JSON.parse(event.body as string);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    return errorResponse(StatusCodes.BAD_REQUEST, ErrorAPISpecs.Constants.ErrorCodes.MALFORMED_BODY, "Payload is malformed, it should be a valid model json", error.message);
+    return errorResponse(
+      StatusCodes.BAD_REQUEST,
+      ErrorAPISpecs.Constants.ErrorCodes.MALFORMED_BODY,
+      "Payload is malformed, it should be a valid model json",
+      error.message
+    );
   }
 
-  const validateFunction = ajvInstance.getSchema(ImportAPISpecs.Schemas.POST.Request.Payload.$id as string) as ValidateFunction;
+  const validateFunction = ajvInstance.getSchema(
+    ImportAPISpecs.Schemas.POST.Request.Payload.$id as string
+  ) as ValidateFunction;
   const isValid = validateFunction(payload);
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);

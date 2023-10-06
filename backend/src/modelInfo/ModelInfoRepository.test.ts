@@ -1,27 +1,30 @@
 // mute the console output
-import "_test_utilities/consoleMock"
+import "_test_utilities/consoleMock";
 
-import {getMockId} from "_test_utilities/mockMongoId";
-import {Connection} from "mongoose";
-import {ModelRepository} from "./ModelInfoRepository";
-import {randomUUID} from "crypto";
-import {getTestString} from "_test_utilities/specialCharacters";
-import {getNewConnection} from "server/connection/newConnection";
-import {getRepositoryRegistry, RepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
-import {initOnce} from "server/init";
-import {getConnectionManager} from "server/connection/connectionManager";
-import {getTestConfiguration} from "_test_utilities/getTestConfiguration";
+import { getMockId } from "_test_utilities/mockMongoId";
+import { Connection } from "mongoose";
+import { ModelRepository } from "./ModelInfoRepository";
+import { randomUUID } from "crypto";
+import { getTestString } from "_test_utilities/specialCharacters";
+import { getNewConnection } from "server/connection/newConnection";
+import {
+  getRepositoryRegistry,
+  RepositoryRegistry,
+} from "server/repositoryRegistry/repositoryRegistry";
+import { initOnce } from "server/init";
+import { getConnectionManager } from "server/connection/connectionManager";
+import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
-import {IModelInfo, INewModelInfoSpec} from "./modelInfo.types";
+import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
   return {
     ...actual,
-    randomUUID: jest.fn().mockImplementation(actual.randomUUID)
-  }
+    randomUUID: jest.fn().mockImplementation(actual.randomUUID),
+  };
 });
 
 /**
@@ -33,17 +36,20 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
     locale: {
       UUID: randomUUID(),
       name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      shortCode: getTestString(
+        LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
+      ),
     },
-    description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    description: getTestString(
+      ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH
+    ),
   };
 }
 
 describe("Test the Model Repository with an in-memory mongodb", () => {
-
   let dbConnection: Connection;
   let repository: ModelRepository;
-  const repositoryRegistry = new RepositoryRegistry()
+  const repositoryRegistry = new RepositoryRegistry();
 
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
@@ -66,14 +72,14 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
   afterEach(async () => {
     await repository.Model.deleteMany({});
-  })
+  });
 
   test("Should have the ModelRepository registered", async () => {
     // GIVEN the environment mongo db uri is set
     expect(process.env.MONGODB_URI).toBeDefined();
 
     // WHEN initOnce has been called
-    await initOnce()
+    await initOnce();
 
     // THEN expect the modelInfo repository to be defined
     expect(getRepositoryRegistry().modelInfo).toBeDefined();
@@ -83,7 +89,6 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() model ", () => {
-
     test("Should create a new model successfully", async () => {
       // GIVEN a valid INewModelInfoSpec
       const givenNewModelInfoSpec: INewModelInfoSpec = getNewModelInfoSpec();
@@ -108,12 +113,12 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
           result: {
             errored: false,
             parsingErrors: false,
-            parsingWarnings: false
-          }
+            parsingWarnings: false,
+          },
         },
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
-      }
+      };
       expect(actualNewModel).toEqual(expectedNewModelInfo);
     });
 
@@ -127,11 +132,13 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const actualPromise = repository.create({
         ...givenNewModelInfoSpec,
         //@ts-ignore
-        UUID: givenProvidedUUID
-      })
+        UUID: givenProvidedUUID,
+      });
 
       // THEN expect the promise to reject with an error
-      await expect(actualPromise).rejects.toThrowError(/UUID should not be provided/);
+      await expect(actualPromise).rejects.toThrowError(
+        /UUID should not be provided/
+      );
     });
 
     test("Should reject with an error when creating a model with a UUID that is not unique", async () => {
@@ -149,7 +156,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
 
     TestConnectionFailure((repository) => {
-      return repository.create(getNewModelInfoSpec())
+      return repository.create(getNewModelInfoSpec());
     });
   });
 
@@ -159,38 +166,44 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
 
       // WHEN retrieving a model by its id
-      const actualFoundModel = await repository.getModelById(givenExistingModel.id);
+      const actualFoundModel = await repository.getModelById(
+        givenExistingModel.id
+      );
 
       // THEN expect the found model to be equal to the existing model
       expect(actualFoundModel).toEqual(givenExistingModel);
-    })
+    });
 
     test("Should return null if the model does not exist", async () => {
       // GIVEN a model in the database does not exist, i.e. the id is not in the database because it was deleted
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
       const givenExistingModelId = givenExistingModel.id;
-      await repository.Model.deleteOne({_id: {$eq: givenExistingModelId}}).exec();
+      await repository.Model.deleteOne({
+        _id: { $eq: givenExistingModelId },
+      }).exec();
 
       // WHEN we try to retrieve the deleted model by id
-      const actualFoundModel = await repository.getModelById(givenExistingModelId);
+      const actualFoundModel =
+        await repository.getModelById(givenExistingModelId);
 
       // THEN expect a null
       expect(actualFoundModel).toBeNull();
-    })
+    });
 
     TestConnectionFailure((repository) => {
-      return repository.getModelById(getMockId(1))
+      return repository.getModelById(getMockId(1));
     });
   });
 
   describe("Test getModelByUUID()", () => {
-
     test("Should return an existing model by model uuid", async () => {
       // GIVEN a model info exists in the database
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
 
       // WHEN we retrieve a model by its uuid
-      const actualFoundModel = await repository.getModelByUUID(givenExistingModel.UUID);
+      const actualFoundModel = await repository.getModelByUUID(
+        givenExistingModel.UUID
+      );
 
       // THEN expect the found model to be equal to the existing model
       expect(actualFoundModel).toEqual(givenExistingModel);
@@ -199,26 +212,32 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     test("Should return null if a model with the provided UUID does not exist", async () => {
       // GIVEN a model in the database does not exist i.e. the UUID is not in the database because it was deleted
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
-      await repository.Model.deleteOne({_id: {$eq: givenExistingModel.id}}).exec();
+      await repository.Model.deleteOne({
+        _id: { $eq: givenExistingModel.id },
+      }).exec();
 
       // WHEN we retrieve the deleted model by its UUID
-      const actualFoundModel = await repository.getModelByUUID(givenExistingModel.UUID);
+      const actualFoundModel = await repository.getModelByUUID(
+        givenExistingModel.UUID
+      );
 
       // THEN expect a null
       expect(actualFoundModel).toBeNull();
     });
 
     TestConnectionFailure((repository) => {
-      return repository.getModelByUUID(randomUUID())
+      return repository.getModelByUUID(randomUUID());
     });
-  })
+  });
 
   describe("Test getModels()", () => {
     test("should return all models that exist in the database", async () => {
       // GIVEN N models exist in the database
       const givenExistingModels = [];
       for (let i = 0; i < 3; i++) {
-        givenExistingModels.push(await repository.create(getNewModelInfoSpec()));
+        givenExistingModels.push(
+          await repository.create(getNewModelInfoSpec())
+        );
       }
 
       // WHEN we retrieve all models from the database
@@ -226,10 +245,10 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
       // THEN expect to find all models that we created and only those
       expect(actualFoundModels.length).toEqual(givenExistingModels.length);
-      givenExistingModels.forEach(givenExistingModel => {
+      givenExistingModels.forEach((givenExistingModel) => {
         expect(actualFoundModels).toContainEqual(givenExistingModel);
       });
-    })
+    });
 
     test("should return an empty array when no models exist in the database", async () => {
       // GIVEN no models exist in the database
@@ -244,7 +263,9 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
   });
 });
 
-function TestConnectionFailure(actionCallback: (repository: ModelRepository) => Promise<IModelInfo | null>) {
+function TestConnectionFailure(
+  actionCallback: (repository: ModelRepository) => Promise<IModelInfo | null>
+) {
   return test("Should reject with an error when the connection to the db is lost", async () => {
     // GIVEN the db connection will be lost
     const givenConfig = getTestConfiguration("ModelRepositoryTestDB");
@@ -255,9 +276,11 @@ function TestConnectionFailure(actionCallback: (repository: ModelRepository) => 
     await givenConnection.close(false); // do not force close as there might be pending mongo operations
 
     // WHEN we try to question the db
-    const actualRequestPromise = actionCallback(repository)
+    const actualRequestPromise = actionCallback(repository);
 
     // THEN expect the actual request to reject with the error
-    await expect(actualRequestPromise).rejects.toThrowError(/Client must be connected before running operations/);
+    await expect(actualRequestPromise).rejects.toThrowError(
+      /Client must be connected before running operations/
+    );
   });
 }

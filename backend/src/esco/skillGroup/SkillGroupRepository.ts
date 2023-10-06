@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
-import {randomUUID} from "crypto";
-import {INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc} from "./skillGroup.types";
+import { randomUUID } from "crypto";
+import {
+  INewSkillGroupSpec,
+  ISkillGroup,
+  ISkillGroupDoc,
+} from "./skillGroup.types";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -20,7 +24,6 @@ export interface ISkillGroupRepository {
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
-
   public readonly Model: mongoose.Model<ISkillGroupDoc>;
 
   constructor(model: mongoose.Model<ISkillGroupDoc>) {
@@ -38,11 +41,11 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       const newSkillGroupModel = new this.Model({
         ...newSkillGroupSpec,
         parentGroups: [],
-        UUID: randomUUID()
+        UUID: randomUUID(),
       });
       await newSkillGroupModel.save();
-      await newSkillGroupModel.populate({path: "parentGroups"});
-      await newSkillGroupModel.populate({path: "childrenGroups"});
+      await newSkillGroupModel.populate({ path: "parentGroups" });
+      await newSkillGroupModel.populate({ path: "childrenGroups" });
       return newSkillGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -50,22 +53,26 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> {
+  async createMany(
+    newSkillGroupSpecs: INewSkillGroupSpec[]
+  ): Promise<ISkillGroup[]> {
     try {
-      const newSkillGroupModels = newSkillGroupSpecs.map((spec) => {
-        try {
-          return new this.Model({
-            ...spec,
-            parentGroups: [],
-            UUID: randomUUID() // override UUID silently
-          });
-        } catch (e: unknown) {
-          return null;
-        }
-      }).filter(Boolean);
+      const newSkillGroupModels = newSkillGroupSpecs
+        .map((spec) => {
+          try {
+            return new this.Model({
+              ...spec,
+              parentGroups: [],
+              UUID: randomUUID(), // override UUID silently
+            });
+          } catch (e: unknown) {
+            return null;
+          }
+        })
+        .filter(Boolean);
       const newSkillGroups = await this.Model.insertMany(newSkillGroupModels, {
         ordered: false,
-        populate: ["parentGroups", "childrenGroups"]
+        populate: ["parentGroups", "childrenGroups"],
       });
       return newSkillGroups.map((skillGroup) => skillGroup.toObject());
     } catch (e: unknown) {
@@ -76,8 +83,8 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
         const newSkillGroups: ISkillGroup[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate("parentGroups",);
-          await doc.populate("childrenGroups",);
+          await doc.populate("parentGroups");
+          await doc.populate("childrenGroups");
           newSkillGroups.push(doc.toObject());
         }
         return newSkillGroups;

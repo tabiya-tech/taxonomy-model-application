@@ -1,4 +1,4 @@
-import {INewOccupationSpec} from "esco/occupation/occupation.types";
+import { INewOccupationSpec } from "esco/occupation/occupation.types";
 
 export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
@@ -12,7 +12,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     definition: "definition",
     scopeNote: "scope note",
     regulatedProfessionNote: "regulated profession note",
-    importId: "key_1"
+    importId: "key_1",
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -25,6 +25,6 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     definition: "definition\nwith\nlinebreak",
     scopeNote: "scope\nnote\nwith\nlinebreak",
     regulatedProfessionNote: "regulated\nprofession\nnote\nwith\nlinebreak",
-    importId: "key_2"
-  }
+    importId: "key_2",
+  },
 ];

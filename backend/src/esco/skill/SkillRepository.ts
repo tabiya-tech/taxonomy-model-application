@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import {randomUUID} from "crypto";
-import {INewSkillSpec, ISkill, ISkillDoc} from "./skills.types";
+import { randomUUID } from "crypto";
+import { INewSkillSpec, ISkill, ISkillDoc } from "./skills.types";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -16,11 +16,10 @@ export interface ISkillRepository {
    * The promise will reject with an error if the ISkill entries could not be created due to reasons other than not passing the validation.
    * @param newSkillSpecs
    */
-  createMany(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]>
+  createMany(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]>;
 }
 
 export class SkillRepository implements ISkillRepository {
-
   public readonly Model: mongoose.Model<ISkillDoc>;
 
   constructor(model: mongoose.Model<ISkillDoc>) {
@@ -37,7 +36,7 @@ export class SkillRepository implements ISkillRepository {
     try {
       const newSkillModel = new this.Model({
         ...newSkillSpec,
-        UUID: randomUUID()
+        UUID: randomUUID(),
       });
       await newSkillModel.save();
       return newSkillModel.toObject();
@@ -49,18 +48,20 @@ export class SkillRepository implements ISkillRepository {
 
   async createMany(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]> {
     try {
-      const newSkillModels = newSkillSpecs.map((spec) => {
-        try {
-          return new this.Model({
-            ...spec,
-            UUID: randomUUID() // override UUID silently
-          });
-        } catch (e: unknown) {
-          return null;
-        }
-      }).filter(Boolean);
+      const newSkillModels = newSkillSpecs
+        .map((spec) => {
+          try {
+            return new this.Model({
+              ...spec,
+              UUID: randomUUID(), // override UUID silently
+            });
+          } catch (e: unknown) {
+            return null;
+          }
+        })
+        .filter(Boolean);
       const newSkills = await this.Model.insertMany(newSkillModels, {
-        ordered: false
+        ordered: false,
       });
       return newSkills.map((skill) => skill.toObject());
     } catch (e: unknown) {

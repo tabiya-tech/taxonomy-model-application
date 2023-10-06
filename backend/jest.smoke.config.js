@@ -2,7 +2,7 @@
 
 module.exports = {
   modulePaths: ["<rootDir>/src"],
-  testPathIgnorePatterns : [
+  testPathIgnorePatterns: [
     "<rootDir>/build",
     "<rootDir>/coverage",
     "<rootDir>/deploy",
@@ -10,6 +10,6 @@ module.exports = {
   ],
   modulePathIgnorePatterns: ["<rootDir>/build"],
   moduleDirectories: ["node_modules"],
-  preset:"ts-jest",
-  testEnvironment: "node"
+  preset: "ts-jest",
+  testEnvironment: "node",
 };

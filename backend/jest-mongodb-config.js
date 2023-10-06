@@ -1,10 +1,10 @@
 module.exports = {
-    mongodbMemoryServerOptions: {
-        binary: {
-            version: '6.0.4',
-        },
-        instance: {},
-        autoStart: false,
+  mongodbMemoryServerOptions: {
+    binary: {
+      version: "6.0.4",
     },
-    mongoURLEnvName: 'MONGODB_URI',
+    instance: {},
+    autoStart: false,
+  },
+  mongoURLEnvName: "MONGODB_URI",
 };

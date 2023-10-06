@@ -3,17 +3,17 @@
 jest.mock("./newConnection", () => {
   return {
     __esModule: true,
-    getNewConnection: jest.fn()
+    getNewConnection: jest.fn(),
   };
 });
 // ********************
 
-import {getConnectionManager, ConnectionManager} from "./connectionManager";
-import {Connection} from "mongoose";
-import {getNewConnection} from "./newConnection";
+import { getConnectionManager, ConnectionManager } from "./connectionManager";
+import { Connection } from "mongoose";
+import { getNewConnection } from "./newConnection";
 
-describe('Test the ConnectionManager', () => {
-  test('should return a singleton connection manager', () => {
+describe("Test the ConnectionManager", () => {
+  test("should return a singleton connection manager", () => {
     // WHEN trying to get the connection manager
     const connectionManager = getConnectionManager();
 
@@ -22,14 +22,14 @@ describe('Test the ConnectionManager', () => {
     // AND the connection manager should be a singleton
     const connectionManager2 = getConnectionManager();
     expect(connectionManager).toEqual(connectionManager2);
-  })
+  });
 
-  test('should initialize and set the current connection', async () => {
+  test("should initialize and set the current connection", async () => {
     // GIVEN a connection string
-    const dbUri = "mongodb://username@password:server:port/database"
+    const dbUri = "mongodb://username@password:server:port/database";
     // AND the connection to the database will succeed
     // @ts-ignore
-    const mockConnection = {foo: "bar"} as Connection;
+    const mockConnection = { foo: "bar" } as Connection;
     // @ts-ignore
     getNewConnection.mockResolvedValueOnce(mockConnection);
 
@@ -46,18 +46,22 @@ describe('Test the ConnectionManager', () => {
     expect(connectionManager.getCurrentDBConnection()).toEqual(mockConnection);
   });
 
-  test('should fail to initialize if the current connection is already set', async () => {
+  test("should fail to initialize if the current connection is already set", async () => {
     // GIVEN the connection is already set
     // Mock the getCurrentDBConnection function
-    const connectionManager =  new ConnectionManager();
+    const connectionManager = new ConnectionManager();
     // @ts-ignore
-    jest.spyOn(connectionManager, 'getCurrentDBConnection').mockReturnValueOnce({foo: "bar"} as Connection);
+    jest
+      .spyOn(connectionManager, "getCurrentDBConnection")
+      .mockReturnValueOnce({ foo: "bar" } as unknown as Connection);
 
     // WHEN trying to initialize the connection
-    const dbUri = "mongodb://username@password:server:port/database"
+    const dbUri = "mongodb://username@password:server:port/database";
     const actualConnectionPromise = connectionManager.initialize(dbUri);
 
     // THEN the initialization should fail
-    await expect(actualConnectionPromise).rejects.toThrowError("The database connection has already been initialized.");
-  })
+    await expect(actualConnectionPromise).rejects.toThrowError(
+      "The database connection has already been initialized."
+    );
+  });
 });

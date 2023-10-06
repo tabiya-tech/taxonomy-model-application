@@ -1,9 +1,10 @@
-import mongoose  from 'mongoose';
-import {isUnspecified} from "server/isUnspecified";
-import {redactCredentialsFromURI} from "server/httpUtils";
+import mongoose from "mongoose";
+import { isUnspecified } from "server/isUnspecified";
+import { redactCredentialsFromURI } from "server/httpUtils";
 
-export async function getNewConnection(uri: string): Promise<mongoose.Connection> {
-
+export async function getNewConnection(
+  uri: string
+): Promise<mongoose.Connection> {
   // FAIL FAST if the database uri is not specified
   if (isUnspecified(uri)) {
     const error = Error("Database uri not specified.");
@@ -16,11 +17,14 @@ export async function getNewConnection(uri: string): Promise<mongoose.Connection
   try {
     const connection = await mongoose
       .set("sanitizeFilter", true)
-      .set('bufferCommands', true)
-      .set('autoIndex', false) // disable automatic index creation for production
-      .set('autoCreate', false) // disable automatic creation of collections for production
-      .createConnection(uri).asPromise();
-    console.info(`Connected to db ${connection.host}:${connection.port}/${connection.name}`);
+      .set("bufferCommands", true)
+      .set("autoIndex", false) // disable automatic index creation for production
+      .set("autoCreate", false) // disable automatic creation of collections for production
+      .createConnection(uri)
+      .asPromise();
+    console.info(
+      `Connected to db ${connection.host}:${connection.port}/${connection.name}`
+    );
     return connection;
   } catch (error: unknown) {
     // do not log the error here, because it contains the password

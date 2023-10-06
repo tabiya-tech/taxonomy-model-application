@@ -2,8 +2,8 @@ class ImportLogger {
   private _errorCount: number = 0;
   private _warningCount: number = 0;
 
-  logError(error: unknown): void ;
-  logError(message: string, reason?: unknown): void ;
+  logError(error: unknown): void;
+  logError(message: string, reason?: unknown): void;
   logError(obj1: unknown, obj2?: unknown) {
     this._errorCount++;
     if (obj2 !== undefined) {
@@ -15,8 +15,8 @@ class ImportLogger {
     // use the getStringFrom(obj1) to get the string representation of the error to be logged into the database
   }
 
-  logWarning(error: unknown): void ;
-  logWarning(message: string, reason?: unknown): void ;
+  logWarning(error: unknown): void;
+  logWarning(message: string, reason?: unknown): void;
   logWarning(obj1: unknown, obj2?: unknown) {
     this._warningCount++;
     if (obj2 !== undefined) {
@@ -41,20 +41,6 @@ class ImportLogger {
   }
 }
 
-/*
-function getStringFrom(obj: any) {
-  let s: string = "cannot get string representation of object";
-  if (typeof obj === "string") {
-    s = obj;
-  }
-  if (typeof obj === "object") {
-    if (obj.message) {
-      s = obj.message;
-    }
-  }
-  return s;
-}
- */
 // singleton
 const importLoggerInstance = new ImportLogger();
 
