@@ -30,18 +30,13 @@ describe("test getProcessHierarchyBatchFunction", () => {
       createMany: jest
         .fn()
         .mockImplementation(
-          (
-            modelId: string,
-            specs: GivenNewHierarchyEntitySpec[]
-          ): Promise<GivenHierarchyEntity[]> => {
+          (modelId: string, specs: GivenNewHierarchyEntitySpec[]): Promise<GivenHierarchyEntity[]> => {
             return Promise.resolve(
-              specs.map(
-                (spec: GivenNewHierarchyEntitySpec): GivenHierarchyEntity => {
-                  return {
-                    ...spec,
-                  };
-                }
-              )
+              specs.map((spec: GivenNewHierarchyEntitySpec): GivenHierarchyEntity => {
+                return {
+                  ...spec,
+                };
+              })
             );
           }
         ),
@@ -57,10 +52,7 @@ describe("test getProcessHierarchyBatchFunction", () => {
     const actualStats = await processHierarchyBatchFunction(givenBatch);
 
     // THEN expect the repository to have been called with the correct spec
-    expect(givenMockRepository.createMany).toHaveBeenCalledWith(
-      givenModelId,
-      givenBatch
-    );
+    expect(givenMockRepository.createMany).toHaveBeenCalledWith(givenModelId, givenBatch);
     // AND all the entities to have been processed successfully
     expect(actualStats).toEqual({
       rowsProcessed: givenBatch.length,
@@ -88,18 +80,14 @@ describe("test getProcessHierarchyBatchFunction", () => {
     const givenBatch: GivenNewHierarchyEntitySpec[] = [{}, {}, {}, {}];
 
     // WHEN the processHierarchyEntityBatchFunction is created and called
-    const processHierarchyEntityBatchFunction =
-      getProcessHierarchyBatchFunction<
-        GivenHierarchyEntity,
-        GivenNewHierarchyEntitySpec
-      >(givenModelId, givenHierarchyEntityName, givenMockRepository);
+    const processHierarchyEntityBatchFunction = getProcessHierarchyBatchFunction<
+      GivenHierarchyEntity,
+      GivenNewHierarchyEntitySpec
+    >(givenModelId, givenHierarchyEntityName, givenMockRepository);
     const actualStats = await processHierarchyEntityBatchFunction(givenBatch);
 
     // THEN expect the repository to have been called with the correct spec, for all the specs
-    expect(givenMockRepository.createMany).toHaveBeenCalledWith(
-      givenModelId,
-      givenBatch
-    );
+    expect(givenMockRepository.createMany).toHaveBeenCalledWith(givenModelId, givenBatch);
 
     // AND all the entities to have failed to be processed
     expect(actualStats).toEqual({
@@ -109,9 +97,7 @@ describe("test getProcessHierarchyBatchFunction", () => {
     });
     // AND an error should be logged for the failed repository call
     expect(importLogger.logError).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `Failed to process ${givenHierarchyEntityName}s batch`
-      ),
+      expect.stringContaining(`Failed to process ${givenHierarchyEntityName}s batch`),
       givenError
     );
     // AND a warning should be logged
@@ -132,20 +118,15 @@ describe("test getProcessHierarchyBatchFunction", () => {
       createMany: jest
         .fn()
         .mockImplementation(
-          (
-            modelId: string,
-            specs: GivenNewHierarchyEntitySpec[]
-          ): Promise<GivenHierarchyEntity[]> => {
+          (modelId: string, specs: GivenNewHierarchyEntitySpec[]): Promise<GivenHierarchyEntity[]> => {
             return Promise.resolve(
               specs
                 .filter((v, i) => i % 2 === 1)
-                .map(
-                  (spec: GivenNewHierarchyEntitySpec): GivenHierarchyEntity => {
-                    return {
-                      ...spec,
-                    };
-                  }
-                )
+                .map((spec: GivenNewHierarchyEntitySpec): GivenHierarchyEntity => {
+                  return {
+                    ...spec,
+                  };
+                })
             );
           }
         ),
@@ -154,18 +135,14 @@ describe("test getProcessHierarchyBatchFunction", () => {
     const givenBatch: GivenNewHierarchyEntitySpec[] = [{}, {}, {}, {}, {}, {}];
 
     // WHEN the processHierarchyEntityBatchFunction is created and called
-    const processHierarchyEntityBatchFunction =
-      getProcessHierarchyBatchFunction<
-        GivenHierarchyEntity,
-        GivenNewHierarchyEntitySpec
-      >(givenModelId, givenHierarchyEntityName, givenMockRepository);
+    const processHierarchyEntityBatchFunction = getProcessHierarchyBatchFunction<
+      GivenHierarchyEntity,
+      GivenNewHierarchyEntitySpec
+    >(givenModelId, givenHierarchyEntityName, givenMockRepository);
     const actualStats = await processHierarchyEntityBatchFunction(givenBatch);
 
     // THEN expect the repository to have been called with the correct spec, for all the specs
-    expect(givenMockRepository.createMany).toHaveBeenCalledWith(
-      givenModelId,
-      givenBatch
-    );
+    expect(givenMockRepository.createMany).toHaveBeenCalledWith(givenModelId, givenBatch);
 
     // AND only half the entities to have been processed successfully
     expect(actualStats).toEqual({

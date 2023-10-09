@@ -25,12 +25,6 @@ export interface IImportProcessState extends IImportProcessStateDoc {
 /**
  *  Describes how new ImportProcessState are created in the API
  */
-export type INewImportProcessStateSpec = Omit<
-  IImportProcessState,
-  "createdAt" | "updatedAt"
->;
+export type INewImportProcessStateSpec = Omit<IImportProcessState, "createdAt" | "updatedAt">;
 
-export type IUpdateImportProcessStateSpec = Omit<
-  IImportProcessState,
-  "id" | "modelId" | "createdAt" | "updatedAt"
->;
+export type IUpdateImportProcessStateSpec = Omit<IImportProcessState, "id" | "modelId" | "createdAt" | "updatedAt">;

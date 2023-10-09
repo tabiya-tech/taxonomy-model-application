@@ -1,11 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import {
-  INewOccupationSpec,
-  IOccupation,
-  IOccupationDoc,
-  IOccupationReferenceDoc,
-} from "./occupation.types";
+import { INewOccupationSpec, IOccupation, IOccupationDoc, IOccupationReferenceDoc } from "./occupation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ReferenceWithModelId } from "esco/common/objectTypes";
 import { IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
@@ -52,10 +47,7 @@ export class OccupationRepository implements IOccupationRepository {
         UUID: randomUUID(),
       });
       await newOccupationModel.save();
-      await newOccupationModel.populate([
-        { path: "parent" },
-        { path: "children" },
-      ]);
+      await newOccupationModel.populate([{ path: "parent" }, { path: "children" }]);
       return newOccupationModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -63,9 +55,7 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  async createMany(
-    newOccupationSpecs: INewOccupationSpec[]
-  ): Promise<IOccupation[]> {
+  async createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]> {
     try {
       const newOccupationModels = newOccupationSpecs
         .map((spec) => {
@@ -102,9 +92,7 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  async findById(
-    id: string | mongoose.Types.ObjectId
-  ): Promise<IOccupation | null> {
+  async findById(id: string | mongoose.Types.ObjectId): Promise<IOccupation | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const occupation = await this.Model.findById(id)
@@ -114,10 +102,7 @@ export class OccupationRepository implements IOccupationRepository {
             path: "parentId",
             transform: function (
               doc
-            ):
-              | ReferenceWithModelId<IISCOGroupReferenceDoc>
-              | ReferenceWithModelId<IOccupationReferenceDoc>
-              | null {
+            ): ReferenceWithModelId<IISCOGroupReferenceDoc> | ReferenceWithModelId<IOccupationReferenceDoc> | null {
               // return only the relevant fields
               if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
                 return getISCOGroupReferenceWithModelId(doc);
@@ -125,15 +110,11 @@ export class OccupationRepository implements IOccupationRepository {
               if (doc.constructor.modelName === MongooseModelName.Occupation) {
                 return getOccupationReferenceWithModelId(doc);
               }
-              console.error(
-                `Parent is not an ISCOGroup or an Occupation: ${doc.constructor.modelName}`
-              );
+              console.error(`Parent is not an ISCOGroup or an Occupation: ${doc.constructor.modelName}`);
               return null;
             },
           },
-          transform: function (
-            doc
-          ): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
+          transform: function (doc): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
             // return only the relevant fields
             if (!doc?.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
 
@@ -149,16 +130,12 @@ export class OccupationRepository implements IOccupationRepository {
           path: "children",
           populate: {
             path: "childId",
-            transform: function (
-              doc
-            ): ReferenceWithModelId<IOccupationReferenceDoc> | null {
+            transform: function (doc): ReferenceWithModelId<IOccupationReferenceDoc> | null {
               // return only the relevant fields
               if (doc.constructor.modelName === MongooseModelName.Occupation) {
                 return getOccupationReferenceWithModelId(doc);
               }
-              console.error(
-                `Child is not an Occupation: ${doc.constructor.modelName}`
-              );
+              console.error(`Child is not an Occupation: ${doc.constructor.modelName}`);
               return null;
             },
           },

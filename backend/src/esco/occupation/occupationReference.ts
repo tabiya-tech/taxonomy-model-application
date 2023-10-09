@@ -1,9 +1,7 @@
 import { ObjectTypes, ReferenceWithModelId } from "esco/common/objectTypes";
 import { IOccupationDoc, IOccupationReferenceDoc } from "./occupation.types";
 
-export function getOccupationReferenceWithModelId(
-  doc: IOccupationDoc
-): ReferenceWithModelId<IOccupationReferenceDoc> {
+export function getOccupationReferenceWithModelId(doc: IOccupationDoc): ReferenceWithModelId<IOccupationReferenceDoc> {
   return {
     modelId: doc.modelId,
     id: doc.id,

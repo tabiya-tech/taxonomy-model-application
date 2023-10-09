@@ -8,10 +8,7 @@ import { Connection } from "mongoose";
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 
-import {
-  getRandomString,
-  getTestString,
-} from "_test_utilities/specialCharacters";
+import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { handler as modelHandler } from "./index";
 import addFormats from "ajv-formats";
@@ -27,13 +24,9 @@ async function createModelsInDB(count: number) {
       locale: {
         UUID: randomUUID(),
         name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(
-          LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-        ),
+        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
-      description: getTestString(
-        ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH
-      ),
+      description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
     });
   }
 }
@@ -43,9 +36,7 @@ describe("Test for model handler with a DB", () => {
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("ModelInfoHandlerTestDB");
-    jest
-      .spyOn(require("server/config/config"), "readEnvironmentConfiguration")
-      .mockReturnValue(config);
+    jest.spyOn(require("server/config/config"), "readEnvironmentConfiguration").mockReturnValue(config);
     await initOnce();
     dbConnection = getConnectionManager().getCurrentDBConnection();
   });
@@ -70,13 +61,9 @@ describe("Test for model handler with a DB", () => {
       locale: {
         UUID: randomUUID(),
         name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getRandomString(
-          LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-        ),
+        shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
-      description: getRandomString(
-        ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH
-      ),
+      description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
     };
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,
@@ -101,9 +88,7 @@ describe("Test for model handler with a DB", () => {
     addFormats(ajv);
     ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
     ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload);
-    const validateResponse = ajv.compile(
-      ModelInfoAPISpecs.Schemas.POST.Response.Payload
-    );
+    const validateResponse = ajv.compile(ModelInfoAPISpecs.Schemas.POST.Response.Payload);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
   });
@@ -134,9 +119,7 @@ describe("Test for model handler with a DB", () => {
     addFormats(ajv);
     ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
     ajv.addSchema(ModelInfoAPISpecs.Schemas.GET.Response.Payload);
-    const validateResponse = ajv.compile(
-      ModelInfoAPISpecs.Schemas.GET.Response.Payload
-    );
+    const validateResponse = ajv.compile(ModelInfoAPISpecs.Schemas.GET.Response.Payload);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
   });

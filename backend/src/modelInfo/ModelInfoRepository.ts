@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import {
-  IModelInfo,
-  IModelInfoDoc,
-  INewModelInfoSpec,
-} from "./modelInfo.types";
+import { IModelInfo, IModelInfoDoc, INewModelInfoSpec } from "./modelInfo.types";
 import { populateImportProcessStateOptions } from "./populateImportProcessStateOptions";
 
 export interface IModelRepository {
@@ -74,9 +70,7 @@ export class ModelRepository implements IModelRepository {
 
   async getModelById(modelId: string): Promise<IModelInfo | null> {
     try {
-      const modelInfo = await this.Model.findById(modelId)
-        .populate(populateImportProcessStateOptions)
-        .exec();
+      const modelInfo = await this.Model.findById(modelId).populate(populateImportProcessStateOptions).exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
       console.error("getModelById failed", e);
@@ -90,9 +84,7 @@ export class ModelRepository implements IModelRepository {
       const filter = {
         UUID: { $eq: modelUUID },
       };
-      const modelInfo = await this.Model.findOne(filter)
-        .populate(populateImportProcessStateOptions)
-        .exec();
+      const modelInfo = await this.Model.findOne(filter).populate(populateImportProcessStateOptions).exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
       console.error("getModelByUUID failed", e);
@@ -102,9 +94,7 @@ export class ModelRepository implements IModelRepository {
 
   async getModels(): Promise<IModelInfo[]> {
     try {
-      const modelInfos = await this.Model.find({})
-        .populate(populateImportProcessStateOptions)
-        .exec();
+      const modelInfos = await this.Model.find({}).populate(populateImportProcessStateOptions).exec();
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {
       console.error("getModels failed", e);

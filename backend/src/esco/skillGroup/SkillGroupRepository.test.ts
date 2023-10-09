@@ -4,15 +4,9 @@ import "_test_utilities/consoleMock";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { Connection } from "mongoose";
 import { randomUUID } from "crypto";
-import {
-  generateRandomUrl,
-  getTestString,
-} from "_test_utilities/specialCharacters";
+import { generateRandomUrl, getTestString } from "_test_utilities/specialCharacters";
 import { getNewConnection } from "server/connection/newConnection";
-import {
-  getRepositoryRegistry,
-  RepositoryRegistry,
-} from "server/repositoryRegistry/repositoryRegistry";
+import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { ISkillGroupRepository } from "./SkillGroupRepository";
@@ -47,10 +41,7 @@ function getNewSkillGroupSpec(): INewSkillGroupSpec {
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-    altLabels: [
-      getTestString(LABEL_MAX_LENGTH, "1_"),
-      getTestString(LABEL_MAX_LENGTH, "2_"),
-    ],
+    altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
@@ -126,9 +117,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const actualNewModel = await repository.create(givenNewSkillGroupSpec);
 
       // THEN expect the new skillGroup to be created with the specific attributes
-      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(
-        givenNewSkillGroupSpec
-      );
+      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec);
       expect(actualNewModel).toEqual(expectedNewSkillGroup);
     });
 
@@ -149,11 +138,8 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     describe("Test unique indexes", () => {
       test("should reject with an error when creating a skill group with an existing UUID", async () => {
         // GIVEN a SkillGroup record exists in the database
-        const givenNewSkillGroupSpecSpec: INewSkillGroupSpec =
-          getNewSkillGroupSpec();
-        const givenNewModel = await repository.create(
-          givenNewSkillGroupSpecSpec
-        );
+        const givenNewSkillGroupSpecSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+        const givenNewModel = await repository.create(givenNewSkillGroupSpecSpec);
 
         // WHEN Creating a new SkillGroup with the UUID of the existing SkillGroup
         // @ts-ignore
@@ -188,8 +174,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of skills Groups with the given specifications
-      const actualNewSkillGroups: INewSkillGroupSpec[] =
-        await repository.createMany(givenNewSkillGroupSpecs);
+      const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
 
       // THEN expect all the Skill Groups to be created with the specific attributes
       expect(actualNewSkillGroups).toEqual(
@@ -203,31 +188,22 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     test("should successfully create a batch of new skill groups even if some don't validate", async () => {
       // GIVEN two valid SkillGroupSpec
-      const givenValidSkillGroupSpecs: INewSkillGroupSpec[] = [
-        getNewSkillGroupSpec(),
-        getNewSkillGroupSpec(),
-      ];
+      const givenValidSkillGroupSpecs: INewSkillGroupSpec[] = [getNewSkillGroupSpec(), getNewSkillGroupSpec()];
       // AND two SkillGroupSpec that is invalid
-      const givenInvalidSkillGroupSpec: INewSkillGroupSpec[] = [
-        getNewSkillGroupSpec(),
-        getNewSkillGroupSpec(),
-      ];
+      const givenInvalidSkillGroupSpec: INewSkillGroupSpec[] = [getNewSkillGroupSpec(), getNewSkillGroupSpec()];
       givenInvalidSkillGroupSpec[0].code = "invalid code"; // will not validate but will not throw an error
       // @ts-ignore
       givenInvalidSkillGroupSpec[1].foo = "invalid"; // will not validate and will throw an error
 
       // WHEN creating the batch of skills Groups with the given specifications
-      const actualNewSkillGroups: INewSkillGroupSpec[] =
-        await repository.createMany([
-          givenValidSkillGroupSpecs[0],
-          ...givenInvalidSkillGroupSpec,
-          givenValidSkillGroupSpecs[1],
-        ]);
+      const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany([
+        givenValidSkillGroupSpecs[0],
+        ...givenInvalidSkillGroupSpec,
+        givenValidSkillGroupSpecs[1],
+      ]);
 
       // THEN expect only the valid Skill Group to be created
-      expect(actualNewSkillGroups).toHaveLength(
-        givenValidSkillGroupSpecs.length
-      );
+      expect(actualNewSkillGroups).toHaveLength(givenValidSkillGroupSpecs.length);
 
       expect(actualNewSkillGroups).toEqual(
         expect.arrayContaining(
@@ -248,8 +224,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of skills Groups with the given specifications
-      const actualNewSkillGroups: INewSkillGroupSpec[] =
-        await repository.createMany(givenValidSkillGroupSpecs);
+      const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenValidSkillGroupSpecs);
 
       // THEN expect no skill to be created
       expect(actualNewSkillGroups).toHaveLength(0);
@@ -265,14 +240,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         }
 
         // WHEN creating the batch of skills Groups with the given specifications (the second SkillGroupSpec having the same UUID as the first one)
-        (randomUUID as jest.Mock).mockReturnValueOnce(
-          "014b0bd8-120d-4ca4-b4c6-40953b170219"
-        );
-        (randomUUID as jest.Mock).mockReturnValueOnce(
-          "014b0bd8-120d-4ca4-b4c6-40953b170219"
-        );
-        const actualNewSkillGroups: INewSkillGroupSpec[] =
-          await repository.createMany(givenNewSkillGroupSpecs);
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
 
         // THEN expect only the first and the third the Skill Groups to be created with the specific attributes
         expect(actualNewSkillGroups).toEqual(
@@ -300,9 +270,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
   });
 });
 
-function TestConnectionFailure(
-  actionCallback: (repository: ISkillGroupRepository) => Promise<any>
-) {
+function TestConnectionFailure(actionCallback: (repository: ISkillGroupRepository) => Promise<any>) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
     const givenConfig = getTestConfiguration("SkillGroupRepositoryTestDB");

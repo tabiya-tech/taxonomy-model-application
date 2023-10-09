@@ -43,17 +43,11 @@ describe("Test the definition of the ModelInfo Model", () => {
       locale: {
         UUID: randomUUID(),
         name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(
-          LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-        ),
+        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
-      description: getTestString(
-        ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH
-      ),
+      description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       released: false,
-      releaseNotes: getTestString(
-        ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH
-      ),
+      releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
       importProcessState: getMockId(2),
       createdAt: new Date().toISOString(),
@@ -80,9 +74,7 @@ describe("Test the definition of the ModelInfo Model", () => {
       locale: {
         UUID: randomUUID(),
         name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(
-          LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-        ),
+        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
       description: "",
       released: false,
@@ -114,27 +106,11 @@ describe("Test the definition of the ModelInfo Model", () => {
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
-        [
-          CaseType.Success,
-          "the longest",
-          getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-          undefined,
-        ],
+        [CaseType.Success, "the longest", getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH), undefined],
       ])(
         "(%s) Validate 'description' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "description",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "description", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -146,9 +122,7 @@ describe("Test the definition of the ModelInfo Model", () => {
         [
           CaseType.Failure,
           "Too long releaseNotes",
-          getTestString(
-            ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH + 1
-          ),
+          getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH + 1),
           `Release notes must be at most ${ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH} chars long`,
         ],
         [CaseType.Success, "empty", "", undefined],
@@ -162,19 +136,8 @@ describe("Test the definition of the ModelInfo Model", () => {
         ],
       ])(
         "(%s) Validate 'releaseNotes' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "releaseNotes",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "releaseNotes", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -192,27 +155,11 @@ describe("Test the definition of the ModelInfo Model", () => {
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
         [CaseType.Success, "one character", "a", undefined],
-        [
-          CaseType.Success,
-          "the longest",
-          getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-          undefined,
-        ],
+        [CaseType.Success, "the longest", getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH), undefined],
       ])(
         "(%s) Validate 'version' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "version",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "version", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -235,29 +182,10 @@ describe("Test the definition of the ModelInfo Model", () => {
           `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
         ],
         [CaseType.Success, "one character", "a", undefined],
-        [
-          CaseType.Success,
-          "the longest",
-          getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-          undefined,
-        ],
-      ])(
-        "(%s) Validate 'name' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "name",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
+        [CaseType.Success, "the longest", getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH), undefined],
+      ])("(%s) Validate 'name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "name", caseType, value, expectedFailureMessage);
+      });
     });
 
     describe("Test validation of 'previousUUID'", () => {
@@ -270,29 +198,13 @@ describe("Test the definition of the ModelInfo Model", () => {
           WHITESPACE,
           `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
         ],
-        [
-          CaseType.Failure,
-          "not a UUID v4",
-          "foo",
-          "Validator failed for path `{0}` with value `foo`",
-        ],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
         [CaseType.Success, "Empty previousUUID", "", undefined],
         [CaseType.Success, "Valid previousUUID", randomUUID(), undefined],
       ])(
         "(%s) Validate 'previousUUID' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "previousUUID",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "previousUUID", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -307,29 +219,13 @@ describe("Test the definition of the ModelInfo Model", () => {
           WHITESPACE,
           `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
         ],
-        [
-          CaseType.Failure,
-          "not a UUID v4",
-          "foo",
-          "Validator failed for path `{0}` with value `foo`",
-        ],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
         [CaseType.Success, "Empty originUUID", "", undefined],
         [CaseType.Success, "Valid originUUID", randomUUID(), undefined],
       ])(
         "(%s) Validate 'originUUID' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "originUUID",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "originUUID", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -345,59 +241,24 @@ describe("Test the definition of the ModelInfo Model", () => {
           WHITESPACE,
           `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
         ],
-        [
-          CaseType.Failure,
-          "not a UUID v4",
-          "foo",
-          "Validator failed for path `{0}` with value `foo`",
-        ],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
         [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(
-        "(%s) Validate 'UUID' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "UUID",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
+      ])("(%s) Validate 'UUID' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "UUID", caseType, value, expectedFailureMessage);
+      });
     });
 
     describe("Test validation of 'released'", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "not boolean",
-          "foo",
-          'Cast to Boolean failed .* path "{0}"',
-        ],
+        [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
         [CaseType.Success, "true", true, undefined],
         [CaseType.Success, "false", false, undefined],
       ])(
         "(%s) Validate 'released' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            "released",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "released", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -413,21 +274,11 @@ describe("Test the definition of the ModelInfo Model", () => {
           WHITESPACE,
           `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
         ],
-        [
-          CaseType.Failure,
-          "not a UUID v4",
-          "foo",
-          "Validator failed for path `{0}` with value `foo`",
-        ],
+        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
         [CaseType.Success, "Valid locale.UUID", randomUUID(), undefined],
       ])(
         "(%s) Validate 'locale.name' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<IModelInfoDoc>(
             ModelInfoModel,
             ["locale", "UUID"],
@@ -450,20 +301,10 @@ describe("Test the definition of the ModelInfo Model", () => {
           `Name must be at most ${ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH} chars long`,
         ],
         [CaseType.Success, "Empty locale.name", "", undefined],
-        [
-          CaseType.Success,
-          "Valid locale.name",
-          getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-          undefined,
-        ],
+        [CaseType.Success, "Valid locale.name", getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH), undefined],
       ])(
         "(%s) Validate 'locale.name' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<IModelInfoDoc>(
             ModelInfoModel,
             ["locale", "name"],
@@ -482,9 +323,7 @@ describe("Test the definition of the ModelInfo Model", () => {
         [
           CaseType.Failure,
           "Too long locale name",
-          getTestString(
-            LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1
-          ),
+          getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1),
           `Short code must be at most ${LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`,
         ],
         [CaseType.Success, "Empty locale.shortCode", "", undefined],
@@ -496,12 +335,7 @@ describe("Test the definition of the ModelInfo Model", () => {
         ],
       ])(
         "(%s) Validate 'locale.shortcode' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<IModelInfoDoc>(
             ModelInfoModel,
             ["locale", "shortCode"],
@@ -517,12 +351,7 @@ describe("Test the definition of the ModelInfo Model", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "empty",
-          "",
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
+        [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [
           CaseType.Failure,
           "only whitespace characters",
@@ -541,21 +370,11 @@ describe("Test the definition of the ModelInfo Model", () => {
           { foo: "bar" },
           'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
         ],
-        [
-          CaseType.Success,
-          "ObjectID",
-          new mongoose.Types.ObjectId(),
-          undefined,
-        ],
+        [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])(
         `(%s) Validate 'importProcessState' when it is %s`,
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<IModelInfoDoc>(
             ModelInfoModel,
             ["importProcessState"],

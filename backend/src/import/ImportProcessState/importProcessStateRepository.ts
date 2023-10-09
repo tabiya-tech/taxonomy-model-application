@@ -20,24 +20,17 @@ export interface IImportProcessStateRepository {
    * @param id
    * @param updateSpecs
    */
-  update(
-    id: string,
-    updateSpecs: IUpdateImportProcessStateSpec
-  ): Promise<IImportProcessState>;
+  update(id: string, updateSpecs: IUpdateImportProcessStateSpec): Promise<IImportProcessState>;
 }
 
-export class ImportProcessStateRepository
-  implements IImportProcessStateRepository
-{
+export class ImportProcessStateRepository implements IImportProcessStateRepository {
   public readonly Model: mongoose.Model<IImportProcessStateDoc>;
 
   constructor(model: mongoose.Model<IImportProcessStateDoc>) {
     this.Model = model;
   }
 
-  async create(
-    newSpecs: INewImportProcessStateSpec
-  ): Promise<IImportProcessState> {
+  async create(newSpecs: INewImportProcessStateSpec): Promise<IImportProcessState> {
     try {
       const newDoc = new this.Model({
         ...newSpecs,
@@ -51,10 +44,7 @@ export class ImportProcessStateRepository
     }
   }
 
-  async update(
-    id: string,
-    updateSpecs: IUpdateImportProcessStateSpec
-  ): Promise<IImportProcessState> {
+  async update(id: string, updateSpecs: IUpdateImportProcessStateSpec): Promise<IImportProcessState> {
     try {
       let doc = null;
       doc = await this.Model.findById(id).exec();

@@ -1,10 +1,7 @@
 // Suppress chatty console during the tests
 import "_test_utilities/consoleMock";
 
-import {
-  getRepositoryRegistry,
-  RepositoryRegistry,
-} from "./repositoryRegistry";
+import { getRepositoryRegistry, RepositoryRegistry } from "./repositoryRegistry";
 import { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 
@@ -53,8 +50,6 @@ describe("test the RepositoryRegistry", () => {
     const initializePromise = repositoryRegistry.initialize(undefined);
 
     // THEN it should reject with an error
-    await expect(initializePromise).rejects.toThrowError(
-      "Connection is undefined"
-    );
+    await expect(initializePromise).rejects.toThrowError("Connection is undefined");
   });
 });

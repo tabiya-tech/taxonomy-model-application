@@ -24,10 +24,7 @@ describe("Test S3PresignerService", () => {
     const givenBucket = "bar";
 
     // WHEN constructing a new S3PresignerService with the given region and bucket
-    const actualS3PresignerService = new S3PresignerService(
-      givenRegion,
-      givenBucket
-    );
+    const actualS3PresignerService = new S3PresignerService(givenRegion, givenBucket);
 
     // THEN expect the service to be constructed
     expect(actualS3PresignerService).toBeDefined();
@@ -39,10 +36,7 @@ describe("Test S3PresignerService", () => {
     // AND a bucket
     const givenBucket = "bar";
     // AND a S3PresignerService constructed with the given region and bucket
-    const givenS3PresignerService = new S3PresignerService(
-      givenRegion,
-      givenBucket
-    );
+    const givenS3PresignerService = new S3PresignerService(givenRegion, givenBucket);
     // AND a file key
     const givenFileKey = "baz";
 
@@ -57,8 +51,6 @@ describe("Test S3PresignerService", () => {
       Key: givenFileKey,
     });
     // AND expect the getSignedUrl to return whatever the getSignedUrl returns
-    expect(actualPromise).toEqual(
-      (getSignedUrl as jest.Mock).mock.results[0].value
-    );
+    expect(actualPromise).toEqual((getSignedUrl as jest.Mock).mock.results[0].value);
   });
 });

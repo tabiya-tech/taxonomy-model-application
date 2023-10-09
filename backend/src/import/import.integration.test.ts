@@ -39,8 +39,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
   // Initialize the server with an in-memory mongodb
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    process.env[ENV_VAR_NAMES.MONGODB_URI] =
-      process.env[ENV_VAR_NAMES.MONGODB_URI] + "CSVImportIntegrationTestDB";
+    process.env[ENV_VAR_NAMES.MONGODB_URI] = process.env[ENV_VAR_NAMES.MONGODB_URI] + "CSVImportIntegrationTestDB";
     process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_NAME] = "not-used";
     process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_REGION] = "not-used";
     process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_ARN] = "not-used";
@@ -67,16 +66,15 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
     const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
     // 01. Create a new ModelInfo
-    const modelInfo: IModelInfo =
-      await getRepositoryRegistry().modelInfo.create({
-        name: "CSVImport",
-        description: "CSVImport",
-        locale: {
-          name: "en",
-          UUID: randomUUID(),
-          shortCode: "en",
-        },
-      } as INewModelInfoSpec);
+    const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: "CSVImport",
+      description: "CSVImport",
+      locale: {
+        name: "en",
+        UUID: randomUUID(),
+        shortCode: "en",
+      },
+    } as INewModelInfoSpec);
 
     const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
     const dataFolder = "../data-sets/csv/tabiya-sample/";
@@ -96,26 +94,14 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       dataFolder + "skillGroups.csv",
       importIdToDBIdMap
     );
-    asserSuccessfullyImported(
-      statsSkillGroups,
-      consoleErrorSpy,
-      consoleWarnSpy
-    );
-    expect(importIdToDBIdMap.size).toEqual(
-      statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed
-    );
+    asserSuccessfullyImported(statsSkillGroups, consoleErrorSpy, consoleWarnSpy);
+    expect(importIdToDBIdMap.size).toEqual(statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed);
 
     // 04. Import the ESCO Skills CSV files
-    const statsSkills = await parseSkillsFromFile(
-      modelInfo.id,
-      dataFolder + "skills.csv",
-      importIdToDBIdMap
-    );
+    const statsSkills = await parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap);
     asserSuccessfullyImported(statsSkills, consoleErrorSpy, consoleWarnSpy);
     expect(importIdToDBIdMap.size).toEqual(
-      statsISCOGroups.rowsProcessed +
-        statsSkillGroups.rowsProcessed +
-        statsSkills.rowsProcessed
+      statsISCOGroups.rowsProcessed + statsSkillGroups.rowsProcessed + statsSkills.rowsProcessed
     );
 
     // 05. Import the Occupations CSV files
@@ -124,11 +110,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       dataFolder + "occupations.csv",
       importIdToDBIdMap
     );
-    asserSuccessfullyImported(
-      statsOccupations,
-      consoleErrorSpy,
-      consoleWarnSpy
-    );
+    asserSuccessfullyImported(statsOccupations, consoleErrorSpy, consoleWarnSpy);
     expect(importIdToDBIdMap.size).toEqual(
       statsISCOGroups.rowsProcessed +
         statsSkillGroups.rowsProcessed +
@@ -142,15 +124,9 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       dataFolder + "occupations_hierarchy.csv",
       importIdToDBIdMap
     );
-    asserSuccessfullyImported(
-      statsOccHierarchy,
-      consoleErrorSpy,
-      consoleWarnSpy
-    );
+    asserSuccessfullyImported(statsOccHierarchy, consoleErrorSpy, consoleWarnSpy);
     // every occupation should have one parent occupation, except for the 10 top level occupations (the 10 top level ISCO groups)
-    expect(statsOccHierarchy.rowsSuccess).toEqual(
-      statsISCOGroups.rowsSuccess + statsOccupations.rowsSuccess - 10
-    );
+    expect(statsOccHierarchy.rowsSuccess).toEqual(statsISCOGroups.rowsSuccess + statsOccupations.rowsSuccess - 10);
   }, 30000); // 30 seconds timeout to allow for the import to complete
 });
 

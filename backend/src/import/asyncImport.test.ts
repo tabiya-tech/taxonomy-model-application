@@ -25,23 +25,17 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     // GIVEN an Import
     const givenImport: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]:
-          "path/to/ESCO_SKILL_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]:
-          "path/to//ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
       },
       modelId: "foo",
     };
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
-    jest
-      .spyOn(config, "getAsyncLambdaFunctionArn")
-      .mockReturnValue(givenConfigAsyncLambdaFunctionArn);
+    jest.spyOn(config, "getAsyncLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
     // AND some lambda function region will be return by the  configuration
     const givenConfigAsyncLambdaFunctionRegion = "foo";
-    jest
-      .spyOn(config, "getAsyncLambdaFunctionRegion")
-      .mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
+    jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
 
     // WHEN calling the lambda_invokeAsyncImport() function with the given Import
     const actualResponse = await lambda_invokeAsyncImport(givenImport);
@@ -69,23 +63,17 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     // GIVEN an Import
     const givenImport: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]:
-          "path/toESCO_SKILL_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]:
-          "path/to/ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
       },
       modelId: "foo",
     };
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
-    jest
-      .spyOn(config, "getAsyncLambdaFunctionArn")
-      .mockReturnValue(givenConfigAsyncLambdaFunctionArn);
+    jest.spyOn(config, "getAsyncLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
     // AND some lambda function region will be return by the  configuration
     const givenConfigAsyncLambdaFunctionRegion = "foo";
-    jest
-      .spyOn(config, "getAsyncLambdaFunctionRegion")
-      .mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
+    jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
     // AND the InvokeCommand will fail to schedule the call
     // @ts-ignore
     InvokeCommand.mockImplementationOnce(() => {
@@ -98,14 +86,10 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     // THEN expect the function to return a response
     expect(actualResponse).toBeDefined();
     // AND the actualResponse status code to be INTERNAL_SERVER_ERROR
-    expect(actualResponse.statusCode).toEqual(
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
+    expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
     // AND the actualResponse body to have the error information
     const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-      errorCode:
-        ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes
-          .FAILED_TO_TRIGGER_IMPORT,
+      errorCode: ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes.FAILED_TO_TRIGGER_IMPORT,
       message: "Failed to trigger import",
       details: "",
     };

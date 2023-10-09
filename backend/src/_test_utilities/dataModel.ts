@@ -15,16 +15,10 @@ function assertValidationError<T>(
   const newDoc = new model(docSpec);
   const result = newDoc.validateSync();
   expect(result).toBeDefined();
-  expect(result?.errors[failedProperty]?.message).toEqual(
-    expect.stringMatching(new RegExp(failMessage))
-  );
+  expect(result?.errors[failedProperty]?.message).toEqual(expect.stringMatching(new RegExp(failMessage)));
 }
 
-function assertNoValidationError<T>(
-  model: mongoose.Model<T>,
-  docSpecs: Partial<T>,
-  failedProperty: string
-) {
+function assertNoValidationError<T>(model: mongoose.Model<T>, docSpecs: Partial<T>, failedProperty: string) {
   const newDoc = new model(docSpecs);
   const result = newDoc.validateSync();
   if (result) {

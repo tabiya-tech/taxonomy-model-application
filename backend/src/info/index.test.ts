@@ -11,9 +11,7 @@ describe("test for info handler", () => {
   it("GET should respond with the OK and the version, ", async () => {
     // GIVEN some configuration
     const givenResourcesBaseUrl = "https://some/path/to/api/resources";
-    jest
-      .spyOn(config, "getResourcesBaseUrl")
-      .mockReturnValue(givenResourcesBaseUrl);
+    jest.spyOn(config, "getResourcesBaseUrl").mockReturnValue(givenResourcesBaseUrl);
     // AND GET event
     const givenEvent = {
       httpMethod: HTTP_VERBS.GET,
@@ -35,13 +33,7 @@ describe("test for info handler", () => {
   });
 
   testMethodsNotAllowed(
-    [
-      HTTP_VERBS.PUT,
-      HTTP_VERBS.DELETE,
-      HTTP_VERBS.OPTIONS,
-      HTTP_VERBS.PATCH,
-      HTTP_VERBS.POST,
-    ],
+    [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH, HTTP_VERBS.POST],
     infoHandler
   );
 });

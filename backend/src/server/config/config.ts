@@ -21,10 +21,8 @@ export function readEnvironmentConfiguration(): IConfiguration {
     resourcesBaseUrl: process.env[ENV_VAR_NAMES.RESOURCES_BASE_URL] ?? "",
     uploadBucketName: process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_NAME] ?? "",
     uploadBucketRegion: process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_REGION] ?? "",
-    asyncLambdaFunctionArn:
-      process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_ARN] ?? "",
-    asyncLambdaFunctionRegion:
-      process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_REGION] ?? "",
+    asyncLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_ARN] ?? "",
+    asyncLambdaFunctionRegion: process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_REGION] ?? "",
   };
 }
 

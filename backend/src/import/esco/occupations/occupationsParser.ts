@@ -1,20 +1,11 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import {
-  processDownloadStream,
-  processStream,
-} from "import/stream/processStream";
+import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
 import { BatchProcessor } from "import/batch/BatchProcessor";
-import {
-  BatchRowProcessor,
-  TransformRowToSpecificationFunction,
-} from "import/parse/BatchRowProcessor";
+import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
-import {
-  INewOccupationSpec,
-  IOccupation,
-} from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 
@@ -51,10 +42,11 @@ function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessEntityBatchFunction<
-    IOccupation,
-    INewOccupationSpec
-  >("Occupation", getRepositoryRegistry().occupation, importIdToDBIdMap);
+  const batchProcessFn = getProcessEntityBatchFunction<IOccupation, INewOccupationSpec>(
+    "Occupation",
+    getRepositoryRegistry().occupation,
+    importIdToDBIdMap
+  );
   return new BatchProcessor<INewOccupationSpec>(BATCH_SIZE, batchProcessFn);
 }
 
@@ -86,14 +78,9 @@ export async function parseOccupationsFromUrl(
   importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> {
   const headersValidator = getHeadersValidator("Occupation");
-  const transformRowToSpecificationFn =
-    getRowToSpecificationTransformFn(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
-  const batchRowProcessor = new BatchRowProcessor(
-    headersValidator,
-    transformRowToSpecificationFn,
-    batchProcessor
-  );
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, "Occupation", batchRowProcessor);
 }
 
@@ -104,17 +91,8 @@ export async function parseOccupationsFromFile(
 ): Promise<RowsProcessedStats> {
   const OccupationsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator("Occupation");
-  const transformRowToSpecificationFn =
-    getRowToSpecificationTransformFn(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
-  const batchRowProcessor = new BatchRowProcessor(
-    headersValidator,
-    transformRowToSpecificationFn,
-    batchProcessor
-  );
-  return await processStream<IOccupationRow>(
-    "Occupation",
-    OccupationsCSVFileStream,
-    batchRowProcessor
-  );
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
+  return await processStream<IOccupationRow>("Occupation", OccupationsCSVFileStream, batchRowProcessor);
 }

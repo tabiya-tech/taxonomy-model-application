@@ -30,89 +30,71 @@ const mockS3PresignerServiceInstance = {
 
 jest.mock("./S3PresignerService", () => {
   return {
-    S3PresignerService: jest
-      .fn()
-      .mockReturnValue(mockS3PresignerServiceInstance),
+    S3PresignerService: jest.fn().mockReturnValue(mockS3PresignerServiceInstance),
   };
 });
 
 // Mock the ISCOGroupsParser
 jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
   return {
-    parseISCOGroupsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, any>()
-      .mockResolvedValue({
-        rowsProcessed: 100,
-        rowsSuccess: 100,
-        rowsFailed: 0,
-      } as RowsProcessedStats),
+    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 100,
+      rowsSuccess: 100,
+      rowsFailed: 0,
+    } as RowsProcessedStats),
   };
 });
 // Mock the ESCOSkillGroupsParser
 jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
   return {
-    parseSkillGroupsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, any>()
-      .mockResolvedValue({
-        rowsProcessed: 200,
-        rowsSuccess: 200,
-        rowsFailed: 0,
-      } as RowsProcessedStats),
+    parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 200,
+      rowsSuccess: 200,
+      rowsFailed: 0,
+    } as RowsProcessedStats),
   };
 });
 
 // Mock the ESCOSkillParser
 jest.mock("import/esco/skills/skillsParser.ts", () => {
   return {
-    parseSkillsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, any>()
-      .mockResolvedValue({
-        rowsProcessed: 300,
-        rowsSuccess: 300,
-        rowsFailed: 0,
-      } as RowsProcessedStats),
+    parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 300,
+      rowsSuccess: 300,
+      rowsFailed: 0,
+    } as RowsProcessedStats),
   };
 });
 
 // Mock the OccupationsParser
 jest.mock("import/esco/occupations/occupationsParser.ts", () => {
   return {
-    parseOccupationsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, any>()
-      .mockResolvedValue({
-        rowsProcessed: 200,
-        rowsSuccess: 200,
-        rowsFailed: 0,
-      } as RowsProcessedStats),
+    parseOccupationsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      rowsProcessed: 200,
+      rowsSuccess: 200,
+      rowsFailed: 0,
+    } as RowsProcessedStats),
   };
 });
 
 // Mock the OccupationHierarchyParser
-jest.mock(
-  "import/esco/occupationHierarchy/occupationHierarchyParser.ts",
-  () => {
-    return {
-      parseOccupationHierarchyFromUrl: jest
-        .fn<Promise<RowsProcessedStats>, any>()
-        .mockResolvedValue({
-          // countISCOGroups + countOccupations - 10
-          rowsProcessed: 100 + 200 - 10,
-          rowsSuccess: 100 + 200 - 10,
-          rowsFailed: 0,
-        } as RowsProcessedStats),
-    };
-  }
-);
+jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
+  return {
+    parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+      // countISCOGroups + countOccupations - 10
+      rowsProcessed: 100 + 200 - 10,
+      rowsSuccess: 100 + 200 - 10,
+      rowsFailed: 0,
+    } as RowsProcessedStats),
+  };
+});
 
 // ##############
 import { parseFiles } from "./parseFiles";
 import ImportAPISpecs from "api-specifications/import";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { parseISCOGroupsFromUrl } from "import/esco/ISCOGroups/ISCOGroupsParser";
-import {
-  getUploadBucketName,
-  getUploadBucketRegion,
-} from "server/config/config";
+import { getUploadBucketName, getUploadBucketRegion } from "server/config/config";
 import { S3PresignerService } from "./S3PresignerService";
 import { parseSkillGroupsFromUrl } from "import/esco/skillGroups/skillGroupsParser";
 import { parseSkillsFromUrl } from "import/esco/skills/skillsParser";
@@ -153,9 +135,7 @@ describe("Test the main async handler", () => {
       getModelByUUID: jest.fn().mockResolvedValue(null),
       getModels: jest.fn().mockResolvedValue([]),
     };
-    jest
-      .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-      .mockReturnValue(givenModelInfoRepositoryMock);
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
     // AND the importProcessState will be successfully updated
     const givenImportProcessStateRepositoryMock = {
@@ -170,16 +150,11 @@ describe("Test the main async handler", () => {
     // AND an Import event
     const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]:
-          "path/to/ISCO_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]:
-          "path/to/ESCO_SKILL_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]:
-          "path/to/ESCO_SKILL.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]:
-          "path/to/ESCO_OCCUPATION.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]:
-          "path/to/OCCUPATION_HIERARCHY.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
 
         // ADD additional file types here
       },
@@ -190,14 +165,9 @@ describe("Test the main async handler", () => {
     await parseFiles(givenEvent);
 
     // THEN expect the S3PresignerService to have been instantiated with the correct region and bucket name
-    expect(S3PresignerService).toHaveBeenCalledWith(
-      givenUploadBucketRegion,
-      givenUploadBucketName
-    );
+    expect(S3PresignerService).toHaveBeenCalledWith(givenUploadBucketRegion, givenUploadBucketName);
     // AND expect the importProcessState to have been created with a status of RUNNING
-    expect(
-      getRepositoryRegistry().importProcessState.create
-    ).toHaveBeenCalledWith({
+    expect(getRepositoryRegistry().importProcessState.create).toHaveBeenCalledWith({
       id: givenImportProcessStateId,
       modelId: givenModelId,
       status: ImportProcessStateAPISpec.Enums.Status.RUNNING,
@@ -210,8 +180,7 @@ describe("Test the main async handler", () => {
     // AND for each of the givenEvent.filePaths to call the correct processing function with the giveModelId and the presigned URL for the file path
     for (const entry of Object.entries(givenEvent.filePaths)) {
       const expectedFileType = entry[0];
-      const expectedPresignedUrl =
-        await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
+      const expectedPresignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
       switch (expectedFileType) {
         case ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP:
           expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(
@@ -228,11 +197,7 @@ describe("Test the main async handler", () => {
           );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL:
-          expect(parseSkillsFromUrl).toHaveBeenCalledWith(
-            givenEvent.modelId,
-            expectedPresignedUrl,
-            expect.any(Map)
-          );
+          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION:
           expect(parseOccupationsFromUrl).toHaveBeenCalledWith(
@@ -251,9 +216,7 @@ describe("Test the main async handler", () => {
         // ADD additional file types here
       }
       // AND expect the importProcessState to have been updated with a status of COMPLETED
-      expect(
-        getRepositoryRegistry().importProcessState.update
-      ).toHaveBeenCalledWith(givenImportProcessStateId, {
+      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(givenImportProcessStateId, {
         status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
         result: {
           errored: false,
@@ -270,9 +233,7 @@ describe("Test the main async handler", () => {
         "not report parsingWarnings or parsingErrors when the importLogger has not logged neither errors nor warnings",
         () => {
           jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(0);
-          jest
-            .spyOn(importLogger, "warningCount", "get")
-            .mockReturnValueOnce(0);
+          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(0);
         },
         {
           errored: false,
@@ -284,9 +245,7 @@ describe("Test the main async handler", () => {
         "report parsingWarnings when the importLogger has logged a warning",
         () => {
           jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(0);
-          jest
-            .spyOn(importLogger, "warningCount", "get")
-            .mockReturnValueOnce(1);
+          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(1);
         },
         {
           errored: false,
@@ -298,9 +257,7 @@ describe("Test the main async handler", () => {
         "report parsingErrors when the importLogger has logged an error",
         () => {
           jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(1);
-          jest
-            .spyOn(importLogger, "warningCount", "get")
-            .mockReturnValueOnce(0);
+          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(0);
         },
         {
           errored: false,
@@ -312,9 +269,7 @@ describe("Test the main async handler", () => {
         "report parsingErrors and parsingWarnings when the importLogger has logged an error and a warning",
         () => {
           jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(1);
-          jest
-            .spyOn(importLogger, "warningCount", "get")
-            .mockReturnValueOnce(1);
+          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(1);
         },
         {
           errored: false,
@@ -364,9 +319,7 @@ describe("Test the main async handler", () => {
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue([]),
       };
-      jest
-        .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-        .mockReturnValue(givenModelInfoRepositoryMock);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
       // AND the importProcessState will be successfully updated
       const givenImportProcessStateRepositoryMock = {
@@ -381,16 +334,11 @@ describe("Test the main async handler", () => {
       // AND an Import event
       const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
         filePaths: {
-          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]:
-            "path/to/ISCO_GROUP.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]:
-            "path/to/ESCO_SKILL_GROUP.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]:
-            "path/to/ESCO_SKILL.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]:
-            "path/to/ESCO_OCCUPATION.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]:
-            "path/to/OCCUPATION_HIERARCHY.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
 
           // ADD additional file types here
         },
@@ -403,9 +351,7 @@ describe("Test the main async handler", () => {
       await parseFiles(givenEvent);
 
       // THEN expect the importProcessState to have been updated with a status of COMPLETED
-      expect(
-        getRepositoryRegistry().importProcessState.update
-      ).toHaveBeenCalledWith(givenImportProcessStateId, {
+      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(givenImportProcessStateId, {
         status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
         // AND expect the importProcessState to have been updated with the expected import result
         result: expectedResult,

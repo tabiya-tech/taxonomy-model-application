@@ -13,8 +13,10 @@ describe("test the transformPresignedPostDataToResponse()", () => {
     const givenFolder = "bar";
 
     // WHEN the transformPresignedPostDataToResponse function is called with the given presigned post data
-    const actualPresignedResponse: PresignedAPISpecs.Types.GET.Response.Payload =
-      transformPresignedPostDataToResponse(givenPresignedPostData, givenFolder);
+    const actualPresignedResponse: PresignedAPISpecs.Types.GET.Response.Payload = transformPresignedPostDataToResponse(
+      givenPresignedPostData,
+      givenFolder
+    );
 
     // THEN expect the function to return a correct IPreSignedResponse
     expect(actualPresignedResponse).toEqual({

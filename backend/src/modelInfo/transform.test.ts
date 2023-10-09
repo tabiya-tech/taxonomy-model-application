@@ -11,10 +11,7 @@ describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () 
     const givenBasePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    const actual: ModelInfoAPISpecs.Types.POST.Response.Payload = transform(
-      givenObject,
-      givenBasePath
-    );
+    const actual: ModelInfoAPISpecs.Types.POST.Response.Payload = transform(givenObject, givenBasePath);
 
     // THEN expect the transformation function to return a IModelInfoResponse
     // that contains the input from the IModelInfo

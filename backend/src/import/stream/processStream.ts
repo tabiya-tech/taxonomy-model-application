@@ -23,26 +23,16 @@ export function processDownloadStream<T>(
             reject(e);
             return;
           }
-          const stats = await processStream<T>(
-            streamName,
-            response,
-            rowProcessor
-          );
+          const stats = await processStream<T>(streamName, response, rowProcessor);
           resolve(stats);
         } catch (e: unknown) {
-          importLogger.logError(
-            `Error while processing ${url} for ${streamName}`,
-            e
-          );
+          importLogger.logError(`Error while processing ${url} for ${streamName}`, e);
           reject(e);
         }
       })();
     });
     request.on("error", (error: Error) => {
-      importLogger.logError(
-        `Failed to download file ${url} for ${streamName}`,
-        error
-      );
+      importLogger.logError(`Failed to download file ${url} for ${streamName}`, error);
       reject(error);
     });
   });
@@ -58,17 +48,13 @@ export function processStream<T>(
     (async () => {
       try {
         stream.on("error", (error: Error) => {
-          importLogger.logError(
-            `Error from the reading the stream:${streamName}`,
-            error
-          );
+          importLogger.logError(`Error from the reading the stream:${streamName}`, error);
           reject(error);
         });
         const parser: Parser = stream.pipe(
           parse({
             // Convert the header to uppercase, to avoid case sensitivity issues
-            columns: (header) =>
-              header.map((column: string) => column.toUpperCase()),
+            columns: (header) => header.map((column: string) => column.toUpperCase()),
           })
         );
 
@@ -83,13 +69,9 @@ export function processStream<T>(
         let count = 0;
         for await (const record of parser) {
           if (count === 0) {
-            const headersValidated = await rowProcessor.validateHeaders(
-              Object.keys(record)
-            );
+            const headersValidated = await rowProcessor.validateHeaders(Object.keys(record));
             if (!headersValidated) {
-              const e = new Error(
-                `Invalid headers:${Object.keys(record)} in stream:${streamName}`
-              );
+              const e = new Error(`Invalid headers:${Object.keys(record)} in stream:${streamName}`);
               importLogger.logError(e);
               resolve({ rowsProcessed: 0, rowsFailed: 0, rowsSuccess: 0 });
               return; // stop processing the stream as it is unclear what the csv contains
@@ -101,10 +83,7 @@ export function processStream<T>(
         const stats = await rowProcessor.completed();
         resolve(stats);
       } catch (e: unknown) {
-        importLogger.logError(
-          `Error while processing the stream:${streamName}`,
-          e
-        );
+        importLogger.logError(`Error while processing the stream:${streamName}`, e);
         reject(e);
       }
     })();

@@ -57,12 +57,7 @@ describe("Test the definition of the ImportProcessState Model", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "empty",
-          "",
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
+        [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
         [
           CaseType.Failure,
           "only whitespace characters",
@@ -81,28 +76,12 @@ describe("Test the definition of the ImportProcessState Model", () => {
           { foo: "bar" },
           'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
         ],
-        [
-          CaseType.Success,
-          "ObjectID",
-          new mongoose.Types.ObjectId(),
-          undefined,
-        ],
+        [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
         [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
       ])(
         `(%s) Validate 'modelId' when it is %s`,
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IImportProcessStateDoc>(
-            model,
-            "modelId",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IImportProcessStateDoc>(model, "modelId", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -111,18 +90,8 @@ describe("Test the definition of the ImportProcessState Model", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          ` is not a valid enum value for path \`{0}\`.`,
-        ],
-        [
-          CaseType.Failure,
-          "string",
-          "foo",
-          `\`foo\` is not a valid enum value for path \`{0}\`.`,
-        ],
+        [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
+        [CaseType.Failure, "string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
         [
           CaseType.Success,
           ImportProcessStateApiSpecs.Enums.Status.PENDING,
@@ -143,19 +112,8 @@ describe("Test the definition of the ImportProcessState Model", () => {
         ],
       ])(
         `(%s) Validate 'status' when it is %s`,
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
-          assertCaseForProperty<IImportProcessStateDoc>(
-            model,
-            "status",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IImportProcessStateDoc>(model, "status", caseType, value, expectedFailureMessage);
         }
       );
     });
@@ -164,22 +122,12 @@ describe("Test the definition of the ImportProcessState Model", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "not boolean",
-          "foo",
-          'Cast to Boolean failed .* path "{0}"',
-        ],
+        [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
         [CaseType.Success, "true", true, undefined],
         [CaseType.Success, "false", false, undefined],
       ])(
         "(%s) Validate 'result.errored' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<IImportProcessStateDoc>(
             model,
             ["result", "errored"],
@@ -195,22 +143,12 @@ describe("Test the definition of the ImportProcessState Model", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "not boolean",
-          "foo",
-          'Cast to Boolean failed .* path "{0}"',
-        ],
+        [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
         [CaseType.Success, "true", true, undefined],
         [CaseType.Success, "false", false, undefined],
       ])(
         "(%s) Validate 'result.parsingErrors' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<IImportProcessStateDoc>(
             model,
             ["result", "parsingErrors"],
@@ -226,22 +164,12 @@ describe("Test the definition of the ImportProcessState Model", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "not boolean",
-          "foo",
-          'Cast to Boolean failed .* path "{0}"',
-        ],
+        [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
         [CaseType.Success, "true", true, undefined],
         [CaseType.Success, "false", false, undefined],
       ])(
         "(%s) Validate 'result.parsingWarnings' when it is %s",
-        (
-          caseType: CaseType,
-          caseDescription,
-          value,
-          expectedFailureMessage
-        ) => {
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<IImportProcessStateDoc>(
             model,
             ["result", "parsingWarnings"],

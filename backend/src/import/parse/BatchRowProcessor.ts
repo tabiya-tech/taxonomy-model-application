@@ -6,22 +6,14 @@ export type TransformRowToSpecificationFunction<RowType, SpecificationType> = (
   row: RowType
 ) => SpecificationType | undefined | null;
 
-export class BatchRowProcessor<RowType, SpecificationType>
-  implements RowProcessor<RowType>
-{
+export class BatchRowProcessor<RowType, SpecificationType> implements RowProcessor<RowType> {
   private readonly batchProcessor: BatchProcessor<SpecificationType>;
-  private readonly transformRowToSpecificationFn: TransformRowToSpecificationFunction<
-    RowType,
-    SpecificationType
-  >;
+  private readonly transformRowToSpecificationFn: TransformRowToSpecificationFunction<RowType, SpecificationType>;
   private readonly validateHeadersFn: HeadersValidatorFunction;
 
   constructor(
     validateHeadersFn: HeadersValidatorFunction,
-    transformRowToSpecificationFn: TransformRowToSpecificationFunction<
-      RowType,
-      SpecificationType
-    >,
+    transformRowToSpecificationFn: TransformRowToSpecificationFunction<RowType, SpecificationType>,
     batchProcessor: BatchProcessor<SpecificationType>
   ) {
     this.validateHeadersFn = validateHeadersFn;

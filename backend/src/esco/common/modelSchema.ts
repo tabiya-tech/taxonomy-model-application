@@ -12,15 +12,14 @@ export function hasUniqueValues<T>(value: T[]) {
 // Regulated ProfessionNote
 export const REGULATED_PROFESSION_NOTE_MAX_LENGTH = 4000;
 
-export const RegulatedProfessionNoteProperty: mongoose.SchemaDefinitionProperty<string> =
-  {
-    type: String,
-    required: stringRequired("regulatedProfessionNote"),
-    maxlength: [
-      REGULATED_PROFESSION_NOTE_MAX_LENGTH,
-      `RegulatedProfessionNote must be at most ${REGULATED_PROFESSION_NOTE_MAX_LENGTH} chars long`,
-    ],
-  };
+export const RegulatedProfessionNoteProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("regulatedProfessionNote"),
+  maxlength: [
+    REGULATED_PROFESSION_NOTE_MAX_LENGTH,
+    `RegulatedProfessionNote must be at most ${REGULATED_PROFESSION_NOTE_MAX_LENGTH} chars long`,
+  ],
+};
 
 // Description
 export const DESCRIPTION_MAX_LENGTH = 4000;
@@ -28,10 +27,7 @@ export const DESCRIPTION_MAX_LENGTH = 4000;
 export const DescriptionProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("description"),
-  maxlength: [
-    DESCRIPTION_MAX_LENGTH,
-    `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`,
-  ],
+  maxlength: [DESCRIPTION_MAX_LENGTH, `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`],
 };
 
 // Scope Note
@@ -40,10 +36,7 @@ export const SCOPE_NOTE_MAX_LENGTH = 4000;
 export const ScopeNoteProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("scopeNote"),
-  maxlength: [
-    SCOPE_NOTE_MAX_LENGTH,
-    `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`,
-  ],
+  maxlength: [SCOPE_NOTE_MAX_LENGTH, `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`],
 };
 
 // Definition
@@ -52,34 +45,24 @@ export const DEFINITION_MAX_LENGTH = 4000;
 export const DefinitionProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("definition"),
-  maxlength: [
-    DEFINITION_MAX_LENGTH,
-    `Definition must be at most ${DEFINITION_MAX_LENGTH} chars long`,
-  ],
+  maxlength: [DEFINITION_MAX_LENGTH, `Definition must be at most ${DEFINITION_MAX_LENGTH} chars long`],
 };
 
 // Preferred Label
 export const LABEL_MAX_LENGTH = 256;
-export const PreferredLabelProperty: mongoose.SchemaDefinitionProperty<string> =
-  {
-    type: String,
-    required: true,
-    maxlength: [
-      LABEL_MAX_LENGTH,
-      `PreferredLabel must be at most ${LABEL_MAX_LENGTH} chars long`,
-    ],
-    validate: isSpecified,
-  };
+export const PreferredLabelProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: true,
+  maxlength: [LABEL_MAX_LENGTH, `PreferredLabel must be at most ${LABEL_MAX_LENGTH} chars long`],
+  validate: isSpecified,
+};
 
 // Alt Labels
 export const ATL_LABELS_MAX_ITEMS = 100;
 export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
   type: [String],
   required: true,
-  maxlength: [
-    LABEL_MAX_LENGTH,
-    `AltLabel must be at most ${LABEL_MAX_LENGTH} chars long`,
-  ],
+  maxlength: [LABEL_MAX_LENGTH, `AltLabel must be at most ${LABEL_MAX_LENGTH} chars long`],
   default: undefined,
   validate: (value: string[]) => {
     if (
@@ -94,9 +77,7 @@ export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
     }
 
     if (value.length > ATL_LABELS_MAX_ITEMS) {
-      throw new Error(
-        `AltLabels must be at most ${ATL_LABELS_MAX_ITEMS} items`
-      );
+      throw new Error(`AltLabels must be at most ${ATL_LABELS_MAX_ITEMS} items`);
     }
 
     if (!hasUniqueValues(value)) {
@@ -120,10 +101,7 @@ export const ESCO_URI_MAX_LENGTH = 4096;
 export const ESCOUriProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("ESCOUri"),
-  maxlength: [
-    ESCO_URI_MAX_LENGTH,
-    `ESCOUri must be at most ${ESCO_URI_MAX_LENGTH} chars long`,
-  ],
+  maxlength: [ESCO_URI_MAX_LENGTH, `ESCOUri must be at most ${ESCO_URI_MAX_LENGTH} chars long`],
   validate: function (value: string): boolean {
     return value.length === 0 || (value.length > 0 && value.trim().length > 0);
   },
@@ -141,12 +119,11 @@ export const ISCOCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
 // ESCO Occupation Code
 export const RegExESCOOccupationCode = RegExp(/^\d{1,4}(?:\.\d+)+$/);
 
-export const ESCOOccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> =
-  {
-    type: String,
-    required: true,
-    validate: RegExESCOOccupationCode,
-  };
+export const ESCOOccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: true,
+  validate: RegExESCOOccupationCode,
+};
 
 // Import ID
 export const IMPORT_ID_MAX_LENGTH = 256;

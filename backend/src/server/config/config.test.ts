@@ -10,10 +10,7 @@ import {
   getAsyncLambdaFunctionArn,
   getAsyncLambdaFunctionRegion,
 } from "./config";
-import {
-  getRandomString,
-  getTestString,
-} from "_test_utilities/specialCharacters";
+import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import * as process from "process";
 
 describe("Test read Configuration()", () => {
@@ -94,35 +91,15 @@ describe("Test current configuration", () => {
 
   stdConfigurationValuesTest("getDbURI", getDbURI, "dbURI");
 
-  stdConfigurationValuesTest(
-    "getResourcesBaseUrl",
-    getResourcesBaseUrl,
-    "resourcesBaseUrl"
-  );
+  stdConfigurationValuesTest("getResourcesBaseUrl", getResourcesBaseUrl, "resourcesBaseUrl");
 
-  stdConfigurationValuesTest(
-    "getUploadBucketName",
-    getUploadBucketName,
-    "uploadBucketName"
-  );
+  stdConfigurationValuesTest("getUploadBucketName", getUploadBucketName, "uploadBucketName");
 
-  stdConfigurationValuesTest(
-    "getUploadBucketRegion",
-    getUploadBucketRegion,
-    "uploadBucketRegion"
-  );
+  stdConfigurationValuesTest("getUploadBucketRegion", getUploadBucketRegion, "uploadBucketRegion");
 
-  stdConfigurationValuesTest(
-    "getAsyncLambdaFunctionArn",
-    getAsyncLambdaFunctionArn,
-    "asyncLambdaFunctionArn"
-  );
+  stdConfigurationValuesTest("getAsyncLambdaFunctionArn", getAsyncLambdaFunctionArn, "asyncLambdaFunctionArn");
 
-  stdConfigurationValuesTest(
-    "getAsyncLambdaFunctionRegion",
-    getAsyncLambdaFunctionRegion,
-    "asyncLambdaFunctionRegion"
-  );
+  stdConfigurationValuesTest("getAsyncLambdaFunctionRegion", getAsyncLambdaFunctionRegion, "asyncLambdaFunctionRegion");
 });
 
 function stdConfigurationValuesTest(
@@ -146,41 +123,35 @@ function stdConfigurationValuesTest(
     test.each([
       ["is undefined", undefined],
       ["is null", null],
-    ])(
-      `${getFunctionName}() should return '' if the set value %s`,
-      (description, givenValue) => {
-        // GIVEN a configuration value of the tested config key is set to the given value
-        const config = {
-          [configKey]: givenValue,
-        };
-        // @ts-ignore
-        setConfiguration(config);
+    ])(`${getFunctionName}() should return '' if the set value %s`, (description, givenValue) => {
+      // GIVEN a configuration value of the tested config key is set to the given value
+      const config = {
+        [configKey]: givenValue,
+      };
+      // @ts-ignore
+      setConfiguration(config);
 
-        // WHEN calling the getFunction to be tested
-        const actualValue = getFunction();
+      // WHEN calling the getFunction to be tested
+      const actualValue = getFunction();
 
-        // THEN expect the function to return an empty string
-        expect(actualValue).toEqual("");
-      }
-    );
+      // THEN expect the function to return an empty string
+      expect(actualValue).toEqual("");
+    });
 
     test.each([
       ["is undefined", undefined],
       ["is null", null],
-    ])(
-      `${getFunctionName}() should return '' if configuration %s`,
-      (description, givenValue) => {
-        // GIVEN a configuration is set to the given value
-        // @ts-ignore
-        setConfiguration(givenValue);
+    ])(`${getFunctionName}() should return '' if configuration %s`, (description, givenValue) => {
+      // GIVEN a configuration is set to the given value
+      // @ts-ignore
+      setConfiguration(givenValue);
 
-        // WHEN calling the getFunction to be tested
-        const actual = getFunction();
+      // WHEN calling the getFunction to be tested
+      const actual = getFunction();
 
-        // THEN expect the function to return an empty string
-        expect(actual).toEqual("");
-      }
-    );
+      // THEN expect the function to return an empty string
+      expect(actual).toEqual("");
+    });
   });
 }
 

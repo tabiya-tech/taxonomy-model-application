@@ -4,15 +4,9 @@ import "_test_utilities/consoleMock";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { Connection } from "mongoose";
 import { randomUUID } from "crypto";
-import {
-  generateRandomUrl,
-  getTestString,
-} from "_test_utilities/specialCharacters";
+import { generateRandomUrl, getTestString } from "_test_utilities/specialCharacters";
 import { getNewConnection } from "server/connection/newConnection";
-import {
-  getRepositoryRegistry,
-  RepositoryRegistry,
-} from "server/repositoryRegistry/repositoryRegistry";
+import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import {
@@ -49,10 +43,7 @@ function getNewSkillSpec(): INewSkillSpec {
     scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
     skillType: "knowledge",
     reuseLevel: "cross-sector",
-    altLabels: [
-      getTestString(LABEL_MAX_LENGTH, "1_"),
-      getTestString(LABEL_MAX_LENGTH, "2_"),
-    ],
+    altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
@@ -142,9 +133,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       });
 
       // THEN expect the actual promise to reject
-      await expect(actualPromise).rejects.toThrowError(
-        /UUID should not be provided/
-      );
+      await expect(actualPromise).rejects.toThrowError(/UUID should not be provided/);
     });
 
     test("should reject with an error when creating skill with an existing UUID", async () => {
@@ -184,8 +173,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of skills with the given specifications
-      const actualNewSkills: INewSkillSpec[] =
-        await repository.createMany(givenNewSkillSpecs);
+      const actualNewSkills: INewSkillSpec[] = await repository.createMany(givenNewSkillSpecs);
 
       // THEN expect all the Skills to be created with the specific attributes
       expect(actualNewSkills).toEqual(
@@ -199,15 +187,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
     test("should successfully create a batch of new Skills even if some don't validate", async () => {
       // GIVEN two valid skillSpecs
-      const givenValidSkillSpecs: INewSkillSpec[] = [
-        getNewSkillSpec(),
-        getNewSkillSpec(),
-      ];
+      const givenValidSkillSpecs: INewSkillSpec[] = [getNewSkillSpec(), getNewSkillSpec()];
       // AND two SkillSpec that is invalid
-      const givenInvalidSkillSpec: INewSkillSpec[] = [
-        getNewSkillSpec(),
-        getNewSkillSpec(),
-      ];
+      const givenInvalidSkillSpec: INewSkillSpec[] = [getNewSkillSpec(), getNewSkillSpec()];
       givenInvalidSkillSpec[0].preferredLabel = ""; // will not validate but will not throw an error
       // @ts-ignore
       givenInvalidSkillSpec[1].foo = "invalid"; // will not validate and will throw an error
@@ -240,9 +222,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of skills with the given specifications
-      const actualNewSkills: INewSkillSpec[] = await repository.createMany(
-        givenInValidSkillSpecs
-      );
+      const actualNewSkills: INewSkillSpec[] = await repository.createMany(givenInValidSkillSpecs);
 
       // THEN expect no skill to be created
       expect(actualNewSkills).toHaveLength(0);
@@ -258,14 +238,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         }
 
         // WHEN creating the batch of skills with the given specifications (the second SkillSpec having the same UUID as the first one)
-        (randomUUID as jest.Mock).mockReturnValueOnce(
-          "014b0bd8-120d-4ca4-b4c6-40953b170219"
-        );
-        (randomUUID as jest.Mock).mockReturnValueOnce(
-          "014b0bd8-120d-4ca4-b4c6-40953b170219"
-        );
-        const actualNewSkills: INewSkillSpec[] =
-          await repository.createMany(givenNewSkillSpecs);
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        const actualNewSkills: INewSkillSpec[] = await repository.createMany(givenNewSkillSpecs);
 
         // THEN expect only the first and the third Skill to be created with the specific attributes
         expect(actualNewSkills).toEqual(
@@ -293,9 +268,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
   });
 });
 
-function TestConnectionFailure(
-  actionCallback: (repository: ISkillRepository) => Promise<ISkill | null>
-) {
+function TestConnectionFailure(actionCallback: (repository: ISkillRepository) => Promise<ISkill | null>) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
     const givenConfig = getTestConfiguration("SkillRepositoryTestDB");

@@ -1,18 +1,8 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable } from "esco/common/objectTypes";
 
-export type SkillType =
-  | ""
-  | "skill/competence"
-  | "knowledge"
-  | "language"
-  | "attitude";
-export type ReuseLevel =
-  | ""
-  | "sector-specific"
-  | "occupation-specific"
-  | "cross-sector"
-  | "transversal";
+export type SkillType = "" | "skill/competence" | "knowledge" | "language" | "attitude";
+export type ReuseLevel = "" | "sector-specific" | "occupation-specific" | "cross-sector" | "transversal";
 
 export interface ISkillDoc extends ImportIdentifiable {
   UUID: string;
@@ -35,7 +25,4 @@ export interface ISkill extends ISkillDoc {
   modelId: string;
 }
 
-export type INewSkillSpec = Omit<
-  ISkill,
-  "id" | "UUID" | "createdAt" | "updatedAt"
->;
+export type INewSkillSpec = Omit<ISkill, "id" | "UUID" | "createdAt" | "updatedAt">;

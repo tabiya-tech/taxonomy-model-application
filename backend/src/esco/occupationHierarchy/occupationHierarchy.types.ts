@@ -35,10 +35,5 @@ export interface IOccupationHierarchyPair {
 
 export type INewOccupationHierarchyPairSpec = Omit<
   IOccupationHierarchyPair,
-  | "id"
-  | "modelId"
-  | "parentDocModel"
-  | "childDocModel"
-  | "createdAt"
-  | "updatedAt"
+  "id" | "modelId" | "parentDocModel" | "childDocModel" | "createdAt" | "updatedAt"
 >;

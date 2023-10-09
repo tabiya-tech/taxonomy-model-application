@@ -6,11 +6,7 @@ import { randomUUID } from "crypto";
 import * as config from "server/config/config";
 import * as handlerModule from "./index";
 import { APIGatewayProxyEvent } from "aws-lambda";
-import {
-  HTTP_VERBS,
-  StatusCodes,
-  STD_ERRORS_RESPONSES,
-} from "server/httpUtils";
+import { HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import * as awsSDKServiceModule from "./awsSDKService";
 import * as transformModule from "./transform";
 import { testMethodsNotAllowed } from "../_test_utilities/stdRESTHandlerTests";
@@ -35,9 +31,7 @@ describe("test main handler", () => {
     } as any;
     // AND the getPresigned() function returns some response
     const givenResponse = { foo: "foo" } as any;
-    jest
-      .spyOn(handlerModule, "getPreSigned")
-      .mockReturnValueOnce(givenResponse);
+    jest.spyOn(handlerModule, "getPreSigned").mockReturnValueOnce(givenResponse);
 
     // WHEN the main handler is called with the given event
     const actualResponse = await handlerModule.handler(givenEvent);
@@ -47,13 +41,7 @@ describe("test main handler", () => {
   });
 
   testMethodsNotAllowed(
-    [
-      HTTP_VERBS.POST,
-      HTTP_VERBS.PUT,
-      HTTP_VERBS.DELETE,
-      HTTP_VERBS.PATCH,
-      HTTP_VERBS.OPTIONS,
-    ],
+    [HTTP_VERBS.POST, HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.PATCH, HTTP_VERBS.OPTIONS],
     handlerModule.handler
   );
 });
@@ -70,9 +58,7 @@ describe("test getPreSigned()", () => {
     (randomUUID as jest.Mock).mockReturnValue(givenRandomKey);
     // AND the awsSDKServiceModule will return some pre-signed post data
     const givenPreSignedPost = { foo: "foo" } as any;
-    jest
-      .spyOn(awsSDKServiceModule, "s3_getPresignedPost")
-      .mockResolvedValue(givenPreSignedPost);
+    jest.spyOn(awsSDKServiceModule, "s3_getPresignedPost").mockResolvedValue(givenPreSignedPost);
     // AND the transform() function will transform the post data
     const givenPresignedResponse = { bar: "bar" } as any;
     const transformSpy = jest
@@ -93,9 +79,10 @@ describe("test getPreSigned()", () => {
     );
 
     // AND has called the transformModule.transformPostData() with the given pre-signed post data
-    expect(
-      transformModule.transformPresignedPostDataToResponse
-    ).toHaveBeenCalledWith(givenPreSignedPost, givenRandomKey);
+    expect(transformModule.transformPresignedPostDataToResponse).toHaveBeenCalledWith(
+      givenPreSignedPost,
+      givenRandomKey
+    );
 
     // AND it responds with OK status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
@@ -104,9 +91,7 @@ describe("test getPreSigned()", () => {
       "Content-Type": "application/json",
     });
     // AND the response body has the result of the transformation function
-    expect(JSON.parse(actualResponse.body)).toMatchObject(
-      transformSpy.mock.results[0].value
-    );
+    expect(JSON.parse(actualResponse.body)).toMatchObject(transformSpy.mock.results[0].value);
   });
 
   it("should return a INTERNAL_SERVER_ERROR response when getPreSigned() throws an error", async () => {
@@ -115,9 +100,7 @@ describe("test getPreSigned()", () => {
       httpMethod: HTTP_VERBS.GET,
     } as any;
     // AND awsSDKServiceModule.s3_getPresignedPost() will throw an error
-    jest
-      .spyOn(awsSDKServiceModule, "s3_getPresignedPost")
-      .mockRejectedValue(new Error("foo"));
+    jest.spyOn(awsSDKServiceModule, "s3_getPresignedPost").mockRejectedValue(new Error("foo"));
 
     // WHEN the main handler is called with the given  event
     const actualResponse = await handlerModule.handler(mockEvent);

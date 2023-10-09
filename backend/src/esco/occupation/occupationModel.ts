@@ -16,9 +16,7 @@ import {
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationDoc } from "./occupation.types";
 
-export function initializeSchemaAndModel(
-  dbConnection: mongoose.Connection
-): mongoose.Model<IOccupationDoc> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
   // Main Schema
   const OccupationSchema = new mongoose.Schema<IOccupationDoc>(
     {
@@ -56,8 +54,5 @@ export function initializeSchemaAndModel(
   OccupationSchema.index({ modelId: 1 });
 
   // Model
-  return dbConnection.model<IOccupationDoc>(
-    MongooseModelName.Occupation,
-    OccupationSchema
-  );
+  return dbConnection.model<IOccupationDoc>(MongooseModelName.Occupation, OccupationSchema);
 }

@@ -19,10 +19,7 @@ describe("getStdHeadersValidator", () => {
     const expectedHeaders = ["header1", "header2"];
 
     // WHEN getStdHeadersValidator is called with valid params
-    const headersValidator = getStdHeadersValidator(
-      givenValidatorName,
-      expectedHeaders
-    );
+    const headersValidator = getStdHeadersValidator(givenValidatorName, expectedHeaders);
 
     // THEN a validator should be function
     expect(typeof headersValidator).toBe("function");
@@ -35,10 +32,7 @@ describe("getStdHeadersValidator", () => {
     const expectedHeaders = ["header1", "header2"];
 
     // WHEN getStdHeadersValidator is called with valid params
-    const headersValidator = getStdHeadersValidator(
-      givenValidatorName,
-      expectedHeaders
-    );
+    const headersValidator = getStdHeadersValidator(givenValidatorName, expectedHeaders);
     // AND received actual headers
 
     const actualHeaders = ["header1", "header2", "header3"];
@@ -58,10 +52,7 @@ describe("getStdHeadersValidator", () => {
     const expectedHeaders = ["header1", "header2", "header3"];
 
     // WHEN getStdHeadersValidator is called with valid params
-    const headersValidator = getStdHeadersValidator(
-      givenValidatorName,
-      expectedHeaders
-    );
+    const headersValidator = getStdHeadersValidator(givenValidatorName, expectedHeaders);
     // AND received actual headers
     const actualHeaders = ["header1"];
 

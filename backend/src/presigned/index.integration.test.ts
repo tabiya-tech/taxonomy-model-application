@@ -52,9 +52,7 @@ describe("test main handler by mocking the aws S3", () => {
       allErrors: true,
     });
     addFormats(expectedAjv);
-    const validateResponse = expectedAjv.compile(
-      PresignedAPISpecs.Schemas.GET.Response.Payload
-    );
+    const validateResponse = expectedAjv.compile(PresignedAPISpecs.Schemas.GET.Response.Payload);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
   });

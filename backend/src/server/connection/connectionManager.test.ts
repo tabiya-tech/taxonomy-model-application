@@ -60,8 +60,6 @@ describe("Test the ConnectionManager", () => {
     const actualConnectionPromise = connectionManager.initialize(dbUri);
 
     // THEN the initialization should fail
-    await expect(actualConnectionPromise).rejects.toThrowError(
-      "The database connection has already been initialized."
-    );
+    await expect(actualConnectionPromise).rejects.toThrowError("The database connection has already been initialized.");
   });
 });

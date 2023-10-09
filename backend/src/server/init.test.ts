@@ -36,9 +36,7 @@ jest.mock("./connection/connectionManager", () => {
 
 // mock the repository registry
 jest.mock("./repositoryRegistry/repositoryRegistry", () => {
-  const originalModule = jest.requireActual(
-    "./repositoryRegistry/repositoryRegistry"
-  );
+  const originalModule = jest.requireActual("./repositoryRegistry/repositoryRegistry");
   const repositoryRegistryMock = {
     initialize: jest.fn().mockImplementation(() => {
       return Promise.resolve();
@@ -51,10 +49,7 @@ jest.mock("./repositoryRegistry/repositoryRegistry", () => {
 });
 // ##############
 
-import {
-  getConfiguration,
-  readEnvironmentConfiguration,
-} from "./config/config";
+import { getConfiguration, readEnvironmentConfiguration } from "./config/config";
 import { getRepositoryRegistry } from "./repositoryRegistry/repositoryRegistry";
 import { getConnectionManager } from "./connection/connectionManager";
 
@@ -85,9 +80,7 @@ describe("Test initialization", () => {
 
       // AND the connection manager should be initialized
       expect(getConnectionManager().initialize).toBeCalledTimes(1);
-      expect(getConnectionManager().initialize).toBeCalledWith(
-        mockConfiguration.dbURI
-      );
+      expect(getConnectionManager().initialize).toBeCalledWith(mockConfiguration.dbURI);
 
       // AND the repository registry should be initialized
       expect(getRepositoryRegistry().initialize).toBeCalledTimes(1);

@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import {
-  INewSkillGroupSpec,
-  ISkillGroup,
-  ISkillGroupDoc,
-} from "./skillGroup.types";
+import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -53,9 +49,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async createMany(
-    newSkillGroupSpecs: INewSkillGroupSpec[]
-  ): Promise<ISkillGroup[]> {
+  async createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> {
     try {
       const newSkillGroupModels = newSkillGroupSpecs
         .map((spec) => {

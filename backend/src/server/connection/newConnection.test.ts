@@ -35,9 +35,7 @@ describe("Test new connection", () => {
     // THEN the connection should fail
     const createConnectionSpy = jest.spyOn(mongoose, "createConnection");
     const connectSpy = jest.spyOn(mongoose, "connect");
-    await expect(connectionPromise).rejects.toThrow(
-      "Database uri not specified"
-    );
+    await expect(connectionPromise).rejects.toThrow("Database uri not specified");
 
     // AND a connection wa never attempted
     expect(createConnectionSpy).toHaveBeenCalledTimes(0);
@@ -59,9 +57,7 @@ describe("Test new connection", () => {
     // THEN the connection should fail
     // AND contains the redacted username password uri
     await expect(connectionPromise).rejects.toThrowError(
-      `Failed to connect to the database ${redactCredentialsFromURI(
-        givenDbUri
-      )}`
+      `Failed to connect to the database ${redactCredentialsFromURI(givenDbUri)}`
     );
     await expect(connectionPromise).rejects.not.toThrowError(givenDbUri);
   });

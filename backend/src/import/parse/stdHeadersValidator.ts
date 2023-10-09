@@ -9,9 +9,7 @@ export function getStdHeadersValidator(
     for (const element of expectedHeaders) {
       if (!actualHeaders.includes(element)) {
         valid = false;
-        importLogger.logError(
-          `Failed to validate header for ${validatorName}, expected to include header ${element}`
-        );
+        importLogger.logError(`Failed to validate header for ${validatorName}, expected to include header ${element}`);
       }
     }
     return valid;

@@ -1,11 +1,7 @@
 import { Context, Callback, APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import version from "./version.json";
-import {
-  HTTP_VERBS,
-  responseJSON,
-  STD_ERRORS_RESPONSES,
-} from "server/httpUtils";
+import { HTTP_VERBS, responseJSON, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { getResourcesBaseUrl } from "server/config/config";
 import { getConnectionManager } from "server/connection/connectionManager";
 

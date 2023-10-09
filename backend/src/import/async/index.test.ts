@@ -27,16 +27,11 @@ jest.mock("./parseFiles", () => ({
 const getMockImportEvent = (): ImportAPISpecs.Types.POST.Request.Payload => {
   return {
     filePaths: {
-      [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]:
-        "path/to/ISCO_GROUP.csv",
-      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]:
-        "path/to/ESCO_SKILL_GROUP.csv",
-      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]:
-        "path/to/ESCO_SKILL.csv",
-      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]:
-        "path/to/ESCO_OCCUPATION.csv",
-      [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]:
-        "path/to/OCCUPATION_HIERARCHY.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
       // ADD additional file types here
     },
     modelId: getMockId(1),
@@ -91,13 +86,9 @@ describe("Test the main async handler", () => {
       // THEN expect it to return without throwing an error
       expect(actualPromiseHandler).not.toThrowError();
       // AND importProcessStateRepository.create should not have been called
-      expect(
-        getRepositoryRegistry().importProcessState.create
-      ).not.toHaveBeenCalled();
+      expect(getRepositoryRegistry().importProcessState.create).not.toHaveBeenCalled();
       // AND importProcessStateRepository.update should not have been called
-      expect(
-        getRepositoryRegistry().importProcessState.update
-      ).not.toHaveBeenCalled();
+      expect(getRepositoryRegistry().importProcessState.update).not.toHaveBeenCalled();
     });
 
     test("should throw error and not call parseFiles when initOnce fails", async () => {
@@ -105,20 +96,15 @@ describe("Test the main async handler", () => {
       (initOnce as jest.Mock).mockRejectedValueOnce(new Error("foo"));
 
       // WHEN the handler is invoked with a valid event
-      const actualPromiseHandler = () =>
-        asyncIndex.handler(getMockImportEvent());
+      const actualPromiseHandler = () => asyncIndex.handler(getMockImportEvent());
 
       // THEN expect the handler to throw an error
       await expect(actualPromiseHandler).rejects.toThrow("foo");
       // AND parseFiles not to have been called
       expect(parseFiles).not.toHaveBeenCalled();
       // AND expect the status to not have been updated or created
-      expect(
-        getRepositoryRegistry().importProcessState.create
-      ).not.toHaveBeenCalled();
-      expect(
-        getRepositoryRegistry().importProcessState.update
-      ).not.toHaveBeenCalled();
+      expect(getRepositoryRegistry().importProcessState.create).not.toHaveBeenCalled();
+      expect(getRepositoryRegistry().importProcessState.update).not.toHaveBeenCalled();
     });
 
     test("should not throw error when parseFiles fails", async () => {
@@ -141,9 +127,7 @@ describe("Test the main async handler", () => {
         getModels: jest.fn().mockResolvedValue([]),
       };
 
-      jest
-        .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-        .mockReturnValue(givenModelInfoRepositoryMock);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
       // AND parseFiles will fail
       (parseFiles as jest.Mock).mockRejectedValueOnce(new Error("foo"));
@@ -154,9 +138,7 @@ describe("Test the main async handler", () => {
       // THEN expect the handler not to throw an error
       expect(asyncIndex.handler).not.toThrowError();
       // AND expect the importProcessState to have been updated with a status of COMPLETED and a results object with errored true
-      expect(
-        getRepositoryRegistry().importProcessState.update
-      ).toHaveBeenCalledWith(givenImportProcessStateId, {
+      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(givenImportProcessStateId, {
         status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
         result: {
           errored: true,

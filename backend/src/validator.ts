@@ -10,10 +10,7 @@ export const ajvInstance = new Ajv({
   strict: true,
 });
 addFormats(ajvInstance);
-ajvInstance.addSchema(
-  LocaleAPISpecs.Schemas.Payload,
-  LocaleAPISpecs.Schemas.Payload.$id
-);
+ajvInstance.addSchema(LocaleAPISpecs.Schemas.Payload, LocaleAPISpecs.Schemas.Payload.$id);
 ajvInstance.addSchema(
   ModelInfoAPISpecs.Schemas.POST.Request.Payload,
   ModelInfoAPISpecs.Schemas.POST.Request.Payload.$id
@@ -22,10 +19,7 @@ ajvInstance.addSchema(
   ModelInfoAPISpecs.Schemas.POST.Response.Payload,
   ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id
 );
-ajvInstance.addSchema(
-  ImportAPISpecs.Schemas.POST.Request.Payload,
-  ImportAPISpecs.Schemas.POST.Request.Payload.$id
-);
+ajvInstance.addSchema(ImportAPISpecs.Schemas.POST.Request.Payload, ImportAPISpecs.Schemas.POST.Request.Payload.$id);
 /**
  * Turn the errors from ajv and turn into a string that consumers can read.
  * @param errors

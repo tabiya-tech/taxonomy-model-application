@@ -1,8 +1,4 @@
-import {
-  getConfiguration,
-  readEnvironmentConfiguration,
-  setConfiguration,
-} from "./config/config";
+import { getConfiguration, readEnvironmentConfiguration, setConfiguration } from "./config/config";
 import { getConnectionManager } from "./connection/connectionManager";
 import { getRepositoryRegistry } from "./repositoryRegistry/repositoryRegistry";
 
