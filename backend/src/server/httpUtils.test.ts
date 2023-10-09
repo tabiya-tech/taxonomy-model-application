@@ -126,10 +126,10 @@ describe("test the STD_ERRORS_RESPONSES", () => {
 describe("test the redactCredentialsFromURI function", () => {
   describe("test typical uri", () => {
     test.each([
-      ["http://foo.bar"],
-      ["http://foo/bar"],
-      ["http://foo/bar?baz=qux"],
-      ["https://example.com:8080"],
+      ["http://foo.bar"], // NOSONAR
+      ["http://foo/bar"], // NOSONAR
+      ["http://foo/bar?baz=qux"], // NOSONAR
+      ["https://example.com:8080"], // NOSONAR
       ["mongodb://example.com:8080/"], // NOSONAR
     ])("should return the same URI %s if no credentials are present", (uri: string) => {
       const result = redactCredentialsFromURI(uri);
@@ -137,8 +137,8 @@ describe("test the redactCredentialsFromURI function", () => {
     });
 
     test.each([
-      ["http://user:password@foo.bar", "http://*:*@foo.bar"],
-      ["http://user:password@foo/bar", "http://*:*@foo/bar"],
+      ["http://user:password@foo.bar", "http://*:*@foo.bar"], // NOSONAR
+      ["http://user:password@foo/bar", "http://*:*@foo/bar"], // NOSONAR
       ["http://user:password@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"],
       ["https://user:password@example.com:8080", "https://*:*@example.com:8080"],
       ["mongodb://user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
@@ -151,7 +151,7 @@ describe("test the redactCredentialsFromURI function", () => {
     test.each([
       ["//user:password@foo.bar", "//*:*@foo.bar"],
       ["://user:password@foo/bar", "://*:*@foo/bar"],
-      ["http://user:@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"],
+      ["http://user:@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"], // NOSONAR
       ["https://user@example.com:8080", "https://*:*@example.com:8080"],
       ["mongodb://:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
       ["mongodb://user:password@user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
@@ -164,20 +164,20 @@ describe("test the redactCredentialsFromURI function", () => {
   describe("test function performance", () => {
     const PERF_DURATION = 10;
     test.each([
-      ["plain http", "http://foo/bar?baz=qux"],
-      ["http with credentials", "http://username:password@foo/bar?baz=qux"],
-      ["only username", "http://username:@foo/bar?baz=qux"],
-      ["only password", "http://:@foo/bar?baz=qux"],
-      ["(extreme long) plain http", "http://foo/bar?baz=" + "qux".repeat(65535)],
+      ["plain http", "http://foo/bar?baz=qux"], // NOSONAR
+      ["http with credentials", "http://username:password@foo/bar?baz=qux"], // NOSONAR
+      ["only username", "http://username:@foo/bar?baz=qux"], // NOSONAR
+      ["only password", "http://:@foo/bar?baz=qux"], // NOSONAR
+      ["(extreme long) plain http", "http://foo/bar?baz=" + "qux".repeat(65535)], // NOSONAR
       [
         "(extreme long) with credentials ",
-        "http://" + "username".repeat(32000) + ":" + "password".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535),
+        "http://" + "username".repeat(32000) + ":" + "password".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535), // NOSONAR
       ],
-      ["(extreme long) only username ", "http://" + "username".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)],
-      ["(extreme long) only password ", "http://:" + "username".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)],
+      ["(extreme long) only username ", "http://" + "username".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)], // NOSONAR
+      ["(extreme long) only password ", "http://:" + "username".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535)], // NOSONAR
       [
         "(extreme long) with multiple user name passwords",
-        "http://:" + "username:password".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535),
+        "http://:" + "username:password".repeat(32000) + "@foo/bar?baz=" + "qux".repeat(65535), // NOSONAR
       ],
     ])(
       `It performs fast (<=${PERF_DURATION}ms) and does not hang/cause catastrophic backtracking for '%s'`,

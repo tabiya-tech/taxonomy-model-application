@@ -15,7 +15,7 @@ export function getRandomString(length: number) {
   const charactersLength = characters.length;
   let counter = 0;
   while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    result += characters.charAt(Math.floor(Math.random() * charactersLength)); // NOSONAR
     counter += 1;
   }
   return result;
@@ -27,7 +27,7 @@ export function getRandomLorem(length: number) {
   const charactersLength = characters.length;
   let counter = 0;
   while (counter < length) {
-    const newChar = characters.charAt(Math.floor(Math.random() * charactersLength));
+    const newChar = characters.charAt(Math.floor(Math.random() * charactersLength)); // NOSONAR
     if (!(newChar === " " && result.charAt(result.length))) {
       result += newChar;
       counter += 1;
