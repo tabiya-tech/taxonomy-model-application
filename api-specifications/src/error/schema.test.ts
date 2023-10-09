@@ -24,17 +24,9 @@ describe("Validate JSON against the APIError Schema", () => {
 
   // WHEN the object is validated
   // THEN expect the object to validate successfully
-  testSchemaWithValidObject(
-    "APIError.Schemas.Payload",
-    APIError.Schemas.Payload,
-    givenValidAPIError
-  );
+  testSchemaWithValidObject("APIError.Schemas.Payload", APIError.Schemas.Payload, givenValidAPIError);
 
   // AND WHEN the object has additional properties
   // THEN expect the object to not validate
-  testSchemaWithInvalidObject(
-    "APIError.Schemas.Payload",
-    APIError.Schemas.Payload,
-    givenValidAPIError
-  );
+  testSchemaWithInvalidObject("APIError.Schemas.Payload", APIError.Schemas.Payload, givenValidAPIError);
 });

@@ -20,19 +20,18 @@ describe("Test the ImportProcessStateAPISpecs Schema", () => {
 
 describe("Validate JSON against the ImportProcessStateAPISpecs Schema", () => {
   // GIVEN a valid ImportProcessStateAPISpecs object
-  const givenValidImportProcessState: ImportProcessStateAPISpecs.Types.GET.Response.Payload =
-    {
-      id: getMockId(1),
-      modelId: getMockId(2),
-      status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
-      result: {
-        errored: false,
-        parsingErrors: false,
-        parsingWarnings: false,
-      },
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
+  const givenValidImportProcessState: ImportProcessStateAPISpecs.Types.GET.Response.Payload = {
+    id: getMockId(1),
+    modelId: getMockId(2),
+    status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+    result: {
+      errored: false,
+      parsingErrors: false,
+      parsingWarnings: false,
+    },
+    updatedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+  };
 
   // WHEN the object is validated
   // THEN expect the object to validate successfully

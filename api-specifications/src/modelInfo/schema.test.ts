@@ -50,13 +50,9 @@ describe("Validate JSON against the Schema", () => {
     locale: {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(
-        LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-      ),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
-    releaseNotes: getTestString(
-      ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH
-    ),
+    releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
     importProcessState: {
@@ -77,9 +73,7 @@ describe("Validate JSON against the Schema", () => {
     locale: {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(
-        LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-      ),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
   };
 

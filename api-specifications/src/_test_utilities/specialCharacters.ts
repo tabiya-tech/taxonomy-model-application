@@ -1,5 +1,4 @@
-const sampleValidSpecialCharacters =
-  "^°!\"§$%&/()=?`´*+#'-_.,;<>öäü@[]{}|¡“¶¢[]≠¿'„…∞~<•±æœ";
+const sampleValidSpecialCharacters = "^°!\"§$%&/()=?`´*+#'-_.,;<>öäü@[]{}|¡“¶¢[]≠¿'„…∞~<•±æœ";
 const sampleInternationalCharacters = "αβγδεζηθικλμνξοπρστυφχψω";
 const THREE_BYTE_UTF8_CHAR = "€";
 export const WHITESPACE = " \n\r\t";

@@ -9,8 +9,7 @@ export const ErrorSchema: SchemaObject = {
   type: "object",
   properties: {
     errorCode: {
-      description:
-        "A code that API consumers can use to determine the type of error that occurred",
+      description: "A code that API consumers can use to determine the type of error that occurred",
       type: "string",
       enum: [
         Object.values(ErrorConstants.ErrorCodes),
