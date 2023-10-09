@@ -13,7 +13,7 @@ describe("ModelDirectoryHeader", () => {
 
   test("should render model directory header component", () => {
     // GIVEN an onModelImport callback function
-    const givenOnModelImportCallback = () => {};
+    const givenOnModelImportCallback = () => undefined;
 
     // WHEN a ModelDirectoryHeader component is rendered with the given callback
     render(<ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />);
