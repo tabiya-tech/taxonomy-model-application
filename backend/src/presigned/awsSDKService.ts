@@ -1,8 +1,4 @@
-import {
-  createPresignedPost,
-  PresignedPost,
-  PresignedPostOptions,
-} from "@aws-sdk/s3-presigned-post";
+import { createPresignedPost, PresignedPost, PresignedPostOptions } from "@aws-sdk/s3-presigned-post";
 import { S3Client } from "@aws-sdk/client-s3";
 
 export function s3_getPresignedPost(

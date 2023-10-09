@@ -1,17 +1,11 @@
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import importLogger from "import/importLogger/importLogger";
 
-export function getProcessHierarchyBatchFunction<
-  HierarchyType extends { id: string },
-  SpecificationType,
->(
+export function getProcessHierarchyBatchFunction<HierarchyType extends { id: string }, SpecificationType>(
   modelId: string,
   hierarchyName: string,
   repository: {
-    createMany: (
-      modelId: string,
-      specs: SpecificationType[]
-    ) => Promise<HierarchyType[]>;
+    createMany: (modelId: string, specs: SpecificationType[]) => Promise<HierarchyType[]>;
   }
 ) {
   return async (specs: SpecificationType[]) => {

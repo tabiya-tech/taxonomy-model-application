@@ -45,17 +45,11 @@ export function response(
   };
 }
 
-export function responseJSON(
-  statusCode: StatusCodes,
-  body: object | string
-): APIGatewayProxyResult {
+export function responseJSON(statusCode: StatusCodes, body: object | string): APIGatewayProxyResult {
   return response(statusCode, body, { "Content-Type": "application/json" });
 }
 
-function _errorResponse(
-  statusCode: StatusCodes,
-  error: ErrorAPISpecs.Types.Payload
-): APIGatewayProxyResult {
+function _errorResponse(statusCode: StatusCodes, error: ErrorAPISpecs.Types.Payload): APIGatewayProxyResult {
   return response(statusCode, error);
 }
 

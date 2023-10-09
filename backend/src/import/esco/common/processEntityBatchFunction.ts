@@ -43,9 +43,7 @@ export function getProcessEntityBatchFunction<
     specs.forEach((spec, index) => {
       if (!importIdToDBIdMap.has(spec.importId)) {
         importLogger.logWarning(
-          `Failed to import ${entityName} from row:${
-            totalRowsProcessed + index + 1
-          } with importId:${spec.importId}`
+          `Failed to import ${entityName} from row:${totalRowsProcessed + index + 1} with importId:${spec.importId}`
         );
       }
     });

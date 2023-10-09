@@ -2,12 +2,7 @@ import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import {
-  IISCOGroup,
-  IISCOGroupDoc,
-  IISCOGroupReferenceDoc,
-  INewISCOGroupSpec,
-} from "./ISCOGroup.types";
+import { IISCOGroup, IISCOGroupDoc, IISCOGroupReferenceDoc, INewISCOGroupSpec } from "./ISCOGroup.types";
 import { ReferenceWithModelId } from "esco/common/objectTypes";
 import { getISCOGroupReferenceWithModelId } from "./ISCOGroupReference";
 import { getOccupationReferenceWithModelId } from "esco/occupation/occupationReference";
@@ -52,10 +47,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         UUID: randomUUID(),
       });
       await newISCOGroupModel.save();
-      await newISCOGroupModel.populate([
-        { path: "parent" },
-        { path: "children" },
-      ]);
+      await newISCOGroupModel.populate([{ path: "parent" }, { path: "children" }]);
       return newISCOGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -63,9 +55,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     }
   }
 
-  async createMany(
-    newISCOGroupSpecs: INewISCOGroupSpec[]
-  ): Promise<IISCOGroup[]> {
+  async createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> {
     try {
       const newISCOGroupModels = newISCOGroupSpecs
         .map((spec) => {
@@ -102,9 +92,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     }
   }
 
-  async findById(
-    id: string | mongoose.Types.ObjectId
-  ): Promise<IISCOGroup | null> {
+  async findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const iscoGroup = await this.Model.findById(id)
@@ -112,16 +100,12 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
           path: "parent",
           populate: {
             path: "parentId",
-            transform: function (
-              doc
-            ): ReferenceWithModelId<IISCOGroupReferenceDoc> | null {
+            transform: function (doc): ReferenceWithModelId<IISCOGroupReferenceDoc> | null {
               // return only the relevant fields
               if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
                 return getISCOGroupReferenceWithModelId(doc);
               }
-              console.error(
-                `Parent is not an ISCOGroup: ${doc.constructor.modelName}`
-              );
+              console.error(`Parent is not an ISCOGroup: ${doc.constructor.modelName}`);
               return null;
             },
           },
@@ -142,10 +126,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
             path: "childId",
             transform: function (
               doc
-            ):
-              | ReferenceWithModelId<IISCOGroupReferenceDoc>
-              | ReferenceWithModelId<IOccupationReferenceDoc>
-              | null {
+            ): ReferenceWithModelId<IISCOGroupReferenceDoc> | ReferenceWithModelId<IOccupationReferenceDoc> | null {
               // return only the relevant fields
               if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
                 return getISCOGroupReferenceWithModelId(doc);
@@ -153,15 +134,11 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
               if (doc.constructor.modelName === MongooseModelName.Occupation) {
                 return getOccupationReferenceWithModelId(doc);
               }
-              console.error(
-                `Child is not an ISCOGroup or Occupation: ${doc.constructor.modelName}`
-              );
+              console.error(`Child is not an ISCOGroup or Occupation: ${doc.constructor.modelName}`);
               return null;
             },
           },
-          transform: function (
-            doc
-          ): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
+          transform: function (doc): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
             // return only the relevant fields
             if (!doc?.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
             if (!doc?.childId?.modelId?.equals(doc?.modelId)) {

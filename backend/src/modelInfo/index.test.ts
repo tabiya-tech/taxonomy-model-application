@@ -8,10 +8,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { getRandomString } from "_test_utilities/specialCharacters";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
-import {
-  getIModelInfoMockData,
-  getModelInfoMockDataArray,
-} from "./testDataHelper";
+import { getIModelInfoMockData, getModelInfoMockDataArray } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import {
   testMethodsNotAllowed,
@@ -37,13 +34,9 @@ describe("Test for model handler", () => {
         locale: {
           UUID: randomUUID(),
           name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-          shortCode: getRandomString(
-            LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-          ),
+          shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
         },
-        description: getRandomString(
-          ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH
-        ),
+        description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       };
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST,
@@ -55,9 +48,7 @@ describe("Test for model handler", () => {
 
       // AND a configured base path for resources
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
-      jest
-        .spyOn(config, "getResourcesBaseUrl")
-        .mockReturnValueOnce(givenResourcesBaseUrl);
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
 
       // AND a repository that will successfully create a model
       const givenModelInfo: IModelInfo = getIModelInfoMockData();
@@ -68,17 +59,13 @@ describe("Test for model handler", () => {
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue([]),
       };
-      jest
-        .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-        .mockReturnValue(givenModelInfoRepositoryMock);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await modelHandler(givenEvent);
 
       // THEN expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().modelInfo.create).toHaveBeenCalledWith(
-        givenPayload
-      );
+      expect(getRepositoryRegistry().modelInfo.create).toHaveBeenCalledWith(givenPayload);
       // AND respond with the CREATED status
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
       // AND the handler to return the correct headers
@@ -86,14 +73,9 @@ describe("Test for model handler", () => {
         "Content-Type": "application/json",
       });
       // AND the transformation function is called correctly
-      expect(transformModule.transform).toHaveBeenCalledWith(
-        givenModelInfo,
-        givenResourcesBaseUrl
-      );
+      expect(transformModule.transform).toHaveBeenCalledWith(givenModelInfo, givenResourcesBaseUrl);
       // AND the handler to return the result of the transformation function
-      expect(JSON.parse(actualResponse.body)).toMatchObject(
-        transformSpy.mock.results[0].value
-      );
+      expect(JSON.parse(actualResponse.body)).toMatchObject(transformSpy.mock.results[0].value);
     });
 
     test("POST should respond with the INTERNAL_SERVER_ERROR status code if the repository fails to create the model info", async () => {
@@ -123,26 +105,18 @@ describe("Test for model handler", () => {
         getModelByUUID: jest.fn().mockResolvedValue(null),
       } as any;
 
-      jest
-        .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-        .mockReturnValue(givenModelInfoRepositoryMock);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await modelHandler(givenEvent);
 
       // THEN expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().modelInfo.create).toHaveBeenCalledWith(
-        givenPayload
-      );
+      expect(getRepositoryRegistry().modelInfo.create).toHaveBeenCalledWith(givenPayload);
       // AND to respond with the INTERNAL_SERVER_ERROR status
-      expect(actualResponse.statusCode).toEqual(
-        StatusCodes.INTERNAL_SERVER_ERROR
-      );
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode:
-          ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes
-            .DB_FAILED_TO_CREATE_MODEL,
+        errorCode: ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_MODEL,
         message: "Failed to create the model in the DB",
         details: "",
       };
@@ -155,11 +129,7 @@ describe("Test for model handler", () => {
 
     testRequestJSONMalformed(modelHandler);
 
-    testTooLargePayload(
-      HTTP_VERBS.POST,
-      ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH,
-      modelHandler
-    );
+    testTooLargePayload(HTTP_VERBS.POST, ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH, modelHandler);
   });
 
   describe("GET", () => {
@@ -171,9 +141,7 @@ describe("Test for model handler", () => {
 
     // AND a configured base path for resources
     const givenResourcesBaseUrl = "https://some/path/to/api/resources";
-    jest
-      .spyOn(config, "getResourcesBaseUrl")
-      .mockReturnValue(givenResourcesBaseUrl);
+    jest.spyOn(config, "getResourcesBaseUrl").mockReturnValue(givenResourcesBaseUrl);
 
     test("GET should respond with the OK status code and all the models in the body", async () => {
       // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
@@ -185,9 +153,7 @@ describe("Test for model handler", () => {
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue(givenModels),
       };
-      jest
-        .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-        .mockReturnValue(givenModelInfoRepositoryMock);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await modelHandler(givenEvent);
@@ -207,11 +173,7 @@ describe("Test for model handler", () => {
       expect(transformSpy).toHaveBeenCalledTimes(givenModels.length);
       //AND the transform function to have been called with the correct parameters
       givenModels.forEach((model, index) => {
-        expect(transformSpy).toHaveBeenNthCalledWith(
-          index + 1,
-          model,
-          givenResourcesBaseUrl
-        );
+        expect(transformSpy).toHaveBeenNthCalledWith(index + 1, model, givenResourcesBaseUrl);
       });
 
       // AND the handler to have returned the results of the transformation function
@@ -231,32 +193,23 @@ describe("Test for model handler", () => {
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue(new Error("foo")),
       };
-      jest
-        .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-        .mockReturnValue(givenModelInfoRepositoryMock);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await modelHandler(givenEvent);
       // THEN expect the handler to call the repository getModels() method
       expect(getRepositoryRegistry().modelInfo.getModels).toHaveBeenCalled();
       // AND to respond with the INTERNAL_SERVER_ERROR status
-      expect(actualResponse.statusCode).toEqual(
-        StatusCodes.INTERNAL_SERVER_ERROR
-      );
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode:
-          ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes
-            .DB_FAILED_TO_RETRIEVE_MODELS,
+        errorCode: ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS,
         message: "Failed to retrieve models from the DB",
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
 
-    testMethodsNotAllowed(
-      [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH],
-      modelHandler
-    );
+    testMethodsNotAllowed([HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH], modelHandler);
   });
 });

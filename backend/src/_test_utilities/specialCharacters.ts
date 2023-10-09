@@ -1,5 +1,4 @@
-const sampleValidSpecialCharacters =
-  "^°!\"§$%&/()=?`´*+#'-_.,;<>öäü@[]{}|¡“¶¢[]≠¿'„…∞~<•±æœ";
+const sampleValidSpecialCharacters = "^°!\"§$%&/()=?`´*+#'-_.,;<>öäü@[]{}|¡“¶¢[]≠¿'„…∞~<•±æœ";
 const sampleInternationCharacters = "αβγδεζηθικλμνξοπρστυφχψω";
 const THREE_BYTE_UTF8_CHAR = "€";
 export const WHITESPACE = " \n\r\t";
@@ -10,17 +9,13 @@ export function getTestString(length: number, prefix: string = ""): string {
     .padEnd(length, THREE_BYTE_UTF8_CHAR);
 }
 
-export function get3ByteTestString(
-  length: number,
-  prefix: string = ""
-): string {
+export function get3ByteTestString(length: number, prefix: string = ""): string {
   return prefix + THREE_BYTE_UTF8_CHAR.repeat(length - prefix.length);
 }
 
 export function getRandomString(length: number) {
   let result = "";
-  const characters =
-    sampleValidSpecialCharacters + sampleInternationCharacters + WHITESPACE;
+  const characters = sampleValidSpecialCharacters + sampleInternationCharacters + WHITESPACE;
   const charactersLength = characters.length;
   let counter = 0;
   while (counter < length) {
@@ -58,14 +53,10 @@ export function generateRandomUrl() {
   return protocol + domain + tld + path;
 }
 
-export function generateRandomDigitString(
-  minDigits: number,
-  maxDigits: number
-): string {
+export function generateRandomDigitString(minDigits: number, maxDigits: number): string {
   let result = "";
   const characters = "0123456789";
-  const digitCount =
-    Math.floor(Math.random() * (maxDigits - minDigits + 1)) + minDigits;
+  const digitCount = Math.floor(Math.random() * (maxDigits - minDigits + 1)) + minDigits;
   const charactersLength = characters.length;
 
   for (let i = 0; i < digitCount; i++) {

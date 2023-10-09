@@ -1,12 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import {
-  errorResponse,
-  HTTP_VERBS,
-  responseJSON,
-  StatusCodes,
-  STD_ERRORS_RESPONSES,
-} from "server/httpUtils";
+import { errorResponse, HTTP_VERBS, responseJSON, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ajvInstance, ParseValidationError } from "validator";
 
@@ -104,20 +98,15 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
   };
   let newModelInfo: IModelInfo;
   try {
-    newModelInfo =
-      await getRepositoryRegistry().modelInfo.create(newModelInfoSpec);
-    return responseJSON(
-      StatusCodes.CREATED,
-      transform(newModelInfo, getResourcesBaseUrl())
-    );
+    newModelInfo = await getRepositoryRegistry().modelInfo.create(newModelInfoSpec);
+    return responseJSON(StatusCodes.CREATED, transform(newModelInfo, getResourcesBaseUrl()));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     //
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,
-      ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes
-        .DB_FAILED_TO_CREATE_MODEL,
+      ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_MODEL,
       "Failed to create the model in the DB",
       ""
     );
@@ -154,8 +143,7 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getModelInfo(event: APIGatewayProxyEvent) {
   try {
-    const models: IModelInfo[] =
-      await getRepositoryRegistry().modelInfo.getModels();
+    const models: IModelInfo[] = await getRepositoryRegistry().modelInfo.getModels();
     return responseJSON(
       StatusCodes.OK,
       models.map((model) => transform(model, getResourcesBaseUrl()))
@@ -165,8 +153,7 @@ async function getModelInfo(event: APIGatewayProxyEvent) {
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,
-      ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes
-        .DB_FAILED_TO_RETRIEVE_MODELS,
+      ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_MODELS,
       "Failed to retrieve models from the DB",
       ""
     );

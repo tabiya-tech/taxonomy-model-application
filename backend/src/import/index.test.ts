@@ -20,22 +20,14 @@ describe("test for trigger ImportHandler", () => {
   });
 
   test.each([
-    [
-      "some of the file paths",
-      { [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/file" },
-    ],
+    ["some of the file paths", { [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/file" }],
     [
       "max payload size",
-      Object.values(ImportAPISpecs.Constants.ImportFileTypes).reduce(
-        (accumulated, current) => {
-          // @ts-ignore
-          accumulated[current] = getTestString(
-            ImportAPISpecs.Constants.FILEPATH_MAX_LENGTH
-          );
-          return accumulated;
-        },
-        {}
-      ),
+      Object.values(ImportAPISpecs.Constants.ImportFileTypes).reduce((accumulated, current) => {
+        // @ts-ignore
+        accumulated[current] = getTestString(ImportAPISpecs.Constants.FILEPATH_MAX_LENGTH);
+        return accumulated;
+      }, {}),
     ],
   ])(
     "POST should respond with the response from the lambda_invokeAsyncImport() for %s",
@@ -45,9 +37,7 @@ describe("test for trigger ImportHandler", () => {
         modelId: getMockId(2),
         filePaths: givenFilePaths,
       };
-      expect(Object.keys(givenPayload.filePaths).length).toBeGreaterThanOrEqual(
-        1
-      );
+      expect(Object.keys(givenPayload.filePaths).length).toBeGreaterThanOrEqual(1);
 
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.POST,
@@ -73,13 +63,7 @@ describe("test for trigger ImportHandler", () => {
   );
 
   testMethodsNotAllowed(
-    [
-      HTTP_VERBS.PUT,
-      HTTP_VERBS.DELETE,
-      HTTP_VERBS.OPTIONS,
-      HTTP_VERBS.PATCH,
-      HTTP_VERBS.GET,
-    ],
+    [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH, HTTP_VERBS.GET],
     ImportHandler.handler
   );
 
@@ -89,9 +73,5 @@ describe("test for trigger ImportHandler", () => {
 
   testUnsupportedMediaType(ImportHandler.handler);
 
-  testTooLargePayload(
-    HTTP_VERBS.POST,
-    ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH,
-    ImportHandler.handler
-  );
+  testTooLargePayload(HTTP_VERBS.POST, ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH, ImportHandler.handler);
 });

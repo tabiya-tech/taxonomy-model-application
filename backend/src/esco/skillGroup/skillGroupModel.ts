@@ -16,9 +16,7 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 
 export const PARENT_MAX_ITEMS = 100;
 
-export function initializeSchemaAndModel(
-  dbConnection: mongoose.Connection
-): mongoose.Model<ISkillGroupDoc> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroupDoc> {
   // Main Schema
   const SkillGroupSchema = new mongoose.Schema<ISkillGroupDoc>(
     {
@@ -52,9 +50,7 @@ export function initializeSchemaAndModel(
         ref: MongooseModelName.SkillGroup,
         validate: (value: mongoose.Schema.Types.ObjectId[]) => {
           if (value.length > PARENT_MAX_ITEMS) {
-            throw new Error(
-              `Parents must be at most ${PARENT_MAX_ITEMS} uniques refs.`
-            );
+            throw new Error(`Parents must be at most ${PARENT_MAX_ITEMS} uniques refs.`);
           }
 
           if (!hasUniqueValues(value.map((v) => JSON.stringify(v)))) {
@@ -76,8 +72,5 @@ export function initializeSchemaAndModel(
 
   SkillGroupSchema.index({ modelId: 1 });
 
-  return dbConnection.model<ISkillGroupDoc>(
-    MongooseModelName.SkillGroup,
-    SkillGroupSchema
-  );
+  return dbConnection.model<ISkillGroupDoc>(MongooseModelName.SkillGroup, SkillGroupSchema);
 }

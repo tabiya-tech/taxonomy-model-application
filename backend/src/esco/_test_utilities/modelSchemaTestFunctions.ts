@@ -16,22 +16,8 @@ export function testImportId<T>(getModel: () => mongoose.Model<T>) {
     [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
     [CaseType.Success, "empty", "", undefined],
     [CaseType.Success, "one letter", "a", undefined],
-    [
-      CaseType.Success,
-      "The longest importId",
-      getTestString(IMPORT_ID_MAX_LENGTH),
-      undefined,
-    ],
-  ])(
-    `(%s) Validate 'importId' when it is %s`,
-    (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-      assertCaseForProperty<T>(
-        getModel(),
-        "importId",
-        caseType,
-        value,
-        expectedFailureMessage
-      );
-    }
-  );
+    [CaseType.Success, "The longest importId", getTestString(IMPORT_ID_MAX_LENGTH), undefined],
+  ])(`(%s) Validate 'importId' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+    assertCaseForProperty<T>(getModel(), "importId", caseType, value, expectedFailureMessage);
+  });
 }

@@ -1,20 +1,9 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import {
-  processDownloadStream,
-  processStream,
-} from "import/stream/processStream";
+import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
-import {
-  INewSkillSpec,
-  ISkill,
-  ReuseLevel,
-  SkillType,
-} from "esco/skill/skills.types";
+import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { BatchProcessor } from "import/batch/BatchProcessor";
-import {
-  BatchRowProcessor,
-  TransformRowToSpecificationFunction,
-} from "import/parse/BatchRowProcessor";
+import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
@@ -87,14 +76,9 @@ export async function parseSkillsFromUrl(
   importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> {
   const headersValidator = getHeadersValidator("Skill");
-  const transformRowToSpecificationFn =
-    getRowToSpecificationTransformFn(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
-  const batchRowProcessor = new BatchRowProcessor(
-    headersValidator,
-    transformRowToSpecificationFn,
-    batchProcessor
-  );
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, "Skill", batchRowProcessor);
 }
 
@@ -105,17 +89,8 @@ export async function parseSkillsFromFile(
 ): Promise<RowsProcessedStats> {
   const skillsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator("Skill");
-  const transformRowToSpecificationFn =
-    getRowToSpecificationTransformFn(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
-  const batchRowProcessor = new BatchRowProcessor(
-    headersValidator,
-    transformRowToSpecificationFn,
-    batchProcessor
-  );
-  return await processStream<ISkillRow>(
-    "Skill",
-    skillsCSVFileStream,
-    batchRowProcessor
-  );
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
+  return await processStream<ISkillRow>("Skill", skillsCSVFileStream, batchRowProcessor);
 }

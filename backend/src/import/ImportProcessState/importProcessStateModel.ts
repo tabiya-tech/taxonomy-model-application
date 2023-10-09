@@ -4,9 +4,7 @@ import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
 
 export const ModelName = "ImportProcessState";
 
-export function initializeSchemaAndModel(
-  dbConnection: mongoose.Connection
-): mongoose.Model<IImportProcessStateDoc> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IImportProcessStateDoc> {
   // Schema
   const schema = new mongoose.Schema<IImportProcessStateDoc>(
     {

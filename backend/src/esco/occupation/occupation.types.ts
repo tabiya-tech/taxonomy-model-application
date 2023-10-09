@@ -24,10 +24,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
 }
 
 export interface IOccupationReferenceDoc
-  extends Pick<
-    IOccupationDoc,
-    "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"
-  > {
+  extends Pick<IOccupationDoc, "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"> {
   objectType: ObjectTypes.Occupation;
 }
 
@@ -44,18 +41,12 @@ export interface IOccupation extends IOccupationDoc {
 /**
  *  Describes how new occupations are created in the API
  */
-export type INewOccupationSpec = Omit<
-  IOccupation,
-  "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt"
->;
+export type INewOccupationSpec = Omit<IOccupation, "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt">;
 
 /**
  * Describing how references are returned from the API
  */
 export interface IOccupationReference
-  extends Pick<
-    IOccupation,
-    "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"
-  > {
+  extends Pick<IOccupation, "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"> {
   objectType: ObjectTypes.Occupation;
 }

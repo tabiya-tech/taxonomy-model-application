@@ -2,10 +2,7 @@
 import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import {
-  parseISCOGroupsFromFile,
-  parseISCOGroupsFromUrl,
-} from "./ISCOGroupsParser";
+import { parseISCOGroupsFromFile, parseISCOGroupsFromUrl } from "./ISCOGroupsParser";
 import { IISCOGroupRepository } from "esco/iscoGroup/ISCOGroupRepository";
 import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import fs from "fs";
@@ -52,16 +49,8 @@ describe("test parseISCOGroups from", () => {
   });
 
   test.each([
-    [
-      "url file",
-      "./src/import/esco/ISCOGroups/_test_data_/given.csv",
-      parseFromUrlCallback,
-    ],
-    [
-      "csv file",
-      "./src/import/esco/ISCOGroups/_test_data_/given.csv",
-      parseFromFileCallback,
-    ],
+    ["url file", "./src/import/esco/ISCOGroups/_test_data_/given.csv", parseFromUrlCallback],
+    ["csv file", "./src/import/esco/ISCOGroups/_test_data_/given.csv", parseFromFileCallback],
   ])(
     "should create ISCOGroups from %s for rows with importId",
     async (
@@ -79,50 +68,38 @@ describe("test parseISCOGroups from", () => {
       const givenMockRepository: IISCOGroupRepository = {
         Model: undefined as any,
         create: jest.fn().mockResolvedValue({}),
-        createMany: jest
-          .fn()
-          .mockImplementation(
-            (specs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> => {
-              return Promise.resolve(
-                specs.map((spec: INewISCOGroupSpec): IISCOGroup => {
-                  return {
-                    ...spec,
-                    id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
-                    UUID: "",
-                    parent: null,
-                    children: [],
-                    updatedAt: new Date(),
-                    createdAt: new Date(),
-                  };
-                })
-              );
-            }
-          ),
+        createMany: jest.fn().mockImplementation((specs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> => {
+          return Promise.resolve(
+            specs.map((spec: INewISCOGroupSpec): IISCOGroup => {
+              return {
+                ...spec,
+                id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
+                UUID: "",
+                parent: null,
+                children: [],
+                updatedAt: new Date(),
+                createdAt: new Date(),
+              };
+            })
+          );
+        }),
         findById: jest.fn().mockResolvedValue({}),
       };
-      jest
-        .spyOn(getRepositoryRegistry(), "ISCOGroup", "get")
-        .mockReturnValue(givenMockRepository);
+      jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV file to the database ids
       const givenImportIdToDBIdMap = new Map<string, string>();
       jest.spyOn(givenImportIdToDBIdMap, "set");
 
       // WHEN the data are parsed
-      const actualStats = await parseCallBack(
-        file,
-        givenModelId,
-        givenImportIdToDBIdMap
-      );
+      const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
       const expectedResults = require("./_test_data_/expected.ts").expected;
-      expectedResults.forEach(
-        (expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
-          expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
-            expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
-          );
-        }
-      );
+      expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
+        expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
+          expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
+        );
+      });
       // AND all the expected rows to have been processed successfully
       expect(actualStats).toEqual({
         rowsProcessed: 4,
@@ -132,18 +109,14 @@ describe("test parseISCOGroups from", () => {
       // AND the non-empty import ids to have been mapped to the db id
       expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(2);
       expectedResults
-        .filter((res: Omit<INewISCOGroupSpec, "modelId">) =>
-          isSpecified(res.importId)
-        )
-        .forEach(
-          (expectedSpec: Omit<INewISCOGroupSpec, "modelId">, index: number) => {
-            expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
-              index + 1,
-              expectedSpec.importId,
-              "DB_ID_" + expectedSpec.importId
-            );
-          }
-        );
+        .filter((res: Omit<INewISCOGroupSpec, "modelId">) => isSpecified(res.importId))
+        .forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">, index: number) => {
+          expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
+            index + 1,
+            expectedSpec.importId,
+            "DB_ID_" + expectedSpec.importId
+          );
+        });
       // AND no error should be logged
       expect(importLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows

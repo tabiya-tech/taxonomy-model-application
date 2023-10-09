@@ -14,9 +14,7 @@ import { stringRequired } from "server/stringRequired";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillDoc } from "./skills.types";
 
-export function initializeSchemaAndModel(
-  dbConnection: mongoose.Connection
-): mongoose.Model<ISkillDoc> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillDoc> {
   // Main Schema
   const SkillSchema = new mongoose.Schema<ISkillDoc>(
     {
@@ -30,13 +28,7 @@ export function initializeSchemaAndModel(
       reuseLevel: {
         type: String,
         required: stringRequired("reuseLevel"),
-        enum: [
-          "sector-specific",
-          "occupation-specific",
-          "cross-sector",
-          "transversal",
-          "",
-        ],
+        enum: ["sector-specific", "occupation-specific", "cross-sector", "transversal", ""],
       },
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       originUUID: OriginUUIDProperty,

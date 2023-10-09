@@ -6,10 +6,7 @@ import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
 import { OccupationHierarchyRepository } from "esco/occupationHierarchy/occupationHierarchyRepository";
-import {
-  parseOccupationHierarchyFromFile,
-  parseOccupationHierarchyFromUrl,
-} from "./occupationHierarchyParser";
+import { parseOccupationHierarchyFromFile, parseOccupationHierarchyFromUrl } from "./occupationHierarchyParser";
 import {
   INewOccupationHierarchyPairSpec,
   IOccupationHierarchyPair,
@@ -34,11 +31,7 @@ const parseFromUrlCallback = (
       on: jest.fn(),
     };
   });
-  return parseOccupationHierarchyFromUrl(
-    givenModelId,
-    "someUrl",
-    importIdToDBIdMap
-  );
+  return parseOccupationHierarchyFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
 };
 
 const parseFromFileCallback = (
@@ -46,11 +39,7 @@ const parseFromFileCallback = (
   givenModelId: string,
   importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> => {
-  return parseOccupationHierarchyFromFile(
-    givenModelId,
-    file,
-    importIdToDBIdMap
-  );
+  return parseOccupationHierarchyFromFile(givenModelId, file, importIdToDBIdMap);
 };
 
 describe("test parseOccupationHierarchy from", () => {
@@ -62,16 +51,8 @@ describe("test parseOccupationHierarchy from", () => {
     jest.clearAllMocks();
   });
   test.each([
-    [
-      "url file",
-      "./src/import/esco/occupationHierarchy/_test_data_/given.csv",
-      parseFromUrlCallback,
-    ],
-    [
-      "csv file",
-      "./src/import/esco/occupationHierarchy/_test_data_/given.csv",
-      parseFromFileCallback,
-    ],
+    ["url file", "./src/import/esco/occupationHierarchy/_test_data_/given.csv", parseFromUrlCallback],
+    ["csv file", "./src/import/esco/occupationHierarchy/_test_data_/given.csv", parseFromFileCallback],
   ])(
     "should create Occupation Hierarchy from %s for valid rows",
     async (
@@ -93,34 +74,25 @@ describe("test parseOccupationHierarchy from", () => {
         createMany: jest
           .fn()
           .mockImplementation(
-            (
-              modelId: string,
-              specs: INewOccupationHierarchyPairSpec[]
-            ): Promise<IOccupationHierarchyPair[]> => {
+            (modelId: string, specs: INewOccupationHierarchyPairSpec[]): Promise<IOccupationHierarchyPair[]> => {
               return Promise.resolve(
-                specs.map(
-                  (
-                    spec: INewOccupationHierarchyPairSpec
-                  ): IOccupationHierarchyPair => {
-                    return {
-                      ...spec,
-                      id: "DB_ID_", // + spec.importId,
-                      modelId: modelId,
-                      childDocModel: MongooseModelName.ISCOGroup,
-                      parentDocModel: MongooseModelName.Occupation,
-                      createdAt: new Date(),
-                      updatedAt: new Date(),
-                    };
-                  }
-                )
+                specs.map((spec: INewOccupationHierarchyPairSpec): IOccupationHierarchyPair => {
+                  return {
+                    ...spec,
+                    id: "DB_ID_", // + spec.importId,
+                    modelId: modelId,
+                    childDocModel: MongooseModelName.ISCOGroup,
+                    parentDocModel: MongooseModelName.Occupation,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  };
+                })
               );
             }
           ),
       };
       // @ts-ignore
-      jest
-        .spyOn(getRepositoryRegistry(), "occupationHierarchy", "get")
-        .mockReturnValue(givenMockRepository);
+      jest.spyOn(getRepositoryRegistry(), "occupationHierarchy", "get").mockReturnValue(givenMockRepository);
       // AND all child/parent CSV ids have already been imported and mapped to database ids
       const givenImportIdToDBIdMap = new Map<string, string>();
       jest.spyOn(givenImportIdToDBIdMap, "get").mockImplementation((key) => {
@@ -131,22 +103,16 @@ describe("test parseOccupationHierarchy from", () => {
       });
 
       // WHEN the data are parsed
-      const actualStats = await parseCallBack(
-        file,
-        givenModelId,
-        givenImportIdToDBIdMap
-      );
+      const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
       const expectedResults = require("./_test_data_/expected.ts").expected;
-      expectedResults.forEach(
-        (expectedSpec: Omit<INewOccupationHierarchyPairSpec, "modelId">) => {
-          expect(givenMockRepository.createMany).toHaveBeenCalledWith(
-            givenModelId,
-            expect.arrayContaining([{ ...expectedSpec }])
-          );
-        }
-      );
+      expectedResults.forEach((expectedSpec: Omit<INewOccupationHierarchyPairSpec, "modelId">) => {
+        expect(givenMockRepository.createMany).toHaveBeenCalledWith(
+          givenModelId,
+          expect.arrayContaining([{ ...expectedSpec }])
+        );
+      });
       // AND expect only the hierarchy entries that have passed the transformation to have been processed successfully
       expect(actualStats).toEqual({
         rowsProcessed: expectedResults.length,

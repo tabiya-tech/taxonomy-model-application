@@ -8,9 +8,7 @@ import { IModelInfoDoc } from "./modelInfo.types";
 
 export const ModelName = "ModelInfo";
 
-export function initializeSchemaAndModel(
-  dbConnection: mongoose.Connection
-): mongoose.Model<IModelInfoDoc> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IModelInfoDoc> {
   // Schema for Locale
   const localeSchema = {
     name: {

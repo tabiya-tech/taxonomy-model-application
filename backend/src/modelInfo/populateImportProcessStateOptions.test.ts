@@ -23,13 +23,9 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
     locale: {
       UUID: randomUUID(),
       name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-      shortCode: getTestString(
-        LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-      ),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
-    description: getTestString(
-      ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH
-    ),
+    description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
   };
 }
 
@@ -56,9 +52,7 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     beforeAll(async () => {
       // GIVEN a model info exists in the database
-      givenModel = await repositoryRegistry.modelInfo.create(
-        getNewModelInfoSpec()
-      );
+      givenModel = await repositoryRegistry.modelInfo.create(getNewModelInfoSpec());
     });
 
     afterAll(async () => {
@@ -80,10 +74,9 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     test("Test getModelById()", async () => {
       // WHEN retrieving the model by its id
-      const actualFoundModel: IModelInfo =
-        (await repositoryRegistry.modelInfo.getModelById(
-          givenModel.id
-        )) as IModelInfo;
+      const actualFoundModel: IModelInfo = (await repositoryRegistry.modelInfo.getModelById(
+        givenModel.id
+      )) as IModelInfo;
 
       // THEN expect the import process state to be populated with the PENDING status
       expect(actualFoundModel.importProcessState).toEqual({
@@ -99,10 +92,9 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     test("Test getModelByUUID()", async () => {
       // WHEN retrieving the model by its id
-      const actualFoundModel: IModelInfo =
-        (await repositoryRegistry.modelInfo.getModelByUUID(
-          givenModel.UUID
-        )) as IModelInfo;
+      const actualFoundModel: IModelInfo = (await repositoryRegistry.modelInfo.getModelByUUID(
+        givenModel.UUID
+      )) as IModelInfo;
 
       // THEN expect the import process state to be populated with the PENDING status
       expect(actualFoundModel.importProcessState).toEqual({
@@ -118,8 +110,7 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     test("Test getModels()", async () => {
       // WHEN retrieving the models from the database
-      const actualFoundModels: IModelInfo[] =
-        await repositoryRegistry.modelInfo.getModels();
+      const actualFoundModels: IModelInfo[] = await repositoryRegistry.modelInfo.getModels();
 
       // THEN expect the import process state to be populated with the values from the import process state
       expect(actualFoundModels.length).toEqual(1);
@@ -141,22 +132,19 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     beforeAll(async () => {
       // GIVEN a model info exists in the database
-      givenModel = await repositoryRegistry.modelInfo.create(
-        getNewModelInfoSpec()
-      );
+      givenModel = await repositoryRegistry.modelInfo.create(getNewModelInfoSpec());
       expect(givenModel.importProcessState).toBeDefined();
       // AND the import process has started for the model
-      givenImportProcessState =
-        await repositoryRegistry.importProcessState.create({
-          id: givenModel.importProcessState.id,
-          modelId: givenModel.id,
-          status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
-          result: {
-            errored: true,
-            parsingErrors: true,
-            parsingWarnings: true,
-          },
-        });
+      givenImportProcessState = await repositoryRegistry.importProcessState.create({
+        id: givenModel.importProcessState.id,
+        modelId: givenModel.id,
+        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+        result: {
+          errored: true,
+          parsingErrors: true,
+          parsingWarnings: true,
+        },
+      });
     });
 
     afterAll(async () => {
@@ -166,10 +154,9 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     test("Test getModelById()", async () => {
       // WHEN retrieving the model by its id
-      const actualFoundModel: IModelInfo =
-        (await repositoryRegistry.modelInfo.getModelById(
-          givenModel.id
-        )) as IModelInfo;
+      const actualFoundModel: IModelInfo = (await repositoryRegistry.modelInfo.getModelById(
+        givenModel.id
+      )) as IModelInfo;
 
       // THEN expect the import process state to be populated with the values from the import process state
       expect(actualFoundModel.importProcessState).toEqual({
@@ -181,10 +168,9 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     test("Test getModelByUUID()", async () => {
       // WHEN retrieving the model by its id
-      const actualFoundModel: IModelInfo =
-        (await repositoryRegistry.modelInfo.getModelByUUID(
-          givenModel.UUID
-        )) as IModelInfo;
+      const actualFoundModel: IModelInfo = (await repositoryRegistry.modelInfo.getModelByUUID(
+        givenModel.UUID
+      )) as IModelInfo;
 
       // THEN expect the import process state to be populated with the values from the import process state
       expect(actualFoundModel.importProcessState).toEqual({
@@ -196,8 +182,7 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
     test("Test getModels()", async () => {
       // WHEN retrieving the models from the database
-      const actualFoundModels: IModelInfo[] =
-        await repositoryRegistry.modelInfo.getModels();
+      const actualFoundModels: IModelInfo[] = await repositoryRegistry.modelInfo.getModels();
 
       // THEN expect the import process state to be populated with the values from the import process state
       expect(actualFoundModels.length).toEqual(1);

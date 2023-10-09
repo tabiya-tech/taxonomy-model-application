@@ -4,17 +4,11 @@ import "_test_utilities/consoleMock";
 import { getMockId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
-import {
-  getRepositoryRegistry,
-  RepositoryRegistry,
-} from "server/repositoryRegistry/repositoryRegistry";
+import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import {
-  IImportProcessState,
-  INewImportProcessStateSpec,
-} from "./importProcessState.types";
+import { IImportProcessState, INewImportProcessStateSpec } from "./importProcessState.types";
 import { IImportProcessStateRepository } from "./importProcessStateRepository";
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
 
@@ -40,9 +34,7 @@ function getNewImportProcessStatusSpec(): INewImportProcessStateSpec {
  * that can ebe used for assertions
  * @param givenSpec
  */
-function expectedFromGivenSpec(
-  givenSpec: INewImportProcessStateSpec
-): IImportProcessState {
+function expectedFromGivenSpec(givenSpec: INewImportProcessStateSpec): IImportProcessState {
   return {
     ...givenSpec,
     createdAt: expect.any(Date),
@@ -98,20 +90,14 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
 
     test("should successfully create a new ImportProcessState", async () => {
       // GIVEN a valid newImportProcessStateSpec
-      const givenNewImportProcessStateSpec: INewImportProcessStateSpec =
-        getNewImportProcessStatusSpec();
+      const givenNewImportProcessStateSpec: INewImportProcessStateSpec = getNewImportProcessStatusSpec();
 
       // WHEN Creating a new ImportProcessState with the given specifications
-      const actualNewImportProcessState = await repository.create(
-        givenNewImportProcessStateSpec
-      );
+      const actualNewImportProcessState = await repository.create(givenNewImportProcessStateSpec);
 
       // THEN expect the new ImportProcessState to be created with the specific attributes
-      const expectedNewImportProcessState: IImportProcessState =
-        expectedFromGivenSpec(givenNewImportProcessStateSpec);
-      expect(actualNewImportProcessState).toEqual(
-        expectedNewImportProcessState
-      );
+      const expectedNewImportProcessState: IImportProcessState = expectedFromGivenSpec(givenNewImportProcessStateSpec);
+      expect(actualNewImportProcessState).toEqual(expectedNewImportProcessState);
     });
 
     TestConnectionFailure((repository) => {
@@ -124,8 +110,7 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
       // GIVEN an ImportProcessState that exists
       const specs = getNewImportProcessStatusSpec();
       specs.status = ImportProcessStateApiSpecs.Enums.Status.PENDING;
-      const givenExistingImportProcessState =
-        await repository.Model.create(specs);
+      const givenExistingImportProcessState = await repository.Model.create(specs);
       // AND a valid updateSpecs that are different from the existing ImportProcessState
       const givenUpdateSpecs = {
         status: ImportProcessStateApiSpecs.Enums.Status.COMPLETED,
@@ -135,9 +120,7 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
           parsingWarnings: !specs.result.parsingWarnings,
         },
       };
-      expect(givenExistingImportProcessState.status).not.toEqual(
-        givenUpdateSpecs.status
-      );
+      expect(givenExistingImportProcessState.status).not.toEqual(givenUpdateSpecs.status);
 
       // WHEN updating the ImportProcessState with the given specifications
       const actualUpdatedImportProcessState = await repository.update(
@@ -168,10 +151,7 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
         },
       };
       // WHEN updating the ImportProcessState with an id that does not exist
-      const actualUpdatedImportProcessStatePromise = repository.update(
-        givenId,
-        givenUpdateSpecs
-      );
+      const actualUpdatedImportProcessStatePromise = repository.update(givenId, givenUpdateSpecs);
 
       // THEN expect to reject with an error
       await expect(actualUpdatedImportProcessStatePromise).rejects.toThrowError(
@@ -193,15 +173,11 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
 });
 
 function TestConnectionFailure(
-  actionCallback: (
-    repository: IImportProcessStateRepository
-  ) => Promise<IImportProcessState | null>
+  actionCallback: (repository: IImportProcessStateRepository) => Promise<IImportProcessState | null>
 ) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration(
-      "ImportProcessStateRepositoryTestDB"
-    );
+    const givenConfig = getTestConfiguration("ImportProcessStateRepositoryTestDB");
     const givenConnection = await getNewConnection(givenConfig.dbURI);
     const givenRepositoryRegistry = new RepositoryRegistry();
     await givenRepositoryRegistry.initialize(givenConnection);

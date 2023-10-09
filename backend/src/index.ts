@@ -7,10 +7,11 @@ import { handler as presignedHandler } from "./presigned";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { initOnce } from "server/init";
 
-export const handler: Handler<
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult
-> = async (event: APIGatewayProxyEvent, context, callback) => {
+export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
+  event: APIGatewayProxyEvent,
+  context,
+  callback
+) => {
   try {
     // Initialize the application
     await initOnce();

@@ -1,14 +1,8 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import {
-  processDownloadStream,
-  processStream,
-} from "import/stream/processStream";
+import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
 import { BatchProcessor } from "import/batch/BatchProcessor";
-import {
-  BatchRowProcessor,
-  TransformRowToSpecificationFunction,
-} from "import/parse/BatchRowProcessor";
+import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import {
@@ -34,40 +28,24 @@ const enum CSV_OBJECT_TYPES {
 }
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, [
-    "PARENTOBJECTTYPE",
-    "PARENTID",
-    "CHILDID",
-    "CHILDOBJECTTYPE",
-  ]);
+  return getStdHeadersValidator(validatorName, ["PARENTOBJECTTYPE", "PARENTID", "CHILDID", "CHILDOBJECTTYPE"]);
 }
 
 function getBatchProcessor(modelId: string) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessHierarchyBatchFunction<
-    IOccupationHierarchyPair,
-    INewOccupationHierarchyPairSpec
-  >(
+  const batchProcessFn = getProcessHierarchyBatchFunction<IOccupationHierarchyPair, INewOccupationHierarchyPairSpec>(
     modelId,
     "OccupationHierarchy",
     getRepositoryRegistry().occupationHierarchy
   );
-  return new BatchProcessor<INewOccupationHierarchyPairSpec>(
-    BATCH_SIZE,
-    batchProcessFn
-  );
+  return new BatchProcessor<INewOccupationHierarchyPairSpec>(BATCH_SIZE, batchProcessFn);
 }
 
 function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<
-  OccupationHierarchyHierarchyRow,
-  INewOccupationHierarchyPairSpec
-> {
-  const csv2EscoObjectType = (
-    type: string
-  ): ObjectTypes.ISCOGroup | ObjectTypes.Occupation | null => {
+): TransformRowToSpecificationFunction<OccupationHierarchyHierarchyRow, INewOccupationHierarchyPairSpec> {
+  const csv2EscoObjectType = (type: string): ObjectTypes.ISCOGroup | ObjectTypes.Occupation | null => {
     switch (type.toUpperCase()) {
       case CSV_OBJECT_TYPES.ISCOGroup:
         return ObjectTypes.ISCOGroup;
@@ -111,21 +89,10 @@ export async function parseOccupationHierarchyFromUrl(
   importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> {
   const headersValidator = getHeadersValidator("OccupationHierarchy");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(
-    modelId,
-    importIdToDBIdMap
-  );
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
-  const batchRowProcessor = new BatchRowProcessor(
-    headersValidator,
-    transformRowToSpecificationFn,
-    batchProcessor
-  );
-  return await processDownloadStream(
-    url,
-    "OccupationHierarchy",
-    batchRowProcessor
-  );
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
+  return await processDownloadStream(url, "OccupationHierarchy", batchRowProcessor);
 }
 
 export async function parseOccupationHierarchyFromFile(
@@ -135,16 +102,9 @@ export async function parseOccupationHierarchyFromFile(
 ): Promise<RowsProcessedStats> {
   const iscoGroupsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator("OccupationHierarchy");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(
-    modelId,
-    importIdToDBIdMap
-  );
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
-  const batchRowProcessor = new BatchRowProcessor(
-    headersValidator,
-    transformRowToSpecificationFn,
-    batchProcessor
-  );
+  const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<OccupationHierarchyHierarchyRow>(
     "OccupationHierarchy",
     iscoGroupsCSVFileStream,

@@ -1,18 +1,9 @@
 import { errorResponse, response, StatusCodes } from "server/httpUtils";
 import ImportAPISpecs from "api-specifications/import";
-import {
-  LambdaClient,
-  InvokeCommand,
-  InvokeCommandInput,
-} from "@aws-sdk/client-lambda";
-import {
-  getAsyncLambdaFunctionArn,
-  getAsyncLambdaFunctionRegion,
-} from "server/config/config";
+import { LambdaClient, InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
+import { getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion } from "server/config/config";
 
-export async function lambda_invokeAsyncImport(
-  request: ImportAPISpecs.Types.POST.Request.Payload
-) {
+export async function lambda_invokeAsyncImport(request: ImportAPISpecs.Types.POST.Request.Payload) {
   try {
     const client = new LambdaClient({ region: getAsyncLambdaFunctionRegion() });
     const input: InvokeCommandInput = {
@@ -32,8 +23,7 @@ export async function lambda_invokeAsyncImport(
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,
-      ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes
-        .FAILED_TO_TRIGGER_IMPORT,
+      ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes.FAILED_TO_TRIGGER_IMPORT,
       "Failed to trigger import",
       ""
     );

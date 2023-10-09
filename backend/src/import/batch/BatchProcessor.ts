@@ -1,8 +1,6 @@
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 
-export type ProcessBatchFunction<T> = (
-  batch: T[]
-) => Promise<RowsProcessedStats>;
+export type ProcessBatchFunction<T> = (batch: T[]) => Promise<RowsProcessedStats>;
 
 export class BatchProcessor<T> {
   private readonly batchSize: number;

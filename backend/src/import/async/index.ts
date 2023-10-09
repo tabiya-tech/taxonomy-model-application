@@ -9,9 +9,7 @@ import { parseFiles } from "./parseFiles";
 import importLogger from "../importLogger/importLogger";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const handler = async (
-  event: ImportAPISpecs.Types.POST.Request.Payload
-): Promise<unknown> => {
+export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<unknown> => {
   console.info("Import started", event);
   // Clear the importLogger from previous runs
   importLogger.clear();
@@ -26,10 +24,7 @@ export const handler = async (
   // Don't throw an error as the lambda function should not be retried
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
-    const e = new Error(
-      "Import failed, the event does not conform to the expected schema: " +
-        errorDetail
-    );
+    const e = new Error("Import failed, the event does not conform to the expected schema: " + errorDetail);
     console.error(e);
     return;
   }
@@ -65,15 +60,9 @@ const importErrored = async (modelId: string) => {
       },
     };
     console.info("Import failed", state);
-    const importProcessStateId = (
-      (await getRepositoryRegistry().modelInfo.getModelById(
-        modelId
-      )) as IModelInfo
-    ).importProcessState.id;
-    await getRepositoryRegistry().importProcessState.update(
-      importProcessStateId,
-      state
-    );
+    const importProcessStateId = ((await getRepositoryRegistry().modelInfo.getModelById(modelId)) as IModelInfo)
+      .importProcessState.id;
+    await getRepositoryRegistry().importProcessState.update(importProcessStateId, state);
   } catch (e: unknown) {
     console.error(e);
   }

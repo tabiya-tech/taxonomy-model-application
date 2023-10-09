@@ -16,8 +16,7 @@ export interface IISCOGroupDoc extends ImportIdentifiable {
   updatedAt: Date | string;
 }
 
-export interface IISCOGroupReferenceDoc
-  extends Pick<IISCOGroupDoc, "id" | "UUID" | "code" | "preferredLabel"> {
+export interface IISCOGroupReferenceDoc extends Pick<IISCOGroupDoc, "id" | "UUID" | "code" | "preferredLabel"> {
   objectType: ObjectTypes.ISCOGroup;
 }
 
@@ -28,12 +27,8 @@ export interface IISCOGroup extends IISCOGroupDoc {
   children: (IISCOGroupReference | IOccupationReference)[];
 }
 
-export type INewISCOGroupSpec = Omit<
-  IISCOGroup,
-  "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt"
->;
+export type INewISCOGroupSpec = Omit<IISCOGroup, "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt">;
 
-export interface IISCOGroupReference
-  extends Pick<IISCOGroup, "id" | "UUID" | "code" | "preferredLabel"> {
+export interface IISCOGroupReference extends Pick<IISCOGroup, "id" | "UUID" | "code" | "preferredLabel"> {
   objectType: ObjectTypes.ISCOGroup;
 }
