@@ -31,18 +31,15 @@ const SchemaGETResponse: SchemaObject = {
       additionalProperties: false,
       properties: {
         errored: {
-          description:
-            "if the import process has completed or it was did not complete due to some unexpected error.",
+          description: "if the import process has completed or it was did not complete due to some unexpected error.",
           type: "boolean",
         },
         parsingErrors: {
-          description:
-            "if the import encountered errors while parsing the csv files.",
+          description: "if the import encountered errors while parsing the csv files.",
           type: "boolean",
         },
         parsingWarnings: {
-          description:
-            "if the import encountered warnings while parsing the csv files.",
+          description: "if the import encountered warnings while parsing the csv files.",
           type: "boolean",
         },
       },

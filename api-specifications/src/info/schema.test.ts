@@ -10,10 +10,7 @@ describe("Test the InfoSchema", () => {
 
   // WHEN the schema is validated
   // THEN expect the schema to be valid
-  testValidSchema(
-    "Info.Schemas.GET.Response.Payload",
-    InfoAPISpecs.Schemas.GET.Response.Payload
-  );
+  testValidSchema("Info.Schemas.GET.Response.Payload", InfoAPISpecs.Schemas.GET.Response.Payload);
 });
 
 describe("Validate JSON against the Info Schema", () => {

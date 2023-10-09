@@ -18,10 +18,8 @@ export const SchemaPOSTRequest: SchemaObject = {
       type: "object",
       examples: [
         {
-          [ImportConstants.ImportFileTypes.ISCO_GROUP]:
-            "some-random-folder/ISCOGroups_en.csv",
-          [ImportConstants.ImportFileTypes.ESCO_SKILL_GROUP]:
-            "some-random-folder/skillGroups_en.csv",
+          [ImportConstants.ImportFileTypes.ISCO_GROUP]: "some-random-folder/ISCOGroups_en.csv",
+          [ImportConstants.ImportFileTypes.ESCO_SKILL_GROUP]: "some-random-folder/skillGroups_en.csv",
         },
       ],
       anyOf: Object.values(ImportConstants.ImportFileTypes).map((value) => {

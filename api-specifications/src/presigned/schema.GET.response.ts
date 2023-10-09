@@ -13,8 +13,7 @@ const SchemaGETResponse: SchemaObject = {
       format: "uri",
     },
     fields: {
-      description:
-        "The fields should be added to the form-data when uploading the files",
+      description: "The fields should be added to the form-data when uploading the files",
       type: "array",
       minItems: 1,
       items: {

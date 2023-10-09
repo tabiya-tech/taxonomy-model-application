@@ -12,17 +12,12 @@ import "jest-performance-matchers";
 const WHITESPACE = " \n\r\t";
 const PERF_DURATION = 5;
 describe("Test RegExp_NotEmptyString", () => {
-  test.each([
-    ["abc"],
-    [" abc"],
-    [" abc "],
-    ["abc "],
-    ["a b c"],
-    [" a b c"],
-    [" a b c "],
-  ])("It should successfully test true non whitespace strings '%s'", (s) => {
-    expect(RegExp_NotEmptyString.test(s)).toBe(true);
-  });
+  test.each([["abc"], [" abc"], [" abc "], ["abc "], ["a b c"], [" a b c"], [" a b c "]])(
+    "It should successfully test true non whitespace strings '%s'",
+    (s) => {
+      expect(RegExp_NotEmptyString.test(s)).toBe(true);
+    }
+  );
 
   test.each([
     ["empty", ""],
@@ -50,30 +45,19 @@ describe("Test RegExp_NotEmptyString", () => {
 });
 
 describe("Test RegExp_Hex fixed length", () => {
-  test.each([
-    [""],
-    ["0"],
-    ["f"],
-    ["09"],
-    ["af"],
-    ["09".repeat(2)],
-    ["af".repeat(2)],
-    ["09af".repeat(2)],
-  ])("It should successfully test true to Hex string '%s'", (s) => {
-    expect(RegExp_Hex(s.length).test(s)).toBe(true);
-  });
+  test.each([[""], ["0"], ["f"], ["09"], ["af"], ["09".repeat(2)], ["af".repeat(2)], ["09af".repeat(2)]])(
+    "It should successfully test true to Hex string '%s'",
+    (s) => {
+      expect(RegExp_Hex(s.length).test(s)).toBe(true);
+    }
+  );
 
-  test.each([
-    ["-0"],
-    ["0-9"],
-    ["a-f"],
-    ["0-9a-f"],
-    ["0-9,a-f"],
-    ["0-9 a-f"],
-    ["g"],
-  ])("It should successfully test false to string '%s'", (s) => {
-    expect(RegExp_Hex(s.length).test(s)).toBe(false);
-  });
+  test.each([["-0"], ["0-9"], ["a-f"], ["0-9a-f"], ["0-9,a-f"], ["0-9 a-f"], ["g"]])(
+    "It should successfully test false to string '%s'",
+    (s) => {
+      expect(RegExp_Hex(s.length).test(s)).toBe(false);
+    }
+  );
 
   test.each([
     ["", 1],
@@ -81,12 +65,9 @@ describe("Test RegExp_Hex fixed length", () => {
     ["0", 2],
     ["0a", 1],
     ["0a", 3],
-  ])(
-    "It should successfully test false to hex string %s with incorrect length %s",
-    (s, l) => {
-      expect(RegExp_Hex(l).test(s)).toBe(false);
-    }
-  );
+  ])("It should successfully test false to hex string %s with incorrect length %s", (s, l) => {
+    expect(RegExp_Hex(l).test(s)).toBe(false);
+  });
 
   test.each([
     ["long hex", "9a".repeat(65535)],
@@ -118,27 +99,19 @@ describe("Test RegExp_Hex minimum length", () => {
     expect(RegExp_Hex_MinLength(minLength).test(s)).toBe(true);
   });
 
-  test.each([
-    ["-0"],
-    ["0-9"],
-    ["a-f"],
-    ["0-9a-f"],
-    ["0-9,a-f"],
-    ["0-9 a-f"],
-    ["g"],
-  ])("It should successfully test false to string '%s'", (s) => {
-    expect(RegExp_Hex_MinLength(0).test(s)).toBe(false);
-  });
+  test.each([["-0"], ["0-9"], ["a-f"], ["0-9a-f"], ["0-9,a-f"], ["0-9 a-f"], ["g"]])(
+    "It should successfully test false to string '%s'",
+    (s) => {
+      expect(RegExp_Hex_MinLength(0).test(s)).toBe(false);
+    }
+  );
 
   test.each([
     ["0", 2],
     ["af", 4],
-  ])(
-    "It should successfully test false to hex string %s with less that min length",
-    (s, l) => {
-      expect(RegExp_Hex_MinLength(l).test(s)).toBe(false);
-    }
-  );
+  ])("It should successfully test false to hex string %s with less that min length", (s, l) => {
+    expect(RegExp_Hex_MinLength(l).test(s)).toBe(false);
+  });
 
   test.each([
     ["long hex", "9a".repeat(65535)],
@@ -158,30 +131,19 @@ describe("Test RegExp_Hex minimum length", () => {
 });
 
 describe("Test RegExp_Hex_AnyLength", () => {
-  test.each([
-    ["0"],
-    ["f"],
-    ["09"],
-    ["af"],
-    ["09".repeat(2)],
-    ["af".repeat(2)],
-    ["09af".repeat(2)],
-  ])("It should successfully test true to Hex string '%s'", (s) => {
-    expect(RegExp_Hex_AnyLength.test(s)).toBe(true);
-  });
+  test.each([["0"], ["f"], ["09"], ["af"], ["09".repeat(2)], ["af".repeat(2)], ["09af".repeat(2)]])(
+    "It should successfully test true to Hex string '%s'",
+    (s) => {
+      expect(RegExp_Hex_AnyLength.test(s)).toBe(true);
+    }
+  );
 
-  test.each([
-    [""],
-    ["-0"],
-    ["0-9"],
-    ["a-f"],
-    ["0-9a-f"],
-    ["0-9,a-f"],
-    ["0-9 a-f"],
-    ["g"],
-  ])("It should successfully test false to string '%s'", (s) => {
-    expect(RegExp_Hex_AnyLength.test(s)).toBe(false);
-  });
+  test.each([[""], ["-0"], ["0-9"], ["a-f"], ["0-9a-f"], ["0-9,a-f"], ["0-9 a-f"], ["g"]])(
+    "It should successfully test false to string '%s'",
+    (s) => {
+      expect(RegExp_Hex_AnyLength.test(s)).toBe(false);
+    }
+  );
 
   test.each([
     ["long hex", "9a".repeat(65535)],
@@ -224,10 +186,7 @@ describe("Test RegExp_UUIDv4", () => {
   test.each([
     ["correct uuid", "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"],
     ["incorrect uuid", "f81d4fae-7dec-11d0-a765-00a0c91e6bf6x"],
-    [
-      "incorrect uuid long",
-      "f81d4fae-7dec-11d0-a765-00a0c91e6bf6".repeat(65535),
-    ],
+    ["incorrect uuid long", "f81d4fae-7dec-11d0-a765-00a0c91e6bf6".repeat(65535)],
   ])(
     `It performs fast (<=${PERF_DURATION}ms) and does not hang/cause catastrophic backtracking for '%s'`,
     async (description, value) => {
@@ -268,10 +227,7 @@ describe("Test RegExp_UUIDv4_Or_Empty", () => {
   test.each([
     ["correct uuid", "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"],
     ["incorrect uuid", "f81d4fae-7dec-11d0-a765-00a0c91e6bf6x"],
-    [
-      "incorrect uuid long",
-      "f81d4fae-7dec-11d0-a765-00a0c91e6bf6".repeat(65535),
-    ],
+    ["incorrect uuid long", "f81d4fae-7dec-11d0-a765-00a0c91e6bf6".repeat(65535)],
     ["correct empty", ""],
     ["correct spaces long", " ".repeat(65535)],
   ])(

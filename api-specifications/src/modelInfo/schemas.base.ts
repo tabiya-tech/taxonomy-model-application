@@ -1,9 +1,4 @@
-import {
-  RegExp_Str_ID,
-  RegExp_Str_NotEmptyString,
-  RegExp_Str_UUIDv4,
-  RegExp_Str_UUIDv4_Or_Empty,
-} from "../regex";
+import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty } from "../regex";
 import ModelInfoConstants from "./constants";
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
@@ -37,14 +32,12 @@ export const _baseResponseSchema = {
   additionalProperties: false,
   properties: {
     id: {
-      description:
-        "The id of the model. It can be used to retrieve the model from the server.",
+      description: "The id of the model. It can be used to retrieve the model from the server.",
       type: "string",
       pattern: RegExp_Str_ID,
     },
     UUID: {
-      description:
-        "The UUID of the model. It can be used to identify the model across systems.",
+      description: "The UUID of the model. It can be used to identify the model across systems.",
       type: "string",
       pattern: RegExp_Str_UUIDv4,
     },
@@ -78,8 +71,7 @@ export const _baseResponseSchema = {
       maxLength: ModelInfoConstants.RELEASE_NOTES_MAX_LENGTH,
     },
     version: {
-      description:
-        "The version of the model. It should follow the conventions of semantic versioning.",
+      description: "The version of the model. It should follow the conventions of semantic versioning.",
       type: "string",
       maxLength: ModelInfoConstants.VERSION_MAX_LENGTH,
     },
@@ -110,13 +102,11 @@ export const _baseResponseSchema = {
               type: "boolean",
             },
             parsingErrors: {
-              description:
-                "if the import encountered errors while parsing the csv files.",
+              description: "if the import encountered errors while parsing the csv files.",
               type: "boolean",
             },
             parsingWarnings: {
-              description:
-                "if the import encountered warnings while parsing the csv files.",
+              description: "if the import encountered warnings while parsing the csv files.",
               type: "boolean",
             },
           },
