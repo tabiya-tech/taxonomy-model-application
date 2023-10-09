@@ -55,7 +55,7 @@ const VersionContainer = ({ dataTestId, title, info }: { dataTestId: string; tit
 };
 
 const Info = () => {
-  const [version, setVersions] = useState<InfoProps[]>([]);
+  const [versions, setVersions] = useState<InfoProps[]>([]);
   const infoService = useMemo(() => new InfoService(), []);
   const theme = useTheme();
   useEffect(() => {
@@ -71,8 +71,8 @@ const Info = () => {
     >
       <ContentTitle text="Info" />
       <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.xl}>
-        <VersionContainer title="Frontend" info={version[0]} dataTestId={DATA_TEST_ID.VERSION_FRONTEND_ROOT} />
-        <VersionContainer title="Backend" info={version[1]} dataTestId={DATA_TEST_ID.VERSION_BACKEND_ROOT} />
+        <VersionContainer title="Frontend" info={versions[0]} dataTestId={DATA_TEST_ID.VERSION_FRONTEND_ROOT} />
+        <VersionContainer title="Backend" info={versions[1]} dataTestId={DATA_TEST_ID.VERSION_BACKEND_ROOT} />
       </Box>
     </StyledContainer>
   );

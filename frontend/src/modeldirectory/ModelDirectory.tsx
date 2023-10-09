@@ -49,15 +49,15 @@ export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
 ];
 
 const ModelDirectory = () => {
-  const [isImportDlgOpen, setImportDlgOpen] = React.useState(false);
-  const [isBackDropShown, setBackDropShown] = React.useState(false);
+  const [isImportDlgOpen, setIsImportDlgOpen] = React.useState(false);
+  const [isBackDropShown, setIsBackDropShown] = React.useState(false);
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const showImportDialog = (b: boolean) => {
-    setImportDlgOpen(b);
+    setIsImportDlgOpen(b);
   };
 
   const handleModelInfoFetch = useCallback(() => {
@@ -80,7 +80,7 @@ const ModelDirectory = () => {
   const handleOnImportDialogClose = async (event: CloseEvent) => {
     showImportDialog(false);
     if (event.name === "IMPORT") {
-      setBackDropShown(true);
+      setIsBackDropShown(true);
       const importData = event.importData as ImportData;
       try {
         const newModel = (await importDirectorService.directImport(
@@ -103,7 +103,7 @@ const ModelDirectory = () => {
           console.error(e);
         }
       } finally {
-        setBackDropShown(false);
+        setIsBackDropShown(false);
       }
     }
   };
