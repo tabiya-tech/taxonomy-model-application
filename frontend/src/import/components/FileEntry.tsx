@@ -73,7 +73,7 @@ export const FileEntry = (props: FileEntryProps) => {
             id={uniqueId}
             type="file"
             style={{ display: "none" }}
-            datatype=".csv"
+            accept=".csv"
             data-testid={DATA_TEST_ID.FILE_INPUT}
             onChange={fileChangedHandler}
             data-filetype={props.fileType}
