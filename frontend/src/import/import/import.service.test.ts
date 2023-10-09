@@ -1,15 +1,15 @@
 // mute the console during the test
-import "src/_test_utilities/consoleMock"
+import "src/_test_utilities/consoleMock";
 
-import ImportService from './import.service';
-import {ServiceError} from 'src/error/error';
+import ImportService from "./import.service";
+import { ServiceError } from "src/error/error";
 import ImportAPISpecs from "api-specifications/import";
-import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
-import {StatusCodes} from "http-status-codes/";
-import {ErrorCodes} from "src/error/errorCodes";
+import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
+import { StatusCodes } from "http-status-codes/";
+import { ErrorCodes } from "src/error/errorCodes";
 import Ajv from "ajv/dist/2020";
-import {getTestString} from "src/_test_utilities/specialCharacters";
-import {getMockId} from "src/_test_utilities/mockMongoId";
+import { getTestString } from "src/_test_utilities/specialCharacters";
+import { getMockId } from "src/_test_utilities/mockMongoId";
 
 const mockFilePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths = {
   [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "foo/bar",
@@ -17,7 +17,6 @@ const mockFilePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths = {
 };
 
 describe("Test the service", () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -54,18 +53,18 @@ describe("Test the service", () => {
     // AND the request jsonPayload to contain the given arguments (givenModelId, givenFilePaths)
     const expectedPayload: ImportAPISpecs.Types.POST.Request.Payload = {
       modelId: givenModelId,
-      filePaths: givenFilePaths
-    }
+      filePaths: givenFilePaths,
+    };
     const expectedJSONPayload = JSON.stringify(expectedPayload);
     expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/import`, {
       method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: expectedJSONPayload,
     });
     // AND the body conforms to the  ImportSchema schema
-    const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+    const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
     const validateRequest = ajv.compile(ImportAPISpecs.Schemas.POST.Request.Payload);
     validateRequest(expectedPayload);
     expect(validateRequest.errors).toBeNull();
@@ -78,7 +77,7 @@ describe("Test the service", () => {
     const givenFilePaths = mockFilePaths;
     // AND the fetch of some of the files will fail with some error.
     const givenError = new Error("some error");
-    jest.spyOn(window, 'fetch').mockRejectedValue(givenError);
+    jest.spyOn(window, "fetch").mockRejectedValue(givenError);
 
     // WHEN calling the import method with the given arguments (modelId, filePaths)
     const importService = new ImportService(givenApiServerUrl);
@@ -86,7 +85,16 @@ describe("Test the service", () => {
 
     // THEN Expect to reject with an error
     const expectedError = {
-      ...new ServiceError("ImportService", "import", "POST", `${givenApiServerUrl}/import`, StatusCodes.NOT_FOUND, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      ...new ServiceError(
+        "ImportService",
+        "import",
+        "POST",
+        `${givenApiServerUrl}/import`,
+        StatusCodes.NOT_FOUND,
+        ErrorCodes.FAILED_TO_FETCH,
+        "",
+        ""
+      ),
       statusCode: expect.any(Number),
       message: expect.any(String),
       details: expect.any(Error),
@@ -109,7 +117,16 @@ describe("Test the service", () => {
 
     // THEN Expect to reject with an error
     const expectedError = {
-      ...new ServiceError("ImportService", "import", "POST", `${givenApiServerUrl}/import`, givenFailureStatusCode, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      ...new ServiceError(
+        "ImportService",
+        "import",
+        "POST",
+        `${givenApiServerUrl}/import`,
+        givenFailureStatusCode,
+        ErrorCodes.FAILED_TO_FETCH,
+        "",
+        ""
+      ),
       statusCode: expect.any(Number),
       message: expect.any(String),
       details: expect.anything(),

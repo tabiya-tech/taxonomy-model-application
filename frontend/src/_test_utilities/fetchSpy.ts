@@ -1,8 +1,13 @@
-export function setupFetchSpy(expectedStatus:number, expectedResponseBody: any | string, contentType: "" | "application/json;charset=UTF-8"): jest.SpyInstance {
-  const responseBody = typeof expectedResponseBody === 'string' ? expectedResponseBody : JSON.stringify(expectedResponseBody);
+export function setupFetchSpy(
+  expectedStatus: number,
+  expectedResponseBody: any | string,
+  contentType: "" | "application/json;charset=UTF-8"
+): jest.SpyInstance {
+  const responseBody =
+    typeof expectedResponseBody === "string" ? expectedResponseBody : JSON.stringify(expectedResponseBody);
   const expectedResponse = new Response(responseBody, {
     status: expectedStatus,
-    headers: {"Content-Type": contentType}
+    headers: { "Content-Type": contentType },
   });
-  return jest.spyOn(window, 'fetch').mockResolvedValue(expectedResponse);
+  return jest.spyOn(window, "fetch").mockResolvedValue(expectedResponse);
 }

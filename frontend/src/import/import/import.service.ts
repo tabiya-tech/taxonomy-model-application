@@ -1,10 +1,9 @@
-import {getServiceErrorFactory} from "src/error/error";
-import {ErrorCodes} from "src/error/errorCodes";
+import { getServiceErrorFactory } from "src/error/error";
+import { ErrorCodes } from "src/error/errorCodes";
 import ImportAPISpecs from "api-specifications/import";
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 export default class ImportService {
-
   readonly apiServerUrl: string;
   readonly importEndpointUrl: string;
 
@@ -20,14 +19,14 @@ export default class ImportService {
     try {
       const importRequest: ImportAPISpecs.Types.POST.Request.Payload = {
         modelId: modelId,
-        filePaths: filePaths
-      }
+        filePaths: filePaths,
+      };
       const response = await fetch(this.importEndpointUrl, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(importRequest)
+        body: JSON.stringify(importRequest),
       });
       responseStatus = response.status;
     } catch (e) {

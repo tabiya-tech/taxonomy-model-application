@@ -1,13 +1,12 @@
 // mute the console during the test
-import "src/_test_utilities/consoleMock"
+import "src/_test_utilities/consoleMock";
 
-import UploadService, {MAX_CONCURRENT_UPLOADS} from './upload.service';
+import UploadService, { MAX_CONCURRENT_UPLOADS } from "./upload.service";
 import PresignedAPISpecs from "api-specifications/presigned";
-import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
-import {StatusCodes} from "http-status-codes";
-import {ServiceError} from "src/error/error";
-import {ErrorCodes} from "src/error/errorCodes";
-
+import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
+import { StatusCodes } from "http-status-codes";
+import { ServiceError } from "src/error/error";
+import { ErrorCodes } from "src/error/errorCodes";
 
 function getMockFiles(count: number): File[] {
   const demoFiles: File[] = [];
@@ -24,13 +23,13 @@ const presignedMock: PresignedAPISpecs.Types.GET.Response.Payload = {
   fields: [
     {
       name: "some name",
-      value: "value"
-    }],
-  folder: "some folder"
-}
+      value: "value",
+    },
+  ],
+  folder: "some folder",
+};
 
 describe("Test the service", () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -62,7 +61,7 @@ describe("Test the service", () => {
     const givenPreSigned: PresignedAPISpecs.Types.GET.Response.Payload = presignedMock;
     // AND the fetch of some of the files will fail with some error.
     const givenError = new Error("some error");
-    jest.spyOn(window, 'fetch').mockRejectedValue(givenError);
+    jest.spyOn(window, "fetch").mockRejectedValue(givenError);
 
     // WHEN calling the uploadFiles method with the given arguments (preSigned, files)
     const uploadService = new UploadService();
@@ -70,7 +69,16 @@ describe("Test the service", () => {
 
     // THEN Expect the uploadFiles to reject with the error
     const expectedError = {
-      ...new ServiceError("UploadService", "uploadFiles", "POST", givenPreSigned.url, 0, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      ...new ServiceError(
+        "UploadService",
+        "uploadFiles",
+        "POST",
+        givenPreSigned.url,
+        0,
+        ErrorCodes.FAILED_TO_FETCH,
+        "",
+        ""
+      ),
       statusCode: expect.any(Number),
       message: expect.any(String),
       details: expect.anything(),
@@ -93,7 +101,16 @@ describe("Test the service", () => {
 
     // THEN Expect the uploadFiles to reject with the error
     const expectedError = {
-      ...new ServiceError("UploadService", "uploadFiles", "POST", givenPreSigned.url, givenFailureStatusCode, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      ...new ServiceError(
+        "UploadService",
+        "uploadFiles",
+        "POST",
+        givenPreSigned.url,
+        givenFailureStatusCode,
+        ErrorCodes.FAILED_TO_FETCH,
+        "",
+        ""
+      ),
       statusCode: expect.any(Number),
       message: expect.any(String),
       details: expect.anything(),
@@ -107,7 +124,7 @@ describe("Test the service", () => {
     // add guard to ensure that we have more than MAX_CONCURRENT_UPLOADS files
     expect(givenFiles.length).toBeGreaterThan(MAX_CONCURRENT_UPLOADS);
     // AND a IPreSignedResponse
-    const givenPreSigned: PresignedAPISpecs.Types.GET.Response.Payload = presignedMock
+    const givenPreSigned: PresignedAPISpecs.Types.GET.Response.Payload = presignedMock;
     // AND the upload of the files will succeed
     let counter = 0;
     let max = 0;
@@ -121,7 +138,7 @@ describe("Test the service", () => {
         status: 204,
       });
     });
-    jest.spyOn(window, 'fetch').mockReturnValue(countConcurrentCallsPromise);
+    jest.spyOn(window, "fetch").mockReturnValue(countConcurrentCallsPromise);
 
     // WHEN calling the uploadFiles method with the given arguments (preSigned, files)
     const uploadService = new UploadService();

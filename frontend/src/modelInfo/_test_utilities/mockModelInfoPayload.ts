@@ -1,13 +1,13 @@
-import {faker} from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
-import {getMockId} from "src/_test_utilities/mockMongoId";
-import {getRandomLorem, getRandomString, getTestString} from "src/_test_utilities/specialCharacters";
+import { getMockId } from "src/_test_utilities/mockMongoId";
+import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
 
 export namespace POST {
   /**
@@ -19,13 +19,12 @@ export namespace POST {
 }
 
 export namespace GET {
-
   /**
    * Get a mock ModelInfo payload with special character strings of maximum length
    * @param number The number of ModelInfo objects to generate
    */
   export function getPayloadWithArrayOfRandomModelInfo(number: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
-    return Array.from({length: number}, (_, i) => {
+    return Array.from({ length: number }, (_, i) => {
       return getRandomModelInfo(i);
     });
   }
@@ -37,7 +36,7 @@ export namespace GET {
   export function getPayloadWithArrayOfFakeModelInfo(number: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
     const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
 
-    return Array.from({length: number}, (_, i) => {
+    return Array.from({ length: number }, (_, i) => {
       const randomizedStatus = allStatuses[i % allStatuses.length];
       return {
         id: getMockId(i),
@@ -63,11 +62,11 @@ export namespace GET {
             errored: false,
             parsingErrors: faker.datatype.boolean(),
             parsingWarnings: faker.datatype.boolean(),
-          }
+          },
         },
         createdAt: faker.date.anytime().toISOString(),
         updatedAt: faker.date.anytime().toISOString(),
-      }
+      };
     });
   }
 }
@@ -85,7 +84,7 @@ export function getRandomModelInfo(_id: number) {
     locale: {
       UUID: uuidv4(),
       name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
     released: _id % 2 === 0,
@@ -100,7 +99,7 @@ export function getRandomModelInfo(_id: number) {
         errored: _id % 2 === 0,
         parsingErrors: faker.datatype.boolean(),
         parsingWarnings: faker.datatype.boolean(),
-      }
+      },
     },
     createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
     updatedAt: new Date().toISOString(),

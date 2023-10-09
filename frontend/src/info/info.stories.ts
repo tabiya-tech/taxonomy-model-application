@@ -1,11 +1,11 @@
-import type {Meta, StoryObj} from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 import Info from "./Info";
-import {faker} from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 
 const meta: Meta<typeof Info> = {
-  title: 'Application/Info',
+  title: "Application/Info",
   component: Info,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
 };
 
@@ -15,19 +15,19 @@ type Story = StoryObj<typeof Info>;
 export const Shown: Story = {
   args: {},
   parameters: {
-    docs: {disable: true},
+    docs: { disable: true },
     mockData: [
       {
-        url: 'https://dev.tabiya.tech/api/info',
-        method: 'GET',
+        url: "https://dev.tabiya.tech/api/info",
+        method: "GET",
         status: 200,
-        response: getFakerVersion()
+        response: getFakerVersion(),
       },
       {
-        url: 'data/version.json',
-        method: 'GET',
+        url: "data/version.json",
+        method: "GET",
         status: 200,
-        response: getFakerVersion()
+        response: getFakerVersion(),
       },
     ],
   },
@@ -36,21 +36,21 @@ export const Shown: Story = {
 export const ShownFetchIsSlow: Story = {
   args: {},
   parameters: {
-    docs: {disable: true},
+    docs: { disable: true },
     mockData: [
       {
-        url: 'https://dev.tabiya.tech/api/info',
-        method: 'GET',
+        url: "https://dev.tabiya.tech/api/info",
+        method: "GET",
         status: 200,
         delay: 5000,
-        response: getFakerVersion()
+        response: getFakerVersion(),
       },
       {
-        url: 'data/version.json',
-        method: 'GET',
+        url: "data/version.json",
+        method: "GET",
         status: 200,
         delay: 5000,
-        response: getFakerVersion()
+        response: getFakerVersion(),
       },
     ],
   },
@@ -60,7 +60,7 @@ function getFakerVersion() {
   return {
     date: faker.date.recent().toISOString(),
     branch: faker.git.branch(),
-    buildNumber: faker.number.int({min: 100, max: 1000}).toString(),
-    sha: faker.git.commitSha()
+    buildNumber: faker.number.int({ min: 100, max: 1000 }).toString(),
+    sha: faker.git.commitSha(),
   };
 }

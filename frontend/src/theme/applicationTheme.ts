@@ -1,10 +1,4 @@
-import {
-  createTheme,
-  Palette,
-  PaletteColor,
-  PaletteColorOptions,
-  ThemeOptions,
-} from "@mui/material/styles";
+import { createTheme, Palette, PaletteColor, PaletteColorOptions, ThemeOptions } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
   interface Palette {
@@ -61,10 +55,10 @@ const lightPalette: Palette = {
     main: TabiyaBasicColors.Gray,
     contrastText: TabiyaBasicColors.GrayDark,
   },
-  error: {...augmentedThemeColor("#FF5449"), dark:"#690005", light:"#FFEDEA"},
-  warning:{... augmentedThemeColor("#FDAB40", TabiyaBasicColors.GrayDark), dark: "#B84204", light:"#FFF3E0"},
-  info: {...augmentedThemeColor("#4FC3F7"), dark:"#003662", light:"#CAF5FF"},
-  success: {...augmentedThemeColor("#6BF0AE"), dark:"#1D6023", light: "#E8F5E9"},
+  error: { ...augmentedThemeColor("#FF5449"), dark: "#690005", light: "#FFEDEA" },
+  warning: { ...augmentedThemeColor("#FDAB40", TabiyaBasicColors.GrayDark), dark: "#B84204", light: "#FFF3E0" },
+  info: { ...augmentedThemeColor("#4FC3F7"), dark: "#003662", light: "#CAF5FF" },
+  success: { ...augmentedThemeColor("#6BF0AE"), dark: "#1D6023", light: "#E8F5E9" },
   grey: {
     900: "#211F1D",
     800: "#41403D",
@@ -210,7 +204,7 @@ export const applicationTheme = (theme: ThemeMode) => {
       MuiDialogTitle: {
         defaultProps: {
           variant: "h2",
-        }
+        },
       },
       MuiFormLabel: {
         styleOverrides: {

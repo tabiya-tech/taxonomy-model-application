@@ -1,16 +1,14 @@
-import {ErrorCodes} from "./errorCodes";
-import {getServiceErrorFactory, ServiceError} from "./error";
-
+import { ErrorCodes } from "./errorCodes";
+import { getServiceErrorFactory, ServiceError } from "./error";
 
 describe("Test the ServiceError class", () => {
   it.each([
     ["string", "some string"],
-    ["IErrorResponse", {errorCode: ErrorCodes.API_ERROR, message: "message", details: "details"}],
-    ["any object", {foo: "bar"}],
+    ["IErrorResponse", { errorCode: ErrorCodes.API_ERROR, message: "message", details: "details" }],
+    ["any object", { foo: "bar" }],
     ["undefined", undefined],
     ["null", null],
-  ])
-  ("should create a ServiceError object with %s details", (description, detailsValue) => {
+  ])("should create a ServiceError object with %s details", (description, detailsValue) => {
     // GIVEN a service name, function, method, path, status code, error code, message and details as string
     const givenServiceName = "service";
     const givenServiceFunction = "function";
@@ -22,7 +20,16 @@ describe("Test the ServiceError class", () => {
     const givenDetails = detailsValue;
 
     // WHEN creating a ServiceError object
-    const actual = new ServiceError(givenServiceName, givenServiceFunction, givenMethod, givenPath, givenStatusCode, givenErrorCode, givenMessage, givenDetails);
+    const actual = new ServiceError(
+      givenServiceName,
+      givenServiceFunction,
+      givenMethod,
+      givenPath,
+      givenStatusCode,
+      givenErrorCode,
+      givenMessage,
+      givenDetails
+    );
     // THEN the object should be created
     expect(actual).toBeDefined();
     // AND the object should be an instance of ServiceError
@@ -41,8 +48,8 @@ describe("Test the ServiceError class", () => {
   });
 });
 
-describe('Test the getServiceErrorFactory function', () => {
-  it('should return a ServiceErrorFactory', () => {
+describe("Test the getServiceErrorFactory function", () => {
+  it("should return a ServiceErrorFactory", () => {
     // GIVEN a service name, function, method and path
     const givenServiceName = "service";
     const givenServiceFunction = "function";
@@ -70,5 +77,5 @@ describe('Test the getServiceErrorFactory function', () => {
     expect(actualError.errorCode).toBe(givenErrorCode);
     expect(actualError.message).toBe(givenMessage);
     expect(actualError.details).toBe(givenDetails);
-  })
+  });
 });

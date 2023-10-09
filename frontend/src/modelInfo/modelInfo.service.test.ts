@@ -1,13 +1,13 @@
-import ModelInfoService, {INewModelSpecification, UPDATE_INTERVAL} from "./modelInfo.service";
-import {getTestString} from "src/_test_utilities/specialCharacters";
-import ModelInfoAPISpecs from "api-specifications/modelInfo"
+import ModelInfoService, { INewModelSpecification, UPDATE_INTERVAL } from "./modelInfo.service";
+import { getTestString } from "src/_test_utilities/specialCharacters";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import * as MockPayload from "./_test_utilities/mockModelInfoPayload";
-import {StatusCodes} from "http-status-codes";
-import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
-import {ServiceError} from "src/error/error";
-import {ErrorCodes} from "src/error/errorCodes";
-import {randomUUID} from "crypto";
+import { StatusCodes } from "http-status-codes";
+import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
+import { ServiceError } from "src/error/error";
+import { ErrorCodes } from "src/error/errorCodes";
+import { randomUUID } from "crypto";
 import Ajv from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 
@@ -18,17 +18,17 @@ function getNewModelSpecMockData(): INewModelSpecification {
     locale: {
       name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-      UUID: randomUUID()
-    }
-  }
+      UUID: randomUUID(),
+    },
+  };
 }
 
 describe("ModelInfoService", () => {
   // GIVEN an api server url
-  let givenApiServerUrl: string
+  let givenApiServerUrl: string;
   beforeEach(() => {
-    givenApiServerUrl = '/path/to/api'
-  })
+    givenApiServerUrl = "/path/to/api";
+  });
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -50,9 +50,9 @@ describe("ModelInfoService", () => {
 
   describe("getModels", () => {
     test("getAllModels() should call the REST API at the correct URL, with GET and the correct headers and payload successfully", async () => {
-
       // AND the GET models REST API will respond with OK and some models
-      const givenResponseBody: ModelInfoAPISpecs.Types.GET.Response.Payload = MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
+      const givenResponseBody: ModelInfoAPISpecs.Types.GET.Response.Payload =
+        MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
       const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called with the given arguments
@@ -61,14 +61,17 @@ describe("ModelInfoService", () => {
 
       // THEN expect it to make a GET request with correct headers and payload
       expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
-        method: "GET", headers: {}
+        method: "GET",
+        headers: {},
       });
 
       // AND expect it to return all the model the response contains
       expect(actualModels.length).toEqual(givenResponseBody.length);
       givenResponseBody.forEach((givenModel, index) => {
         expect(actualModels[index]).toEqual({
-          ...givenModel, createdAt: new Date(givenModel.createdAt), updatedAt: new Date(givenModel.updatedAt)
+          ...givenModel,
+          createdAt: new Date(givenModel.createdAt),
+          updatedAt: new Date(givenModel.updatedAt),
         }); // currently we do not transform the response, so it should be the same
       });
     });
@@ -78,38 +81,63 @@ describe("ModelInfoService", () => {
       const givenApiServerUrl = "/path/to/api";
       // AND fetch rejects with some unknown error
       const givenFetchError = new Error();
-      jest.spyOn(window, 'fetch').mockRejectedValue(givenFetchError);
+      jest.spyOn(window, "fetch").mockRejectedValue(givenFetchError);
 
       // WHEN calling getAllModels function
       const service = new ModelInfoService(givenApiServerUrl);
 
       // THEN expected it to reject with the error response
       const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "getAllModels", "GET", `${givenApiServerUrl}/models`, 0, ErrorCodes.FAILED_TO_FETCH, "", ""),
+        ...new ServiceError(
+          ModelInfoService.name,
+          "getAllModels",
+          "GET",
+          `${givenApiServerUrl}/models`,
+          0,
+          ErrorCodes.FAILED_TO_FETCH,
+          "",
+          ""
+        ),
         message: expect.any(String),
-        details: expect.any(Error)
+        details: expect.any(Error),
       };
       await expect(service.getAllModels()).rejects.toMatchObject(expectedError);
     });
 
-    test.each([["is a malformed json", '{'], ["is a string", 'foo'], ["is not conforming to ModelResponseSchema", {foo: "foo"}],])("on 200, getAllModels() should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s", async (description, givenResponse) => {
-      // GIVEN a api server url
-      const givenApiServerUrl = "/path/to/api";
-      // AND the GET models REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
-      setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
+    test.each([
+      ["is a malformed json", "{"],
+      ["is a string", "foo"],
+      ["is not conforming to ModelResponseSchema", { foo: "foo" }],
+    ])(
+      "on 200, getAllModels() should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s",
+      async (description, givenResponse) => {
+        // GIVEN a api server url
+        const givenApiServerUrl = "/path/to/api";
+        // AND the GET models REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
+        setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
-      // WHEN the getAllModels function is called
-      const service = new ModelInfoService(givenApiServerUrl);
-      const getAllModelsPromise = service.getAllModels();
+        // WHEN the getAllModels function is called
+        const service = new ModelInfoService(givenApiServerUrl);
+        const getAllModelsPromise = service.getAllModels();
 
-      // THEN expect it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "getAllModels", "GET", `${givenApiServerUrl}/models`, StatusCodes.OK, ErrorCodes.INVALID_RESPONSE_BODY, "", ""),
-        message: expect.any(String),
-        details: expect.anything()
-      };
-      await expect(getAllModelsPromise).rejects.toMatchObject(expectedError);
-    });
+        // THEN expect it to reject with the error response
+        const expectedError = {
+          ...new ServiceError(
+            ModelInfoService.name,
+            "getAllModels",
+            "GET",
+            `${givenApiServerUrl}/models`,
+            StatusCodes.OK,
+            ErrorCodes.INVALID_RESPONSE_BODY,
+            "",
+            ""
+          ),
+          message: expect.any(String),
+          details: expect.anything(),
+        };
+        await expect(getAllModelsPromise).rejects.toMatchObject(expectedError);
+      }
+    );
 
     test("on 200, getAllModels() should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
       // GIVEN a api server url
@@ -125,9 +153,18 @@ describe("ModelInfoService", () => {
 
       // THEN expect it to reject with the error response
       const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "getAllModels", "GET", `${givenApiServerUrl}/models`, StatusCodes.OK, ErrorCodes.INVALID_RESPONSE_HEADER, "", ""),
+        ...new ServiceError(
+          ModelInfoService.name,
+          "getAllModels",
+          "GET",
+          `${givenApiServerUrl}/models`,
+          StatusCodes.OK,
+          ErrorCodes.INVALID_RESPONSE_HEADER,
+          "",
+          ""
+        ),
         message: expect.any(String),
-        details: expect.anything()
+        details: expect.anything(),
       };
       await expect(getAllModelsPromise).rejects.toMatchObject(expectedError);
     });
@@ -136,7 +173,7 @@ describe("ModelInfoService", () => {
       // GIVEN a api server url
       const givenApiServerUrl = "/path/to/api";
       // AND the create model REST API will respond with NOT OK and some response body
-      const givenResponse = {foo: "foo", bar: "bar"};
+      const givenResponse = { foo: "foo", bar: "bar" };
       setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called
@@ -145,10 +182,19 @@ describe("ModelInfoService", () => {
 
       // THEN expect it to reject with the error response
       const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "getAllModels", "GET", `${givenApiServerUrl}/models`, 0, ErrorCodes.API_ERROR, "", givenResponse),
+        ...new ServiceError(
+          ModelInfoService.name,
+          "getAllModels",
+          "GET",
+          `${givenApiServerUrl}/models`,
+          0,
+          ErrorCodes.API_ERROR,
+          "",
+          givenResponse
+        ),
         statusCode: expect.any(Number),
         message: expect.any(String),
-        details: givenResponse
+        details: givenResponse,
       };
       await expect(getAllModelsPromise).rejects.toMatchObject(expectedError);
     });
@@ -167,7 +213,7 @@ describe("ModelInfoService", () => {
 
     test("fetchAllModelsPeriodically() should fetch models immediately the first time and periodically after that", async () => {
       // GIVEN that the getAllModels function will succeed and return some models
-      const givenMockModels = [{foo: 'foo'}, {bar: 'bar'}]; // we do not ready care about the content of the models
+      const givenMockModels = [{ foo: "foo" }, { bar: "bar" }]; // we do not ready care about the content of the models
       jest.spyOn(modelInfoService, "getAllModels").mockResolvedValue(givenMockModels as any);
 
       // AND a success callback function
@@ -179,7 +225,7 @@ describe("ModelInfoService", () => {
       const actualTimer = modelInfoService.fetchAllModelsPeriodically(givenOnSuccessCallback, givenOnErrorCallback);
 
       // THEN expect to have called the getAllModels function once
-      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1)
+      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1);
 
       // AND WHEN all pending promises have been resolved
       await Promise.resolve(); // Resolve the promise queue
@@ -194,10 +240,10 @@ describe("ModelInfoService", () => {
         await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
 
         // THEN expect getAllModels function to be called N + 1 times
-        expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(i + 1)
+        expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(i + 1);
         // AND expect onSuccessCallback function to be called N + 1 times with the given models
         expect(givenOnSuccessCallback).toHaveBeenCalledTimes(i + 1);
-        expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(i, givenMockModels)
+        expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(i, givenMockModels);
       }
       // AND WHEN the timer is cleared
       clearInterval(actualTimer);
@@ -214,7 +260,7 @@ describe("ModelInfoService", () => {
 
       // AND onErrorCallbackMock function to not be called
       expect(givenOnErrorCallback).not.toHaveBeenCalled();
-    })
+    });
 
     test("fetchAllModelsPeriodically() should call onErrorCallback whenever an error occurs otherwise call onSuccessCallback", async () => {
       // GIVEN that the getAllModels function will fail the first time is called
@@ -222,7 +268,7 @@ describe("ModelInfoService", () => {
       jest.spyOn(modelInfoService, "getAllModels").mockRejectedValueOnce(givenErrorOne);
       // AND then succeed and return some models the second it is called
       // GIVEN that the getAllModels function will succeed and return some models
-      const givenMockModels = [{foo: 'foo'}, {bar: 'bar'}]; // we do not ready care about the content of the models
+      const givenMockModels = [{ foo: "foo" }, { bar: "bar" }]; // we do not ready care about the content of the models
       jest.spyOn(modelInfoService, "getAllModels").mockResolvedValueOnce(givenMockModels as any);
       // AND then fail again with the another error the third time is called
       const givenErrorTwo = new Error("An error occurred 2");
@@ -240,10 +286,10 @@ describe("ModelInfoService", () => {
       await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
 
       // THEN expect givenOnErrorCallback function to be called with the first error
-      expect(givenOnErrorCallback).toHaveBeenNthCalledWith( 1, givenErrorOne);
+      expect(givenOnErrorCallback).toHaveBeenNthCalledWith(1, givenErrorOne);
 
       // AND WHEN the timer is advanced by polling internal, so that we can expect the getModel to be called 3 times
-      jest.advanceTimersByTime( UPDATE_INTERVAL);
+      jest.advanceTimersByTime(UPDATE_INTERVAL);
       // AND all pending promises have been resolved
       await Promise.resolve(); // Resolve the promise queue
       await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
@@ -252,18 +298,18 @@ describe("ModelInfoService", () => {
       expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(1, givenMockModels);
 
       // AND WHEN the timer is advanced by polling internal, so that we can expect the getModel to be called 3 times
-      jest.advanceTimersByTime( UPDATE_INTERVAL);
+      jest.advanceTimersByTime(UPDATE_INTERVAL);
       // AND all pending promises have been resolved
       await Promise.resolve(); // Resolve the promise queue
       await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
 
       // THEN expect givenOnErrorCallback function to be called with the second error
-      expect(givenOnErrorCallback).toHaveBeenNthCalledWith( 2, givenErrorTwo);
-    })
+      expect(givenOnErrorCallback).toHaveBeenNthCalledWith(2, givenErrorTwo);
+    });
 
     test("fetchAllModelsPeriodically() should skip calling getModels() if it is already fetching", async () => {
       // GIVEN that the getAllModels function will succeed and return some models only after 2 polling intervals
-      const givenMockModelsFirstCall = [{foo: 'foo'}]; // we do not ready care about the content of the models
+      const givenMockModelsFirstCall = [{ foo: "foo" }]; // we do not ready care about the content of the models
       jest.spyOn(modelInfoService, "getAllModels").mockImplementationOnce(() => {
         return new Promise((resolve) => {
           setTimeout(() => {
@@ -273,7 +319,7 @@ describe("ModelInfoService", () => {
       });
 
       // AND then succeed and return some models the second and third call it is called
-      const givenMockModelsAfterFirstCall = [{bar: 'bar'}]; // we do not ready care about the content of the models
+      const givenMockModelsAfterFirstCall = [{ bar: "bar" }]; // we do not ready care about the content of the models
       jest.spyOn(modelInfoService, "getAllModels").mockResolvedValue(givenMockModelsAfterFirstCall as any);
 
       // AND a success callback function
@@ -290,7 +336,7 @@ describe("ModelInfoService", () => {
       await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
 
       // THEN expect getAllModels function to be called once
-      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1)
+      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1);
       // AND expect onSuccessCallback function to be called 0 times
       expect(givenOnSuccessCallback).toHaveBeenCalledTimes(0);
 
@@ -300,7 +346,7 @@ describe("ModelInfoService", () => {
       await Promise.resolve(); // Resolve the promise queue
       await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
       // THEN expect getAllModels function to still have been called once
-      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1)
+      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1);
       // AND expect onSuccessCallback function to be called 1 times with the given models
       expect(givenOnSuccessCallback).toHaveBeenCalledTimes(1);
       expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(1, givenMockModelsFirstCall);
@@ -314,7 +360,7 @@ describe("ModelInfoService", () => {
         await Promise.resolve(); // Resolve the promise queue
         await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
         // THEN expect getAllModels function to have been called two times
-        expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(i + 1)
+        expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(i + 1);
         // AND expect onSuccessCallback function to be called 2 times with the given models
         expect(givenOnSuccessCallback).toHaveBeenCalledTimes(i + 1);
         expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(i + 1, givenMockModelsAfterFirstCall);
@@ -322,12 +368,11 @@ describe("ModelInfoService", () => {
 
       // AND onErrorCallbackMock function to not be called
       expect(givenOnErrorCallback).not.toHaveBeenCalled();
-    })
-  })
+    });
+  });
 
   describe("createModel", () => {
-
-    const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+    const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
     addFormats(ajv);
     ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
     ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Request.Payload);
@@ -340,7 +385,8 @@ describe("ModelInfoService", () => {
       // AND a name, description, locale
       const givenModelSpec = getNewModelSpecMockData();
       // AND the create model REST API will respond with OK and some newly create model
-      const givenResponseBody: ModelInfoAPISpecs.Types.POST.Response.Payload = MockPayload.POST.getPayloadWithOneRandomModelInfo();
+      const givenResponseBody: ModelInfoAPISpecs.Types.POST.Response.Payload =
+        MockPayload.POST.getPayloadWithOneRandomModelInfo();
       const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
@@ -351,7 +397,9 @@ describe("ModelInfoService", () => {
       // AND the headers
       // AND the request payload to contain the given arguments (name, description, ...)
       expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
-        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(givenModelSpec)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(givenModelSpec),
       });
 
       const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
@@ -373,37 +421,62 @@ describe("ModelInfoService", () => {
     test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
       // GIVEN fetch rejects with some unknown error
       const givenFetchError = new Error();
-      jest.spyOn(window, 'fetch').mockRejectedValue(givenFetchError);
+      jest.spyOn(window, "fetch").mockRejectedValue(givenFetchError);
 
       // WHEN calling create model function
       const service = new ModelInfoService("/path/to/foo");
 
       // THEN expected it to reject with the error response
       const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "createModel", "POST", "/path/to/foo/models", 0, ErrorCodes.FAILED_TO_FETCH, "", ""),
-        details: expect.any(Error)
+        ...new ServiceError(
+          ModelInfoService.name,
+          "createModel",
+          "POST",
+          "/path/to/foo/models",
+          0,
+          ErrorCodes.FAILED_TO_FETCH,
+          "",
+          ""
+        ),
+        details: expect.any(Error),
       };
       await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
     });
 
-    test.each([["is a malformed json", '{'], ["is a string", 'foo'], ["is not conforming to ModelResponseSchema", {foo: "foo"}],])("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s", async (description, givenResponse) => {
-      // GIVEN a api server url
-      const givenApiServerUrl = "/path/to/api";
-      // AND the create model REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
-      setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
+    test.each([
+      ["is a malformed json", "{"],
+      ["is a string", "foo"],
+      ["is not conforming to ModelResponseSchema", { foo: "foo" }],
+    ])(
+      "on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s",
+      async (description, givenResponse) => {
+        // GIVEN a api server url
+        const givenApiServerUrl = "/path/to/api";
+        // AND the create model REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
+        setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
 
-      // WHEN the createModel function is called with the given arguments (name, description, ...)
-      const service = new ModelInfoService(givenApiServerUrl);
-      const createModelPromise = service.createModel(getNewModelSpecMockData());
+        // WHEN the createModel function is called with the given arguments (name, description, ...)
+        const service = new ModelInfoService(givenApiServerUrl);
+        const createModelPromise = service.createModel(getNewModelSpecMockData());
 
-      // THEN expected it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_BODY, "", ""),
-        message: expect.any(String),
-        details: expect.anything()
-      };
-      await expect(createModelPromise).rejects.toMatchObject(expectedError);
-    });
+        // THEN expected it to reject with the error response
+        const expectedError = {
+          ...new ServiceError(
+            ModelInfoService.name,
+            "createModel",
+            "POST",
+            `${givenApiServerUrl}/models`,
+            StatusCodes.CREATED,
+            ErrorCodes.INVALID_RESPONSE_BODY,
+            "",
+            ""
+          ),
+          message: expect.any(String),
+          details: expect.anything(),
+        };
+        await expect(createModelPromise).rejects.toMatchObject(expectedError);
+      }
+    );
 
     test("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
       // GIVEN a api server url
@@ -419,8 +492,17 @@ describe("ModelInfoService", () => {
 
       // THEN expected it to reject with the error response
       const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "createModel", "POST", `${givenApiServerUrl}/models`, StatusCodes.CREATED, ErrorCodes.INVALID_RESPONSE_HEADER, "", ""),
-        details: expect.any(String)
+        ...new ServiceError(
+          ModelInfoService.name,
+          "createModel",
+          "POST",
+          `${givenApiServerUrl}/models`,
+          StatusCodes.CREATED,
+          ErrorCodes.INVALID_RESPONSE_HEADER,
+          "",
+          ""
+        ),
+        details: expect.any(String),
       };
       await expect(createModelPromise).rejects.toMatchObject(expectedError);
     });
@@ -429,7 +511,7 @@ describe("ModelInfoService", () => {
       // GIVEN a api server url
       const givenApiServerUrl = "/path/to/api";
       // AND the create model REST API will respond with NOT OK and some response body
-      const givenResponse = {foo: "foo", bar: "bar"};
+      const givenResponse = { foo: "foo", bar: "bar" };
       setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
@@ -437,13 +519,21 @@ describe("ModelInfoService", () => {
 
       // THEN expected it to reject with the error response
       const expectedError = {
-        ...new ServiceError(ModelInfoService.name, "createModel", "POST", `${givenApiServerUrl}/models`, 0, ErrorCodes.API_ERROR, "", givenResponse),
+        ...new ServiceError(
+          ModelInfoService.name,
+          "createModel",
+          "POST",
+          `${givenApiServerUrl}/models`,
+          0,
+          ErrorCodes.API_ERROR,
+          "",
+          givenResponse
+        ),
         statusCode: expect.any(Number),
         message: expect.any(String),
-        details: givenResponse
+        details: givenResponse,
       };
       await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
     });
-
   });
 });

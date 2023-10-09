@@ -1,4 +1,4 @@
-import {mapFileTypeToName} from "./mapFileTypeToName";
+import { mapFileTypeToName } from "./mapFileTypeToName";
 import ImportAPISpecs from "api-specifications/import";
 
 describe("mapFileTypeToName test only", () => {
@@ -18,10 +18,10 @@ describe("mapFileTypeToName test only", () => {
       // AND expect to be defined
       expect(result).toBeDefined();
       // AND expect result not be empty
-      expect(result).not.toBe("")
+      expect(result).not.toBe("");
       seenResults.push(result);
     }
-  })
+  });
 
   it("should return an Unknown File Type", () => {
     // GIVEN an invalid fileType
@@ -34,5 +34,5 @@ describe("mapFileTypeToName test only", () => {
     // THEN expect Unknown File Type
     const expectedError = "Unknown File Type";
     expect(result).toBe(expectedError);
-  })
-})
+  });
+});

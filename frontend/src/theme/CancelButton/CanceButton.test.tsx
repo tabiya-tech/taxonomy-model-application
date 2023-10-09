@@ -1,7 +1,7 @@
 // mute the console
-import 'src/_test_utilities/consoleMock';
+import "src/_test_utilities/consoleMock";
 
-import {render, screen} from "src/_test_utilities/test-utils";
+import { render, screen } from "src/_test_utilities/test-utils";
 import CancelButton from "./CancelButton";
 
 describe("Cancel Button tests", () => {
@@ -13,7 +13,7 @@ describe("Cancel Button tests", () => {
   test("should render cancel button", () => {
     // GIVEN a CancelButton component
     // WHEN the component is rendered
-    render(<CancelButton data-testid={"foo"}/>)
+    render(<CancelButton data-testid={"foo"} />);
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
@@ -38,5 +38,4 @@ describe("Cancel Button tests", () => {
     // AND the component should be in the document
     expect(cancelButton).toBeInTheDocument();
   });
-
 });

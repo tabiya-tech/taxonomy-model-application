@@ -48,26 +48,23 @@ const TypographyElements = () => {
           alignItems: "start",
         }}
       >
-        {Object.keys(theme.typography as Record<string, any>).map(
-          (typographyKey: string) => {
-            const typographyVariant =
-              theme.typography[typographyKey as keyof typeof theme.typography];
-            if (
-              typeof typographyVariant === "object" &&
-              typographyVariant !== null &&
-              "fontFamily" in typographyVariant &&
-              "fontSize" in typographyVariant &&
-              typographyKey !== "inherit"
-            ) {
-              return (
-                <Typography variant={typographyKey as any} key={typographyKey}>
-                  {`<${typographyKey}> ${typographyVariant.fontFamily} ${typographyVariant.fontSize}`}
-                </Typography>
-              );
-            }
-            return null;
+        {Object.keys(theme.typography as Record<string, any>).map((typographyKey: string) => {
+          const typographyVariant = theme.typography[typographyKey as keyof typeof theme.typography];
+          if (
+            typeof typographyVariant === "object" &&
+            typographyVariant !== null &&
+            "fontFamily" in typographyVariant &&
+            "fontSize" in typographyVariant &&
+            typographyKey !== "inherit"
+          ) {
+            return (
+              <Typography variant={typographyKey as any} key={typographyKey}>
+                {`<${typographyKey}> ${typographyVariant.fontFamily} ${typographyVariant.fontSize}`}
+              </Typography>
+            );
           }
-        )}
+          return null;
+        })}
       </Box>
     </Box>
   );
@@ -116,32 +113,19 @@ const PaletteElements = () => {
       </Box>
       <Box>
         <Typography variant={"h4"}>GreyScale</Typography>
-        <Box
-          sx={{ padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.md }}
-        >
+        <Box sx={{ padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.md }}>
           {Object.entries(theme.palette.grey).map(([shade, color]) => (
-            <ColorBox
-              key={shade}
-              shade={shade as keyof Palette["grey"]}
-              theme={theme}
-              color={color}
-            />
+            <ColorBox key={shade} shade={shade as keyof Palette["grey"]} theme={theme} color={color} />
           ))}
         </Box>
       </Box>
       <Box>
         <Typography variant={"h4"}>Text Colors</Typography>
-        <Box
-          sx={{ padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.md }}
-        >
+        <Box sx={{ padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.md }}>
           {Object.entries(theme.palette.text).map(([variant, color]) => (
             <ColorBox
               theme={theme}
-              color={
-                variant === "textWhite"
-                  ? theme.palette.primary.main
-                  : theme.palette.common.white
-              }
+              color={variant === "textWhite" ? theme.palette.primary.main : theme.palette.common.white}
               key={variant}
             >
               <Typography variant={"subtitle1"} color={color}>
@@ -153,17 +137,11 @@ const PaletteElements = () => {
       </Box>
       <Box>
         <Typography variant={"h4"}>Common Colors</Typography>
-        <Box
-          sx={{ padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.md }}
-        >
+        <Box sx={{ padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.md }}>
           {Object.entries(theme.palette.common).map(([variant, color]) => (
             <ColorBox
               theme={theme}
-              color={
-                variant === "white"
-                  ? theme.palette.common.black
-                  : theme.palette.common.white
-              }
+              color={variant === "white" ? theme.palette.common.black : theme.palette.common.white}
               key={variant}
             >
               <Typography variant={"subtitle1"} color={color}>
@@ -317,9 +295,7 @@ const RoundingElements = (props: SpacingAndRoundingElementsProps) => {
                 padding: "0.5rem",
               }}
             >
-              {`${key}: ${value} ${
-                key !== "full" ? "*" + props.theme.spacing(1) : ""
-              }`}
+              {`${key}: ${value} ${key !== "full" ? "*" + props.theme.spacing(1) : ""}`}
             </Box>
           </Box>
         ))}

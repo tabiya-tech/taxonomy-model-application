@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event";
-import {act} from "@testing-library/react";
-import {UserEvent} from "@testing-library/user-event/setup/setup";
+import { act } from "@testing-library/react";
+import { UserEvent } from "@testing-library/user-event/setup/setup";
 
 async function setup(callback: (user: UserEvent) => Promise<void>) {
   // We need to use fake times to ensure the debounce timer is progressed,
@@ -9,7 +9,7 @@ async function setup(callback: (user: UserEvent) => Promise<void>) {
   // so that the await user.type() can be resolved.
   // User enters a model name
   jest.useFakeTimers();
-  const userEventFakeTimer = userEvent.setup({advanceTimers: jest.advanceTimersByTime});
+  const userEventFakeTimer = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   await callback(userEventFakeTimer);
   act(() => jest.runOnlyPendingTimers());
   jest.useRealTimers();

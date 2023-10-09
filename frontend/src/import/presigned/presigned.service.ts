@@ -1,16 +1,18 @@
-import Ajv, {ValidateFunction} from 'ajv/dist/2020';
+import Ajv, { ValidateFunction } from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import PresignedAPISpecs from "api-specifications/presigned";
 
-import {ErrorCodes} from "src/error/errorCodes";
-import {getServiceErrorFactory} from "src/error/error";
+import { ErrorCodes } from "src/error/errorCodes";
+import { getServiceErrorFactory } from "src/error/error";
 
-import {StatusCodes} from "http-status-codes/";
+import { StatusCodes } from "http-status-codes/";
 
-const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
-addFormats(ajv);// To support the "date-time" format
+const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
+addFormats(ajv); // To support the "date-time" format
 ajv.addSchema(PresignedAPISpecs.Schemas.GET.Response.Payload, PresignedAPISpecs.Schemas.GET.Response.Payload.$id);
-const responseValidator: ValidateFunction = ajv.getSchema(PresignedAPISpecs.Schemas.GET.Response.Payload.$id as string) as ValidateFunction;
+const responseValidator: ValidateFunction = ajv.getSchema(
+  PresignedAPISpecs.Schemas.GET.Response.Payload.$id as string
+) as ValidateFunction;
 
 export default class PresignedService {
   readonly apiServerUrl: string;
@@ -26,7 +28,12 @@ export default class PresignedService {
    *
    */
   async getPresignedPost(): Promise<PresignedAPISpecs.Types.GET.Response.Payload> {
-    const errorFactory = getServiceErrorFactory("PresignedService", "getPresignedPost", "GET", this.presignedEndpointUrl);
+    const errorFactory = getServiceErrorFactory(
+      "PresignedService",
+      "getPresignedPost",
+      "GET",
+      this.presignedEndpointUrl
+    );
     let response;
     let responseBody: string;
     try {
@@ -48,7 +55,12 @@ export default class PresignedService {
     // Expect that the responseBody is a PresignedResponse
     const contentType = response.headers.get("Content-Type");
     if (!contentType?.includes("application/json")) {
-      throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_HEADER, "Response Content-Type should be 'application/json'", `Content-Type header was ${contentType}`);
+      throw errorFactory(
+        response.status,
+        ErrorCodes.INVALID_RESPONSE_HEADER,
+        "Response Content-Type should be 'application/json'",
+        `Content-Type header was ${contentType}`
+      );
     }
 
     let presignedResponse: PresignedAPISpecs.Types.GET.Response.Payload;
@@ -57,15 +69,20 @@ export default class PresignedService {
     } catch (e: any) {
       throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not contain valid JSON", {
         responseBody,
-        error: e
+        error: e,
       });
     }
     const result = responseValidator(presignedResponse);
     if (!result) {
-      throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not conform to the expected schema", {
-        responseBody: presignedResponse,
-        errors: responseValidator.errors
-      });
+      throw errorFactory(
+        response.status,
+        ErrorCodes.INVALID_RESPONSE_BODY,
+        "Response did not conform to the expected schema",
+        {
+          responseBody: presignedResponse,
+          errors: responseValidator.errors,
+        }
+      );
     }
 
     return presignedResponse;

@@ -1,10 +1,10 @@
-import {Meta, StoryObj} from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 import AppHeader from "./AppHeader";
 
 const meta: Meta<typeof AppHeader> = {
-  title: 'Application/AppHeader',
+  title: "Application/AppHeader",
   component: AppHeader,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
 };
 

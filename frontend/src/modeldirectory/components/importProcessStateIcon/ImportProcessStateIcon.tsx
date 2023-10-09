@@ -1,14 +1,9 @@
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import {
-  CheckCircle,
-  Circle,
-  ErrorOutline,
-  WatchLater
-} from "@mui/icons-material";
+import { CheckCircle, Circle, ErrorOutline, WatchLater } from "@mui/icons-material";
 import * as React from "react";
-import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { runningIconStyle } from "./ImportProcessStateIcon.style";
-import {styled} from "@mui/material";
+import { styled } from "@mui/material";
 
 const uniqueId = "bae86ed9-33bf-4492-a0e2-f9c8bd112bae";
 export const DATA_TEST_ID = {
@@ -16,12 +11,12 @@ export const DATA_TEST_ID = {
   ICON_STATUS_SUCCESS: `icon-status-success-${uniqueId}`,
   ICON_STATUS_FAILED: `icon-status-failed-${uniqueId}`,
   ICON_STATUS_RUNNING: `icon-status-running-${uniqueId}`,
-  ICON_STATUS_UNKNOWN: `icon-status-unknown-${uniqueId}`
-}
+  ICON_STATUS_UNKNOWN: `icon-status-unknown-${uniqueId}`,
+};
 
 export type ImportStatusIconProps = {
-  importProcessState: ModelInfoTypes.ImportProcessState
-}
+  importProcessState: ModelInfoTypes.ImportProcessState;
+};
 
 const StyledCircle = styled(Circle)(runningIconStyle);
 
@@ -30,9 +25,9 @@ const PulsatingCircle = (props: any) => <StyledCircle {...props} />;
 export default function ImportProcessStateIcon(props: ImportStatusIconProps) {
   switch (props?.importProcessState?.status) {
     case ImportProcessStateAPISpecs.Enums.Status.PENDING:
-      return <WatchLater titleAccess="Pending" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_PENDING}/>
+      return <WatchLater titleAccess="Pending" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_PENDING} />;
     case ImportProcessStateAPISpecs.Enums.Status.RUNNING:
-      return <PulsatingCircle titleAccess="Running" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_RUNNING}/>
+      return <PulsatingCircle titleAccess="Running" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_RUNNING} />;
     case ImportProcessStateAPISpecs.Enums.Status.COMPLETED:
       const result = props.importProcessState.result;
       if (result.errored || result.parsingErrors || result.parsingWarnings) {
@@ -45,12 +40,16 @@ export default function ImportProcessStateIcon(props: ImportStatusIconProps) {
           title = "Completed with parsing warning(s)";
         }
         const color = result.errored ? "error" : "warning";
-        return <ErrorOutline titleAccess={title} color={color} data-testid={DATA_TEST_ID.ICON_STATUS_FAILED}/>
+        return <ErrorOutline titleAccess={title} color={color} data-testid={DATA_TEST_ID.ICON_STATUS_FAILED} />;
       }
-      return <CheckCircle titleAccess="Completed succesfully" color="success"
-                          data-testid={DATA_TEST_ID.ICON_STATUS_SUCCESS}/>
+      return (
+        <CheckCircle
+          titleAccess="Completed succesfully"
+          color="success"
+          data-testid={DATA_TEST_ID.ICON_STATUS_SUCCESS}
+        />
+      );
     default:
-      return <div title="Unknown import status"
-                           data-testid={DATA_TEST_ID.ICON_STATUS_UNKNOWN}/>
+      return <div title="Unknown import status" data-testid={DATA_TEST_ID.ICON_STATUS_UNKNOWN} />;
   }
-};
+}

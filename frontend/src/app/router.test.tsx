@@ -1,12 +1,9 @@
-import {render, screen} from "src/_test_utilities/test-utils";
-import {
-  RouterProvider,
-  createMemoryRouter
-} from "react-router-dom";
+import { render, screen } from "src/_test_utilities/test-utils";
+import { RouterProvider, createMemoryRouter } from "react-router-dom";
 
-import routesConfig, { routerPaths} from "./routerConfig";
-import {DATA_TEST_ID as INFO_DATA_TEST_ID} from "src/info/Info";
-import {DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID} from "src/modeldirectory/ModelDirectory";
+import routesConfig, { routerPaths } from "./routerConfig";
+import { DATA_TEST_ID as INFO_DATA_TEST_ID } from "src/info/Info";
+import { DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID } from "src/modeldirectory/ModelDirectory";
 
 // Mock the Info component as it has dependencies to the backend, and we do not want to test that here
 jest.mock("src/info/Info", () => {
@@ -15,9 +12,9 @@ jest.mock("src/info/Info", () => {
     ...actual,
     __esModule: true,
     default: () => {
-      return <div data-testid={actual.DATA_TEST_ID.INFO_ROOT}>Info</div>
-    }
-  }
+      return <div data-testid={actual.DATA_TEST_ID.INFO_ROOT}>Info</div>;
+    },
+  };
 });
 
 // Mock the model directory as it has dependencies to the backend, and we do not want to test that here
@@ -28,17 +25,16 @@ jest.mock("src/modeldirectory/ModelDirectory", () => {
     ...actual,
     __esModule: true,
     default: () => {
-      return <div data-testid={actual.DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>Model Directory</div>
-    }
-  }
+      return <div data-testid={actual.DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>Model Directory</div>;
+    },
+  };
 });
-
 
 function renderWithRouter(route: string) {
   const router = createMemoryRouter(routesConfig, {
     initialEntries: [route],
   });
-  render(<RouterProvider router={router}/>);
+  render(<RouterProvider router={router} />);
 }
 
 describe("Tests for router config", () => {
@@ -89,4 +85,4 @@ describe("Tests for router config", () => {
     // THEN expect exploring the model to be available
     expect(screen.getByText("Coming soon, exploring the model")).toBeInTheDocument();
   });
-})
+});

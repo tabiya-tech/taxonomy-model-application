@@ -1,28 +1,30 @@
 // test the service
-import Ajv from 'ajv/dist/2020';
+import Ajv from "ajv/dist/2020";
 
-import {getTestString} from "src/_test_utilities/specialCharacters";
+import { getTestString } from "src/_test_utilities/specialCharacters";
 
-import {ErrorCodes} from "src/error/errorCodes";
+import { ErrorCodes } from "src/error/errorCodes";
 
-import {ServiceError} from "src/error/error";
-import {StatusCodes} from "http-status-codes/";
+import { ServiceError } from "src/error/error";
+import { StatusCodes } from "http-status-codes/";
 import PresignedService from "./presigned.service";
 import addFormats from "ajv-formats";
-import {setupFetchSpy} from "src/_test_utilities/fetchSpy";
+import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
 import PresignedAPISpecs from "api-specifications/presigned";
 
-
-const ajv = new Ajv({validateSchema: true, strict: true, allErrors: true});
+const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
 addFormats(ajv);
 const validateResponse = ajv.compile(PresignedAPISpecs.Schemas.GET.Response.Payload);
 
 function getPresignedMockResponse(): PresignedAPISpecs.Types.GET.Response.Payload {
   const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = {
     url: "https://somedomain/somepath",
-    fields: [{name: "someName", value: "someValue"}, {name: "someOtherName", value: "someOtherValue"}],
-    folder: getTestString(10)
-  }
+    fields: [
+      { name: "someName", value: "someValue" },
+      { name: "someOtherName", value: "someOtherValue" },
+    ],
+    folder: getTestString(10),
+  };
   // guard against invalid response
   validateResponse(givenResponse);
   expect(validateResponse.errors).toBeNull();
@@ -30,11 +32,9 @@ function getPresignedMockResponse(): PresignedAPISpecs.Types.GET.Response.Payloa
 }
 
 describe("Test the service", () => {
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
-
 
   test("should construct the service successfully", () => {
     // GIVEN an api server url
@@ -55,7 +55,7 @@ describe("Test the service", () => {
     // GIVEN an api server url
     const givenApiServerUrl = "/path/to/api";
     // AND the presigned REST API will respond with OK and some newly created presigned data
-    const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = getPresignedMockResponse()
+    const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = getPresignedMockResponse();
     const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the getPresignedPost function is called
@@ -74,46 +74,66 @@ describe("Test the service", () => {
   test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
     // GIVEN fetch rejects with some unknown error
     const givenFetchError = new Error();
-    jest.spyOn(window, 'fetch').mockRejectedValue(givenFetchError);
+    jest.spyOn(window, "fetch").mockRejectedValue(givenFetchError);
 
     // GIVEN a api server url
-    const givenApiServerUrl = "/path/to/api"
+    const givenApiServerUrl = "/path/to/api";
     // WHEN calling getPresignedPost function
     const service = new PresignedService(givenApiServerUrl);
     const presignedResponsePromise = service.getPresignedPost();
 
     // THEN expected it to reject with the error response
     const expectedError = {
-      ...new ServiceError(PresignedService.name, "getPresignedPost", "GET", `${givenApiServerUrl}/presigned`, 0, ErrorCodes.FAILED_TO_FETCH, "", ""),
+      ...new ServiceError(
+        PresignedService.name,
+        "getPresignedPost",
+        "GET",
+        `${givenApiServerUrl}/presigned`,
+        0,
+        ErrorCodes.FAILED_TO_FETCH,
+        "",
+        ""
+      ),
       message: expect.any(String),
-      details: expect.any(Error)
+      details: expect.any(Error),
     };
     await expect(presignedResponsePromise).rejects.toMatchObject(expectedError);
   });
 
   test.each([
-    ["is a malformed json", '{'],
-    ["is a string", 'foo'],
-    ["is not conforming to Presigned.Schema", {foo: "foo"}],
-  ])
-  ("on 200, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s", async (description, givenResponse) => {
-    // GIVEN a api server url
-    const givenApiServerUrl = "/path/to/api";
-    // AND the REST API will respond with OK and some response that does conform to a JSON even if it states that it is application/json
-    setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
+    ["is a malformed json", "{"],
+    ["is a string", "foo"],
+    ["is not conforming to Presigned.Schema", { foo: "foo" }],
+  ])(
+    "on 200, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s",
+    async (description, givenResponse) => {
+      // GIVEN a api server url
+      const givenApiServerUrl = "/path/to/api";
+      // AND the REST API will respond with OK and some response that does conform to a JSON even if it states that it is application/json
+      setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
-    // WHEN the getPresignedPost function is called
-    const service = new PresignedService(givenApiServerUrl);
-    const presignedResponsePromise = service.getPresignedPost();
+      // WHEN the getPresignedPost function is called
+      const service = new PresignedService(givenApiServerUrl);
+      const presignedResponsePromise = service.getPresignedPost();
 
-    // THEN expected it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(PresignedService.name, "getPresignedPost", "GET", `${givenApiServerUrl}/presigned`, StatusCodes.OK, ErrorCodes.INVALID_RESPONSE_BODY, "", ""),
-      message: expect.any(String),
-      details: expect.anything()
-    };
-    await expect(presignedResponsePromise).rejects.toMatchObject(expectedError);
-  });
+      // THEN expected it to reject with the error response
+      const expectedError = {
+        ...new ServiceError(
+          PresignedService.name,
+          "getPresignedPost",
+          "GET",
+          `${givenApiServerUrl}/presigned`,
+          StatusCodes.OK,
+          ErrorCodes.INVALID_RESPONSE_BODY,
+          "",
+          ""
+        ),
+        message: expect.any(String),
+        details: expect.anything(),
+      };
+      await expect(presignedResponsePromise).rejects.toMatchObject(expectedError);
+    }
+  );
 
   test("on 200, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
     // GIVEN a api server url
@@ -129,9 +149,18 @@ describe("Test the service", () => {
 
     // THEN expected it to reject with the error response
     const expectedError = {
-      ...new ServiceError(PresignedService.name, "getPresignedPost", "GET", `${givenApiServerUrl}/presigned`, StatusCodes.OK, ErrorCodes.INVALID_RESPONSE_HEADER, "", ""),
+      ...new ServiceError(
+        PresignedService.name,
+        "getPresignedPost",
+        "GET",
+        `${givenApiServerUrl}/presigned`,
+        StatusCodes.OK,
+        ErrorCodes.INVALID_RESPONSE_HEADER,
+        "",
+        ""
+      ),
       message: expect.any(String),
-      details: expect.any(String)
+      details: expect.any(String),
     };
     await expect(presignedResponsePromise).rejects.toMatchObject(expectedError);
   });
@@ -140,9 +169,8 @@ describe("Test the service", () => {
     // GIVEN a api server url
     const givenApiServerUrl = "/path/to/api";
     // AND the REST API will respond with NOT OK and some response body
-    const givenResponse = {foo: "foo", bar: "bar"};
+    const givenResponse = { foo: "foo", bar: "bar" };
     setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
-
 
     // WHEN the getPresignedPost function is called
     const service = new PresignedService(givenApiServerUrl);
@@ -150,12 +178,20 @@ describe("Test the service", () => {
 
     // THEN expected it to reject with the error response
     const expectedError = {
-      ...new ServiceError(PresignedService.name, "getPresignedPost", "GET", `${givenApiServerUrl}/presigned`, 0, ErrorCodes.API_ERROR, "", givenResponse),
+      ...new ServiceError(
+        PresignedService.name,
+        "getPresignedPost",
+        "GET",
+        `${givenApiServerUrl}/presigned`,
+        0,
+        ErrorCodes.API_ERROR,
+        "",
+        givenResponse
+      ),
       statusCode: expect.any(Number),
       message: expect.any(String),
-      details: givenResponse
+      details: givenResponse,
     };
     await expect(presignedResponsePromise).rejects.toMatchObject(expectedError);
   });
 });
-

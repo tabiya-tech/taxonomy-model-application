@@ -1,5 +1,5 @@
 import ErrorAPISpecs from "api-specifications/error";
-import {ErrorCodes} from "./errorCodes";
+import { ErrorCodes } from "./errorCodes";
 
 type ServiceErrorDetails = string | ErrorAPISpecs.Types.Payload | any;
 export class ServiceError extends Error {
@@ -11,7 +11,16 @@ export class ServiceError extends Error {
   errorCode: ErrorCodes;
   details: ServiceErrorDetails;
 
-  constructor(serviceName: string, serviceFunction: string, method: string, path: string, statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails) {
+  constructor(
+    serviceName: string,
+    serviceFunction: string,
+    method: string,
+    path: string,
+    statusCode: number,
+    errorCode: ErrorCodes,
+    message: string,
+    details?: ServiceErrorDetails
+  ) {
     super(message);
     this.serviceName = serviceName;
     this.serviceFunction = serviceFunction;
@@ -23,13 +32,13 @@ export class ServiceError extends Error {
     // if the details is an object, or a JSON representation of an object,
     // then add it as an object to the details property,
     // otherwise just add the details as a string
-    if (typeof details === 'string') {
+    if (typeof details === "string") {
       try {
         this.details = JSON.parse(details);
       } catch (e) {
         this.details = details;
       }
-    }else {
+    } else {
       this.details = details;
     }
   }
@@ -37,15 +46,16 @@ export class ServiceError extends Error {
 
 //factory function
 export interface ServiceErrorFactory {
-  (statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails): ServiceError
+  (statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails): ServiceError;
 }
 
-
-export function getServiceErrorFactory(serviceName: string, serviceFunction: string, method: string, path: string): ServiceErrorFactory {
+export function getServiceErrorFactory(
+  serviceName: string,
+  serviceFunction: string,
+  method: string,
+  path: string
+): ServiceErrorFactory {
   return (statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails): ServiceError => {
     return new ServiceError(serviceName, serviceFunction, method, path, statusCode, errorCode, message, details);
   };
 }
-
-
-

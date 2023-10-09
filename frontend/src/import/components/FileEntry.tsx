@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ChangeEvent, useState } from "react";
 import ImportAPISpecs from "api-specifications/import";
-import {Chip, ChipProps} from "@mui/material";
+import { Chip, ChipProps } from "@mui/material";
 import { generateUniqueId } from "src/utils/generateUniqueId";
 import { mapFileTypeToName } from "./mapFileTypeToName";
 import debounce from "lodash.debounce";
@@ -10,10 +10,7 @@ import { AddCircleOutlined, RemoveCircleOutlined } from "@mui/icons-material";
 
 export interface FileEntryProps {
   fileType: ImportAPISpecs.Constants.ImportFileTypes;
-  notifySelectedFileChange?: (
-    fileType: ImportAPISpecs.Constants.ImportFileTypes,
-    newFile: File | null
-  ) => void;
+  notifySelectedFileChange?: (fileType: ImportAPISpecs.Constants.ImportFileTypes, newFile: File | null) => void;
 }
 
 const baseTestID = "d2bc4d5d-7760-450d-bac6-a8857affeb89";
@@ -55,10 +52,7 @@ export const FileEntry = (props: FileEntryProps) => {
     }
   };
 
-  const debounceFileRemoveHandler = debounce(
-    fileRemovedHandler,
-    DEBOUNCE_INTERVAL
-  );
+  const debounceFileRemoveHandler = debounce(fileRemovedHandler, DEBOUNCE_INTERVAL);
 
   return (
     <div data-filetype={props.fileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
@@ -70,8 +64,8 @@ export const FileEntry = (props: FileEntryProps) => {
           aria-label={`Remove ${fileTypeName} csv file`}
           data-testid={DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON}
           onClick={debounceFileRemoveHandler}
-            icon={<RemoveCircleOutlined />}
-            label={`${fileTypeName}: ${selectedFile.name}`}
+          icon={<RemoveCircleOutlined />}
+          label={`${fileTypeName}: ${selectedFile.name}`}
         />
       ) : (
         <div>

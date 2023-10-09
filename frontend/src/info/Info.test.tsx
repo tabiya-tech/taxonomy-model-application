@@ -5,16 +5,15 @@ import InfoService from "./info.service";
 // ##############################
 
 // mute the console
-import 'src/_test_utilities/consoleMock';
+import "src/_test_utilities/consoleMock";
 
-import {InfoProps} from "./info.types";
-import Info, {DATA_TEST_ID} from "./Info";
+import { InfoProps } from "./info.types";
+import Info, { DATA_TEST_ID } from "./Info";
 import { render, act, screen } from "src/_test_utilities/test-utils";
 
 jest.mock("./info.service");
 
 describe("Testing Info component", () => {
-
   test("it should show frontend and backend info successfully", async () => {
     // Clear any possible mock for the console
     (console.error as jest.Mock).mockClear();
@@ -25,13 +24,13 @@ describe("Testing Info component", () => {
       date: "fooFrontend",
       branch: "barFrontend",
       buildNumber: "bazFrontend",
-      sha: "gooFrontend"
+      sha: "gooFrontend",
     };
     const expectedBackendInfoData: InfoProps = {
       date: "fooBackend",
       branch: "barBackend",
       buildNumber: "bazBackend",
-      sha: "gooBackend"
+      sha: "gooBackend",
     };
     const infoDataPromise = Promise.resolve([expectedFrontendInfoData, expectedBackendInfoData]);
 
@@ -45,7 +44,7 @@ describe("Testing Info component", () => {
     });
 
     // WHEN the component is rendered
-    render(<Info/>);
+    render(<Info />);
     await act(async () => {
       await infoDataPromise;
     });
