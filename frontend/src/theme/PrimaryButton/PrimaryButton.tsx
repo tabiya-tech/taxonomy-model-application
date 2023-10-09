@@ -1,4 +1,4 @@
-import { Button, ButtonProps, useTheme } from "@mui/material";
+import { Button, ButtonProps } from "@mui/material";
 import React from "react";
 
 interface PrimaryButtonProps extends ButtonProps {
@@ -6,9 +6,16 @@ interface PrimaryButtonProps extends ButtonProps {
 }
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({ style, children, ...props }) => {
-  const theme = useTheme();
   return (
-    <Button variant={"contained"} style={style} {...props} sx={{ borderRadius: theme.tabiyaRounding.xl }}>
+    // props are passed to the component last, so that they can override the default values
+    <Button
+      variant={"contained"}
+      color={"primary"}
+      style={style}
+      sx={{ borderRadius: (theme) => theme.tabiyaRounding.xl }}
+      disableElevation
+      {...props}
+    >
       {children ?? "Click here"}
     </Button>
   );

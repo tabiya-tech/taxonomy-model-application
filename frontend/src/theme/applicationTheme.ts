@@ -222,11 +222,6 @@ export const applicationTheme = (theme: ThemeMode) => {
           },
         },
       },
-      MuiButton: {
-        defaultProps: {
-          variant: "outlined",
-        },
-      },
       MuiTableHead: {
         defaultProps: {
           style: {
