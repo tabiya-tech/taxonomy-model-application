@@ -1,4 +1,4 @@
-import { Button, ButtonProps, useTheme } from "@mui/material";
+import { Button, ButtonProps } from "@mui/material";
 import React from "react";
 
 interface CancelButtonProps extends ButtonProps {
@@ -6,9 +6,16 @@ interface CancelButtonProps extends ButtonProps {
 }
 
 const CancelButton: React.FC<CancelButtonProps> = ({ style, children, ...props }) => {
-  const theme = useTheme();
   return (
-    <Button variant={"outlined"} style={style} {...props} sx={{ borderRadius: theme.tabiyaRounding.xl }}>
+    // props are passed to the component last, so that they can override the default values
+    <Button
+      variant={"outlined"}
+      color={"primary"}
+      style={style}
+      sx={{ borderRadius: (theme) => theme.tabiyaRounding.xl }}
+      disableElevation
+      {...props}
+    >
       {children ?? "Cancel"}
     </Button>
   );

@@ -28,11 +28,7 @@ const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({ onModelImpo
     <PrimaryButton
       onClick={() => onModelImport()}
       data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}
-      variant="contained"
-      color="primary"
       startIcon={<AddCircleOutlined />}
-      disableElevation
-      sx={{ borderRadius: (theme) => theme.tabiyaRounding.lg }}
     >
       Import Model
     </PrimaryButton>
