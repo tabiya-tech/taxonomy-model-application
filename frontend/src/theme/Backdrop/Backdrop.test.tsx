@@ -1,9 +1,8 @@
 // mute the console
-import 'src/_test_utilities/consoleMock';
+import "src/_test_utilities/consoleMock";
 
-import {render, screen} from "src/_test_utilities/test-utils";
-import {Backdrop, DATA_TEST_ID} from "./Backdrop";
-
+import { render, screen } from "src/_test_utilities/test-utils";
+import { Backdrop, DATA_TEST_ID } from "./Backdrop";
 
 describe("Backdrop render tests", () => {
   beforeEach(() => {
@@ -16,7 +15,7 @@ describe("Backdrop render tests", () => {
     const givenMessage = "foo-message";
 
     // WHEN the Backdrop is opened with the message
-    render(<Backdrop isShown={true} message={givenMessage}/>);
+    render(<Backdrop isShown={true} message={givenMessage} />);
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
@@ -37,7 +36,7 @@ describe("Backdrop render tests", () => {
 
   it("should be hidden", () => {
     // WHEN the Backdrop is hidden
-    render(<Backdrop isShown={false}/>);
+    render(<Backdrop isShown={false} />);
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
@@ -50,7 +49,7 @@ describe("Backdrop render tests", () => {
 
   it("should rendered without message and not show any errors", () => {
     // WHEN the Backdrop is opened without message or data-testid
-    render(<Backdrop isShown={true}/>);
+    render(<Backdrop isShown={true} />);
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
@@ -68,4 +67,4 @@ describe("Backdrop render tests", () => {
     const progress = screen.getByTestId(DATA_TEST_ID.PROGRESS_ELEMENT);
     expect(progress).toBeVisible();
   });
-})
+});

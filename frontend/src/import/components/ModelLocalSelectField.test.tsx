@@ -1,8 +1,8 @@
 // mute the console
-import 'src/_test_utilities/consoleMock';
+import "src/_test_utilities/consoleMock";
 
-import {render, screen, within} from "src/_test_utilities/test-utils";
-import ModelLocalSelectField, {DATA_TEST_ID, TEXT} from "./ModelLocalSelectField";
+import { render, screen, within } from "src/_test_utilities/test-utils";
+import ModelLocalSelectField, { DATA_TEST_ID, TEXT } from "./ModelLocalSelectField";
 import Locale from "api-specifications/locale";
 import React from "react";
 import userEvent from "@testing-library/user-event";
@@ -12,12 +12,13 @@ const givenLocales: Locale.Types.Payload[] = [
   {
     UUID: "1",
     shortCode: "ZA",
-    name: "South Africa"
-  }, {
+    name: "South Africa",
+  },
+  {
     UUID: "2",
     shortCode: "KA",
-    name: "Kenya"
-  }
+    name: "Kenya",
+  },
 ];
 describe("Locale Selector Component render tests", () => {
   beforeEach(() => {
@@ -26,9 +27,8 @@ describe("Locale Selector Component render tests", () => {
   });
 
   it("should render the locale selector component", () => {
-
     // WHEN the modelSelectionComponent is rendered
-    render(<ModelLocalSelectField locales={givenLocales}/>)
+    render(<ModelLocalSelectField locales={givenLocales} />);
     const modelLocalSelectField = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD);
 
     // THEN expect no errors or warning to have occurred
@@ -38,24 +38,24 @@ describe("Locale Selector Component render tests", () => {
     expect(modelLocalSelectField).toBeInTheDocument();
 
     // AND expect the selected value to be the first from the given locales
-    const dropdownElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_DROPDOWN)
+    const dropdownElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);
     const selectedInput = within(dropdownElement).getByTestId(DATA_TEST_ID.MODEL_LOCALE_INPUT);
     expect(selectedInput).toHaveAttribute("value", givenLocales[0].UUID);
 
     // AND expect label to be visible
-    const label: HTMLLabelElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_LABEL)
+    const label: HTMLLabelElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_LABEL);
     expect(label).toBeInTheDocument();
     expect(label).toBeVisible();
     // AND expect label to have correct text
-    expect(label).toHaveTextContent(TEXT.MODEL_LOCALE_SELECT_LABEL)
-  })
+    expect(label).toHaveTextContent(TEXT.MODEL_LOCALE_SELECT_LABEL);
+  });
 
   test("multiple components should have a unique id", () => {
     // GIVEN multiple selectFieldComponents are selected
     render(
       <div>
-        <ModelLocalSelectField locales={givenLocales}/>
-        <ModelLocalSelectField locales={givenLocales}/>
+        <ModelLocalSelectField locales={givenLocales} />
+        <ModelLocalSelectField locales={givenLocales} />
       </div>
     );
 
@@ -75,32 +75,32 @@ describe("Locale Selector Component actions tests only", () => {
     const givenNotifyChangeHandler = jest.fn();
 
     // AND the modelSelectionComponent is rendered with some model locales
-    render(<ModelLocalSelectField locales={givenLocales} notifyModelLocaleChanged={givenNotifyChangeHandler}/>);
+    render(<ModelLocalSelectField locales={givenLocales} notifyModelLocaleChanged={givenNotifyChangeHandler} />);
 
     // THEN expect the notifyChangeHandler to be called with the selected locale
     expect(givenNotifyChangeHandler).toHaveBeenLastCalledWith(givenLocales[0]);
-  })
+  });
 
   it("should call the notifyChangeHandler when a locale is selected", async () => {
     // GIVEN a notifyChangeHandler
     const givenNotifyChangeHandler = jest.fn();
 
     // AND the modelSelectionComponent is rendered with some model locales
-    render(<ModelLocalSelectField locales={givenLocales} notifyModelLocaleChanged={givenNotifyChangeHandler}/>);
+    render(<ModelLocalSelectField locales={givenLocales} notifyModelLocaleChanged={givenNotifyChangeHandler} />);
 
-    const dropdownElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_DROPDOWN)
-    const button = within(dropdownElement).getByRole('button');
+    const dropdownElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);
+    const button = within(dropdownElement).getByRole("button");
     await userEvent.click(button);
 
     // THEN expect the dropdown to be open
     const dropdownList = screen.getAllByTestId(DATA_TEST_ID.MODEL_LOCALE_ITEM);
     expect(dropdownList).toHaveLength(2);
 
-    const secondLocaleElement = dropdownList.find((item) => item.getAttribute('data-value') === givenLocales[1].UUID);
-    if(secondLocaleElement){
+    const secondLocaleElement = dropdownList.find((item) => item.getAttribute("data-value") === givenLocales[1].UUID);
+    if (secondLocaleElement) {
       await userEvent.click(secondLocaleElement);
     }
     // THEN expect the notifyChangeHandler to be called with the selected locale
     expect(givenNotifyChangeHandler).toHaveBeenLastCalledWith(givenLocales[1]);
-  })
-})
+  });
+});

@@ -1,7 +1,7 @@
 // mute the console
-import 'src/_test_utilities/consoleMock';
+import "src/_test_utilities/consoleMock";
 
-import {render, screen, within} from '@testing-library/react' //we don't have to import from test_utils since index already have everything
+import { render, screen, within } from "@testing-library/react"; //we don't have to import from test_utils since index already have everything
 
 // mock the react-dom/client
 // Using jest.doMock() so that the render function can be accessed from within the mock
@@ -14,54 +14,59 @@ jest.doMock("react-dom/client", () => {
         }),
         unmount: jest.fn(),
       };
-    })
+    }),
   };
   return {
     __esModule: true,
     default: ReactDOMMock,
-  }
+  };
 });
 
 // mock TaxonomyModelApp
 jest.mock("./app/index", () => {
-  const mTaxonomyModelApp = () => (<div id="tabiya-app-id" data-testid="tabiya-app-id">Mock TaxonomyModelApp</div>);
+  const mTaxonomyModelApp = () => (
+    <div id="tabiya-app-id" data-testid="tabiya-app-id">
+      Mock TaxonomyModelApp
+    </div>
+  );
   return {
     __esModule: true,
     default: mTaxonomyModelApp,
-  }
-})
+  };
+});
 
 // mock SnackbarProvider
 jest.mock("./theme/SnackbarProvider/SnackbarProvider", () => {
-  const mSnackbarProvider = jest.fn().mockImplementation(({children}) => (
-    <div data-testid="snackbar-provider-id">{children}</div>));
+  const mSnackbarProvider = jest
+    .fn()
+    .mockImplementation(({ children }) => <div data-testid="snackbar-provider-id">{children}</div>);
   return {
     __esModule: true,
     default: mSnackbarProvider,
-  }
+  };
 });
 
 //mock Material UI ThemeProvider
 jest.mock("@mui/material", () => {
-  const mThemeProvider = jest.fn().mockImplementation(({children}) => (
-    <div data-testid="theme-provider-id">{children}</div>));
+  const mThemeProvider = jest
+    .fn()
+    .mockImplementation(({ children }) => <div data-testid="theme-provider-id">{children}</div>);
   return {
     __esModule: true,
     ThemeProvider: mThemeProvider,
-  }
+  };
 });
 
-describe('test the application bootstrapping', () => {
-
+describe("test the application bootstrapping", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
     (console.warn as jest.Mock).mockClear();
   });
 
-  it('should render the app', () => {
+  it("should render the app", () => {
     jest.isolateModules(() => {
       // WHEN the main index module is imported
-      require('./index');
+      require("./index");
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();

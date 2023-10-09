@@ -1,6 +1,6 @@
-import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import {getMockId} from "src/_test_utilities/mockMongoId";
+import { getMockId } from "src/_test_utilities/mockMongoId";
 
 export const getAllImportProcessStatePermutations = (): ModelInfoTypes.ImportProcessState[] => {
   // generate all permutations of ImportProcessState status, errored, parsingErrors, parsingWarnings
@@ -8,10 +8,10 @@ export const getAllImportProcessStatePermutations = (): ModelInfoTypes.ImportPro
   const allBooleans = [true, false];
 
   const allPermutations: ModelInfoTypes.ImportProcessState[] = [];
-  allStatuses.forEach(status => {
-    allBooleans.forEach(errored => {
-      allBooleans.forEach(parsingErrors => {
-        allBooleans.forEach(parsingWarnings => {
+  allStatuses.forEach((status) => {
+    allBooleans.forEach((errored) => {
+      allBooleans.forEach((parsingErrors) => {
+        allBooleans.forEach((parsingWarnings) => {
           allPermutations.push({
             id: getMockId(allPermutations.length + 1),
             status,
@@ -19,11 +19,11 @@ export const getAllImportProcessStatePermutations = (): ModelInfoTypes.ImportPro
               errored,
               parsingErrors: parsingErrors,
               parsingWarnings: parsingWarnings,
-            }
+            },
           });
         });
       });
     });
   });
   return allPermutations;
-}
+};

@@ -1,11 +1,11 @@
 // mute the console
-import 'src/_test_utilities/consoleMock';
+import "src/_test_utilities/consoleMock";
 
-import AppSidebar, {DATA_TEST_ID, ITEMS_LABEL_TEXT} from "./AppSidebar";
-import {HashRouter} from "react-router-dom";
-import {render, screen, within} from "src/_test_utilities/test-utils";
-import {routerPaths} from "src/app/routerConfig";
-import {testNavigateToPath} from "src/_test_utilities/routeNavigation";
+import AppSidebar, { DATA_TEST_ID, ITEMS_LABEL_TEXT } from "./AppSidebar";
+import { HashRouter } from "react-router-dom";
+import { render, screen, within } from "src/_test_utilities/test-utils";
+import { routerPaths } from "src/app/routerConfig";
+import { testNavigateToPath } from "src/_test_utilities/routeNavigation";
 
 describe("AppSidebar render tests", () => {
   beforeEach(() => {
@@ -17,17 +17,17 @@ describe("AppSidebar render tests", () => {
     // GIVEN a AppSidebar component that has access to the router
     const givenAppSidebar = (
       <HashRouter>
-        <AppSidebar/>
+        <AppSidebar />
       </HashRouter>
     );
 
     // WHEN it is rendered
     render(givenAppSidebar);
 
-      // THEN expect no errors or warning to have occurred
-      expect(console.error).not.toHaveBeenCalled();
-      expect(console.warn).not.toHaveBeenCalled();
-      // AND it to be shown
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND it to be shown
     const appSidebarContainer = screen.getByTestId(DATA_TEST_ID.CONTAINER);
     expect(appSidebarContainer).toBeInTheDocument();
   });
@@ -78,6 +78,6 @@ describe("AppSidebar action tests", () => {
     ["Settings", DATA_TEST_ID.SETTINGS_LINK, routerPaths.SETTINGS],
   ];
   allRouterCases.forEach(([linkName, linkTestId, expectedPath]) => {
-    testNavigateToPath(<AppSidebar/>, linkName, linkTestId, expectedPath);
+    testNavigateToPath(<AppSidebar />, linkName, linkTestId, expectedPath);
   });
 });

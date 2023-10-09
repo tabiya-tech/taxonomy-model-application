@@ -1,19 +1,19 @@
-import Info from '../info/Info';
-import ModelDirectory from '../modeldirectory/ModelDirectory';
+import Info from "../info/Info";
+import ModelDirectory from "../modeldirectory/ModelDirectory";
 
 export const routerPaths = {
-  ROOT: '/',
-  EXPLORE: '/explore',
-  EDIT: '/edit',
-  SETTINGS: '/settings',
-  USERS: '/users',
-  MODEL_DIRECTORY: '/modeldirectory',
+  ROOT: "/",
+  EXPLORE: "/explore",
+  EDIT: "/edit",
+  SETTINGS: "/settings",
+  USERS: "/users",
+  MODEL_DIRECTORY: "/modeldirectory",
 };
 
 export const routerConfig = [
   {
     path: routerPaths.ROOT,
-    element:<ModelDirectory />,
+    element: <ModelDirectory />,
     errorElement: <div>Sorry, something went wrong</div>,
   },
   {

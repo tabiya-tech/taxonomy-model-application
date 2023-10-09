@@ -36,20 +36,20 @@ jest.mock("./import/import.service", () => {
 
 // ###########
 
-import {getTestString} from "src/_test_utilities/specialCharacters";
+import { getTestString } from "src/_test_utilities/specialCharacters";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
-import {randomUUID} from "crypto";
+import { randomUUID } from "crypto";
 import ImportDirectorService from "./importDirector.service";
 import ImportAPISpecs from "api-specifications/import";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
-import {ImportFiles} from "./ImportFiles.type";
-import {getOneRandomModelMaxLength} from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
+import { ImportFiles } from "./ImportFiles.type";
+import { getOneRandomModelMaxLength } from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
 
-describe('Test the import director service', () => {
+describe("Test the import director service", () => {
   it("should successfully direct the import", async () => {
     // GIVEN a model service, a presigned service, an upload service, a import service
 
@@ -60,10 +60,12 @@ describe('Test the import director service', () => {
     const presignedService = new PresignedService("foo");
     const givenMockPresignedResponse: PresignedAPISpecs.Types.GET.Response.Payload = {
       fields: [
-        {name: "foo", value: "bar"},
-        {name: "baz", value: "qux"}
-      ], folder: "bar", url: "https://foo.bar"
-    }
+        { name: "foo", value: "bar" },
+        { name: "baz", value: "qux" },
+      ],
+      folder: "bar",
+      url: "https://foo.bar",
+    };
     jest.spyOn(presignedService, "getPresignedPost").mockResolvedValue(givenMockPresignedResponse);
 
     const uploadService = new UploadService();
@@ -75,15 +77,17 @@ describe('Test the import director service', () => {
     const givenLocale = {
       name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
-      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
-    }
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+    };
     // AND a api server url
     const apiServerUrl = "https://somedomain/path/to/api";
     // AND some files
     const givenFiles: ImportFiles = {};
-    Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach((fileType: ImportAPISpecs.Constants.ImportFileTypes) => {
-      givenFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, {type: 'text/plain'});
-    });
+    Object.values(ImportAPISpecs.Constants.ImportFileTypes).forEach(
+      (fileType: ImportAPISpecs.Constants.ImportFileTypes) => {
+        givenFiles[fileType] = new File(["foo bits"], `My File-${fileType}`, { type: "text/plain" });
+      }
+    );
 
     // WHEN the directImport() is called with the given arguments (name, description, locale, files)
     const manager = new ImportDirectorService(apiServerUrl);
@@ -96,7 +100,7 @@ describe('Test the import director service', () => {
     expect(modelService.createModel).toHaveBeenCalledWith({
       name: givenName,
       description: givenDescription,
-      locale: givenLocale
+      locale: givenLocale,
     });
 
     // #### PRESIGNED SERVICE ####
@@ -106,12 +110,17 @@ describe('Test the import director service', () => {
     expect(presignedService.getPresignedPost).toBeCalled();
 
     // AND the upload service is called with the presigned url from the presigned service and the given files
-    expect(uploadService.uploadFiles).toHaveBeenCalledWith(givenMockPresignedResponse, Object.entries(givenFiles).map(([, file]) => file));
+    expect(uploadService.uploadFiles).toHaveBeenCalledWith(
+      givenMockPresignedResponse,
+      Object.entries(givenFiles).map(([, file]) => file)
+    );
     // AND the given files are uploaded
     // #### IMPORT SERVICE ####
     const givenFilesPaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths = {};
-    Object.entries(givenFiles).forEach(([fileType, file])=> {
-      givenFilesPaths[fileType as ImportAPISpecs.Constants.ImportFileTypes] = `${givenMockPresignedResponse.folder}/${file.name}`;
+    Object.entries(givenFiles).forEach(([fileType, file]) => {
+      givenFilesPaths[
+        fileType as ImportAPISpecs.Constants.ImportFileTypes
+      ] = `${givenMockPresignedResponse.folder}/${file.name}`;
     });
     // THEN the import service is called with the given arguments (modelId, file paths)
     expect(importService.import).toHaveBeenCalledWith(givenMockModel.id, givenFilesPaths);

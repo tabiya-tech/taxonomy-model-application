@@ -43,9 +43,7 @@ export const DATA_TEST_ID = {
 
 export const CELL_MAX_LENGTH = 256;
 const ModelsTable = (props: ModelsTableProps) => {
-  const sortModels = (
-    models: ModelInfoTypes.ModelInfo[]
-  ): ModelInfoTypes.ModelInfo[] => {
+  const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
     if (!models?.length) return [];
     // sorts the incoming in descending order of createdAt
     return models.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -58,45 +56,48 @@ const ModelsTable = (props: ModelsTableProps) => {
   const theme = useTheme();
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" ,  width: "100%", height: "100%"}}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", height: "100%" }}>
       <Paper elevation={2} sx={{ width: "98%", height: "100%" }}>
-        <TableContainer data-testid={DATA_TEST_ID.MODELS_TABLE_ID} sx={{borderRadius: theme => theme.tabiyaSpacing.sm}}>
+        <TableContainer
+          data-testid={DATA_TEST_ID.MODELS_TABLE_ID}
+          sx={{ borderRadius: (theme) => theme.tabiyaSpacing.sm }}
+        >
           <Table tabIndex={0} aria-label="models table">
             <TableHead>
               <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
                 <TableCell
                   variant="body"
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_STATUS}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_NAME}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_LOCALE}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_VERSION}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_RELEASED}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: 'bold' }}
+                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_DESCRIPTION}
@@ -116,14 +117,8 @@ const ModelsTable = (props: ModelsTableProps) => {
                     data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
                   >
                     <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
-                      <Container
-                        data-testid={
-                          DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER
-                        }
-                      >
-                        <ImportProcessStateIcon
-                          importProcessState={model.importProcessState}
-                        />
+                      <Container data-testid={DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER}>
+                        <ImportProcessStateIcon importProcessState={model.importProcessState} />
                       </Container>
                     </TableCell>
                     <TableCell
@@ -134,16 +129,10 @@ const ModelsTable = (props: ModelsTableProps) => {
                     >
                       {model.name}
                     </TableCell>
-                    <TableCell
-                        sx={{ fontSize: theme.typography.body2 }}
-                        data-testid={DATA_TEST_ID.MODEL_CELL}
-                    >
+                    <TableCell sx={{ fontSize: theme.typography.body2 }} data-testid={DATA_TEST_ID.MODEL_CELL}>
                       {model.locale.name} ({model.locale.shortCode})
                     </TableCell>
-                    <TableCell
-                        sx={{ fontSize: theme.typography.body2 }}
-                        data-testid={DATA_TEST_ID.MODEL_CELL}
-                    >
+                    <TableCell sx={{ fontSize: theme.typography.body2 }} data-testid={DATA_TEST_ID.MODEL_CELL}>
                       {model.version}
                     </TableCell>
                     <TableCell
@@ -163,13 +152,9 @@ const ModelsTable = (props: ModelsTableProps) => {
                         ) /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/
                       }
                     </TableCell>
-                    <TableCell
-                        sx={{ fontSize: theme.typography.body2 }}
-                        data-testid={DATA_TEST_ID.MODEL_CELL}
-                    >
+                    <TableCell sx={{ fontSize: theme.typography.body2 }} data-testid={DATA_TEST_ID.MODEL_CELL}>
                       {model.description.length > CELL_MAX_LENGTH
-                        ? model.description.substring(0, CELL_MAX_LENGTH) +
-                          "..."
+                        ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
                         : model.description}
                     </TableCell>
                   </TableRow>

@@ -1,9 +1,9 @@
 // mute the console
-import 'src/_test_utilities/consoleMock';
+import "src/_test_utilities/consoleMock";
 
 import { Table } from "@mui/material";
-import {render, screen} from "src/_test_utilities/test-utils";
-import TableLoadingRows, {DATA_TEST_ID} from "./TableLoadingRows";
+import { render, screen } from "src/_test_utilities/test-utils";
+import TableLoadingRows, { DATA_TEST_ID } from "./TableLoadingRows";
 import TableBody from "@mui/material/TableBody";
 
 describe("TableLoadingRows", () => {
@@ -17,13 +17,15 @@ describe("TableLoadingRows", () => {
     const givenNumberOfCols = 5;
     // AND n numberOfRows
     const givenNumberOfRows = 10;
-    
+
     // WHEN the TableLoadingRows is rendered with the given numberOfCols and numberOfRows
-    render(<Table>
-      <TableBody>
-        <TableLoadingRows numberOfCols={givenNumberOfCols} numberOfRows={givenNumberOfRows} />
-      </TableBody>
-    </Table>)
+    render(
+      <Table>
+        <TableBody>
+          <TableLoadingRows numberOfCols={givenNumberOfCols} numberOfRows={givenNumberOfRows} />
+        </TableBody>
+      </Table>
+    );
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
@@ -33,7 +35,7 @@ describe("TableLoadingRows", () => {
     expect(skeletonRowElements).toHaveLength(givenNumberOfRows);
     // AND the given number of columns to be shown
     const skeletonCellElements = screen.getAllByTestId(DATA_TEST_ID.SKELETON_CELL);
-    const availableNumberOfCols = skeletonCellElements.length / skeletonRowElements.length
+    const availableNumberOfCols = skeletonCellElements.length / skeletonRowElements.length;
     expect(availableNumberOfCols).toBe(givenNumberOfCols);
-  })
-})
+  });
+});

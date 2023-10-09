@@ -1,8 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import ImportModelDialog, {
-  CloseEvent,
-  ImportData,
-} from "src/import/ImportModelDialog";
+import ImportModelDialog, { CloseEvent, ImportData } from "src/import/ImportModelDialog";
 import { ServiceError } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
@@ -25,7 +22,7 @@ const StyledContainer = styled(Box)`
 
 const StyledTableContainer = styled(Box)`
   flex: 1;
-  background-color: ${({theme}) => theme.palette.containerBackground.light};
+  background-color: ${({ theme }) => theme.palette.containerBackground.light};
   padding-left: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
   padding-right: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
 `;
@@ -36,9 +33,7 @@ export const DATA_TEST_ID = {
   IMPORT_MODEL_BUTTON: `import-model-button-${uniqueId}`,
 };
 
-const importDirectorService = new ImportDirectorService(
-  "https://dev.tabiya.tech/api"
-);
+const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
 const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
 export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
   {
@@ -72,10 +67,7 @@ const ModelDirectory = () => {
         setIsLoadingModels(false);
       },
       (e) => {
-        enqueueSnackbar(
-          `Failed to fetch the models. Please check your internet connection.`,
-          { variant: "error" }
-        );
+        enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, { variant: "error" });
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
@@ -102,10 +94,9 @@ const ModelDirectory = () => {
         });
         setModels([newModel, ...models]);
       } catch (e) {
-        enqueueSnackbar(
-          `The model '${importData.name}' import could not be started. Please try again.`,
-          { variant: "error" }
-        );
+        enqueueSnackbar(`The model '${importData.name}' import could not be started. Please try again.`, {
+          variant: "error",
+        });
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
@@ -127,30 +118,35 @@ const ModelDirectory = () => {
 
   return (
     <StyledContainer data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-        <StyledTableContainer>
-          <AppBar variant={"outlined"} elevation={0} sx={{
-              paddingY: (theme) => theme.tabiyaSpacing.xl,
-              border: "none", backgroundColor:"containerBackground.light"
+      <StyledTableContainer>
+        <AppBar
+          variant={"outlined"}
+          elevation={0}
+          sx={{
+            paddingY: (theme) => theme.tabiyaSpacing.xl,
+            border: "none",
+            backgroundColor: "containerBackground.light",
           }}
-                  position={"sticky"}>
-            <ModelDirectoryHeader onModelImport={() => showImportDialog(true)}/>
-          </AppBar>
-          <ModelsTable models={models} isLoading={isLoadingModels}/>
-        </StyledTableContainer>
+          position={"sticky"}
+        >
+          <ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />
+        </AppBar>
+        <ModelsTable models={models} isLoading={isLoadingModels} />
+      </StyledTableContainer>
 
-        {isImportDlgOpen && (
-            <ImportModelDialog
-                isOpen={isImportDlgOpen}
-                availableLocales={availableLocales}
-                notifyOnClose={handleOnImportDialogClose}
-            />
-        )}
-        {isBackDropShown && (
-            <Backdrop
-                isShown={isBackDropShown}
-                message='The model is being created and the files uploaded. Please wait ... '
-            />
-        )}
+      {isImportDlgOpen && (
+        <ImportModelDialog
+          isOpen={isImportDlgOpen}
+          availableLocales={availableLocales}
+          notifyOnClose={handleOnImportDialogClose}
+        />
+      )}
+      {isBackDropShown && (
+        <Backdrop
+          isShown={isBackDropShown}
+          message="The model is being created and the files uploaded. Please wait ... "
+        />
+      )}
     </StyledContainer>
   );
 };

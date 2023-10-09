@@ -1,10 +1,9 @@
-import {InfoProps} from "src/info/info.types";
+import { InfoProps } from "src/info/info.types";
 import InfoService from "src/info/info.service";
 import infoURL from "./info.constants";
 
 describe("InfoService", () => {
   describe("Test the loadInfoFromUrl function", () => {
-
     afterEach(() => {
       jest.restoreAllMocks();
     });
@@ -12,13 +11,13 @@ describe("InfoService", () => {
     function setupFetchMock(expectedBody: any): jest.Mock {
       const expectedResponse = new Response(expectedBody);
       const mockFetch = jest.fn().mockResolvedValueOnce(expectedResponse);
-      jest.spyOn(window, 'fetch').mockImplementation(mockFetch);
+      jest.spyOn(window, "fetch").mockImplementation(mockFetch);
       return mockFetch;
     }
 
     test("should fetch and return the infoProps object from the provided URL", async () => {
       // GIVEN some URL that returns some info data structure
-      const someURL: string = "url"
+      const someURL: string = "url";
       const expectedData: InfoProps = {
         date: "foo",
         branch: "bar",
@@ -38,7 +37,7 @@ describe("InfoService", () => {
 
     test("should return an info object with empty values when the fetched data is a malformed json", async () => {
       // GIVEN some URL that returns some info data structure
-      const someURL: string = "url"
+      const someURL: string = "url";
       const malformedJSON: string = "{";
       const mockFetch = setupFetchMock(malformedJSON);
 
@@ -48,32 +47,38 @@ describe("InfoService", () => {
 
       // THEN it returns info object with empty values
       expect(mockFetch).toHaveBeenCalledWith(someURL);
-      expect(actualResult).toMatchObject({date: "", branch: "", buildNumber: "", sha: ""});
+      expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
     });
 
-    test.each([{}, {foo: "bar"}, null])("should return an info object with empty values when the fetched data is not a valid info data json structure: '%s'", async (jsonData) => {
-      // GIVEN some URL that returns some info data structure
-      const someURL: string = "url"
-      const mockFetch = setupFetchMock(JSON.stringify(jsonData));
+    test.each([{}, { foo: "bar" }, null])(
+      "should return an info object with empty values when the fetched data is not a valid info data json structure: '%s'",
+      async (jsonData) => {
+        // GIVEN some URL that returns some info data structure
+        const someURL: string = "url";
+        const mockFetch = setupFetchMock(JSON.stringify(jsonData));
 
-      // WHEN the loadInfoFromUrl function is called for that URL
-      const service = new InfoService();
-      const actualResult = await service.loadInfoFromUrl(someURL);
+        // WHEN the loadInfoFromUrl function is called for that URL
+        const service = new InfoService();
+        const actualResult = await service.loadInfoFromUrl(someURL);
 
-      // THEN it returns info object with empty values
-      expect(mockFetch).toHaveBeenCalledWith(someURL);
-      expect(actualResult).toMatchObject({date: "", branch: "", buildNumber: "", sha: ""});
-    });
+        // THEN it returns info object with empty values
+        expect(mockFetch).toHaveBeenCalledWith(someURL);
+        expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
+      }
+    );
 
     test("should return an info object with empty values when the fetching the data fails with a HTTP error", async () => {
       // GIVEN some URL that fails with an HTTP error
-      const someURL: string = "url"
-      const expectedResponse = new Response(JSON.stringify({
-        reason: "some reason",
-        detail: "some detail"
-      }), {status: 500});
+      const someURL: string = "url";
+      const expectedResponse = new Response(
+        JSON.stringify({
+          reason: "some reason",
+          detail: "some detail",
+        }),
+        { status: 500 }
+      );
       const mockFetch = jest.fn().mockRejectedValueOnce(expectedResponse);
-      jest.spyOn(window, 'fetch').mockImplementation(mockFetch);
+      jest.spyOn(window, "fetch").mockImplementation(mockFetch);
 
       // WHEN the loadInfoFromUrl function is called for that URL
       const service = new InfoService();
@@ -81,7 +86,7 @@ describe("InfoService", () => {
 
       // THEN it returns info object with empty values
       expect(mockFetch).toHaveBeenCalledWith(someURL);
-      expect(actualResult).toMatchObject({date: "", branch: "", buildNumber: "", sha: ""});
+      expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
     });
   });
   describe("Test the loadInfo function", () => {
@@ -93,16 +98,16 @@ describe("InfoService", () => {
         date: "fooFrontend",
         branch: "barFrontend",
         buildNumber: "bazFrontend",
-        sha: "gooFrontend"
+        sha: "gooFrontend",
       };
       const expectedBackendInfoData: InfoProps = {
         date: "fooBackend",
         branch: "barBackend",
         buildNumber: "bazBackend",
-        sha: "gooBackend"
+        sha: "gooBackend",
       };
 
-      jest.spyOn(service, 'loadInfoFromUrl').mockImplementation((url: string) => {
+      jest.spyOn(service, "loadInfoFromUrl").mockImplementation((url: string) => {
         if (url === infoURL.frontend) {
           return Promise.resolve(expectedFrontendInfoData);
         } else if (url === infoURL.backend) {
@@ -119,12 +124,14 @@ describe("InfoService", () => {
     test("should call the correct frontend and backend urls", async () => {
       // WHEN the loadInfo function is called
       const service = new InfoService();
-      jest.spyOn(service, 'loadInfoFromUrl').mockImplementation(() => Promise.resolve({
-        date: "",
-        branch: "",
-        buildNumber: "",
-        sha: ""
-      }));
+      jest.spyOn(service, "loadInfoFromUrl").mockImplementation(() =>
+        Promise.resolve({
+          date: "",
+          branch: "",
+          buildNumber: "",
+          sha: "",
+        })
+      );
       await service.loadInfo();
       // THEN it calls the correct frontend and backend urls
       expect(service.loadInfoFromUrl).toHaveBeenCalledWith(infoURL.frontend);

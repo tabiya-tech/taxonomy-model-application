@@ -10,7 +10,7 @@ export const mapFileTypeToName = (fileType: ImportAPISpecs.Constants.ImportFileT
       return "Skills";
     case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP:
       return "Skill Groups";
-    case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS :
+    case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS:
       return "ESCO Skill-To-Skill Relations";
     case ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP:
       return "ISCO Groups";
@@ -19,7 +19,7 @@ export const mapFileTypeToName = (fileType: ImportAPISpecs.Constants.ImportFileT
     case ImportAPISpecs.Constants.ImportFileTypes.LOCALIZED_OCCUPATION:
       return "Localized Occupations";
     case ImportAPISpecs.Constants.ImportFileTypes.MODEL_INFO:
-      return  "Model Info";
+      return "Model Info";
     case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
       return "Occupation Hierarchy";
     case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_LOGS:
@@ -31,4 +31,4 @@ export const mapFileTypeToName = (fileType: ImportAPISpecs.Constants.ImportFileT
     default:
       return "Unknown File Type";
   }
-}
+};

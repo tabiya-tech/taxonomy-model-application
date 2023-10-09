@@ -1,13 +1,13 @@
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
-import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
-import {getMockId} from "src/_test_utilities/mockMongoId";
-import {getRandomLorem, getRandomString, getTestString} from "src/_test_utilities/specialCharacters";
-import {faker} from "@faker-js/faker";
-import {CELL_MAX_LENGTH} from "../ModelsTable";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { getMockId } from "src/_test_utilities/mockMongoId";
+import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
+import { faker } from "@faker-js/faker";
+import { CELL_MAX_LENGTH } from "../ModelsTable";
 
 export function getOneFakeModel(id?: number): ModelInfoTypes.ModelInfo {
   return getArrayOfFakeModels(id ?? 1)[0];
@@ -21,13 +21,20 @@ export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[]
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: Array.from({length: 20}, (_, i) => faker.lorem.word()).join(" ").substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+      name: Array.from({ length: 20 }, (_, i) => faker.lorem.word())
+        .join(" ")
+        .substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: uuidv4(),
         name: faker.location.country().substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: faker.location.countryCode("alpha-3").substring(0, LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        shortCode: faker.location
+          .countryCode("alpha-3")
+          .substring(0, LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
-      description: i % 2 === 0 ? getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) : getRandomLorem(CELL_MAX_LENGTH / 2), // 50% chance of long description
+      description:
+        i % 2 === 0
+          ? getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)
+          : getRandomLorem(CELL_MAX_LENGTH / 2), // 50% chance of long description
       released: i % 2 === 0, // 50% chance of released
       releaseNotes: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: faker.system.semver().substring(0, ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
@@ -42,12 +49,12 @@ export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[]
           errored: i % 2 === 0,
           parsingErrors: i % 2 === 0,
           parsingWarnings: i % 2 === 0,
-        }
-      }
+        },
+      },
     };
     models.push(model);
   }
-  return models
+  return models;
 }
 
 export function getArrayOfFakeModelsMaxLength(number: number): ModelInfoTypes.ModelInfo[] {
@@ -62,7 +69,7 @@ export function getArrayOfFakeModelsMaxLength(number: number): ModelInfoTypes.Mo
       locale: {
         UUID: uuidv4(),
         name: getRandomLorem(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getRandomLorem(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        shortCode: getRandomLorem(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
       description: getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       released: i % 2 === 0, // 50% chance of released
@@ -79,12 +86,12 @@ export function getArrayOfFakeModelsMaxLength(number: number): ModelInfoTypes.Mo
           errored: i % 2 === 0,
           parsingErrors: i % 2 === 0,
           parsingWarnings: i % 2 === 0,
-        }
-      }
+        },
+      },
     };
     models.push(model);
   }
-  return models
+  return models;
 }
 
 export function getOneRandomModelMaxLength(): ModelInfoTypes.ModelInfo {
@@ -103,7 +110,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
       locale: {
         UUID: uuidv4(),
         name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH)
+        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
       description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       released: i % 2 === 0,
@@ -120,12 +127,12 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
           errored: i % 2 === 0,
           parsingErrors: i % 2 === 0,
           parsingWarnings: i % 2 === 0,
-        }
-      }
+        },
+      },
     };
     models.push(model);
   }
-  return models
+  return models;
 }
 
 export function getRandomStatus(id: number) {
