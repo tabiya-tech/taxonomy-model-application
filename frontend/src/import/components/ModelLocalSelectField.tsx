@@ -23,7 +23,7 @@ export interface ModelLocaleSelectProps {
   notifyModelLocaleChanged?: (locale: Locale.Types.Payload) => any;
 }
 
-const ModelLocalSelectField = (props: ModelLocaleSelectProps) => {
+const ModelLocalSelectField = (props: Readonly<ModelLocaleSelectProps>) => {
   if (props.locales.length === 0 || props.locales.find((locale) => isUnspecified(locale.UUID))) {
     console.error("Locales should have at least one item");
   }

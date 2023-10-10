@@ -28,7 +28,7 @@ export const DATA_TEST_ID = {
  * @constructor
  */
 
-export const FileEntry = (props: FileEntryProps) => {
+export const FileEntry = (props: Readonly<FileEntryProps>) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const uniqueId: string = generateUniqueId(); // unique id for the input element to ensure the onClick will find the correct element across all entries in the dom

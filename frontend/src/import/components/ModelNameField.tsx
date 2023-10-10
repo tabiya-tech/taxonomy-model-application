@@ -21,7 +21,7 @@ export interface ModelNameFieldProps {
   notifyModelNameChanged?: (newName: string) => any;
 }
 
-export const ModelNameField = (props: ModelNameFieldProps) => {
+export const ModelNameField = (props: Readonly<ModelNameFieldProps>) => {
   const uniqueId = generateUniqueId();
 
   const throttledHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL);

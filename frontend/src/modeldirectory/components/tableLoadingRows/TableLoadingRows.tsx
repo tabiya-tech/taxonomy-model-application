@@ -13,7 +13,7 @@ export const DATA_TEST_ID = {
   SKELETON_CELL: `skeleton-cell-${uniqueId}`,
 };
 
-export default function TableLoadingRows({ numberOfRows, numberOfCols }: TableLoadingBodyProps) {
+export default function TableLoadingRows({ numberOfRows, numberOfCols }: Readonly<TableLoadingBodyProps>) {
   // Create an array of placeholders for rows
   const rowsPlaceholder = Array.from({ length: numberOfRows }, (_, i) => (
     <TableRow key={i} data-testid={DATA_TEST_ID.SKELETON_ROW}>

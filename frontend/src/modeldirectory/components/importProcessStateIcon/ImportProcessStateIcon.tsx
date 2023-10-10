@@ -22,7 +22,7 @@ const StyledCircle = styled(Circle)(runningIconStyle);
 
 const PulsatingCircle = (props: any) => <StyledCircle {...props} />;
 
-export default function ImportProcessStateIcon(props: ImportStatusIconProps) {
+export default function ImportProcessStateIcon(props: Readonly<ImportStatusIconProps>) {
   switch (props?.importProcessState?.status) {
     case ImportProcessStateAPISpecs.Enums.Status.PENDING:
       return <WatchLater titleAccess="Pending" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_PENDING} />;

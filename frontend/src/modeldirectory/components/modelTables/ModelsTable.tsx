@@ -42,7 +42,7 @@ export const DATA_TEST_ID = {
 };
 
 export const CELL_MAX_LENGTH = 256;
-const ModelsTable = (props: ModelsTableProps) => {
+const ModelsTable = (props: Readonly<ModelsTableProps>) => {
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
     if (!models?.length) return [];
     // sorts the incoming in descending order of createdAt

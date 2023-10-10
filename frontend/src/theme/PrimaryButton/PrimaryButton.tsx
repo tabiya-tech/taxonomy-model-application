@@ -5,7 +5,7 @@ interface PrimaryButtonProps extends ButtonProps {
   // Add additional props specific to PrimaryButton Button here
 }
 
-const PrimaryButton: React.FC<PrimaryButtonProps> = ({ style, children, ...props }) => {
+const PrimaryButton: React.FC<PrimaryButtonProps> = ({ style, children, ...props }: Readonly<PrimaryButtonProps>) => {
   return (
     // props are passed to the component last, so that they can override the default values
     <Button

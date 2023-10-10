@@ -119,7 +119,7 @@ function getRandomNotificationProps(count: number, variant: VariantType): { mess
     .map(() => ({ message: faker.lorem.words(10), variant: variant }));
 }
 
-function ShowNotifications(props: { notifications: { message: string; variant: VariantType }[] }) {
+function ShowNotifications(props: Readonly<{ notifications: { message: string; variant: VariantType }[] }>) {
   const { enqueueSnackbar } = useSnackbar();
   useEffect(() => {
     props.notifications.forEach((notification) => {

@@ -5,7 +5,7 @@ interface CancelButtonProps extends ButtonProps {
   // Add additional props specific to Cancel Button here
 }
 
-const CancelButton: React.FC<CancelButtonProps> = ({ style, children, ...props }) => {
+const CancelButton: React.FC<CancelButtonProps> = ({ style, children, ...props }: Readonly<CancelButtonProps>) => {
   return (
     // props are passed to the component last, so that they can override the default values
     <Button

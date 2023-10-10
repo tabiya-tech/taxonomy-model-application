@@ -5,7 +5,6 @@ import {
   SnackbarKey,
   MaterialDesignContent,
 } from "notistack";
-import { ReactNode } from "react";
 import { IconButton, styled } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import * as React from "react";
@@ -30,10 +29,6 @@ const SnackbarCloseButton = (key: SnackbarKey) => {
     </IconButton>
   );
 };
-
-interface SnackbarProviderProps {
-  children: ReactNode;
-}
 
 const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) => ({
   "&.notistack-MuiContent-success": {
@@ -77,7 +72,7 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) =>
   },
 }));
 
-const SnackbarProvider: React.FC<SnackbarProviderProps & OriginalSnackbarProviderProps> = ({ children, ...props }) => {
+const SnackbarProvider: React.FC<OriginalSnackbarProviderProps> = ({ children, ...props }: Readonly<OriginalSnackbarProviderProps>) => {
   const notistackOptions: OriginalSnackbarProviderProps = {
     maxSnack: 10,
     autoHideDuration: null,

@@ -15,7 +15,7 @@ export const DATA_TEST_ID = {
   IMPORT_FILES_SELECTION: `import-files-selection-${baseTestID}`,
 };
 
-const ImportFilesSelection = (props: ImportFilesSelectionProps) => {
+const ImportFilesSelection = (props: Readonly<ImportFilesSelectionProps>) => {
   const uniqueId = generateUniqueId();
   const classes = useStyles();
   return (
