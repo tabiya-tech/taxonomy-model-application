@@ -1,6 +1,6 @@
 // custom Backdrop component
 
-import { Backdrop as BACKDROP, CircularProgress, Grid, Typography, useTheme } from "@mui/material";
+import { Backdrop as OriginalBackdrop, CircularProgress, Grid, Typography, useTheme } from "@mui/material";
 
 interface IBackdropProps {
   isShown: boolean;
@@ -17,7 +17,7 @@ export const DATA_TEST_ID = {
 export const Backdrop = (props: Readonly<IBackdropProps>) => {
   const theme = useTheme();
   return (
-    <BACKDROP
+    <OriginalBackdrop
       sx={{ color: "#fff", zIndex: theme.zIndex.drawer + 1 }}
       data-testid={DATA_TEST_ID.BACKDROP_CONTAINER}
       open={props.isShown}
@@ -44,6 +44,6 @@ export const Backdrop = (props: Readonly<IBackdropProps>) => {
           />
         </Grid>
       </Grid>
-    </BACKDROP>
+    </OriginalBackdrop>
   );
 };
