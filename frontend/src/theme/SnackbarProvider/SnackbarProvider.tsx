@@ -25,7 +25,7 @@ const SnackbarCloseButton = (key: SnackbarKey) => {
       data-testid={DATA_TEST_ID.SNACKBAR_CLOSE_BUTTON}
       onClick={() => closeSnackbar(key)}
     >
-      <CloseIcon fontSize="small" />
+      <CloseIcon />
     </IconButton>
   );
 };

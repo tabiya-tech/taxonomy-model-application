@@ -21,7 +21,7 @@ const AppHeader = () => {
       <NavLink style={{ lineHeight: 0 }} to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
         <img src="/logo.svg" alt="Tabiya" height={"30px"} data-testid={DATA_TEST_ID.APP_HEADER_LOGO} />
       </NavLink>
-      <PermIdentityIcon sx={{ width: "24px", height: "24px" }} data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} />
+      <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} />
     </Box>
   );
 };
