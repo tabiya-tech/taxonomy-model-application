@@ -33,7 +33,7 @@ const VersionInfoItem = ({ title, value, skeleton }: { title: string; value: str
 const VersionContainer = ({ dataTestId, title, info }: { dataTestId: string; title: string; info: InfoProps }) => {
   const theme = useTheme();
   return (
-    <Box display="flex" gap={theme.tabiyaSpacing.xl} data-testid={dataTestId}>
+    <Box display="grid" gridTemplateColumns={"6rem 1fr"} gap={theme.tabiyaSpacing.xl} data-testid={dataTestId}>
       <Typography variant="h6">{title}</Typography>
       {info ? (
         <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm}>

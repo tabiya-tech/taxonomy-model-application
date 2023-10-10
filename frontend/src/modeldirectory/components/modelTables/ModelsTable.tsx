@@ -66,38 +66,37 @@ const ModelsTable = (props: ModelsTableProps) => {
             <TableHead>
               <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
                 <TableCell
-                  variant="body"
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.body1, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_STATUS}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.body1, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_NAME}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.body1, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_LOCALE}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.body1, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_VERSION}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.body1, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_RELEASED}
                 </TableCell>
                 <TableCell
-                  sx={{ fontSize: theme.typography.subtitle1.fontSize, fontWeight: "bold" }}
+                  sx={{ fontSize: theme.typography.body1, fontWeight: "bold" }}
                   data-testid={DATA_TEST_ID.MODEL_CELL}
                 >
                   {TEXT.TABLE_HEADER_LABEL_DESCRIPTION}
