@@ -65,7 +65,7 @@ We aim to achieve the following metrics on SonarCloud:
 
 We follow the **[Prettier](https://prettier.io/)** code formatting guidelines to make sure the code is properly formatted in a uniform way.
 
-You can find the configuration in the **[.prettierrc.json](link-tabiya-prettier-config.sh/.prettierrc.json)** file.
+You can find the configuration in the **[.prettierrc.json](@tabiya/prettier-config/.prettierrc.json)** file.
 
 > **Note:**  
 For Intellij IDEA, if you make any changes to the prettier config file, you many have to restart your IDE to make sure the changes are applied, before you can format the code using the IDE's formatting function.
