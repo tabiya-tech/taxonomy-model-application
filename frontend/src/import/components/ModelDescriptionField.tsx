@@ -21,7 +21,7 @@ export interface ModelDescriptionFieldProps {
   notifyModelDescriptionChanged?: (newDescription: string) => void;
 }
 
-export const ModelDescriptionField = (props: ModelDescriptionFieldProps) => {
+export const ModelDescriptionField = (props: Readonly<ModelDescriptionFieldProps>) => {
   const uniqueId = generateUniqueId();
 
   const debounceHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL);

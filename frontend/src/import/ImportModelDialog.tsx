@@ -33,7 +33,7 @@ export interface ImportModelDialogProps {
   notifyOnClose: (event: CloseEvent) => void; // callback function to notify the parent component when the dialog should close
 }
 
-const ImportModelDialog = (props: ImportModelDialogProps) => {
+const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
   // state to enable disabling the import button when the user has not selected all the required files
   const [isImportButtonDisabled, setIsImportButtonDisabled] = React.useState(true);
 

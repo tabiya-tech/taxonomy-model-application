@@ -21,7 +21,7 @@ export const DATA_TEST_ID = {
   LAYOUT: "cabab611-7d62-417a-a4a7-5d8f7266ea92",
 };
 
-export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+export const AppLayout: React.FC<AppLayoutProps> = ({ children }: Readonly<AppLayoutProps>) => {
   const theme = useTheme();
   return (
     <Container data-testid={DATA_TEST_ID.LAYOUT} bgcolor="containerBackground.main">

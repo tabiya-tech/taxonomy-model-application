@@ -14,7 +14,7 @@ export const DATA_TEST_ID = {
   PROGRESS_ELEMENT: `progress-${uniqueId}`,
   MESSAGE_ELEMENT: `message-${uniqueId}`,
 };
-export const Backdrop = (props: IBackdropProps) => {
+export const Backdrop = (props: Readonly<IBackdropProps>) => {
   const theme = useTheme();
   return (
     <BACKDROP
