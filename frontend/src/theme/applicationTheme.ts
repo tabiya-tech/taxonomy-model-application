@@ -89,8 +89,10 @@ const lightPalette: Palette = {
   },
 };
 
-const darkPalette: any = {
-  // TODO: Add Some dark theme palette options
+const darkPalette: Palette = {
+  // Add Some dark theme palette options,
+  // currently using the light theme palette
+  ...lightPalette,
 };
 
 export const applicationTheme = (theme: ThemeMode) => {
