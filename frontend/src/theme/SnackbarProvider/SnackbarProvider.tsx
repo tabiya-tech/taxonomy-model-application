@@ -1,6 +1,6 @@
 import {
-  SnackbarProvider as SNACKBAR_PROVIDER,
-  SnackbarProviderProps as _SnackbarProviderProps,
+  SnackbarProvider as OriginalSnackbarProvider,
+  SnackbarProviderProps as OriginalSnackbarProviderProps,
   useSnackbar,
   SnackbarKey,
   MaterialDesignContent,
@@ -77,8 +77,8 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) =>
   },
 }));
 
-const SnackbarProvider: React.FC<SnackbarProviderProps & _SnackbarProviderProps> = ({ children, ...props }) => {
-  const notistackOptions: _SnackbarProviderProps = {
+const SnackbarProvider: React.FC<SnackbarProviderProps & OriginalSnackbarProviderProps> = ({ children, ...props }) => {
+  const notistackOptions: OriginalSnackbarProviderProps = {
     maxSnack: 10,
     autoHideDuration: null,
     transitionDuration: { enter: 500, exit: 500 },
@@ -96,9 +96,9 @@ const SnackbarProvider: React.FC<SnackbarProviderProps & _SnackbarProviderProps>
   };
 
   return (
-    <SNACKBAR_PROVIDER {...notistackOptions} action={SnackbarCloseButton}>
+    <OriginalSnackbarProvider {...notistackOptions} action={SnackbarCloseButton}>
       {children}
-    </SNACKBAR_PROVIDER>
+    </OriginalSnackbarProvider>
   );
 };
 
