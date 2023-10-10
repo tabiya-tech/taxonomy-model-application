@@ -33,7 +33,11 @@ const theme = useTheme();
   <ChildComponent2 />
 </Box>
 ```
-
+## Icon Sizes
+- We use the standard icon sizes specified in the palette to ensure consistency.
+```
+<SomeIcon fontSize="small" />
+```
 ## Accessibility
 - We prioritize accessibility, ensuring that all components are usable by everyone.
 - Complying to WAG 2.0 A rules is **mandatory**.

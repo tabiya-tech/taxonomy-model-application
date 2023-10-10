@@ -19,17 +19,15 @@ export const ITEMS_LABEL_TEXT = {
   SETTINGS: "Settings",
 };
 
-const iconSize = { width: "24px", height: "24px" };
-
 const appSidebarItems = [
   {
-    icon: <FolderOutlinedIcon sx={iconSize} data-testid={DATA_TEST_ID.DIRECTORY_ICON} />,
+    icon: <FolderOutlinedIcon data-testid={DATA_TEST_ID.DIRECTORY_ICON} />,
     label: ITEMS_LABEL_TEXT.DIRECTORY,
     pathName: routerPaths.MODEL_DIRECTORY,
     dataTestId: DATA_TEST_ID.DIRECTORY_LINK,
   },
   {
-    icon: <SettingsIcon sx={iconSize} data-testid={DATA_TEST_ID.SETTINGS_ICON} />,
+    icon: <SettingsIcon data-testid={DATA_TEST_ID.SETTINGS_ICON} />,
     label: ITEMS_LABEL_TEXT.SETTINGS,
     pathName: routerPaths.SETTINGS,
     dataTestId: DATA_TEST_ID.SETTINGS_LINK,

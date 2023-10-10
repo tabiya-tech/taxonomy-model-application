@@ -1,8 +1,11 @@
+import "./application-theme.css";
 import { Meta, StoryObj } from "@storybook/react";
-import { Box, rgbToHex, Typography, useTheme } from "@mui/material";
+import { Box, rgbToHex, Typography, useTheme, Icon } from "@mui/material";
 import { Palette, PaletteColor, Theme } from "@mui/material/styles";
 import { TabiyaSize } from "./theme";
 import Paper from "@mui/material/Paper";
+import { TabiyaIconStyles } from "./applicationTheme";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const meta: Meta = {
   title: "Components/Style",
@@ -369,6 +372,109 @@ const ColorBox = (props: ColorBoxProps) => {
   );
 };
 
+const IconsElements = () => {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: theme.tabiyaSpacing.md,
+      }}
+    >
+      <MuiSvgIconsElements theme={theme} />
+      <MuiIconsElements theme={theme} />
+    </Box>
+  );
+};
+
+interface IconsElementsProps {
+  theme: Theme;
+}
+
+const iconTitles: Record<string, string> = {
+  fontSizeSmall: "Small",
+  fontSizeMedium: "Medium(Default)",
+  fontSizeLarge: "Large",
+  root: "Fallback",
+};
+
+const MuiSvgIconsElements = (props: IconsElementsProps) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: props.theme.tabiyaSpacing.md,
+      }}
+    >
+      <Typography variant={"h4"}>Mui Svg Icons</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: props.theme.tabiyaSpacing.md,
+        }}
+      >
+        {Object.entries(TabiyaIconStyles).map(([key, value]) => (
+          <Box
+            key={key}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: props.theme.tabiyaSpacing.sm,
+            }}
+          >
+            <Typography variant="subtitle1">{iconTitles[key]}</Typography>
+            <Typography variant="subtitle2">{`${value.fontSize}(${parseFloat(value.fontSize) * 16}px)`}</Typography>
+            <SettingsIcon sx={{ fontSize: value }} />
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
+const MuiIconsElements = (props: IconsElementsProps) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: props.theme.tabiyaSpacing.md,
+      }}
+    >
+      <Typography variant={"h4"}>Mui Icons</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: props.theme.tabiyaSpacing.md,
+        }}
+      >
+        {Object.entries(TabiyaIconStyles).map(([key, value]) => (
+          <Box
+            key={key}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: props.theme.tabiyaSpacing.sm,
+            }}
+          >
+            <Typography variant="subtitle1">{iconTitles[key]}</Typography>
+            <Typography variant="subtitle2">{`${value.fontSize} (${parseFloat(value.fontSize) * 16}px)`}</Typography>
+            <Icon sx={{ fontSize: value }}>home</Icon>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
 export const TypographyStyles: Story = {
   args: {
     children: <TypographyElements />,
@@ -384,5 +490,11 @@ export const PaletteStyles: Story = {
 export const SpacingAndRoundingStyles: Story = {
   args: {
     children: <SpacingAndRoundingElements />,
+  },
+};
+
+export const IconsStyles: Story = {
+  args: {
+    children: <IconsElements />,
   },
 };

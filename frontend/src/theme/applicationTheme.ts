@@ -43,6 +43,21 @@ const TabiyaBasicColors = {
   GrayDark: "#43474E",
 };
 
+export const TabiyaIconStyles = {
+  fontSizeSmall: {
+    fontSize: "1rem",
+  },
+  fontSizeMedium: {
+    fontSize: "1.5rem",
+  },
+  fontSizeLarge: {
+    fontSize: "2.5rem",
+  },
+  root: {
+    fontSize: "1.5rem",
+  },
+};
+
 const lightPalette: Palette = {
   ..._temp_palette,
   primary: augmentedThemeColor(TabiyaBasicColors.DarkBlue),
@@ -233,6 +248,16 @@ export const applicationTheme = (theme: ThemeMode) => {
           style: {
             background: activePalette.containerBackground.main,
           },
+        },
+      },
+      MuiSvgIcon: {
+        styleOverrides: {
+          ...TabiyaIconStyles,
+        },
+      },
+      MuiIcon: {
+        styleOverrides: {
+          ...TabiyaIconStyles,
         },
       },
     },
