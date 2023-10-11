@@ -7,9 +7,10 @@ import { styled, useTheme } from "@mui/material";
 const Container = styled(Box)`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
   padding: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
   padding-bottom: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.none)};
+  padding-top: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.none)};
   gap: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.xl)};
 `;
 

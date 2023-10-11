@@ -22,6 +22,7 @@ const AppHeader = () => {
       display="flex"
       justifyContent="space-between"
       alignItems="center"
+      paddingTop={theme.tabiyaSpacing.lg}
       data-testid={DATA_TEST_ID.APP_HEADER_CONTAINER}
     >
       <NavLink style={{ lineHeight: 0 }} to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
