@@ -14,12 +14,16 @@ export interface ModelDirectoryHeaderProps {
   onModelImport: () => void;
 }
 
-const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({ onModelImport }: Readonly<ModelDirectoryHeaderProps>) => (
+const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
+  onModelImport,
+}: Readonly<ModelDirectoryHeaderProps>) => (
   <Box
     display="flex"
-    width="100%"
+    width="auto"
     justifyContent="space-between"
     alignItems="center"
+    paddingY={(theme) => theme.tabiyaSpacing.xl}
+    paddingX={(theme) => theme.tabiyaSpacing.lg}
     data-testid={DATA_TEST_ID.MODEL_DIRECTORY_HEADER}
   >
     <Typography variant="h2" data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>

@@ -14,11 +14,25 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
+import { styled } from "@mui/material/styles";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
   isLoading?: boolean;
 }
+
+const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
+  "&::-webkit-scrollbar": {
+    width: "12px", // Set the width of the scrollbar
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: theme.palette.grey["500"], // Set the color of the thumb
+    borderRadius: "6px", // Round the corners of the thumb
+  },
+  "&::-webkit-scrollbar-track": {
+    backgroundColor: theme.palette.common.white, // Set the color of the track
+  },
+}));
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";
 
@@ -74,12 +88,12 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", height: "100%" }}>
-      <Paper elevation={2} sx={{ width: "98%", height: "100%" }}>
-        <TableContainer
+      <Paper elevation={2} sx={{ width: "100%", height: "100%", overflow: "hidden" }}>
+        <StyledTableContainer
           data-testid={DATA_TEST_ID.MODELS_TABLE_ID}
-          sx={{ borderRadius: (theme) => theme.tabiyaSpacing.sm }}
+          sx={{ borderRadius: (theme) => theme.tabiyaSpacing.sm, position: "relative", maxHeight: "80vh" }}
         >
-          <Table tabIndex={0} aria-label="models table">
+          <Table tabIndex={0} stickyHeader aria-label="models table">
             <TableHead>
               <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
                 <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_STATUS}</StyledHeaderCell>
@@ -137,7 +151,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
               )}
             </TableBody>
           </Table>
-        </TableContainer>
+        </StyledTableContainer>
       </Paper>
     </Box>
   );
