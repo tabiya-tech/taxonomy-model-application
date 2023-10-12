@@ -10,7 +10,8 @@ import { parseOccupationHierarchyFromUrl } from "import/esco/occupationHierarchy
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ImportAPISpecs from "api-specifications/import";
 import importLogger from "import/importLogger/importLogger";
-import { parseSkillHierarchyFromUrl } from "../esco/skillHierarchy/skillHierarchyParser";
+import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
+import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 
 const getPresignedUrls = async (
   filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths
@@ -79,6 +80,14 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
   if (downloadUrls.ESCO_SKILL_HIERARCHY) {
     const stats = await parseSkillHierarchyFromUrl(modelId, downloadUrls.ESCO_SKILL_HIERARCHY, importIdToDBIdMap);
     console.info(`Processed ${JSON.stringify(stats)} Skill hierarchy entries`);
+  }
+  if (downloadUrls.ESCO_SKILL_SKILL_RELATIONS) {
+    const stats = await parseSkillToSkillRelationFromUrl(
+      modelId,
+      downloadUrls.ESCO_SKILL_SKILL_RELATIONS,
+      importIdToDBIdMap
+    );
+    console.info(`Processed ${JSON.stringify(stats)} Skill to skill relation entries`);
   }
 
   // Set the import process status to COMPLETED

@@ -3,7 +3,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { ISkillDoc } from "esco/skill/skills.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair, ISkillHierarchyPairDoc } from "./skillHierarchy.types";
 import { ISkillGroupDoc } from "esco/skillGroup/skillGroup.types";
-import { isHierarchyPairValid } from "esco/common/hierarchy";
+import { isNewSkillHierarchyPairSpecValid } from "./skillHierarchyValidation";
 
 export interface ISkillHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
@@ -61,13 +61,7 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
       _existingSkillsIds.forEach((skill) => existingIds.set(skill._id.toString(), ObjectTypes.Skill));
 
       const newSkillHierarchyPairModels = newSkillHierarchyPairSpecs
-        .filter((spec) => {
-          return isHierarchyPairValid(spec, existingIds, [
-            { parentType: ObjectTypes.SkillGroup, childType: ObjectTypes.SkillGroup },
-            { parentType: ObjectTypes.SkillGroup, childType: ObjectTypes.Skill },
-            { parentType: ObjectTypes.Skill, childType: ObjectTypes.Skill },
-          ]);
-        })
+        .filter((spec) => isNewSkillHierarchyPairSpecValid(spec, existingIds))
         .map((spec) => {
           try {
             return new this.hierarchyModel({

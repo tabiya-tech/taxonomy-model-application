@@ -4,27 +4,24 @@ import "_test_utilities/consoleMock";
 import { getMockId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
-import { generateRandomUrl, getTestString } from "_test_utilities/specialCharacters";
 import { getNewConnection } from "server/connection/newConnection";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
-import { ISkillGroupRepository } from "./SkillGroupRepository";
+import { ISkillGroupRepository } from "./skillGroupRepository";
 import { INewSkillGroupSpec, ISkillGroup } from "./skillGroup.types";
-import {
-  DESCRIPTION_MAX_LENGTH,
-  IMPORT_ID_MAX_LENGTH,
-  LABEL_MAX_LENGTH,
-  SCOPE_NOTE_MAX_LENGTH,
-} from "esco/common/modelSchema";
-import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { INewSkillSpec } from "esco/skill/skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
-import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
+import {
+  getNewSkillGroupSpec,
+  getSimpleNewISCOGroupSpec,
+  getSimpleNewSkillGroupSpec,
+  getSimpleNewSkillSpec,
+} from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
@@ -34,51 +31,6 @@ jest.mock("crypto", () => {
     randomUUID: jest.fn().mockImplementation(actual.randomUUID),
   };
 });
-
-/**
- * Helper function to create an INewSkillGroupSpec with random values,
- * that can be used for creating a new ISkillGroup
- */
-function getNewSkillGroupSpec(): INewSkillGroupSpec {
-  return {
-    code: getMockRandomSkillCode(),
-    preferredLabel: getTestString(LABEL_MAX_LENGTH),
-    modelId: getMockId(2),
-    originUUID: randomUUID(),
-    ESCOUri: generateRandomUrl(),
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
-    scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-    altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
-    importId: getTestString(IMPORT_ID_MAX_LENGTH),
-  };
-}
-
-function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
-  return {
-    altLabels: [],
-    code: getMockRandomISCOGroupCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    importId: "",
-  };
-}
-
-function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: string): INewSkillGroupSpec {
-  return {
-    scopeNote: "",
-    altLabels: [],
-    code: getMockRandomSkillCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    importId: "",
-  };
-}
 
 /**
  * Helper function to create an expected ISkillGroup from a given ,
@@ -355,25 +307,14 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       beforeEach(() => {
         jest.clearAllMocks();
       });
+
       test("should ignore parents that are not SkillGroups", async () => {
         // GIVEN an inconsistency was introduced, and non-SkillGroup document is a parent of an SkillGroup
         // The SkillGroup
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockId(1), "group_1");
         const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
         // The non-SkillGroup in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = {
-          preferredLabel: "skill_1",
-          modelId: givenSkillGroup.modelId,
-          originUUID: "",
-          ESCOUri: "",
-          definition: "",
-          description: "",
-          scopeNote: "",
-          skillType: "knowledge",
-          reuseLevel: "cross-sector",
-          altLabels: [],
-          importId: "",
-        };
+        const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(getMockId(1), "skill_1");
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: ISkillHierarchyPairDoc = {

@@ -1,9 +1,23 @@
 import mongoose from "mongoose";
-import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
+import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco/common/objectTypes";
 import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 
-export type SkillType = "" | "skill/competence" | "knowledge" | "language" | "attitude";
-export type ReuseLevel = "" | "sector-specific" | "occupation-specific" | "cross-sector" | "transversal";
+//TODO: Eventually this will have to move to the api definition.
+export enum SkillType {
+  None = "",
+  SkillCompetence = "skill/competence",
+  Knowledge = "knowledge",
+  Language = "language",
+  Attitude = "attitude",
+}
+
+export enum ReuseLevel {
+  None = "",
+  SectorSpecific = "sector-specific",
+  OccupationSpecific = "occupation-specific",
+  CrossSector = "cross-sector",
+  Transversal = "transversal",
+}
 
 export interface ISkillDoc extends ImportIdentifiable {
   id: string | mongoose.Types.ObjectId;
@@ -31,9 +45,14 @@ export interface ISkill extends ISkillDoc {
   modelId: string;
   parents: (ISkillReference | ISkillGroupReference)[];
   children: (ISkillReference | ISkillGroupReference)[];
+  requiresSkills: ReferenceWithRelationType<ISkillReferenceDoc>[];
+  requiredBySkills: ReferenceWithRelationType<ISkillReferenceDoc>[];
 }
 
-export type INewSkillSpec = Omit<ISkill, "id" | "UUID" | "parents" | "children" | "createdAt" | "updatedAt">;
+export type INewSkillSpec = Omit<
+  ISkill,
+  "id" | "UUID" | "parents" | "children" | "requiresSkills" | "requiredBySkills" | "createdAt" | "updatedAt"
+>;
 
 export interface ISkillReference extends Pick<ISkill, "id" | "UUID" | "preferredLabel"> {
   objectType: ObjectTypes.Skill;

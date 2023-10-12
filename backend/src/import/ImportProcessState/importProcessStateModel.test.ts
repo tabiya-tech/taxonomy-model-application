@@ -16,7 +16,7 @@ describe("Test the definition of the ImportProcessState Model", () => {
   let model: mongoose.Model<IImportProcessStateDoc>;
   beforeAll(async () => {
     // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("skillGroupModelTestDB");
+    const config = getTestConfiguration("ImportProcessStateModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // Initialize the schema and model
     model = initializeSchemaAndModel(dbConnection);

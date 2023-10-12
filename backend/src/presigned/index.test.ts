@@ -9,7 +9,7 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 import { HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import * as awsSDKServiceModule from "./awsSDKService";
 import * as transformModule from "./transform";
-import { testMethodsNotAllowed } from "../_test_utilities/stdRESTHandlerTests";
+import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");

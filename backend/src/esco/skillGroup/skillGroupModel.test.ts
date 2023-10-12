@@ -26,7 +26,7 @@ describe("Test the definition of the skillGroup Model", () => {
   let skillGroupModel: mongoose.Model<ISkillGroupDoc>;
   beforeAll(async () => {
     // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("skillGroupModelTestDB");
+    const config = getTestConfiguration("SkillGroupModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // Initialize the schema and model
     skillGroupModel = initializeSchemaAndModel(dbConnection);

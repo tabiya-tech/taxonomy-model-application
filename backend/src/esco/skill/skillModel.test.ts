@@ -18,7 +18,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
-import { ISkillDoc } from "./skills.types";
+import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
 import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the skill Model", () => {
@@ -26,7 +26,7 @@ describe("Test the definition of the skill Model", () => {
   let skillModel: mongoose.Model<ISkillDoc>;
   beforeAll(async () => {
     // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("skillGroupModelTestDB");
+    const config = getTestConfiguration("SkillModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // Initialize the schema and model
     skillModel = initializeSchemaAndModel(dbConnection);
@@ -52,8 +52,8 @@ describe("Test the definition of the skill Model", () => {
       definition: getTestString(DEFINITION_MAX_LENGTH),
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-      skillType: "skill/competence",
-      reuseLevel: "sector-specific",
+      skillType: SkillType.SkillCompetence,
+      reuseLevel: ReuseLevel.SectorSpecific,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
@@ -76,8 +76,8 @@ describe("Test the definition of the skill Model", () => {
       modelId: getMockId(2),
       originUUID: "",
       altLabels: [],
-      skillType: "",
-      reuseLevel: "",
+      skillType: SkillType.None,
+      reuseLevel: ReuseLevel.None,
       ESCOUri: "",
       definition: "",
       description: "",

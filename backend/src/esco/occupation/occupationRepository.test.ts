@@ -4,27 +4,18 @@ import "_test_utilities/consoleMock";
 import { getMockId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
-import { generateRandomUrl, getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import { getNewConnection } from "server/connection/newConnection";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
-import { IOccupationRepository } from "./OccupationRepository";
-import {
-  DESCRIPTION_MAX_LENGTH,
-  IMPORT_ID_MAX_LENGTH,
-  LABEL_MAX_LENGTH,
-  REGULATED_PROFESSION_NOTE_MAX_LENGTH,
-  SCOPE_NOTE_MAX_LENGTH,
-} from "esco/common/modelSchema";
+import { IOccupationRepository } from "./occupationRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
-import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewOccupationSpec, IOccupation } from "./occupation.types";
-import { INewSkillSpec } from "esco/skill/skills.types";
+import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { getNewOccupationSpec, getSimpleNewOccupationSpec } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
@@ -34,44 +25,6 @@ jest.mock("crypto", () => {
     randomUUID: jest.fn().mockImplementation(actual.randomUUID),
   };
 });
-
-/**
- * Helper function to create an INewOccupationSpec with random values,
- * that can be used for creating a new Occupation
- */
-function getNewOccupationSpec(): INewOccupationSpec {
-  return {
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
-    definition: getTestString(DESCRIPTION_MAX_LENGTH),
-    regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
-    scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
-    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getMockRandomOccupationCode(),
-    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
-    modelId: getMockId(2),
-    originUUID: "",
-    ESCOUri: generateRandomUrl(),
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
-    importId: getTestString(IMPORT_ID_MAX_LENGTH),
-  };
-}
-
-function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
-  return {
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
-    definition: "",
-    regulatedProfessionNote: "",
-    scopeNote: "",
-    altLabels: [],
-    code: getMockRandomOccupationCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    importId: "",
-  };
-}
 
 /**
  * Helper function to create an expected Occupation from a given INewOccupationSpec,
@@ -408,8 +361,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           definition: "",
           description: "",
           scopeNote: "",
-          skillType: "knowledge",
-          reuseLevel: "cross-sector",
+          skillType: SkillType.Knowledge,
+          reuseLevel: ReuseLevel.CrossSector,
           altLabels: [],
           importId: "",
         };
@@ -455,8 +408,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           definition: "",
           description: "",
           scopeNote: "",
-          skillType: "knowledge",
-          reuseLevel: "cross-sector",
+          skillType: SkillType.Knowledge,
+          reuseLevel: ReuseLevel.CrossSector,
           altLabels: [],
           importId: "",
         };

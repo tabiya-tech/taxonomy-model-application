@@ -12,7 +12,7 @@ import {
 import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import importLogger from "import/importLogger/importLogger";
-import { getProcessHierarchyBatchFunction } from "../common/processHierarchyBatchFunction";
+import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
 
 // expect all columns to be in upper case
 export interface OccupationHierarchyHierarchyRow {
@@ -33,7 +33,7 @@ function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
 
 function getBatchProcessor(modelId: string) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessHierarchyBatchFunction<IOccupationHierarchyPair, INewOccupationHierarchyPairSpec>(
+  const batchProcessFn = getRelationBatchFunction<IOccupationHierarchyPair, INewOccupationHierarchyPairSpec>(
     modelId,
     "OccupationHierarchy",
     getRepositoryRegistry().occupationHierarchy

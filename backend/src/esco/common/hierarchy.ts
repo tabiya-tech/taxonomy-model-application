@@ -1,4 +1,5 @@
 import { ObjectTypes } from "./objectTypes";
+import { IRelationshipSpec } from "./relationValidation";
 
 export interface IHierarchyPairSpec {
   parentType: ObjectTypes;
@@ -8,30 +9,11 @@ export interface IHierarchyPairSpec {
   childType: ObjectTypes;
 }
 
-export function isHierarchyPairValid(
-  spec: IHierarchyPairSpec,
-  existingIds: Map<string, ObjectTypes>,
-  validPairTypes: {
-    parentType: ObjectTypes;
-    childType: ObjectTypes;
-  }[]
-) {
-  if (spec.childId === spec.parentId) return false; // skip self referencing
-
-  // check if the parentType and childType pair is in the validPairTypes
-  const isIncluded = validPairTypes.find((pairType) => {
-    return pairType.parentType === spec.parentType && pairType.childType === spec.childType;
-  });
-
-  if (!isIncluded) return false; // skip if the parentType and childType pair is not in the validPairTypes
-
-  const existingParentType = existingIds.get(spec.parentId.toString());
-  if (!existingParentType) return false; // skip if parentId is not found in the existingIds
-  if (spec.parentType !== existingParentType) return false; // skip if the parentType does not match the existingParentType
-
-  const existingChildType = existingIds.get(spec.childId.toString());
-  if (!existingChildType) return false; // skip if  is not found in the existingIds
-  if (spec.childType !== existingChildType) return false; // skip if the parentType does not match the existingChildType
-
-  return true;
+export function toRelationshipPairSpec(spec: IHierarchyPairSpec): IRelationshipSpec {
+  return {
+    firstPartnerId: spec.parentId,
+    firstPartnerType: spec.parentType,
+    secondPartnerId: spec.childId,
+    secondPartnerType: spec.childType,
+  };
 }

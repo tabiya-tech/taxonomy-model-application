@@ -1,6 +1,7 @@
 import { getTestConfiguration } from "./getTestConfiguration";
 import { getNewConnection } from "server/connection/newConnection";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { randomUUID } from "crypto";
 
 export function TestDBConnectionFailure<S, A>(
   setupCallback: (repositoryRegistry: RepositoryRegistry) => Promise<S> | S,
@@ -8,7 +9,7 @@ export function TestDBConnectionFailure<S, A>(
 ) {
   return test("should reject with an error when connection to database is lost", async () => {
     // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration("ConnectionFailureTestDB");
+    const givenConfig = getTestConfiguration("ConnectionFailureTestDB" + randomUUID()); // Ensure unique db name to avoid conflicts
     const givenConnection = await getNewConnection(givenConfig.dbURI);
     const givenRepositoryRegistry = new RepositoryRegistry();
     await givenRepositoryRegistry.initialize(givenConnection);
