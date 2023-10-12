@@ -1,9 +1,4 @@
-import {
-  createTheme,
-  PaletteOptions,
-  ThemeOptions,
-  SimplePaletteColorOptions,
-} from "@mui/material/styles/";
+import { createTheme, PaletteOptions, ThemeOptions, SimplePaletteColorOptions } from "@mui/material/styles/";
 
 export enum ThemeMode {
   LIGHT = "light",
@@ -34,18 +29,18 @@ const TabiyaBasicColors = {
   GrayDark: "#43474E",
 };
 export const TabiyaIconStyles = {
-    fontSizeSmall: {
-        fontSize: "1rem",
-    },
-    fontSizeMedium: {
-        fontSize: "1.5rem",
-    },
-    fontSizeLarge: {
-        fontSize: "2.5rem",
-    },
-    root: {
-        fontSize: "1.5rem",
-    },
+  fontSizeSmall: {
+    fontSize: "1rem",
+  },
+  fontSizeMedium: {
+    fontSize: "1.5rem",
+  },
+  fontSizeLarge: {
+    fontSize: "2.5rem",
+  },
+  root: {
+    fontSize: "1.5rem",
+  },
 };
 
 const lightPalette: PaletteOptions = {

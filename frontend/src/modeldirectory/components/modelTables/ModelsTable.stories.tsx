@@ -16,7 +16,7 @@ type Story = StoryObj<typeof ModelsTable>;
 
 export const Shown: Story = {
   args: {
-    models: getArrayOfFakeModels(10),
+    models: getArrayOfFakeModels(20),
     isLoading: false,
   },
 };

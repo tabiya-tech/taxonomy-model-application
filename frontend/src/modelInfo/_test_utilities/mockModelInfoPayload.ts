@@ -31,19 +31,22 @@ export namespace GET {
 
   /**
    * Get a mock ModelInfo payload with lorem ipsum strings of maximum length
-   * @param number
+   * @param count
    */
-  export function getPayloadWithArrayOfFakeModelInfo(number: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
+  export function getPayloadWithArrayOfFakeModelInfo(count: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
     const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
 
-    return Array.from({ length: number }, (_, i) => {
+    return Array.from({ length: count }, (_, i) => {
       const randomizedStatus = allStatuses[i % allStatuses.length];
       return {
         id: getMockId(i),
         UUID: uuidv4(),
         previousUUID: uuidv4(),
         originUUID: uuidv4(),
-        name: getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        name: `${i + 1}/${count} - ${getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH)}`.slice(
+          0,
+          ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
+        ),
         locale: {
           UUID: uuidv4(),
           name: getRandomLorem(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -64,8 +67,8 @@ export namespace GET {
             parsingWarnings: faker.datatype.boolean(),
           },
         },
-        createdAt: faker.date.anytime().toISOString(),
-        updatedAt: faker.date.anytime().toISOString(),
+        createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 24).toISOString(),
+        updatedAt: new Date().toISOString(),
       };
     });
   }

@@ -111,7 +111,8 @@ describe("ModelsTable", () => {
 
     // AND the STATUS header cell to be shown
     const actualModelStatusHeaderIndex = actualHeaderCells.findIndex(
-      (headerCell) => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_STATUS
+      // @ts-ignore
+      (headerCell) => headerCell.attributes["aria-label"].value === TEXT.TABLE_HEADER_LABEL_STATUS
     );
     expect(actualModelStatusHeaderIndex).toBeGreaterThanOrEqual(0);
     const actualModelStatusHeaderCell = actualHeaderCells[actualModelStatusHeaderIndex];

@@ -28,7 +28,7 @@ export const TEXT = {
   TABLE_HEADER_LABEL_VERSION: "Version",
   TABLE_HEADER_LABEL_RELEASED: "Released",
   TABLE_HEADER_LABEL_DESCRIPTION: "Description",
-  TABLE_HEADER_LABEL_STATUS: "",
+  TABLE_HEADER_LABEL_STATUS: "Import Status",
 };
 
 export const DATA_TEST_ID = {
@@ -43,7 +43,11 @@ export const DATA_TEST_ID = {
 
 const StyledHeaderCell = (props: Readonly<TableCellProps>) => {
   return (
-    <TableCell data-testid={DATA_TEST_ID.MODEL_CELL} {...props}>
+    <TableCell
+      sx={{ backgroundColor: (theme) => theme.palette.containerBackground.main }}
+      data-testid={DATA_TEST_ID.MODEL_CELL}
+      {...props}
+    >
       <Typography variant="body1" fontWeight={"bold"}>
         {props.children}
       </Typography>
@@ -71,74 +75,87 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
   const sortedModels = useMemo((): ModelInfoTypes.ModelInfo[] => {
     return sortModels(props.models);
   }, [props.models]);
-
+  const paperElevation = 2; // px
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", height: "100%" }}>
-      <Paper elevation={2} sx={{ width: "98%", height: "100%" }}>
-        <TableContainer
-          data-testid={DATA_TEST_ID.MODELS_TABLE_ID}
-          sx={{ borderRadius: (theme) => theme.tabiyaSpacing.sm }}
-        >
-          <Table tabIndex={0} aria-label="models table">
-            <TableHead>
-              <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
-                <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_STATUS}</StyledHeaderCell>
-                <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_NAME}</StyledHeaderCell>
-                <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_LOCALE}</StyledHeaderCell>
-                <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_VERSION}</StyledHeaderCell>
-                <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_RELEASED}</StyledHeaderCell>
-                <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_DESCRIPTION}</StyledHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.isLoading ? ( // Number of cols is 6 because we have 6 columns in the table
-                <TableLoadingRows numberOfCols={6} numberOfRows={10} />
-              ) : (
-                sortedModels.map((model) => (
-                  <TableRow
-                    tabIndex={0}
-                    data-modelid={model.id}
-                    key={model.id}
-                    sx={{ verticalAlign: "top" }}
-                    data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
-                  >
-                    <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
-                      <Container data-testid={DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER}>
-                        <ImportProcessStateIcon importProcessState={model.importProcessState} />
-                      </Container>
-                    </TableCell>
-                    <StyledBodyCell component="th" scope="row">
-                      {model.name}
-                    </StyledBodyCell>
-                    <StyledBodyCell>
-                      {model.locale.name} ({model.locale.shortCode})
-                    </StyledBodyCell>
-                    <StyledBodyCell>{model.version}</StyledBodyCell>
-                    <StyledBodyCell align="center">
-                      {
-                        model.released ? (
-                          <PublishedWithChangesIcon
-                            data-testid={DATA_TEST_ID.MODEL_CELL_RELEASED_ICON}
-                            color="disabled"
-                            titleAccess="Released"
-                          />
-                        ) : (
-                          ""
-                        ) /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/
-                      }
-                    </StyledBodyCell>
-                    <StyledBodyCell>
-                      {model.description.length > CELL_MAX_LENGTH
-                        ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
-                        : model.description}
-                    </StyledBodyCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
+        marginTop: `${paperElevation}px`, // to compensate for the elevation of the paper
+      }}
+    >
+      <TableContainer
+        component={Paper}
+        elevation={paperElevation}
+        data-testid={DATA_TEST_ID.MODELS_TABLE_ID}
+        sx={{
+          width: `calc(100% - ${2 * paperElevation}px)`,
+          height: `calc(100% - ${2 * paperElevation}px)`,
+          borderRadius: (theme) => theme.tabiyaSpacing.sm,
+        }}
+      >
+        <Table stickyHeader tabIndex={0} aria-label="models table">
+          <TableHead>
+            <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
+              <StyledHeaderCell aria-label={TEXT.TABLE_HEADER_LABEL_STATUS}></StyledHeaderCell>
+              <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_NAME}</StyledHeaderCell>
+              <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_LOCALE}</StyledHeaderCell>
+              <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_VERSION}</StyledHeaderCell>
+              <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_RELEASED}</StyledHeaderCell>
+              <StyledHeaderCell>{TEXT.TABLE_HEADER_LABEL_DESCRIPTION}</StyledHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {props.isLoading ? ( // Number of cols is 6 because we have 6 columns in the table
+              <TableLoadingRows numberOfCols={6} numberOfRows={10} />
+            ) : (
+              sortedModels.map((model) => (
+                <TableRow
+                  tabIndex={0}
+                  data-modelid={model.id}
+                  key={model.id}
+                  sx={{ verticalAlign: "top" }}
+                  data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
+                >
+                  <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
+                    <Container data-testid={DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER}>
+                      <ImportProcessStateIcon importProcessState={model.importProcessState} />
+                    </Container>
+                  </TableCell>
+                  <StyledBodyCell component="th" scope="row">
+                    {model.name}
+                  </StyledBodyCell>
+                  <StyledBodyCell>
+                    {model.locale.name} ({model.locale.shortCode})
+                  </StyledBodyCell>
+                  <StyledBodyCell>{model.version}</StyledBodyCell>
+                  <StyledBodyCell align="center">
+                    {
+                      model.released ? (
+                        <PublishedWithChangesIcon
+                          data-testid={DATA_TEST_ID.MODEL_CELL_RELEASED_ICON}
+                          color="disabled"
+                          titleAccess="Released"
+                        />
+                      ) : (
+                        ""
+                      ) /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/
+                    }
+                  </StyledBodyCell>
+                  <StyledBodyCell>
+                    {model.description.length > CELL_MAX_LENGTH
+                      ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
+                      : model.description}
+                  </StyledBodyCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 };

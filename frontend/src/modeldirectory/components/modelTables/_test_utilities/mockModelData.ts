@@ -15,17 +15,18 @@ export function getOneFakeModel(id?: number): ModelInfoTypes.ModelInfo {
   return model;
 }
 
-export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[] {
+export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] {
   const models: ModelInfoTypes.ModelInfo[] = [];
-  for (let i = 0; i < number; i++) {
+  for (let i = 0; i < count; i++) {
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: Array.from({ length: 20 }, (_, i) => faker.lorem.word())
-        .join(" ")
-        .substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+      name: `${i + 1}/${count} - ${getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH)}`.substring(
+        0,
+        ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
+      ),
       locale: {
         UUID: uuidv4(),
         name: faker.location.country().substring(0, ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -40,7 +41,7 @@ export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[]
       released: i % 2 === 0, // 50% chance of released
       releaseNotes: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: faker.system.semver().substring(0, ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-      createdAt: new Date(),
+      createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 24),
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
@@ -59,15 +60,18 @@ export function getArrayOfFakeModels(number: number): ModelInfoTypes.ModelInfo[]
   return models;
 }
 
-export function getArrayOfFakeModelsMaxLength(number: number): ModelInfoTypes.ModelInfo[] {
+export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.ModelInfo[] {
   const models: ModelInfoTypes.ModelInfo[] = [];
-  for (let i = 0; i < number; i++) {
+  for (let i = 0; i < count; i++) {
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
       previousUUID: uuidv4(),
       originUUID: uuidv4(),
-      name: getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+      name: `${i + 1}/${count} - ${getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH)}`.substring(
+        0,
+        ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
+      ),
       locale: {
         UUID: uuidv4(),
         name: getRandomLorem(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -77,7 +81,7 @@ export function getArrayOfFakeModelsMaxLength(number: number): ModelInfoTypes.Mo
       released: i % 2 === 0, // 50% chance of released
       releaseNotes: getRandomLorem(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: getRandomLorem(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-      createdAt: new Date(),
+      createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 24),
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
@@ -118,7 +122,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
       released: i % 2 === 0,
       releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-      createdAt: new Date(),
+      createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 24),
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
