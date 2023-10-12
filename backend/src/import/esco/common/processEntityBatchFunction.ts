@@ -1,8 +1,8 @@
-import { RowsProcessedStats } from "../../rowsProcessedStats.types";
-import { isSpecified } from "../../../server/isUnspecified";
-import importLogger from "../../importLogger/importLogger";
-import { ProcessBatchFunction } from "../../batch/BatchProcessor";
-import { ImportIdentifiable } from "../../../esco/common/objectTypes";
+import { RowsProcessedStats } from "import/rowsProcessedStats.types";
+import { isSpecified } from "server/isUnspecified";
+import importLogger from "import/importLogger/importLogger";
+import { ProcessBatchFunction } from "import/batch/BatchProcessor";
+import { ImportIdentifiable } from "esco/common/objectTypes";
 
 export function getProcessEntityBatchFunction<
   EntityType extends ImportIdentifiable & { id: string },

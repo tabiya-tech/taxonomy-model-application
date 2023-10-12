@@ -9,7 +9,7 @@ import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHiera
 import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import importLogger from "import/importLogger/importLogger";
-import { getProcessHierarchyBatchFunction } from "import/esco/common/processHierarchyBatchFunction";
+import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
 
 // expect all columns to be in upper case
 export interface SkillHierarchyRow {
@@ -30,7 +30,7 @@ function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
 
 function getBatchProcessor(modelId: string) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessHierarchyBatchFunction<ISkillHierarchyPair, INewSkillHierarchyPairSpec>(
+  const batchProcessFn = getRelationBatchFunction<ISkillHierarchyPair, INewSkillHierarchyPairSpec>(
     modelId,
     "SkillHierarchy",
     getRepositoryRegistry().skillHierarchy

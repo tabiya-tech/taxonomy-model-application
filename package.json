@@ -1,8 +1,9 @@
 {
   "devDependencies": {
-    "sonarqube-scanner": "~3.0.1"
+    "sonarqube-scanner": "~3.1.0"
   },
   "scripts": {
-    "sonar": "sonar-scanner -X"
+    "sonar": "sonar-scanner -X",
+    "sonar:local" : "sonar-scanner -Dsonar.branch.name=$(git rev-parse --abbrev-ref HEAD) -Dsonar.qualitygate.wait=true"
   }
 }

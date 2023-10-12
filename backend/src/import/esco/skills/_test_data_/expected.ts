@@ -1,4 +1,4 @@
-import { INewSkillSpec } from "esco/skill/skills.types";
+import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 
 export const expected: Omit<INewSkillSpec, "modelId">[] = [
   {
@@ -9,8 +9,8 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     description: "description",
     scopeNote: "scopeNote",
     definition: "definition",
-    skillType: "skill/competence",
-    reuseLevel: "sector-specific",
+    skillType: SkillType.SkillCompetence,
+    reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_1",
   },
   {
@@ -21,8 +21,8 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     description: "description\nwith\nlinebreak",
     definition: "definition\nwith\nlinebreak",
     scopeNote: "scopeNote\nwith\nlinebreak",
-    skillType: "knowledge",
-    reuseLevel: "cross-sector",
+    skillType: SkillType.Knowledge,
+    reuseLevel: ReuseLevel.CrossSector,
     importId: "key_2",
   },
   {
@@ -33,8 +33,8 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     description: "",
     definition: "",
     scopeNote: "",
-    skillType: "",
-    reuseLevel: "",
+    skillType: SkillType.None,
+    reuseLevel: ReuseLevel.None,
     importId: "key_3",
   },
 ];

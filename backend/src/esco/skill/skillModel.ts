@@ -12,7 +12,7 @@ import {
 } from "esco/common/modelSchema";
 import { stringRequired } from "server/stringRequired";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkillDoc } from "./skills.types";
+import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillDoc> {
   // Main Schema
@@ -23,12 +23,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       skillType: {
         type: String,
         required: stringRequired("skillType"),
-        enum: ["skill/competence", "knowledge", "language", "attitude", ""],
+        enum: SkillType,
       },
       reuseLevel: {
         type: String,
         required: stringRequired("reuseLevel"),
-        enum: ["sector-specific", "occupation-specific", "cross-sector", "transversal", ""],
+        enum: ReuseLevel,
       },
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       originUUID: OriginUUIDProperty,
@@ -42,15 +42,27 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     { timestamps: true, strict: "throw" }
   );
   SkillSchema.virtual("parents", {
-    ref: "SkillHierarchyModel",
+    ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
     foreignField: "childId",
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
   SkillSchema.virtual("children", {
-    ref: "SkillHierarchyModel",
+    ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
     foreignField: "parentId",
+    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+  });
+  SkillSchema.virtual("requiresSkills", {
+    ref: MongooseModelName.SkillToSkillRelations,
+    localField: "_id",
+    foreignField: "requiringSkillId",
+    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+  });
+  SkillSchema.virtual("requiredBySkills", {
+    ref: MongooseModelName.SkillToSkillRelations,
+    localField: "_id",
+    foreignField: "requiredSkillId",
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
   SkillSchema.index({ UUID: 1 }, { unique: true });

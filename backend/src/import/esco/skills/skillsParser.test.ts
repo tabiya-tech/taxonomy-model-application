@@ -6,7 +6,7 @@ import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
 import { parseSkillsFromFile, parseSkillsFromUrl } from "./skillsParser";
-import { ISkillRepository } from "esco/skill/SkillRepository";
+import { ISkillRepository } from "esco/skill/skillRepository";
 import { INewSkillSpec, ISkill } from "esco/skill/skills.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
@@ -79,6 +79,8 @@ describe("test parseSkills from", () => {
                 updatedAt: new Date(),
                 children: [],
                 parents: [],
+                requiresSkills: [],
+                requiredBySkills: [],
               };
             })
           );

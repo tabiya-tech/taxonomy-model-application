@@ -11,7 +11,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import { IImportProcessState } from "../import/ImportProcessState/importProcessState.types";
+import { IImportProcessState } from "import/ImportProcessState/importProcessState.types";
 
 /**
  * Helper function to create an INewModelInfoSpec with random values,
@@ -35,7 +35,7 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
 
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("PopulateModelRepositoryTestDB");
+    const config = getTestConfiguration("PopulateImportProcessStateOptionsTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     await repositoryRegistry.initialize(dbConnection);
   });

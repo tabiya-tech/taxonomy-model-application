@@ -42,6 +42,8 @@ describe("test the RepositoryRegistry", () => {
     expect(repositoryRegistry.occupation).toBeDefined();
     expect(repositoryRegistry.occupationHierarchy).toBeDefined();
     expect(repositoryRegistry.importProcessState).toBeDefined();
+    expect(repositoryRegistry.skillHierarchy).toBeDefined();
+    expect(repositoryRegistry.skillToSkillRelation).toBeDefined();
   });
 
   test("should reject the connection is not defined", async () => {

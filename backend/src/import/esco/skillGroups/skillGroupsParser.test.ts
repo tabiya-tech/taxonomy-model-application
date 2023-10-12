@@ -6,7 +6,7 @@ import { parseSkillGroupsFromFile, parseSkillGroupsFromUrl } from "./skillGroups
 import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
-import { ISkillGroupRepository } from "esco/skillGroup/SkillGroupRepository";
+import { ISkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";

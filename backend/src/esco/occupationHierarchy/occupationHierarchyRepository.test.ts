@@ -19,7 +19,8 @@ import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode"
 import { INewOccupationHierarchyPairSpec, IOccupationHierarchyPair } from "./occupationHierarchy.types";
 import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
-import { INewSkillSpec } from "esco/skill/skills.types";
+import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { getSimpleNewSkillGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
 
 function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
@@ -48,36 +49,6 @@ function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): IN
     definition: "",
     scopeNote: "",
     regulatedProfessionNote: "",
-    importId: "",
-  };
-}
-
-function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: string): INewSkillGroupSpec {
-  return {
-    code: getMockRandomSkillCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    scopeNote: "",
-    altLabels: [],
-    importId: "",
-  };
-}
-
-function getSimpleNewSkillSpec(modelId: string, preferredLabel: string): INewSkillSpec {
-  return {
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    definition: "",
-    description: "",
-    scopeNote: "",
-    skillType: "knowledge",
-    reuseLevel: "cross-sector",
-    altLabels: [],
     importId: "",
   };
 }
