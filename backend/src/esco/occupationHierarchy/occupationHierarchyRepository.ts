@@ -7,7 +7,8 @@ import {
   IOccupationHierarchyPair,
   IOccupationHierarchyPairDoc,
 } from "./occupationHierarchy.types";
-import { isHierarchyPairValid } from "esco/common/hierarchy";
+
+import { isNewOccupationHierarchyPairSpecValid } from "./occupationHierarchyValidation";
 
 export interface IOccupationHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
@@ -69,13 +70,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       );
 
       const newOccupationHierarchyPairModels = newOccupationHierarchyPairSpecs
-        .filter((spec) => {
-          return isHierarchyPairValid(spec, existingIds, [
-            { parentType: ObjectTypes.ISCOGroup, childType: ObjectTypes.ISCOGroup },
-            { parentType: ObjectTypes.ISCOGroup, childType: ObjectTypes.Occupation },
-            { parentType: ObjectTypes.Occupation, childType: ObjectTypes.Occupation },
-          ]);
-        })
+        .filter((spec) => isNewOccupationHierarchyPairSpecValid(spec, existingIds))
         .map((spec) => {
           try {
             return new this.hierarchyModel({

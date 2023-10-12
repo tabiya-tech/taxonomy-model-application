@@ -4,20 +4,18 @@ import "_test_utilities/consoleMock";
 import { getMockId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
-import { generateRandomUrl, getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import { getNewConnection } from "server/connection/newConnection";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { IISCOGroupRepository } from "./ISCOGroupRepository";
-import { DESCRIPTION_MAX_LENGTH, IMPORT_ID_MAX_LENGTH, LABEL_MAX_LENGTH } from "esco/common/modelSchema";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { IISCOGroup, INewISCOGroupSpec } from "./ISCOGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { INewSkillSpec } from "esco/skill/skills.types";
+import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { getNewISCOGroupSpec, getSimpleNewISCOGroupSpec } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
@@ -29,38 +27,8 @@ jest.mock("crypto", () => {
 });
 
 /**
- * Helper function to create an INewISCOGroupSpec with random values,
- * that can be used for creating a new ISCOGroup
- */
-function getNewISCOGroupSpec(): INewISCOGroupSpec {
-  return {
-    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getMockRandomISCOGroupCode(),
-    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
-    modelId: getMockId(2),
-    originUUID: "",
-    ESCOUri: generateRandomUrl(),
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
-    importId: getTestString(IMPORT_ID_MAX_LENGTH),
-  };
-}
-
-function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
-  return {
-    altLabels: [],
-    code: getMockRandomISCOGroupCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    importId: "",
-  };
-}
-
-/**
  * Helper function to create an expected ISCOGroup from a given INewISCOGroupSpec,
- * that can ebe used for assertions
+ * that can be used for assertions
  * @param givenSpec
  */
 function expectedFromGivenSpec(givenSpec: INewISCOGroupSpec): IISCOGroup {
@@ -147,6 +115,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       const expectedNewISCO: IISCOGroup = expectedFromGivenSpec(givenNewISCOGroupSpec);
       expect(actualNewISCOGroup).toEqual(expectedNewISCO);
     });
+
     test("should reject with an error when creating a model and providing a UUID", async () => {
       // GIVEN a valid ISCOGroupSpec
       const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
@@ -388,8 +357,8 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           definition: "",
           description: "",
           scopeNote: "",
-          skillType: "knowledge",
-          reuseLevel: "cross-sector",
+          skillType: SkillType.Knowledge,
+          reuseLevel: ReuseLevel.CrossSector,
           altLabels: [],
           importId: "",
         };
@@ -435,8 +404,8 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           definition: "",
           description: "",
           scopeNote: "",
-          skillType: "knowledge",
-          reuseLevel: "cross-sector",
+          skillType: SkillType.Knowledge,
+          reuseLevel: ReuseLevel.CrossSector,
           altLabels: [],
           importId: "",
         };

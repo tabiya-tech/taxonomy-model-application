@@ -6,7 +6,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { parseFiles } from "./parseFiles";
-import importLogger from "../importLogger/importLogger";
+import importLogger from "import/importLogger/importLogger";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<unknown> => {

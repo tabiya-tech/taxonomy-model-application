@@ -12,7 +12,7 @@ import {
   testTooLargePayload,
   testUnsupportedMediaType,
 } from "_test_utilities/stdRESTHandlerTests";
-import { getTestString } from "../_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/specialCharacters";
 
 describe("test for trigger ImportHandler", () => {
   beforeEach(() => {

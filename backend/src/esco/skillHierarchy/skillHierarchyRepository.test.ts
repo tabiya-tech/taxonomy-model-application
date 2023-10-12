@@ -12,75 +12,16 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillHierarchyRepository } from "./skillHierarchyRepository";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { INewSkillSpec, ISkill, ISkillReference } from "esco/skill/skills.types";
+import { ISkill, ISkillReference } from "esco/skill/skills.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "./skillHierarchy.types";
-import { INewSkillGroupSpec, ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
-import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
-import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
-import { INewOccupationSpec } from "esco/occupation/occupation.types";
-import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
-import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import {
+  getSimpleNewISCOGroupSpec,
+  getSimpleNewOccupationSpec,
+  getSimpleNewSkillGroupSpec,
+  getSimpleNewSkillSpec,
+} from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
-
-function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
-  return {
-    altLabels: [],
-    code: getMockRandomISCOGroupCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    importId: "",
-  };
-}
-
-function getSimpleNewSkillSpec(modelId: string, preferredLabel: string): INewSkillSpec {
-  return {
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    definition: "",
-    description: "",
-    scopeNote: "",
-    skillType: "knowledge",
-    reuseLevel: "cross-sector",
-    altLabels: [],
-    importId: "",
-  };
-}
-
-function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: string): INewSkillGroupSpec {
-  return {
-    scopeNote: "",
-    altLabels: [],
-    code: getMockRandomSkillCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    importId: "",
-  };
-}
-
-function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
-  return {
-    altLabels: [],
-    code: getMockRandomOccupationCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
-    ESCOUri: "",
-    description: "",
-    definition: "",
-    scopeNote: "",
-    regulatedProfessionNote: "",
-    importId: "",
-  };
-}
 
 /**
  *  Create an expected ISkill reference from a given Model

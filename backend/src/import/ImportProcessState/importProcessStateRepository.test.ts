@@ -11,6 +11,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { IImportProcessState, INewImportProcessStateSpec } from "./importProcessState.types";
 import { IImportProcessStateRepository } from "./importProcessStateRepository";
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
+import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 /**
  * Helper function to create an INewImportProcessStateSpec with random values,
@@ -100,8 +101,8 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
       expect(actualNewImportProcessState).toEqual(expectedNewImportProcessState);
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewImportProcessStatusSpec());
+    TestDBConnectionFailureNoSetup((repositoryRegistry) => {
+      return repositoryRegistry.importProcessState.create(getNewImportProcessStatusSpec());
     });
   });
 
@@ -159,8 +160,8 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
       );
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.update(getMockId(1), {
+    TestDBConnectionFailureNoSetup((repositoryRegistry) => {
+      return repositoryRegistry.importProcessState.update(getMockId(1), {
         status: ImportProcessStateApiSpecs.Enums.Status.PENDING,
         result: {
           errored: false,
@@ -171,24 +172,3 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
     });
   });
 });
-
-function TestConnectionFailure(
-  actionCallback: (repository: IImportProcessStateRepository) => Promise<IImportProcessState | null>
-) {
-  return test("should reject with an error when connection to database is lost", async () => {
-    // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration("ImportProcessStateRepositoryTestDB");
-    const givenConnection = await getNewConnection(givenConfig.dbURI);
-    const givenRepositoryRegistry = new RepositoryRegistry();
-    await givenRepositoryRegistry.initialize(givenConnection);
-    const givenRepository = givenRepositoryRegistry.importProcessState;
-
-    // WHEN connection is lost
-    await givenConnection.close(false);
-
-    // THEN expect to reject with an error
-    await expect(actionCallback(givenRepository)).rejects.toThrowError(
-      /Client must be connected before running operations/
-    );
-  });
-}

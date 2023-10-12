@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import { getMockId } from "_test_utilities/mockMongoId";
 import { Connection } from "mongoose";
-import { ModelRepository } from "./ModelInfoRepository";
+import { ModelRepository } from "./modelInfoRepository";
 import { randomUUID } from "crypto";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { getNewConnection } from "server/connection/newConnection";
@@ -47,7 +47,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("ModelRepositoryTestDB");
+    const config = getTestConfiguration("ModelInfoRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.modelInfo;

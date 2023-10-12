@@ -1,4 +1,4 @@
-import importLogger from "../importLogger/importLogger";
+import importLogger from "import/importLogger/importLogger";
 
 export function getStdHeadersValidator(
   validatorName: string,

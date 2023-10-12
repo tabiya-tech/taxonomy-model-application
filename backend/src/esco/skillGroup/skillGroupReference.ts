@@ -1,8 +1,8 @@
 import { ObjectTypes, ReferenceWithModelId } from "esco/common/objectTypes";
-import { ISkillGroup, ISkillGroupReferenceDoc } from "./skillGroup.types";
+import { ISkillGroupDoc, ISkillGroupReferenceDoc } from "./skillGroup.types";
 
 export function getSkillGroupReferenceWithModelId(
-  skillGroup: ISkillGroup
+  skillGroup: ISkillGroupDoc
 ): ReferenceWithModelId<ISkillGroupReferenceDoc> {
   return {
     modelId: skillGroup.modelId,

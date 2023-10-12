@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parseOccupationsFromFile, parseOccupationsFromUrl } from "./occupationsParser";
-import { IOccupationRepository } from "esco/occupation/OccupationRepository";
+import { IOccupationRepository } from "esco/occupation/occupationRepository";
 import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";

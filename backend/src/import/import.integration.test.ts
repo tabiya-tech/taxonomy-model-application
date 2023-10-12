@@ -14,11 +14,12 @@ import { parseSkillsFromFile } from "./esco/skills/skillsParser";
 import { parseOccupationsFromFile } from "./esco/occupations/occupationsParser";
 import { parseOccupationHierarchyFromFile } from "./esco/occupationHierarchy/occupationHierarchyParser";
 import { RowsProcessedStats } from "./rowsProcessedStats.types";
-import { IModelInfo, INewModelInfoSpec } from "../modelInfo/modelInfo.types";
+import { IModelInfo, INewModelInfoSpec } from "modelInfo/modelInfo.types";
 import importLogger from "./importLogger/importLogger";
 import { parseSkillHierarchyFromFile } from "./esco/skillHierarchy/skillHierarchyParser";
 import fs from "fs";
 import { parse } from "csv-parse";
+import { parseSkillToSkillRelationFromFile } from "./esco/skillToSkillRelation/skillToSkillRelationParser";
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -110,6 +111,11 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       dataFolder + "skills_hierarchy.csv",
       importIdToDBIdMap
     );
+    const statsSkillToSkillRelation = await parseSkillToSkillRelationFromFile(
+      modelInfo.id,
+      dataFolder + "skill_skill_relations.csv",
+      importIdToDBIdMap
+    );
 
     const [
       ISCOGroupsCSVRowCount,
@@ -118,6 +124,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       OccupationsCSVRowCount,
       OccupationHierarchyCSVRowCount,
       SkillHierarchyCSVRowCount,
+      SkillToSkillRelationCSVRowCount,
     ] = await Promise.all([
       countRowsInCSV(dataFolder + "ISCOGroups.csv"),
       countRowsInCSV(dataFolder + "skillGroups.csv"),
@@ -125,6 +132,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       countRowsInCSV(dataFolder + "occupations.csv"),
       countRowsInCSV(dataFolder + "occupations_hierarchy.csv"),
       countRowsInCSV(dataFolder + "skills_hierarchy.csv"),
+      countRowsInCSV(dataFolder + "skill_skill_relations.csv"),
     ]);
 
     const [
@@ -134,6 +142,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       OccupationsDBRowCount,
       OccupationHierarchyDBRowCount,
       SkillHierarchyDBRowCount,
+      SkillToSkillRelationDBRowCount,
     ] = await Promise.all([
       getRepositoryRegistry().ISCOGroup.Model.countDocuments({}),
       getRepositoryRegistry().skillGroup.Model.countDocuments({}),
@@ -141,6 +150,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       getRepositoryRegistry().occupation.Model.countDocuments({}),
       getRepositoryRegistry().occupationHierarchy.hierarchyModel.countDocuments({}),
       getRepositoryRegistry().skillHierarchy.hierarchyModel.countDocuments({}),
+      getRepositoryRegistry().skillToSkillRelation.relationModel.countDocuments({}),
     ]);
 
     // THEN expect all the files to have been imported successfully
@@ -180,7 +190,14 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       consoleErrorSpy,
       consoleWarnSpy
     );
-  }, 30000);
+    assertSuccessfullyImported(
+      statsSkillToSkillRelation,
+      SkillToSkillRelationCSVRowCount,
+      SkillToSkillRelationDBRowCount,
+      consoleErrorSpy,
+      consoleWarnSpy
+    );
+  }, 35000);
 });
 
 function assertSuccessfullyImported(

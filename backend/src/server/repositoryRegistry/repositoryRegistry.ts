@@ -1,4 +1,4 @@
-import { IModelRepository, ModelRepository } from "modelInfo/ModelInfoRepository";
+import { IModelRepository, ModelRepository } from "modelInfo/modelInfoRepository";
 import mongoose, { Connection } from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
 import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";
@@ -7,12 +7,13 @@ import * as skillModel from "esco/skill/skillModel";
 import * as occupationModel from "esco/occupation/occupationModel";
 import * as occupationHierarchyModel from "esco/occupationHierarchy/occupationHierarchyModel";
 import * as skillHierarchyModel from "esco/skillHierarchy/skillHierarchyModel";
+import * as skillToSkillRelationModel from "esco/skillToSkillRelation/skillToSkillRelationModel";
 import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
 
 import { IISCOGroupRepository, ISCOGroupRepository } from "esco/iscoGroup/ISCOGroupRepository";
-import { ISkillGroupRepository, SkillGroupRepository } from "esco/skillGroup/SkillGroupRepository";
-import { ISkillRepository, SkillRepository } from "esco/skill/SkillRepository";
-import { IOccupationRepository, OccupationRepository } from "esco/occupation/OccupationRepository";
+import { ISkillGroupRepository, SkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
+import { ISkillRepository, SkillRepository } from "esco/skill/skillRepository";
+import { IOccupationRepository, OccupationRepository } from "esco/occupation/occupationRepository";
 import {
   IOccupationHierarchyRepository,
   OccupationHierarchyRepository,
@@ -21,10 +22,11 @@ import {
   IImportProcessStateRepository,
   ImportProcessStateRepository,
 } from "import/ImportProcessState/importProcessStateRepository";
+import { ISkillHierarchyRepository, SkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
 import {
-  ISkillHierarchyRepository,
-  SkillHierarchyRepository,
-} from "../../esco/skillHierarchy/skillHierarchyRepository";
+  ISkillToSkillRelationRepository,
+  SkillToSkillRelationRepository,
+} from "esco/skillToSkillRelation/skillToSkillRelationRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -84,6 +86,14 @@ export class RepositoryRegistry {
 
   public set skillHierarchy(repository: ISkillHierarchyRepository) {
     this._repositories.set("ISkillHierarchyRepository", repository);
+  }
+
+  public get skillToSkillRelation(): ISkillToSkillRelationRepository {
+    return this._repositories.get("ISkillToSkillRelationRepository");
+  }
+
+  public set skillToSkillRelation(repository: ISkillToSkillRelationRepository) {
+    this._repositories.set("ISkillToSkillRelationRepository", repository);
   }
 
   public get importProcessState(): IImportProcessStateRepository {
@@ -147,6 +157,10 @@ export class RepositoryRegistry {
       this.skill.Model,
       this.skillGroup.Model
     );
+    this.skillToSkillRelation = new SkillToSkillRelationRepository(
+      skillToSkillRelationModel.initializeSchemaAndModel(connection),
+      this.skill.Model
+    );
     this.importProcessState = new ImportProcessStateRepository(importStateModel.initializeSchemaAndModel(connection));
 
     // Set up the indexes
@@ -162,6 +176,7 @@ export class RepositoryRegistry {
     await this.occupation.Model.createIndexes();
     await this.occupationHierarchy.hierarchyModel.createIndexes();
     await this.skillHierarchy.hierarchyModel.createIndexes();
+    await this.skillToSkillRelation.relationModel.createIndexes();
     await this.importProcessState.Model.createIndexes();
   }
 }

@@ -1,4 +1,4 @@
-import { IImportProcessStateDoc } from "../import/ImportProcessState/importProcessState.types";
+import { IImportProcessStateDoc } from "import/ImportProcessState/importProcessState.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 import mongoose from "mongoose";
 
