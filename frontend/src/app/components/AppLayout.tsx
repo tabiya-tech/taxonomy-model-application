@@ -7,8 +7,13 @@ import { styled, useTheme } from "@mui/material";
 const Container = styled(Box)`
   display: flex;
   flex-direction: column;
+  flex: 1;
+  // Currently the boxing-size is set to border-box via the CSSBaseline,
+  // however if it is set to content-box then we need to account for padding
+  // otherwise the component will overflow
+  // e.g. height: calc(100% - ${({ theme }) => theme.spacing(theme.tabiyaSpacing.xl)});
   height: 100%;
-  padding: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
+  padding: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.xl)};
   padding-bottom: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.none)};
   gap: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.xl)};
 `;
@@ -28,9 +33,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }: Readonly<AppLa
       <AppHeader />
       <Box display="flex" flexDirection="row" flex={1} gap={theme.tabiyaSpacing.xl} overflow="hidden">
         <AppSidebar />
-        <Box flex={1} display="flex">
-          {children}
-        </Box>
+        <Box sx={{ flex: 1, display: "flex", overflow: "auto" }}>{children}</Box>
       </Box>
     </Container>
   );

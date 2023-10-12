@@ -51,9 +51,11 @@ jest.mock("@mui/material", () => {
   const mThemeProvider = jest
     .fn()
     .mockImplementation(({ children }) => <div data-testid="theme-provider-id">{children}</div>);
+  const mCssBaseline = () => <div data-testid="css-baseline-id">Mock CssBaseline</div>;
   return {
     __esModule: true,
     ThemeProvider: mThemeProvider,
+    CssBaseline: mCssBaseline,
   };
 });
 
@@ -75,6 +77,10 @@ describe("test the application bootstrapping", () => {
       // AND expect the theme provider to be in the DOM
       const themeProviderElement = screen.getByTestId("theme-provider-id");
       expect(themeProviderElement).toBeInTheDocument();
+
+      // AND expect the css baseline to be in the DOM
+      const cssBaselineElement = screen.getByTestId("css-baseline-id");
+      expect(cssBaselineElement).toBeInTheDocument();
 
       // AND expect the snackbar provider to be in the DOM and to be a child of the theme provider
       const snackbarProviderElement = within(themeProviderElement).getByTestId("snackbar-provider-id");

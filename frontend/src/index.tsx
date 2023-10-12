@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./app";
 import reportWebVitals from "./reportWebVitals";
 import applicationTheme, { ThemeMode } from "./theme/applicationTheme";
-import { ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
 
 // Currently the fonts are downloaded from Google via the index.css
@@ -14,6 +14,7 @@ const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 
 root.render(
   <React.StrictMode>
+    <CssBaseline />
     <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
       <SnackbarProvider>
         <App />
