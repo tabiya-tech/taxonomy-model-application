@@ -1,7 +1,6 @@
-import { withThemeFromJSXProvider } from "@storybook/addon-styling";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router } from "react-router-dom";
-import applicationsTheme, { ThemeMode } from "../src/theme/applicationTheme";
+import { applicationTheme, ThemeMode } from "../src/theme/applicationTheme";
 // Load fonts
 // The application font are typically loaded in the index.html, index.css or index.tsx file
 // The fonts for the storybook are loaded here
@@ -27,24 +26,23 @@ const preview: Preview = {
         date: /Date$/,
       },
     },
+    layout: "fullscreen",
   },
 };
 
 export default preview;
 
 export const decorators = [
-  withThemeFromJSXProvider({
-    themes: {
-      applicationsTheme: applicationsTheme(ThemeMode.LIGHT)
-    },
-    defaultTheme: "applicationsTheme",
-    Provider: ThemeProvider,
-    GlobalStyles: CssBaseline,
-  }),(Story) => (
+  (Story) => (
     <Router>
-      <CustomSnackbarProvider>
-        <Story />
-      </CustomSnackbarProvider>
+      <CssBaseline />
+      <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+        <CustomSnackbarProvider>
+          <div style={{ height: "100vh" }}>
+            <Story />
+          </div>
+        </CustomSnackbarProvider>
+      </ThemeProvider>
     </Router>
   ),
 ];

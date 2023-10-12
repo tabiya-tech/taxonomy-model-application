@@ -1,15 +1,20 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,500;0,600;0,700;1,300&display=swap");
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 body,
 html,
 #root {
   height: 100%;
   width: 100%;
   margin: 0;
+  padding: 0;
+  /*font-size: clamp(0.5rem, 0.57vw + 0.35rem, 1rem);*/
+}
+#body {
+  /**
+    To disable the "overscroll" or "rubber-banding" effect we must disable the scroll bar.
+    We should not disable it at the or body level because we want storybook to have scroll bars in most of the components displayed.
+    Instead we target per id the body of the index.html, which has the main entrypoint of the app.
+   */
+  overflow: clip;
 }
