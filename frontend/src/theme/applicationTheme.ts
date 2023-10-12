@@ -124,6 +124,10 @@ export const applicationTheme = (theme: ThemeMode) => {
       htmlFontSize: 16, // Set the base font size
       fontFamily: "Inter, sans-serif", // Set the desired font family
       fontSize: 16, // Set the base font size
+      fontWeightLight: 300,
+      fontWeightRegular: 400,
+      fontWeightMedium: 500,
+      fontWeightBold: 700,
       h1: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
