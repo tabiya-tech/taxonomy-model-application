@@ -60,7 +60,20 @@ We aim to achieve the following metrics on SonarCloud:
 - **Security Rating**: A
 - **Reliability Rating**: A
 - **Maintainability Rating**: A
+- **Security Hotspots Reviewed**: 100%
 
+
+> Note: To run sonarcloud analysis locally you need to do the following:
+> 1. set the SONAR_TOKEN environment variable to your sonarcloud token
+> 2. ensure you have installed the sonar-scanner cli tool by running the following command at the projects root directory:
+>   ```bash
+>    yarn install
+>    ```
+> 3. run the sonarcloud the following command:
+>    ```bash
+>    yarn run sonar:local
+>    ```
+   
 ### **Code Formatting**
 
 We follow the **[Prettier](https://prettier.io/)** code formatting guidelines to make sure the code is properly formatted in a uniform way.
@@ -87,7 +100,7 @@ To work with this repository you should have a system with a bash compatible ter
 
 3. After making your changes, ensure the code is clean, properly formatted and passes all tests.
 
-    You can use the provided script, `run-before-merge.sh`, for assistance. This script performs checking of the code formatting, linting, building, and testing on the subprojects of the repository. To run it, use the following command:
+    You can use the provided script, `run-before-merge.sh`, for assistance. This script performs checking of the code formatting, linting, building, and testing on the subprojects of the repository. The script also supports running sonarcloud analysis locally for the current branch and checks if it passes the quality gates. To run it, use the following command:
     
     ```bash
     ./run-before-merge.sh

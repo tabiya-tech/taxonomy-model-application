@@ -36,6 +36,18 @@ function backend() {
   printSuccess ${project}
 }
 
+function sonarcloud() {
+  local project="sonarcloud"
+    printTitle ${project}
+  (yarn && yarn run sonar:local)
+  # if the previous command fails, exit this script with a non-zero error code
+  if [ $? -ne 0 ]; then
+    printError ${project}
+    exit 1
+  fi
+  printSuccess ${project}
+}
+
 function printTitle() {
   local blue='\033[1;30;44m'
   local title="Begin to build the ${1}"
@@ -74,13 +86,13 @@ function printFormatError() {
 
 PS3="Select what you want to build and test: "
 
-OPTIONS="All Api-Specifications Frontend Backend"
+OPTIONS="All Api-Specifications Frontend Backend SonarCloud"
 select opt in $OPTIONS; do
   if [ "$REPLY" = "1" ]; then
       echo "******************" &&
       echo "Building all" &&
       echo "******************" &&
-      api-specifications && frontend && backend
+      api-specifications && frontend && backend && sonarcloud
       exit $?
   elif [ "$REPLY" = "2" ]; then
     api-specifications
@@ -90,6 +102,9 @@ select opt in $OPTIONS; do
    exit $?
   elif [ "$REPLY" = "4" ]; then
     backend
+    exit $?
+  elif [ "$REPLY" = "5" ]; then
+    sonarcloud
     exit $?
   else
     clear
