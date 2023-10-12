@@ -66,6 +66,28 @@ const TypographyElements = () => {
           return null;
         })}
       </Box>
+      <Typography variant={"h4"}>Font Weight</Typography>
+      <Box
+        sx={{
+          gap: theme.tabiyaSpacing.md,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+        }}
+      >
+        <Typography sx={{ fontWeight: theme.typography.fontWeightBold }}>
+          {`fontWeightBold: ${theme.typography.fontWeightBold}`}
+        </Typography>
+        <Typography sx={{ fontWeight: theme.typography.fontWeightMedium }}>
+          {`fontWeightMedium: ${theme.typography.fontWeightMedium}`}
+        </Typography>
+        <Typography sx={{ fontWeight: theme.typography.fontWeightRegular }}>
+          {`fontWeightRegular: ${theme.typography.fontWeightRegular}`}
+        </Typography>
+        <Typography sx={{ fontWeight: theme.typography.fontWeightLight }}>
+          {`fontWeightLight: ${theme.typography.fontWeightLight}`}
+        </Typography>
+      </Box>
     </Box>
   );
 };
@@ -151,7 +173,6 @@ const PaletteElements = () => {
           ))}
         </Box>
       </Box>
-      ;
     </Box>
   );
 };
