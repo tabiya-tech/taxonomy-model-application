@@ -22,7 +22,21 @@ export const Shown: Story = {
         url: "https://dev.tabiya.tech/api/models",
         method: "GET",
         status: 200,
-        response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(3),
+        response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(10),
+      },
+    ],
+  },
+};
+export const OneModel: Story = {
+  args: {},
+  parameters: {
+    docs: { disable: false },
+    mockData: [
+      {
+        url: "https://dev.tabiya.tech/api/models",
+        method: "GET",
+        status: 200,
+        response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(1),
       },
     ],
   },

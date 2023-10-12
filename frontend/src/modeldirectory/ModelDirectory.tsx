@@ -10,22 +10,7 @@ import { ModelInfoTypes } from "../modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
-import { AppBar, Box } from "@mui/material";
-import { styled } from "@mui/material/styles";
-
-const StyledContainer = styled(Box)`
-  flex: 1;
-  border-top-right-radius: ${({ theme }) => theme.spacing(theme.tabiyaRounding.md)};
-  border-top-left-radius: ${({ theme }) => theme.spacing(theme.tabiyaRounding.md)};
-  overflow-y: auto;
-`;
-
-const StyledTableContainer = styled(Box)`
-  flex: 1;
-  background-color: ${({ theme }) => theme.palette.containerBackground.light};
-  padding-left: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
-  padding-right: ${({ theme }) => theme.spacing(theme.tabiyaSpacing.lg)};
-`;
+import ContentLayout from "src/theme/ContentLayout/ContentLayout";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -115,39 +100,27 @@ const ModelDirectory = () => {
       clearInterval(timerId);
     };
   }, [handleModelInfoFetch]);
-
   return (
-    <StyledContainer data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
-      <StyledTableContainer>
-        <AppBar
-          variant={"outlined"}
-          elevation={0}
-          sx={{
-            paddingY: (theme) => theme.tabiyaSpacing.xl,
-            border: "none",
-            backgroundColor: "containerBackground.light",
-          }}
-          position={"sticky"}
-        >
-          <ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />
-        </AppBar>
-        <ModelsTable models={models} isLoading={isLoadingModels} />
-      </StyledTableContainer>
-
-      {isImportDlgOpen && (
-        <ImportModelDialog
-          isOpen={isImportDlgOpen}
-          availableLocales={availableLocales}
-          notifyOnClose={handleOnImportDialogClose}
-        />
-      )}
-      {isBackDropShown && (
-        <Backdrop
-          isShown={isBackDropShown}
-          message="The model is being created and the files uploaded. Please wait ... "
-        />
-      )}
-    </StyledContainer>
+    <div style={{ width: "100%", height: "100%" }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
+      <ContentLayout
+        headerComponent={<ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />}
+        mainComponent={<ModelsTable models={models} isLoading={isLoadingModels} />}
+      >
+        {isImportDlgOpen && (
+          <ImportModelDialog
+            isOpen={isImportDlgOpen}
+            availableLocales={availableLocales}
+            notifyOnClose={handleOnImportDialogClose}
+          />
+        )}
+        {isBackDropShown && (
+          <Backdrop
+            isShown={isBackDropShown}
+            message="The model is being created and the files uploaded. Please wait ... "
+          />
+        )}
+      </ContentLayout>
+    </div>
   );
 };
 export default ModelDirectory;
