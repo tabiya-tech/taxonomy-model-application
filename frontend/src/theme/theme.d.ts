@@ -1,4 +1,5 @@
 import "@mui/material/styles";
+import { PaletteColor, PaletteColorOptions } from "@mui/material/styles";
 
 // Definitions for custom theme configurations
 type TabiyaSizeKeys = "none" | "xs" | "sm" | "md" | "lg" | "xl";
@@ -33,4 +34,25 @@ declare module "@mui/material/styles" {
   interface Theme extends CustomThemeConfig {}
 
   interface ThemeOptions extends CustomThemeConfig {}
+}
+
+declare module "@mui/material/styles" {
+  interface Palette {
+    containerBackground: PaletteColor;
+    tabiyaGreen: PaletteColor;
+    tabiyaYellow: PaletteColor;
+    text: TypeText;
+  }
+
+  interface TypeText {
+    textWhite: string;
+    textBlack: string;
+    textAccent: string;
+  }
+
+  interface PaletteOptions {
+    containerBackground?: PaletteColorOptions;
+    tabiyaGreen?: PaletteColorOptions;
+    tabiyaYellow?: PaletteColorOptions;
+  }
 }

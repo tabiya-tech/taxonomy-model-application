@@ -346,7 +346,7 @@ const ColorBox = (props: ColorBoxProps) => {
     contrastText = props.theme.palette.getContrastText(color);
   } else if (props.category && props.variant) {
     color = rgbToHex(props.theme.palette[props.category][props.variant]);
-    contrastText = props.theme.palette[props.category].contrastText;
+    contrastText = props.theme.palette.getContrastText(color);
   } else if (props.shade) {
     color = rgbToHex(props.theme.palette.grey[props.shade]);
     contrastText = props.theme.palette.getContrastText(color);
@@ -360,14 +360,15 @@ const ColorBox = (props: ColorBoxProps) => {
         height: "4rem",
         width: "16rem",
         backgroundColor: color,
-        color: contrastText,
         display: "flex",
         alignItems: "center",
         justifyContent: "start",
         padding: props.theme.tabiyaSpacing.md,
       }}
     >
-      {props.children ? props.children : props.variant ?? props.shade ?? color}
+      <Typography fontWeight={"bold"} color={contrastText}>
+        {props.children ? props.children : props.variant ?? props.shade ?? color}
+      </Typography>
     </Box>
   );
 };
