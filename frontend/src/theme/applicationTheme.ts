@@ -1,30 +1,21 @@
-import { createTheme, Palette, PaletteColor, PaletteColorOptions, ThemeOptions } from "@mui/material/styles";
-
-declare module "@mui/material/styles" {
-  interface Palette {
-    containerBackground: PaletteColor;
-    tabiyaGreen: PaletteColor;
-    tabiyaYellow: PaletteColor;
-    text: TypeText;
-  }
-
-  interface TypeText {
-    textWhite: string;
-    textBlack: string;
-    textAccent: string;
-  }
-
-  interface PaletteOptions {
-    containerBackground: PaletteColorOptions;
-  }
-}
+import {
+  createTheme,
+  PaletteOptions,
+  ThemeOptions,
+  SimplePaletteColorOptions,
+} from "@mui/material/styles/";
 
 export enum ThemeMode {
   LIGHT = "light",
   DARK = "dark",
 }
 
-const _temp_palette = createTheme().palette;
+// @ts-ignore
+const _temp_palette = createTheme({
+  palette: {
+    contrastThreshold: 4.5, //WCAG 2.0 (AA) ensure color-contrast is at least 4.5:1
+  },
+}).palette;
 
 const augmentedThemeColor = (color: string, contrastColor?: string) =>
   _temp_palette.augmentColor({
@@ -42,24 +33,23 @@ const TabiyaBasicColors = {
   Gray: "#F3F1EE",
   GrayDark: "#43474E",
 };
-
 export const TabiyaIconStyles = {
-  fontSizeSmall: {
-    fontSize: "1rem",
-  },
-  fontSizeMedium: {
-    fontSize: "1.5rem",
-  },
-  fontSizeLarge: {
-    fontSize: "2.5rem",
-  },
-  root: {
-    fontSize: "1.5rem",
-  },
+    fontSizeSmall: {
+        fontSize: "1rem",
+    },
+    fontSizeMedium: {
+        fontSize: "1.5rem",
+    },
+    fontSizeLarge: {
+        fontSize: "2.5rem",
+    },
+    root: {
+        fontSize: "1.5rem",
+    },
 };
 
-const lightPalette: Palette = {
-  ..._temp_palette,
+const lightPalette: PaletteOptions = {
+  contrastThreshold: 4.5, // WCAG 2.0 (AA) ensure color-contrast is at least 4.5:1
   primary: augmentedThemeColor(TabiyaBasicColors.DarkBlue),
   secondary: augmentedThemeColor(TabiyaBasicColors.LightBlue),
   tabiyaYellow: augmentedThemeColor(TabiyaBasicColors.Yellow),
@@ -104,14 +94,14 @@ const lightPalette: Palette = {
   },
 };
 
-const darkPalette: Palette = {
+const darkPalette: PaletteOptions = {
   // Add Some dark theme palette options,
   // currently using the light theme palette
   ...lightPalette,
 };
 
 export const applicationTheme = (theme: ThemeMode) => {
-  const activePalette = theme === ThemeMode.LIGHT ? lightPalette : darkPalette;
+  const activePalette: PaletteOptions = theme === ThemeMode.LIGHT ? lightPalette : darkPalette;
   const activeTheme: ThemeOptions = {
     palette: activePalette,
     spacing: 8,
@@ -138,6 +128,7 @@ export const applicationTheme = (theme: ThemeMode) => {
     typography: {
       htmlFontSize: 16, // Set the base font size
       fontFamily: "Inter, sans-serif", // Set the desired font family
+      // @ts-ignore
       fontSize: 16, // Set the base font size
       fontWeightLight: 300,
       fontWeightRegular: 400,
@@ -147,67 +138,67 @@ export const applicationTheme = (theme: ThemeMode) => {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
         fontSize: "2rem",
-        color: activePalette.text.primary,
+        color: activePalette.text!!.primary,
       },
       h2: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
         fontSize: "1.85rem",
-        color: activePalette.text.primary,
+        color: activePalette.text!!.primary,
       },
       h3: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
         fontSize: "1.7rem",
-        color: activePalette.text.primary,
+        color: activePalette.text!!.primary,
       },
       h4: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
         fontSize: "1.55rem",
-        color: activePalette.text.primary,
+        color: activePalette.text!!.primary,
       },
       h5: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
         fontSize: "1.4rem",
-        color: activePalette.text.primary,
+        color: activePalette.text!!.primary,
       },
       h6: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
         fontSize: "1.25rem",
-        color: activePalette.text.primary,
+        color: activePalette.text!!.primary,
       },
       subtitle1: {
         fontFamily: "Inter",
         fontWeight: "500",
         fontSize: "1rem",
-        color: activePalette.text.textAccent,
+        color: activePalette.text!!.textAccent,
       },
       subtitle2: {
         fontFamily: "Inter",
         fontWeight: "500",
         fontSize: "0.875rem",
-        color: activePalette.text.textAccent,
+        color: activePalette.text!!.textAccent,
       },
       body1: {
         fontFamily: "Inter",
         fontWeight: "400",
         fontSize: "1rem",
-        color: activePalette.text.secondary,
+        color: activePalette.text!!.secondary,
       },
       body2: {
         fontFamily: "Inter",
         fontWeight: "400",
         fontSize: "0.875rem",
-        color: activePalette.text.secondary,
+        color: activePalette.text!!.secondary,
       },
       button: {
         fontFamily: "Inter",
         fontWeight: "500",
         fontSize: "1rem",
-        color: activePalette.text.primary,
+        color: activePalette.text!!.primary,
         textTransform: "none",
       },
       caption: {
@@ -230,7 +221,7 @@ export const applicationTheme = (theme: ThemeMode) => {
       MuiFormLabel: {
         styleOverrides: {
           asterisk: {
-            color: activePalette.error.main,
+            color: (activePalette.error as SimplePaletteColorOptions).main, // unclear why typescript complaints about this and we need to cast
           },
         },
       },
@@ -238,7 +229,7 @@ export const applicationTheme = (theme: ThemeMode) => {
         styleOverrides: {
           input: {
             "::placeholder": {
-              color: activePalette.text.secondary,
+              color: activePalette.text!!.secondary,
             },
           },
         },
@@ -246,7 +237,7 @@ export const applicationTheme = (theme: ThemeMode) => {
       MuiTableHead: {
         defaultProps: {
           style: {
-            background: activePalette.containerBackground.main,
+            background: (activePalette.containerBackground as SimplePaletteColorOptions)!!.main,
           },
         },
       },

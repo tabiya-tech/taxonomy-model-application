@@ -20,6 +20,9 @@ For further guidance, refer to the [Material Design System v2](https://m2.materi
 <Box bgcolor={"tabiyaGreen.main"}/>
 ```
 
+> **Note:**
+The contrast text has been calculated for each main color variant with the WCAG 2 AA minimum contrast ratio thresholds in mind (4.5:1). In many cases the contrast text will work for the light and dark variant of that color. However, as this is not guaranteed, when displaying text over lighter ir darker variants of a color, it is recommended to check for and use` getContrastText()` function to ensure the correct contrast text is used.
+
 ## Layout and Spacing
 - Higher-Order Components (HOCs) manage padding, spacing, and layout for their child components
 - Control of the layout flows in one direction, from parent to child. Sibling components should not care about the layout of neighboring components.

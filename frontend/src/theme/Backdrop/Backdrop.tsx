@@ -22,12 +22,23 @@ export const Backdrop = (props: Readonly<IBackdropProps>) => {
       data-testid={DATA_TEST_ID.BACKDROP_CONTAINER}
       open={props.isShown}
     >
-      <Grid container justifyContent="center" alignItems="center">
+      <Grid
+        flexDirection={"row"}
+        bgcolor={"containerBackground.main"}
+        height={"auto"}
+        width={"auto"}
+        container
+        justifyContent="center"
+        alignItems="center"
+      >
         {props.message && (
           <Grid item>
             <Typography
+              variant="h6"
+              color="info.contrastText"
               data-testid={DATA_TEST_ID.MESSAGE_ELEMENT}
               sx={{
+                paddingRight: theme.spacing(theme.tabiyaSpacing.md),
                 wordWrap: "break-word",
                 textAlign: "center", // Align the text in the center
               }}
@@ -36,9 +47,9 @@ export const Backdrop = (props: Readonly<IBackdropProps>) => {
             </Typography>
           </Grid>
         )}
-        <Grid item>
+        <Grid style={{ lineHeight: 0 }} item>
           <CircularProgress
-            color="inherit"
+            sx={{ color: (theme) => theme.palette.info.contrastText }}
             size={2 * theme.typography.fontSize}
             data-testid={DATA_TEST_ID.PROGRESS_ELEMENT}
           />
