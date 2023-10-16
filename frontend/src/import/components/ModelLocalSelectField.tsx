@@ -1,4 +1,4 @@
-import { FormControl, Stack, MenuItem, Select, FormLabel, SelectChangeEvent } from "@mui/material";
+import { FormControl, Stack, MenuItem, Select, FormLabel, SelectChangeEvent, useTheme } from "@mui/material";
 import { useStyles } from "src/theme/global.style";
 import React, { useEffect } from "react";
 import Locale from "api-specifications/locale";
@@ -53,9 +53,10 @@ const ModelLocalSelectField = (props: Readonly<ModelLocaleSelectProps>) => {
   }
 
   const classes = useStyles();
+  const theme = useTheme();
   return (
     <FormControl sx={{ width: "100%" }} data-testid={DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD}>
-      <Stack className={classes.fieldStack} spacing={0.5}>
+      <Stack className={classes.fieldStack} spacing={theme.tabiyaSpacing.xs}>
         <FormLabel required id={uniqueId} data-testid={DATA_TEST_ID.MODEL_LOCALE_LABEL}>
           {TEXT.MODEL_LOCALE_SELECT_LABEL}
         </FormLabel>

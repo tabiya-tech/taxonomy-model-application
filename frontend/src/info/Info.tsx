@@ -14,7 +14,14 @@ export const DATA_TEST_ID = {
 
 const StyledContainer = styled(Box)`
   flex: 1;
-  border-radius: ${({ theme }) => theme.spacing(theme.tabiyaRounding.md, theme.tabiyaRounding.md, 0, 0)};
+  border-radius: ${({ theme }) =>
+    theme.rounding(theme.tabiyaRounding.md) +
+    " " +
+    theme.rounding(theme.tabiyaRounding.md) +
+    " " +
+    theme.rounding(theme.tabiyaRounding.none) +
+    " " +
+    theme.rounding(theme.tabiyaRounding.none)};
   overflow-y: auto;
   background-color: ${({ theme }) => theme.palette.containerBackground.light};
 `;

@@ -1,4 +1,5 @@
 import { createTheme, PaletteOptions, ThemeOptions, SimplePaletteColorOptions } from "@mui/material/styles/";
+import { CSSClampFnCalculatorPx, CSSClampFnCalculatorRem, ScreenSize } from "src/utils/CSSClampFnCalculator";
 
 export enum ThemeMode {
   LIGHT = "light",
@@ -96,10 +97,36 @@ const darkPalette: PaletteOptions = {
 };
 
 export const applicationTheme = (theme: ThemeMode) => {
+  const TabiyaBaseSizes = {
+    // All sizes are in px
+    spacing: 8,
+    rounding: 8,
+    font: 16,
+  };
+  const screenSizePx: ScreenSize = {
+    minWidth: 800,
+    maxWidth: 1200,
+    minHeight: 500,
+    maxHeight: 800,
+  };
+  const screenSizeRem: ScreenSize = {
+    minWidth: screenSizePx.minWidth / TabiyaBaseSizes.font,
+    maxWidth: screenSizePx.maxWidth / TabiyaBaseSizes.font,
+    minHeight: screenSizePx.minHeight / TabiyaBaseSizes.font,
+    maxHeight: screenSizePx.maxHeight / TabiyaBaseSizes.font,
+  };
+
+  // cache the clamp functions to avoid recalculating them
+  const spacingClampFn = CSSClampFnCalculatorPx(TabiyaBaseSizes.spacing / 4, TabiyaBaseSizes.spacing, screenSizePx);
+  const roundingClampFn = CSSClampFnCalculatorPx(TabiyaBaseSizes.rounding / 4, TabiyaBaseSizes.rounding, screenSizePx);
+
   const activePalette: PaletteOptions = theme === ThemeMode.LIGHT ? lightPalette : darkPalette;
   const activeTheme: ThemeOptions = {
     palette: activePalette,
-    spacing: 8,
+    spacing: (factor: number) => `calc(${spacingClampFn} * ${factor})`,
+    fixedSpacing: (factor: number) => `${factor * TabiyaBaseSizes.spacing}px`,
+    responsiveBorderRounding: (factor: number) => `calc(${roundingClampFn} * ${factor})`,
+    rounding: (factor: number) => `${factor * TabiyaBaseSizes.rounding}px`,
     tabiyaSpacing: {
       none: 0,
       xs: 0.5,
@@ -121,10 +148,10 @@ export const applicationTheme = (theme: ThemeMode) => {
       full: "50%",
     },
     typography: {
-      htmlFontSize: 16, // Set the base font size
+      htmlFontSize: TabiyaBaseSizes.font, // Set the base font size
       fontFamily: "Inter, sans-serif", // Set the desired font family
       // @ts-ignore
-      fontSize: 16, // Set the base font size
+      fontSize: TabiyaBaseSizes.font, // Set the base font size
       fontWeightLight: 300,
       fontWeightRegular: 400,
       fontWeightMedium: 500,
@@ -132,79 +159,79 @@ export const applicationTheme = (theme: ThemeMode) => {
       h1: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
-        fontSize: "2rem",
+        fontSize: CSSClampFnCalculatorRem(1.3, 2, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h2: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
-        fontSize: "1.85rem",
+        fontSize: CSSClampFnCalculatorRem(1.25, 1.85, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h3: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
-        fontSize: "1.7rem",
+        fontSize: CSSClampFnCalculatorRem(1.2, 1.7, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h4: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
-        fontSize: "1.55rem",
+        fontSize: CSSClampFnCalculatorRem(1.15, 1.55, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h5: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
-        fontSize: "1.4rem",
+        fontSize: CSSClampFnCalculatorRem(1.1, 1.4, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h6: {
         fontFamily: "IBM Plex Mono",
         fontWeight: "700",
-        fontSize: "1.25rem",
+        fontSize: CSSClampFnCalculatorRem(1, 1.25, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       subtitle1: {
         fontFamily: "Inter",
         fontWeight: "500",
-        fontSize: "1rem",
+        fontSize: CSSClampFnCalculatorRem(0.75, 1, screenSizeRem),
         color: activePalette.text!!.textAccent,
       },
       subtitle2: {
         fontFamily: "Inter",
         fontWeight: "500",
-        fontSize: "0.875rem",
+        fontSize: CSSClampFnCalculatorRem(0.5, 0.875, screenSizeRem),
         color: activePalette.text!!.textAccent,
       },
       body1: {
         fontFamily: "Inter",
         fontWeight: "400",
-        fontSize: "1rem",
+        fontSize: CSSClampFnCalculatorRem(0.75, 1, screenSizeRem),
         color: activePalette.text!!.secondary,
       },
       body2: {
         fontFamily: "Inter",
         fontWeight: "400",
-        fontSize: "0.875rem",
+        fontSize: CSSClampFnCalculatorRem(0.5, 0.875, screenSizeRem),
         color: activePalette.text!!.secondary,
       },
       button: {
         fontFamily: "Inter",
         fontWeight: "500",
-        fontSize: "1rem",
+        fontSize: CSSClampFnCalculatorRem(0.75, 1, screenSizeRem),
         color: activePalette.text!!.primary,
         textTransform: "none",
       },
       caption: {
         fontFamily: "Inter",
         fontWeight: "400",
-        fontSize: "0.75rem",
+        fontSize: CSSClampFnCalculatorRem(0.5, 0.75, screenSizeRem),
       },
       overline: {
         fontFamily: "Inter",
         fontWeight: "400",
-        fontSize: "0.75rem",
+        fontSize: CSSClampFnCalculatorRem(0.5, 0.75, screenSizeRem),
       },
     },
     components: {

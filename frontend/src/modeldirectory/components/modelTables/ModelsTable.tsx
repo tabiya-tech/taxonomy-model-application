@@ -44,7 +44,10 @@ export const DATA_TEST_ID = {
 const StyledHeaderCell = (props: Readonly<TableCellProps>) => {
   return (
     <TableCell
-      sx={{ backgroundColor: (theme) => theme.palette.containerBackground.main }}
+      sx={{
+        padding: (theme) => theme.tabiyaSpacing.sm,
+        backgroundColor: (theme) => theme.palette.containerBackground.main,
+      }}
       data-testid={DATA_TEST_ID.MODEL_CELL}
       {...props}
     >
@@ -56,7 +59,7 @@ const StyledHeaderCell = (props: Readonly<TableCellProps>) => {
 };
 const StyledBodyCell = (props: Readonly<TableCellProps>) => {
   return (
-    <TableCell data-testid={DATA_TEST_ID.MODEL_CELL} {...props}>
+    <TableCell sx={{ padding: (theme) => theme.tabiyaSpacing.sm }} data-testid={DATA_TEST_ID.MODEL_CELL} {...props}>
       <Typography variant="body1" fontWeight={"normal"}>
         {props.children}
       </Typography>
@@ -125,7 +128,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                   sx={{ verticalAlign: "top" }}
                   data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
                 >
-                  <TableCell data-testid={DATA_TEST_ID.MODEL_CELL}>
+                  <TableCell sx={{ padding: (theme) => theme.tabiyaSpacing.sm }} data-testid={DATA_TEST_ID.MODEL_CELL}>
                     <Container data-testid={DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER}>
                       <ImportProcessStateIcon importProcessState={model.importProcessState} />
                     </Container>
