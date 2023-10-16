@@ -7,6 +7,7 @@ import { mapFileTypeToName } from "./mapFileTypeToName";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
 import { AddCircleOutlined, RemoveCircleOutlined } from "@mui/icons-material";
+import { Theme } from "@mui/material/styles";
 
 export interface FileEntryProps {
   fileType: ImportAPISpecs.Constants.ImportFileTypes;
@@ -97,7 +98,10 @@ export default FileEntry;
 const commonChipProps = {
   size: "medium" as ChipProps["size"],
   component: "span",
-  sx: { textTransform: "none" }, // Add any other shared styles here
+  sx: {
+    fontSize: (theme: Theme) => theme.typography.button.fontSize,
+    fontFamily: (theme: Theme) => theme.typography.button.fontFamily,
+  }, // Add any other shared styles here
 };
 const selectedFileChipProps = {
   sx: {

@@ -102,7 +102,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     >
       <DialogTitle>Import Model</DialogTitle>
       <DialogContent>
-        <Stack className={classes.customStack} spacing={5}>
+        <Stack className={classes.customStack} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
           <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />

@@ -25,7 +25,7 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
           // However, setting the height to 100%, will cause the page to scroll in case margins are added.
           // Setting the box-sizing to border-box, will not help.
           // This has to do how the Grid component works. In order to avoid this, we set the height: 100%,
-          // and then we set the margin to 0, or height: "calc(100% - MarginTop - MarginBotton)".
+          // and then we set the margin to 0, or height: "calc(100% - MarginTop - MarginBottom)".
           // The same for the width.
           width: (theme) => `calc(100% - 2 * ${theme.spacing(theme.tabiyaSpacing.none)})`,
           height: (theme) => `calc(100% - 2 * ${theme.spacing(theme.tabiyaSpacing.none)})`,
@@ -35,10 +35,10 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
           flexDirection: "column",
           alignItems: "center",
           justifyItems: "center",
-          borderTopRightRadius: (theme) => theme.spacing(theme.tabiyaRounding.md),
-          borderTopLeftRadius: (theme) => theme.spacing(theme.tabiyaRounding.md),
+          borderTopRightRadius: (theme) => theme.rounding(theme.tabiyaRounding.md),
+          borderTopLeftRadius: (theme) => theme.rounding(theme.tabiyaRounding.md),
           margin: (theme) => theme.spacing(theme.tabiyaRounding.none), // setting the margin to other than 0, may cause the page to scroll in case margins are added
-          paddingX: (theme) => theme.spacing(theme.tabiyaSpacing.lg),
+          paddingX: (theme) => theme.tabiyaSpacing.lg,
           backgroundColor: (theme) => theme.palette.containerBackground.light, //,"red",
         }}
         data-testid={DATA_TEST_ID.CONTENT_LAYOUT}
@@ -48,7 +48,7 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
           sx={{
             width: "100%",
             height: "100%",
-            marginY: 0,
+            marginY: (theme) => theme.tabiyaSpacing.none,
             flex: 1,
             display: "flex",
             flexDirection: "column",
@@ -60,9 +60,9 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
             item
             sx={{
               width: "100%",
-              margin: 0,
-              padding: 0,
-              paddingY: (theme) => theme.spacing(theme.tabiyaSpacing.xl),
+              margin: (theme) => theme.tabiyaSpacing.none,
+              padding: (theme) => theme.tabiyaSpacing.none,
+              paddingY: (theme) => theme.tabiyaSpacing.xl,
               backgroundColor: "none", //"green",//
             }}
           >
@@ -73,8 +73,8 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
             sx={{
               width: "100%",
               height: "100%",
-              margin: 0,
-              padding: 0,
+              margin: (theme) => theme.tabiyaSpacing.none,
+              padding: (theme) => theme.tabiyaSpacing.none,
               flex: "1",
               overflowY: "clip",
               backgroundColor: "none", //"magenta"

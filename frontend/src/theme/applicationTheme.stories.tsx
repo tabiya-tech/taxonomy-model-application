@@ -1,8 +1,8 @@
 import "./application-theme.css";
 import { Meta, StoryObj } from "@storybook/react";
 import { Box, rgbToHex, Typography, useTheme, Icon } from "@mui/material";
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { Palette, PaletteColor, Theme } from "@mui/material/styles";
 import { TabiyaSize } from "./theme";
 import Paper from "@mui/material/Paper";
@@ -19,7 +19,6 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
-
 
 const TypographyElements = () => {
   const theme = useTheme();
@@ -86,19 +85,13 @@ const TypographyElements = () => {
 };
 
 const groupedColorCategories = [
-  ["primary",
-  "secondary"],
-  ["error",
-  "warning",
-  "info",
-  "success"],
-  ["tabiyaYellow",
-  "tabiyaGreen"],
+  ["primary", "secondary"],
+  ["error", "warning", "info", "success"],
+  ["tabiyaYellow", "tabiyaGreen"],
   ["containerBackground"],
 ] as const;
-const colorCategories= groupedColorCategories.flat();
+const colorCategories = groupedColorCategories.flat();
 type ColorCategory = (typeof colorCategories)[number];
-
 
 const PaletteElements = () => {
   const theme = useTheme();
@@ -120,30 +113,35 @@ const PaletteElements = () => {
         }}
       >
         {groupedColorCategories.map((categories) => (
-          <Box key={categories.join("_")}  sx={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            alignItems: "start",
-            gap: theme.tabiyaSpacing.lg,
-          }}>
-            {categories.map(category => (
+          <Box
+            key={categories.join("_")}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "start",
+              gap: theme.tabiyaSpacing.lg,
+            }}
+          >
+            {categories.map((category) => (
               <Box
-              key={category}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: theme.tabiyaSpacing.lg,
-              }}
-            >
-              <Typography alignSelf="flex-start" variant={"subtitle1"}>{category}</Typography>
-              <Box>
-                <ColorBox theme={theme} category={category} variant={"main"} />
-                <ColorBox theme={theme} category={category} variant={"light"} />
-                <ColorBox theme={theme} category={category} variant={"dark"} />
+                key={category}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: theme.tabiyaSpacing.lg,
+                }}
+              >
+                <Typography alignSelf="flex-start" variant={"subtitle1"}>
+                  {category}
+                </Typography>
+                <Box>
+                  <ColorBox theme={theme} category={category} variant={"main"} />
+                  <ColorBox theme={theme} category={category} variant={"light"} />
+                  <ColorBox theme={theme} category={category} variant={"dark"} />
+                </Box>
               </Box>
-            </Box>
             ))}
           </Box>
         ))}
@@ -230,7 +228,6 @@ const SpacingElements = (props: SpacingAndRoundingElementsProps) => {
           flexDirection: "row",
           flexWrap: "wrap",
           gap: props.theme.tabiyaSpacing.md,
-          
         }}
       >
         {Object.entries(props.theme.tabiyaSpacing).map(([key, value]) => (
@@ -246,16 +243,15 @@ const SpacingElements = (props: SpacingAndRoundingElementsProps) => {
               border: "0.5px solid",
               borderColor: props.theme.palette.secondary.main,
               position: "relative",
-              padding: props.theme.tabiyaSpacing[key as keyof TabiyaSize]
+              padding: props.theme.tabiyaSpacing[key as keyof TabiyaSize],
             }}
           >
-           
-           <Paper sx={{width:"100%", height:"100%", borderRadius:0}}/>
+            <Paper sx={{ width: "100%", height: "100%", borderRadius: (theme) => theme.tabiyaRounding.none }} />
             <Box
               sx={{
                 position: "absolute",
-                top: '-15px',
-                right: '3px',
+                top: "-15px",
+                right: "3px",
                 backgroundColor: props.theme.palette.containerBackground.light,
                 color: props.theme.palette.primary.main,
                 padding: "0rem 0.5rem",
@@ -263,22 +259,53 @@ const SpacingElements = (props: SpacingAndRoundingElementsProps) => {
             >
               {`${key}: ${props.theme.spacing(value)}`}
             </Box>
-           {value >= 2 && <>
-            <Box sx={{ position:'absolute', right:0}}>
-                <Box sx={{display:'flex', flexDirection:'row', alignItems:'center', position:'relative', width: props.theme.spacing(value)}}>
-                  <KeyboardArrowLeftIcon sx={{height: '12px', position:'absolute', left:'-12px', top:"-5.64px"}}/>
-                  <Box sx={{width: '100%', borderTop:"0.5px solid"}}></Box>
-                  <KeyboardArrowRightIcon sx={{height: '12px', position:'absolute', right:'-12px', top:'-5.64px'}}/>
+            {value >= 2 && (
+              <>
+                <Box sx={{ position: "absolute", right: 0 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      position: "relative",
+                      width: props.theme.spacing(value),
+                    }}
+                  >
+                    <KeyboardArrowLeftIcon
+                      sx={{ height: "12px", position: "absolute", left: "-12px", top: "-5.64px" }}
+                    />
+                    <Box sx={{ width: "100%", borderTop: "0.5px solid" }}></Box>
+                    <KeyboardArrowRightIcon
+                      sx={{ height: "12px", position: "absolute", right: "-12px", top: "-5.64px" }}
+                    />
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ position:'absolute', left:0}}>
-                <Box sx={{display:'flex', flexDirection:'row', alignItems:'center', position:'relative', width: props.theme.spacing(value)}}>
-                  <KeyboardArrowLeftIcon sx={{height: '12px', position:'absolute', left:'-12px', top:"-5.64px"}}/>
-                  <Box sx={{width: '100%', borderTop:`0.5px solid  ${props.theme.palette.primary.main}`}}></Box>
-                  <KeyboardArrowRightIcon sx={{height: '12px', position:'absolute', right:'-11px', top:'-5.64px'}}/>
+                <Box sx={{ position: "absolute", left: 0 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      position: "relative",
+                      width: props.theme.spacing(value),
+                    }}
+                  >
+                    <KeyboardArrowLeftIcon
+                      sx={{ height: "12px", position: "absolute", left: "-12px", top: "-5.64px" }}
+                    />
+                    <Box
+                      sx={{
+                        width: "100%",
+                        borderTop: `0.5px solid  ${props.theme.palette.primary.main}`,
+                      }}
+                    ></Box>
+                    <KeyboardArrowRightIcon
+                      sx={{ height: "12px", position: "absolute", right: "-11px", top: "-5.64px" }}
+                    />
+                  </Box>
                 </Box>
-              </Box>
-           </>}
+              </>
+            )}
           </Box>
         ))}
       </Box>
@@ -331,14 +358,14 @@ const RoundingElements = (props: SpacingAndRoundingElementsProps) => {
             <Box
               sx={{
                 position: "absolute",
-                top: '-15px',
-                right: '3px',
+                top: "-15px",
+                right: "3px",
                 backgroundColor: props.theme.palette.containerBackground.light,
                 color: props.theme.palette.primary.main,
                 padding: "0rem 0.5rem",
               }}
             >
-              {`${key}: ${typeof value === 'number' ? `${value * props.theme.shape.borderRadius}px` : value}`}
+              {`${key}: ${typeof value === "number" ? `${value * props.theme.shape.borderRadius}px` : value}`}
             </Box>
           </Box>
         ))}
