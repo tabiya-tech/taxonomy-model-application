@@ -1,6 +1,8 @@
 import "./application-theme.css";
 import { Meta, StoryObj } from "@storybook/react";
 import { Box, rgbToHex, Typography, useTheme, Icon } from "@mui/material";
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import { Palette, PaletteColor, Theme } from "@mui/material/styles";
 import { TabiyaSize } from "./theme";
 import Paper from "@mui/material/Paper";
@@ -18,18 +20,6 @@ export default meta;
 
 type Story = StoryObj;
 
-const colorCategories = [
-  "primary",
-  "secondary",
-  "error",
-  "warning",
-  "info",
-  "success",
-  "tabiyaYellow",
-  "tabiyaGreen",
-  "containerBackground",
-] as const;
-type ColorCategory = (typeof colorCategories)[number];
 
 const TypographyElements = () => {
   const theme = useTheme();
@@ -95,6 +85,21 @@ const TypographyElements = () => {
   );
 };
 
+const groupedColorCategories = [
+  ["primary",
+  "secondary"],
+  ["error",
+  "warning",
+  "info",
+  "success"],
+  ["tabiyaYellow",
+  "tabiyaGreen"],
+  ["containerBackground"],
+] as const;
+const colorCategories= groupedColorCategories.flat();
+type ColorCategory = (typeof colorCategories)[number];
+
+
 const PaletteElements = () => {
   const theme = useTheme();
   return (
@@ -109,30 +114,37 @@ const PaletteElements = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          alignItems: "start",
-          padding: theme.tabiyaSpacing.lg,
+          flexDirection: "column",
           gap: theme.tabiyaSpacing.md,
+          paddingLeft: theme.tabiyaSpacing.lg,
         }}
       >
-        {colorCategories.map((category) => (
-          <Box
-            key={category}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              padding: theme.tabiyaSpacing.sm,
-              gap: theme.tabiyaSpacing.md,
-            }}
-          >
-            <Typography variant={"subtitle1"}>{category}</Typography>
-            <Box>
-              <ColorBox theme={theme} category={category} variant={"main"} />
-              <ColorBox theme={theme} category={category} variant={"light"} />
-              <ColorBox theme={theme} category={category} variant={"dark"} />
+        {groupedColorCategories.map((categories) => (
+          <Box key={categories.join("_")}  sx={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "start",
+            gap: theme.tabiyaSpacing.lg,
+          }}>
+            {categories.map(category => (
+              <Box
+              key={category}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: theme.tabiyaSpacing.lg,
+              }}
+            >
+              <Typography alignSelf="flex-start" variant={"subtitle1"}>{category}</Typography>
+              <Box>
+                <ColorBox theme={theme} category={category} variant={"main"} />
+                <ColorBox theme={theme} category={category} variant={"light"} />
+                <ColorBox theme={theme} category={category} variant={"dark"} />
+              </Box>
             </Box>
+            ))}
           </Box>
         ))}
       </Box>
@@ -207,15 +219,18 @@ const SpacingElements = (props: SpacingAndRoundingElementsProps) => {
         display: "flex",
         flexDirection: "column",
         gap: props.theme.tabiyaSpacing.md,
+        paddingLeft: props.theme.tabiyaSpacing.lg,
       }}
     >
       <Typography variant={"h4"}>Spacing</Typography>
+      <Typography variant={"subtitle1"}>Spacing (padding and margin) @mu base is 8px</Typography>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
           flexWrap: "wrap",
           gap: props.theme.tabiyaSpacing.md,
+          
         }}
       >
         {Object.entries(props.theme.tabiyaSpacing).map(([key, value]) => (
@@ -225,43 +240,45 @@ const SpacingElements = (props: SpacingAndRoundingElementsProps) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "20rem",
-              height: "20rem",
+              width: "10rem",
+              height: "10rem",
               backgroundColor: props.theme.palette.containerBackground.main,
-              border: "2px solid",
+              border: "0.5px solid",
               borderColor: props.theme.palette.secondary.main,
               position: "relative",
+              padding: props.theme.tabiyaSpacing[key as keyof TabiyaSize]
             }}
           >
-            <Box
-              sx={{
-                margin: props.theme.tabiyaSpacing[key as keyof TabiyaSize],
-              }}
-            >
-              <Paper
-                sx={{
-                  height: "10rem",
-                  padding: props.theme.tabiyaSpacing.md,
-                }}
-              >
-                <Typography variant={"subtitle1"}>
-                  With margin: props.theme.tabiyaSpacing.
-                  {key as keyof TabiyaSize}
-                </Typography>
-              </Paper>
-            </Box>
+           
+           <Paper sx={{width:"100%", height:"100%", borderRadius:0}}/>
             <Box
               sx={{
                 position: "absolute",
-                top: 0,
-                right: 0,
-                backgroundColor: props.theme.palette.primary.main,
-                color: props.theme.palette.primary.contrastText,
-                padding: "0.5rem",
+                top: '-15px',
+                right: '3px',
+                backgroundColor: props.theme.palette.containerBackground.light,
+                color: props.theme.palette.primary.main,
+                padding: "0rem 0.5rem",
               }}
             >
-              {`${key}: ${value} * ${props.theme.spacing(1)}`}
+              {`${key}: ${props.theme.spacing(value)}`}
             </Box>
+           {value >= 2 && <>
+            <Box sx={{ position:'absolute', right:0}}>
+                <Box sx={{display:'flex', flexDirection:'row', alignItems:'center', position:'relative', width: props.theme.spacing(value)}}>
+                  <KeyboardArrowLeftIcon sx={{height: '12px', position:'absolute', left:'-12px', top:"-5.64px"}}/>
+                  <Box sx={{width: '100%', borderTop:"0.5px solid"}}></Box>
+                  <KeyboardArrowRightIcon sx={{height: '12px', position:'absolute', right:'-12px', top:'-5.64px'}}/>
+                </Box>
+              </Box>
+              <Box sx={{ position:'absolute', left:0}}>
+                <Box sx={{display:'flex', flexDirection:'row', alignItems:'center', position:'relative', width: props.theme.spacing(value)}}>
+                  <KeyboardArrowLeftIcon sx={{height: '12px', position:'absolute', left:'-12px', top:"-5.64px"}}/>
+                  <Box sx={{width: '100%', borderTop:`0.5px solid  ${props.theme.palette.primary.main}`}}></Box>
+                  <KeyboardArrowRightIcon sx={{height: '12px', position:'absolute', right:'-11px', top:'-5.64px'}}/>
+                </Box>
+              </Box>
+           </>}
           </Box>
         ))}
       </Box>
@@ -276,9 +293,11 @@ const RoundingElements = (props: SpacingAndRoundingElementsProps) => {
         display: "flex",
         flexDirection: "column",
         gap: props.theme.tabiyaSpacing.md,
+        paddingLeft: props.theme.tabiyaSpacing.lg,
       }}
     >
       <Typography variant={"h4"}>Rounding</Typography>
+      <Typography variant={"subtitle1"}>Rounding (border-radius) @mu base is 8px</Typography>
       <Box
         sx={{
           display: "flex",
@@ -294,32 +313,32 @@ const RoundingElements = (props: SpacingAndRoundingElementsProps) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "12rem",
-              height: "12rem",
+              width: "10rem",
+              height: "10rem",
               backgroundColor: props.theme.palette.containerBackground.main,
-              border: "2px solid",
+              border: "0.5px solid",
               borderColor: props.theme.palette.secondary.main,
               position: "relative",
             }}
           >
             <Paper
               sx={{
-                width: "10rem",
-                height: "10rem",
+                width: "8rem",
+                height: "8rem",
                 borderRadius: value,
               }}
             ></Paper>
             <Box
               sx={{
                 position: "absolute",
-                top: 0,
-                right: 0,
-                backgroundColor: props.theme.palette.primary.main,
-                color: props.theme.palette.primary.contrastText,
-                padding: "0.5rem",
+                top: '-15px',
+                right: '3px',
+                backgroundColor: props.theme.palette.containerBackground.light,
+                color: props.theme.palette.primary.main,
+                padding: "0rem 0.5rem",
               }}
             >
-              {`${key}: ${value} ${key !== "full" ? "*" + props.theme.spacing(1) : ""}`}
+              {`${key}: ${typeof value === 'number' ? `${value * props.theme.shape.borderRadius}px` : value}`}
             </Box>
           </Box>
         ))}
@@ -357,7 +376,7 @@ const ColorBox = (props: ColorBoxProps) => {
   return (
     <Box
       sx={{
-        height: "4rem",
+        height: "2.5rem",
         width: "16rem",
         backgroundColor: color,
         display: "flex",
