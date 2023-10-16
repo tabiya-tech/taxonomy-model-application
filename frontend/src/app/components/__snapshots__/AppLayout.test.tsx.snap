@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppLayout Render should render app layout component: cabab611-7d62-417a-a4a7-5d8f7266ea92 1`] = `
+<div
+  class="MuiBox-root css-1n6j1fj"
+  data-testid="cabab611-7d62-417a-a4a7-5d8f7266ea92"
+>
+  <div
+    data-testid="app-header-container-65b0785e-14d9-43a3-b260-869983312406"
+  >
+    Mocked AppHeader
+  </div>
+  <div
+    class="MuiBox-root css-z3n06g"
+  >
+    <div
+      data-testid="app-sidebar-container-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
+    >
+      Mocked AppSidebar
+    </div>
+    <div
+      class="MuiBox-root css-1oz4csq"
+    >
+      <div>
+        foo
+      </div>
+    </div>
+  </div>
+</div>
+`;

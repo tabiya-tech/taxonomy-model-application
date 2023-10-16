@@ -30,6 +30,7 @@ describe("AppSidebar render tests", () => {
     // AND it to be shown
     const appSidebarContainer = screen.getByTestId(DATA_TEST_ID.CONTAINER);
     expect(appSidebarContainer).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.CONTAINER)).toMatchSnapshot(DATA_TEST_ID.CONTAINER);
   });
 
   const allIconsCases = [

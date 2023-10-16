@@ -31,6 +31,7 @@ describe("AppHeader render tests", () => {
     // AND the header to be shown
     const appHeaderContainer = screen.getByTestId(DATA_TEST_ID.APP_HEADER_CONTAINER);
     expect(appHeaderContainer).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.APP_HEADER_CONTAINER)).toMatchSnapshot(DATA_TEST_ID.APP_HEADER_CONTAINER);
     // AND the user icon to be shown
     const appHeaderIconsContainer = screen.getByTestId(DATA_TEST_ID.APP_HEADER_ICON_USER);
     expect(appHeaderIconsContainer).toBeInTheDocument();
