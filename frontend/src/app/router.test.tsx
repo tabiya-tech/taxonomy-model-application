@@ -46,6 +46,8 @@ function renderWithRouter(route: string) {
     initialEntries: [route],
   });
   render(<RouterProvider router={router} />);
+
+  return { router };
 }
 
 describe("Tests for router config", () => {
@@ -55,6 +57,15 @@ describe("Tests for router config", () => {
 
     // THEN expect model directory to be the landing page
     expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toBeInTheDocument();
+  });
+
+  it("should redirect from ROOT to MODEL_DIRECTORY", async () => {
+    // WHEN the ROOT is chosen
+    const { router } = renderWithRouter(routerPaths.ROOT);
+
+    // THEN expect the path to be changed to the model directory
+    const expectedPathname = router.state.location.pathname;
+    expect(expectedPathname).toBe(routerPaths.MODEL_DIRECTORY);
   });
 
   it("should render the settings", async () => {
@@ -71,30 +82,6 @@ describe("Tests for router config", () => {
 
     // THEN expect the model directory to be available
     expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toBeInTheDocument();
-  });
-
-  it("should render the Users", async () => {
-    // WHEN the USERS path is chosen
-    renderWithRouter(routerPaths.USERS);
-
-    // THEN expect the application users to be available
-    expect(screen.getByText("Coming soon, the application users")).toBeInTheDocument();
-  });
-
-  it("should render the Model Edit", async () => {
-    // WHEN the EDIT path is chosen
-    renderWithRouter(routerPaths.EDIT);
-
-    // THEN expect editing the model to be available
-    expect(screen.getByText("Coming soon, editing the model")).toBeInTheDocument();
-  });
-
-  it("should render the Model Explore", async () => {
-    // WHEN the EXPLORE path is chosen
-    renderWithRouter(routerPaths.EXPLORE);
-
-    // THEN expect exploring the model to be available
-    expect(screen.getByText("Coming soon, exploring the model")).toBeInTheDocument();
   });
 
   it("should render not found page", () => {

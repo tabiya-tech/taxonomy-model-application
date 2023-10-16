@@ -1,36 +1,19 @@
 import Info from "../info/Info";
 import ModelDirectory from "../modeldirectory/ModelDirectory";
 import NotFound from "src/errorPage/NotFound";
+import { Navigate } from "react-router-dom";
 
 export const routerPaths = {
   ROOT: "/",
-  EXPLORE: "/explore",
-  EDIT: "/edit",
   SETTINGS: "/settings",
-  USERS: "/users",
   MODEL_DIRECTORY: "/modeldirectory",
 };
 
 export const routerConfig = [
   {
     path: routerPaths.ROOT,
-    element: <ModelDirectory />,
+    element: <Navigate to={routerPaths.MODEL_DIRECTORY} />,
     errorElement: <div>Sorry, something went wrong</div>,
-  },
-  {
-    path: routerPaths.EXPLORE,
-    element: <div>Coming soon, exploring the model</div>,
-    errorElement: <div>Sorry, exploring the model could not be shown</div>,
-  },
-  {
-    path: routerPaths.EDIT,
-    element: <div>Coming soon, editing the model</div>,
-    errorElement: <div>Sorry, editing the model could not be shown</div>,
-  },
-  {
-    path: routerPaths.USERS,
-    element: <div>Coming soon, the application users</div>,
-    errorElement: <div>Sorry, application users could be shown</div>,
   },
   {
     path: routerPaths.SETTINGS,
