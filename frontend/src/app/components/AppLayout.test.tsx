@@ -54,7 +54,11 @@ describe("AppLayout Render", () => {
     expect(console.warn).not.toHaveBeenCalled();
 
     // AND expect layout to be present in the document
-    expect(screen.getByTestId(DATA_TEST_ID.LAYOUT)).toBeInTheDocument();
+    const actualAppLayout = screen.getByTestId(DATA_TEST_ID.LAYOUT);
+    expect(actualAppLayout).toBeInTheDocument();
+
+    // AND to match the snapshot
+    expect(screen.getByTestId(DATA_TEST_ID.LAYOUT)).toMatchSnapshot();
 
     // AND expect the AppSidebar and AppHeader to be in the document
     expect(screen.getByTestId(APP_SIDE_BAR_ID.CONTAINER)).toBeInTheDocument();

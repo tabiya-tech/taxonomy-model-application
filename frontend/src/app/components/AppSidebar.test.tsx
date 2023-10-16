@@ -27,9 +27,11 @@ describe("AppSidebar render tests", () => {
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
-    // AND it to be shown
+    // AND to be shown
     const appSidebarContainer = screen.getByTestId(DATA_TEST_ID.CONTAINER);
     expect(appSidebarContainer).toBeInTheDocument();
+    // AND to match the snapshot
+    expect(screen.getByTestId(DATA_TEST_ID.CONTAINER)).toMatchSnapshot();
   });
 
   const allIconsCases = [
