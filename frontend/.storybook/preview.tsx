@@ -27,6 +27,7 @@ const preview: Preview = {
         date: /Date$/,
       },
     },
+    layout: "fullscreen",
   },
 };
 
@@ -43,7 +44,9 @@ export const decorators = [
   }),(Story) => (
     <Router>
       <CustomSnackbarProvider>
-        <Story />
+        <div style={{ height: "100vh" }}>
+          <Story />
+        </div>
       </CustomSnackbarProvider>
     </Router>
   ),
