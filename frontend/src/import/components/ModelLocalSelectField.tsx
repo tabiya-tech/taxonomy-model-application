@@ -1,20 +1,19 @@
 import { FormControl, Stack, MenuItem, Select, FormLabel, SelectChangeEvent, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
 import Locale from "api-specifications/locale";
-import { generateUniqueId } from "src/utils/generateUniqueId";
 import { isUnspecified } from "src/utils/isUnspecified";
 
 export const TEXT = {
   MODEL_LOCALE_SELECT_LABEL: "Select Model Locale",
 };
-const baseTestID = "110643ab-593e-47dc-b398-ecc98518660e";
+const uniqueId = "110643ab-593e-47dc-b398-ecc98518660e";
 
 export const DATA_TEST_ID = {
-  MODEL_LOCALE_SELECT_FIELD: `model-locale-select-field-${baseTestID}`,
-  MODEL_LOCALE_LABEL: `model-locale-label-${baseTestID}`,
-  MODEL_LOCALE_INPUT: `model-locale-input-${baseTestID}`,
-  MODEL_LOCALE_DROPDOWN: `model-locale-input-dropdown-${baseTestID}`,
-  MODEL_LOCALE_ITEM: `model-locale-item-${baseTestID}`,
+  MODEL_LOCALE_SELECT_FIELD: `model-locale-select-field-${uniqueId}`,
+  MODEL_LOCALE_LABEL: `model-locale-label-${uniqueId}`,
+  MODEL_LOCALE_INPUT: `model-locale-input-${uniqueId}`,
+  MODEL_LOCALE_DROPDOWN: `model-locale-input-dropdown-${uniqueId}`,
+  MODEL_LOCALE_ITEM: `model-locale-item-${uniqueId}`,
 };
 
 export interface ModelLocaleSelectProps {
@@ -26,7 +25,6 @@ const ModelLocalSelectField = (props: Readonly<ModelLocaleSelectProps>) => {
   if (props.locales.length === 0 || props.locales.find((locale) => isUnspecified(locale.UUID))) {
     console.error("Locales should have at least one item");
   }
-  const uniqueId = generateUniqueId();
 
   const [selectedLocaleUUID, setSelectedLocaleUUID] = React.useState<string>(props.locales[0].UUID);
 
