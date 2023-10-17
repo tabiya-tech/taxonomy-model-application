@@ -11,8 +11,11 @@ describe("NotFound", () => {
     // THEN expect no console error or warning
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
-    // AND expect specific elements to be present in the document
+    // AND expect the container to be present in the document
     expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_CONTAINER)).toBeInTheDocument();
+    // AND to match the snapshot
+    expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_CONTAINER)).toMatchSnapshot();
+    // AND expect the illustration and message to be present in the document
     expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_ILLUSTRATION)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_MESSAGE)).toBeInTheDocument();
   });
