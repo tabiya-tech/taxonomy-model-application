@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotFound NotFound page renders correctly: not-found-37d307ae-4f1e-4d8d-bafe-fd642f8af4ab} 1`] = `
+<div
+  class="MuiBox-root css-11wbkob"
+  data-testid="not-found-37d307ae-4f1e-4d8d-bafe-fd642f8af4ab}"
+>
+  <img
+    alt="not found"
+    data-testid="not-found-illustration-37d307ae-4f1e-4d8d-bafe-fd642f8af4ab}"
+    src="/TabiyaLogo.svg"
+    width="250px"
+  />
+  <h2
+    class="MuiTypography-root MuiTypography-h2 css-ca93eg-MuiTypography-root"
+    data-testid="not-found-message-37d307ae-4f1e-4d8d-bafe-fd642f8af4ab"
+  >
+    404 Error - Page Not Found
+  </h2>
+</div>
+`;
