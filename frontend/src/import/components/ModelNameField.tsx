@@ -1,6 +1,5 @@
 import react from "react";
 import { FormControl, FormLabel, Input, Stack, useTheme } from "@mui/material";
-import { generateUniqueId } from "src/utils/generateUniqueId";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
 
@@ -8,12 +7,13 @@ export const TEXT = {
   MODEL_NAME_LABEL: "Model Name",
   MODEL_NAME_PLACEHOLDER: "Enter model name",
 };
-const baseTestID = "d2bc4d5d-7760-450d-bac6-a8857affeb89";
+
+const uniqueId = "d2bc4d5d-7760-450d-bac6-a8857affeb89";
 
 export const DATA_TEST_ID = {
-  MODEL_NAME_FIELD: `model-name-field-${baseTestID}`,
-  MODEL_NAME_INPUT: `model-name-input-${baseTestID}`,
-  MODEL_NAME_LABEL: `model-name-label-${baseTestID}`,
+  MODEL_NAME_FIELD: `model-name-field-${uniqueId}`,
+  MODEL_NAME_INPUT: `model-name-input-${uniqueId}`,
+  MODEL_NAME_LABEL: `model-name-label-${uniqueId}`,
 };
 
 export interface ModelNameFieldProps {
@@ -21,8 +21,6 @@ export interface ModelNameFieldProps {
 }
 
 export const ModelNameField = (props: Readonly<ModelNameFieldProps>) => {
-  const uniqueId = generateUniqueId();
-
   const throttledHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL);
 
   function handleTextInputChange(e: react.ChangeEvent<HTMLTextAreaElement>) {

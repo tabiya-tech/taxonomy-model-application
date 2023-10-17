@@ -31,6 +31,8 @@ describe("ImportFilesSelection render tests", () => {
     // AND the import files selection to be visible
     const importFilesSelection = screen.getByTestId(DATA_TEST_ID.IMPORT_FILES_SELECTION);
     expect(importFilesSelection).toBeInTheDocument();
+    // AND to match the snapshot
+    expect(importFilesSelection).toMatchSnapshot();
 
     // AND expect file entries for the all the ImportFileTypes  to be rendered
     const fileEntries = screen.getAllByTestId("mock-file-entry");
