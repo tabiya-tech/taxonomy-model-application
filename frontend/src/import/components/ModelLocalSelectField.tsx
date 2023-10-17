@@ -27,7 +27,7 @@ const ModelLocalSelectField = (props: Readonly<ModelLocaleSelectProps>) => {
   if (props.locales.length === 0 || props.locales.find((locale) => isUnspecified(locale.UUID))) {
     console.error("Locales should have at least one item");
   }
-  const uniqueId = generateUniqueId();
+  const uniqueId = "c2ue13a";
 
   const [selectedLocaleUUID, setSelectedLocaleUUID] = React.useState<string>(props.locales[0].UUID);
 

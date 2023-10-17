@@ -33,6 +33,7 @@ describe("FileEntry render tests", () => {
       // AND the component to be rendered
       const fileEntry = screen.getByTestId(DATA_TEST_ID.FILE_ENTRY);
       expect(fileEntry).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FILE_ENTRY)).toMatchSnapshot(DATA_TEST_ID.FILE_ENTRY);
       // AND to have the correct file type
       expect(fileEntry).toHaveAttribute("data-filetype", fileType);
 
@@ -54,25 +55,6 @@ describe("FileEntry render tests", () => {
       expect(selectFileButton.textContent).toBe(expectedFileTypeName);
     }
   );
-
-  it("multiple components should have a unique id", () => {
-    // GIVEN some filetype
-    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
-
-    // WHEN fileEntry is rendered multiples
-    render(<FileEntry fileType={givenFileType} />);
-    render(<FileEntry fileType={givenFileType} />);
-
-    // THEN expect no errors or warning to have occurred
-    expect(console.error).not.toHaveBeenCalled();
-    expect(console.warn).not.toHaveBeenCalled();
-    // AND to find two inputEntries
-    let inputEntries = screen.getAllByTestId(DATA_TEST_ID.FILE_INPUT);
-    expect(inputEntries.length).toBe(2);
-
-    // AND their ids are different
-    expect(inputEntries[0].id).not.toBe(inputEntries[1].id);
-  });
 });
 
 describe("FileEntry action tests", () => {

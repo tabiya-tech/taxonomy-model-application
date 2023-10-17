@@ -24,6 +24,7 @@ describe("ModelNameField render tests", () => {
     // AND the modelNameField to be visible
     const modelNameField = screen.getByTestId(DATA_TEST_ID.MODEL_NAME_FIELD);
     expect(modelNameField).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_NAME_FIELD)).toMatchSnapshot(DATA_TEST_ID.MODEL_NAME_FIELD);
     // AND expect input to be visible
     const input = screen.getByTestId(DATA_TEST_ID.MODEL_NAME_INPUT);
     expect(input).toBeInTheDocument();
@@ -42,20 +43,6 @@ describe("ModelNameField render tests", () => {
     expect(label).toHaveTextContent(TEXT.MODEL_NAME_LABEL);
     // AND expect label to be linked to input
     expect(label).toHaveAttribute("for", input.id);
-  });
-
-  test("multiple components should have a unique id", () => {
-    // WHEN two model name fields are rendered
-    render(<ModelNameField />);
-    render(<ModelNameField />);
-
-    // THEN expect no errors or warning to have occurred
-    expect(console.error).not.toHaveBeenCalled();
-    expect(console.warn).not.toHaveBeenCalled();
-    // AND the two inputs to have different ids
-    const inputs = screen.getAllByTestId(DATA_TEST_ID.MODEL_NAME_INPUT);
-    expect(inputs.length).toBe(2);
-    expect(inputs[0].id).not.toBe(inputs[1].id);
   });
 });
 

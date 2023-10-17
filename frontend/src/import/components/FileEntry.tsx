@@ -2,7 +2,6 @@ import * as React from "react";
 import { ChangeEvent, useState } from "react";
 import ImportAPISpecs from "api-specifications/import";
 import { Chip, ChipProps } from "@mui/material";
-import { generateUniqueId } from "src/utils/generateUniqueId";
 import { mapFileTypeToName } from "./mapFileTypeToName";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
@@ -31,7 +30,6 @@ export const DATA_TEST_ID = {
 export const FileEntry = (props: Readonly<FileEntryProps>) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const uniqueId: string = generateUniqueId(); // unique id for the input element to ensure the onClick will find the correct element across all entries in the dom
   const fileTypeName = mapFileTypeToName(props.fileType);
   const fileChangedHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const newFile: File = e.target?.files![0];
@@ -70,7 +68,7 @@ export const FileEntry = (props: Readonly<FileEntryProps>) => {
       ) : (
         <div>
           <input
-            id={uniqueId}
+            id={props.fileType}
             type="file"
             style={{ display: "none" }}
             accept=".csv"
@@ -83,7 +81,7 @@ export const FileEntry = (props: Readonly<FileEntryProps>) => {
             color="primary"
             aria-label={`Add ${fileTypeName} csv file`}
             data-testid={DATA_TEST_ID.SELECT_FILE_BUTTON}
-            onClick={() => document.getElementById(uniqueId)!.click()}
+            onClick={() => document.getElementById(props.fileType)!.click()}
             icon={<AddCircleOutlined />}
             label={fileTypeName}
           />

@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelDescriptionField render tests should render default state: model-desc-field-110643ab-593e-47dc-b398-ecc98518660e 1`] = `
+<div
+  class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
+  data-testid="model-desc-field-110643ab-593e-47dc-b398-ecc98518660e"
+>
+  <div
+    class="MuiStack-root makeStyles-fieldStack-2 css-zgbp5c-MuiStack-root"
+  >
+    <label
+      class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1t98sa8-MuiFormLabel-root"
+      data-testid="model-desc-label-110643ab-593e-47dc-b398-ecc98518660e"
+      for="n4i5j5t"
+    >
+      Model Description
+    </label>
+    <div
+      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-rtcmbj-MuiInputBase-root-MuiInput-root"
+      style="max-width: 100%; min-width: 100%; max-height: 20rem; min-height: 6rem;"
+    >
+      <textarea
+        aria-invalid="false"
+        class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
+        data-testid="model-desc-input-110643ab-593e-47dc-b398-ecc98518660e"
+        id="n4i5j5t"
+        placeholder="Enter model description"
+        rows="10"
+        style="height: 0px; overflow: hidden;"
+      />
+      <textarea
+        aria-hidden="true"
+        class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
+        readonly=""
+        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
+        tabindex="-1"
+      />
+    </div>
+  </div>
+</div>
+`;

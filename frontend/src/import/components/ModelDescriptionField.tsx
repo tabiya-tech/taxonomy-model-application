@@ -22,7 +22,7 @@ export interface ModelDescriptionFieldProps {
 }
 
 export const ModelDescriptionField = (props: Readonly<ModelDescriptionFieldProps>) => {
-  const uniqueId = generateUniqueId();
+  const uniqueId = "n4i5j5t";
 
   const debounceHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL);
 

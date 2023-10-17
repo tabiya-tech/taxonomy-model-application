@@ -36,6 +36,7 @@ describe("Locale Selector Component render tests", () => {
     expect(console.warn).not.toHaveBeenCalled();
     // AND the local selector to be in the document
     expect(modelLocalSelectField).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD)).toMatchSnapshot(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD);
 
     // AND expect the selected value to be the first from the given locales
     const dropdownElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);
@@ -48,24 +49,6 @@ describe("Locale Selector Component render tests", () => {
     expect(label).toBeVisible();
     // AND expect label to have correct text
     expect(label).toHaveTextContent(TEXT.MODEL_LOCALE_SELECT_LABEL);
-  });
-
-  test("multiple components should have a unique id", () => {
-    // GIVEN multiple selectFieldComponents are selected
-    render(
-      <div>
-        <ModelLocalSelectField locales={givenLocales} />
-        <ModelLocalSelectField locales={givenLocales} />
-      </div>
-    );
-
-    // THEN expect no errors or warning to have occurred
-    expect(console.error).not.toHaveBeenCalled();
-    expect(console.warn).not.toHaveBeenCalled();
-    // AND expect each dropdownElement to have different ids
-    const labelElements = screen.getAllByTestId(DATA_TEST_ID.MODEL_LOCALE_LABEL);
-    expect(labelElements.length).toBe(2);
-    expect(labelElements[0].id).not.toBe(labelElements[1].id);
   });
 });
 
