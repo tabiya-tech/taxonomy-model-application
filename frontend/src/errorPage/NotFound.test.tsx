@@ -15,5 +15,6 @@ describe("NotFound", () => {
     expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_CONTAINER)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_ILLUSTRATION)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_MESSAGE)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.NOT_FOUND_CONTAINER)).toMatchSnapshot(DATA_TEST_ID.NOT_FOUND_CONTAINER);
   });
 });
