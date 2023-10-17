@@ -92,6 +92,7 @@ describe("ImportModel dialog render tests", () => {
     // AND the dialog to be in the document
     const dialogBox = screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG);
     expect(dialogBox).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toMatchSnapshot(DATA_TEST_ID.IMPORT_MODEL_DIALOG);
     // AND expect the Import button to exist
     const importButtonElement = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
     expect(importButtonElement).toBeInTheDocument();

@@ -1,0 +1,142 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportFilesSelection render tests should render default state: import-files-selection-e60583c2-9ce5-47e0-bb8f-d2a4349dde15 1`] = `
+<div
+  class="MuiStack-root css-ri2h3u-MuiStack-root"
+  data-testid="import-files-selection-e60583c2-9ce5-47e0-bb8f-d2a4349dde15"
+>
+  <label
+    class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
+  >
+    Select files to import
+    <span
+      aria-hidden="true"
+      class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
+    >
+       
+      *
+    </span>
+  </label>
+  <div
+    class="MuiGrid-root css-7053uj-MuiGrid-root"
+  >
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-testid="mock-file-entry"
+      >
+        Mock FileEntry
+      </div>
+    </div>
+  </div>
+</div>
+`;

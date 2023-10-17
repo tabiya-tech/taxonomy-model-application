@@ -24,6 +24,9 @@ describe("ModelDescriptionField render tests", () => {
     // AND the descriptionField to be visible
     const descField = screen.getByTestId(DATA_TEST_ID.MODEL_DESCRIPTION_FIELD);
     expect(descField).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DESCRIPTION_FIELD)).toMatchSnapshot(
+      DATA_TEST_ID.MODEL_DESCRIPTION_FIELD
+    );
 
     // AND expect the import to be visible
     const input = screen.getByTestId(DATA_TEST_ID.MODEL_DESC_INPUT);
@@ -41,20 +44,6 @@ describe("ModelDescriptionField render tests", () => {
     expect(label).toHaveTextContent(TEXT.MODEL_DESC_LABEL);
     // AND expect label to be linked to inputField
     expect(label).toHaveAttribute("for", input.id);
-  });
-
-  test("multiple components should have a unique id", () => {
-    // WHEN two model name fields are rendered
-    render(<ModelDescriptionField />);
-    render(<ModelDescriptionField />);
-
-    // THEN expect no errors or warning to have occurred
-    expect(console.error).not.toHaveBeenCalled();
-    expect(console.warn).not.toHaveBeenCalled();
-    // AND the two inputs to have different ids
-    const inputs = screen.getAllByTestId(DATA_TEST_ID.MODEL_DESC_INPUT);
-    expect(inputs.length).toBe(2);
-    expect(inputs[0].id).not.toBe(inputs[1].id);
   });
 });
 

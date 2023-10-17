@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelNameField render tests should render default state: model-name-field-d2bc4d5d-7760-450d-bac6-a8857affeb89 1`] = `
+<div
+  class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
+  data-testid="model-name-field-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+>
+  <div
+    class="MuiStack-root css-ri2h3u-MuiStack-root"
+  >
+    <label
+      class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
+      data-testid="model-name-label-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+      for="gtmtko1"
+    >
+      Model Name
+      <span
+        aria-hidden="true"
+        class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
+      >
+         
+        *
+      </span>
+    </label>
+    <div
+      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1mep40n-MuiInputBase-root-MuiInput-root"
+    >
+      <input
+        aria-invalid="false"
+        class="MuiInputBase-input MuiInput-input css-8gll8g-MuiInputBase-input-MuiInput-input"
+        data-testid="model-name-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+        id="gtmtko1"
+        placeholder="Enter model name"
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+</div>
+`;

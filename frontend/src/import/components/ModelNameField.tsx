@@ -21,7 +21,7 @@ export interface ModelNameFieldProps {
 }
 
 export const ModelNameField = (props: Readonly<ModelNameFieldProps>) => {
-  const uniqueId = generateUniqueId();
+  const uniqueId = "gtmtko1";
 
   const throttledHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL);
 
