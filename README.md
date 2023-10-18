@@ -83,13 +83,19 @@ You can find the configuration in the **[.prettierrc.json](@tabiya/prettier-conf
 > **Note:**  
 For Intellij IDEA, if you make any changes to the prettier config file, you many have to restart your IDE to make sure the changes are applied, before you can format the code using the IDE's formatting function.
 
-### **Conventional Commits**
+### Conventional Commits
 
 Please follow the **[Conventional Commits](https://www.conventionalcommits.org/)** format for your commit messages.
 
-### **Guidelines for Readable BDD Testing**
+### Guidelines for Readable BDD Testing
 
 To contribute to our 100% code coverage goal, refer to our "Guidelines for Readable BDD Testing" in the **[testing-guidelines.md](testing-guidelines.md)**
+
+### Guidelines for Log assertions
+To ensure component stability, refer to our "Guidelines for log assertions" in the **[log-assertions-guidelines.md](log-assertions-guidelines.md)**
+### Guidelines for Snapshot Testing 
+
+To ensure component stability, refer to our "Snapshot Testing Guidelines" in the **[snapshot-testing-guidelines.md](snapshot-testing-guidelines.md)**
 
 ## Getting Started
 To work with this repository you should have a system with a bash compatible terminal (linux, macOS, cygwin) as most of the scripts are written for bash and will not work on windows cmd or powershell. 
