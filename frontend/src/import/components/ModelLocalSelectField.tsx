@@ -1,7 +1,6 @@
 import { FormControl, Stack, MenuItem, Select, FormLabel, SelectChangeEvent, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
 import Locale from "api-specifications/locale";
-import { generateUniqueId } from "src/utils/generateUniqueId";
 import { isUnspecified } from "src/utils/isUnspecified";
 
 export const TEXT = {

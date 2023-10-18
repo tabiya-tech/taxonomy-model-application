@@ -196,6 +196,10 @@ describe("ModelDirectory", () => {
           expect.anything()
         );
       });
+      // AND expect the ModelDirectory to match the snapshot
+      expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toMatchSnapshot(
+        MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE
+      );
     });
 
     test("should re-render the modelTable when new models are fetched", async () => {
@@ -226,6 +230,10 @@ describe("ModelDirectory", () => {
       await waitFor(() => {
         expect(ModelsTable).toHaveBeenNthCalledWith(3, { models: ["foo2"], isLoading: false }, {});
       });
+      // AND expect the ModelDirectory to match the snapshot
+      expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toMatchSnapshot(
+        MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE
+      );
     });
 
     test("should not re-render the modelTable when the models fetched are the same as the previous", async () => {
