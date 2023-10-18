@@ -1,8 +1,11 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
-
 import { act, render, screen, waitFor } from "src/_test_utilities/test-utils";
-import ModelDirectory, { availableLocales, DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID } from "./ModelDirectory";
+import ModelDirectory, {
+  availableLocales,
+  DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID,
+  SNACKBAR_ID,
+} from "./ModelDirectory";
 import ImportModelDialog, {
   DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID,
   ImportData,
@@ -51,6 +54,7 @@ jest.mock("src/theme/SnackbarProvider/SnackbarProvider", () => {
     __esModule: true,
     useSnackbar: jest.fn().mockReturnValue({
       enqueueSnackbar: jest.fn(),
+      closeSnackbar: jest.fn(),
     }),
   };
 });
@@ -205,7 +209,7 @@ describe("ModelDirectory Render", () => {
       // THEN expect a snackbar with the error message to be shown
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
         `Failed to fetch the models. Please check your internet connection.`,
-        { variant: "error" }
+        { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR }
       );
     });
     // AND the ModelsTable props to remain the same
@@ -253,7 +257,7 @@ describe("ModelDirectory Render", () => {
       // THEN expect a snackbar with the error message to be shown
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
         `Failed to fetch the models. Please check your internet connection.`,
-        { variant: "error" }
+        { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR }
       );
     });
     // AND the ModelsTable to have been called with the previous props
@@ -289,6 +293,37 @@ describe("ModelDirectory Render", () => {
     expect(actualModelDirectory).not.toBeInTheDocument();
     // THEN expect the timer to have been cleared
     expect(clearIntervalSpy).toHaveBeenCalledWith(timerId);
+  });
+
+  test("should listen to user online and close offline snackbar", async () => {
+    // GIVEN the model info service will fail network error
+    const givenError = new Error("foo");
+    jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((_, onError) => {
+      onError(givenError);
+      return 1 as unknown as NodeJS.Timer;
+    });
+
+    const addEventListenerSpy = jest.spyOn(window, "addEventListener");
+    const removeEventListenerSpy = jest.spyOn(window, "removeEventListener");
+
+    // WHEN the ModelDirectory is mounted
+    const { unmount } = render(<ModelDirectory />);
+
+    // THEN the ModelsTable should listen to online event
+    expect(addEventListenerSpy).toHaveBeenCalledWith("online", expect.any(Function));
+
+    // WHEN the user is back online
+    const onlineEvent = new Event("online");
+    window.dispatchEvent(onlineEvent);
+    // THEN the snackbar should be closed
+    expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_ID.INTERNET_ERROR);
+    
+    // WHEN the ModelDirectory is unmounted
+    await waitFor(() => {
+      unmount();
+    });
+    // THEN the ModelsTable should remove registered event
+    expect(removeEventListenerSpy).toHaveBeenCalledWith("online", expect.any(Function));
   });
 });
 describe("ModelDirectory.ImportDialog action tests", () => {

@@ -18,6 +18,9 @@ export const DATA_TEST_ID = {
   IMPORT_MODEL_BUTTON: `import-model-button-${uniqueId}`,
 };
 
+export const SNACKBAR_ID = {
+  INTERNET_ERROR: `internet-error-${uniqueId}`,
+};
 const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
 const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
 export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
@@ -39,7 +42,7 @@ const ModelDirectory = () => {
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
 
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const showImportDialog = (b: boolean) => {
     setIsImportDlgOpen(b);
@@ -52,7 +55,10 @@ const ModelDirectory = () => {
         setIsLoadingModels(false);
       },
       (e) => {
-        enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, { variant: "error" });
+        enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, {
+          variant: "error",
+          key: SNACKBAR_ID.INTERNET_ERROR,
+        });
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
@@ -92,6 +98,17 @@ const ModelDirectory = () => {
       }
     }
   };
+
+  const handleBackOnline = useCallback(() => {
+    closeSnackbar(SNACKBAR_ID.INTERNET_ERROR);
+  }, [closeSnackbar]);
+
+  useEffect(() => {
+    window.addEventListener("online", handleBackOnline);
+    return () => {
+      window.removeEventListener("online", handleBackOnline);
+    };
+  }, [handleBackOnline]);
 
   useEffect(() => {
     const timerId = handleModelInfoFetch();
