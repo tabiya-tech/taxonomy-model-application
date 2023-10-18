@@ -244,6 +244,8 @@ describe("ModelDirectory", () => {
           expect.anything()
         );
       });
+      // AND expect the ModelDirectory to match the snapshot
+      expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toMatchSnapshot();
       // AND finally expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
@@ -295,6 +297,8 @@ describe("ModelDirectory", () => {
           {}
         );
       });
+      // AND expect the ModelDirectory to match the snapshot
+      expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toMatchSnapshot();
       // AND finally expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();

@@ -28,7 +28,8 @@ describe("ModelDirectoryHeader", () => {
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toBeInTheDocument();
-
+    // AND to match the snapshot
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toMatchSnapshot();
     // AND the import button to be disabled when offline
     expect(PrimaryButtonModule.default as jest.Mock).toHaveBeenCalledWith(
       expect.objectContaining({

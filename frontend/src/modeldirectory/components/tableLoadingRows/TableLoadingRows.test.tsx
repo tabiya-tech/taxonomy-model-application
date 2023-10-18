@@ -37,5 +37,7 @@ describe("TableLoadingRows", () => {
     const skeletonCellElements = screen.getAllByTestId(DATA_TEST_ID.SKELETON_CELL);
     const availableNumberOfCols = skeletonCellElements.length / skeletonRowElements.length;
     expect(availableNumberOfCols).toBe(givenNumberOfCols);
+    // AND to match the snapshot
+    expect(skeletonRowElements).toMatchSnapshot();
   });
 });

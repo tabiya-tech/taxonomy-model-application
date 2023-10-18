@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelDirectoryHeader should render model directory header component 1`] = `
+<div
+  class="MuiBox-root css-147x205"
+  data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
+>
+  <h2
+    class="MuiTypography-root MuiTypography-h2 css-ca93eg-MuiTypography-root"
+    data-testid="model-directory-title-8482f1cc-0786-423f-821e-34b6b712d78u"
+  >
+    Model Directory
+  </h2>
+  <button
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-disableElevation css-fwypri-MuiButtonBase-root-MuiButton-root"
+    data-testid="import-model-button-8482f1cc-0786-423f-821e-34b6b712d78u"
+    tabindex="0"
+    type="button"
+  >
+    <span
+      class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+        data-testid="AddCircleOutlinedIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+        />
+      </svg>
+    </span>
+    Import Model
+    <span
+      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+    />
+  </button>
+</div>
+`;
