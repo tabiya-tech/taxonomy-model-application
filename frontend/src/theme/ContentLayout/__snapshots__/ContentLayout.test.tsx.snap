@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ContentLayout should render: content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a 1`] = `
+<div
+  class="MuiGrid-root MuiGrid-container css-8o40vp-MuiGrid-root"
+  data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
+>
+  <div
+    class="MuiBox-root css-41nwi1"
+  >
+    <div
+      class="MuiGrid-root MuiGrid-item css-1ov9i1n-MuiGrid-root"
+    >
+      <div
+        data-testid="header-test-id"
+      />
+    </div>
+    <div
+      class="MuiGrid-root MuiGrid-item css-19ozofz-MuiGrid-root"
+    >
+      <div
+        data-testid="main-test-id"
+      />
+    </div>
+  </div>
+</div>
+`;

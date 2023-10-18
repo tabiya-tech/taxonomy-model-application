@@ -21,6 +21,7 @@ describe("Cancel Button tests", () => {
     // AND the component should be in the document
     const cancelButton = screen.getByTestId("foo");
     expect(cancelButton).toBeInTheDocument();
+    expect(cancelButton).toMatchSnapshot("foo");
   });
 
   test("should render cancel button with provided name", () => {
@@ -37,5 +38,6 @@ describe("Cancel Button tests", () => {
     const cancelButton = screen.getByText(customName);
     // AND the component should be in the document
     expect(cancelButton).toBeInTheDocument();
+    expect(cancelButton).toMatchSnapshot(customName);
   });
 });

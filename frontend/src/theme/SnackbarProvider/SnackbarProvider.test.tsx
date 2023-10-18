@@ -22,6 +22,7 @@ describe("SnackbarProvider render tests", () => {
 
     const childElement = screen.getByTestId("test-child");
     expect(childElement).toBeInTheDocument();
+    expect(childElement).toMatchSnapshot("test-child");
   });
 });
 
@@ -56,6 +57,7 @@ describe("SnackbarProvider render action tests", () => {
     await act(() => jest.runOnlyPendingTimers());
     const closeButton = screen.getByTestId(DATA_TEST_ID.SNACKBAR_CLOSE_BUTTON);
     expect(closeButton).toBeVisible();
+    expect(closeButton).toMatchSnapshot(DATA_TEST_ID.SNACKBAR_CLOSE_BUTTON);
 
     // AND
     // WHEN the snackbar close button is clicked
