@@ -91,6 +91,10 @@ Please follow the **[Conventional Commits](https://www.conventionalcommits.org/)
 
 To contribute to our 100% code coverage goal, refer to our "Guidelines for Readable BDD Testing" in the **[testing-guidelines.md](testing-guidelines.md)**
 
+### **Guidelines for Snapshot Testing** 
+
+To ensure component stability and reliability, refer to our "Snapshot Testing Guidelines" in the **[snapshot-testing-guidelines.md](snapshot-testing-guidelines.md)**
+
 ## Getting Started
 To work with this repository you should have a system with a bash compatible terminal (linux, macOS, cygwin) as most of the scripts are written for bash and will not work on windows cmd or powershell. 
 
