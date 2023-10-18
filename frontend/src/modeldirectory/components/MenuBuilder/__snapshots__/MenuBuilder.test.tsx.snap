@@ -1,0 +1,103 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MenuBuilder Render tests render the menu visible 1`] = `
+<div
+  class="MuiPopover-root MuiMenu-root MuiModal-root css-10nakn3-MuiModal-root-MuiPopover-root-MuiMenu-root"
+  data-testid="2d06ac7f-1dd6-456a-97d8-54f34858d727-menu"
+  role="presentation"
+>
+  <div
+    aria-hidden="true"
+    class="MuiBackdrop-root MuiBackdrop-invisible MuiModal-backdrop css-g3hgs1-MuiBackdrop-root-MuiModal-backdrop"
+    style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+  />
+  <div
+    data-testid="sentinelStart"
+    tabindex="0"
+  />
+  <div
+    class="MuiPaper-root MuiMenu-paper MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 MuiPopover-paper css-76nwsu-MuiPaper-root-MuiMenu-paper-MuiPopover-paper"
+    style="opacity: 1; transform: scale(1, 1); transition: opacity 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; top: 16px; left: 16px; transform-origin: -16px -16px;"
+    tabindex="-1"
+  >
+    <ul
+      class="MuiList-root MuiList-padding MuiMenu-list css-6hp17o-MuiList-root-MuiMenu-list"
+      role="menu"
+      tabindex="-1"
+    >
+      <button
+        class="MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters Mui-focusVisible MuiMenuItem-root MuiMenuItem-gutters css-ram008-MuiButtonBase-root-MuiMenuItem-root"
+        data-testid="2d06ac7f-1dd6-456a-97d8-54f34858d727-menu-item"
+        role="menuitem"
+        tabindex="0"
+        type="button"
+      >
+        <div
+          class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+          data-testid="2d06ac7f-1dd6-456a-97d8-54f34858d727-menu-item-icon"
+        >
+          <span
+            aria-hidden="true"
+            class="material-icons notranslate MuiIcon-root MuiIcon-colorPrimary MuiIcon-fontSizeMedium css-140lp5m-MuiIcon-root"
+          >
+            <div>
+              icon1
+            </div>
+          </span>
+        </div>
+        <div
+          class="MuiListItemText-root css-tlelie-MuiListItemText-root"
+          data-testid="2d06ac7f-1dd6-456a-97d8-54f34858d727-menu-item-text"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1w1i5dg-MuiTypography-root"
+          >
+            Item 1
+          </span>
+        </div>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        class="MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters MuiMenuItem-root MuiMenuItem-gutters css-ram008-MuiButtonBase-root-MuiMenuItem-root"
+        data-testid="2d06ac7f-1dd6-456a-97d8-54f34858d727-menu-item"
+        role="menuitem"
+        tabindex="-1"
+        type="button"
+      >
+        <div
+          class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+          data-testid="2d06ac7f-1dd6-456a-97d8-54f34858d727-menu-item-icon"
+        >
+          <span
+            aria-hidden="true"
+            class="material-icons notranslate MuiIcon-root MuiIcon-colorPrimary MuiIcon-fontSizeMedium css-140lp5m-MuiIcon-root"
+          >
+            <div>
+              icon2
+            </div>
+          </span>
+        </div>
+        <div
+          class="MuiListItemText-root css-tlelie-MuiListItemText-root"
+          data-testid="2d06ac7f-1dd6-456a-97d8-54f34858d727-menu-item-text"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1w1i5dg-MuiTypography-root"
+          >
+            Item 2
+          </span>
+        </div>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </ul>
+  </div>
+  <div
+    data-testid="sentinelEnd"
+    tabindex="0"
+  />
+</div>
+`;
