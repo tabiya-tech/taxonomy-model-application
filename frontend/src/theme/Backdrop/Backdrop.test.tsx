@@ -24,6 +24,7 @@ describe("Backdrop render tests", () => {
     // AND the Backdrop should be visible
     const backdrop = screen.getByTestId(DATA_TEST_ID.BACKDROP_CONTAINER);
     expect(backdrop).toBeVisible();
+    expect(backdrop).toMatchSnapshot(DATA_TEST_ID.BACKDROP_CONTAINER);
 
     // AND the message should be visible
     const message = screen.getByTestId(DATA_TEST_ID.MESSAGE_ELEMENT);
