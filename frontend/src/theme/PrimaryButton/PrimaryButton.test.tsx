@@ -23,6 +23,8 @@ describe("Primary Button tests", () => {
     // AND  the component should be in the document
     const primaryButton = screen.getByTestId("foo");
     expect(primaryButton).toBeInTheDocument();
+    // AND the component should match the snapshot
+    expect(primaryButton).toMatchSnapshot();
   });
 
   test("should render the button with provided name", () => {
@@ -39,6 +41,8 @@ describe("Primary Button tests", () => {
     const primaryButton = screen.getByText(customName);
     // AND the component should be in the document
     expect(primaryButton).toBeInTheDocument();
+    // AND the component should match the snapshot
+    expect(primaryButton).toMatchSnapshot();
   });
 
   describe.each([
