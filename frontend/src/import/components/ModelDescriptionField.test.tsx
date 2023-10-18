@@ -24,7 +24,9 @@ describe("ModelDescriptionField render tests", () => {
     // AND the descriptionField to be visible
     const descField = screen.getByTestId(DATA_TEST_ID.MODEL_DESCRIPTION_FIELD);
     expect(descField).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DESCRIPTION_FIELD)).toMatchSnapshot(DATA_TEST_ID.MODEL_DESCRIPTION_FIELD);
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DESCRIPTION_FIELD)).toMatchSnapshot(
+      DATA_TEST_ID.MODEL_DESCRIPTION_FIELD
+    );
 
     // AND expect the import to be visible
     const input = screen.getByTestId(DATA_TEST_ID.MODEL_DESC_INPUT);

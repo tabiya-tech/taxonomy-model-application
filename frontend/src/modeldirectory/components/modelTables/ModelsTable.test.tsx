@@ -184,7 +184,7 @@ describe("ModelsTable", () => {
     const givenModel = fakeModel;
 
     // WHEN the ModelsTable is rendered with the given model
-     // @ts-ignore
+    // @ts-ignore
     render(<ModelsTable models={givenModel} />);
 
     // THEN expect the table to be show

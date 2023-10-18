@@ -18,9 +18,7 @@ const ImportFilesSelection = (props: Readonly<ImportFilesSelectionProps>) => {
   const classes = useStyles();
   return (
     <Stack className={classes.fieldStack} spacing={0.5} data-testid={DATA_TEST_ID.IMPORT_FILES_SELECTION}>
-      <FormLabel required>
-        Select files to import
-      </FormLabel>
+      <FormLabel required>Select files to import</FormLabel>
       <Grid sx={{ display: "flex", flexWrap: "wrap" }}>
         {Object.entries(ImportAPISpecs.Constants.ImportFileTypes).map((entry) => (
           <Box

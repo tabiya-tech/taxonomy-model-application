@@ -36,7 +36,9 @@ describe("Locale Selector Component render tests", () => {
     expect(console.warn).not.toHaveBeenCalled();
     // AND the local selector to be in the document
     expect(modelLocalSelectField).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD)).toMatchSnapshot(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD);
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD)).toMatchSnapshot(
+      DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD
+    );
 
     // AND expect the selected value to be the first from the given locales
     const dropdownElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);

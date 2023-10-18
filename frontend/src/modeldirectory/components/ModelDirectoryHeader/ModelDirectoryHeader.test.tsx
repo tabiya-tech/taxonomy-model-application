@@ -23,7 +23,9 @@ describe("ModelDirectoryHeader", () => {
     expect(console.warn).not.toHaveBeenCalled();
     // AND specific elements to be present in the document
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toMatchSnapshot(DATA_TEST_ID.MODEL_DIRECTORY_HEADER);
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toMatchSnapshot(
+      DATA_TEST_ID.MODEL_DIRECTORY_HEADER
+    );
     expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toBeInTheDocument();
   });
