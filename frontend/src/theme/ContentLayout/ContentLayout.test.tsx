@@ -32,6 +32,8 @@ describe("ContentLayout", () => {
 
     // AND the ContentLayout component should be in the document
     expect(screen.getByTestId(DATA_TEST_ID.CONTENT_LAYOUT)).toBeInTheDocument();
+    // AND the ContentLayout component should match the snapshot
+    expect(screen.getByTestId(DATA_TEST_ID.CONTENT_LAYOUT)).toMatchSnapshot();
     // THEN the header component is rendered
     expect(screen.getByTestId("header-test-id")).toBeInTheDocument();
     // AND the main component is rendered

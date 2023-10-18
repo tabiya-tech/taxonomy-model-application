@@ -53,16 +53,15 @@ describe("SnackbarProvider render action tests", () => {
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
     // AND the snackbar to be visible
-    await act(() => jest.runOnlyPendingTimers());
+    act(() => jest.runOnlyPendingTimers());
     const closeButton = screen.getByTestId(DATA_TEST_ID.SNACKBAR_CLOSE_BUTTON);
     expect(closeButton).toBeVisible();
-
-    // AND
-    // WHEN the snackbar close button is clicked
+    // AND the button to match the snapshot
+    expect(closeButton).toMatchSnapshot();
+    // AND the snackbar close button is clicked
     await userEventFakeTimer.click(closeButton);
-
-    // THEN expect the snackbar should be closed
-    await act(() => jest.runOnlyPendingTimers());
+    // AND the snackbar should be closed
+    act(() => jest.runOnlyPendingTimers());
     expect(closeButton).not.toBeVisible();
 
     jest.useRealTimers();

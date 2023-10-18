@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SnackbarProvider render action tests should close the snackbar when the close button is clicked 1`] = `
+<button
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-8am8gs-MuiButtonBase-root-MuiIconButton-root"
+  data-testid="snackbar-close-button-bade4e92-baed-40f8-a098-0e745563e786"
+  tabindex="0"
+  title="Close notification"
+  type="button"
+>
+  <svg
+    aria-hidden="true"
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-12bfw96-MuiSvgIcon-root"
+    data-testid="CloseIcon"
+    focusable="false"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+    />
+  </svg>
+  <span
+    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+  />
+</button>
+`;
