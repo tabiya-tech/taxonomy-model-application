@@ -41,6 +41,7 @@ describe("ImportProcessStateIcon", () => {
       // AND every icon to be rendered
       allIconTestIds.forEach((testId) => {
         expect(screen.queryAllByTestId(testId).length).toBeGreaterThan(0);
+        expect(screen.queryAllByTestId(testId)).toMatchSnapshot(testId);
       });
     });
   });

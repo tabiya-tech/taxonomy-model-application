@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelDirectory Render ModelDirectory initial render tests: model-directory-root-8482f1cc-0786-423f-821e-34b6b712d63f 1`] = `
+<div
+  data-testid="model-directory-root-8482f1cc-0786-423f-821e-34b6b712d63f"
+  style="width: 100%; height: 100%;"
+>
+  <div
+    class="MuiGrid-root MuiGrid-container css-8o40vp-MuiGrid-root"
+    data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
+  >
+    <div
+      class="MuiBox-root css-41nwi1"
+    >
+      <div
+        class="MuiGrid-root MuiGrid-item css-1ov9i1n-MuiGrid-root"
+      >
+        <div
+          data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
+        >
+          My Model Directory Header
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item css-19ozofz-MuiGrid-root"
+      >
+        <div
+          data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+           My Models Table
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -33,6 +33,7 @@ describe("TableLoadingRows", () => {
     // AND the given number of rows to be shown
     const skeletonRowElements = screen.getAllByTestId(DATA_TEST_ID.SKELETON_ROW);
     expect(skeletonRowElements).toHaveLength(givenNumberOfRows);
+    expect(skeletonRowElements).toMatchSnapshot(DATA_TEST_ID.SKELETON_ROW);
     // AND the given number of columns to be shown
     const skeletonCellElements = screen.getAllByTestId(DATA_TEST_ID.SKELETON_CELL);
     const availableNumberOfCols = skeletonCellElements.length / skeletonRowElements.length;

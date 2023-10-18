@@ -181,6 +181,10 @@ describe("ModelDirectory Render", () => {
     await waitFor(() => {
       expect(ModelsTable).toHaveBeenNthCalledWith(2, { models: givenMockData, isLoading: false }, expect.anything());
     });
+    // AND expect the ModelDirectory to match the snapshot
+    expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toMatchSnapshot(
+      MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE
+    );
   });
 
   test("should show the error message when data fetching fails while the table is loading for the first time", async () => {
