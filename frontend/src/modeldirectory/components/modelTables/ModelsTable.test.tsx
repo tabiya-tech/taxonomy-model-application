@@ -4,6 +4,7 @@ import "src/_test_utilities/consoleMock";
 import { render, screen, within } from "src/_test_utilities/test-utils";
 import ModelsTable, { CELL_MAX_LENGTH, DATA_TEST_ID, TEXT } from "./ModelsTable";
 import {
+  fakeModel,
   getArrayOfFakeModels,
   getArrayOfRandomModelsMaxLength,
   getOneRandomModelMaxLength,
@@ -176,6 +177,20 @@ describe("ModelsTable", () => {
       }
       expect(actualModelCells[actualModelDescriptionHeaderIndex]).toHaveTextContent(expectedDescription);
     });
+  });
+
+  test("should render the table and match the snapshot", () => {
+    // GIVEN a model
+    const givenModel = fakeModel;
+
+    // WHEN the ModelsTable is rendered with the given model
+    // @ts-ignore
+    render(<ModelsTable models={givenModel} />);
+
+    // THEN expect the table to be show
+    const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
+    expect(tableElement).toBeInTheDocument();
+    expect(tableElement).toMatchSnapshot(DATA_TEST_ID.MODELS_TABLE_ID);
   });
 
   test.each([

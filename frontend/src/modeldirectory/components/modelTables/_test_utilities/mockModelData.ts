@@ -8,6 +8,7 @@ import { getMockId } from "src/_test_utilities/mockMongoId";
 import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
 import { faker } from "@faker-js/faker";
 import { CELL_MAX_LENGTH } from "../ModelsTable";
+import { ImportProcessStateEnums } from "api-specifications/importProcessState/enums";
 
 export function getOneFakeModel(id?: number): ModelInfoTypes.ModelInfo {
   const model = getArrayOfFakeModels(1)[0];
@@ -140,6 +141,36 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
   }
   return models;
 }
+
+export const fakeModel: ModelInfoTypes.ModelInfo = {
+  UUID: "8d914eab-6f7d-4183-accc-a09f99887b39",
+  createdAt: new Date("2023-10-18T17:35:10.571Z"),
+  description: "aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm",
+  id: "000000000000000000000001",
+  importProcessState: {
+    id: "000000000000000000000001",
+    result: {
+      errored: true,
+      parsingErrors: true,
+      parsingWarnings: true,
+    },
+    status: ImportProcessStateEnums.Status.PENDING,
+  },
+  locale: {
+    UUID: "7c4ea00b-fbea-4a31-9c04-009c813f5f34",
+    name: "Palestine",
+    shortCode: "ETH",
+  },
+  name: "1/1 - fysmros tcgcnjbbrrev",
+  originUUID: "fed55cd7-2a8b-4e24-8ee6-4e1aa8f8b0ab",
+  path: "https://unwelcome-editorial.net/",
+  previousUUID: "b7095a47-f5dd-4142-a7d7-a7eb3e207d3a",
+  releaseNotes: "Perferendis modi impedit necessitatibus a",
+  released: true,
+  tabiyaPath: "https://silver-vulture.biz",
+  updatedAt: new Date("2023-10-18T17:35:10.571Z"),
+  version: "0.2.2",
+};
 
 export function getRandomStatus(id: number) {
   const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
