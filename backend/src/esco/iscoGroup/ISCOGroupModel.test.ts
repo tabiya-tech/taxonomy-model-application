@@ -18,7 +18,7 @@ import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { IISCOGroupDoc } from "./ISCOGroup.types";
-import { testImportId } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the ISCOGroup Model", () => {
   let dbConnection: Connection;
@@ -89,38 +89,7 @@ describe("Test the definition of the ISCOGroup Model", () => {
   });
 
   describe("Validate ISCOGroup fields", () => {
-    describe("Test validation of 'modelId'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [
-          CaseType.Failure,
-          "not a objectId (string)",
-          "foo",
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [
-          CaseType.Failure,
-          "not a objectId (object)",
-          { foo: "bar" },
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-        [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
-      ])(
-        `(%s) Validate 'modelId' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "modelId", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testObjectIdField<IISCOGroupDoc>(() => ISCOGroupModel, "modelId");
 
     describe("Test validation of 'UUID'", () => {
       test.each([

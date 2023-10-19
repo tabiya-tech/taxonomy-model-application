@@ -19,7 +19,7 @@ import {
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillGroupDoc } from "./skillGroup.types";
-import { testImportId } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the skillGroup Model", () => {
   let dbConnection: Connection;
@@ -90,38 +90,7 @@ describe("Test the definition of the skillGroup Model", () => {
   });
 
   describe("Validate skillGroup fields", () => {
-    describe("Test validation of 'modelId'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [
-          CaseType.Failure,
-          "not a objectId (string)",
-          "foo",
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [
-          CaseType.Failure,
-          "not a objectId (object)",
-          { foo: "bar" },
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-        [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
-      ])(
-        `(%s) Validate 'modelId' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "modelId", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testObjectIdField<ISkillGroupDoc>(() => skillGroupModel, "modelId");
 
     describe("Test validation of 'UUID'", () => {
       test.each([
