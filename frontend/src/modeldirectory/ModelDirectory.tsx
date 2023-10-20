@@ -45,10 +45,28 @@ const ModelDirectory = () => {
     setIsImportDlgOpen(b);
   };
 
+  function modelArraysAreEqual(m1: ModelInfoTypes.ModelInfo[], m2: ModelInfoTypes.ModelInfo[]) {
+    if (m1.length !== m2.length) {
+      return false; // Different lengths, not equal
+    }
+
+    for (let i = 0; i < m1.length; i++) {
+      const obj1 = m1[i];
+      const obj2 = m2[i];
+      if (JSON.stringify(obj1) !== JSON.stringify(obj2)) {
+        return false; // Objects are not equal
+      }
+    }
+
+    return true; // Arrays are equal
+  }
+
   const handleModelInfoFetch = useCallback(() => {
     return modelInfoService.fetchAllModelsPeriodically(
-      (models) => {
-        setModels(models);
+      (fetchedModels) => {
+        if (!modelArraysAreEqual(fetchedModels, models)) {
+          setModels(fetchedModels);
+        }
         setIsLoadingModels(false);
       },
       (e) => {
@@ -60,7 +78,12 @@ const ModelDirectory = () => {
         }
       }
     );
-  }, [enqueueSnackbar]);
+    // It is important to pass models as a dependency otherwise the callback will always
+    // use the initial value of models, which is [], and the modelArrayAreEqual will always return false
+    // this has the side effect that when the models are updated, the callback is created again.
+    // This is not a problem because the useEffect is designed to handle this,
+    // by clearing the interval when the component is unmounted and also when the interval is recreated
+  }, [models, enqueueSnackbar]);
 
   const handleOnImportDialogClose = async (event: CloseEvent) => {
     showImportDialog(false);
@@ -100,6 +123,7 @@ const ModelDirectory = () => {
       clearInterval(timerId);
     };
   }, [handleModelInfoFetch]);
+
   return (
     <div style={{ width: "100%", height: "100%" }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
       <ContentLayout
