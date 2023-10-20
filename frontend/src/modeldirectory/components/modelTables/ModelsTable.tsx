@@ -67,14 +67,19 @@ const StyledBodyCell = (props: Readonly<TableCellProps>) => {
 export const CELL_MAX_LENGTH = 256;
 const ModelsTable = (props: Readonly<ModelsTableProps>) => {
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
-    if (!models?.length) return [];
     // sorts the incoming in descending order of createdAt
     return models.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   };
 
   const sortedModels = useMemo((): ModelInfoTypes.ModelInfo[] => {
-    return sortModels(props.models);
+    // handle empty array
+    if (!props.models?.length) return [];
+
+    // make a copy of the array to avoid mutating the original array
+    const toSortModels = [...props.models];
+    return sortModels(toSortModels);
   }, [props.models]);
+
   const paperElevation = 2; // px
   return (
     <Box
