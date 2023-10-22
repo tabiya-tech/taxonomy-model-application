@@ -6,7 +6,7 @@ import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { writeServiceErrorToLog } from "../error/logger";
 import { Backdrop } from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
-import { ModelInfoTypes } from "../modelInfo/modelInfoTypes";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
@@ -18,6 +18,9 @@ export const DATA_TEST_ID = {
   IMPORT_MODEL_BUTTON: `import-model-button-${uniqueId}`,
 };
 
+export const SNACKBAR_ID = {
+  INTERNET_ERROR: `internet-error-${uniqueId}`,
+};
 const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
 const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
 export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
@@ -39,7 +42,7 @@ const ModelDirectory = () => {
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
 
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const showImportDialog = (b: boolean) => {
     setIsImportDlgOpen(b);
@@ -68,9 +71,14 @@ const ModelDirectory = () => {
           setModels(fetchedModels);
         }
         setIsLoadingModels(false);
+        closeSnackbar(SNACKBAR_ID.INTERNET_ERROR);
       },
       (e) => {
-        enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, { variant: "error" });
+        enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, {
+          variant: "error",
+          key: SNACKBAR_ID.INTERNET_ERROR,
+          preventDuplicate: true,
+        });
         if (e instanceof ServiceError) {
           writeServiceErrorToLog(e, console.error);
         } else {
@@ -83,7 +91,7 @@ const ModelDirectory = () => {
     // this has the side effect that when the models are updated, the callback is created again.
     // This is not a problem because the useEffect is designed to handle this,
     // by clearing the interval when the component is unmounted and also when the interval is recreated
-  }, [models, enqueueSnackbar]);
+  }, [models, enqueueSnackbar, closeSnackbar]);
 
   const handleOnImportDialogClose = async (event: CloseEvent) => {
     showImportDialog(false);
