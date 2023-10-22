@@ -2,7 +2,11 @@
 import "src/_test_utilities/consoleMock";
 
 import { act, render, screen, waitFor } from "src/_test_utilities/test-utils";
-import ModelDirectory, { availableLocales, DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID } from "./ModelDirectory";
+import ModelDirectory, {
+  availableLocales,
+  DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID,
+  SNACKBAR_ID,
+} from "./ModelDirectory";
 import ImportModelDialog, {
   DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID,
   ImportData,
@@ -51,6 +55,7 @@ jest.mock("src/theme/SnackbarProvider/SnackbarProvider", () => {
     __esModule: true,
     useSnackbar: jest.fn().mockReturnValue({
       enqueueSnackbar: jest.fn(),
+      closeSnackbar: jest.fn(),
     }),
   };
 });
@@ -182,7 +187,14 @@ describe("ModelDirectory", () => {
       });
       // AND the ModelsTable should re-render with the resolved data and the loading prop should be set to false
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(2, { models: givenMockData, isLoading: false }, expect.anything());
+        expect(ModelsTable).toHaveBeenNthCalledWith(
+          2,
+          {
+            models: givenMockData,
+            isLoading: false,
+          },
+          expect.anything()
+        );
       });
     });
 
@@ -289,7 +301,7 @@ describe("ModelDirectory", () => {
         // THEN expect a snackbar with the error message to be shown
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
           `Failed to fetch the models. Please check your internet connection.`,
-          { variant: "error" }
+          { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR, preventDuplicate: true }
         );
       });
       // AND the ModelsTable props to remain the same
@@ -329,7 +341,14 @@ describe("ModelDirectory", () => {
       jest.advanceTimersToNextTimer();
       await waitFor(() => {
         // THEN expect the ModelsTable to have been called with the correct props
-        expect(ModelsTable).toHaveBeenNthCalledWith(2, { models: givenMockData, isLoading: false }, expect.anything());
+        expect(ModelsTable).toHaveBeenNthCalledWith(
+          2,
+          {
+            models: givenMockData,
+            isLoading: false,
+          },
+          expect.anything()
+        );
       });
       // AND WHEN the ModelInfoService fails
       jest.advanceTimersToNextTimer();
@@ -337,11 +356,48 @@ describe("ModelDirectory", () => {
         // THEN expect a snackbar with the error message to be shown
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
           `Failed to fetch the models. Please check your internet connection.`,
-          { variant: "error" }
+          { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR, preventDuplicate: true }
         );
       });
       // AND the ModelsTable to have been called with the previous props
       expect(ModelsTable).toHaveBeenLastCalledWith({ models: givenMockData, isLoading: false }, {});
+    });
+
+    test("should remove error snackbar when fetch model succeeds after it has failed", async () => {
+      // GIVEN the model info service will fails with some error two times then succeed at the third call
+      jest.useFakeTimers();
+      const givenMockData = ["foo"] as any;
+      const callback = jest.fn();
+      callback
+        .mockImplementationOnce((_, onError) => {
+          onError(new Error("foo"));
+        })
+        .mockImplementationOnce((onSuccess, _) => {
+          onSuccess(givenMockData);
+        });
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
+        return setInterval(() => callback(onSuccess, _), 1000);
+      });
+
+      // WHEN the ModelDirectory is mounted
+      render(<ModelDirectory />);
+
+      // AND WHEN the ModelInfoService fails at first
+      jest.advanceTimersToNextTimer();
+      await waitFor(() => {
+        // THEN expect a snackbar with the error message to be shown
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+          `Failed to fetch the models. Please check your internet connection.`,
+          { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR, preventDuplicate: true }
+        );
+      });
+
+      // AND WHEN the ModelInfoService succeeds
+      jest.advanceTimersToNextTimer();
+      await waitFor(() => {
+        // THEN expect a snackbar with the error message to be closed
+        expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_ID.INTERNET_ERROR);
+      });
     });
 
     test("should clear all the the timers created when the ModelDirectory is unmounted", async () => {
