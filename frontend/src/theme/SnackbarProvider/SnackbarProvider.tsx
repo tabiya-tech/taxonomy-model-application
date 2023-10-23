@@ -24,13 +24,32 @@ const SnackbarCloseButton = (key: SnackbarKey) => {
       title={"Close notification"}
       data-testid={DATA_TEST_ID.SNACKBAR_CLOSE_BUTTON}
       onClick={() => closeSnackbar(key)}
+      sx={{
+        margin: "0",
+        padding: "0",
+      }}
     >
-      <CloseIcon />
+      <CloseIcon
+        sx={{
+          margin: 0,
+          padding: 0,
+        }}
+      />
     </IconButton>
   );
 };
 
 const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) => ({
+  "&.notistack-MuiContent": {
+    // adjust the snackbar content to place the close button on the top right,
+    // so that the button is not hidden in case multiple snackbars are open and overlap,
+    // especially when the text is long
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    alignItems: "start",
+    // ---
+  },
   "&.notistack-MuiContent-success": {
     color: theme.palette.success.dark,
     backgroundColor: theme.palette.success.light,
@@ -89,6 +108,13 @@ const SnackbarProvider: React.FC<OriginalSnackbarProviderProps> = ({
       error: StyledMaterialDesignContent,
       warning: StyledMaterialDesignContent,
       info: StyledMaterialDesignContent,
+    },
+    dense: false,
+    style: {
+      // limit the width of the snackbar so that long text is wrapped in multiple lines
+      maxWidth: "600px",
+      whiteSpace: "normal",
+      // ---
     },
     ...props,
   };

@@ -1,3 +1,6 @@
+// mute the console output
+import "src/_test_utilities/consoleMock";
+
 import ModelInfoService, { INewModelSpecification, UPDATE_INTERVAL } from "./modelInfo.service";
 import { getTestString } from "src/_test_utilities/specialCharacters";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
@@ -30,7 +33,7 @@ describe("ModelInfoService", () => {
     givenApiServerUrl = "/path/to/api";
   });
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.resetAllMocks();
   });
 
   test("should construct the service successfully", () => {
@@ -96,12 +99,19 @@ describe("ModelInfoService", () => {
           0,
           ErrorCodes.FAILED_TO_FETCH,
           "",
-          ""
+          givenFetchError
         ),
         message: expect.any(String),
-        details: expect.any(Error),
       };
-      await expect(service.getAllModels()).rejects.toMatchObject(expectedError);
+      let error;
+      try {
+        await service.getAllModels();
+      } catch (err) {
+        error = err;
+      }
+      expect(error).toBeInstanceOf(ServiceError);
+      // AND expect error to be service error
+      expect(error).toMatchObject(expectedError);
     });
 
     test.each([
@@ -118,8 +128,6 @@ describe("ModelInfoService", () => {
 
         // WHEN the getAllModels function is called
         const service = new ModelInfoService(givenApiServerUrl);
-        const getAllModelsPromise = service.getAllModels();
-
         // THEN expect it to reject with the error response
         const expectedError = {
           ...new ServiceError(
@@ -135,7 +143,15 @@ describe("ModelInfoService", () => {
           message: expect.any(String),
           details: expect.anything(),
         };
-        await expect(getAllModelsPromise).rejects.toMatchObject(expectedError);
+        let error;
+        try {
+          await service.getAllModels();
+        } catch (err) {
+          error = err;
+        }
+        expect(error).toMatchObject(expectedError);
+        // AND expect error to be service error
+        expect(error).toBeInstanceOf(ServiceError);
       }
     );
 
@@ -149,7 +165,6 @@ describe("ModelInfoService", () => {
 
       // WHEN the getAllModels function is called
       const service = new ModelInfoService(givenApiServerUrl);
-      const getAllModelsPromise = service.getAllModels();
 
       // THEN expect it to reject with the error response
       const expectedError = {
@@ -166,7 +181,15 @@ describe("ModelInfoService", () => {
         message: expect.any(String),
         details: expect.anything(),
       };
-      await expect(getAllModelsPromise).rejects.toMatchObject(expectedError);
+      let error;
+      try {
+        await service.getAllModels();
+      } catch (err) {
+        error = err;
+      }
+      expect(error).toMatchObject(expectedError);
+      // AND expect error to be service error
+      expect(error).toBeInstanceOf(ServiceError);
     });
 
     test("on NOT 200, getAllModels() should reject with an error ERROR_CODE.API_ERROR that contains the body of the response", async () => {
@@ -178,8 +201,6 @@ describe("ModelInfoService", () => {
 
       // WHEN the getAllModels function is called
       const service = new ModelInfoService(givenApiServerUrl);
-      const getAllModelsPromise = service.getAllModels();
-
       // THEN expect it to reject with the error response
       const expectedError = {
         ...new ServiceError(
@@ -196,7 +217,15 @@ describe("ModelInfoService", () => {
         message: expect.any(String),
         details: givenResponse,
       };
-      await expect(getAllModelsPromise).rejects.toMatchObject(expectedError);
+      let error;
+      try {
+        await service.getAllModels();
+      } catch (err) {
+        error = err;
+      }
+      expect(error).toMatchObject(expectedError);
+      // AND expect error to be service error
+      expect(error).toBeInstanceOf(ServiceError);
     });
   });
 

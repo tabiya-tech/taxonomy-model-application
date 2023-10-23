@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import ImportModelDialog, { CloseEvent, ImportData } from "src/import/ImportModelDialog";
-import { ServiceError } from "src/error/error";
+import { ServiceError, getUserFriendlyErrorMessage } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { writeServiceErrorToLog } from "../error/logger";
@@ -78,7 +78,8 @@ const ModelDirectory = () => {
           closeSnackbar(SNACKBAR_ID.INTERNET_ERROR);
         },
         (e) => {
-          enqueueSnackbar(`Failed to fetch the models.`, {
+          const message = getUserFriendlyErrorMessage(e);
+          enqueueSnackbar(message, {
             variant: "error",
             key: SNACKBAR_ID.INTERNET_ERROR,
             preventDuplicate: true,

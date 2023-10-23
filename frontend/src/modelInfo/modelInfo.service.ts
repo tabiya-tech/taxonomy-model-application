@@ -164,45 +164,44 @@ export default class ModelInfoService {
     return allModelsResponse.map(this.transform);
   }
 
+  private _callGetAllModels(state: {
+    onSuccessCallback: (models: ModelInfoTypes.ModelInfo[]) => void;
+    onErrorCallBack: (error: ServiceError | Error) => void;
+    isFetching: boolean;
+  }) {
+    state.isFetching = true;
+    this.getAllModels()
+      .then(
+        (models) => {
+          state.onSuccessCallback(models);
+        },
+        (e: ServiceError) => {
+          state.onErrorCallBack(e);
+        }
+      )
+      .finally(() => {
+        state.isFetching = false;
+      });
+  }
+
   public fetchAllModelsPeriodically(
     onSuccessCallback: (models: ModelInfoTypes.ModelInfo[]) => void,
     onErrorCallBack: (error: ServiceError | Error) => void
   ) {
-    let isFetching = true;
-
-    // Fetch the models once immediately
-    this.getAllModels()
-      .then(
-        (models) => {
-          onSuccessCallback(models);
-        },
-        (e: ServiceError) => {
-          onErrorCallBack(e);
-        }
-      )
-      .finally(() => {
-        isFetching = false;
-      });
+    const state = {
+      onSuccessCallback,
+      onErrorCallBack,
+      isFetching: false,
+    };
+    this._callGetAllModels(state);
 
     // Fetch the models periodically
     return setInterval(() => {
-      if (isFetching) {
+      if (state.isFetching) {
         console.info("Skipping fetching the models, because a fetch is already in progress.");
         return;
       }
-      isFetching = true;
-      this.getAllModels()
-        .then(
-          (models) => {
-            onSuccessCallback(models);
-          },
-          (e: ServiceError) => {
-            onErrorCallBack(e);
-          }
-        )
-        .finally(() => {
-          isFetching = false;
-        });
+      this._callGetAllModels(state);
     }, UPDATE_INTERVAL);
   }
 

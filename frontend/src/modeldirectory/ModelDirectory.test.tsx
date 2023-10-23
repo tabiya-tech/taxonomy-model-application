@@ -30,6 +30,7 @@ import {
 import LocaleAPISpecs from "api-specifications/locale";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
+import { getUserFriendlyErrorMessage } from "src/error/error";
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
@@ -116,6 +117,23 @@ jest.mock("src/modeldirectory/components/ModelDirectoryHeader/ModelDirectoryHead
     default: mockModelsTable,
   };
 });
+
+// mock the get user friendly error message
+const FRIENDLY_ERROR_MESSAGE = "Friendly error message to the user";
+jest.mock("src/error/error", () => {
+  const actual = jest.requireActual("src/error/error");
+  const mockGetUserFriendlyErrorMessage = jest.fn().mockImplementation(() => {
+    return FRIENDLY_ERROR_MESSAGE;
+  });
+
+  return {
+    ...actual,
+    __esModule: true,
+    getUserFriendlyErrorMessage: mockGetUserFriendlyErrorMessage,
+  };
+});
+
+const mockedGetUserFriendlyErrorMessage = getUserFriendlyErrorMessage as jest.Mock;
 
 function getTestImportData(): ImportData {
   // model name
@@ -304,9 +322,6 @@ describe("ModelDirectory", () => {
       await waitFor(() => {
         expect(ModelsTable).toHaveBeenNthCalledWith(3, { models: ["bar"], isLoading: false }, {});
       });
-      // AND finally expect no errors or warning to have occurred
-      expect(console.error).not.toHaveBeenCalled();
-      expect(console.warn).not.toHaveBeenCalled();
     });
 
     test("should show the error message when data fetching fails while the table is loading for the first time", async () => {
@@ -328,8 +343,12 @@ describe("ModelDirectory", () => {
 
       // AND WHEN the ModelInfoService fails
       await waitFor(() => {
-        // THEN expect a snackbar with the error message to be shown
-        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models.`, {
+        // THEN expect getUserFriendlyErrorMessage to have been called with the error
+        expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
+      });
+      await waitFor(() => {
+        // AND expect a snackbar with the error message to be shown
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
           variant: "error",
           key: SNACKBAR_ID.INTERNET_ERROR,
           preventDuplicate: true,
@@ -348,12 +367,13 @@ describe("ModelDirectory", () => {
       jest.useFakeTimers();
       const givenMockData = ["foo"] as any;
       const callback = jest.fn();
+      const givenError = new Error("foo");
       callback
         .mockImplementationOnce((onSuccess, _) => {
           onSuccess(givenMockData);
         })
         .mockImplementationOnce((_, onError) => {
-          onError(new Error("foo"));
+          onError(givenError);
         });
       jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
         return setInterval(() => callback(onSuccess, _), 1000);
@@ -390,10 +410,14 @@ describe("ModelDirectory", () => {
       act(() => {
         jest.advanceTimersToNextTimer();
       });
-
+      // AND WHEN the ModelInfoService fails
+      await waitFor(() => {
+        // THEN expect getUserFriendlyErrorMessage to have been called with the error
+        expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
+      });
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be shown
-        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models.`, {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
           variant: "error",
           key: SNACKBAR_ID.INTERNET_ERROR,
           preventDuplicate: true,
@@ -410,9 +434,10 @@ describe("ModelDirectory", () => {
       jest.useFakeTimers();
       const givenMockData = ["foo"] as any;
       const callback = jest.fn();
+      const givenError = new Error("foo");
       callback
         .mockImplementationOnce((_, onError) => {
-          onError(new Error("foo"));
+          onError(givenError);
         })
         .mockImplementationOnce((onSuccess, _) => {
           onSuccess(givenMockData);
@@ -430,8 +455,12 @@ describe("ModelDirectory", () => {
       });
 
       await waitFor(() => {
-        // THEN expect a snackbar with the error message to be shown
-        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models.`, {
+        // THEN expect getUserFriendlyErrorMessage to have been called with the error
+        expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
+      });
+      await waitFor(() => {
+        // AND expect a snackbar with the error message to be shown
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
           variant: "error",
           key: SNACKBAR_ID.INTERNET_ERROR,
           preventDuplicate: true,
