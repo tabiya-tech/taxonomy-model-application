@@ -7,6 +7,8 @@ import { applicationTheme, ThemeMode } from "../src/theme/applicationTheme";
 // Since the fonts for the app are downloaded from a CDN in the index.css file
 // we need to load them here as well
 import "../src/index.css";
+// Load the application theme css file here
+import "../src/theme/application-theme.css"
 //If the application fonts are loaded from the index.tsx file via an import, then the fonts can be loaded here as well
 /*
 import "@fontsource/roboto/300.css";
