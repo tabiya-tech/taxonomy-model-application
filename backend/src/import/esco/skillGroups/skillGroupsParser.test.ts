@@ -103,12 +103,12 @@ describe("test parseSkillGroups from", () => {
       });
       // AND all the expected rows to have been processed successfully
       expect(actualStats).toEqual({
-        rowsProcessed: 4,
+        rowsProcessed: 5,
         rowsSuccess: expectedResults.length,
-        rowsFailed: 4 - expectedResults.length,
+        rowsFailed: 5 - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(2);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(3);
 
       expectedResults
         .filter((res: Omit<INewSkillGroupSpec, "modelId">) => isSpecified(res.importId))

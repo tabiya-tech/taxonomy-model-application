@@ -47,14 +47,14 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<IISCOGroupRow, INewISCOGroupSpec> {
   return (row: IISCOGroupRow): INewISCOGroupSpec => {
     return {
-      ESCOUri: row.ESCOURI ?? "",
+      ESCOUri: row.ESCOURI,
       modelId: modelId,
-      originUUID: row.ORIGINUUID ?? "",
+      originUUID: row.ORIGINUUID,
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
-      description: row.DESCRIPTION ?? "",
-      importId: row.ID ?? "",
+      description: row.DESCRIPTION,
+      importId: row.ID,
     };
   };
 }

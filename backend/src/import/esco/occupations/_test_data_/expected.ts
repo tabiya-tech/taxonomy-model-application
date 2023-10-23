@@ -27,4 +27,17 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     regulatedProfessionNote: "regulated\nprofession\nnote\nwith\nlinebreak",
     importId: "key_2",
   },
+  {
+    ESCOUri: "",
+    originUUID: "",
+    ISCOGroupCode: "",
+    code: "",
+    preferredLabel: "",
+    altLabels: [],
+    description: "",
+    definition: "",
+    scopeNote: "",
+    regulatedProfessionNote: "",
+    importId: "key_3",
+  },
 ];

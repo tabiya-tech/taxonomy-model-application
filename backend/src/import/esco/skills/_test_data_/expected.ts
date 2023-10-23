@@ -25,4 +25,16 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     reuseLevel: "cross-sector",
     importId: "key_2",
   },
+  {
+    ESCOUri: "",
+    originUUID: "",
+    preferredLabel: "",
+    altLabels: [],
+    description: "",
+    definition: "",
+    scopeNote: "",
+    skillType: "",
+    reuseLevel: "",
+    importId: "key_3",
+  },
 ];

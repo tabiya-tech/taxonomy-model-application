@@ -54,17 +54,17 @@ function getRowToSpecificationTransformFn(
   return (row: ISkillRow) => {
     // @ts-ignore
     return {
-      ESCOUri: row.ESCOURI ?? "",
+      ESCOUri: row.ESCOURI,
       modelId: modelId,
-      originUUID: row.ORIGINUUID ?? "",
+      originUUID: row.ORIGINUUID,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
-      description: row.DESCRIPTION ?? "",
-      definition: row.DEFINITION ?? "",
-      scopeNote: row.SCOPENOTE ?? "",
-      reuseLevel: (row.REUSELEVEL as ReuseLevel) ?? "",
-      skillType: (row.SKILLTYPE as SkillType) ?? "",
-      importId: row.ID ?? "",
+      description: row.DESCRIPTION,
+      definition: row.DEFINITION,
+      scopeNote: row.SCOPENOTE,
+      reuseLevel: row.REUSELEVEL as ReuseLevel,
+      skillType: row.SKILLTYPE as SkillType,
+      importId: row.ID,
     };
   };
 }
