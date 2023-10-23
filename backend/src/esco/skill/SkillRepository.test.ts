@@ -20,6 +20,11 @@ import { ISkillRepository } from "./SkillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill } from "./skills.types";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { ISkillHierarchyPairDoc } from "../skillHierarchy/skillHierarchy.types";
+import { ObjectTypes } from "../common/objectTypes";
+import { MongooseModelName } from "../common/mongooseModelNames";
+import { INewISCOGroupSpec } from "../iscoGroup/ISCOGroup.types";
+import { getSimpleNewISCOGroupSpec, getSimpleNewSkillGroupSpec } from "../_test_utilities/mockData";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -69,11 +74,12 @@ function expectedFromGivenSpec(givenSpec: INewSkillSpec): ISkill {
 describe("Test the Skill Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
   let repository: ISkillRepository;
+  let repositoryRegistry: RepositoryRegistry;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("SkillRepositoryTestDB");
     dbConnection = await getNewConnection(config.dbURI);
-    const repositoryRegistry = new RepositoryRegistry();
+    repositoryRegistry = new RepositoryRegistry();
     await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.skill;
   });
@@ -301,6 +307,138 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test.todo("should return the skill with its related skills");
 
     test.todo("should return the skill with its related occupations");
+
+    describe("Test Skill robustness to inconsistencies", () => {
+      beforeEach(() => {
+        jest.clearAllMocks();
+      });
+      test("should ignore parents that are not SkillGroups or Skills", async () => {
+        // GIVEN an inconsistency was introduced, and a document that is not either a SkillGroup or a Skill is a parent of a Skill
+        // The Skill
+        const givenSkillSpecs = getNewSkillSpec();
+        const givenSkill = await repository.create(givenSkillSpecs);
+        // The non-SkillGroup in this case an ISCO group
+        const givenNewISCOGroupSpec: INewISCOGroupSpec = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+        const givenISCOGroup = await repositoryRegistry.ISCOGroup.create(givenNewISCOGroupSpec);
+        // it is important to cast the id to ObjectId, otherwise the parents will not be found
+        const givenInconsistentPair: ISkillHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenSkill.modelId),
+
+          //@ts-ignore
+          parentType: ObjectTypes.ISCOGroup, // <- This is the inconsistency
+          parentDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
+          parentId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
+
+          childType: ObjectTypes.Skill,
+          childDocModel: MongooseModelName.Skill,
+          childId: new mongoose.Types.ObjectId(givenSkill.id),
+
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        await repositoryRegistry.skillHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the Skill by its id
+        const actualFoundSkill = await repository.findById(givenSkill.id);
+
+        // THEN expect the Skill to not contain the inconsistent parent
+        expect(actualFoundSkill!.parents).toEqual([]);
+      });
+
+      test("should ignore parents that are not in the same model as the skill", async () => {
+        // GIVEN an inconsistency was introduced, and the parent and the skill are in different models
+        // The Skill
+        const givenSkillSpecs = getNewSkillSpec();
+        const givenSkill = await repository.create(givenSkillSpecs);
+        // The SkillGroup
+        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockId(1), "group_1");
+        const givenSkillGroup = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs);
+        const givenInconsistentPair: ISkillHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenSkill.modelId),
+
+          parentId: new mongoose.Types.ObjectId(givenSkillGroup.id),
+          parentDocModel: MongooseModelName.SkillGroup,
+          parentType: ObjectTypes.SkillGroup,
+
+          childId: new mongoose.Types.ObjectId(givenSkill.id),
+          childDocModel: MongooseModelName.Skill,
+          childType: ObjectTypes.Skill,
+
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        await repositoryRegistry.skillHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the Skill by its id
+        const actualFoundSkill = await repository.findById(givenSkill.id);
+
+        // THEN expect the Skill to not contain the inconsistent parent
+        expect(actualFoundSkill!.parents).toEqual([]);
+      });
+
+      test("should ignore children that are not SkillGroups or Skills", async () => {
+        // GIVEN an inconsistency was introduced, and a document that is not either a SkillGroup or a Skill is a child of a Skill
+        // The Skill
+        const givenSkillSpecs = getNewSkillSpec();
+        const givenSkill = await repository.create(givenSkillSpecs);
+        // The non-SkillGroup in this case an ISCO group
+        const givenNewISCOGroupSpec: INewISCOGroupSpec = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+        const givenISCOGroup = await repositoryRegistry.ISCOGroup.create(givenNewISCOGroupSpec);
+        const givenInconsistentPair: ISkillHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenSkill.modelId),
+
+          parentId: new mongoose.Types.ObjectId(givenSkill.id),
+          parentDocModel: MongooseModelName.Skill,
+          parentType: ObjectTypes.Skill,
+
+          childId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
+          childDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
+          //@ts-ignore
+          childType: ObjectTypes.ISCOGroup, // <- This is the inconsistency
+
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        await repositoryRegistry.skillHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the Skill by its id
+        const actualFoundSkill = await repository.findById(givenSkill.id);
+
+        // THEN expect the Skill to not contain the inconsistent child
+        expect(actualFoundSkill!.children).toEqual([]);
+      });
+
+      test("should ignore children that are not in the same model as the skill", async () => {
+        // GIVEN an inconsistency was introduced, and the child and the skill are in different models
+        // The Skill
+        const givenSkillSpecs = getNewSkillSpec();
+        const givenSkill = await repository.create(givenSkillSpecs);
+        // The SkillGroup
+        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockId(1), "group_1");
+        const givenSkillGroup = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs);
+        const givenInconsistentPair: ISkillHierarchyPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenSkill.modelId),
+
+          parentId: new mongoose.Types.ObjectId(givenSkill.id),
+          parentDocModel: MongooseModelName.Skill,
+          parentType: ObjectTypes.Skill,
+
+          childId: new mongoose.Types.ObjectId(givenSkillGroup.id),
+          childDocModel: MongooseModelName.SkillGroup,
+          childType: ObjectTypes.SkillGroup,
+
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        await repositoryRegistry.skillHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the Skill by its id
+        const actualFoundSkill = await repository.findById(givenSkill.id);
+
+        // THEN expect the Skill to not contain the inconsistent child
+        expect(actualFoundSkill!.children).toEqual([]);
+      });
+    });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skill.findById(getMockId(1));
