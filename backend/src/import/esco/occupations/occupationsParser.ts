@@ -55,18 +55,18 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<IOccupationRow, INewOccupationSpec> {
   return (row: IOccupationRow) => {
     return {
-      ESCOUri: row.ESCOURI ?? "",
+      ESCOUri: row.ESCOURI,
       modelId: modelId,
-      originUUID: row.ORIGINUUID ?? "",
+      originUUID: row.ORIGINUUID,
       ISCOGroupCode: row.ISCOGROUPCODE,
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
-      description: row.DESCRIPTION ?? "",
-      definition: row.DEFINITION ?? "",
-      scopeNote: row.SCOPENOTE ?? "",
-      regulatedProfessionNote: row.REGULATEDPROFESSIONNOTE ?? "",
-      importId: row.ID ?? "",
+      description: row.DESCRIPTION,
+      definition: row.DEFINITION,
+      scopeNote: row.SCOPENOTE,
+      regulatedProfessionNote: row.REGULATEDPROFESSIONNOTE,
+      importId: row.ID,
     };
   };
 }

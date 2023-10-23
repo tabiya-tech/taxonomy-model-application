@@ -19,4 +19,13 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     description: "description\nwith\nlinebreak",
     importId: "key_2",
   },
+  {
+    ESCOUri: "",
+    originUUID: "",
+    code: "",
+    preferredLabel: "",
+    altLabels: [],
+    description: "",
+    importId: "key_3",
+  },
 ];

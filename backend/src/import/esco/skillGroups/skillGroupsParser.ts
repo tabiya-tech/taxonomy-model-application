@@ -49,15 +49,15 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<ISkillGroupRow, INewSkillGroupSpec> {
   return (row: ISkillGroupRow) => {
     return {
-      ESCOUri: row.ESCOURI ?? "",
+      ESCOUri: row.ESCOURI,
       modelId: modelId,
-      originUUID: row.ORIGINUUID ?? "",
-      code: row.CODE ?? "",
+      originUUID: row.ORIGINUUID,
+      code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
-      description: row.DESCRIPTION ?? "",
-      scopeNote: row.SCOPENOTE ?? "",
-      importId: row.ID ?? "",
+      description: row.DESCRIPTION,
+      scopeNote: row.SCOPENOTE,
+      importId: row.ID,
     };
   };
 }

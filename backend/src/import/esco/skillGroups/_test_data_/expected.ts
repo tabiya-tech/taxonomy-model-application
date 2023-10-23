@@ -21,4 +21,14 @@ export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
     scopeNote: "scopeNote\nwith\nlinebreak",
     importId: "key_2",
   },
+  {
+    ESCOUri: "",
+    originUUID: "",
+    code: "",
+    preferredLabel: "",
+    altLabels: [],
+    description: "",
+    scopeNote: "",
+    importId: "key_3",
+  },
 ];
