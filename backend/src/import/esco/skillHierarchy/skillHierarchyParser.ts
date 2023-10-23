@@ -43,7 +43,6 @@ function getRowToSpecificationTransformFn(
   importIdToDBIdMap: Map<string, string>
 ): TransformRowToSpecificationFunction<SkillHierarchyHierarchyRow, INewSkillHierarchyPairSpec> {
   const csv2EscoObjectType = (type: string): ObjectTypes.Skill | ObjectTypes.SkillGroup | null => {
-    console.log(type);
     switch (type.toUpperCase()) {
       case CSV_OBJECT_TYPES.Skill:
         return ObjectTypes.Skill;
