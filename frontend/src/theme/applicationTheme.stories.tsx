@@ -1,4 +1,3 @@
-import "./application-theme.css";
 import { Meta, StoryObj } from "@storybook/react";
 import { Box, rgbToHex, Typography, useTheme, Icon } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
