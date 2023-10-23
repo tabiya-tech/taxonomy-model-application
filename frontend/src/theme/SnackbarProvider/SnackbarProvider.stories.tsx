@@ -18,13 +18,6 @@ const meta: Meta<typeof SnackbarProvider> = {
       disable: true,
     },
   },
-  decorators: [
-    (Story) => (
-      <SnackbarProvider>
-        <Story />
-      </SnackbarProvider>
-    ),
-  ],
 };
 
 export default meta;
