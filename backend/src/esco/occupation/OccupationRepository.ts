@@ -23,6 +23,12 @@ export interface IOccupationRepository {
    */
   createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]>;
 
+  /**
+   * Finds an Occupation entry by its ID.
+   *
+   * @param {string} id - The unique ID of the Occupation entry.
+   * @return {Promise<IOccupation|null>} Resolves to the Occupation entry if found, or null if not found. Rejects with an error on failure.
+   */
   findById(id: string): Promise<IOccupation | null>;
 }
 
@@ -95,66 +101,66 @@ export class OccupationRepository implements IOccupationRepository {
   async findById(id: string | mongoose.Types.ObjectId): Promise<IOccupation | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
-      const occupation = await this.Model.findById(id)
-        .populate({
-          path: "parent",
-          populate: {
-            path: "parentId",
-            transform: function (
-              doc
-            ): ReferenceWithModelId<IISCOGroupReferenceDoc> | ReferenceWithModelId<IOccupationReferenceDoc> | null {
-              // return only the relevant fields
-              if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
-                return getISCOGroupReferenceWithModelId(doc);
-              }
-              if (doc.constructor.modelName === MongooseModelName.Occupation) {
-                return getOccupationReferenceWithModelId(doc);
-              }
-              console.error(`Parent is not an ISCOGroup or an Occupation: ${doc.constructor.modelName}`);
-              return null;
-            },
-          },
-          transform: function (doc): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
+      const occupation = await this.Model.findById(id);
+      if (!occupation) return null;
+      await occupation.populate({
+        path: "parent",
+        populate: {
+          path: "parentId",
+          transform: function (
+            doc
+          ): ReferenceWithModelId<IISCOGroupReferenceDoc> | ReferenceWithModelId<IOccupationReferenceDoc> | null {
             // return only the relevant fields
-            if (!doc?.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
+            if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
+              return getISCOGroupReferenceWithModelId(doc);
+            }
+            if (doc.constructor.modelName === MongooseModelName.Occupation) {
+              return getOccupationReferenceWithModelId(doc);
+            }
+            console.error(`Parent is not an ISCOGroup or an Occupation: ${doc.constructor.modelName}`);
+            return null;
+          },
+        },
+        transform: function (doc): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
+          // return only the relevant fields
+          if (!doc?.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
 
-            if (!doc?.parentId?.modelId?.equals(doc?.modelId)) {
-              console.error(`Parent is not in the same model as the child`);
-              return null;
-            }
-            delete doc.parentId.modelId;
-            return doc.parentId;
-          },
-        })
-        .populate({
-          path: "children",
-          populate: {
-            path: "childId",
-            transform: function (doc): ReferenceWithModelId<IOccupationReferenceDoc> | null {
-              // return only the relevant fields
-              if (doc.constructor.modelName === MongooseModelName.Occupation) {
-                return getOccupationReferenceWithModelId(doc);
-              }
-              console.error(`Child is not an Occupation: ${doc.constructor.modelName}`);
-              return null;
-            },
-          },
-          transform: function (doc): IOccupationReferenceDoc | null {
+          if (!doc?.parentId?.modelId?.equals(doc?.modelId)) {
+            console.error(`Parent is not in the same model as the child`);
+            return null;
+          }
+          delete doc.parentId.modelId;
+          return doc.parentId;
+        },
+      });
+      await occupation.populate({
+        path: "children",
+        populate: {
+          path: "childId",
+          transform: function (doc): ReferenceWithModelId<IOccupationReferenceDoc> | null {
             // return only the relevant fields
-            if (!doc?.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
-            if (!doc?.childId?.modelId?.equals(doc.modelId)) {
-              console.error(`Child is not in the same model as the parent`);
-              return null;
+            if (doc.constructor.modelName === MongooseModelName.Occupation) {
+              return getOccupationReferenceWithModelId(doc);
             }
-            delete doc.childId.modelId;
-            return doc.childId;
+            console.error(`Child is not an Occupation: ${doc.constructor.modelName}`);
+            return null;
           },
-        })
-        .exec();
-      return occupation != null ? occupation.toObject() : null;
+        },
+        transform: function (doc): IOccupationReferenceDoc | null {
+          // return only the relevant fields
+          if (!doc?.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
+          if (!doc?.childId?.modelId?.equals(doc.modelId)) {
+            console.error(`Child is not in the same model as the parent`);
+            return null;
+          }
+          delete doc.childId.modelId;
+          return doc.childId;
+        },
+      });
+      return occupation.toObject();
     } catch (e: unknown) {
       console.error("findById failed", e);
-      return null;
+      throw e;
     }
   }
 }

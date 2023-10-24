@@ -94,6 +94,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   let dbConnection: Connection;
   let repository: IOccupationRepository;
   let repositoryRegistry: RepositoryRegistry;
@@ -295,6 +299,23 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualNewOccupations).toHaveLength(0);
     });
 
+    test("should reject with an error when insertMany() fails", async () => {
+      // GIVEN some spec
+      const givenSpecs = ["foo", "bar"];
+      // AND the insertMany() operation will fail
+      const givenError = new Error("insertMany failed");
+      jest.spyOn(repository.Model, "insertMany").mockRejectedValueOnce(givenError);
+
+      // WHEN creating the batch of skills with the given specifications
+      // @ts-ignore
+      const actualPromise = repository.createMany(givenSpecs);
+
+      // THEN expect the actual promise to reject
+      await expect(actualPromise).rejects.toThrowError(givenError);
+      // AND the error to be logged
+      expect(console.error).toHaveBeenCalledWith("batch create failed", givenError);
+    });
+
     describe("Test unique indexes", () => {
       test("should return only the documents that did not violate the UUID unique index", async () => {
         // GIVEN 3 OccupationSpec
@@ -389,6 +410,19 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // THEN expect no Occupation to be found
       expect(actualFoundOccupation).toBeNull();
+    });
+
+    test("should reject with an error when findById fails", async () => {
+      // GIVEN that findById() will fail
+      jest.spyOn(repository.Model, "findById").mockRejectedValueOnce(new Error("findById failed"));
+
+      // WHEN searching for the Occupation by its id
+      const actualPromise = repository.findById(getMockId(1));
+
+      // THEN expect the actual promise to reject
+      await expect(actualPromise).rejects.toThrowError(new Error("findById failed"));
+      // AND the error to be logged
+      expect(console.error).toHaveBeenCalled();
     });
 
     describe("Test Occupation hierarchy robustness to inconsistencies", () => {
