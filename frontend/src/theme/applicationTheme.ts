@@ -285,6 +285,21 @@ export const applicationTheme = (theme: ThemeMode) => {
           ...TabiyaIconStyles,
         },
       },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            fontSize: CSSClampFnCalculatorRem(0.75, 1, screenSizeRem),
+          },
+          colorSecondary: {
+            textTransform: "none",
+            justifyContent: "flex-start",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "250px",
+          },
+        },
+      },
     },
   };
   return createTheme(activeTheme);

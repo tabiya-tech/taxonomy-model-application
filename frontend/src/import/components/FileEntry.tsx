@@ -1,13 +1,12 @@
 import * as React from "react";
 import { ChangeEvent, useState } from "react";
 import ImportAPISpecs from "api-specifications/import";
-import { Chip, ChipProps } from "@mui/material";
+import { Chip } from "@mui/material";
 import { generateUniqueId } from "src/utils/generateUniqueId";
 import { mapFileTypeToName } from "./mapFileTypeToName";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
 import { AddCircleOutlined, RemoveCircleOutlined } from "@mui/icons-material";
-import { Theme } from "@mui/material/styles";
 
 export interface FileEntryProps {
   fileType: ImportAPISpecs.Constants.ImportFileTypes;
@@ -22,7 +21,6 @@ export const DATA_TEST_ID = {
   SELECT_FILE_BUTTON: `select-file-button-${baseTestID}`,
   REMOVE_SELECTED_FILE_BUTTON: `remove-selected-file-button-${baseTestID}`,
 };
-
 /**
  * Represent a file entry of specific type and a selected file
  * The data-filetype attribute is used to identify the file type
@@ -59,8 +57,6 @@ export const FileEntry = (props: Readonly<FileEntryProps>) => {
     <div data-filetype={props.fileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
       {selectedFile ? (
         <Chip
-          {...commonChipProps}
-          {...selectedFileChipProps}
           color="secondary"
           aria-label={`Remove ${fileTypeName} csv file`}
           data-testid={DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON}
@@ -80,7 +76,6 @@ export const FileEntry = (props: Readonly<FileEntryProps>) => {
             data-filetype={props.fileType}
           />
           <Chip
-            {...commonChipProps}
             color="primary"
             aria-label={`Add ${fileTypeName} csv file`}
             data-testid={DATA_TEST_ID.SELECT_FILE_BUTTON}
@@ -94,22 +89,3 @@ export const FileEntry = (props: Readonly<FileEntryProps>) => {
   );
 };
 export default FileEntry;
-
-const commonChipProps = {
-  size: "medium" as ChipProps["size"],
-  component: "span",
-  sx: {
-    fontSize: (theme: Theme) => theme.typography.button.fontSize,
-    fontFamily: (theme: Theme) => theme.typography.button.fontFamily,
-  }, // Add any other shared styles here
-};
-const selectedFileChipProps = {
-  sx: {
-    textTransform: "none",
-    justifyContent: "flex-start",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    width: "250px",
-  },
-};

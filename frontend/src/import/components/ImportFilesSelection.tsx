@@ -3,7 +3,6 @@ import FileEntry from "./FileEntry";
 import ImportAPISpecs from "api-specifications/import";
 import { Box, FormLabel, Grid, Stack, useTheme } from "@mui/material";
 import { generateUniqueId } from "src/utils/generateUniqueId";
-import { useStyles } from "src/theme/global.style";
 
 export interface ImportFilesSelectionProps {
   notifySelectedFileChange?: (fileType: ImportAPISpecs.Constants.ImportFileTypes, newFile: File | null) => void;
@@ -18,13 +17,8 @@ export const DATA_TEST_ID = {
 const ImportFilesSelection = (props: Readonly<ImportFilesSelectionProps>) => {
   const uniqueId = generateUniqueId();
   const theme = useTheme();
-  const classes = useStyles();
   return (
-    <Stack
-      className={classes.fieldStack}
-      spacing={theme.tabiyaSpacing.xs}
-      data-testid={DATA_TEST_ID.IMPORT_FILES_SELECTION}
-    >
+    <Stack spacing={theme.tabiyaSpacing.xs} data-testid={DATA_TEST_ID.IMPORT_FILES_SELECTION}>
       <FormLabel required htmlFor={uniqueId}>
         Select files to import
       </FormLabel>

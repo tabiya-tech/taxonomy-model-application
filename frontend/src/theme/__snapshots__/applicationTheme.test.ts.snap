@@ -37,6 +37,21 @@ Object {
     },
   },
   "components": Object {
+    "MuiChip": Object {
+      "styleOverrides": Object {
+        "colorSecondary": Object {
+          "justifyContent": "flex-start",
+          "maxWidth": "250px",
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "textTransform": "none",
+          "whiteSpace": "nowrap",
+        },
+        "root": Object {
+          "fontSize": "clamp(0.75rem, (1.33vh + 0.33rem + 1vw + 0.25rem)/2 , 1rem)",
+        },
+      },
+    },
     "MuiDialogTitle": Object {
       "defaultProps": Object {
         "variant": "h2",
@@ -712,6 +727,21 @@ Object {
     },
   },
   "components": Object {
+    "MuiChip": Object {
+      "styleOverrides": Object {
+        "colorSecondary": Object {
+          "justifyContent": "flex-start",
+          "maxWidth": "250px",
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "textTransform": "none",
+          "whiteSpace": "nowrap",
+        },
+        "root": Object {
+          "fontSize": "clamp(0.75rem, (1.33vh + 0.33rem + 1vw + 0.25rem)/2 , 1rem)",
+        },
+      },
+    },
     "MuiDialogTitle": Object {
       "defaultProps": Object {
         "variant": "h2",

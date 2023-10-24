@@ -1,7 +1,6 @@
 import react from "react";
 import { FormControl, FormLabel, Input, Stack, useTheme } from "@mui/material";
 import { generateUniqueId } from "src/utils/generateUniqueId";
-import { useStyles } from "src/theme/global.style";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
 
@@ -32,11 +31,10 @@ export const ModelNameField = (props: Readonly<ModelNameFieldProps>) => {
     }
   }
 
-  const classes = useStyles();
   const theme = useTheme();
   return (
     <FormControl sx={{ width: "100%" }} data-testid={DATA_TEST_ID.MODEL_NAME_FIELD}>
-      <Stack className={classes.fieldStack} spacing={theme.tabiyaSpacing.xs}>
+      <Stack spacing={theme.tabiyaSpacing.xs}>
         <FormLabel required data-testid={DATA_TEST_ID.MODEL_NAME_LABEL} htmlFor={uniqueId}>
           {TEXT.MODEL_NAME_LABEL}
         </FormLabel>
