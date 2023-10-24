@@ -9,10 +9,10 @@ import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHiera
 import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import importLogger from "import/importLogger/importLogger";
-import { getProcessHierarchyBatchFunction } from "../common/processHierarchyBatchFunction";
+import { getProcessHierarchyBatchFunction } from "import/esco/common/processHierarchyBatchFunction";
 
 // expect all columns to be in upper case
-export interface SkillHierarchyHierarchyRow {
+export interface SkillHierarchyRow {
   PARENTOBJECTTYPE: string;
   PARENTID: string;
   CHILDID: string;
@@ -41,9 +41,8 @@ function getBatchProcessor(modelId: string) {
 function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<SkillHierarchyHierarchyRow, INewSkillHierarchyPairSpec> {
+): TransformRowToSpecificationFunction<SkillHierarchyRow, INewSkillHierarchyPairSpec> {
   const csv2EscoObjectType = (type: string): ObjectTypes.Skill | ObjectTypes.SkillGroup | null => {
-    console.log(type);
     switch (type.toUpperCase()) {
       case CSV_OBJECT_TYPES.Skill:
         return ObjectTypes.Skill;
@@ -54,7 +53,7 @@ function getRowToSpecificationTransformFn(
     }
   };
 
-  return (row: SkillHierarchyHierarchyRow) => {
+  return (row: SkillHierarchyRow) => {
     const parentType = csv2EscoObjectType(row.PARENTOBJECTTYPE);
     const childType = csv2EscoObjectType(row.CHILDOBJECTTYPE);
     if (!parentType || !childType) {
@@ -103,9 +102,5 @@ export async function parseSkillHierarchyFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<SkillHierarchyHierarchyRow>(
-    "SkillHierarchy",
-    skillsHierarchyCSVFileStream,
-    batchRowProcessor
-  );
+  return await processStream<SkillHierarchyRow>("SkillHierarchy", skillsHierarchyCSVFileStream, batchRowProcessor);
 }
