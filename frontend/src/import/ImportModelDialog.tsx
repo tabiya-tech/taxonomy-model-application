@@ -4,7 +4,6 @@ import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
 import ModelDescriptionField from "./components/ModelDescriptionField";
 import ImportAPISpecs from "api-specifications/import";
-import { useStyles } from "src/theme/global.style";
 import CancelButton from "src/theme/CancelButton/CancelButton";
 import { ImportFiles } from "./ImportFiles.type";
 import ModelLocalSelectField from "./components/ModelLocalSelectField";
@@ -88,7 +87,6 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     setIsImportButtonDisabled(invalid);
   };
 
-  const classes = useStyles();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   return (
@@ -102,7 +100,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     >
       <DialogTitle>Import Model</DialogTitle>
       <DialogContent>
-        <Stack className={classes.customStack} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
+        <Stack margin={theme.tabiyaSpacing.xs} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
           <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />
