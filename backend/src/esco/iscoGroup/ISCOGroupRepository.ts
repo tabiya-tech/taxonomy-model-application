@@ -155,10 +155,10 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
           },
         })
         .exec();
-      return iscoGroup != null ? iscoGroup.toObject() : null;
+      return iscoGroup ? iscoGroup.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
-      return null;
+      throw e;
     }
   }
 }

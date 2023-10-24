@@ -40,23 +40,25 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[]
   ): Promise<IOccupationHierarchyPair[]> {
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
-    const existingIds = new Map<string, ObjectTypes>();
-
-    //  get all ISCO groups
-    const _existingIscoGroupIds = await this.iscoGroupModel
-      .find({ modelId: { $eq: modelId } })
-      .select("_id")
-      .exec();
-    _existingIscoGroupIds.forEach((iscoGroup) => existingIds.set(iscoGroup._id.toString(), ObjectTypes.ISCOGroup));
-
-    //  get all Occupations
-    const _existingOccupationsIds = await this.occupationModel
-      .find({ modelId: { $eq: modelId } })
-      .select("_id")
-      .exec();
-    _existingOccupationsIds.forEach((occupation) => existingIds.set(occupation._id.toString(), ObjectTypes.Occupation));
-
     try {
+      const existingIds = new Map<string, ObjectTypes>();
+
+      //  get all ISCO groups
+      const _existingIscoGroupIds = await this.iscoGroupModel
+        .find({ modelId: { $eq: modelId } })
+        .select("_id")
+        .exec();
+      _existingIscoGroupIds.forEach((iscoGroup) => existingIds.set(iscoGroup._id.toString(), ObjectTypes.ISCOGroup));
+
+      //  get all Occupations
+      const _existingOccupationsIds = await this.occupationModel
+        .find({ modelId: { $eq: modelId } })
+        .select("_id")
+        .exec();
+      _existingOccupationsIds.forEach((occupation) =>
+        existingIds.set(occupation._id.toString(), ObjectTypes.Occupation)
+      );
+
       const newOccupationHierarchyPairModels = newOccupationHierarchyPairSpecs
         .filter((spec) => {
           return isHierarchyPairValid(spec, existingIds, [

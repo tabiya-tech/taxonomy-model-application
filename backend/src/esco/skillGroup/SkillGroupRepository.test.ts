@@ -19,12 +19,13 @@ import {
 } from "esco/common/modelSchema";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes } from "../common/objectTypes";
-import { INewSkillSpec } from "../skill/skills.types";
-import { MongooseModelName } from "../common/mongooseModelNames";
-import { ISkillHierarchyPairDoc } from "../skillHierarchy/skillHierarchy.types";
-import { INewISCOGroupSpec } from "../iscoGroup/ISCOGroup.types";
-import { getMockRandomISCOGroupCode } from "../../_test_utilities/mockISCOCode";
+import { ObjectTypes } from "esco/common/objectTypes";
+import { INewSkillSpec } from "esco/skill/skills.types";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
+import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
+import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -202,8 +203,8 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       });
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewSkillGroupSpec());
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skillGroup.create(getNewSkillGroupSpec());
     });
   });
 
@@ -308,16 +309,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       });
     });
 
-    // Testing connection failure with the insetMany() is currently not possible,
-    // as there no easy way to simulate a connection failure.
-    // Force closing the connection will throw an uncaught exception instead of the operation rejecting.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // Other ways of simulating the connection failure e.g, start/stopping the in memory mongo instance,
-    // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // TestConnectionFailure((repository) => {
-    //    return repository.createMany([getNewSkillGroupSpec()]);
-    //  });
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skillGroup.createMany([getNewSkillGroupSpec()]);
+    });
   });
 
   describe("Test findById()", () => {
@@ -354,6 +348,8 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // THEN expect no SkillGroup to be found
       expect(actualFoundSkillGroup).toBeNull();
     });
+
+    test.todo("should return the SkillGroup with its parent and children");
 
     describe("Test SkillGroup hierarchy robustness to inconsistencies", () => {
       beforeEach(() => {
@@ -578,24 +574,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
       });
     });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skillGroup.findById(getMockId(1));
+    });
   });
 });
-
-function TestConnectionFailure(actionCallback: (repository: ISkillGroupRepository) => Promise<any>) {
-  return test("should reject with an error when connection to database is lost", async () => {
-    // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration("SkillGroupRepositoryTestDB");
-    const givenConnection = await getNewConnection(givenConfig.dbURI);
-    const givenRepositoryRegistry = new RepositoryRegistry();
-    await givenRepositoryRegistry.initialize(givenConnection);
-    const givenRepository = givenRepositoryRegistry.skillGroup;
-
-    // WHEN connection is lost
-    await givenConnection.close(false); // do not force close as there might be pending mongo operations
-
-    // THEN expect to reject with an error
-    await expect(actionCallback(givenRepository)).rejects.toThrowError(
-      /Client must be connected before running operations/
-    );
-  });
-}

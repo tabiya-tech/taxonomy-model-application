@@ -1,6 +1,6 @@
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
-import { ISkillReference } from "../skill/skills.types";
+import { ISkillReference } from "esco/skill/skills.types";
 
 export interface ISkillGroupDoc extends ImportIdentifiable {
   id: string | mongoose.Types.ObjectId;

@@ -15,6 +15,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
+import {TestDBConnectionFailureNoSetup} from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -146,8 +147,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       await expect(actualPromise).rejects.toThrowError(/duplicate key/);
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewModelInfoSpec());
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.create(getNewModelInfoSpec());
     });
   });
 
@@ -178,8 +179,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       expect(actualFoundModel).toBeNull();
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.getModelById(getMockId(1));
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.getModelById(getMockId(1));
     });
   });
 
@@ -209,8 +210,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       expect(actualFoundModel).toBeNull();
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.getModelByUUID(randomUUID());
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.getModelByUUID(randomUUID());
     });
   });
 
@@ -242,23 +243,9 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       // THEN expect the result to be an empty array
       expect(actualFoundModels).toEqual(givenEmptyArray);
     });
+
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.getModels();
+    });
   });
 });
-
-function TestConnectionFailure(actionCallback: (repository: ModelRepository) => Promise<IModelInfo | null>) {
-  return test("Should reject with an error when the connection to the db is lost", async () => {
-    // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration("ModelRepositoryTestDB");
-    const givenConnection = await getNewConnection(givenConfig.dbURI);
-    const givenRepositoryRegistry = new RepositoryRegistry();
-    await givenRepositoryRegistry.initialize(givenConnection);
-    const repository = givenRepositoryRegistry.modelInfo;
-    await givenConnection.close(false); // do not force close as there might be pending mongo operations
-
-    // WHEN we try to question the db
-    const actualRequestPromise = actionCallback(repository);
-
-    // THEN expect the actual request to reject with the error
-    await expect(actualRequestPromise).rejects.toThrowError(/Client must be connected before running operations/);
-  });
-}

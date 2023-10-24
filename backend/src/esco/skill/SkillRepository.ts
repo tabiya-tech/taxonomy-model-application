@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { INewSkillSpec, ISkill, ISkillDoc, ISkillReferenceDoc } from "./skills.types";
-import { ReferenceWithModelId } from "../common/objectTypes";
-import { MongooseModelName } from "../common/mongooseModelNames";
+import { ReferenceWithModelId } from "esco/common/objectTypes";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { getSkillReferenceWithModelId } from "./skillReference";
-import { getSkillGroupReferenceWithModelId } from "../skillGroup/skillGroupReference";
-import { ISkillGroupReferenceDoc } from "../skillGroup/skillGroup.types";
+import { getSkillGroupReferenceWithModelId } from "esco/skillGroup/skillGroupReference";
+import { ISkillGroupReferenceDoc } from "esco/skillGroup/skillGroup.types";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -158,7 +158,6 @@ export class SkillRepository implements ISkillRepository {
           },
         })
         .exec();
-
       return skill ? skill.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);

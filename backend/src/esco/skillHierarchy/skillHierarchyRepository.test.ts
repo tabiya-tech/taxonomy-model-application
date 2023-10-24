@@ -20,6 +20,7 @@ import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { INewOccupationSpec } from "esco/occupation/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
 
 function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
   return {
@@ -728,5 +729,60 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       // THEN expect no new entries to be created
       expect(actualNewSkillHierarchy).toHaveLength(0);
     });
+
+    type SetupResult = {
+      givenModelId: string;
+      givenNewHierarchySpecs: INewSkillHierarchyPairSpec[];
+    };
+
+    TestDBConnectionFailure<SetupResult, unknown>(
+      async () => {
+        // GIVEN 4 SkillGroups exist in the database in the same model
+        const givenModelId = getMockId(1);
+        const givenGroup_1 = await repositoryRegistry.skillGroup.create(
+          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        );
+        const givenGroup_1_1 = await repositoryRegistry.skillGroup.create(
+          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1")
+        );
+        const givenGroup_1_2 = await repositoryRegistry.skillGroup.create(
+          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2")
+        );
+        const givenGroup_1_2_1 = await repositoryRegistry.skillGroup.create(
+          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2_1")
+        );
+        // AND the following hierarchy
+        const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
+          {
+            parentId: givenGroup_1.id,
+            parentType: ObjectTypes.SkillGroup,
+            childId: givenGroup_1_1.id,
+            childType: ObjectTypes.SkillGroup,
+          },
+          {
+            parentId: givenGroup_1.id,
+            parentType: ObjectTypes.SkillGroup,
+            childId: givenGroup_1_2.id,
+            childType: ObjectTypes.SkillGroup,
+          },
+          {
+            parentId: givenGroup_1_2.id,
+            parentType: ObjectTypes.SkillGroup,
+            childId: givenGroup_1_2_1.id,
+            childType: ObjectTypes.SkillGroup,
+          },
+        ];
+        return {
+          givenModelId,
+          givenNewHierarchySpecs,
+        };
+      },
+      async (setupResult, repositoryRegistry) => {
+        return repositoryRegistry.skillHierarchy.createMany(
+          setupResult.givenModelId,
+          setupResult.givenNewHierarchySpecs
+        );
+      }
+    );
   });
 });

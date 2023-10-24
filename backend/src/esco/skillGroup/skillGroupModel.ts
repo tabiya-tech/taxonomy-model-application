@@ -11,7 +11,7 @@ import {
 } from "esco/common/modelSchema";
 import { ISkillGroupDoc } from "./skillGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { stringRequired } from "../../server/stringRequired";
+import { stringRequired } from "server/stringRequired";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroupDoc> {
   // Main Schema
