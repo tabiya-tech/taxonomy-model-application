@@ -23,6 +23,12 @@ export interface IOccupationRepository {
    */
   createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]>;
 
+  /**
+   * Finds an Occupation entry by its ID.
+   *
+   * @param {string} id - The unique ID of the Occupation entry.
+   * @return {Promise<IOccupation|null>} Resolves to the Occupation entry if found, or null if not found. Rejects with an error on failure.
+   */
   findById(id: string): Promise<IOccupation | null>;
 }
 
@@ -154,7 +160,7 @@ export class OccupationRepository implements IOccupationRepository {
       return occupation != null ? occupation.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
-      return null;
+      throw e;
     }
   }
 }

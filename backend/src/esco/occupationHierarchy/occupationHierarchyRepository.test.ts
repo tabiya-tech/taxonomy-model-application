@@ -20,6 +20,7 @@ import { INewOccupationHierarchyPairSpec, IOccupationHierarchyPair } from "./occ
 import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { INewSkillSpec } from "esco/skill/skills.types";
+import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
 
 function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
   return {
@@ -754,15 +755,59 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
 
     test.todo("FUTURE: should ignore entries that would lead to a cyclic hierarchy");
 
-    // Testing connection failure with the insetMany() is currently not possible,
-    // as there no easy way to simulate a connection failure.
-    // Force closing the connection will throw an uncaught exception instead of the operation rejecting.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // Other ways of simulating the connection failure e.g, start/stopping the in memory mongo instance,
-    // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // TestConnectionFailure((repository) => {
-    //    return repository.createMany([getNewISCOGroupSpec()]);
-    //  });
+    type SetupResult = {
+      givenModelId: string;
+      givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[];
+    };
+
+    TestDBConnectionFailure<SetupResult, unknown>(
+      async (repositoryRegistry) => {
+        // GIVEN 4 ISCOGroups exist in the database in the same model
+        const givenModelId = getMockId(1);
+        const givenGroup_1 = await repositoryRegistry.ISCOGroup.create(
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1")
+        );
+        const givenGroup_1_1 = await repositoryRegistry.ISCOGroup.create(
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1_1")
+        );
+        const givenGroup_1_2 = await repositoryRegistry.ISCOGroup.create(
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1_2")
+        );
+        const givenGroup_1_2_1 = await repositoryRegistry.ISCOGroup.create(
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1_2_1")
+        );
+        // AND the following hierarchy
+        const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
+          {
+            parentId: givenGroup_1.id,
+            parentType: ObjectTypes.ISCOGroup,
+            childId: givenGroup_1_1.id,
+            childType: ObjectTypes.ISCOGroup,
+          },
+          {
+            parentId: givenGroup_1.id,
+            parentType: ObjectTypes.ISCOGroup,
+            childId: givenGroup_1_2.id,
+            childType: ObjectTypes.ISCOGroup,
+          },
+          {
+            parentId: givenGroup_1_2.id,
+            parentType: ObjectTypes.ISCOGroup,
+            childId: givenGroup_1_2_1.id,
+            childType: ObjectTypes.ISCOGroup,
+          },
+        ];
+        return {
+          givenModelId,
+          givenNewHierarchySpecs,
+        };
+      },
+      (setupResult, repositoryRegistry) => {
+        return repositoryRegistry.occupationHierarchy.createMany(
+          setupResult.givenModelId,
+          setupResult.givenNewHierarchySpecs
+        );
+      }
+    );
   });
 });

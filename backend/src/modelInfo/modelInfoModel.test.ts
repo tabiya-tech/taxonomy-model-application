@@ -2,7 +2,7 @@
 import "_test_utilities/consoleMock";
 
 import mongoose, { Connection } from "mongoose";
-import { ModelName, initializeSchemaAndModel } from "./modelInfoModel";
+import { initializeSchemaAndModel } from "./modelInfoModel";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { randomUUID } from "crypto";
@@ -22,8 +22,7 @@ describe("Test the definition of the ModelInfo Model", () => {
     const config = getTestConfiguration("ModelInfoModelTestDB");
     dbConnection = await getNewConnection(config.dbURI);
     // Initializing the schema and model
-    initializeSchemaAndModel(dbConnection);
-    ModelInfoModel = dbConnection.model(ModelName);
+    ModelInfoModel = initializeSchemaAndModel(dbConnection);
   });
 
   afterAll(async () => {

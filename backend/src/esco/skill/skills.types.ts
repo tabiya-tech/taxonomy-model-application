@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
-import { ISkillGroupReference } from "../skillGroup/skillGroup.types";
+import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 
 export type SkillType = "" | "skill/competence" | "knowledge" | "language" | "attitude";
 export type ReuseLevel = "" | "sector-specific" | "occupation-specific" | "cross-sector" | "transversal";

@@ -25,6 +25,7 @@ import { INewSkillSpec } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -91,6 +92,10 @@ function expectedFromGivenSpec(givenSpec: INewOccupationSpec): IOccupation {
 
 describe("Test the Occupation Repository with an in-memory mongodb", () => {
   beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
@@ -225,8 +230,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       });
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewOccupationSpec());
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.occupation.create(getNewOccupationSpec());
     });
   });
 
@@ -346,16 +351,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       });
     });
 
-    // Testing connection failure with the insetMany() is currently not possible,
-    // as there no easy way to simulate a connection failure.
-    // Force closing the connection will throw an uncaught exception instead of the operation rejecting.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // Other ways of simulating the connection failure e.g, start/stopping the in memory mongo instance,
-    // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // TestConnectionFailure((repository) => {
-    //    return repository.createMany([getNewOccupationSpec()]);
-    //  });
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.occupation.createMany([getNewOccupationSpec()]);
+    });
   });
 
   describe("Test findById()", () => {
@@ -390,6 +388,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // THEN expect no Occupation to be found
       expect(actualFoundOccupation).toBeNull();
     });
+
+    test.todo("should return the Occupation with its parent and children");
+
+    test.todo("should return the Occupation with its related skills");
 
     describe("Test Occupation hierarchy robustness to inconsistencies", () => {
       test("should ignore children that are not Occupations", async () => {
@@ -611,24 +613,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
       });
     });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.occupation.findById(getMockId(1));
+    });
   });
 });
-
-function TestConnectionFailure(actionCallback: (repository: IOccupationRepository) => Promise<any>) {
-  return test("should reject with an error when connection to database is lost", async () => {
-    // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration("OccupationRepositoryTestDB");
-    const givenConnection = await getNewConnection(givenConfig.dbURI);
-    const givenRepositoryRegistry = new RepositoryRegistry();
-    await givenRepositoryRegistry.initialize(givenConnection);
-    const givenRepository = givenRepositoryRegistry.occupation;
-
-    // WHEN connection is lost
-    await givenConnection.close(false);
-
-    // THEN expect to reject with an error
-    await expect(actionCallback(givenRepository)).rejects.toThrowError(
-      /Client must be connected before running operations/
-    );
-  });
-}

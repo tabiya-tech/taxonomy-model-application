@@ -156,11 +156,10 @@ export class SkillGroupRepository implements ISkillGroupRepository {
           },
         })
         .exec();
-
       return skillGroup != null ? skillGroup.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
-      return null;
+      throw e;
     }
   }
 }

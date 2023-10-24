@@ -18,6 +18,7 @@ import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupation
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { INewSkillSpec } from "esco/skill/skills.types";
+import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -211,8 +212,8 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       });
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewISCOGroupSpec());
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.ISCOGroup.create(getNewISCOGroupSpec());
     });
   });
 
@@ -332,16 +333,9 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       });
     });
 
-    // Testing connection failure with the insetMany() is currently not possible,
-    // as there no easy way to simulate a connection failure.
-    // Force closing the connection will throw an uncaught exception instead of the operation rejecting.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // Other ways of simulating the connection failure e.g, start/stopping the in memory mongo instance,
-    // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // TestConnectionFailure((repository) => {
-    //    return repository.createMany([getNewISCOGroupSpec()]);
-    //  });
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.ISCOGroup.createMany([getNewISCOGroupSpec()]);
+    });
   });
 
   describe("Test findById()", () => {
@@ -376,6 +370,8 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       // THEN expect no ISCOGroup to be found
       expect(actualFoundISCOGroup).toBeNull();
     });
+
+    test.todo("should return the ISCOGroup with its parent and children");
 
     describe("Test ISCOGroup hierarchy robustness to inconsistencies", () => {
       test("should ignore parents that are not ISCOGroups", async () => {
@@ -599,24 +595,9 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
       });
     });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.ISCOGroup.findById(getMockId(1));
+    });
   });
 });
-
-function TestConnectionFailure(actionCallback: (repository: IISCOGroupRepository) => Promise<any>) {
-  return test("should reject with an error when connection to database is lost", async () => {
-    // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration("ISCOGroupRepositoryTestDB");
-    const givenConnection = await getNewConnection(givenConfig.dbURI);
-    const givenRepositoryRegistry = new RepositoryRegistry();
-    await givenRepositoryRegistry.initialize(givenConnection);
-    const givenRepository = givenRepositoryRegistry.ISCOGroup;
-
-    // WHEN connection is lost
-    await givenConnection.close(false);
-
-    // THEN expect to reject with an error
-    await expect(actionCallback(givenRepository)).rejects.toThrowError(
-      /Client must be connected before running operations/
-    );
-  });
-}

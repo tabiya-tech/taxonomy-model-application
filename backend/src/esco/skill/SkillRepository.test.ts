@@ -19,6 +19,7 @@ import {
 import { ISkillRepository } from "./SkillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill } from "./skills.types";
+import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -152,8 +153,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       await expect(actualPromise).rejects.toThrowError(/duplicate key/);
     });
 
-    TestConnectionFailure((repository) => {
-      return repository.create(getNewSkillSpec());
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skill.create(getNewSkillSpec());
     });
   });
 
@@ -257,20 +258,14 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       });
     });
 
-    // Testing connection failure with the insetMany() is currently not possible,
-    // as there no easy way to simulate a connection failure.
-    // Force closing the connection will throw an uncaught exception instead of the operation rejecting.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // Other ways of simulating the connection failure e.g, start/stopping the in memory mongo instance,
-    // will cause the test to wait for quite some time, as there is no way to set a maxTime of the insertMany() operation.
-    // This seems to be a limitation of the current version of the MongoDB driver.
-    // TestConnectionFailure((repository) => {
-    //    return repository.createMany([getNewSkillSpec()]);
-    //  });
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skill.createMany([getNewSkillSpec()]);
+    });
   });
+
   describe("Test findById()", () => {
-    test("should find an Skill by its id", async () => {
-      // GIVEN an Skill exists in the database
+    test("should find a Skill by its id", async () => {
+      // GIVEN a Skill exists in the database
       const givenSkillSpecs = getNewSkillSpec();
       const givenSkill = await repository.create(givenSkillSpecs);
 
@@ -300,24 +295,15 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // THEN expect no Skill to be found
       expect(actualFoundSkill).toBeNull();
     });
+
+    test.todo("should return the skill with its parent and children");
+
+    test.todo("should return the skill with its related skills");
+
+    test.todo("should return the skill with its related occupations");
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skill.findById(getMockId(1));
+    });
   });
 });
-
-function TestConnectionFailure(actionCallback: (repository: ISkillRepository) => Promise<ISkill | null>) {
-  return test("should reject with an error when connection to database is lost", async () => {
-    // GIVEN the db connection will be lost
-    const givenConfig = getTestConfiguration("SkillRepositoryTestDB");
-    const givenConnection = await getNewConnection(givenConfig.dbURI);
-    const givenRepositoryRegistry = new RepositoryRegistry();
-    await givenRepositoryRegistry.initialize(givenConnection);
-    const givenRepository = givenRepositoryRegistry.skill;
-
-    // WHEN connection is lost
-    await givenConnection.close(false);
-
-    // THEN expect to reject with an error
-    await expect(actionCallback(givenRepository)).rejects.toThrowError(
-      /Client must be connected before running operations/
-    );
-  });
-}
