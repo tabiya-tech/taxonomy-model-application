@@ -51,16 +51,12 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     countISCOGroups = stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} ISCO Groups`);
   }
-  let countESCOSkillGroups = 0;
   if (downloadUrls.ESCO_SKILL_GROUP) {
     const stats = await parseSkillGroupsFromUrl(modelId, downloadUrls.ESCO_SKILL_GROUP, importIdToDBIdMap);
-    countESCOSkillGroups = stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} Skill Groups`);
   }
-  let countESCOSkills = 0;
   if (downloadUrls.ESCO_SKILL) {
     const stats = await parseSkillsFromUrl(modelId, downloadUrls.ESCO_SKILL, importIdToDBIdMap);
-    countESCOSkills = stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} Skills`);
   }
   let countOccupations = 0;
@@ -83,13 +79,6 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
   if (downloadUrls.ESCO_SKILL_HIERARCHY) {
     const stats = await parseSkillHierarchyFromUrl(modelId, downloadUrls.ESCO_SKILL_HIERARCHY, importIdToDBIdMap);
     console.info(`Processed ${JSON.stringify(stats)} Skill hierarchy entries`);
-    if (stats.rowsSuccess !== countESCOSkillGroups + countESCOSkills - 4) {
-      importLogger.logWarning(
-        `Expected to successfully process ${
-          countISCOGroups + countOccupations - 4
-        } (ESCO Skill groups + ESCO Skills - 4) hierarchy entries. Instead processed ${stats.rowsSuccess} entries.`
-      );
-    }
   }
 
   // Set the import process status to COMPLETED
