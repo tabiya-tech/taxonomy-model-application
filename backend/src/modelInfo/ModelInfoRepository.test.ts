@@ -15,7 +15,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
-import {TestDBConnectionFailureNoSetup} from "_test_utilities/testDBConnectionFaillure";
+import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");

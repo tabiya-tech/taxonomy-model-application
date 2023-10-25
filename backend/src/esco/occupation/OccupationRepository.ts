@@ -11,15 +11,21 @@ export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
 
   /**
-   * Resolves to the newly created Occupation entry, or it rejects with an error if the Occupation entry could not be created.
-   * @param newOccupationSpec
+   * Creates a new Occupation entry.
+   *
+   * @param {INewOccupationSpec} newOccupationSpec - The specification for the new Occupation entry.
+   * @return {Promise<IOccupation>} - A Promise that resolves to the newly created Occupation entry.
+   * Rejects with an error if the Occupation entry cannot be created ue to reasons other than validation.
    */
   create(newOccupationSpec: INewOccupationSpec): Promise<IOccupation>;
 
   /**
-   * Resolves to an array with the newly created Occupation entries. If some of the documents could not be validated, they will be excluded and not saved and the function will resolve.
-   * The promise will reject with an error if the Occupation entries could not be created due to reasons other than not passing the validation.
-   * @param newOccupationSpecs
+   * Creates multiple new Occupation entries.
+   *
+   * @param {INewOccupationSpec[]} newOccupationSpecs - An array of specifications for the new Occupation entries.
+   * @return {Promise<IOccupation[]>} - A Promise that resolves to an array containing the newly created Occupation entries.
+   * Excludes entries that fail validation and returns a subset of successfully created entries.
+   * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]>;
 
@@ -27,7 +33,8 @@ export interface IOccupationRepository {
    * Finds an Occupation entry by its ID.
    *
    * @param {string} id - The unique ID of the Occupation entry.
-   * @return {Promise<IOccupation|null>} Resolves to the Occupation entry if found, or null if not found. Rejects with an error on failure.
+   * @return {Promise<IOccupation|null>} - A Promise that resolves to the found Occupation entry or null if not found.
+   * Rejects with an error if the operation fails.
    */
   findById(id: string): Promise<IOccupation | null>;
 }

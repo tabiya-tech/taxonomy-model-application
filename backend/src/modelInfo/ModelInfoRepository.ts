@@ -7,31 +7,37 @@ export interface IModelRepository {
   readonly Model: mongoose.Model<IModelInfoDoc>;
 
   /**
-   * Resolves to the newly created model entry, or it rejects with an error if the model entry could not be created.
-   * Models are created empty and are populated with data asynchronously via an import process.
-   * For that reason the id of importProcessState is set upon creation and refers to the future (or latest if it was initiated) import process.
-   * The importProcessState id is used from the import process to store the progress of the import.
-   * @param newModelSpec
+   * Creates a new ModelInfo entry.
+   *
+   * @param {INewModelInfoSpec} newModelSpec - The specification for the new ModelInfo entry.
+   * @return {Promise<INewModelInfoSpec>} - A Promise that resolves to the newly created ModelInfo entry.
+   * Rejects with an error if the ModelInfo entry cannot be created.
    */
   create(newModelSpec: INewModelInfoSpec): Promise<IModelInfo>;
 
   /**
-   * Get model an entry by modelId
-   * @param modelId
-   * @return returns the model entry if found or null otherwise.
+   * Finds a ModelInfo entry by its ID.
+   *
+   * @param {string} modelId - The unique ID of the ModelInfo entry.
+   * @return {Promise<IModelInfo|null>} - A Promise that resolves to the found ModelInfo entry or null if not found.
+   * Rejects with an error if the operation fails.
    */
   getModelById(modelId: string): Promise<IModelInfo | null>;
 
   /**
-   * Get model an entry by model uuid
-   * @param uuid
-   * @return returns the model entry if found or null otherwise.
+   * Finds a ModelInfo entry by its UUID.
+   *
+   * @param {string} uuid - The unique ID of the ModelInfo entry.
+   * @return {Promise<IModelInfo|null>} - A Promise that resolves to the found ModelInfo entry or null if not found.
+   * Rejects with an error if the operation fails.
    */
   getModelByUUID(uuid: string): Promise<IModelInfo | null>;
 
   /**
-   * Get all models from the database
-   * @return An array of all model entries.
+   * Get all ModelInfo entries.
+   *
+   * @return {Promise<IModelInfo[]>} - A promise that resolves to an array with all the ModelInfo entries.
+   * Rejects with an error if the operation fails.
    */
   getModels(): Promise<IModelInfo[]>;
 }

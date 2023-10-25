@@ -10,15 +10,21 @@ export interface IImportProcessStateRepository {
   readonly Model: mongoose.Model<IImportProcessStateDoc>;
 
   /**
-   * Resolves to the newly created IImportProcessState entry, or it rejects with an error if the ImportProcessState entry could not be created.
-   * @param newSpecs
+   * Creates a new ImportProcessState entry.
+   *
+   * @param {INewImportProcessStateSpec} newSpecs - The specification for the new ImportProcessState entry.
+   * @return {Promise<IImportProcessState>} - A Promise that resolves to the newly created ImportProcessState entry.
+   * Rejects with an error if the ImportProcessState entry cannot be created.
    */
   create(newSpecs: INewImportProcessStateSpec): Promise<IImportProcessState>;
 
   /**
-   * Updates the ImportProcessState entry with the given id and resolves to the updated entry, or it rejects with an error if the ImportProcessState entry could not be updated.
-   * @param id
-   * @param updateSpecs
+   * Updates the ImportProcessState entry with the given ID.
+   *
+   * @param {string} id - The unique ID of the ImportProcessState entry.
+   * @param {IUpdateImportProcessStateSpec} updateSpecs - The specification to update with
+   * @return {Promise<IImportProcessState>} - A Promise that resolves to the updated ImportProcessState entry.
+   * Rejects with an error if the ImportProcessState entry cannot be updated.
    */
   update(id: string, updateSpecs: IUpdateImportProcessStateSpec): Promise<IImportProcessState>;
 }
