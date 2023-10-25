@@ -11,23 +11,32 @@ export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
 
   /**
-   * Resolves to the newly created ISkillGroup entry, or it rejects with an error if the  SkillGroup entry could not be created.
-   * @param newSkillGroupSpec
+   * Creates a new SkillGroup entry.
+   *
+   * @param {INewSkillGroupSpec} newSkillGroupSpec - The specification for the new SkillGroup entry.
+   * @return {Promise<ISkillGroup>} - A Promise that resolves to the newly created ISkillGroup entry.
+   * Rejects with an error if the SkillGroup entry cannot be created.
    */
+
   create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup>;
 
   /**
-   * Resolves to an array with the newly created ISkillGroup entries. If some of the documents could not be validated, they will be excluded and not saved and the function will resolve.
-   * The promise will reject with an error if the ISkillGroup entries could not be created due to reasons other than not passing the validation.
-   * @param newSkillGroupSpecs
+   * Creates multiple new SkillGroup entries.
+   *
+   * @param {INewSkillGroupSpec[]} newSkillGroupSpecs - An array of specifications for the new SkillGroup entries.
+   * @return {Promise<ISkillGroup[]>} - A Promise that resolves to an array containing the newly created ISkillGroup entries.
+   * Excludes entries that fail validation and returns a subset of successfully created entries.
+   * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
 
   /**
-   * Resolves to the ISkillGroup entry with the given id, or it resolves to null if no ISkillGroup entry with the given id exists.
-   * @param id
+   * Finds a SkillGroup entry by its ID.
+   *
+   * @param {string} id - The unique ID of the SkillGroup entry to find.
+   * @return {Promise<ISkillGroup|null>} - A Promise that resolves to the found SkillGroup entry or null if not found.
+   * Rejects with an error if the operation fails.
    */
-
   findById(id: string): Promise<ISkillGroup | null>;
 }
 

@@ -10,6 +10,15 @@ export interface ISkillHierarchyRepository {
   readonly skillModel: mongoose.Model<ISkillDoc>;
   readonly skillGroupModel: mongoose.Model<ISkillGroupDoc>;
 
+  /**
+   * Creates multiple new Occupation entries.
+   *
+   * @param {string} modelId - The modelId of the model to which the new SkillHierarchyPair entries will belong.
+   * @param {INewSkillHierarchyPairSpec[]} newSkillHierarchyPairSpecs - An array of specifications for the new SkillHierarchyPair entries.
+   * @return {Promise<ISkillHierarchyPair[]>} - A Promise that resolves to an array containing the newly created ISkillHierarchyPair entries.
+   * Excludes entries that fail validation and returns a subset of successfully created entries.
+   * Rejects with an error if any entry cannot be created due to reasons other than validation.
+   */
   createMany(modelId: string, newSkillHierarchyPairSpecs: INewSkillHierarchyPairSpec[]): Promise<ISkillHierarchyPair[]>;
 }
 

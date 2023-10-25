@@ -11,23 +11,31 @@ export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
 
   /**
-   * Resolves to the newly created ISkill entry, or it rejects with an error if the  Skill entry could not be created.
-   * @param newSkillSpec
+   * Creates a new Skill entry.
+   *
+   * @param {INewSkillSpec} newSkillSpec - The specification for the new Skill entry.
+   * @return {Promise<INewSkillSpec>} - A Promise that resolves to the newly created Skill entry.
+   * Rejects with an error if the Skill entry cannot be created due to reasons other than validation.
    */
   create(newSkillSpec: INewSkillSpec): Promise<ISkill>;
 
   /**
-   * Resolves to an array with the newly created ISkill entries. If some of the documents could not be validated, they will be excluded and not saved and the function will resolve.
-   * The promise will reject with an error if the ISkill entries could not be created due to reasons other than not passing the validation.
-   * @param newSkillSpecs
+   * Creates multiple new Skill entries.
+   *
+   * @param {INewSkillSpec[]} newSkillSpecs - An array of specifications for the new Skill entries.
+   * @return {Promise<ISkill[]>} - A Promise that resolves to an array containing the newly created Skill entries.
+   * Excludes entries that fail validation and returns a subset of successfully created entries.
+   * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]>;
 
   /**
-   * Resolves to the ISkill entry with the given id, or it resolves to null if no ISkill entry with the given id exists.
-   * @param id
+   * Finds a Skill entry by its ID.
+   *
+   * @param {string} id - The unique ID of the Skill entry.
+   * @return {Promise<ISkill|null>} - A Promise that resolves to the found Skill entry or null if not found.
+   * Rejects with an error if the operation fails.
    */
-
   findById(id: string): Promise<ISkill | null>;
 }
 
