@@ -28,11 +28,11 @@ jobs:
         # see https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
         # for multiline strings
         run: |
-          ./pipeline/setVersionInfo.sh ./backend/src/info/version.json
-          cat ./backend/src/info/version.json
+          ./pipeline/setVersionInfo.sh ./backend/src/applicationInfo/version.json
+          cat ./backend/src/applicationInfo/version.json
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "version-info<<$EOF" >> "$GITHUB_OUTPUT"
-          echo "$(cat ./backend/src/info/version.json)" >> "$GITHUB_OUTPUT"
+          echo "$(cat ./backend/src/applicationInfo/version.json)" >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"
       - name: Lint
         run: yarn run lint

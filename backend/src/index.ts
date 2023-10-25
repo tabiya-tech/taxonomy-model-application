@@ -1,5 +1,5 @@
 import { Handler, APIGatewayProxyEvent, Context, Callback } from "aws-lambda";
-import { handler as InfoHandler } from "./info";
+import { handler as InfoHandler } from "./applicationInfo";
 import { handler as ModelHandler } from "./modelInfo";
 import { handler as ImportHandler } from "./import";
 import { STD_ERRORS_RESPONSES } from "./server/httpUtils";
