@@ -30,7 +30,7 @@ jest.mock("./server/init", () => {
 // ##############
 
 import * as MainHandler from "./index";
-import * as InfoHandler from "./info/index";
+import * as InfoHandler from "./applicationInfo";
 import * as ModelHandler from "./modelInfo/index";
 import * as PresignedHandler from "./presigned/index";
 import * as ImportHandler from "./import/index";

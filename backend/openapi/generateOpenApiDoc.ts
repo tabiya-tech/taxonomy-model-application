@@ -32,7 +32,7 @@ delete APIError.Schemas.Payload.$id
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
 // @ts-ignore
-import version = require("../src/info/version.json");
+import version = require("../src/applicationInfo/version.json");
 const specs = getOpenAPISpecification(`1.0.0 build:${version.buildNumber} sha:${version.sha}`, ["./src/**/index.ts"], false);
 
 //--------------------------------------------------------------------------------------------------
