@@ -14,6 +14,15 @@ export interface IOccupationHierarchyRepository {
   readonly iscoGroupModel: mongoose.Model<IISCOGroupDoc>;
   readonly occupationModel: mongoose.Model<IOccupationDoc>;
 
+  /**
+   * Creates multiple new OccupationHierarchyPair entries.
+   *
+   * @param {string} modelId - The modelId of the model to which the new OccupationHierarchyPair entries will belong.
+   * @param {INewOccupationHierarchyPairSpec[]} newOccupationHierarchyPairSpecs - An array of specifications for the new OccupationHierarchyPair entries.
+   * @return {Promise<IOccupationHierarchyPair[]>} - A Promise that resolves to an array containing the newly created IOccupationHierarchyPair entries.
+   * Excludes entries that fail validation and returns a subset of successfully created entries.
+   * Rejects with an error if any entry cannot be created due to reasons other than validation.
+   */
   createMany(
     modelId: string,
     newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[]

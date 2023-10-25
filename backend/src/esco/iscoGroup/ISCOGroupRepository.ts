@@ -11,23 +11,31 @@ export interface IISCOGroupRepository {
   readonly Model: mongoose.Model<IISCOGroupDoc>;
 
   /**
-   * Resolves to the newly created ISCOGroup entry, or it rejects with an error if the ISCOGroup entry could not be created.
-   * @param newISCOGroupSpec
+   * Creates a new ISCOGroup entry.
+   *
+   * @param {INewISCOGroupSpec} newISCOGroupSpec - The specification for the new ISCOGroup entry.
+   * @return {Promise<IISCOGroup>} - A Promise that resolves to the newly created ISCOGroup entry.
+   * Rejects with an error if the ISCOGroup entry cannot be created.
    */
   create(newISCOGroupSpec: INewISCOGroupSpec): Promise<IISCOGroup>;
 
   /**
-   * Resolves to an array with the newly created ISCOGroup entries. If some of the documents could not be validated, they will be excluded and not saved and the function will resolve.
-   * The promise will reject with an error if the ISCOGroup entries could not be created due to reasons other than not passing the validation.
-   * @param newISCOGroupSpecs
+   * Creates multiple new ISCOGroup entries.
+   *
+   * @param {INewISCOGroupSpec[]} newISCOGroupSpecs - An array of specifications for the new ISCOGroup entries.
+   * @return {Promise<IISCOGroup[]>} - A Promise that resolves to an array containing the newly created ISCOGroup entries.
+   * Excludes entries that fail validation and returns a subset of successfully created entries.
+   * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]>;
 
   /**
-   * Resolves to the ISCOGroup entry with the given id, or it resolves to null if no ISCOGroup entry with the given id exists.
-   * @param id
+   * Finds a ISCOGroup entry by its ID.
+   *
+   * @param {string} id - The unique ID of the ISCOGroup entry to find.
+   * @return {Promise<IISCOGroup|null>} - A Promise that resolves to the found ISCOGroup entry or null if not found.
+   * Rejects with an error if the operation fails.
    */
-
   findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null>;
 }
 
