@@ -59,6 +59,17 @@ jest.mock("@mui/material", () => {
   };
 });
 
+// mock isOnlineProvider
+jest.mock("src/app/providers/index.tsx", () => {
+  const mIsOnlineProvider = jest
+    .fn()
+    .mockImplementation(({ children }) => <div data-testid="isonline-provider-id">{children}</div>);
+  return {
+    __esModule: true,
+    IsOnlineProvider: mIsOnlineProvider,
+  };
+});
+
 describe("test the application bootstrapping", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
@@ -74,8 +85,12 @@ describe("test the application bootstrapping", () => {
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
 
+      // AND expect the online provider to be in the DOM
+      const isOnlineProviderElement = screen.getByTestId("isonline-provider-id");
+      expect(isOnlineProviderElement).toBeInTheDocument();
+
       // AND expect the theme provider to be in the DOM
-      const themeProviderElement = screen.getByTestId("theme-provider-id");
+      const themeProviderElement = within(isOnlineProviderElement).getByTestId("theme-provider-id");
       expect(themeProviderElement).toBeInTheDocument();
 
       // AND expect the css baseline to be in the DOM

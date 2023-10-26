@@ -8,7 +8,7 @@ import { applicationTheme, ThemeMode } from "../src/theme/applicationTheme";
 // we need to load them here as well
 import "../src/index.css";
 // Load the application theme css file here
-import "../src/theme/application-theme.css"
+import "../src/theme/application-theme.css";
 //If the application fonts are loaded from the index.tsx file via an import, then the fonts can be loaded here as well
 /*
 import "@fontsource/roboto/300.css";
@@ -18,6 +18,7 @@ import "@fontsource/roboto/700.css";
 */
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
+import {IsOnlineProvider} from "../src/app/providers";
 
 const preview: Preview = {
   parameters: {
@@ -38,13 +39,15 @@ export const decorators = [
   (Story) => (
     <Router>
       <CssBaseline />
-      <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
-        <CustomSnackbarProvider>
-          <div style={{ height: "100vh" }}>
-            <Story />
-          </div>
-        </CustomSnackbarProvider>
-      </ThemeProvider>
+      <IsOnlineProvider>
+        <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+          <CustomSnackbarProvider>
+            <div style={{ height: "100vh" }}>
+              <Story />
+            </div>
+          </CustomSnackbarProvider>
+        </ThemeProvider>
+      </IsOnlineProvider>
     </Router>
   ),
 ];

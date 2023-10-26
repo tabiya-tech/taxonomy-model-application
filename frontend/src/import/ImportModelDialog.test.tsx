@@ -13,6 +13,8 @@ import { clickDebouncedButton, typeDebouncedInput } from "src/_test_utilities/us
 import { ImportFiles } from "./ImportFiles.type";
 import { isSpecified } from "../utils/isUnspecified";
 import userEvent from "@testing-library/user-event";
+import { unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
+import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
 
 const notifyOnCloseMock = jest.fn();
 const testProps: ImportModelDialogProps = {
@@ -76,6 +78,7 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
 }
 
 beforeEach(() => {
+  unmockBrowserIsOnLine();
   notifyOnCloseMock.mockReset();
   (console.error as jest.Mock).mockClear();
   (console.warn as jest.Mock).mockClear();
@@ -155,6 +158,7 @@ describe("ImportModel dialog render tests", () => {
     ],
   ])("should render the import button disabled when mandatory fields %s", async (description, getTestData) => {
     // GIVEN the dialog is rendered
+    jest.spyOn(PrimaryButtonModule, "default");
     render(<ImportModelDialog {...testProps} />);
 
     // WHEN the user does not enter any of the mandatory data
@@ -166,10 +170,17 @@ describe("ImportModel dialog render tests", () => {
     expect(console.warn).not.toHaveBeenCalled();
     // AND importButton to be disabled
     expect(importButton).toBeDisabled();
+
+    // AND expect the PrimaryButton to bebe disabled when offline
+    expect(PrimaryButtonModule.default).toHaveBeenCalledWith(
+      expect.objectContaining({ disabled: true, disableWhenOffline: true }),
+      {}
+    );
   });
 
-  it("should render the import button enable if all mandatory fields are filled", async function () {
+  it("should render the import button enabled if all mandatory fields are filled and the browser is online", async function () {
     // GIVEN the dialog is visible
+    jest.spyOn(PrimaryButtonModule, "default");
     render(<ImportModelDialog {...testProps} />);
     // AND given the mandatory
     const givenMandatoryFields = getImportDataTestValues();
@@ -183,6 +194,12 @@ describe("ImportModel dialog render tests", () => {
     expect(console.warn).not.toHaveBeenCalled();
     // AND import button to be enabled
     expect(importButton).toBeEnabled();
+
+    // AND expect the PrimaryButton to be disabled when offline
+    expect(PrimaryButtonModule.default).toHaveBeenCalledWith(
+      expect.objectContaining({ disabled: false, disableWhenOffline: true }),
+      {}
+    );
   });
 });
 

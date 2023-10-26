@@ -4,6 +4,7 @@ import "src/_test_utilities/consoleMock";
 import ModelDirectoryHeader, { DATA_TEST_ID } from "./ModelDirectoryHeader";
 import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
+import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
 
 describe("ModelDirectoryHeader", () => {
   beforeEach(() => {
@@ -15,6 +16,8 @@ describe("ModelDirectoryHeader", () => {
     // GIVEN an onModelImport callback function
     const givenOnModelImportCallback = () => undefined;
 
+    jest.spyOn(PrimaryButtonModule, "default"); //.mockImplementation(() => <div data-testid={"primary-button-test-id"}></div>);
+
     // WHEN a ModelDirectoryHeader component is rendered with the given callback
     render(<ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />);
 
@@ -25,6 +28,15 @@ describe("ModelDirectoryHeader", () => {
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toBeInTheDocument();
+
+    // AND the import button to be disabled when offline
+    expect(PrimaryButtonModule.default as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        "data-testid": DATA_TEST_ID.IMPORT_MODEL_BUTTON,
+        disableWhenOffline: true,
+      }),
+      {}
+    );
   });
 
   test("should call onModelImport when import button is clicked", async () => {
