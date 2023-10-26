@@ -5,7 +5,7 @@ import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./occupationModel";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import {
   ATL_LABELS_MAX_ITEMS,
@@ -45,11 +45,10 @@ describe("Test the definition of the Occupation Model", () => {
   test("Successfully validate Occupation with mandatory fields", async () => {
     // GIVEN an Occupation object with mandatory fields filled & a document
     const givenObject: IOccupationDoc = {
-      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomOccupationCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: randomUUID(),
       ESCOUri: generateRandomUrl(),
       altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
@@ -58,8 +57,8 @@ describe("Test the definition of the Occupation Model", () => {
       definition: getTestString(DEFINITION_MAX_LENGTH),
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
       regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
     const givenOccupationDocument = new OccupationModel(givenObject);
@@ -74,11 +73,10 @@ describe("Test the definition of the Occupation Model", () => {
   test("Successfully validate Occupation with optional fields", async () => {
     // GIVEN an Occupation object with empty optional fields & a document
     const givenObject: IOccupationDoc = {
-      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomOccupationCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: "",
       ESCOUri: "",
       altLabels: [],
@@ -87,8 +85,8 @@ describe("Test the definition of the Occupation Model", () => {
       definition: "",
       scopeNote: "",
       regulatedProfessionNote: "",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
     const givenOccupationDocument = new OccupationModel(givenObject);

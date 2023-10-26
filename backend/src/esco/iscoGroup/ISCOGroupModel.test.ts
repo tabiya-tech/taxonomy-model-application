@@ -5,7 +5,7 @@ import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./ISCOGroupModel";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import {
   ATL_LABELS_MAX_ITEMS,
@@ -41,17 +41,16 @@ describe("Test the definition of the ISCOGroup Model", () => {
   test("Successfully validate ISCOGroup with mandatory fields", async () => {
     // GIVEN an ISCOGroup object with all mandatory fields filled & a document
     const givenObject: IISCOGroupDoc = {
-      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomISCOGroupCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: randomUUID(),
       ESCOUri: generateRandomUrl(),
       altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
       description: getTestString(DESCRIPTION_MAX_LENGTH),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
     const givenISCOGroupDocument = new ISCOGroupModel(givenObject);
@@ -66,17 +65,16 @@ describe("Test the definition of the ISCOGroup Model", () => {
   test("Successfully validate ISCOGroup with optional fields", async () => {
     // GIVEN an ISCOGroup object with empty optional fields & a document
     const givenObject: IISCOGroupDoc = {
-      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomISCOGroupCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: "",
       ESCOUri: "",
       altLabels: [],
       description: "",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       importId: "",
     };
     const givenISCOGroupDocument = new ISCOGroupModel(givenObject);

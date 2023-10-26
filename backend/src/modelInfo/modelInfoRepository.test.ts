@@ -1,7 +1,7 @@
 // mute the console output
 import "_test_utilities/consoleMock";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { Connection } from "mongoose";
 import { ModelRepository } from "./modelInfoRepository";
 import { randomUUID } from "crypto";
@@ -180,7 +180,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
 
     TestDBConnectionFailureNoSetup((repository) => {
-      return repository.modelInfo.getModelById(getMockId(1));
+      return repository.modelInfo.getModelById(getMockStringId(1));
     });
   });
 

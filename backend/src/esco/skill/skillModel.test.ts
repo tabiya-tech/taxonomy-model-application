@@ -15,7 +15,7 @@ import {
   SCOPE_NOTE_MAX_LENGTH,
 } from "esco/common/modelSchema";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
@@ -42,10 +42,9 @@ describe("Test the definition of the skill Model", () => {
   test("Successfully validate skill with mandatory fields", async () => {
     // GIVEN a skill object with all mandatory fields filled & a document
     const givenObject: ISkillDoc = {
-      id: getMockId(1),
       UUID: randomUUID(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: randomUUID(),
       ESCOUri: generateRandomUrl(),
       altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
@@ -54,8 +53,8 @@ describe("Test the definition of the skill Model", () => {
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
       skillType: SkillType.SkillCompetence,
       reuseLevel: ReuseLevel.SectorSpecific,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
     const givenSkillDocument = new skillModel(givenObject);
@@ -73,7 +72,7 @@ describe("Test the definition of the skill Model", () => {
     const givenObject: ISkillDoc = {
       UUID: randomUUID(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: "",
       altLabels: [],
       skillType: SkillType.None,

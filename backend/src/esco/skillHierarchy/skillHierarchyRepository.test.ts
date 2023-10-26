@@ -1,7 +1,7 @@
 // suppress chatty log output when testing
 import "_test_utilities/consoleMock";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { Connection } from "mongoose";
 
 import { getNewConnection } from "server/connection/newConnection";
@@ -104,7 +104,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should successfully create the hierarchy of the SkillGroups", async () => {
       // GIVEN 4 SkillGroups exist in the database in the same model
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
       );
@@ -193,7 +193,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should successfully create the hierarchy of Skills", async () => {
       // GIVEN 4 SkillGroups exist in the database in the same model
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenSkill_1_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1_1"));
       const givenSkill_1_1_1 = await repositoryRegistry.skill.create(
@@ -277,7 +277,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should successfully create the hierarchy of SkillGroups/Skills", async () => {
       // GIVEN a SkillGroup and a Skill exist in the database, in the same model
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
       );
@@ -330,7 +330,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should successfully update the hierarchy even if some don't validate", async () => {
       // GIVEN 3 SkillGroups exist in the database
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
       );
@@ -403,7 +403,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
     test("should not add duplicate entries", async () => {
       // GIVEN 1 SkillGroup and Skills exist in the database in the same model
       // AND linked with a parent-child relationship
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
       );
@@ -441,7 +441,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries that refer to not existing objects", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in the same model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -449,7 +449,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
         {
-          parentId: getMockId(1),
+          parentId: getMockStringId(1),
           parentType: ObjectTypes.SkillGroup,
           childId: givenSkill_1.id,
           childType: ObjectTypes.Skill,
@@ -457,7 +457,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         {
           parentId: givenGroup_1.id,
           parentType: ObjectTypes.SkillGroup,
-          childId: getMockId(2),
+          childId: getMockStringId(2),
           childType: ObjectTypes.Skill,
         },
       ];
@@ -471,7 +471,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries that refer to objects that are not in the same model", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -487,7 +487,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       ];
 
       // WHEN creating a new hierarchy that refers in a different model that the one the entries exist
-      const actualNewSkillHierarchy = await repository.createMany(getMockId(2), givenNewHierarchySpecs);
+      const actualNewSkillHierarchy = await repository.createMany(getMockStringId(2), givenNewHierarchySpecs);
 
       // THEN expect no new entries to be created
       expect(actualNewSkillHierarchy).toHaveLength(0);
@@ -495,7 +495,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries where the parent and child are the same", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -525,7 +525,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries where parentType does not match the existingParentType", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -549,7 +549,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries where childType does not match the existingChildType", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -573,7 +573,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries where parent is skill and child is group", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -597,7 +597,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries where the parent is not skill or a group", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND 1 SkillGroup, 1 Skill  and 1 SkillGroup and a Skill exist in the database in that model
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -635,7 +635,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
     test("should ignore entries where the child is not skill or a group", async () => {
       // GIVEN a valid modelId
-      const givenModelId = getMockId(1);
+      const givenModelId = getMockStringId(1);
       // AND a SkillGroup, a Skill and a SkillGroup and a Skill exist in the database, in the same model
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -679,7 +679,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
     TestDBConnectionFailure<SetupResult, unknown>(
       async () => {
         // GIVEN 4 SkillGroups exist in the database in the same model
-        const givenModelId = getMockId(1);
+        const givenModelId = getMockStringId(1);
         const givenGroup_1 = await repositoryRegistry.skillGroup.create(
           getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
         );

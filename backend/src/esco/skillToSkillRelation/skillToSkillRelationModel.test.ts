@@ -6,7 +6,7 @@ import { ISkillToSkillRelationPairDoc } from "./skillToSkillRelation.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./skillToSkillRelationModel";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -33,14 +33,14 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
   test("Successfully validate the SkillToSkillRelation with mandatory fields", async () => {
     // GIVEN a SkillToSkillRelation object with mandatory fields filled & a document
     const givenObject: ISkillToSkillRelationPairDoc = {
-      modelId: getMockId(2),
-      requiringSkillId: getMockId(2),
+      modelId: getMockObjectId(2),
+      requiringSkillId: getMockObjectId(2),
       requiredSkillDocModel: MongooseModelName.Skill,
       requiringSkillDocModel: MongooseModelName.Skill,
-      requiredSkillId: getMockId(2),
+      requiredSkillId: getMockObjectId(2),
       relationType: RelationType.OPTIONAL,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const givenSkillToSkillRelationDocument = new SkillToSkillRelationModel(givenObject);
 

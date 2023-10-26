@@ -1,4 +1,4 @@
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import { getRandomString } from "_test_utilities/specialCharacters";
 import { DESCRIPTION_MAX_LENGTH } from "esco/common/modelSchema";
@@ -9,7 +9,7 @@ import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 
 export function getIModelInfoMockData(n: number = 1): IModelInfo {
   return {
-    id: getMockId(n),
+    id: getMockStringId(n),
     UUID: randomUUID(),
     previousUUID: randomUUID(),
     originUUID: randomUUID(),
@@ -24,7 +24,7 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
     releaseNotes: getRandomString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     version: getRandomString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
     importProcessState: {
-      id: getMockId(100000 + n),
+      id: getMockStringId(100000 + n),
       status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
       result: {
         errored: false,

@@ -1,3 +1,6 @@
+// mute the console output
+import "_test_utilities/consoleMock";
+
 import { handler as infoHandler } from "./index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import version from "./version.json";

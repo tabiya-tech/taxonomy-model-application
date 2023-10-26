@@ -1,5 +1,3 @@
-import mongoose from "mongoose";
-
 /**
  * Enum for the different types of objects in the ESCO ontology.
  */
@@ -18,11 +16,7 @@ export enum RelationType {
   OPTIONAL = "optional",
 }
 
-export type ReferenceWithModelId<T> = T & {
-  modelId: string | mongoose.Types.ObjectId;
-};
-
-export type ReferenceWithRelationType<T> = ReferenceWithModelId<T> & {
+export type ReferenceWithRelationType<T> = T & {
   relationType: RelationType;
 };
 

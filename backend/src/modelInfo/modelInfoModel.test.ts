@@ -7,7 +7,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { randomUUID } from "crypto";
 import { getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { getNewConnection } from "server/connection/newConnection";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
@@ -35,7 +35,7 @@ describe("Test the definition of the ModelInfo Model", () => {
   test("Successfully validate the modelInfo with the mandatory fields", async () => {
     // GIVEN an object with all mandatory fields
     const givenObject: IModelInfoDoc = {
-      id: getMockId(2),
+      id: getMockObjectId(2),
       UUID: randomUUID(),
       previousUUID: randomUUID(),
       originUUID: randomUUID(),
@@ -49,9 +49,9 @@ describe("Test the definition of the ModelInfo Model", () => {
       released: false,
       releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-      importProcessState: getMockId(2),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      importProcessState: getMockObjectId(2),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     // WHEN validating that object using the ModelInfoModel
@@ -79,7 +79,7 @@ describe("Test the definition of the ModelInfo Model", () => {
       description: "",
       released: false,
       releaseNotes: "",
-      importProcessState: getMockId(2),
+      importProcessState: getMockObjectId(2),
       version: "",
     };
 

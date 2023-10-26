@@ -5,7 +5,7 @@ import * as asyncIndex from "./index";
 import ImportAPISpecs from "api-specifications/import";
 
 import { initOnce } from "server/init";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parseFiles } from "./parseFiles";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState";
@@ -34,7 +34,7 @@ const getMockImportEvent = (): ImportAPISpecs.Types.POST.Request.Payload => {
       [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
       // ADD additional file types here
     },
-    modelId: getMockId(1),
+    modelId: getMockStringId(1),
   };
 };
 
@@ -112,7 +112,7 @@ describe("Test the main async handler", () => {
       const givenEvent = getMockImportEvent();
       // AND the event refers to a model that exists in the db and has an importProcessStateId
 
-      const givenImportProcessStateId = getMockId(2);
+      const givenImportProcessStateId = getMockStringId(2);
 
       const givenModelInfoRepositoryMock = {
         Model: undefined as any,

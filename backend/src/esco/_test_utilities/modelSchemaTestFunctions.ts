@@ -4,7 +4,7 @@ import { getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { IMPORT_ID_MAX_LENGTH } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 
 export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   test.each([
@@ -128,7 +128,7 @@ export function testObjectIdField<T>(getModel: () => mongoose.Model<T>, fieldNam
         'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
       ],
       [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-      [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
+      [CaseType.Success, "hex 24 chars", getMockStringId(2), undefined],
     ])(
       `(%s) Validate '${fieldName}' when it is %s`,
       (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {

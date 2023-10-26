@@ -1,7 +1,7 @@
 // suppress chatty log output when testing
 import "_test_utilities/consoleMock";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
@@ -157,7 +157,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         const actualSecondNewISCOGroupSpec: INewISCOGroupSpec = {
           ...givenNewISCOGroupSpec,
         };
-        actualSecondNewISCOGroupSpec.modelId = getMockId(3);
+        actualSecondNewISCOGroupSpec.modelId = getMockStringId(3);
         const actualSecondNewISCOGroupPromise = repository.create(actualSecondNewISCOGroupSpec);
 
         // THEN expect the new ISCOGroup to be created
@@ -310,7 +310,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
   describe("Test findById()", () => {
     test("should find an ISCOGroup by its id", async () => {
       // GIVEN an ISCOGroup exists in the database
-      const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+      const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
       const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
 
       // WHEN searching for the ISCOGroup by its id
@@ -346,7 +346,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       test("should ignore parents that are not ISCOGroups", async () => {
         // GIVEN an inconsistency was introduced, and non-ISCOGroup document is a parent of an ISCOGroup
         // The ISCOGroup
-        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
         const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
         // The non-ISCOGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = {
@@ -393,7 +393,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       test("should ignore children that are not ISCO Groups | Occupations", async () => {
         // GIVEN an inconsistency was introduced, and non-ISCOGroup document is a child of an ISCOGroup
         // The ISCOGroup
-        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
         const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
         // The non-ISCOGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = {
@@ -442,17 +442,17 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       test("should not find parent or child if the hierarchy is in a different model", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The ISCOGroup 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenISCOGroupSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId_1, "group_1");
         const givenISCOGroup_1 = await repository.create(givenISCOGroupSpecs_1);
         // The ISCOGroup 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenISCOGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId_2, "group_2");
         const givenISCOGroup_2 = await repository.create(givenISCOGroupSpecs_2);
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         // the third model
-        const givenModelId_3 = getMockId(3);
+        const givenModelId_3 = getMockStringId(3);
 
         //@ts-ignore
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
@@ -488,11 +488,11 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       test("should not find parent if it is not is the same model as the child", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The ISCOGroup 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenISCOGroupSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId_1, "group_1");
         const givenISCOGroup_1 = await repository.create(givenISCOGroupSpecs_1);
         // The ISCOGroup 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenISCOGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId_2, "group_2");
         const givenISCOGroup_2 = await repository.create(givenISCOGroupSpecs_2);
 
@@ -527,11 +527,11 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       test("should not find child if it is not is the same model as the parent", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The ISCOGroup 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenISCOGroupSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId_1, "group_1");
         const givenISCOGroup_1 = await repository.create(givenISCOGroupSpecs_1);
         // The ISCOGroup 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenISCOGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId_2, "group_2");
         const givenISCOGroup_2 = await repository.create(givenISCOGroupSpecs_2);
 
@@ -566,7 +566,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.ISCOGroup.findById(getMockId(1));
+      return repositoryRegistry.ISCOGroup.findById(getMockStringId(1));
     });
   });
 });

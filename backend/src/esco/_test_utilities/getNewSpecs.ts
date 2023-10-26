@@ -9,7 +9,7 @@ import {
   SCOPE_NOTE_MAX_LENGTH,
 } from "esco/common/modelSchema";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { INewOccupationSpec } from "esco/occupation/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
@@ -26,7 +26,7 @@ export function getNewISCOGroupSpec(): INewISCOGroupSpec {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
     code: getMockRandomISCOGroupCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
-    modelId: getMockId(2),
+    modelId: getMockStringId(2),
     originUUID: "",
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -63,7 +63,7 @@ export function getNewOccupationSpec(): INewOccupationSpec {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
     code: getMockRandomOccupationCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
-    modelId: getMockId(2),
+    modelId: getMockStringId(2),
     originUUID: "",
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -99,7 +99,7 @@ export function getNewSkillGroupSpec(): INewSkillGroupSpec {
   return {
     code: getMockRandomSkillCode(),
     preferredLabel: getTestString(LABEL_MAX_LENGTH),
-    modelId: getMockId(2),
+    modelId: getMockStringId(2),
     originUUID: randomUUID(),
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -133,7 +133,7 @@ export function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: stri
 export function getNewSkillSpec(): INewSkillSpec {
   return {
     preferredLabel: getTestString(LABEL_MAX_LENGTH),
-    modelId: getMockId(2),
+    modelId: getMockStringId(2),
     originUUID: randomUUID(),
     ESCOUri: generateRandomUrl(),
     definition: getTestString(DEFINITION_MAX_LENGTH),

@@ -5,7 +5,7 @@ import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./skillGroupModel";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import {
@@ -42,18 +42,17 @@ describe("Test the definition of the skillGroup Model", () => {
   test("Successfully validate skillGroup with mandatory fields", async () => {
     // GIVEN a skillGroup object with all mandatory fields filled & a document
     const givenObject: ISkillGroupDoc = {
-      id: getMockId(1),
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: randomUUID(),
       ESCOUri: generateRandomUrl(),
       altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
       description: getTestString(DESCRIPTION_MAX_LENGTH),
       scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       importId: getTestString(IMPORT_ID_MAX_LENGTH),
     };
     const givenSkillGroupDocument = new skillGroupModel(givenObject);
@@ -72,7 +71,7 @@ describe("Test the definition of the skillGroup Model", () => {
       UUID: randomUUID(),
       code: getMockRandomSkillCode(),
       preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       originUUID: "",
       altLabels: [],
       ESCOUri: "",

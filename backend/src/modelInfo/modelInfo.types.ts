@@ -2,7 +2,7 @@ import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
 import mongoose from "mongoose";
 
 /**
- * Describes how model info are returned from the repository API
+ * Describes how a locale is saved in Database
  */
 export interface ILocale {
   UUID: string;
@@ -10,8 +10,11 @@ export interface ILocale {
   name: string;
 }
 
-export interface IModelInfo {
-  id: string;
+/**
+ * Describes how a model info is saved in Database
+ */
+export interface IModelInfoDoc {
+  id: mongoose.Types.ObjectId;
   name: string;
   locale: ILocale;
   description: string;
@@ -21,6 +24,17 @@ export interface IModelInfo {
   released: boolean;
   releaseNotes: string;
   version: string;
+  importProcessState: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Describes how a model info is returned from the API
+ */
+export interface IModelInfo extends Omit<IModelInfoDoc, "id" | "modelId" | "importProcessState"> {
+  id: string;
+  name: string;
   importProcessState: {
     id: string;
     status: ImportProcessStateApiSpecs.Enums.Status;
@@ -30,34 +44,13 @@ export interface IModelInfo {
       parsingWarnings: boolean;
     };
   };
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
- * Describe how model info is created via the repository API
+ * Describe how a new model info is created with the API
  */
 export interface INewModelInfoSpec {
   name: string;
   locale: ILocale;
   description: string;
-}
-
-/**
- * Describing how the data is saved in MongoDB
- */
-export interface IModelInfoDoc {
-  id: mongoose.Types.ObjectId | string;
-  name: string;
-  locale: ILocale;
-  description: string;
-  UUID: string;
-  previousUUID: string;
-  originUUID: string;
-  released: boolean;
-  releaseNotes: string;
-  version: string;
-  importProcessState: mongoose.Types.ObjectId | string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
 }

@@ -1,14 +1,17 @@
-import { ObjectTypes, ReferenceWithModelId } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationDoc, IOccupationReferenceDoc } from "./occupation.types";
+import mongoose from "mongoose";
 
-export function getOccupationReferenceWithModelId(doc: IOccupationDoc): ReferenceWithModelId<IOccupationReferenceDoc> {
+export function getOccupationDocReference(
+  occupation: mongoose.Document<unknown, undefined, IOccupationDoc> & IOccupationDoc
+): IOccupationReferenceDoc {
   return {
-    modelId: doc.modelId,
-    id: doc.id,
+    modelId: occupation.modelId,
+    id: occupation.id,
     objectType: ObjectTypes.Occupation,
-    UUID: doc.UUID,
-    ISCOGroupCode: doc.ISCOGroupCode,
-    code: doc.code,
-    preferredLabel: doc.preferredLabel,
+    UUID: occupation.UUID,
+    ISCOGroupCode: occupation.ISCOGroupCode,
+    code: occupation.code,
+    preferredLabel: occupation.preferredLabel,
   };
 }

@@ -3,7 +3,7 @@ import { HTTP_VERBS, response, StatusCodes } from "server/httpUtils";
 import * as AsyncImport from "./asyncImport";
 import ImportAPISpecs from "api-specifications/import";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import {
   testMethodsNotAllowed,
@@ -34,7 +34,7 @@ describe("test for trigger ImportHandler", () => {
     async (description, givenFilePaths) => {
       // GIVEN a correct payload & event with 'Content-Type: application/json; charset=utf-8'
       const givenPayload: ImportAPISpecs.Types.POST.Request.Payload = {
-        modelId: getMockId(2),
+        modelId: getMockStringId(2),
         filePaths: givenFilePaths,
       };
       expect(Object.keys(givenPayload.filePaths).length).toBeGreaterThanOrEqual(1);

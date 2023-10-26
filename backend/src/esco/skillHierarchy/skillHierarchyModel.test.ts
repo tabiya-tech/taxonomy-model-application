@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { initializeSchemaAndModel } from "./skillHierarchyModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -32,15 +32,15 @@ describe("Test the definition of the SkillHierarchy Model", () => {
   test("Successfully validate Skill Hierarchy with mandatory fields", async () => {
     // GIVEN a Skill Hierarchy object with mandatory fields filled & a document
     const givenObject: ISkillHierarchyPairDoc = {
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       parentType: ObjectTypes.SkillGroup,
-      parentId: getMockId(2),
+      parentId: getMockObjectId(2),
       parentDocModel: MongooseModelName.SkillGroup,
-      childId: getMockId(2),
+      childId: getMockObjectId(2),
       childType: ObjectTypes.Skill,
       childDocModel: MongooseModelName.Skill,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const givenSkillDocument = new SkillHierarchyModel(givenObject);
 

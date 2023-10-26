@@ -1,11 +1,17 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
+import { IOccupationDoc, IOccupationReference, IOccupationReferenceDoc } from "esco/occupation/occupation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IISCOGroup, IISCOGroupDoc, IISCOGroupReferenceDoc, INewISCOGroupSpec } from "./ISCOGroup.types";
-import { ReferenceWithModelId } from "esco/common/objectTypes";
-import { getISCOGroupReferenceWithModelId } from "./ISCOGroupReference";
-import { getOccupationReferenceWithModelId } from "esco/occupation/occupationReference";
+import {
+  IISCOGroup,
+  IISCOGroupDoc,
+  IISCOGroupReference,
+  IISCOGroupReferenceDoc,
+  INewISCOGroupSpec,
+} from "./ISCOGroup.types";
+import { getISCOGroupDocReference } from "./ISCOGroupReference";
+import { getOccupationDocReference } from "esco/occupation/occupationReference";
+import { IPopulatedOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 
 export interface IISCOGroupRepository {
   readonly Model: mongoose.Model<IISCOGroupDoc>;
@@ -113,51 +119,55 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
           path: "parent",
           populate: {
             path: "parentId",
-            transform: function (doc): ReferenceWithModelId<IISCOGroupReferenceDoc> | null {
+            transform: function (doc: unknown): IISCOGroupReferenceDoc | null {
               // return only the relevant fields
-              if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
-                return getISCOGroupReferenceWithModelId(doc);
+              const modelName = (doc as ModelConstructed<unknown>).constructor.modelName;
+              if (modelName === MongooseModelName.ISCOGroup) {
+                return getISCOGroupDocReference(doc as ISCOGroupDocument);
               }
-              console.error(`Parent is not an ISCOGroup: ${doc.constructor.modelName}`);
+              console.error(`Parent is not an ISCOGroup: ${modelName}`);
               return null;
             },
           },
-          transform: function (doc): IISCOGroupReferenceDoc | null {
+          transform: function (doc: IPopulatedOccupationHierarchyPairDoc): IISCOGroupReference | null {
             // return only the relevant fields
-            if (!doc?.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
-            if (!doc?.parentId?.modelId?.equals(doc?.modelId)) {
+            if (!doc.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
+            if (!doc.parentId.modelId?.equals(doc.modelId)) {
               console.error(`Parent is not in the same model as the child`);
               return null;
             }
+            // @ts-ignore - we want to remove the modelId field because  it is not part of the IISCOGroupReferenceDoc interface
             delete doc.parentId.modelId;
-            return doc.parentId;
+            return doc.parentId as IISCOGroupReference;
           },
         })
         .populate({
           path: "children",
           populate: {
             path: "childId",
-            transform: function (
-              doc
-            ): ReferenceWithModelId<IISCOGroupReferenceDoc> | ReferenceWithModelId<IOccupationReferenceDoc> | null {
+            transform: function (doc: unknown): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
               // return only the relevant fields
-              if (doc.constructor.modelName === MongooseModelName.ISCOGroup) {
-                return getISCOGroupReferenceWithModelId(doc);
+              const modelName = (doc as ModelConstructed<unknown>).constructor.modelName;
+              if (modelName === MongooseModelName.Occupation) {
+                return getOccupationDocReference(doc as OccupationDocument);
               }
-              if (doc.constructor.modelName === MongooseModelName.Occupation) {
-                return getOccupationReferenceWithModelId(doc);
+              if (modelName === MongooseModelName.ISCOGroup) {
+                return getISCOGroupDocReference(doc as ISCOGroupDocument);
               }
-              console.error(`Child is not an ISCOGroup or Occupation: ${doc.constructor.modelName}`);
+              console.error(`Child is not an ISCOGroup or Occupation: ${modelName}`);
               return null;
             },
           },
-          transform: function (doc): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
+          transform: function (
+            doc: IPopulatedOccupationHierarchyPairDoc
+          ): IISCOGroupReference | IOccupationReference | null {
             // return only the relevant fields
-            if (!doc?.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
-            if (!doc?.childId?.modelId?.equals(doc?.modelId)) {
+            if (!doc.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
+            if (!doc.childId.modelId?.equals(doc.modelId)) {
               console.error(`Child is not in the same model as the parent`);
               return null;
             }
+            // @ts-ignore - we want to remove the modelId field because  it is not part of the IISCOGroupReference | IOccupationReference interface
             delete doc.childId.modelId;
             return doc.childId;
           },
@@ -170,3 +180,8 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     }
   }
 }
+
+type ModelConstructed<T> = { constructor: mongoose.Model<T> };
+type _Document<T> = mongoose.Document<unknown, undefined, T> & T & ModelConstructed<T>;
+type ISCOGroupDocument = _Document<IISCOGroupDoc>;
+type OccupationDocument = _Document<IOccupationDoc>;

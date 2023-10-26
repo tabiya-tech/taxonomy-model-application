@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco/common/objectTypes";
 import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 
-//TODO: Eventually this will have to move to the api definition.
+/**
+ * Enum for the different types of skills.
+ */
 export enum SkillType {
   None = "",
   SkillCompetence = "skill/competence",
@@ -11,6 +13,9 @@ export enum SkillType {
   Attitude = "attitude",
 }
 
+/**
+ * Enum for the different levels of reuse for skills.
+ */
 export enum ReuseLevel {
   None = "",
   SectorSpecific = "sector-specific",
@@ -19,10 +24,12 @@ export enum ReuseLevel {
   Transversal = "transversal",
 }
 
+/**
+ * Describes how a skill is saved in the database.
+ */
 export interface ISkillDoc extends ImportIdentifiable {
-  id: string | mongoose.Types.ObjectId;
   UUID: string;
-  modelId: string | mongoose.Types.ObjectId;
+  modelId: mongoose.Types.ObjectId;
   preferredLabel: string;
   originUUID: string;
   ESCOUri: string;
@@ -32,15 +39,14 @@ export interface ISkillDoc extends ImportIdentifiable {
   scopeNote: string;
   skillType: SkillType;
   reuseLevel: ReuseLevel;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface ISkillReferenceDoc extends Pick<ISkillDoc, "id" | "UUID" | "preferredLabel"> {
-  objectType: ObjectTypes.Skill;
-}
-
-export interface ISkill extends ISkillDoc {
+/**
+ * Describes how a skill is returned from the API.
+ */
+export interface ISkill extends Omit<ISkillDoc, "modelId"> {
   id: string;
   modelId: string;
   parents: (ISkillReference | ISkillGroupReference)[];
@@ -49,11 +55,26 @@ export interface ISkill extends ISkillDoc {
   requiredBySkills: ReferenceWithRelationType<ISkillReferenceDoc>[];
 }
 
+/**
+ * Describes how a new skill is created with the API.
+ */
 export type INewSkillSpec = Omit<
   ISkill,
   "id" | "UUID" | "parents" | "children" | "requiresSkills" | "requiredBySkills" | "createdAt" | "updatedAt"
 >;
 
+/**
+ * Describes how a reference to a skill is returned from the API
+ */
 export interface ISkillReference extends Pick<ISkill, "id" | "UUID" | "preferredLabel"> {
+  objectType: ObjectTypes.Skill;
+}
+
+/**
+ * Describes how a reference to a skill is populated within repository functions.
+ * This is not returned from the API.
+ */
+export interface ISkillReferenceDoc extends Pick<ISkillDoc, "modelId" | "UUID" | "preferredLabel"> {
+  id: string;
   objectType: ObjectTypes.Skill;
 }
