@@ -28,6 +28,7 @@ import {
   getOneRandomModelMaxLength,
 } from "./components/modelTables/_test_utilities/mockModelData";
 import LocaleAPISpecs from "api-specifications/locale";
+import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
@@ -328,10 +329,11 @@ describe("ModelDirectory", () => {
       // AND WHEN the ModelInfoService fails
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be shown
-        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
-          `Failed to fetch the models. Please check your internet connection.`,
-          { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR, preventDuplicate: true }
-        );
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models.`, {
+          variant: "error",
+          key: SNACKBAR_ID.INTERNET_ERROR,
+          preventDuplicate: true,
+        });
       });
       // AND the ModelsTable props to remain the same
       expect(ModelsTable).toHaveBeenCalledWith({ models: [], isLoading: true }, {});
@@ -391,10 +393,11 @@ describe("ModelDirectory", () => {
 
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be shown
-        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
-          `Failed to fetch the models. Please check your internet connection.`,
-          { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR, preventDuplicate: true }
-        );
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models.`, {
+          variant: "error",
+          key: SNACKBAR_ID.INTERNET_ERROR,
+          preventDuplicate: true,
+        });
       });
       // AND the ModelsTable to have been called with the previous props
       expect(ModelsTable).toHaveBeenLastCalledWith({ models: givenMockData, isLoading: false }, {});
@@ -428,10 +431,11 @@ describe("ModelDirectory", () => {
 
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be shown
-        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
-          `Failed to fetch the models. Please check your internet connection.`,
-          { variant: "error", key: SNACKBAR_ID.INTERNET_ERROR, preventDuplicate: true }
-        );
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`Failed to fetch the models.`, {
+          variant: "error",
+          key: SNACKBAR_ID.INTERNET_ERROR,
+          preventDuplicate: true,
+        });
       });
 
       // AND WHEN the ModelInfoService succeeds
@@ -515,6 +519,156 @@ describe("ModelDirectory", () => {
       // AND finally expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    describe("Internet status", () => {
+      afterAll(() => {
+        unmockBrowserIsOnLine();
+      });
+
+      test("should fetch data when the internet switches from offline to online", async () => {
+        jest.useFakeTimers();
+        // Testing the following scenario:
+        //  (A) online -> render (fetch/Timer Clear) ->
+        //  (B) offline (Timer Clear/No Fetch) ->
+        //  (C) online (No Timer Clear/Fetch) ->
+        //  (D) offline (Timer Clear/No Fetch)"
+
+        // GIVEN the model info service is called periodically, and it will return empty data each time
+        // to avoid causing a new timer to be created each time (see the comments in the implementation in ModelDirectory.tsx)
+        // This way the tests will be simpler
+
+        const callback = jest.fn();
+        callback.mockImplementation((onSuccess, _) => {
+          onSuccess([]);
+        });
+
+        const timerIds: NodeJS.Timer[] = [] as unknown as NodeJS.Timer[];
+        const fetchAllModelsPeriodicallySpy = jest
+          .spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically")
+          .mockImplementation((onSuccess, _) => {
+            const timerId = setInterval(() => callback(onSuccess, _), 1000);
+            timerIds.push(timerId);
+            return timerId;
+          });
+
+        const clearIntervalSpy = jest.spyOn(global, "clearInterval");
+        // ----------------------------------------------
+        // (A) "online -> render expect(fetch/Timer Clear)
+        // ----------------------------------------------
+        // AND the internet is initially online
+        mockBrowserIsOnLine(true);
+
+        // WHEN the model directory is rendered
+        render(<ModelDirectory />);
+
+        // THEN expect the fetchAllModelsPeriodically to have been called
+        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalled();
+
+        // ----------------------------------------------
+        // (B) offline expect(Timer Clear/No Fetch)
+        // ----------------------------------------------
+
+        // AND WHEN the internet goes offline
+        act(() => mockBrowserIsOnLine(false));
+
+        // THEN expect the timer from the previous fetch to have been cleared
+        await waitFor(() => {
+          expect(clearIntervalSpy).toHaveBeenNthCalledWith(1, timerIds[0]);
+        });
+        // AND if the time has progressed
+        act(() => {
+          jest.advanceTimersToNextTimer();
+        });
+        // THEN expect the fetchAllModelsPeriodically to not have been called
+        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(1);
+
+        // ----------------------------------------------
+        // (C) online expect(No Timer Clear/ Fetch)
+        // ----------------------------------------------
+
+        // AND WHEN the internet goes online
+        act(() => mockBrowserIsOnLine(true));
+
+        // THEN expect that there was not timer to clear
+        await waitFor(() => {
+          expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
+        });
+        // AND if the time has progressed
+        act(() => {
+          jest.advanceTimersToNextTimer();
+        });
+        // THEN expect the fetchAllModelsPeriodically to have been called
+        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(2);
+
+        // ----------------------------------------------
+        // (D) offline expect(Timer Clear/No Fetch)
+        // ----------------------------------------------
+
+        // AND WHEN the internet goes offline
+        act(() => mockBrowserIsOnLine(false));
+
+        // THEN expect the timer from the previous fetch to have been cleared
+        await waitFor(() => {
+          expect(clearIntervalSpy).toHaveBeenNthCalledWith(2, timerIds[1]);
+        });
+        // AND if the time has progressed
+        act(() => {
+          jest.advanceTimersToNextTimer();
+        });
+        // THEN expect the fetchAllModelsPeriodically to not have been called
+        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(2);
+
+        // at the end of the test, the clearInterval spy otherwise the following tests will fail with the error
+        //  clearInterval is not defined
+        //  ReferenceError: clearInterval is not defined
+        clearIntervalSpy.mockRestore();
+      });
+
+      test("when rendered is should not fetch data if the internet is offline", async () => {
+        jest.useFakeTimers();
+        // GIVEN the model info service is called periodically, and it will return empty data each time
+        // to avoid causing a new timer to be created each time (see the comments in the implementation in ModelDirectory.tsx)
+        const callback = jest.fn();
+        callback.mockImplementation((onSuccess, _) => {
+          onSuccess([]);
+        });
+
+        jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
+          return setInterval(() => callback(onSuccess, _), 1000);
+        });
+
+        // GIVEN that the internet will be offline
+
+        mockBrowserIsOnLine(false);
+
+        // WHEN the model directory is rendered
+        render(<ModelDirectory />);
+
+        // THEN expect the fetchAllModelsPeriodically to not have been called
+        expect(ModelInfoService.prototype.fetchAllModelsPeriodically).not.toHaveBeenCalled();
+        // AND the table is rendered with the isLoading state
+        expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
+
+        // AND WHEN the internet goes online
+        act(() => mockBrowserIsOnLine(true));
+        // THEN expect the fetchAllModelsPeriodically to have been called
+        expect(ModelInfoService.prototype.fetchAllModelsPeriodically).toHaveBeenCalled();
+
+        // AND WHEN the time has progressed and the fetchAllModelsPeriodically resolves
+        act(() => {
+          jest.advanceTimersToNextTimer(); // so that the promise from the fetchAllModelsPeriodically resolves
+        });
+
+        // THEN the table is not rendered in the isLoading state
+        //  The model is rendered three times, because offline/online notification causes it to re-render
+        //  so simply checking the last call here would do the job
+        expect(ModelsTable).toHaveBeenLastCalledWith({ models: [], isLoading: false }, {});
+
+        // AND no error or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
+      });
     });
   });
 

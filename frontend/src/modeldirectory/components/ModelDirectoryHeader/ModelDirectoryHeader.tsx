@@ -31,6 +31,7 @@ const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
       onClick={() => onModelImport()}
       data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}
       startIcon={<AddCircleOutlined />}
+      disableWhenOffline={true}
     >
       Import Model
     </PrimaryButton>

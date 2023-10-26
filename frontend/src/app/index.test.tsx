@@ -1,11 +1,12 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { render, screen, waitFor, fireEvent, createEvent } from "src/_test_utilities/test-utils";
-import TaxonomyModelApp, { SNACKBAR_KEYS } from "./index";
+import { render, screen } from "src/_test_utilities/test-utils";
+import TaxonomyModelApp, { SNACKBAR_AUTO_HIDE_DURATION, SNACKBAR_KEYS } from "./index";
 import { Route } from "react-router-dom";
 import routerConfig from "./routerConfig";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
+import { unmockBrowserIsOnLine, mockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
 // mock the snackbar
 jest.mock("src/theme/SnackbarProvider/SnackbarProvider", () => {
@@ -39,8 +40,8 @@ jest.mock("react-router-dom", () => {
 
 describe("main taxonomy app test", () => {
   beforeEach(() => {
-    (console.error as jest.Mock).mockClear();
-    (console.warn as jest.Mock).mockClear();
+    jest.clearAllMocks();
+    unmockBrowserIsOnLine();
   });
 
   it("should render TaxonomyModelApp app", () => {
@@ -68,39 +69,67 @@ describe("main taxonomy app test", () => {
     });
   });
 
-  it("should listen and handle the online event", async () => {
-    // GIVEN the offline and online event are registered
-    const addEventListenerSpy = jest.spyOn(window, "addEventListener");
-    const removeEventListenerSpy = jest.spyOn(window, "removeEventListener");
-    // WHEN the app is rendered
-    const { unmount } = render(<TaxonomyModelApp />);
-    // THEN online and offline events should be registered with a handler
-    expect(addEventListenerSpy).toHaveBeenCalledWith("online", expect.any(Function));
-    expect(addEventListenerSpy).toHaveBeenCalledWith("offline", expect.any(Function));
-
-    // WHEN browser is offline
-    const offlineEvent = createEvent.offline(window);
-    fireEvent(window, offlineEvent);
-    // THEN offline warning should be shown
-    expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(`You are offline`, {
+  describe("when the app is offline/online", () => {
+    const expectedOfflineSnackBar = {
       variant: "warning",
       key: SNACKBAR_KEYS.OFFLINE_ERROR,
       preventDuplicate: true,
       persist: true,
+      action: [],
+    };
+    const expectedOnlineSnackBar = {
+      variant: "success",
+      key: SNACKBAR_KEYS.ONLINE_SUCCESS,
+      preventDuplicate: true,
+      autoHideDuration: SNACKBAR_AUTO_HIDE_DURATION,
+    };
+    const expectedMessageOffline = `You are offline`;
+    const expectedMessageOnline = `You are back online`;
+
+    it("should show the online then offline notification when the browser switches from offline->online->offline", async () => {
+      // GIVEN that the app is initially rendered while the browser is offline
+      mockBrowserIsOnLine(false);
+      render(<TaxonomyModelApp />);
+
+      // THEN expect the offline notification to be shown
+      expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(expectedMessageOffline, expectedOfflineSnackBar);
+
+      // AND WHEN the browser goes online
+      mockBrowserIsOnLine(true);
+
+      // THEN expect the offline notification to disappear
+      expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_KEYS.OFFLINE_ERROR);
+      // AND the online notification to be shown
+      expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(expectedMessageOnline, expectedOnlineSnackBar);
+
+      // AND WHEN the browser goes offline again
+      mockBrowserIsOnLine(false);
+      // THEN  the online notification to be shown
+      expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_KEYS.ONLINE_SUCCESS);
+      // AND the online notification to be shown
+      expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(expectedMessageOffline, expectedOfflineSnackBar);
     });
 
-    // WHEN the browser is back online
-    const onlineEvent = createEvent.online(window);
-    fireEvent(window, onlineEvent);
-    // THEN the snackbar should be closed
-    expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_KEYS.OFFLINE_ERROR);
+    it("should show the offline notification when the app renders for the first time and the browser is offline", async () => {
+      // GIVEN the browser is offline
+      mockBrowserIsOnLine(false);
 
-    // WHEN the ModelDirectory is unmounted
-    await waitFor(() => {
-      unmount();
+      // WHEN the app is rendered
+      render(<TaxonomyModelApp />);
+
+      // THEN the offline warning should be shown
+      expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(expectedMessageOffline, expectedOfflineSnackBar);
     });
-    // THEN the event listeners should be removed
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("online", expect.any(Function));
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("offline", expect.any(Function));
+
+    it("should not show the online notification when the app renders for the first time and the browser is online", async () => {
+      // GIVEN that the browser is online
+      mockBrowserIsOnLine(true);
+
+      // WHEN the app is rendered
+      render(<TaxonomyModelApp />);
+
+      // THEN expect the offline and online notification to not be shown
+      expect(useSnackbar().enqueueSnackbar).not.toHaveBeenCalled();
+    });
   });
 });

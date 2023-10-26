@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { InfoProps } from "./info.types";
 import InfoService from "./info.service";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import ContentTitle from "src/theme/ContentTitle";
 import { styled } from "@mui/material/styles";
+import { IsOnlineContext } from "../app/providers";
 
 const uniqueId = "37d307ae-4f1e-4d8d-bafe-fd642f8af4dc";
 export const DATA_TEST_ID = {
@@ -65,9 +66,12 @@ const Info = () => {
   const [versions, setVersions] = useState<InfoProps[]>([]);
   const infoService = useMemo(() => new InfoService(), []);
   const theme = useTheme();
+  const isOnline = useContext(IsOnlineContext);
   useEffect(() => {
-    infoService.loadInfo().then((data) => setVersions(data));
-  }, [infoService]);
+    if (isOnline) {
+      infoService.loadInfo().then((data) => setVersions(data));
+    }
+  }, [infoService, isOnline]);
 
   return (
     <StyledContainer

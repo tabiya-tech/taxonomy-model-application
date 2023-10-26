@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import ImportModelDialog, { CloseEvent, ImportData } from "src/import/ImportModelDialog";
 import { ServiceError } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
@@ -11,6 +11,7 @@ import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
+import { IsOnlineContext } from "src/app/providers";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -44,6 +45,8 @@ const ModelDirectory = () => {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
+  const isOnline = useContext(IsOnlineContext);
+
   const showImportDialog = (b: boolean) => {
     setIsImportDlgOpen(b);
   };
@@ -65,33 +68,44 @@ const ModelDirectory = () => {
   }
 
   const handleModelInfoFetch = useCallback(() => {
-    return modelInfoService.fetchAllModelsPeriodically(
-      (fetchedModels) => {
-        if (!modelArraysAreEqual(fetchedModels, models)) {
-          setModels(fetchedModels);
+    if (isOnline) {
+      return modelInfoService.fetchAllModelsPeriodically(
+        (fetchedModels) => {
+          if (!modelArraysAreEqual(fetchedModels, models)) {
+            setModels(fetchedModels);
+          }
+          setIsLoadingModels(false);
+          closeSnackbar(SNACKBAR_ID.INTERNET_ERROR);
+        },
+        (e) => {
+          enqueueSnackbar(`Failed to fetch the models.`, {
+            variant: "error",
+            key: SNACKBAR_ID.INTERNET_ERROR,
+            preventDuplicate: true,
+          });
+          if (e instanceof ServiceError) {
+            writeServiceErrorToLog(e, console.error);
+          } else {
+            console.error(e);
+          }
         }
-        setIsLoadingModels(false);
-        closeSnackbar(SNACKBAR_ID.INTERNET_ERROR);
-      },
-      (e) => {
-        enqueueSnackbar(`Failed to fetch the models. Please check your internet connection.`, {
-          variant: "error",
-          key: SNACKBAR_ID.INTERNET_ERROR,
-          preventDuplicate: true,
-        });
-        if (e instanceof ServiceError) {
-          writeServiceErrorToLog(e, console.error);
-        } else {
-          console.error(e);
-        }
-      }
-    );
+      );
+    }
     // It is important to pass models as a dependency otherwise the callback will always
     // use the initial value of models, which is [], and the modelArrayAreEqual will always return false
     // this has the side effect that when the models are updated, the callback is created again.
     // This is not a problem because the useEffect is designed to handle this,
     // by clearing the interval when the component is unmounted and also when the interval is recreated
-  }, [models, enqueueSnackbar, closeSnackbar]);
+  }, [models, enqueueSnackbar, closeSnackbar, isOnline]);
+
+  useEffect(() => {
+    const timerId = handleModelInfoFetch();
+    return () => {
+      if (timerId) {
+        clearInterval(timerId);
+      }
+    };
+  }, [handleModelInfoFetch]);
 
   const handleOnImportDialogClose = async (event: CloseEvent) => {
     showImportDialog(false);
@@ -123,14 +137,6 @@ const ModelDirectory = () => {
       }
     }
   };
-
-  useEffect(() => {
-    const timerId = handleModelInfoFetch();
-
-    return () => {
-      clearInterval(timerId);
-    };
-  }, [handleModelInfoFetch]);
 
   return (
     <div style={{ width: "100%", height: "100%" }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>

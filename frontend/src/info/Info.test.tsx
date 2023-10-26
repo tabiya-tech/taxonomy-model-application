@@ -10,10 +10,21 @@ import "src/_test_utilities/consoleMock";
 import { InfoProps } from "./info.types";
 import Info, { DATA_TEST_ID } from "./Info";
 import { render, act, screen } from "src/_test_utilities/test-utils";
+import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
-jest.mock("./info.service");
+jest.mock("./info.service", () => {
+  const mockInfoService = jest.fn();
+  mockInfoService.prototype.loadInfo = jest.fn().mockImplementation(() => {
+    return Promise.resolve([]);
+  });
+  return mockInfoService;
+});
 
 describe("Testing Info component", () => {
+  beforeEach(() => {
+    unmockBrowserIsOnLine();
+  });
+
   test("it should show frontend and backend info successfully", async () => {
     // Clear any possible mock for the console
     (console.error as jest.Mock).mockClear();
@@ -58,5 +69,32 @@ describe("Testing Info component", () => {
 
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toBeDefined();
     expect(screen.getByTestId(DATA_TEST_ID.VERSION_BACKEND_ROOT)).toMatchSnapshot(DATA_TEST_ID.VERSION_BACKEND_ROOT);
+  });
+
+  test("should fetch data when the internet switches from offline to online", async () => {
+    // Testing the following scenario:
+    // before render -> offline -> render -> online -> offline -> online// ... // -> offline + online // ...
+    // GIVEN the internet is offline
+    mockBrowserIsOnLine(false);
+    // AND the component is rendered
+    render(<Info />);
+
+    // THEN the info service should not be called
+    expect(InfoService.prototype.loadInfo).not.toHaveBeenCalled();
+
+    // AND WHEN the internet goes online
+    mockBrowserIsOnLine(true);
+    // THEN the info service should be called
+    expect(InfoService.prototype.loadInfo).toHaveBeenCalledTimes(1);
+
+    // AND WHEN the internet goes offline
+    mockBrowserIsOnLine(false);
+    // THEN the info service should not be called again
+    expect(InfoService.prototype.loadInfo).toHaveBeenCalledTimes(1);
+
+    // AND WHEN the internet goes online
+    mockBrowserIsOnLine(true);
+    // THEN the info service should be called again
+    expect(InfoService.prototype.loadInfo).toHaveBeenCalledTimes(2);
   });
 });

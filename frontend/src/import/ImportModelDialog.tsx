@@ -117,6 +117,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         <PrimaryButton
           onClick={() => handleClose({ name: "IMPORT", importData: data.current })}
           disabled={isImportButtonDisabled}
+          disableWhenOffline={true}
           data-testid={DATA_TEST_ID.IMPORT_BUTTON}
         >
           Import
