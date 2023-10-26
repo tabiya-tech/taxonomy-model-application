@@ -10,12 +10,3 @@ export function getSkillReferenceWithModelId(doc: ISkillDoc): ReferenceWithModel
     preferredLabel: doc.preferredLabel,
   };
 }
-
-export function getSkillReference(doc: ISkillDoc): ISkillReferenceDoc {
-  return {
-    id: doc.id,
-    objectType: ObjectTypes.Skill,
-    UUID: doc.UUID,
-    preferredLabel: doc.preferredLabel,
-  };
-}

@@ -18,7 +18,7 @@ import {
 } from "esco/common/modelSchema";
 import { ISkillRepository } from "./SkillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import {INewSkillSpec, ISkill, ISkillReference} from "./skills.types";
+import {INewSkillSpec, ISkill, ISkillDoc, ISkillReference, ISkillReferenceDoc} from "./skills.types";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import {
   INewSkillHierarchyPairSpec,
@@ -27,7 +27,7 @@ import {
 } from "../skillHierarchy/skillHierarchy.types";
 import { ObjectTypes } from "../common/objectTypes";
 import { MongooseModelName } from "../common/mongooseModelNames";
-import {getSkillReference, getSkillReferenceWithModelId} from "./skillReference";
+import {getSkillReferenceWithModelId} from "./skillReference";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -55,6 +55,12 @@ function getNewSkillSpec(): INewSkillSpec {
     altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
+}
+
+export function getSkillReferenceFromSkill(skill: ISkill): ISkillReference {
+  const  ref: any = getSkillReferenceWithModelId(skill);
+  delete ref.modelId;
+  return ref;
 }
 
 /**
@@ -330,16 +336,17 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       await repositoryRegistry.skillHierarchy.createMany(givenSkill.modelId, [givenSkillPairToChild, givenSkillPairToParent]);
 
       // WHEN searching for the skill by its id
-      const actualFoundSkill = await repository.findById(givenSkill.id);
+      const actualFoundSkill = await repository.findById(givenSkill.id) as ISkill;
 
       // THEN expect the given skill to be found
-      expect(actualFoundSkill!.id).toBe(givenSkill.id);
+      expect(actualFoundSkill).not.toBeNull();
+
       // AND to have the parent skill
-      expect(actualFoundSkill!.parents).toHaveLength(1);
-      expect(actualFoundSkill!.parents[0]).toEqual(getSkillReference(givenParentSkill));
+      expect(actualFoundSkill.parents).toHaveLength(1);
+      expect(actualFoundSkill.parents[0]).toEqual(getSkillReferenceFromSkill(givenParentSkill));
       // AND the child skill
-      expect(actualFoundSkill!.children).toHaveLength(1);
-      expect(actualFoundSkill!.children[0]).toEqual(getSkillReference(givenChildSkill));
+      expect(actualFoundSkill.children).toHaveLength(1);
+      expect(actualFoundSkill.children[0]).toEqual(getSkillReferenceFromSkill(givenChildSkill));
     });
 
     test.todo("should return the skill with its related skills");
