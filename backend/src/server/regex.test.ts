@@ -12,6 +12,8 @@ import "jest-performance-matchers";
 
 const WHITESPACE = " \n\r\t";
 const PERF_DURATION = 5;
+const ITERATIONS = 15;
+const QUANTILE = 90;
 describe("Test RegExp_NotEmptyString", () => {
   test.each([["abc"], [" abc"], [" abc "], ["abc "], ["a b c"], [" a b c"], [" a b c "]])(
     "It should successfully test true non whitespace strings '%s'",
@@ -38,8 +40,9 @@ describe("Test RegExp_NotEmptyString", () => {
       expect(() => {
         RegExp_NotEmptyString.test(value);
       }).toCompleteWithinQuantile(PERF_DURATION, {
-        iterations: 10,
-        quantile: 90,
+        // 2x because it is a long string
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
       });
     }
   );
@@ -80,8 +83,8 @@ describe("Test RegExp_Hex fixed length", () => {
       expect(() => {
         regex.test(value);
       }).toCompleteWithinQuantile(PERF_DURATION, {
-        iterations: 10,
-        quantile: 90,
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
       });
     }
   );
@@ -124,8 +127,8 @@ describe("Test RegExp_Hex minimum length", () => {
       expect(() => {
         regex.test(value);
       }).toCompleteWithinQuantile(PERF_DURATION, {
-        iterations: 10,
-        quantile: 90,
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
       });
     }
   );
@@ -155,8 +158,8 @@ describe("Test RegExp_Hex_AnyLength", () => {
       expect(() => {
         RegExp_Hex_AnyLength.test(value);
       }).toCompleteWithinQuantile(PERF_DURATION, {
-        iterations: 10,
-        quantile: 90,
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
       });
     }
   );
@@ -194,8 +197,8 @@ describe("Test RegExp_UUIDv4", () => {
       expect(() => {
         RegExp_UUIDv4.test(value);
       }).toCompleteWithinQuantile(PERF_DURATION, {
-        iterations: 10,
-        quantile: 90,
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
       });
     }
   );
@@ -237,8 +240,8 @@ describe("Test RegExp_UUIDv4_Or_Empty", () => {
       expect(() => {
         RegExp_UUIDv4_Or_Empty.test(value);
       }).toCompleteWithinQuantile(PERF_DURATION, {
-        iterations: 10,
-        quantile: 90,
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
       });
     }
   );
@@ -261,16 +264,16 @@ describe("Test RegEx_Skill_Group_Code", () => {
 
   test.each([
     ["long valid code", "L9" + ".9".repeat(65535)],
-    ["long  invalid code", "ghi".repeat(65535)],
-    ["long  empty code", " ".repeat(65535)],
+    ["long invalid code", "ghi".repeat(65535)],
+    ["long empty code", " ".repeat(65535)],
   ])(
     `It performs fast (<=${PERF_DURATION}ms) and does not hang/cause catastrophic backtracking for '%s'`,
     async (description, value) => {
       expect(() => {
         RegEx_Skill_Group_Code.test(value);
       }).toCompleteWithinQuantile(PERF_DURATION, {
-        iterations: 10,
-        quantile: 90,
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
       });
     }
   );
