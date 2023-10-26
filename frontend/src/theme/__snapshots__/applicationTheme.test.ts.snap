@@ -4,7 +4,11 @@ exports[`dark theme mode call fixedSpacing function (non-responsive) 1`] = `"16p
 
 exports[`dark theme mode call responsiveBorderRounding function (responsive) 1`] = `"calc(clamp(2px, (2vh + -8px + 1.5vw + -10px)/2 , 8px) * 2)"`;
 
+exports[`dark theme mode call responsiveBorderRounding function with 'full' rounding (responsive) 1`] = `"50%"`;
+
 exports[`dark theme mode call rounding function (non-responsive) 1`] = `"16px"`;
+
+exports[`dark theme mode call rounding function with 'full' rounding (non-responsive) 1`] = `"50%"`;
 
 exports[`dark theme mode call spacing function (responsive) 1`] = `"calc(clamp(2px, (2vh + -8px + 1.5vw + -10px)/2 , 8px) * 2)"`;
 
@@ -675,7 +679,11 @@ exports[`light theme mode call fixedSpacing function (non-responsive) 1`] = `"16
 
 exports[`light theme mode call responsiveBorderRounding function (responsive) 1`] = `"calc(clamp(2px, (2vh + -8px + 1.5vw + -10px)/2 , 8px) * 2)"`;
 
+exports[`light theme mode call responsiveBorderRounding function with 'full' rounding (responsive) 1`] = `"50%"`;
+
 exports[`light theme mode call rounding function (non-responsive) 1`] = `"16px"`;
+
+exports[`light theme mode call rounding function with 'full' rounding (non-responsive) 1`] = `"50%"`;
 
 exports[`light theme mode call spacing function (responsive) 1`] = `"calc(clamp(2px, (2vh + -8px + 1.5vw + -10px)/2 , 8px) * 2)"`;
 
