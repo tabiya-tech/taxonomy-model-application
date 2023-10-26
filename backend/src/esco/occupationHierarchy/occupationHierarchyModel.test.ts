@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { initializeSchemaAndModel } from "./occupationHierarchyModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -32,15 +32,15 @@ describe("Test the definition of the OccupationHierarchy Model", () => {
   test("Successfully validate Occupation Hierarchy with mandatory fields", async () => {
     // GIVEN an Occupation Hierarchy object with mandatory fields filled & a document
     const givenObject: IOccupationHierarchyPairDoc = {
-      modelId: getMockId(2),
+      modelId: getMockObjectId(2),
       parentType: ObjectTypes.ISCOGroup,
-      parentId: getMockId(2),
+      parentId: getMockObjectId(2),
       parentDocModel: MongooseModelName.ISCOGroup,
-      childId: getMockId(2),
+      childId: getMockObjectId(2),
       childType: ObjectTypes.Occupation,
       childDocModel: MongooseModelName.Occupation,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const givenOccupationDocument = new OccupationHierarchyModel(givenObject);
 

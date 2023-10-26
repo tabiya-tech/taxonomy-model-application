@@ -1,7 +1,7 @@
 // suppress chatty log output when testing
 import "_test_utilities/consoleMock";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
@@ -20,7 +20,7 @@ import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnection
 function getNewImportProcessStatusSpec(): INewImportProcessStateSpec {
   return {
     id: new mongoose.Types.ObjectId().toString(),
-    modelId: getMockId(2),
+    modelId: getMockStringId(2),
     status: ImportProcessStateApiSpecs.Enums.Status.RUNNING,
     result: {
       errored: false,
@@ -141,7 +141,7 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
 
     test("should reject with an error when updating an ImportProcessState that does not exist", async () => {
       // GIVEN an id of  ImportProcessState that does not exist
-      const givenId = getMockId(1);
+      const givenId = getMockStringId(1);
       // AND valid updateSpecs
       const givenUpdateSpecs = {
         status: ImportProcessStateApiSpecs.Enums.Status.PENDING,
@@ -161,7 +161,7 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
     });
 
     TestDBConnectionFailureNoSetup((repositoryRegistry) => {
-      return repositoryRegistry.importProcessState.update(getMockId(1), {
+      return repositoryRegistry.importProcessState.update(getMockStringId(1), {
         status: ImportProcessStateApiSpecs.Enums.Status.PENDING,
         result: {
           errored: false,

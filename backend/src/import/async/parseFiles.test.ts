@@ -114,7 +114,7 @@ jest.mock("import/esco/skillToSkillRelation/skillToSkillRelationParser.ts", () =
 // ##############
 import { parseFiles } from "./parseFiles";
 import ImportAPISpecs from "api-specifications/import";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { parseISCOGroupsFromUrl } from "import/esco/ISCOGroups/ISCOGroupsParser";
 import { getUploadBucketName, getUploadBucketRegion } from "server/config/config";
 import { S3PresignerService } from "./S3PresignerService";
@@ -145,8 +145,8 @@ describe("Test the main async handler", () => {
     const givenUploadBucketRegion = getUploadBucketRegion();
     const givenUploadBucketName = getUploadBucketName();
     // AND the model to import into with a given modelId and a given importProcessStateId
-    const givenModelId = getMockId(1);
-    const givenImportProcessStateId = getMockId(2);
+    const givenModelId = getMockStringId(1);
+    const givenImportProcessStateId = getMockStringId(2);
     const givenModelInfoRepositoryMock = {
       Model: undefined as any,
       create: jest.fn().mockResolvedValue(null),
@@ -344,8 +344,8 @@ describe("Test the main async handler", () => {
       ],
     ])("should %s", async (desc, setupTestcaseCallBack, expectedResult) => {
       // GIVEN the model to import into with a given modelId and a given importProcessStateId
-      const givenModelId = getMockId(1);
-      const givenImportProcessStateId = getMockId(2);
+      const givenModelId = getMockStringId(1);
+      const givenImportProcessStateId = getMockStringId(2);
       const givenModelInfoRepositoryMock = {
         Model: undefined as any,
         create: jest.fn().mockResolvedValue(null),

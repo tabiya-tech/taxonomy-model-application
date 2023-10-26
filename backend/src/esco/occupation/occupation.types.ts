@@ -3,12 +3,11 @@ import mongoose from "mongoose";
 import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 
 /**
- * Describing how the data is saved in MongoDB
+ * Describes how an occupation is saved in MongoDB
  */
 export interface IOccupationDoc extends ImportIdentifiable {
-  id: string | mongoose.Types.ObjectId;
   UUID: string;
-  modelId: string | mongoose.Types.ObjectId;
+  modelId: mongoose.Types.ObjectId;
   preferredLabel: string;
   originUUID: string;
   ESCOUri: string;
@@ -19,19 +18,14 @@ export interface IOccupationDoc extends ImportIdentifiable {
   definition: string;
   scopeNote: string;
   regulatedProfessionNote: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-}
-
-export interface IOccupationReferenceDoc
-  extends Pick<IOccupationDoc, "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"> {
-  objectType: ObjectTypes.Occupation;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
  * Describes how occupations are return from the API
  */
-export interface IOccupation extends IOccupationDoc {
+export interface IOccupation extends Omit<IOccupationDoc, "id" | "modelId"> {
   id: string;
   modelId: string;
   parent: IISCOGroupReference | IOccupationReference | null;
@@ -44,9 +38,19 @@ export interface IOccupation extends IOccupationDoc {
 export type INewOccupationSpec = Omit<IOccupation, "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt">;
 
 /**
- * Describing how references are returned from the API
+ * Describes how a reference to an occupation is returned from the API
  */
 export interface IOccupationReference
   extends Pick<IOccupation, "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"> {
+  objectType: ObjectTypes.Occupation;
+}
+
+/**
+ * Describes how a reference to an occupation is populated within repository functions.
+ * This is not returned from the API.
+ */
+export interface IOccupationReferenceDoc
+  extends Pick<IOccupationDoc, "modelId" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"> {
+  id: string;
   objectType: ObjectTypes.Occupation;
 }

@@ -1,7 +1,7 @@
 // suppress chatty log output when testing
 import "_test_utilities/consoleMock";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
@@ -364,7 +364,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill_2 = await repository.create(givenSkillSpecs_2);
 
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
-        const givenModelId_3 = getMockId(3);
+        const givenModelId_3 = getMockStringId(3);
 
         //@ts-ignore
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
@@ -404,7 +404,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill_1 = await repository.create(givenSkillSpecs_1);
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the child is in a different model
-        givenSkillSpecs_2.modelId = getMockId(99); // <-- this is the inconsistency
+        givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
         const givenSkill_2 = await repository.create(givenSkillSpecs_2);
 
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
@@ -441,7 +441,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill_1 = await repository.create(givenSkillSpecs_1);
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the parent is in a different model
-        givenSkillSpecs_2.modelId = getMockId(99); // <-- this is the inconsistency
+        givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
         const givenSkill_2 = await repository.create(givenSkillSpecs_2);
 
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
@@ -561,7 +561,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill_2 = await repository.create(givenSkillSpecs_2);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
-        const givenModelId_3 = getMockId(3);
+        const givenModelId_3 = getMockStringId(3);
 
         //@ts-ignore
         const givenInconsistentPair: ISkillToSkillRelationPairDoc = {
@@ -604,7 +604,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill_1 = await repository.create(givenSkillSpecs_1);
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the requiredSkill is in a different model
-        givenSkillSpecs_2.modelId = getMockId(99); // <-- this is the inconsistency
+        givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
         const givenSkill_2 = await repository.create(givenSkillSpecs_2);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
@@ -644,7 +644,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill_1 = await repository.create(givenSkillSpecs_1);
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the requiredSkill is in a different model
-        givenSkillSpecs_2.modelId = getMockId(99); // <-- this is the inconsistency
+        givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
         const givenSkill_2 = await repository.create(givenSkillSpecs_2);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
@@ -685,7 +685,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test.todo("should return the skill with its related occupations");
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.skill.findById(getMockId(1));
+      return repositoryRegistry.skill.findById(getMockStringId(1));
     });
   });
 });

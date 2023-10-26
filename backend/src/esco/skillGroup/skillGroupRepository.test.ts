@@ -1,7 +1,7 @@
 // suppress chatty log output when testing
 import "_test_utilities/consoleMock";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
@@ -269,7 +269,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
   describe("Test findById()", () => {
     test("should find an SkillGroup by its id", async () => {
       // GIVEN an SkillGroup exists in the database
-      const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(getMockId(1), "group_1");
+      const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
       const givenSkillGroup = await repository.create(givenSkillGroupSpec);
 
       console.log(givenSkillGroup);
@@ -311,10 +311,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should ignore parents that are not SkillGroups", async () => {
         // GIVEN an inconsistency was introduced, and non-SkillGroup document is a parent of an SkillGroup
         // The SkillGroup
-        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockId(1), "group_1");
+        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
         const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
         // The non-SkillGroup in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(getMockId(1), "skill_1");
+        const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(getMockStringId(1), "skill_1");
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
@@ -349,10 +349,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should ignore children that are not SkillGroups | Skills", async () => {
         // GIVEN an inconsistency was introduced, and non-SkillGroup document is a child of an SkillGroup
         // The SkillGroup
-        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockId(1), "group_1");
+        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
         const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
         // The non-SkillGroup in this case an ISCO group
-        const givenNewISCOGroupSpec: INewISCOGroupSpec = getSimpleNewISCOGroupSpec(getMockId(1), "group_1");
+        const givenNewISCOGroupSpec: INewISCOGroupSpec = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
         const givenISCOGroup = await repositoryRegistry.ISCOGroup.create(givenNewISCOGroupSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
@@ -389,17 +389,17 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should not find parent or child if the hierarchy is in a different model", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The SkillGroup 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenSkillGroupSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId_1, "group_1");
         const givenSkillGroup_1 = await repository.create(givenSkillGroupSpecs_1);
         // The SkillGroup 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId_2, "group_2");
         const givenSkillGroup_2 = await repository.create(givenSkillGroupSpecs_2);
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         // the third model
-        const givenModelId_3 = getMockId(3);
+        const givenModelId_3 = getMockStringId(3);
 
         //@ts-ignore
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
@@ -438,11 +438,11 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should not find parent if it is not in the same model as the child", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The SkillGroup 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenSkillGroupSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId_1, "group_1");
         const givenSkillGroup_1 = await repository.create(givenSkillGroupSpecs_1);
         // The SkillGroup 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId_2, "group_2");
         const givenSkillGroup_2 = await repository.create(givenSkillGroupSpecs_2);
 
@@ -475,11 +475,11 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should not find child if it is not is the same model as the parent", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The SkillGroup 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenSkillGroupSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId_1, "group_1");
         const givenSkillGroup_1 = await repository.create(givenSkillGroupSpecs_1);
         // The SkillGroup 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId_2, "group_2");
         const givenSkillGroup_2 = await repository.create(givenSkillGroupSpecs_2);
 
@@ -517,7 +517,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.skillGroup.findById(getMockId(1));
+      return repositoryRegistry.skillGroup.findById(getMockStringId(1));
     });
   });
 });

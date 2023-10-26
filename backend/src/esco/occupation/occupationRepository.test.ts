@@ -1,7 +1,7 @@
 // suppress chatty log output when testing
 import "_test_utilities/consoleMock";
 
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
@@ -159,7 +159,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const actualSecondNewOccupationSpec: INewOccupationSpec = {
           ...givenNewOccupationSpec,
         };
-        actualSecondNewOccupationSpec.modelId = getMockId(3);
+        actualSecondNewOccupationSpec.modelId = getMockStringId(3);
         const actualSecondNewOccupationPromise = repository.create(actualSecondNewOccupationSpec);
 
         // THEN expect the new Occupation to be created
@@ -312,7 +312,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
   describe("Test findById()", () => {
     test("should find an Occupation by its id", async () => {
       // GIVEN an Occupation exists in the database
-      const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "occupation_1");
+      const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockStringId(1), "occupation_1");
       const givenOccupation = await repository.create(givenOccupationSpecs);
 
       // WHEN searching for the Occupation by its id
@@ -350,7 +350,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should ignore children that are not Occupations", async () => {
         // GIVEN an inconsistency was introduced, and non-Occupation document is a child of an Occupation
         // The Occupation
-        const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "occupation_1");
+        const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockStringId(1), "occupation_1");
         const givenOccupation = await repository.create(givenOccupationSpecs);
         // The non-Occupation in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = {
@@ -397,7 +397,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should ignore parents that are not ISCO Group | Occupations", async () => {
         // GIVEN an inconsistency was introduced, and non-ISCOGroup or Occupation document is a parent of an Occupation
         // The Occupation
-        const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "group_1");
+        const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockStringId(1), "group_1");
         const givenOccupation = await repository.create(givenOccupationSpecs);
         // The non-Occupation in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = {
@@ -445,17 +445,17 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should not find parent or child if the hierarchy is in a different model", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The Occupation 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenOccupationSpecs_1 = getSimpleNewOccupationSpec(givenModelId_1, "group_1");
         const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
         // The Occupation 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenOccupationSpecs_2 = getSimpleNewOccupationSpec(givenModelId_2, "group_2");
         const givenOccupation_2 = await repository.create(givenOccupationSpecs_2);
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         // the third model
-        const givenModelId_3 = getMockId(3);
+        const givenModelId_3 = getMockStringId(3);
 
         //@ts-ignore
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
@@ -491,11 +491,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should not find parent if it is not is the same model as the child", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The Occupation 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenOccupationSpecs_1 = getSimpleNewOccupationSpec(givenModelId_1, "group_1");
         const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
         // The Occupation 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenOccupationSpecs_2 = getSimpleNewOccupationSpec(givenModelId_2, "group_2");
         const givenOccupation_2 = await repository.create(givenOccupationSpecs_2);
 
@@ -530,11 +530,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should not find child if it is not is the same model as the parent", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The Occupation 1
-        const givenModelId_1 = getMockId(1);
+        const givenModelId_1 = getMockStringId(1);
         const givenOccupationSpecs_1 = getSimpleNewOccupationSpec(givenModelId_1, "group_1");
         const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
         // The Occupation 2
-        const givenModelId_2 = getMockId(2);
+        const givenModelId_2 = getMockStringId(2);
         const givenOccupationSpecs_2 = getSimpleNewOccupationSpec(givenModelId_2, "group_2");
         const givenOccupation_2 = await repository.create(givenOccupationSpecs_2);
 
@@ -568,7 +568,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.occupation.findById(getMockId(1));
+      return repositoryRegistry.occupation.findById(getMockStringId(1));
     });
   });
 });

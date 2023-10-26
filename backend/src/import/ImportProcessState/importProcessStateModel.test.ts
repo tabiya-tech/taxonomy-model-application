@@ -6,7 +6,7 @@ import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./importProcessStateModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { getMockId } from "_test_utilities/mockMongoId";
+import { getMockStringId, getMockObjectId } from "_test_utilities/mockMongoId";
 import { WHITESPACE } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { IImportProcessStateDoc } from "./importProcessState.types";
@@ -32,16 +32,16 @@ describe("Test the definition of the ImportProcessState Model", () => {
   test("Successfully validate ImportModelState with mandatory fields", async () => {
     // GIVEN an ImportModelState object with all mandatory fields filled & a document
     const givenObject: IImportProcessStateDoc = {
-      id: getMockId(2),
-      modelId: getMockId(2),
+      id: getMockObjectId(2),
+      modelId: getMockObjectId(2),
       status: ImportProcessStateApiSpecs.Enums.Status.PENDING,
       result: {
         errored: false,
         parsingErrors: false,
         parsingWarnings: false,
       },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const givenImportStateDocument = new model(givenObject);
 
@@ -77,7 +77,7 @@ describe("Test the definition of the ImportProcessState Model", () => {
           'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
         ],
         [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-        [CaseType.Success, "hex 24 chars", getMockId(2), undefined],
+        [CaseType.Success, "hex 24 chars", getMockStringId(2), undefined],
       ])(
         `(%s) Validate 'modelId' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {

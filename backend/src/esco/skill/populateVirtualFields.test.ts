@@ -1,3 +1,6 @@
+// mute the console output
+import "_test_utilities/consoleMock";
+
 import {
   populateChildren,
   populateParents,

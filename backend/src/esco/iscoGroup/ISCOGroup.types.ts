@@ -1,10 +1,12 @@
-import { ImportIdentifiable, ObjectTypes } from "esco//common/objectTypes";
 import mongoose from "mongoose";
+import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "esco/occupation/occupation.types";
 
+/**
+ * Describes how an ISCOGroup is saved in the database.
+ */
 export interface IISCOGroupDoc extends ImportIdentifiable {
-  id: string | mongoose.Types.ObjectId;
-  modelId: string | mongoose.Types.ObjectId;
+  modelId: mongoose.Types.ObjectId;
   UUID: string;
   originUUID: string;
   code: string;
@@ -12,23 +14,37 @@ export interface IISCOGroupDoc extends ImportIdentifiable {
   preferredLabel: string;
   altLabels: string[];
   description: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface IISCOGroupReferenceDoc extends Pick<IISCOGroupDoc, "id" | "UUID" | "code" | "preferredLabel"> {
-  objectType: ObjectTypes.ISCOGroup;
-}
-
-export interface IISCOGroup extends IISCOGroupDoc {
+/**
+ * Describes how an ISCOGroup is returned from the API.
+ */
+export interface IISCOGroup extends Omit<IISCOGroupDoc, "id" | "modelId"> {
   id: string;
   modelId: string;
   parent: IISCOGroupReference | null;
   children: (IISCOGroupReference | IOccupationReference)[];
 }
 
+/**
+ * Describes how a new ISCOGroup is created with the API.
+ */
 export type INewISCOGroupSpec = Omit<IISCOGroup, "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt">;
 
+/**
+ * Describes how a reference to an ISCOGroup is returned from the API.
+ */
 export interface IISCOGroupReference extends Pick<IISCOGroup, "id" | "UUID" | "code" | "preferredLabel"> {
+  objectType: ObjectTypes.ISCOGroup;
+}
+
+/**
+ * Describes how a reference to an ISCOGroup is populated within repository functions .
+ * This is not returned from the API.
+ */
+export interface IISCOGroupReferenceDoc extends Pick<IISCOGroupDoc, "modelId" | "UUID" | "code" | "preferredLabel"> {
+  id: string;
   objectType: ObjectTypes.ISCOGroup;
 }
