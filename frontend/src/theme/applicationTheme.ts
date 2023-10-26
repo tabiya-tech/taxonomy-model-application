@@ -96,13 +96,13 @@ const darkPalette: PaletteOptions = {
   ...lightPalette,
 };
 
+export const TabiyaBaseSizes = {
+  // All sizes are in px
+  spacing: 8,
+  rounding: 8,
+  font: 16,
+};
 export const applicationTheme = (theme: ThemeMode) => {
-  const TabiyaBaseSizes = {
-    // All sizes are in px
-    spacing: 8,
-    rounding: 8,
-    font: 16,
-  };
   const screenSizePx: ScreenSize = {
     minWidth: 800,
     maxWidth: 1200,
@@ -125,8 +125,20 @@ export const applicationTheme = (theme: ThemeMode) => {
     palette: activePalette,
     spacing: (factor: number) => `calc(${spacingClampFn} * ${factor})`,
     fixedSpacing: (factor: number) => `${factor * TabiyaBaseSizes.spacing}px`,
-    responsiveBorderRounding: (factor: number) => `calc(${roundingClampFn} * ${factor})`,
-    rounding: (factor: number) => `${factor * TabiyaBaseSizes.rounding}px`,
+    responsiveBorderRounding: (factor: number | "50%") => {
+      if (factor === "50%") {
+        // percentage makes no sense to be responsive
+        return factor;
+      }
+      return `calc(${roundingClampFn} * ${factor})`;
+    },
+    rounding: (factor: number | "50%") => {
+      if (factor === "50%") {
+        // percentage makes no sense to multiply with factor
+        return factor;
+      }
+      return `${factor * TabiyaBaseSizes.rounding}px`;
+    },
     tabiyaSpacing: {
       none: 0,
       xs: 0.5,

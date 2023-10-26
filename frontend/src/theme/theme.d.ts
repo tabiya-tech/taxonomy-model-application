@@ -6,7 +6,7 @@ type TabiyaSizeKeys = "none" | "xs" | "sm" | "md" | "lg" | "xl";
 type TabiyaSize = Record<TabiyaSizeKeys, number>;
 
 interface TabiyaRounding extends TabiyaSize {
-  full: string; // e.g., '100%'
+  full: "50%"; // e.g., '100%'
 }
 
 // Augment MUI theme with custom properties
@@ -56,7 +56,7 @@ declare module "@mui/material/styles" {
      * // Usage in a component's style object:
      * <Box sx={{ borderRadius: (theme) => theme.rounding(theme.tabiyaRounding.xs) }} >
      */
-    rounding: (factor: number) => string;
+    rounding: (factor: number | "50%") => string;
 
     /**
      * Generates a responsive rounding value based on the factor provided.
@@ -68,7 +68,7 @@ declare module "@mui/material/styles" {
      * // Usage in a component's style object:
      * <Box sx={{ borderRadius: (theme) => theme.responsiveBorderRounding(theme.tabiyaRounding.xs) }} />
      */
-    responsiveBorderRounding: (factor: number) => string;
+    responsiveBorderRounding: (factor: number | "50%") => string;
   }
 
   interface Theme extends CustomThemeConfig {}

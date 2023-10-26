@@ -8,6 +8,7 @@ describe.each([ThemeMode.LIGHT, ThemeMode.DARK])("%s theme mode", (givenThemeMod
     // THEN we should get the correct theme
     expect(actualTheme).toMatchSnapshot();
   });
+
   it("call spacing function (responsive)", () => {
     // GIVEN the theme
     const givenTheme = applicationTheme(givenThemeMode);
@@ -53,6 +54,21 @@ describe.each([ThemeMode.LIGHT, ThemeMode.DARK])("%s theme mode", (givenThemeMod
     expect(actualRounding).toMatchSnapshot();
   });
 
+  it("call responsiveBorderRounding function with 'full' rounding (responsive)", () => {
+    // GIVEN the theme
+    const givenTheme = applicationTheme(givenThemeMode);
+    // AND a 'full' rounding factor
+    const givenRoundingFactor = givenTheme.tabiyaRounding.full;
+
+    // WHEN we call the responsiveBorderRounding function
+    const actualRounding = givenTheme.responsiveBorderRounding(givenRoundingFactor);
+
+    // THEN we should get a dynamic (responsive) value
+    expect(actualRounding).toEqual(givenRoundingFactor);
+    // AND get the correct rounding
+    expect(actualRounding).toMatchSnapshot();
+  });
+
   it("call rounding function (non-responsive)", () => {
     // GIVEN the theme
     const givenTheme = applicationTheme(givenThemeMode);
@@ -64,6 +80,21 @@ describe.each([ThemeMode.LIGHT, ThemeMode.DARK])("%s theme mode", (givenThemeMod
 
     // THEN we should get a fixed value
     expect(actualRounding).toMatch(/\d+px/);
+    // AND get the correct rounding
+    expect(actualRounding).toMatchSnapshot();
+  });
+
+  it("call rounding function with 'full' rounding (non-responsive)", () => {
+    // GIVEN the theme
+    const givenTheme = applicationTheme(givenThemeMode);
+    // AND a 'full' rounding factor
+    const givenRoundingFactor = givenTheme.tabiyaRounding.full;
+
+    // WHEN we call the rounding function
+    const actualRounding = givenTheme.rounding(givenRoundingFactor);
+
+    // THEN we should get a fixed value
+    expect(actualRounding).toEqual(givenRoundingFactor);
     // AND get the correct rounding
     expect(actualRounding).toMatchSnapshot();
   });
