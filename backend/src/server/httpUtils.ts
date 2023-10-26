@@ -121,7 +121,7 @@ export const STD_ERRORS_RESPONSES = {
 
 export function redactCredentialsFromURI(uri: string) {
   // Regular expression pattern to match username and password
-  const pattern = /\/\/(.+)@/; // NOSONAR
+  const pattern = /\/\/[^@]+@/;
 
   // Replace the matched username and password with asterisks
   return uri.replace(pattern, "//*:*@");
