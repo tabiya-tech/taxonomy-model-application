@@ -22,10 +22,13 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { INewSkillSpec } from "esco/skill/skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
+import { INewSkillHierarchyPairSpec, ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
-import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { getSkillGroupReferenceWithModelId } from "./skillGroupReference";
+import { getSkillReferenceWithModelId } from "../skill/skillReference";
+import { getDocReference } from "../_test_utilities/getDocReference";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -66,7 +69,7 @@ function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INe
   };
 }
 
-function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: string): INewSkillGroupSpec {
+export function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: string): INewSkillGroupSpec {
   return {
     scopeNote: "",
     altLabels: [],

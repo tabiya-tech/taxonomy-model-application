@@ -22,7 +22,7 @@ import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { INewSkillSpec } from "esco/skill/skills.types";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
 
-function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
+export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
   return {
     altLabels: [],
     code: getMockRandomISCOGroupCode(),
@@ -35,7 +35,7 @@ function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INe
   };
 }
 
-function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
+export function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
     altLabels: [],
     code: getMockRandomOccupationCode(),

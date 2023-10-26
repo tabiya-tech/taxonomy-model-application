@@ -22,10 +22,18 @@ import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewOccupationSpec, IOccupation } from "./occupation.types";
 import { INewSkillSpec } from "esco/skill/skills.types";
-import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
+import {
+  INewOccupationHierarchyPairSpec,
+  IOccupationHierarchyPairDoc,
+} from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { getOccupationReferenceWithModelId } from "./occupationReference";
+import { getDocReference } from "../_test_utilities/getDocReference";
+import { getSimpleNewISCOGroupSpec } from "../occupationHierarchy/occupationHierarchyRepository.test";
+import { getISCOGroupReferenceWithModelId } from "../iscoGroup/ISCOGroupReference";
+import { IISCOGroup } from "../iscoGroup/ISCOGroup.types";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -389,7 +397,88 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualFoundOccupation).toBeNull();
     });
 
-    test.todo("should return the Occupation with its parent and children");
+    test("should return the Occupation with its (parent and children)Occupation", async () => {
+      // GIVEN an Occupation exists in the database
+      const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "occupation_1");
+      const givenOccupation = await repository.create(givenOccupationSpecs);
+      // AND the Occupation has a parent Occupation
+      const givenParentOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "occupation_1");
+      const givenParentOccupation = await repository.create(givenParentOccupationSpecs);
+      const givenParentOccupationSpec: INewOccupationHierarchyPairSpec = {
+        parentId: givenParentOccupation.id,
+        parentType: ObjectTypes.Occupation,
+        childId: givenOccupation.id,
+        childType: ObjectTypes.Occupation,
+      };
+      // AND the Occupation has a child Occupation
+      const givenChildOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "occupation_1");
+      const givenChildOccupation = await repository.create(givenChildOccupationSpecs);
+      const givenChildOccupationPairSpec: INewOccupationHierarchyPairSpec = {
+        parentId: givenOccupation.id,
+        parentType: ObjectTypes.Occupation,
+        childId: givenChildOccupation.id,
+        childType: ObjectTypes.Occupation,
+      };
+      await repositoryRegistry.occupationHierarchy.createMany(getMockId(1), [
+        givenParentOccupationSpec,
+        givenChildOccupationPairSpec,
+      ]);
+
+      // WHEN searching for the Occupation by its id
+      const actualFoundOccupation = (await repository.findById(givenOccupation.id)) as IOccupation;
+
+      // THEN expect the Occupation to be found
+      expect(actualFoundOccupation).not.toBeNull();
+      // AND to have the given parent
+      expect(actualFoundOccupation.parent).toEqual(
+        getDocReference<IOccupation>(getOccupationReferenceWithModelId, givenParentOccupation)
+      );
+      // AND to have the given child
+      expect(actualFoundOccupation.children).toHaveLength(1);
+      expect(actualFoundOccupation.children[0]).toEqual(
+        getDocReference<IOccupation>(getOccupationReferenceWithModelId, givenChildOccupation)
+      );
+    });
+
+    // TODO: fix this test
+
+    // test("should return the Occupation with its parent ISCOGroup", async () => {
+    //   // GIVEN an Occupation exists in the database
+    //   const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockId(1), "occupation_1");
+    //   const givenOccupation = await repository.create(givenOccupationSpecs);
+    //   // AND the Occupation has a parent ISCOGroup
+    //   const givenParentISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "IscoGroup_1");
+    //   const givenParentISCOGroup = await repositoryRegistry.ISCOGroup.create(givenParentISCOGroupSpecs);
+    //   const givenParentISCOGroupPairSpec: INewOccupationHierarchyPairSpec = {
+    //     parentId: givenParentISCOGroup.id,
+    //     parentType: ObjectTypes.ISCOGroup,
+    //     childId: givenOccupation.id,
+    //     childType: ObjectTypes.Occupation,
+    //   };
+    //   // AND the Occupation has a child ISCOGroup
+    //   const givenChildISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockId(1), "IscoGroup_2");
+    //   const givenChildISCOGroup = await repositoryRegistry.ISCOGroup.create(givenChildISCOGroupSpecs);
+    //   const givenChildISCOGroupPairSpec: INewOccupationHierarchyPairSpec = {
+    //     parentId: givenOccupation.id,
+    //     parentType: ObjectTypes.Occupation,
+    //     childId: givenChildISCOGroup.id,
+    //     childType: ObjectTypes.ISCOGroup,
+    //   };
+    //   await repositoryRegistry.occupationHierarchy.createMany(getMockId(1), [
+    //     givenParentISCOGroupPairSpec,
+    //     givenChildISCOGroupPairSpec,
+    //   ]);
+    //
+    //   // WHEN searching for the ISCOGroup by its id
+    //   const actualFoundOccupation = (await repository.findById(givenOccupation.id)) as IOccupation;
+    //
+    //   // THEN expect the Occupation to be found
+    //   expect(actualFoundOccupation).not.toBeNull();
+    //   // AND to have the given parent
+    //   expect(actualFoundOccupation.parent).toEqual(
+    //     getDocReference<IISCOGroup>(getISCOGroupReferenceWithModelId, givenParentISCOGroup)
+    //   );
+    // });
 
     test.todo("should return the Occupation with its related skills");
 

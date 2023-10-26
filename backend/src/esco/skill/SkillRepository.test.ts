@@ -18,16 +18,14 @@ import {
 } from "esco/common/modelSchema";
 import { ISkillRepository } from "./SkillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import {INewSkillSpec, ISkill, ISkillDoc, ISkillReference, ISkillReferenceDoc} from "./skills.types";
+import { INewSkillSpec, ISkill } from "./skills.types";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
-import {
-  INewSkillHierarchyPairSpec,
-  ISkillHierarchyPair,
-  ISkillHierarchyPairDoc
-} from "../skillHierarchy/skillHierarchy.types";
+import { INewSkillHierarchyPairSpec } from "../skillHierarchy/skillHierarchy.types";
 import { ObjectTypes } from "../common/objectTypes";
-import { MongooseModelName } from "../common/mongooseModelNames";
-import {getSkillReferenceWithModelId} from "./skillReference";
+import { getSkillReferenceWithModelId } from "./skillReference";
+import { getDocReference } from "../_test_utilities/getDocReference";
+import { getSimpleNewSkillGroupSpec } from "../skillGroup/SkillGroupRepository.test";
+import { getSkillGroupReferenceWithModelId } from "../skillGroup/skillGroupReference";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -55,12 +53,6 @@ function getNewSkillSpec(): INewSkillSpec {
     altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
-}
-
-export function getSkillReferenceFromSkill(skill: ISkill): ISkillReference {
-  const  ref: any = getSkillReferenceWithModelId(skill);
-  delete ref.modelId;
-  return ref;
 }
 
 /**
@@ -323,7 +315,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         parentId: givenParentSkill.id,
         childType: ObjectTypes.Skill,
         childId: givenSkill.id,
-      }
+      };
       // AND it has one existing child skill
       const givenChildSkillSpecs = getNewSkillSpec();
       const givenChildSkill = await repository.create(givenChildSkillSpecs);
@@ -333,20 +325,53 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         childType: ObjectTypes.Skill,
         childId: givenChildSkill.id,
       };
-      await repositoryRegistry.skillHierarchy.createMany(givenSkill.modelId, [givenSkillPairToChild, givenSkillPairToParent]);
+      await repositoryRegistry.skillHierarchy.createMany(givenSkill.modelId, [
+        givenSkillPairToChild,
+        givenSkillPairToParent,
+      ]);
 
       // WHEN searching for the skill by its id
-      const actualFoundSkill = await repository.findById(givenSkill.id) as ISkill;
+      const actualFoundSkill = (await repository.findById(givenSkill.id)) as ISkill;
 
       // THEN expect the given skill to be found
       expect(actualFoundSkill).not.toBeNull();
 
       // AND to have the parent skill
       expect(actualFoundSkill.parents).toHaveLength(1);
-      expect(actualFoundSkill.parents[0]).toEqual(getSkillReferenceFromSkill(givenParentSkill));
+      expect(actualFoundSkill.parents[0]).toEqual(getDocReference(getSkillReferenceWithModelId, givenParentSkill));
       // AND the child skill
       expect(actualFoundSkill.children).toHaveLength(1);
-      expect(actualFoundSkill.children[0]).toEqual(getSkillReferenceFromSkill(givenChildSkill));
+      expect(actualFoundSkill.children[0]).toEqual(getDocReference(getSkillReferenceWithModelId, givenChildSkill));
+    });
+
+    test("should return the skill with its parent SkillGroup", async () => {
+      // GIVEN  a skill exist in the database
+      const givenSkillSpecs = getNewSkillSpec();
+      const givenSkill = await repository.create(givenSkillSpecs);
+      // AND it has one existing parent skillGroup
+      const givenParentSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenSkill.modelId, "Skill_group");
+      const givenParentSkillGroup = await repositoryRegistry.skillGroup.create(givenParentSkillGroupSpecs);
+      const givenSkillPairToParent: INewSkillHierarchyPairSpec = {
+        parentType: ObjectTypes.SkillGroup,
+        parentId: givenParentSkillGroup.id,
+        childType: ObjectTypes.Skill,
+        childId: givenSkill.id,
+      };
+      await repositoryRegistry.skillHierarchy.createMany(givenSkill.modelId, [
+        givenSkillPairToParent,
+      ]);
+
+      // WHEN searching for the skill by its id
+      const actualFoundSkill = (await repository.findById(givenSkill.id)) as ISkill;
+
+      // THEN expect the given skill to be found
+      expect(actualFoundSkill).not.toBeNull();
+
+      // AND to have the parent skillGroup
+      expect(actualFoundSkill.parents).toHaveLength(1);
+      expect(actualFoundSkill.parents[0]).toEqual(
+        getDocReference(getSkillGroupReferenceWithModelId, givenParentSkillGroup)
+      );
     });
 
     test.todo("should return the skill with its related skills");
