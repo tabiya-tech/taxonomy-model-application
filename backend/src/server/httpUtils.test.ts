@@ -139,9 +139,10 @@ describe("test the redactCredentialsFromURI function", () => {
     test.each([
       ["http://user:password@foo.bar", "http://*:*@foo.bar"], // NOSONAR
       ["http://user:password@foo/bar", "http://*:*@foo/bar"], // NOSONAR
-      ["http://user:password@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"],
-      ["https://user:password@example.com:8080", "https://*:*@example.com:8080"],
+      ["http://user:password@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"], // NOSONAR
+      ["https://user:password@example.com:8080", "https://*:*@example.com:8080"], // NOSONAR
       ["mongodb://user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
+      ["mongodb://user%40domain:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
     ])("should return the redacted URI %s if credentials are present", (uriWithCredentials, uriWithoutCredential) => {
       const result = redactCredentialsFromURI(uriWithCredentials);
       expect(result).toEqual(uriWithoutCredential);
@@ -154,7 +155,8 @@ describe("test the redactCredentialsFromURI function", () => {
       ["http://user:@foo/bar?baz=qux", "http://*:*@foo/bar?baz=qux"], // NOSONAR
       ["https://user@example.com:8080", "https://*:*@example.com:8080"],
       ["mongodb://:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
-      ["mongodb://user:password@user:password@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
+      ["mongodb:// @example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
+      ["mongodb://:@example.com:8080/", "mongodb://*:*@example.com:8080/"], // NOSONAR
     ])("should return the redacted URI %s if credentials are malformed", (uriWithCredentials, uriWithoutCredential) => {
       const result = redactCredentialsFromURI(uriWithCredentials);
       expect(result).toEqual(uriWithoutCredential);
@@ -162,7 +164,9 @@ describe("test the redactCredentialsFromURI function", () => {
   });
 
   describe("test function performance", () => {
-    const PERF_DURATION = 10;
+    const PERF_DURATION = 5;
+    const ITERATIONS = 15;
+    const QUANTILE = 90;
     test.each([
       ["plain http", "http://foo/bar?baz=qux"], // NOSONAR
       ["http with credentials", "http://username:password@foo/bar?baz=qux"], // NOSONAR
@@ -185,8 +189,8 @@ describe("test the redactCredentialsFromURI function", () => {
         expect(() => {
           redactCredentialsFromURI(uri);
         }).toCompleteWithinQuantile(PERF_DURATION, {
-          iterations: 10,
-          quantile: 90,
+          iterations: ITERATIONS,
+          quantile: QUANTILE,
         });
       }
     );
