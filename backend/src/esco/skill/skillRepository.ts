@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { INewSkillSpec, ISkill, ISkillDoc } from "./skills.types";
+import { populateSkillChildrenOptions, populateSkillParentsOptions } from "./populateSkillHierarchyOptions";
 import {
-  populateChildren,
-  populateParents,
-  populateRequiredBySkills,
-  populateRequiresSkills,
-} from "./populateVirtualFields";
+  populateSkillRequiredBySkillsOptions,
+  populateSkillRequiresSkillsOptions,
+} from "./populateSkillToSkillRelationOptions";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -120,17 +119,14 @@ export class SkillRepository implements ISkillRepository {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
 
-      const skill = await this.Model.findById(id);
+      const skill = await this.Model.findById(id)
+        .populate(populateSkillParentsOptions)
+        .populate(populateSkillChildrenOptions)
+        .populate(populateSkillRequiresSkillsOptions)
+        .populate(populateSkillRequiredBySkillsOptions)
+        .exec();
 
-      if (!skill) return null;
-
-      // Populate Virtual fields for skill
-      await populateParents(skill);
-      await populateChildren(skill);
-      await populateRequiresSkills(skill);
-      await populateRequiredBySkills(skill);
-
-      return skill.toObject();
+      return skill !== null ? skill.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
       throw e;

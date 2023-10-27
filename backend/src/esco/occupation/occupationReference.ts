@@ -2,9 +2,10 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationDoc, IOccupationReferenceDoc } from "./occupation.types";
 import mongoose from "mongoose";
 
-export function getOccupationDocReference(
-  occupation: mongoose.Document<unknown, undefined, IOccupationDoc> & IOccupationDoc
-): IOccupationReferenceDoc {
+type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
+export type OccupationDocument = _Document<IOccupationDoc>;
+
+export function getOccupationDocReference(occupation: OccupationDocument): IOccupationReferenceDoc {
   return {
     modelId: occupation.modelId,
     id: occupation.id,

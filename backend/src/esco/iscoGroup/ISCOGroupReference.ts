@@ -2,9 +2,10 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { IISCOGroupDoc, IISCOGroupReferenceDoc } from "./ISCOGroup.types";
 import mongoose from "mongoose";
 
-export function getISCOGroupDocReference(
-  iscoGroup: mongoose.Document<unknown, undefined, IISCOGroupDoc> & IISCOGroupDoc
-): IISCOGroupReferenceDoc {
+type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
+export type ISCOGroupDocument = _Document<IISCOGroupDoc>;
+
+export function getISCOGroupDocReference(iscoGroup: ISCOGroupDocument): IISCOGroupReferenceDoc {
   return {
     modelId: iscoGroup.modelId,
     id: iscoGroup.id,

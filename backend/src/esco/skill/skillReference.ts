@@ -2,24 +2,25 @@ import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/commo
 import { ISkillDoc, ISkillReferenceDoc } from "./skills.types";
 import mongoose from "mongoose";
 
-export function getSkillReferenceWithModelId(
-  doc: mongoose.Document<unknown, undefined, ISkillDoc> & ISkillDoc
-): ISkillReferenceDoc {
+type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
+export type SkillDocument = _Document<ISkillDoc>;
+
+export function getSkillDocReference(skill: SkillDocument): ISkillReferenceDoc {
   return {
-    modelId: doc.modelId,
-    id: doc.id,
+    modelId: skill.modelId,
+    id: skill.id,
     objectType: ObjectTypes.Skill,
-    UUID: doc.UUID,
-    preferredLabel: doc.preferredLabel,
+    UUID: skill.UUID,
+    preferredLabel: skill.preferredLabel,
   };
 }
 
-export function getSkillReferenceWithRelationType(
-  doc: ISkillReferenceDoc,
+export function getSkillDocReferenceWithRelationType(
+  skill: ISkillReferenceDoc,
   relationType: RelationType
 ): ReferenceWithRelationType<ISkillReferenceDoc> {
   return {
-    ...doc,
+    ...skill,
     relationType: relationType,
   };
 }

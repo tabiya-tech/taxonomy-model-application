@@ -316,9 +316,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         expect(actualFoundSkill!.children).toEqual([]);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(
-          `Parent/Child is not a Skill or SkillGroup: ${givenInconsistentPair.childDocModel}`
-        );
+        expect(console.error).toBeCalledWith(`Child is not a Skill: ${givenInconsistentPair.childDocModel}`);
       });
 
       test("should ignore parents that are not Skills | SkillGroups", async () => {
@@ -352,7 +350,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Parent/Child is not a Skill or SkillGroup: ${givenInconsistentPair.parentDocModel}`
+          `Parent is not a Skill or SkillGroup: ${givenInconsistentPair.parentDocModel}`
         );
       });
 
@@ -508,9 +506,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         expect(actualFoundSkill!.requiresSkills).toEqual([]);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(
-          `Required/RequiredBy is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`
-        );
+        expect(console.error).toBeCalledWith(`Required is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`);
       });
 
       test("should ignore requiringSkills that are not Skills", async () => {
@@ -549,7 +545,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Required/RequiredBy is not a Skill: ${givenInconsistentPair.requiringSkillDocModel}`
+          `Requiring is not a Skill: ${givenInconsistentPair.requiringSkillDocModel}`
         );
       });
 
