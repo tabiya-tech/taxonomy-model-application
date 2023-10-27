@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IHierarchyPairSpec } from "esco/common/hierarchy";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
 import { ISkillGroupReferenceDoc } from "esco/skillGroup/skillGroup.types";
 
@@ -53,7 +52,7 @@ export interface ISkillHierarchyPair extends Omit<ISkillHierarchyPairDoc, "id" |
 /**
  * Describes how a new skills hierarchy is created with the API
  */
-export type INewSkillHierarchyPairSpec = ISkillsHierarchyPairType & IHierarchyPairSpec;
+export type INewSkillHierarchyPairSpec = Pick<ISkillHierarchyPair, "parentId" | "childId"> & ISkillsHierarchyPairType;
 
 /**
  * Describes how a skills hierarchy entry can be populated with references to the parent and child.

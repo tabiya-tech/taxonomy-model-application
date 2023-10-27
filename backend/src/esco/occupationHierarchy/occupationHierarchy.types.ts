@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IHierarchyPairSpec } from "esco/common/hierarchy";
 import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
 import { IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
 
@@ -53,7 +52,8 @@ export interface IOccupationHierarchyPair
 /**
  * Describes how a new occupation hierarchy is created with the API.
  */
-export type INewOccupationHierarchyPairSpec = IOccupationHierarchyPairType & IHierarchyPairSpec;
+export type INewOccupationHierarchyPairSpec = Pick<IOccupationHierarchyPair, "parentId" | "childId"> &
+  IOccupationHierarchyPairType;
 
 /**
  * Describes how an occupation hierarchy entry can be populated with references to the parent and child.
