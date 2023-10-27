@@ -2,9 +2,10 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { ISkillGroupDoc, ISkillGroupReferenceDoc } from "./skillGroup.types";
 import mongoose from "mongoose";
 
-export function getSkillGroupDocReferenceWithModelId(
-  skillGroup: mongoose.Document<unknown, undefined, ISkillGroupDoc> & ISkillGroupDoc
-): ISkillGroupReferenceDoc {
+type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
+export type SkillGroupDocument = _Document<ISkillGroupDoc>;
+
+export function getSkillGroupDocReference(skillGroup: SkillGroupDocument): ISkillGroupReferenceDoc {
   return {
     modelId: skillGroup.modelId,
     id: skillGroup.id,

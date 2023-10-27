@@ -1,17 +1,7 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import {
-  INewSkillGroupSpec,
-  ISkillGroup,
-  ISkillGroupDoc,
-  ISkillGroupReference,
-  ISkillGroupReferenceDoc,
-} from "./skillGroup.types";
-import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { getSkillGroupDocReferenceWithModelId } from "./skillGroupReference";
-import { getSkillReferenceWithModelId } from "esco/skill/skillReference";
-import { ISkillDoc, ISkillReference, ISkillReferenceDoc } from "esco/skill/skills.types";
-import { IPopulatedSkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
+import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
+import { populateSkillGroupChildrenOptions, populateSkillGroupParentsOptions } from "./populateSkillHierarchyOptions";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -117,60 +107,8 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const skillGroup = await this.Model.findById(id)
-        .populate({
-          path: "parents",
-          populate: {
-            path: "parentId",
-            transform: function (doc: unknown): ISkillGroupReferenceDoc | null {
-              // return only the relevant fields
-              const modelName = (doc as ModelConstructed<unknown>).constructor.modelName;
-              if (modelName === MongooseModelName.SkillGroup) {
-                return getSkillGroupDocReferenceWithModelId(doc as SkillGroupDocument);
-              }
-              console.error(`Parent is not a SkillGroup: ${modelName}`);
-              return null;
-            },
-          },
-          transform: function (doc: IPopulatedSkillHierarchyPairDoc): ISkillReference | ISkillGroupReference | null {
-            // return only the relevant fields
-            if (!doc.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
-            if (!doc.parentId.modelId?.equals(doc.modelId)) {
-              console.error(`Parent is not in the same model as the child`);
-              return null;
-            }
-            // @ts-ignore - we want to remove the modelId field because  it is not part of the IISCOGroupReferenceDoc interface
-            delete doc.parentId.modelId;
-            return doc.parentId;
-          },
-        })
-        .populate({
-          path: "children",
-          populate: {
-            path: "childId",
-            transform: function (doc: unknown): ISkillReferenceDoc | ISkillGroupReferenceDoc | null {
-              const modelName = (doc as ModelConstructed<unknown>).constructor.modelName;
-              if (modelName === MongooseModelName.Skill) {
-                return getSkillReferenceWithModelId(doc as SkillDocument);
-              }
-              if (modelName === MongooseModelName.SkillGroup) {
-                return getSkillGroupDocReferenceWithModelId(doc as SkillGroupDocument);
-              }
-              // @ts-ignore
-              console.error(`Child is not a SkillGroup or Skill: ${modelName}`);
-              return null;
-            },
-          },
-          transform: (doc: IPopulatedSkillHierarchyPairDoc): ISkillReference | ISkillGroupReference | null => {
-            if (!doc.childId) return null;
-            if (!doc.childId.modelId?.equals(doc.modelId)) {
-              console.error(`Child is not in the same model as the parent`);
-              return null;
-            }
-            // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReferenceDoc | ISkillGroupReferenceDoc interface
-            delete doc.childId.modelId;
-            return doc.childId;
-          },
-        })
+        .populate(populateSkillGroupParentsOptions)
+        .populate(populateSkillGroupChildrenOptions)
         .exec();
       return skillGroup != null ? skillGroup.toObject() : null;
     } catch (e: unknown) {
@@ -179,8 +117,3 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 }
-
-type ModelConstructed<T> = { constructor: mongoose.Model<T> };
-type _Document<T> = mongoose.Document<unknown, undefined, T> & T & ModelConstructed<T>;
-type SkillDocument = _Document<ISkillDoc>;
-type SkillGroupDocument = _Document<ISkillGroupDoc>;
