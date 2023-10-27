@@ -34,14 +34,13 @@ export interface ISkillToSkillRelationPair
 /**
  *  Describes how a skills to skills relation is created with the API
  */
-export type INewSkillToSkillPairSpec = {
-  relationType: RelationType;
-  requiringSkillId: string;
-  requiredSkillId: string;
-};
+export type INewSkillToSkillPairSpec = Pick<
+  ISkillToSkillRelationPair,
+  "requiringSkillId" | "requiredSkillId" | "relationType"
+>;
 
 /**
- * Describes how an skills to skills relation entry can be populated with references to the related skills.
+ * Describes how a skills to skills relation entry can be populated with references to the related skills.
  * This is used within repository methods and is not returned from the API.
  */
 export interface IPopulatedSkillToSkillRelationPairDoc
