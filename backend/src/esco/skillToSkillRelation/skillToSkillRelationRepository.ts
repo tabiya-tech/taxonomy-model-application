@@ -59,10 +59,17 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
         })
         .filter(Boolean);
 
-      const newRelation = await this.relationModel.insertMany(newSkillToSkillRelationPairModels, {
+      const newRelations = await this.relationModel.insertMany(newSkillToSkillRelationPairModels, {
         ordered: false,
       });
-      return newRelation.map((pair) => {
+      if (newSkillToSkillRelationPairSpecs.length !== newRelations.length) {
+        console.warn(
+          `SkillToSkillRelationRepository.createMany: ${
+            newSkillToSkillRelationPairSpecs.length - newRelations.length
+          } invalid entries were not created`
+        );
+      }
+      return newRelations.map((pair) => {
         return {
           ...pair.toObject(),
           requiringSkillId: pair.requiringSkillId.toString(),
@@ -73,8 +80,13 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
       // If the error is a bulk write error, we can still return the created documents
       // Such an error will occur if a unique index is violated
       if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        console.warn("some relation could not be created", e);
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
+        console.warn(
+          `SkillToSkillRelationRepository.createMany: ${
+            newSkillToSkillRelationPairSpecs.length - bulkWriteError.insertedDocs.length
+          } invalid entries were not created`,
+          e
+        );
         const newRelation: ISkillToSkillRelationPair[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
           newRelation.push(doc.toObject());

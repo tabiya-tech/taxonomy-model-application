@@ -83,13 +83,25 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         ordered: false,
         populate: ["parents", "children"],
       });
+      if (newSkillGroupSpecs.length !== newSkillGroups.length) {
+        console.warn(
+          `SkillGroupRepository.createMany: ${
+            newSkillGroupSpecs.length - newSkillGroups.length
+          } invalid entries were not created`
+        );
+      }
       return newSkillGroups.map((skillGroup) => skillGroup.toObject());
     } catch (e: unknown) {
       // If the error is a bulk write error, we can still return the created documents
       // Such an error will occur if a unique index is violated
       if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        console.warn("some documents could not be created", e);
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
+        console.warn(
+          `SkillGroupRepository.createMany: ${
+            newSkillGroupSpecs.length - bulkWriteError.insertedDocs.length
+          } invalid entries were not created`,
+          e
+        );
         const newSkillGroups: ISkillGroup[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
           await doc.populate("parents");
