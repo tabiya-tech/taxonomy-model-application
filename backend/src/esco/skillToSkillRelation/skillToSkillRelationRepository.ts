@@ -69,13 +69,7 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
           } invalid entries were not created`
         );
       }
-      return newRelations.map((pair) => {
-        return {
-          ...pair.toObject(),
-          requiringSkillId: pair.requiringSkillId.toString(),
-          requiredSkillId: pair.requiredSkillId.toString(),
-        };
-      });
+      return newRelations.map((pair) => pair.toObject());
     } catch (e: unknown) {
       // If the error is a bulk write error, we can still return the created documents
       // Such an error will occur if a unique index is violated

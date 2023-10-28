@@ -126,6 +126,12 @@ export class RepositoryRegistry {
         if (ret.childId && ret.childId instanceof mongoose.Types.ObjectId) {
           ret.childId = ret.childId.toString(); // Convert childId to string
         }
+        if (ret.requiringSkillId && ret.requiringSkillId instanceof mongoose.Types.ObjectId) {
+          ret.requiringSkillId = ret.requiringSkillId.toString(); // Convert requiringSkillId to string
+        }
+        if (ret.requiredSkillId && ret.requiredSkillId instanceof mongoose.Types.ObjectId) {
+          ret.requiredSkillId = ret.requiredSkillId.toString(); // Convert requiredSkillId to string
+        }
         if (ret.importProcessState?.id && ret.importProcessState?.id instanceof mongoose.Types.ObjectId) {
           ret.importProcessState.id = ret.importProcessState.id.toString(); // Convert importProcessStateId to string
         }
