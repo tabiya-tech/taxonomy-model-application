@@ -85,13 +85,25 @@ export class OccupationRepository implements IOccupationRepository {
         ordered: false,
         populate: [{ path: "parent" }, { path: "children" }],
       });
+      if (newOccupationSpecs.length !== newOccupations.length) {
+        console.warn(
+          `OccupationRepository.createMany: ${
+            newOccupationSpecs.length - newOccupations.length
+          } invalid entries were not created`
+        );
+      }
       return newOccupations.map((Occupation) => Occupation.toObject());
     } catch (e: unknown) {
       // If the error is a bulk write error, we can still return the created documents
       // Such an error will occur if a unique index is violated
       if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        console.warn("some documents could not be created", e);
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
+        console.warn(
+          `OccupationRepository.createMany: ${
+            newOccupationSpecs.length - bulkWriteError.insertedDocs.length
+          } invalid entries were not created`,
+          e
+        );
         const newOccupations: IOccupation[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
           await doc.populate([{ path: "parent" }, { path: "children" }]);

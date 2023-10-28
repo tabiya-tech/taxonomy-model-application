@@ -81,13 +81,25 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
       const newHierarchy = await this.hierarchyModel.insertMany(newSkillHierarchyPairModels, {
         ordered: false,
       });
+      if (newSkillHierarchyPairSpecs.length !== newHierarchy.length) {
+        console.warn(
+          `SkillHierarchyRepository.createMany: ${
+            newSkillHierarchyPairSpecs.length - newHierarchy.length
+          } invalid entries were not created`
+        );
+      }
       return newHierarchy.map((pair) => pair.toObject());
     } catch (e: unknown) {
       // If the error is a bulk write error, we can still return the created documents
       // Such an error will occur if a unique index is violated
       if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        console.warn("some hierarchy could not be created", e);
         const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
+        console.warn(
+          `SkillHierarchyRepository.createMany: ${
+            newSkillHierarchyPairSpecs.length - bulkWriteError.insertedDocs.length
+          } invalid entries were not created`,
+          e
+        );
         const newHierarchy: ISkillHierarchyPair[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
           newHierarchy.push(doc.toObject());
