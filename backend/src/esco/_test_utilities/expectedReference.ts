@@ -1,6 +1,8 @@
 import { IISCOGroup, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupation, IOccupationReference } from "esco/occupation/occupation.types";
+import { ISkill, ISkillReference } from "esco/skill/skills.types";
+import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 
 /**
  *  Create an expected ISCOGroup reference from a given ISCOGroup
@@ -28,5 +30,32 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
     code: givenOccupation.code,
     ISCOGroupCode: givenOccupation.ISCOGroupCode,
     preferredLabel: givenOccupation.preferredLabel,
+  };
+}
+
+/**
+ *  Create an expected ISkill reference from a given Model
+ * @param givenSkill
+ */
+export function expectedSkillReference(givenSkill: ISkill): ISkillReference {
+  return {
+    id: givenSkill.id,
+    UUID: givenSkill.UUID,
+    objectType: ObjectTypes.Skill,
+    preferredLabel: givenSkill.preferredLabel,
+  };
+}
+
+/**
+ *  Create an expected SkillGroup reference from a given SkillGroup
+ * @param givenSkillGroup
+ */
+export function expectedSkillGroupReference(givenSkillGroup: ISkillGroup): ISkillGroupReference {
+  return {
+    objectType: ObjectTypes.SkillGroup,
+    id: givenSkillGroup.id,
+    UUID: givenSkillGroup.UUID,
+    code: givenSkillGroup.code,
+    preferredLabel: givenSkillGroup.preferredLabel,
   };
 }
