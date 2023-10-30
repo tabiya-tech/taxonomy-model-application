@@ -12,16 +12,14 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { IOccupationHierarchyRepository } from "./occupationHierarchyRepository";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { IISCOGroup, IISCOGroupReference, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { INewOccupationSpec, IOccupation, IOccupationReference } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewOccupationHierarchyPairSpec, IOccupationHierarchyPair } from "./occupationHierarchy.types";
-import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
-import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
-import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { getSimpleNewSkillGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
+import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 
 function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
   return {
@@ -50,35 +48,6 @@ function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): IN
     scopeNote: "",
     regulatedProfessionNote: "",
     importId: "",
-  };
-}
-
-/**
- *  Create an expected ISCOGroup reference from a given ISCOGroup
- * @param iscoGroup
- */
-function expectedISCOGroupReference(iscoGroup: IISCOGroup): IISCOGroupReference {
-  return {
-    id: iscoGroup.id,
-    UUID: iscoGroup.UUID,
-    objectType: ObjectTypes.ISCOGroup,
-    code: iscoGroup.code,
-    preferredLabel: iscoGroup.preferredLabel,
-  };
-}
-
-/**
- *  Create an expected IOccupation reference from a given ISCOGroup
- * @param occupation
- */
-function expectedOccupationReference(occupation: IOccupation): IOccupationReference {
-  return {
-    id: occupation.id,
-    UUID: occupation.UUID,
-    objectType: ObjectTypes.Occupation,
-    code: occupation.code,
-    ISCOGroupCode: occupation.ISCOGroupCode,
-    preferredLabel: occupation.preferredLabel,
   };
 }
 

@@ -10,13 +10,20 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { IISCOGroupRepository } from "./ISCOGroupRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { IISCOGroup, INewISCOGroupSpec } from "./ISCOGroup.types";
+import { IISCOGroup, IISCOGroupReference, INewISCOGroupSpec } from "./ISCOGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
-import { getNewISCOGroupSpec, getSimpleNewISCOGroupSpec } from "esco/_test_utilities/getNewSpecs";
+import { INewSkillSpec } from "esco/skill/skills.types";
+import {
+  getNewISCOGroupSpec,
+  getSimpleNewISCOGroupSpec,
+  getSimpleNewOccupationSpec,
+  getSimpleNewSkillSpec,
+} from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
+import { IOccupationReference } from "esco/occupation/occupation.types";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -340,28 +347,81 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       expect(actualFoundISCOGroup).toBeNull();
     });
 
-    test.todo("should return the ISCOGroup with its parent and children");
+    test("should return the ISCOGroup with its parent(ISCOGroup) and children(ISCOGroup, Occupation)", async () => {
+      // GIVEN three ISCOGroups and one Occupation exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+      // THE subject (ISCOGroup)
+      const givenSubjectSpecs = getSimpleNewISCOGroupSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The parent (ISCOGroup)
+      const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
+      const givenParent = await repository.create(givenParentSpecs);
+
+      // The child ISCOGroup
+      const givenChildSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId, "child_1");
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
+
+      // The child Occupation
+      const givenChildSpecs_2 = getSimpleNewOccupationSpec(givenModelId, "child_2");
+      const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+
+      // AND the subject ISCOGroup has a parent and two children
+      const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          // parent of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: givenSubject.id,
+        },
+        {
+          // child 1 of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: givenChild_1.id,
+        },
+        {
+          // child 2 of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Occupation,
+          childId: givenChild_2.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(3);
+
+      // WHEN searching for the subject by its id
+      const actualFoundISCOGroup = (await repository.findById(givenSubject.id)) as IISCOGroup;
+
+      // THEN expect the ISCOGroup to be found
+      expect(actualFoundISCOGroup).not.toBeNull();
+
+      // AND to have the given parent
+      expect(actualFoundISCOGroup.parent).toEqual(expectedISCOGroupReference(givenParent));
+      // AND to have the given child
+      expect(actualFoundISCOGroup.children).toEqual(
+        expect.arrayContaining<IISCOGroupReference | IOccupationReference>([
+          expectedISCOGroupReference(givenChild_1),
+          expectedOccupationReference(givenChild_2),
+        ])
+      );
+
+      // AND expect no error to be logged
+      expect(console.error).toBeCalledTimes(0);
+    });
 
     describe("Test ISCOGroup hierarchy robustness to inconsistencies", () => {
       test("should ignore parents that are not ISCOGroups", async () => {
         // GIVEN an inconsistency was introduced, and non-ISCOGroup document is a parent of an ISCOGroup
+        const givenModelId = getMockStringId(1);
         // The ISCOGroup
-        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
+        const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
         const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
         // The non-ISCOGroup in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = {
-          preferredLabel: "skill_1",
-          modelId: givenISCOGroup.modelId,
-          originUUID: "",
-          ESCOUri: "",
-          definition: "",
-          description: "",
-          scopeNote: "",
-          skillType: SkillType.Knowledge,
-          reuseLevel: ReuseLevel.CrossSector,
-          altLabels: [],
-          importId: "",
-        };
+        const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
@@ -385,30 +445,19 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
         expect(actualFoundGroup!.parent).toEqual(null);
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not an ISCOGroup: ${givenInconsistentPair.parentDocModel}`);
       });
 
       test("should ignore children that are not ISCO Groups | Occupations", async () => {
         // GIVEN an inconsistency was introduced, and non-ISCOGroup document is a child of an ISCOGroup
+        const givenModelId = getMockStringId(1);
         // The ISCOGroup
         const givenISCOGroupSpecs = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
         const givenISCOGroup = await repository.create(givenISCOGroupSpecs);
         // The non-ISCOGroup in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = {
-          preferredLabel: "skill_1",
-          modelId: givenISCOGroup.modelId,
-          originUUID: "",
-          ESCOUri: "",
-          definition: "",
-          description: "",
-          scopeNote: "",
-          skillType: SkillType.Knowledge,
-          reuseLevel: ReuseLevel.CrossSector,
-          altLabels: [],
-          importId: "",
-        };
+        const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
@@ -432,7 +481,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
         expect(actualFoundGroup!.children).toEqual([]);
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
           `Child is not an ISCOGroup or Occupation: ${givenInconsistentPair.childDocModel}`
@@ -519,7 +568,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // THEN expect the ISCOGroup to not contain the inconsistent children
         expect(actualFoundGroup_1).not.toBeNull();
         expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
       });
@@ -559,7 +608,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup_2).not.toBeNull();
         expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
       });
