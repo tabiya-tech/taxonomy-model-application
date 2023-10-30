@@ -12,9 +12,9 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillHierarchyRepository } from "./skillHierarchyRepository";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkill, ISkillReference } from "esco/skill/skills.types";
+import { ISkill } from "esco/skill/skills.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "./skillHierarchy.types";
-import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import {
   getSimpleNewISCOGroupSpec,
   getSimpleNewOccupationSpec,
@@ -22,33 +22,7 @@ import {
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
-
-/**
- *  Create an expected ISkill reference from a given Model
- * @param skill
- */
-function expectedSkillReference(skill: ISkill): ISkillReference {
-  return {
-    id: skill.id,
-    UUID: skill.UUID,
-    objectType: ObjectTypes.Skill,
-    preferredLabel: skill.preferredLabel,
-  };
-}
-
-/**
- *  Create an expected SkillGroup reference from a given SkillGroup
- * @param skillGroup
- */
-function expectedSkillGroupReference(skillGroup: ISkillGroup): ISkillGroupReference {
-  return {
-    objectType: ObjectTypes.SkillGroup,
-    id: skillGroup.id,
-    UUID: skillGroup.UUID,
-    code: skillGroup.code,
-    preferredLabel: skillGroup.preferredLabel,
-  };
-}
+import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 
 describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;

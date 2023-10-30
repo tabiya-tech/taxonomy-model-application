@@ -22,7 +22,8 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -301,7 +302,78 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualFoundSkillGroup).toBeNull();
     });
 
-    test.todo("should return the SkillGroup with its parent and children");
+    test("should return the SkillGroup with its parents(SkillGroups) and children(SkillGroup, Skill)", async () => {
+      // GIVEN four SkillGroup and one Skill exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+      // THE subject (SkillGroup)
+      const givenSubjectSpecs = getSimpleNewSkillGroupSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The parent (SkillGroup)
+      const givenParentSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "parent_1");
+      const givenParent_1 = await repository.create(givenParentSpecs_1);
+
+      // The parent (SkillGroup)
+      const givenParentSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId, "parent_2");
+      const givenParent_2 = await repository.create(givenParentSpecs_2);
+
+      // The child SkillGroup
+      const givenChildSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "child_1");
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
+
+      // The child Skill
+      const givenChildSpecs_2 = getSimpleNewSkillSpec(givenModelId, "child_2");
+      const givenChild_2 = await repositoryRegistry.skill.create(givenChildSpecs_2);
+
+      // AND the subject SkillGroup has a parent and two children
+      const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          // parent 1 of the subject
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParent_1.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenSubject.id,
+        },
+        {
+          // parent 2 of the subject
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParent_2.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenSubject.id,
+        },
+        {
+          // child 1 of the subject
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenChild_1.id,
+        },
+        {
+          // child 2 of the subject
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Skill,
+          childId: givenChild_2.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(4);
+
+      // WHEN searching for the subject by its id
+      const actualFoundSkillGroup = (await repository.findById(givenSubject.id)) as ISkillGroup;
+
+      // THEN expect the ISkillGroup to be found
+      expect(actualFoundSkillGroup).not.toBeNull();
+
+      // AND to have the given parents
+      expect(actualFoundSkillGroup.parents).toEqual(
+        expect.arrayContaining([expectedSkillGroupReference(givenParent_1), expectedSkillGroupReference(givenParent_2)])
+      );
+      // AND to have the given children
+      expect(actualFoundSkillGroup.children).toEqual(
+        expect.arrayContaining([expectedSkillGroupReference(givenChild_1), expectedSkillReference(givenChild_2)])
+      );
+    });
 
     describe("Test SkillGroup hierarchy robustness to inconsistencies", () => {
       beforeEach(() => {
@@ -341,7 +413,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // THEN expect the SkillGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
         expect(actualFoundGroup!.parents).toEqual([]);
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not a SkillGroup: ${givenInconsistentPair.parentDocModel}`);
       });
@@ -379,7 +451,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // THEN expect the SkillGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
         expect(actualFoundGroup!.children).toEqual([]);
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
           `Child is not a SkillGroup or Skill: ${givenInconsistentPair.childDocModel}`
@@ -467,7 +539,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // THEN expect the SkillGroup to not contain the inconsistent children
         expect(actualFoundGroup_1).not.toBeNull();
         expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
       });
@@ -510,7 +582,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // THEN expect the SkillGroup to not contain the inconsistent parent
         expect(actualFoundGroup_2).not.toBeNull();
         expect(actualFoundGroup_2!.parents).toEqual([]); // <-- The inconsistent parent is removed
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
       });
