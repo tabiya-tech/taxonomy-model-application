@@ -51,8 +51,8 @@ export interface ISkill extends Omit<ISkillDoc, "modelId"> {
   modelId: string;
   parents: (ISkillReference | ISkillGroupReference)[];
   children: (ISkillReference | ISkillGroupReference)[];
-  requiresSkills: ReferenceWithRelationType<ISkillReferenceDoc>[];
-  requiredBySkills: ReferenceWithRelationType<ISkillReferenceDoc>[];
+  requiresSkills: ReferenceWithRelationType<ISkillReference>[];
+  requiredBySkills: ReferenceWithRelationType<ISkillReference>[];
 }
 
 /**
