@@ -10,13 +10,18 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { IOccupationRepository } from "./occupationRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { INewOccupationSpec, IOccupation } from "./occupation.types";
+import { INewOccupationSpec, IOccupation, IOccupationReference } from "./occupation.types";
 import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { getNewOccupationSpec, getSimpleNewOccupationSpec } from "esco/_test_utilities/getNewSpecs";
+import {
+  getNewOccupationSpec,
+  getSimpleNewISCOGroupSpec,
+  getSimpleNewOccupationSpec,
+} from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -342,7 +347,137 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualFoundOccupation).toBeNull();
     });
 
-    test.todo("should return the Occupation with its parent and children");
+    test("should return the Occupation with its parent(ISCOGroup) and children (Occupations)", async () => {
+      // GIVEN three Occupations and one ISCOGroup exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+      // THE subject (Occupation)
+      const givenSubjectSpecs = getSimpleNewOccupationSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The parent (ISCO Group)
+      const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
+      const givenParent = await repositoryRegistry.ISCOGroup.create(givenParentSpecs);
+
+      // The child Occupation
+      const givenChildSpecs_1 = getSimpleNewOccupationSpec(givenModelId, "child_1");
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
+
+      // The child Occupation
+      const givenChildSpecs_2 = getSimpleNewOccupationSpec(givenModelId, "child_2");
+      const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+
+      // AND the subject Occupation has a parent and two children
+      const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          // parent of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.Occupation,
+          childId: givenSubject.id,
+        },
+        {
+          // child 1 of the subject
+          parentType: ObjectTypes.Occupation,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Occupation,
+          childId: givenChild_1.id,
+        },
+        {
+          // child 2 of the subject
+          parentType: ObjectTypes.Occupation,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Occupation,
+          childId: givenChild_2.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(3);
+
+      // WHEN searching for the subject by its id
+      const actualFoundOccupation = (await repository.findById(givenSubject.id)) as IOccupation;
+
+      // THEN expect the subject to be found
+      expect(actualFoundOccupation).not.toBeNull();
+
+      // AND to have the given parent
+      expect(actualFoundOccupation.parent).toEqual(expectedISCOGroupReference(givenParent));
+      // AND to have the given child
+      expect(actualFoundOccupation.children).toEqual(
+        expect.arrayContaining<IOccupationReference>([
+          expectedOccupationReference(givenChild_1),
+          expectedOccupationReference(givenChild_2),
+        ])
+      );
+
+      // AND no error to be logged
+      expect(console.error).toBeCalledTimes(0);
+    });
+
+    test("should return the Occupation with its parent(Occupation) and children (Occupations)", async () => {
+      // GIVEN four Occupations in the database in the same model
+      const givenModelId = getMockStringId(1);
+      // THE subject (Occupation)
+      const givenSubjectSpecs = getSimpleNewOccupationSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The parent (Occupation)
+      const givenParentSpecs = getSimpleNewOccupationSpec(givenModelId, "parent");
+      const givenParent = await repository.create(givenParentSpecs);
+
+      // The child Occupation
+      const givenChildSpecs_1 = getSimpleNewOccupationSpec(givenModelId, "child_1");
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
+
+      // The child Occupation
+      const givenChildSpecs_2 = getSimpleNewOccupationSpec(givenModelId, "child_2");
+      const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+
+      // AND the subject Occupation has a parent and two children
+      const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          // parent of the subject
+          parentType: ObjectTypes.Occupation,
+          parentId: givenParent.id,
+          childType: ObjectTypes.Occupation,
+          childId: givenSubject.id,
+        },
+        {
+          // child 1 of the subject
+          parentType: ObjectTypes.Occupation,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Occupation,
+          childId: givenChild_1.id,
+        },
+        {
+          // child 2 of the subject
+          parentType: ObjectTypes.Occupation,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Occupation,
+          childId: givenChild_2.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(3);
+
+      // WHEN searching for the subject by its id
+      const actualFoundOccupation = (await repository.findById(givenSubject.id)) as IOccupation;
+
+      // THEN expect the subject to be found
+      expect(actualFoundOccupation).not.toBeNull();
+
+      // AND to have the given parent
+      expect(actualFoundOccupation.parent).toEqual(expectedOccupationReference(givenParent));
+      // AND to have the given child
+      expect(actualFoundOccupation.children).toEqual(
+        expect.arrayContaining<IOccupationReference>([
+          expectedOccupationReference(givenChild_1),
+          expectedOccupationReference(givenChild_2),
+        ])
+      );
+
+      // AND no error to be logged
+      expect(console.error).toBeCalledTimes(0);
+    });
 
     test.todo("should return the Occupation with its related skills");
 
@@ -435,7 +570,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // THEN expect the Occupation to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
         expect(actualFoundGroup!.parent).toEqual(null);
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
           `Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`
@@ -522,7 +657,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // THEN expect the Occupation to not contain the inconsistent children
         expect(givenFoundGroup_1).not.toBeNull();
         expect(givenFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
       });
@@ -561,7 +696,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // THEN expect the Occupation to not contain the inconsistent parent
         expect(actualFoundGroup_2).not.toBeNull();
         expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
-        // AND expect a warning to be logged
+        // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
       });
