@@ -1,5 +1,5 @@
 import { IISCOGroup, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
 import { IOccupation, IOccupationReference } from "esco/occupation/occupation.types";
 import { ISkill, ISkillReference } from "esco/skill/skills.types";
 import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
@@ -34,7 +34,7 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
 }
 
 /**
- *  Create an expected ISkill reference from a given Model
+ *  Create an expected ISkill reference from a given ISkill
  * @param givenSkill
  */
 export function expectedSkillReference(givenSkill: ISkill): ISkillReference {
@@ -43,6 +43,21 @@ export function expectedSkillReference(givenSkill: ISkill): ISkillReference {
     UUID: givenSkill.UUID,
     objectType: ObjectTypes.Skill,
     preferredLabel: givenSkill.preferredLabel,
+  };
+}
+
+/**
+ *  Create an expected Related ISkill reference from a given ISkill and relationType
+ * @param givenSkill
+ * @param relationType
+ */
+export function expectedRelatedSkillReference(
+  givenSkill: ISkill,
+  relationType: RelationType
+): ReferenceWithRelationType<ISkillReference> {
+  return {
+    ...expectedSkillReference(givenSkill),
+    relationType,
   };
 }
 

@@ -9,26 +9,13 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { RelationType } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkill, ISkillReference } from "esco/skill/skills.types";
 import { ISkillToSkillRelationRepository } from "./skillToSkillRelationRepository";
 import { INewSkillToSkillPairSpec, ISkillToSkillRelationPair } from "./skillToSkillRelation.types";
 import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
-
-/**
- *  Create an expected ISkill reference from a given Model
- * @param skill
- */
-function expectedSkillReference(skill: ISkill): ISkillReference {
-  return {
-    id: skill.id,
-    UUID: skill.UUID,
-    objectType: ObjectTypes.Skill,
-    preferredLabel: skill.preferredLabel,
-  };
-}
+import { expectedRelatedSkillReference } from "esco/_test_utilities/expectedReference";
 
 describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -110,14 +97,8 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
         const requiredSkill = [givenSkill_2, givenSkill_4].find((skill) => skill.id === spec.requiredSkillId);
         const requiringSkill = [givenSkill_1, givenSkill_3].find((skill) => skill.id === spec.requiringSkillId);
         if (!requiringSkill || !requiredSkill) throw new Error("Cant find skill");
-        const expectedRequiredSkillReference = {
-          ...expectedSkillReference(requiredSkill),
-          relationType: spec.relationType,
-        };
-        const expectedRequiringSkillReference = {
-          ...expectedSkillReference(requiringSkill),
-          relationType: spec.relationType,
-        };
+        const expectedRequiredSkillReference = expectedRelatedSkillReference(requiredSkill, spec.relationType);
+        const expectedRequiringSkillReference = expectedRelatedSkillReference(requiringSkill, spec.relationType);
 
         expect(actualRequiringSkill?.requiresSkills).toContainEqual(expectedRequiredSkillReference);
         expect(actualRequiredSkill?.requiredBySkills).toContainEqual(expectedRequiringSkillReference);
@@ -125,7 +106,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     });
 
     test("should successfully update the relation even if some don't validate", async () => {
-      // GIVEN 3 Skills exist in the database
+      // GIVEN 4 Skills exist in the database
       const givenModelId = getMockStringId(1);
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
