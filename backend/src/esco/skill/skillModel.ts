@@ -60,13 +60,19 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
   SkillSchema.virtual("requiresSkills", {
-    ref: MongooseModelName.SkillToSkillRelations,
+    ref: MongooseModelName.SkillToSkillRelation,
     localField: "_id",
     foreignField: "requiringSkillId",
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
   SkillSchema.virtual("requiredBySkills", {
-    ref: MongooseModelName.SkillToSkillRelations,
+    ref: MongooseModelName.SkillToSkillRelation,
+    localField: "_id",
+    foreignField: "requiredSkillId",
+    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+  });
+  SkillSchema.virtual("requiredByOccupations", {
+    ref: MongooseModelName.OccupationToSkillRelation,
     localField: "_id",
     foreignField: "requiredSkillId",
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),

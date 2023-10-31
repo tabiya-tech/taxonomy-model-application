@@ -114,7 +114,7 @@ describe("test parseSkillToSkillRelation from", () => {
     expect(importLogger.logError).not.toHaveBeenCalled();
 
     // AND warning should be logged for each of the failed rows
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(4);
+    expect(importLogger.logWarning).toHaveBeenCalledTimes(6);
     expect(importLogger.logWarning).toHaveBeenNthCalledWith(
       1,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'' and requiredSkillId:'key_5'`
@@ -130,6 +130,14 @@ describe("test parseSkillToSkillRelation from", () => {
     expect(importLogger.logWarning).toHaveBeenNthCalledWith(
       4,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'key_10' and requiredSkillId:''`
+    );
+    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      5,
+      `Failed to import SkillToSkillRelation row with requiringSkillId:'key_11' and requiredSkillId:'key_12'`
+    );
+    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      6,
+      `Failed to import SkillToSkillRelation row with requiringSkillId:'key_13' and requiredSkillId:'key_14'`
     );
   });
 });

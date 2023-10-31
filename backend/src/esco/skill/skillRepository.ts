@@ -6,6 +6,7 @@ import {
   populateSkillRequiredBySkillsOptions,
   populateSkillRequiresSkillsOptions,
 } from "./populateSkillToSkillRelationOptions";
+import { populateSkillRequiredByOccupationOptions } from "./populateOccupationToSkillRelationOptions";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -65,6 +66,7 @@ export class SkillRepository implements ISkillRepository {
         { path: "children" },
         { path: "requiresSkills" },
         { path: "requiredBySkills" },
+        { path: "requiredByOccupations" },
       ]);
       return newSkillModel.toObject();
     } catch (e: unknown) {
@@ -89,7 +91,7 @@ export class SkillRepository implements ISkillRepository {
         .filter(Boolean);
       const newSkills = await this.Model.insertMany(newSkillModels, {
         ordered: false,
-        populate: ["parents", "children", "requiresSkills", "requiredBySkills"], // Populate parents and children fields
+        populate: ["parents", "children", "requiresSkills", "requiredBySkills", "requiredByOccupations"], // Populate parents and children fields
       });
       if (newSkillSpecs.length !== newSkills.length) {
         console.warn(
@@ -115,6 +117,7 @@ export class SkillRepository implements ISkillRepository {
             { path: "children" },
             { path: "requiresSkills" },
             { path: "requiredBySkills" },
+            { path: "requiredByOccupations" },
           ]);
           newSkills.push(doc.toObject());
         }
@@ -134,6 +137,7 @@ export class SkillRepository implements ISkillRepository {
         .populate(populateSkillChildrenOptions)
         .populate(populateSkillRequiresSkillsOptions)
         .populate(populateSkillRequiredBySkillsOptions)
+        .populate(populateSkillRequiredByOccupationOptions)
         .exec();
 
       return skill !== null ? skill.toObject() : null;

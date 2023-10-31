@@ -13,6 +13,15 @@ export interface ISkillToSkillRelationRepository {
   readonly relationModel: mongoose.Model<ISkillToSkillRelationPairDoc>;
   readonly skillModel: mongoose.Model<ISkillDoc>;
 
+  /**
+   * Creates multiple new SkillToSkillRelation entries.
+   *
+   * @param {modelId} modelId - The modelId of the model the relations belong to.
+   * @param {INewSkillToSkillPairSpec[]} newSkillToSkillRelationPairSpecs - An array of specifications for the new SkillToSkillRelation entries.
+   * @return {Promise<ISkillToSkillRelationPair[]>} - A Promise that resolves to an array containing the newly created SkillToSkillRelation entries.
+   * Excludes entries that fail validation and returns a subset of successfully created entries.
+   * Rejects with an error if any entry cannot be created due to reasons other than validation.
+   */
   createMany(
     modelId: string,
     newSkillToSkillRelationPairSpecs: INewSkillToSkillPairSpec[]
@@ -23,8 +32,8 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
   public readonly relationModel: mongoose.Model<ISkillToSkillRelationPairDoc>;
   public readonly skillModel: mongoose.Model<ISkillDoc>;
 
-  constructor(hierarchyModel: mongoose.Model<ISkillToSkillRelationPairDoc>, skillModel: mongoose.Model<ISkillDoc>) {
-    this.relationModel = hierarchyModel;
+  constructor(relationModel: mongoose.Model<ISkillToSkillRelationPairDoc>, skillModel: mongoose.Model<ISkillDoc>) {
+    this.relationModel = relationModel;
     this.skillModel = skillModel;
   }
 

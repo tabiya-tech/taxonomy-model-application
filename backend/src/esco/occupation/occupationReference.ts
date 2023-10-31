@@ -1,5 +1,5 @@
-import { ObjectTypes } from "esco/common/objectTypes";
-import { IOccupationDoc, IOccupationReferenceDoc } from "./occupation.types";
+import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
+import { IOccupationDoc, IOccupationReference, IOccupationReferenceDoc } from "./occupation.types";
 import mongoose from "mongoose";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
@@ -14,5 +14,14 @@ export function getOccupationDocReference(occupation: OccupationDocument): IOccu
     ISCOGroupCode: occupation.ISCOGroupCode,
     code: occupation.code,
     preferredLabel: occupation.preferredLabel,
+  };
+}
+export function getOccupationReferenceWithRelationType(
+  occupation: IOccupationReference,
+  relationType: RelationType
+): ReferenceWithRelationType<IOccupationReference> {
+  return {
+    ...occupation,
+    relationType: relationType,
   };
 }

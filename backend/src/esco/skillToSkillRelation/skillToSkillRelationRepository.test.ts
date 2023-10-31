@@ -140,8 +140,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       ];
 
       // WHEN updating the relation of the Skills
-      // AND the third relation entry does validate
-      // AND the fourth relation entry creates duplicate and should violate the unique constraint
+      // AND the third and fourth relation entries do not validate
       const actualNewSkillToSkillRelation = await repository.createMany(givenModelId, givenNewRelationSpecs);
 
       expect(actualNewSkillToSkillRelation).toHaveLength(2);

@@ -43,16 +43,22 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     }
   );
   OccupationSchema.virtual("parent", {
-    ref: "OccupationHierarchyModel",
+    ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: "childId",
     match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
     justOne: true,
   });
   OccupationSchema.virtual("children", {
-    ref: "OccupationHierarchyModel",
+    ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: "parentId",
+    match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
+  });
+  OccupationSchema.virtual("requiresSkills", {
+    ref: MongooseModelName.OccupationToSkillRelation,
+    localField: "_id",
+    foreignField: "requiringOccupationId",
     match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
   });
   OccupationSchema.index({ UUID: 1 }, { unique: true });

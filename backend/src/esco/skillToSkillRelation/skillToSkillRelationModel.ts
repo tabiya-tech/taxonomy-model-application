@@ -27,7 +27,7 @@ export function initializeSchemaAndModel(
   SkillToSkillRelationSchema.index({ modelId: 1, requiringSkillId: 1, requiredSkillId: 1 }, { unique: true });
 
   return dbConnection.model<ISkillToSkillRelationPairDoc>(
-    MongooseModelName.SkillToSkillRelations,
+    MongooseModelName.SkillToSkillRelation,
     SkillToSkillRelationSchema
   );
 }

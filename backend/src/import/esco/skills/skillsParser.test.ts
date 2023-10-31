@@ -81,6 +81,7 @@ describe("test parseSkills from", () => {
                 parents: [],
                 requiresSkills: [],
                 requiredBySkills: [],
+                requiredByOccupations: [],
               };
             })
           );

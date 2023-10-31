@@ -9,6 +9,7 @@ import {
 } from "./occupationHierarchy.types";
 
 import { isNewOccupationHierarchyPairSpecValid } from "./occupationHierarchyValidation";
+import { getModelName } from "esco/common/mongooseModelNames";
 
 export interface IOccupationHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
@@ -76,14 +77,8 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
             return new this.hierarchyModel({
               ...spec,
               modelId: modelId,
-              parentDocModel:
-                spec.parentType === ObjectTypes.ISCOGroup
-                  ? this.iscoGroupModel.modelName
-                  : this.occupationModel.modelName,
-              childDocModel:
-                spec.childType === ObjectTypes.ISCOGroup
-                  ? this.iscoGroupModel.modelName
-                  : this.occupationModel.modelName,
+              parentDocModel: getModelName(spec.parentType),
+              childDocModel: getModelName(spec.childType),
             });
           } catch (e: unknown) {
             return null;

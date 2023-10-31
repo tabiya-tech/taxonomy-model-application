@@ -8,6 +8,7 @@ import * as occupationModel from "esco/occupation/occupationModel";
 import * as occupationHierarchyModel from "esco/occupationHierarchy/occupationHierarchyModel";
 import * as skillHierarchyModel from "esco/skillHierarchy/skillHierarchyModel";
 import * as skillToSkillRelationModel from "esco/skillToSkillRelation/skillToSkillRelationModel";
+import * as occupationToSkillRelationModel from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
 
 import { IISCOGroupRepository, ISCOGroupRepository } from "esco/iscoGroup/ISCOGroupRepository";
@@ -27,6 +28,10 @@ import {
   ISkillToSkillRelationRepository,
   SkillToSkillRelationRepository,
 } from "esco/skillToSkillRelation/skillToSkillRelationRepository";
+import {
+  IOccupationToSkillRelationRepository,
+  OccupationToSkillRelationRepository,
+} from "esco/occupationToSkillRelation/occupationToSkillRelationRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -96,6 +101,14 @@ export class RepositoryRegistry {
     this._repositories.set("ISkillToSkillRelationRepository", repository);
   }
 
+  public set occupationToSkillRelation(repository: IOccupationToSkillRelationRepository) {
+    this._repositories.set("IOccupationToSkillRelationRepository", repository);
+  }
+
+  public get occupationToSkillRelation(): IOccupationToSkillRelationRepository {
+    return this._repositories.get("IOccupationToSkillRelationRepository");
+  }
+
   public get importProcessState(): IImportProcessStateRepository {
     return this._repositories.get("IImportProcessStateRepository");
   }
@@ -127,6 +140,11 @@ export class RepositoryRegistry {
       skillToSkillRelationModel.initializeSchemaAndModel(connection),
       this.skill.Model
     );
+    this.occupationToSkillRelation = new OccupationToSkillRelationRepository(
+      occupationToSkillRelationModel.initializeSchemaAndModel(connection),
+      this.skill.Model,
+      this.occupation.Model
+    );
     this.importProcessState = new ImportProcessStateRepository(importStateModel.initializeSchemaAndModel(connection));
 
     // Set up the indexes
@@ -143,6 +161,7 @@ export class RepositoryRegistry {
     await this.occupationHierarchy.hierarchyModel.createIndexes();
     await this.skillHierarchy.hierarchyModel.createIndexes();
     await this.skillToSkillRelation.relationModel.createIndexes();
+    await this.occupationToSkillRelation.relationModel.createIndexes();
     await this.importProcessState.Model.createIndexes();
   }
 }

@@ -34,6 +34,21 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
 }
 
 /**
+ * Create an expected Related Occupation Reference from a given IOccupation and relationType
+ * @param givenOccupation
+ * @param relationType
+ */
+export function expectedRelatedOccupationReference(
+  givenOccupation: IOccupation,
+  relationType: RelationType
+): ReferenceWithRelationType<IOccupationReference> {
+  return {
+    ...expectedOccupationReference(givenOccupation),
+    relationType,
+  };
+}
+
+/**
  *  Create an expected ISkill reference from a given ISkill
  * @param givenSkill
  */
