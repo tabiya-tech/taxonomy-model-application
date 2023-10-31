@@ -5,6 +5,7 @@ import {
   populateOccupationChildrenOptions,
   populateOccupationParentOptions,
 } from "./populateOccupationHierarchyOptions";
+import { populateOccupationRequiresSkillsOptions } from "./populateOccupationToSkillRelationOptions";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -59,7 +60,7 @@ export class OccupationRepository implements IOccupationRepository {
         UUID: randomUUID(),
       });
       await newOccupationModel.save();
-      await newOccupationModel.populate([{ path: "parent" }, { path: "children" }]);
+      await newOccupationModel.populate([{ path: "parent" }, { path: "children" }, { path: "requiresSkills" }]);
       return newOccupationModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -83,7 +84,7 @@ export class OccupationRepository implements IOccupationRepository {
         .filter(Boolean);
       const newOccupations = await this.Model.insertMany(newOccupationModels, {
         ordered: false,
-        populate: [{ path: "parent" }, { path: "children" }],
+        populate: [{ path: "parent" }, { path: "children" }, { path: "requiresSkills" }],
       });
       if (newOccupationSpecs.length !== newOccupations.length) {
         console.warn(
@@ -106,7 +107,7 @@ export class OccupationRepository implements IOccupationRepository {
         );
         const newOccupations: IOccupation[] = [];
         for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate([{ path: "parent" }, { path: "children" }]);
+          await doc.populate([{ path: "parent" }, { path: "children" }, { path: "requiresSkills" }]);
           newOccupations.push(doc.toObject());
         }
         return newOccupations;
@@ -122,6 +123,7 @@ export class OccupationRepository implements IOccupationRepository {
       const occupation = await this.Model.findById(id)
         .populate(populateOccupationParentOptions)
         .populate(populateOccupationChildrenOptions)
+        .populate(populateOccupationRequiresSkillsOptions)
         .exec();
       return occupation !== null ? occupation.toObject() : null;
     } catch (e: unknown) {

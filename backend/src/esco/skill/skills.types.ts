@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco/common/objectTypes";
 import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import { IOccupationReference } from "esco/occupation/occupation.types";
 
 /**
  * Enum for the different types of skills.
@@ -53,6 +54,7 @@ export interface ISkill extends Omit<ISkillDoc, "modelId"> {
   requiredBySkills: ReferenceWithRelationType<ISkillReference>[];
   createdAt: Date;
   updatedAt: Date;
+  requiredByOccupations: ReferenceWithRelationType<IOccupationReference>[];
 }
 
 /**
@@ -60,7 +62,15 @@ export interface ISkill extends Omit<ISkillDoc, "modelId"> {
  */
 export type INewSkillSpec = Omit<
   ISkill,
-  "id" | "UUID" | "parents" | "children" | "requiresSkills" | "requiredBySkills" | "createdAt" | "updatedAt"
+  | "id"
+  | "UUID"
+  | "parents"
+  | "children"
+  | "requiresSkills"
+  | "requiredBySkills"
+  | "requiredByOccupations"
+  | "createdAt"
+  | "updatedAt"
 >;
 
 /**

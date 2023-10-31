@@ -7,7 +7,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./skillToSkillRelationModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { testDocModel, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { RelationType } from "esco/common/objectTypes";
@@ -70,6 +70,12 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
     testObjectIdField(() => SkillToSkillRelationModel, "requiringSkillId");
     // Test the requiredSkillId field
     testObjectIdField(() => SkillToSkillRelationModel, "requiredSkillId");
+
+    // Test the requiringSkillDocModel field
+    testDocModel(() => SkillToSkillRelationModel, "requiringSkillDocModel", [MongooseModelName.Skill]);
+    // Test the requiredSkillDocModel field
+
+    testDocModel(() => SkillToSkillRelationModel, "requiredSkillDocModel", [MongooseModelName.Skill]);
 
     // Test the relationType field
     test.each([

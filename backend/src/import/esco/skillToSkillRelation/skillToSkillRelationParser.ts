@@ -40,6 +40,14 @@ function getRowToSpecificationTransformFn(
   importIdToDBIdMap: Map<string, string>
 ): TransformRowToSpecificationFunction<SkillToSkillsRelationRow, INewSkillToSkillPairSpec> {
   return (row: SkillToSkillsRelationRow) => {
+    // Check if relation type is valid
+    if (!Object.values(RelationType).includes(row.RELATIONTYPE)) {
+      importLogger.logWarning(
+        `Failed to import SkillToSkillRelation row with requiringSkillId:'${row.REQUIRINGID}' and requiredSkillId:'${row.REQUIREDID}'`
+      );
+      return null;
+    }
+    // Check if requiring skill and required skill exist
     const requiringSkillId = importIdToDBIdMap.get(row.REQUIRINGID);
     const requiredSkillId = importIdToDBIdMap.get(row.REQUIREDID);
 

@@ -4,6 +4,7 @@ import { ISkillDoc } from "esco/skill/skills.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair, ISkillHierarchyPairDoc } from "./skillHierarchy.types";
 import { ISkillGroupDoc } from "esco/skillGroup/skillGroup.types";
 import { isNewSkillHierarchyPairSpecValid } from "./skillHierarchyValidation";
+import { getModelName } from "esco/common/mongooseModelNames";
 
 export interface ISkillHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
@@ -67,10 +68,8 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
             return new this.hierarchyModel({
               ...spec,
               modelId: modelId,
-              parentDocModel:
-                spec.parentType === ObjectTypes.SkillGroup ? this.skillGroupModel.modelName : this.skillModel.modelName,
-              childDocModel:
-                spec.childType === ObjectTypes.SkillGroup ? this.skillGroupModel.modelName : this.skillModel.modelName,
+              parentDocModel: getModelName(spec.parentType),
+              childDocModel: getModelName(spec.childType),
             });
           } catch (e: unknown) {
             return null;

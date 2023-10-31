@@ -13,15 +13,24 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationReference } from "./occupation.types";
 import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
+  getNewISCOGroupSpec,
   getNewOccupationSpec,
+  getNewSkillSpec,
   getSimpleNewISCOGroupSpec,
   getSimpleNewOccupationSpec,
+  getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
-import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
+import {
+  expectedISCOGroupReference,
+  expectedOccupationReference,
+  expectedRelatedSkillReference,
+} from "esco/_test_utilities/expectedReference";
+import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -41,6 +50,7 @@ function expectedFromGivenSpec(givenSpec: INewOccupationSpec): IOccupation {
     ...givenSpec,
     parent: null,
     children: [],
+    requiresSkills: [],
     id: expect.any(String),
     UUID: expect.any(String),
     createdAt: expect.any(Date),
@@ -479,8 +489,6 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(console.error).toBeCalledTimes(0);
     });
 
-    test.todo("should return the Occupation with its related skills");
-
     describe("Test Occupation hierarchy robustness to inconsistencies", () => {
       test("should ignore children that are not Occupations", async () => {
         // GIVEN an inconsistency was introduced, and non-Occupation document is a child of an Occupation
@@ -699,6 +707,163 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+      });
+    });
+
+    test("should return the Occupation with its related skills", async () => {
+      // GIVEN an Occupation exists in the database and two  skills in the same model
+      const givenModelId = getMockStringId(1);
+      // The subject (Occupation)
+      const givenSubjectSpecs = getSimpleNewOccupationSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The first skill
+      const givenSkillSpecs_1: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
+      const givenSkill_1 = await repositoryRegistry.skill.create(givenSkillSpecs_1);
+      // The second skill
+      const givenSkillSpecs_2: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_2");
+      const givenSkill_2 = await repositoryRegistry.skill.create(givenSkillSpecs_2);
+
+      // AND the subject Occupation has two skills
+      const actualRequiresSkills = await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
+        {
+          requiringOccupationId: givenSubject.id,
+          requiringOccupationType: ObjectTypes.Occupation,
+          requiredSkillId: givenSkill_1.id,
+          relationType: RelationType.ESSENTIAL,
+        },
+        {
+          requiringOccupationId: givenSubject.id,
+          requiringOccupationType: ObjectTypes.Occupation,
+          requiredSkillId: givenSkill_2.id,
+          relationType: RelationType.OPTIONAL,
+        },
+      ]);
+
+      // Guard assertion
+      expect(actualRequiresSkills).toHaveLength(2);
+
+      // WHEN searching for the subject by its id
+      const actualFoundOccupation = (await repository.findById(givenSubject.id)) as IOccupation;
+
+      // THEN expect the subject to be found
+      expect(actualFoundOccupation).not.toBeNull();
+
+      // AND to have the given skills
+      expect(actualFoundOccupation.requiresSkills).toEqual(
+        expect.arrayContaining([
+          expectedRelatedSkillReference(givenSkill_1, RelationType.ESSENTIAL),
+          expectedRelatedSkillReference(givenSkill_2, RelationType.OPTIONAL),
+        ])
+      );
+
+      // AND no error to be logged
+      expect(console.error).toBeCalledTimes(0);
+    });
+
+    describe("test Occupation to Skill relations robustness to inconsistencies", () => {
+      test("should ignore requiresSkills that are not Skills", async () => {
+        // GIVEN an inconsistency was introduced, and non-Skill document has a requiresSkill relation with an occupation
+        const givenOccupationSpecs = getNewOccupationSpec();
+        const givenOccupation = await repository.create(givenOccupationSpecs);
+
+        // The non-Skill in this case an ISCOGroup
+        const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+        const givenISCOGroup = await repositoryRegistry.ISCOGroup.create(givenNewISCOGroupSpec);
+
+        // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
+        const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
+
+          relationType: RelationType.ESSENTIAL,
+          requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
+          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationDocModel: MongooseModelName.Occupation,
+
+          requiredSkillId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
+          //@ts-ignore
+          requiredSkillDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
+        };
+        await repositoryRegistry.occupationToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the Occupation by its id
+        jest.spyOn(console, "error");
+        const actualFoundOccupation = await repository.findById(givenOccupation.id);
+
+        // THEN expect the Occupation to not contain the inconsistent requiresSkill
+        expect(actualFoundOccupation).not.toBeNull();
+        expect(actualFoundOccupation!.requiresSkills).toEqual([]);
+        // AND expect an error to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Object is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`);
+      });
+
+      test("should not find requiresSkills if the relation is in a different model", async () => {
+        // GIVEN an inconsistency was introduced, and the requiringOccupation and requiredSkills are in a different model than the relation
+
+        const givenOccupationSpecs = getNewOccupationSpec();
+        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenSkillSpecs = getNewSkillSpec();
+        const givenSkill = await repositoryRegistry.skill.create(givenSkillSpecs);
+
+        // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
+        const givenModelId_3 = getMockStringId(3);
+
+        const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenModelId_3), // <- This is the inconsistency
+
+          relationType: RelationType.ESSENTIAL,
+          requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
+          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationDocModel: MongooseModelName.Occupation,
+
+          requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
+          requiredSkillDocModel: MongooseModelName.Skill,
+        };
+        await repositoryRegistry.occupationToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for givenOccupation by its id
+        const actualFoundOccupation = await repository.findById(givenOccupation.id);
+
+        // THEN expect the Occupation to not contain the inconsistent required Skill
+        expect(actualFoundOccupation).not.toBeNull();
+        expect(actualFoundOccupation!.requiresSkills).toEqual([]);
+      });
+
+      test("should not find requiresSkill if it is not is the same model as the requiringOccupation", async () => {
+        // GIVEN an inconsistency was introduced, and the requiredSkill and the requiringOccupation are in different models
+
+        const givenOccupationSpecs = getNewOccupationSpec();
+        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenSkillSpecs = getNewSkillSpec();
+        givenSkillSpecs.modelId = getMockStringId(99); // <-- this is the inconsistency
+        const givenSkill = await repositoryRegistry.skill.create(givenSkillSpecs);
+
+        // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
+        //@ts-ignore
+        const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
+
+          relationType: RelationType.ESSENTIAL,
+          requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
+          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationDocModel: MongooseModelName.Occupation,
+
+          requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
+          requiredSkillDocModel: MongooseModelName.Skill,
+        };
+        await repositoryRegistry.occupationToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the skill by its id
+        jest.spyOn(console, "error");
+        const givenFoundOccupation = await repository.findById(givenOccupation.id);
+
+        // THEN expect the occupation to not contain the inconsistent requiredSkill
+        expect(givenFoundOccupation).not.toBeNull();
+        expect(givenFoundOccupation!.requiresSkills).toEqual([]); // <-- The inconsistent occupation is removed
+        // AND expect an error to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Required Skill is not in the same model as the Requiring Occupation`);
       });
     });
 

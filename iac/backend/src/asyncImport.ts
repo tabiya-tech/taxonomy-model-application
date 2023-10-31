@@ -6,7 +6,7 @@ const buildFolderPath = "../../backend/build/import/async";
 
 const LOG_RETENTION_IN_DAYS = 7;
 
-const LAMBDA_TIMEOUT_IN_SECONDS = 180;
+const LAMBDA_TIMEOUT_IN_SECONDS = 300;
 
 const LAMBDA_MEMORY_IN_MB = 1024;
 

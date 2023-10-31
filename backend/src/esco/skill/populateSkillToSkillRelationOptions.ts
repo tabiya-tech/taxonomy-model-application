@@ -18,7 +18,7 @@ export const populateSkillRequiresSkillsOptions = {
       if (modelName === MongooseModelName.Skill) {
         return getSkillDocReference(doc as SkillDocument);
       }
-      console.error(`Required is not a Skill: ${modelName}`);
+      console.error(`Object is not a Skill: ${modelName}`);
       return null;
     },
   },
@@ -34,7 +34,7 @@ export const populateSkillRequiredBySkillsOptions = {
       if (modelName === MongooseModelName.Skill) {
         return getSkillDocReference(doc as SkillDocument);
       }
-      console.error(`Requiring is not a Skill: ${modelName}`);
+      console.error(`Object is not a Skill: ${modelName}`);
       return null;
     },
   },
