@@ -10,6 +10,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
 import { testDocModel, testObjectIdField, testObjectType } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
 describe("Test the definition of the OccupationHierarchy Model", () => {
   let dbConnection: Connection;
@@ -30,7 +31,7 @@ describe("Test the definition of the OccupationHierarchy Model", () => {
   });
 
   test("Successfully validate Occupation Hierarchy with mandatory fields", async () => {
-    // GIVEN an Occupation Hierarchy object with mandatory fields filled & a document
+    // GIVEN an Occupation Hierarchy document based on the given object
     const givenObject: IOccupationHierarchyPairDoc = {
       modelId: getMockObjectId(2),
       parentType: ObjectTypes.ISCOGroup,
@@ -39,16 +40,28 @@ describe("Test the definition of the OccupationHierarchy Model", () => {
       childId: getMockObjectId(2),
       childType: ObjectTypes.Occupation,
       childDocModel: MongooseModelName.Occupation,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
     const givenOccupationDocument = new OccupationHierarchyModel(givenObject);
 
     // WHEN validating that given Occupation Hierarchy document
     const actualValidationErrors = givenOccupationDocument.validateSync();
 
-    // THEN expect it to validate without any error
+    // AND the document to be saved successfully
     expect(actualValidationErrors).toBeUndefined();
+
+    // AND expect the document to be saved successfully
+    await givenOccupationDocument.save();
+
+    // AND the toObject() transformation to return the correct properties
+    expect(givenOccupationDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      parentId: givenObject.parentId.toString(),
+      childId: givenObject.childId.toString(),
+      id: givenOccupationDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate Occupation Hierarchy Model fields", () => {

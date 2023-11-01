@@ -31,7 +31,7 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
   });
 
   test("Successfully validate the SkillToSkillRelation with mandatory fields", async () => {
-    // GIVEN a SkillToSkillRelation object with mandatory fields filled & a document
+    // GIVEN a SkillToSkillRelation document based on the given object
     const givenObject: ISkillToSkillRelationPairDoc = {
       modelId: getMockObjectId(2),
       requiringSkillId: getMockObjectId(2),
@@ -39,8 +39,6 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
       requiringSkillDocModel: MongooseModelName.Skill,
       requiredSkillId: getMockObjectId(2),
       relationType: RelationType.OPTIONAL,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
     const givenSkillToSkillRelationDocument = new SkillToSkillRelationModel(givenObject);
 
@@ -49,6 +47,20 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
 
     // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
+
+    // AND expect the document to be saved successfully
+    await givenSkillToSkillRelationDocument.save();
+
+    // AND the toObject() transformation to return the correct properties
+    expect(givenSkillToSkillRelationDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      requiredSkillId: givenObject.requiredSkillId.toString(),
+      requiringSkillId: givenObject.requiringSkillId.toString(),
+      id: givenSkillToSkillRelationDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate the SkillToSkillRelation Model fields", () => {

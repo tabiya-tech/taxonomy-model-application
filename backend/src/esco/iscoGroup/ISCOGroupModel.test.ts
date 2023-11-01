@@ -38,21 +38,37 @@ describe("Test the definition of the ISCOGroup Model", () => {
     }
   });
 
-  test("Successfully validate ISCOGroup with mandatory fields", async () => {
-    // GIVEN an ISCOGroup object with all mandatory fields filled & a document
-    const givenObject: IISCOGroupDoc = {
-      UUID: randomUUID(),
-      code: getMockRandomISCOGroupCode(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: randomUUID(),
-      ESCOUri: generateRandomUrl(),
-      altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
-      description: getTestString(DESCRIPTION_MAX_LENGTH),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    };
+  test.each([
+    [
+      "mandatory fields",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomISCOGroupCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: randomUUID(),
+        ESCOUri: generateRandomUrl(),
+        altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
+        description: getTestString(DESCRIPTION_MAX_LENGTH),
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      },
+    ],
+    [
+      "optional fields",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomISCOGroupCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: "",
+        ESCOUri: "",
+        altLabels: [],
+        description: "",
+        importId: "",
+      },
+    ],
+  ])("Successfully validate ISCOGroup with %s", async (description, givenObject: IISCOGroupDoc) => {
+    // GIVEN an ISCOGroup document based on the given object
     const givenISCOGroupDocument = new ISCOGroupModel(givenObject);
 
     // WHEN validating that given ISCOGroup document
@@ -60,30 +76,18 @@ describe("Test the definition of the ISCOGroup Model", () => {
 
     // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
-  });
 
-  test("Successfully validate ISCOGroup with optional fields", async () => {
-    // GIVEN an ISCOGroup object with empty optional fields & a document
-    const givenObject: IISCOGroupDoc = {
-      UUID: randomUUID(),
-      code: getMockRandomISCOGroupCode(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: "",
-      ESCOUri: "",
-      altLabels: [],
-      description: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      importId: "",
-    };
-    const givenISCOGroupDocument = new ISCOGroupModel(givenObject);
+    // AND the document to be saved successfully
+    await givenISCOGroupDocument.save();
 
-    // WHEN validating that given ISCOGroup document
-    const actualValidationErrors = givenISCOGroupDocument.validateSync();
-
-    // THEN expect it to validate without any error
-    expect(actualValidationErrors).toBeUndefined();
+    // AND expect the toObject() transformation to have the correct properties
+    expect(givenISCOGroupDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      id: givenISCOGroupDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate ISCOGroup fields", () => {

@@ -39,8 +39,6 @@ export interface ISkillDoc extends ImportIdentifiable {
   scopeNote: string;
   skillType: SkillType;
   reuseLevel: ReuseLevel;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -53,6 +51,8 @@ export interface ISkill extends Omit<ISkillDoc, "modelId"> {
   children: (ISkillReference | ISkillGroupReference)[];
   requiresSkills: ReferenceWithRelationType<ISkillReference>[];
   requiredBySkills: ReferenceWithRelationType<ISkillReference>[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**

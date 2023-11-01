@@ -39,22 +39,39 @@ describe("Test the definition of the skillGroup Model", () => {
     }
   });
 
-  test("Successfully validate skillGroup with mandatory fields", async () => {
-    // GIVEN a skillGroup object with all mandatory fields filled & a document
-    const givenObject: ISkillGroupDoc = {
-      UUID: randomUUID(),
-      code: getMockRandomSkillCode(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: randomUUID(),
-      ESCOUri: generateRandomUrl(),
-      altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-      description: getTestString(DESCRIPTION_MAX_LENGTH),
-      scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    };
+  test.each([
+    [
+      "mandatory fields",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomSkillCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: randomUUID(),
+        ESCOUri: generateRandomUrl(),
+        altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+        description: getTestString(DESCRIPTION_MAX_LENGTH),
+        scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      },
+    ],
+    [
+      "optional fields",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomSkillCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: "",
+        altLabels: [],
+        ESCOUri: "",
+        description: "",
+        scopeNote: "",
+        importId: "",
+      },
+    ],
+  ])("Successfully validate skillGroup with %s", async (description, givenObject: ISkillGroupDoc) => {
+    // GIVEN a skillGroup document based on the given object
     const givenSkillGroupDocument = new skillGroupModel(givenObject);
 
     // WHEN validating that given skillGroup document
@@ -62,30 +79,18 @@ describe("Test the definition of the skillGroup Model", () => {
 
     // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
-  });
 
-  test("Successfully validate skillGroup with optional fields", async () => {
-    //@ts-ignore
-    // GIVEN a skillGroup object with empty optional fields & a document
-    const givenObject: ISkillGroupDoc = {
-      UUID: randomUUID(),
-      code: getMockRandomSkillCode(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: "",
-      altLabels: [],
-      ESCOUri: "",
-      description: "",
-      scopeNote: "",
-      importId: "",
-    };
-    const givenSkillGroupDocument = new skillGroupModel(givenObject);
+    // AND the document to be saved successfully
+    await givenSkillGroupDocument.save();
 
-    // WHEN validating that given skillGroup document
-    const actualValidationErrors = givenSkillGroupDocument.validateSync();
-
-    // THEN expect it to validate without any error
-    expect(actualValidationErrors).toBeUndefined();
+    // AND the toObject() transformation to return the correct properties
+    expect(givenSkillGroupDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      id: givenSkillGroupDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate skillGroup fields", () => {

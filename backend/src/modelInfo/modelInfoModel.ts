@@ -5,6 +5,7 @@ import { stringRequired } from "server/stringRequired";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfoDoc } from "./modelInfo.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export const ModelName = "ModelInfo";
 
@@ -91,10 +92,23 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         required: true,
       },
     },
-    { timestamps: true, strict: "throw" }
+    {
+      timestamps: true,
+      strict: "throw",
+      toObject: getGlobalTransformOptions(_TransformFn),
+      toJSON: getGlobalTransformOptions(_TransformFn),
+    }
   );
 
   modelInfoSchema.index({ UUID: 1 }, { unique: true });
   // Model
   return dbConnection.model<IModelInfoDoc>(ModelName, modelInfoSchema);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _TransformFn = (doc: any, ret: any) => {
+  if (ret.importProcessState && ret.importProcessState instanceof mongoose.Types.ObjectId) {
+    ret.importProcessState = ret.importProcessState.toString();
+  }
+  return ret;
+};

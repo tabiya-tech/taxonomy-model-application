@@ -30,9 +30,9 @@ describe("Test the definition of the ImportProcessState Model", () => {
   });
 
   test("Successfully validate ImportModelState with mandatory fields", async () => {
-    // GIVEN an ImportModelState object with all mandatory fields filled & a document
+    // GIVEN an ImportModelState document based on the given object
     const givenObject: IImportProcessStateDoc = {
-      id: getMockObjectId(2),
+      id: getMockObjectId(1),
       modelId: getMockObjectId(2),
       status: ImportProcessStateApiSpecs.Enums.Status.PENDING,
       result: {
@@ -40,8 +40,6 @@ describe("Test the definition of the ImportProcessState Model", () => {
         parsingErrors: false,
         parsingWarnings: false,
       },
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
     const givenImportStateDocument = new model(givenObject);
 
@@ -50,6 +48,18 @@ describe("Test the definition of the ImportProcessState Model", () => {
 
     // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
+
+    // AND the document to be saved successfully
+    await givenImportStateDocument.save();
+
+    // AND the toObject() transformation to return the correct properties
+    expect(givenImportStateDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      id: givenImportStateDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate ImportModelState fields", () => {

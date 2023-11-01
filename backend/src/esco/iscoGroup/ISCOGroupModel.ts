@@ -11,6 +11,7 @@ import {
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IISCOGroupDoc } from "./ISCOGroup.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IISCOGroupDoc> {
   // Main Schema
@@ -29,6 +30,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       timestamps: true,
       strict: "throw",
+      toObject: getGlobalTransformOptions(),
+      toJSON: getGlobalTransformOptions(),
     }
   );
   ISCOGroupSchema.virtual("parent", {

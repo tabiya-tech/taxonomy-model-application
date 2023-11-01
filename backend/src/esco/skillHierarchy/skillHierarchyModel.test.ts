@@ -30,7 +30,7 @@ describe("Test the definition of the SkillHierarchy Model", () => {
   });
 
   test("Successfully validate Skill Hierarchy with mandatory fields", async () => {
-    // GIVEN a Skill Hierarchy object with mandatory fields filled & a document
+    // GIVEN a Skill Hierarchy document based on the given object
     const givenObject: ISkillHierarchyPairDoc = {
       modelId: getMockObjectId(2),
       parentType: ObjectTypes.SkillGroup,
@@ -39,8 +39,6 @@ describe("Test the definition of the SkillHierarchy Model", () => {
       childId: getMockObjectId(2),
       childType: ObjectTypes.Skill,
       childDocModel: MongooseModelName.Skill,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
     const givenSkillDocument = new SkillHierarchyModel(givenObject);
 
@@ -49,6 +47,20 @@ describe("Test the definition of the SkillHierarchy Model", () => {
 
     // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
+
+    // AND expect the document to be saved successfully
+    await givenSkillDocument.save();
+
+    // AND the toObject() transformation to return the correct properties
+    expect(givenSkillDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      parentId: givenObject.parentId.toString(),
+      childId: givenObject.childId.toString(),
+      id: givenSkillDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate Skill Hierarchy Model fields", () => {

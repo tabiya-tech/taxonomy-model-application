@@ -14,7 +14,6 @@ export interface ILocale {
  * Describes how a model info is saved in Database
  */
 export interface IModelInfoDoc {
-  id: mongoose.Types.ObjectId;
   name: string;
   locale: ILocale;
   description: string;
@@ -25,8 +24,6 @@ export interface IModelInfoDoc {
   releaseNotes: string;
   version: string;
   importProcessState: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -44,6 +41,8 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "id" | "modelId" | "impo
       parsingWarnings: boolean;
     };
   };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**

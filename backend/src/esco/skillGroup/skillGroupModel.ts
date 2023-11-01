@@ -12,6 +12,7 @@ import {
 import { ISkillGroupDoc } from "./skillGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { stringRequired } from "server/stringRequired";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroupDoc> {
   // Main Schema
@@ -40,6 +41,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       timestamps: true,
       strict: "throw",
+      toObject: getGlobalTransformOptions(),
+      toJSON: getGlobalTransformOptions(),
     }
   );
 

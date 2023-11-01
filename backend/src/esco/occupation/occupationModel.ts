@@ -15,6 +15,7 @@ import {
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationDoc } from "./occupation.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
   // Main Schema
@@ -34,7 +35,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       scopeNote: ScopeNoteProperty,
       importId: ImportIDProperty,
     },
-    { timestamps: true, strict: "throw" }
+    {
+      timestamps: true,
+      strict: "throw",
+      toObject: getGlobalTransformOptions(),
+      toJSON: getGlobalTransformOptions(),
+    }
   );
   OccupationSchema.virtual("parent", {
     ref: "OccupationHierarchyModel",

@@ -501,9 +501,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           //@ts-ignore
           requiredSkillId: new mongoose.Types.ObjectId(givenOccupation.id), // <- This is the inconsistency
           requiredSkillDocModel: MongooseModelName.Occupation, // <- This is the inconsistency
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
         await repositoryRegistry.skillToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
 
@@ -539,9 +536,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           //@ts-ignore
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
           requiredSkillDocModel: MongooseModelName.Skill,
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
         await repositoryRegistry.skillToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
 
@@ -580,9 +574,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           //@ts-ignore
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill_2.id),
           requiredSkillDocModel: MongooseModelName.Skill,
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
         await repositoryRegistry.skillToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
 
@@ -625,9 +616,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           //@ts-ignore
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill_2.id), // <- This is the inconsistency
           requiredSkillDocModel: MongooseModelName.Skill,
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
         await repositoryRegistry.skillToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
 
@@ -665,9 +653,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           //@ts-ignore
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill_1.id),
           requiredSkillDocModel: MongooseModelName.Skill,
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
         await repositoryRegistry.skillToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
 

@@ -1,5 +1,5 @@
 import { IModelRepository, ModelRepository } from "modelInfo/modelInfoRepository";
-import mongoose, { Connection } from "mongoose";
+import { Connection } from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
 import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";
 import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
@@ -106,46 +106,6 @@ export class RepositoryRegistry {
 
   async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
-
-    // Set up mongoose
-    // Apply to all schemas the transforms to get lean representations of the documents
-    const toFunction = {
-      virtuals: true,
-      versionKey: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      transform(doc: any, ret: any) {
-        // Delete any object attributes we do not need in our projections
-        //delete ret.id;
-
-        if (ret.modelId && ret.modelId instanceof mongoose.Types.ObjectId) {
-          ret.modelId = ret.modelId.toString(); // Convert modelId to string
-        }
-        if (ret.parentId && ret.parentId instanceof mongoose.Types.ObjectId) {
-          ret.parentId = ret.parentId.toString(); // Convert parentId to string
-        }
-        if (ret.childId && ret.childId instanceof mongoose.Types.ObjectId) {
-          ret.childId = ret.childId.toString(); // Convert childId to string
-        }
-        if (ret.requiringSkillId && ret.requiringSkillId instanceof mongoose.Types.ObjectId) {
-          ret.requiringSkillId = ret.requiringSkillId.toString(); // Convert requiringSkillId to string
-        }
-        if (ret.requiredSkillId && ret.requiredSkillId instanceof mongoose.Types.ObjectId) {
-          ret.requiredSkillId = ret.requiredSkillId.toString(); // Convert requiredSkillId to string
-        }
-        if (ret.importProcessState?.id && ret.importProcessState?.id instanceof mongoose.Types.ObjectId) {
-          ret.importProcessState.id = ret.importProcessState.id.toString(); // Convert importProcessStateId to string
-        }
-
-        delete ret._id;
-        delete ret.__v;
-      },
-    };
-    mongoose.plugin((schema) => {
-      // @ts-ignore
-      schema.options.toObject = toFunction;
-      // @ts-ignore
-      schema.options.toJSON = toFunction;
-    });
 
     // Set up the ModelRepository
     this.modelInfo = new ModelRepository(modelInfoModel.initializeSchemaAndModel(connection));
