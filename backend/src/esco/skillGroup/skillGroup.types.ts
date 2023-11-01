@@ -15,8 +15,6 @@ export interface ISkillGroupDoc extends ImportIdentifiable {
   altLabels: string[];
   description: string;
   scopeNote: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -27,6 +25,8 @@ export interface ISkillGroup extends Omit<ISkillGroupDoc, "modelId"> {
   modelId: string;
   parents: ISkillGroupReference[];
   children: (ISkillGroupReference | ISkillReference)[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**

@@ -33,9 +33,6 @@ export interface IOccupationHierarchyPairDoc extends IOccupationHierarchyPairTyp
 
   childId: mongoose.Types.ObjectId;
   childDocModel: MongooseModelName; // The mongoose model name of the child. It is used to populate the child virtual field.
-
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -47,6 +44,8 @@ export interface IOccupationHierarchyPair
   modelId: string;
   parentId: string;
   childId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**

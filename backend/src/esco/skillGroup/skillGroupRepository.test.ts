@@ -400,9 +400,6 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           childId: new mongoose.Types.ObjectId(givenSkillGroup.id),
           childDocModel: MongooseModelName.SkillGroup,
           childType: ObjectTypes.SkillGroup,
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
         await repositoryRegistry.skillHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
 
@@ -484,9 +481,6 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           childId: new mongoose.Types.ObjectId(givenSkillGroup_2.id), // <-- this is the inconsistency
           childDocModel: MongooseModelName.SkillGroup,
           childType: ObjectTypes.SkillGroup,
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
         await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
 
@@ -568,9 +562,6 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           childId: new mongoose.Types.ObjectId(givenSkillGroup_2.id),
           childDocModel: MongooseModelName.SkillGroup,
           childType: ObjectTypes.SkillGroup,
-
-          createdAt: new Date(),
-          updatedAt: new Date(),
         };
 
         await repositoryRegistry.skillHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);

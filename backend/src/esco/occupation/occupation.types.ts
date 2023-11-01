@@ -18,8 +18,6 @@ export interface IOccupationDoc extends ImportIdentifiable {
   definition: string;
   scopeNote: string;
   regulatedProfessionNote: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -30,6 +28,8 @@ export interface IOccupation extends Omit<IOccupationDoc, "id" | "modelId"> {
   modelId: string;
   parent: IISCOGroupReference | IOccupationReference | null;
   children: (IISCOGroupReference | IOccupationReference)[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**

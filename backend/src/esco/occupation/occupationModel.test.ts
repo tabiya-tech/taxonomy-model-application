@@ -42,25 +42,45 @@ describe("Test the definition of the Occupation Model", () => {
     }
   });
 
-  test("Successfully validate Occupation with mandatory fields", async () => {
-    // GIVEN an Occupation object with mandatory fields filled & a document
-    const givenObject: IOccupationDoc = {
-      UUID: randomUUID(),
-      code: getMockRandomOccupationCode(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: randomUUID(),
-      ESCOUri: generateRandomUrl(),
-      altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
-      description: getTestString(DESCRIPTION_MAX_LENGTH),
-      ISCOGroupCode: getMockRandomISCOGroupCode(),
-      definition: getTestString(DEFINITION_MAX_LENGTH),
-      scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-      regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    };
+  test.each([
+    [
+      "mandatory fields",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomOccupationCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: randomUUID(),
+        ESCOUri: generateRandomUrl(),
+        altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
+        description: getTestString(DESCRIPTION_MAX_LENGTH),
+        ISCOGroupCode: getMockRandomISCOGroupCode(),
+        definition: getTestString(DEFINITION_MAX_LENGTH),
+        scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+        regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      },
+    ],
+    [
+      "optional fields",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomOccupationCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: "",
+        ESCOUri: "",
+        altLabels: [],
+        description: "",
+        ISCOGroupCode: getMockRandomISCOGroupCode(),
+        definition: "",
+        scopeNote: "",
+        regulatedProfessionNote: "",
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      },
+    ],
+  ])("Successfully validate Occupation with %s", async (description, givenObject: IOccupationDoc) => {
+    // GIVEN an Occupation document based on the given object
     const givenOccupationDocument = new OccupationModel(givenObject);
 
     // WHEN validating that given occupation document
@@ -68,34 +88,18 @@ describe("Test the definition of the Occupation Model", () => {
 
     // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
-  });
 
-  test("Successfully validate Occupation with optional fields", async () => {
-    // GIVEN an Occupation object with empty optional fields & a document
-    const givenObject: IOccupationDoc = {
-      UUID: randomUUID(),
-      code: getMockRandomOccupationCode(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: "",
-      ESCOUri: "",
-      altLabels: [],
-      description: "",
-      ISCOGroupCode: getMockRandomISCOGroupCode(),
-      definition: "",
-      scopeNote: "",
-      regulatedProfessionNote: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    };
-    const givenOccupationDocument = new OccupationModel(givenObject);
+    // AND the document to be saved successfully
+    await givenOccupationDocument.save();
 
-    // WHEN validating that given occupation document
-    const actualValidationErrors = givenOccupationDocument.validateSync();
-
-    // THEN expect it to validate without any error
-    expect(actualValidationErrors).toBeUndefined();
+    // AND the toObject() transformation to return the correct properties
+    expect(givenOccupationDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      id: givenOccupationDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate Occupation fields", () => {

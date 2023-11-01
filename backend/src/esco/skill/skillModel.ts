@@ -13,6 +13,7 @@ import {
 import { stringRequired } from "server/stringRequired";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillDoc> {
   // Main Schema
@@ -39,7 +40,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       scopeNote: ScopeNoteProperty,
       importId: ImportIDProperty,
     },
-    { timestamps: true, strict: "throw" }
+    {
+      timestamps: true,
+      strict: "throw",
+      toObject: getGlobalTransformOptions(),
+      toJSON: getGlobalTransformOptions(),
+    }
   );
   SkillSchema.virtual("parents", {
     ref: MongooseModelName.SkillHierarchy,

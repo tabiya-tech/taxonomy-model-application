@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { IImportProcessStateDoc } from "./importProcessState.types";
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export const ModelName = "ImportProcessState";
 
@@ -29,7 +30,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         },
       },
     },
-    { timestamps: true, strict: "throw" }
+    {
+      timestamps: true,
+      strict: "throw",
+      toObject: getGlobalTransformOptions(),
+      toJSON: getGlobalTransformOptions(),
+    }
   );
 
   // currently no indexes defined

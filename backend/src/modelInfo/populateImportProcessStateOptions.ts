@@ -10,7 +10,7 @@ export const populateImportProcessStateOptions = {
     if (doc === null) {
       // if the importProcessState is not set, then the import has not started yet
       return {
-        id: _id,
+        id: _id.toString(),
         status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
         result: {
           errored: false,
@@ -20,7 +20,7 @@ export const populateImportProcessStateOptions = {
       };
     } else {
       return {
-        id: doc.id,
+        id: _id.toString(),
         status: doc.status,
         result: doc.result,
       };

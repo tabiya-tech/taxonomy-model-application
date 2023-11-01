@@ -111,7 +111,7 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
       // GIVEN an ImportProcessState that exists
       const specs = getNewImportProcessStatusSpec();
       specs.status = ImportProcessStateApiSpecs.Enums.Status.PENDING;
-      const givenExistingImportProcessState = await repository.Model.create(specs);
+      const givenExistingImportProcessState = await repository.create(specs);
       // AND a valid updateSpecs that are different from the existing ImportProcessState
       const givenUpdateSpecs = {
         status: ImportProcessStateApiSpecs.Enums.Status.COMPLETED,

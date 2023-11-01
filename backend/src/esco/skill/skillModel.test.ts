@@ -39,24 +39,43 @@ describe("Test the definition of the skill Model", () => {
     }
   });
 
-  test("Successfully validate skill with mandatory fields", async () => {
-    // GIVEN a skill object with all mandatory fields filled & a document
-    const givenObject: ISkillDoc = {
-      UUID: randomUUID(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: randomUUID(),
-      ESCOUri: generateRandomUrl(),
-      altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-      definition: getTestString(DEFINITION_MAX_LENGTH),
-      description: getTestString(DESCRIPTION_MAX_LENGTH),
-      scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-      skillType: SkillType.SkillCompetence,
-      reuseLevel: ReuseLevel.SectorSpecific,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    };
+  test.each([
+    [
+      "mandatory fields",
+      {
+        UUID: randomUUID(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: randomUUID(),
+        ESCOUri: generateRandomUrl(),
+        altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+        definition: getTestString(DEFINITION_MAX_LENGTH),
+        description: getTestString(DESCRIPTION_MAX_LENGTH),
+        scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+        skillType: SkillType.SkillCompetence,
+        reuseLevel: ReuseLevel.SectorSpecific,
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      },
+    ],
+    [
+      "optional fields",
+      {
+        UUID: randomUUID(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: "",
+        altLabels: [],
+        skillType: SkillType.None,
+        reuseLevel: ReuseLevel.None,
+        ESCOUri: "",
+        definition: "",
+        description: "",
+        scopeNote: "",
+        importId: "",
+      },
+    ],
+  ])("Successfully validate skill with mandatory fields", async (description, givenObject: ISkillDoc) => {
+    // GIVEN a skill document based on the given object
     const givenSkillDocument = new skillModel(givenObject);
 
     // WHEN validating that given skill document
@@ -64,32 +83,18 @@ describe("Test the definition of the skill Model", () => {
 
     // THEN expect it to validate without any error
     expect(actualValidationErrors).toBeUndefined();
-  });
 
-  test("Successfully validate skill with optional fields", async () => {
-    //@ts-ignore
-    // GIVEN a skill object with empty optional fields & a document
-    const givenObject: ISkillDoc = {
-      UUID: randomUUID(),
-      preferredLabel: getTestString(LABEL_MAX_LENGTH),
-      modelId: getMockObjectId(2),
-      originUUID: "",
-      altLabels: [],
-      skillType: SkillType.None,
-      reuseLevel: ReuseLevel.None,
-      ESCOUri: "",
-      definition: "",
-      description: "",
-      scopeNote: "",
-      importId: "",
-    };
-    const givenSkillDocument = new skillModel(givenObject);
+    // AND the document to be saved successfully
+    await givenSkillDocument.save();
 
-    // WHEN validating that given skill document
-    const actualValidationErrors = givenSkillDocument.validateSync();
-
-    // THEN expect it to validate without any error
-    expect(actualValidationErrors).toBeUndefined();
+    // AND the toObject() transformation to return the correct properties
+    expect(givenSkillDocument.toObject()).toEqual({
+      ...givenObject,
+      modelId: givenObject.modelId.toString(),
+      id: givenSkillDocument._id.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate skillGroup fields", () => {

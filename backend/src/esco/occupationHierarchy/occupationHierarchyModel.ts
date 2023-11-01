@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export function initializeSchemaAndModel(
   dbConnection: mongoose.Connection
@@ -41,7 +42,12 @@ export function initializeSchemaAndModel(
         enum: [MongooseModelName.Occupation, MongooseModelName.ISCOGroup],
       },
     },
-    { timestamps: true, strict: "throw" }
+    {
+      timestamps: true,
+      strict: "throw",
+      toObject: getGlobalTransformOptions(_TransformFn),
+      toJSON: getGlobalTransformOptions(_TransformFn),
+    }
   );
   OccupationHierarchySchema.index(
     { modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 },
@@ -54,3 +60,10 @@ export function initializeSchemaAndModel(
     OccupationHierarchySchema
   );
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _TransformFn = (doc: any, ret: any) => {
+  ret.parentId = ret.parentId.toString(); // Convert parentId to string
+  ret.childId = ret.childId.toString(); // Convert childId to string
+  return ret;
+};

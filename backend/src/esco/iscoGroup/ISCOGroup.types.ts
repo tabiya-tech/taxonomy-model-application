@@ -14,8 +14,6 @@ export interface IISCOGroupDoc extends ImportIdentifiable {
   preferredLabel: string;
   altLabels: string[];
   description: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -26,6 +24,8 @@ export interface IISCOGroup extends Omit<IISCOGroupDoc, "id" | "modelId"> {
   modelId: string;
   parent: IISCOGroupReference | null;
   children: (IISCOGroupReference | IOccupationReference)[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**

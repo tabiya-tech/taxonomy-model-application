@@ -32,64 +32,66 @@ describe("Test the definition of the ModelInfo Model", () => {
     }
   });
 
-  test("Successfully validate the modelInfo with the mandatory fields", async () => {
-    // GIVEN an object with all mandatory fields
-    const givenObject: IModelInfoDoc = {
-      id: getMockObjectId(2),
-      UUID: randomUUID(),
-      previousUUID: randomUUID(),
-      originUUID: randomUUID(),
-      name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-      locale: {
+  test.each([
+    [
+      "mandatory fields",
+      {
         UUID: randomUUID(),
-        name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+        previousUUID: randomUUID(),
+        originUUID: randomUUID(),
+        name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        locale: {
+          UUID: randomUUID(),
+          name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+          shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+        },
+        description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        released: false,
+        releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
+        version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+        importProcessState: getMockObjectId(2),
       },
-      description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-      released: false,
-      releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
-      version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-      importProcessState: getMockObjectId(2),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    // WHEN validating that object using the ModelInfoModel
-    const actualModelInfoValid = new ModelInfoModel(givenObject);
-
-    // THEN expect it to validate successfully
-    const errors = actualModelInfoValid.validateSync();
-    // @ts-ignore
-    expect(errors).toBeUndefined();
-  });
-
-  test("Successfully validate the modelInfo with optional fields", async () => {
-    // GIVEN an object with optional fields
-    // @ts-ignore
-    const givenObject: IModelInfoDoc = {
-      UUID: randomUUID(),
-      previousUUID: "",
-      originUUID: "",
-      name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-      locale: {
+    ],
+    [
+      "optional fields",
+      {
         UUID: randomUUID(),
-        name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+        previousUUID: "",
+        originUUID: "",
+        name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        locale: {
+          UUID: randomUUID(),
+          name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+          shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+        },
+        description: "",
+        released: false,
+        releaseNotes: "",
+        importProcessState: getMockObjectId(2),
+        version: "",
       },
-      description: "",
-      released: false,
-      releaseNotes: "",
-      importProcessState: getMockObjectId(2),
-      version: "",
-    };
+    ],
+  ])("Successfully validate the modelInfo with %s", async (description, givenObject: IModelInfoDoc) => {
+    // GIVEN an ModelInfoModel model
+    const givenModelInfoModel = new ModelInfoModel(givenObject);
 
-    // WHEN validating that object using the ModelInfoModel
-    const actualModelInfoValid = new ModelInfoModel(givenObject);
+    // WHEN validating the given model
+    const actualValidationErrors = givenModelInfoModel.validateSync();
 
-    // THEN expect it to validate successfully
-    const errors = actualModelInfoValid.validateSync();
-    // @ts-ignore
-    expect(errors).toBeUndefined();
+    // THEN expect it to validate without any error
+    expect(actualValidationErrors).toBeUndefined();
+
+    // AND the document to be saved successfully
+    await givenModelInfoModel.save();
+
+    // AND the toObject() transformation to return the correct properties
+    expect(givenModelInfoModel.toObject()).toEqual({
+      ...givenObject,
+      id: givenModelInfoModel._id.toString(),
+      importProcessState: givenObject.importProcessState.toString(),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
   });
 
   describe("Validate the modelInfo fields", () => {

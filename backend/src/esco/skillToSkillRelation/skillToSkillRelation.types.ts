@@ -15,9 +15,6 @@ export interface ISkillToSkillRelationPairDoc {
   requiredSkillId: mongoose.Types.ObjectId;
   requiredSkillDocModel: MongooseModelName;
   relationType: RelationType;
-
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -29,6 +26,8 @@ export interface ISkillToSkillRelationPair
   modelId: string;
   requiringSkillId: string;
   requiredSkillId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
