@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
 import { populateSkillGroupChildrenOptions, populateSkillGroupParentsOptions } from "./populateSkillHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { SkillGroupModelPaths } from "./skillGroupModel";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -58,7 +59,10 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         UUID: randomUUID(),
       });
       await newSkillGroupModel.save();
-      await newSkillGroupModel.populate([{ path: "parents" }, { path: "children" }]);
+      await newSkillGroupModel.populate([
+        { path: SkillGroupModelPaths.parents },
+        { path: SkillGroupModelPaths.children },
+      ]);
       return newSkillGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -93,7 +97,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       }
       return newSkillGroups.map((skillGroup) => skillGroup.toObject());
     } catch (e: unknown) {
-      const populationOptions = [{ path: "parents" }, { path: "children" }];
+      const populationOptions = [{ path: SkillGroupModelPaths.parents }, { path: SkillGroupModelPaths.children }];
       return handleInsertManyError(e, "SkillGroupRepository.createMany", newSkillGroupSpecs.length, populationOptions);
     }
   }

@@ -16,6 +16,14 @@ import {
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationDoc } from "./occupation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
+import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
+import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
+
+export const OccupationModelPaths = {
+  parent: "parent",
+  children: "children",
+  requiresSkills: "requiresSkills",
+};
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
   // Main Schema
@@ -42,23 +50,23 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(),
     }
   );
-  OccupationSchema.virtual("parent", {
+  OccupationSchema.virtual(OccupationModelPaths.parent, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
-    foreignField: "childId",
+    foreignField: OccupationHierarchyModelPaths.childId,
     match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
     justOne: true,
   });
-  OccupationSchema.virtual("children", {
+  OccupationSchema.virtual(OccupationModelPaths.children, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
-    foreignField: "parentId",
+    foreignField: OccupationHierarchyModelPaths.parentId,
     match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
   });
-  OccupationSchema.virtual("requiresSkills", {
+  OccupationSchema.virtual(OccupationModelPaths.requiresSkills, {
     ref: MongooseModelName.OccupationToSkillRelation,
     localField: "_id",
-    foreignField: "requiringOccupationId",
+    foreignField: OccupationToSkillRelationModelPaths.requiringOccupationId,
     match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
   });
   OccupationSchema.index({ UUID: 1 }, { unique: true });

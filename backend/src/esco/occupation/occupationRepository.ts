@@ -7,6 +7,7 @@ import {
 } from "./populateOccupationHierarchyOptions";
 import { populateOccupationRequiresSkillsOptions } from "./populateOccupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { OccupationModelPaths } from "./occupationModel";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -61,7 +62,11 @@ export class OccupationRepository implements IOccupationRepository {
         UUID: randomUUID(),
       });
       await newOccupationModel.save();
-      await newOccupationModel.populate([{ path: "parent" }, { path: "children" }, { path: "requiresSkills" }]);
+      await newOccupationModel.populate([
+        { path: OccupationModelPaths.parent },
+        { path: OccupationModelPaths.children },
+        { path: OccupationModelPaths.requiresSkills },
+      ]);
       return newOccupationModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -85,7 +90,11 @@ export class OccupationRepository implements IOccupationRepository {
         .filter(Boolean);
       const newOccupations = await this.Model.insertMany(newOccupationModels, {
         ordered: false,
-        populate: [{ path: "parent" }, { path: "children" }, { path: "requiresSkills" }],
+        populate: [
+          { path: OccupationModelPaths.parent },
+          { path: OccupationModelPaths.children },
+          { path: OccupationModelPaths.requiresSkills },
+        ],
       });
       if (newOccupationSpecs.length !== newOccupations.length) {
         console.warn(
@@ -96,7 +105,11 @@ export class OccupationRepository implements IOccupationRepository {
       }
       return newOccupations.map((Occupation) => Occupation.toObject());
     } catch (e: unknown) {
-      const populationOptions = [{ path: "parent" }, { path: "children" }, { path: "requiresSkills" }];
+      const populationOptions = [
+        { path: OccupationModelPaths.parent },
+        { path: OccupationModelPaths.children },
+        { path: OccupationModelPaths.requiresSkills },
+      ];
       return handleInsertManyError<IOccupation>(
         e,
         "OccupationRepository.createMany",

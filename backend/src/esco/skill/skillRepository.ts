@@ -8,6 +8,7 @@ import {
 } from "./populateSkillToSkillRelationOptions";
 import { populateSkillRequiredByOccupationOptions } from "./populateOccupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { SkillModelPaths } from "./skillModel";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -63,11 +64,11 @@ export class SkillRepository implements ISkillRepository {
       });
       await newSkillModel.save();
       await newSkillModel.populate([
-        { path: "parents" },
-        { path: "children" },
-        { path: "requiresSkills" },
-        { path: "requiredBySkills" },
-        { path: "requiredByOccupations" },
+        { path: SkillModelPaths.parents },
+        { path: SkillModelPaths.children },
+        { path: SkillModelPaths.requiresSkills },
+        { path: SkillModelPaths.requiredBySkills },
+        { path: SkillModelPaths.requiredByOccupations },
       ]);
       return newSkillModel.toObject();
     } catch (e: unknown) {
@@ -102,11 +103,11 @@ export class SkillRepository implements ISkillRepository {
       return newSkills.map((skill) => skill.toObject());
     } catch (e: unknown) {
       const populationOptions = [
-        { path: "parents" },
-        { path: "children" },
-        { path: "requiresSkills" },
-        { path: "requiredBySkills" },
-        { path: "requiredByOccupations" },
+        { path: SkillModelPaths.parents },
+        { path: SkillModelPaths.children },
+        { path: SkillModelPaths.requiresSkills },
+        { path: SkillModelPaths.requiredBySkills },
+        { path: SkillModelPaths.requiredByOccupations },
       ];
       return handleInsertManyError<ISkill>(e, "SkillRepository.createMany", newSkillSpecs.length, populationOptions);
     }

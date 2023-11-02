@@ -8,13 +8,15 @@ import {
   getSkillHierarchyChildrenReference,
   getSkillHierarchyParentsReference,
 } from "esco/skillHierarchy/populateFunctions";
+import { SkillGroupModelPaths } from "./skillGroupModel";
+import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 
 export const populateSkillGroupParentsOptions = {
-  path: "parents",
+  path: SkillGroupModelPaths.parents,
   populate: {
-    path: "parentId",
+    path: SkillHierarchyModelPaths.parentId,
     transform: function (doc: ModelConstructed & SkillGroupDocument): ISkillGroupReferenceDoc | null {
       // return only the relevant fields
       const modelName = (doc as ModelConstructed).constructor.modelName;
@@ -29,9 +31,9 @@ export const populateSkillGroupParentsOptions = {
 };
 
 export const populateSkillGroupChildrenOptions = {
-  path: "children",
+  path: SkillGroupModelPaths.children,
   populate: {
-    path: "childId",
+    path: SkillHierarchyModelPaths.childId,
     transform: function (
       doc: ModelConstructed & (SkillDocument | SkillGroupDocument)
     ): ISkillReferenceDoc | ISkillGroupReferenceDoc | null {

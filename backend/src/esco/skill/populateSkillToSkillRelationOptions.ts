@@ -6,13 +6,15 @@ import {
   getSkillRequiresSkillsReference,
 } from "esco/skillToSkillRelation/populateFunctions";
 import mongoose from "mongoose";
+import { SkillModelPaths } from "./skillModel";
+import { SkillToSkillRelationModelPaths } from "esco/skillToSkillRelation/skillToSkillRelationModel";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 
 export const populateSkillRequiresSkillsOptions = {
-  path: "requiresSkills",
+  path: SkillModelPaths.requiresSkills,
   populate: {
-    path: "requiredSkillId",
+    path: SkillToSkillRelationModelPaths.requiredSkillId,
     transform: function (doc: ModelConstructed & SkillDocument): ISkillReferenceDoc | null {
       const modelName = (doc as ModelConstructed).constructor.modelName;
       if (modelName === MongooseModelName.Skill) {
@@ -26,9 +28,9 @@ export const populateSkillRequiresSkillsOptions = {
 };
 
 export const populateSkillRequiredBySkillsOptions = {
-  path: "requiredBySkills",
+  path: SkillModelPaths.requiredBySkills,
   populate: {
-    path: "requiringSkillId",
+    path: SkillToSkillRelationModelPaths.requiringSkillId,
     transform: function (doc: ModelConstructed & SkillDocument): ISkillReferenceDoc | null {
       const modelName = (doc as ModelConstructed).constructor.modelName;
       if (modelName === MongooseModelName.Skill) {
