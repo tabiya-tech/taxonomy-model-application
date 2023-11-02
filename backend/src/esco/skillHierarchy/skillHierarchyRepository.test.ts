@@ -23,6 +23,7 @@ import {
 } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
+import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 
 describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -382,8 +383,16 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+
+      const handleInsertManyErrorSpy = jest.spyOn(HandleInsertManyErrors, "handleInsertManyError");
       // AND the following hierarchy
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
+        {
+          parentId: givenGroup_1.id,
+          parentType: ObjectTypes.SkillGroup,
+          childId: givenSkill_1.id,
+          childType: ObjectTypes.Skill,
+        },
         {
           parentId: givenGroup_1.id,
           parentType: ObjectTypes.SkillGroup,
@@ -394,12 +403,26 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
 
       // WHEN updating the hierarchy of the SkillGroups
       const actualNewSkillHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
+      // THEN expect only the first entity to be created
       expect(actualNewSkillHierarchy).toHaveLength(1);
-      // AND adding the same hierarchy again
-      const actualNewSkillHierarchy_2 = await repository.createMany(givenModelId, givenNewHierarchySpecs);
-
-      // THEN expect no new entries to be created
-      expect(actualNewSkillHierarchy_2).toHaveLength(0);
+      // AND expect the error handler function to have been called
+      expect(handleInsertManyErrorSpy).toHaveBeenCalled();
+      // AND expect the created entry to be valid
+      expect(actualNewSkillHierarchy).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...givenNewHierarchySpecs[0],
+            id: expect.any(String),
+            modelId: givenModelId,
+            childDocModel: MongooseModelName.Skill,
+            parentDocModel: MongooseModelName.SkillGroup,
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date),
+          }),
+        ])
+      );
+      // cleanup the mock
+      handleInsertManyErrorSpy.mockRestore();
     });
 
     test("should throw an error if the modelId is invalid", async () => {
