@@ -8,8 +8,9 @@ import {
   IOccupationToSkillRelationPair,
   IOccupationToSkillRelationPairDoc,
 } from "./occupationToSkillRelation.types";
+import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { IOccupationDoc } from "esco/occupation/occupation.types";
-import { getModelName } from "../common/mongooseModelNames";
+import { getModelName } from "esco/common/mongooseModelNames";
 
 export interface IOccupationToSkillRelationRepository {
   readonly relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>;
@@ -104,24 +105,11 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
       }
       return newRelations.map((pair) => pair.toObject());
     } catch (e: unknown) {
-      // If the error is a bulk write error, we can still return the created documents
-      // Such an error will occur if a unique index is violated
-      if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
-        console.warn(
-          `OccupationToSkillRelationRepository.createMany: ${
-            newOccupationToSkillRelationPairSpecs.length - bulkWriteError.insertedDocs.length
-          } invalid entries were not created`,
-          e
-        );
-        const newRelation: IOccupationToSkillRelationPair[] = [];
-        for await (const doc of bulkWriteError.insertedDocs) {
-          newRelation.push(doc.toObject());
-        }
-        return newRelation;
-      }
-      console.error("batch create failed", e);
-      throw e;
+      return handleInsertManyError<IOccupationToSkillRelationPair>(
+        e,
+        "OccupationToSKillRelationRepository.createMany",
+        newOccupationToSkillRelationPairSpecs.length
+      );
     }
   }
 }

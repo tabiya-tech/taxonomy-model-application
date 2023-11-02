@@ -10,6 +10,7 @@ import {
 
 import { isNewOccupationHierarchyPairSpecValid } from "./occupationHierarchyValidation";
 import { getModelName } from "esco/common/mongooseModelNames";
+import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 
 export interface IOccupationHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
@@ -91,19 +92,11 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       });
       return newHierarchy.map((pair) => pair.toObject());
     } catch (e: unknown) {
-      // If the error is a bulk write error, we can still return the created documents
-      // Such an error will occur if a unique index is violated
-      if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        console.warn("some hierarchy could not be created", e);
-        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
-        const newHierarchy: IOccupationHierarchyPair[] = [];
-        for await (const doc of bulkWriteError.insertedDocs) {
-          newHierarchy.push(doc.toObject());
-        }
-        return newHierarchy;
-      }
-      console.error("batch create failed", e);
-      throw e;
+      return handleInsertManyError<IOccupationHierarchyPair>(
+        e,
+        "OccupationHierarchyRepository.createMany",
+        newOccupationHierarchyPairSpecs.length
+      );
     }
   }
 }
