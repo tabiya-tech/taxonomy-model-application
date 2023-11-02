@@ -13,6 +13,12 @@ import { ISkillGroupDoc } from "./skillGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { stringRequired } from "server/stringRequired";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
+import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
+
+export const SkillGroupModelPaths = {
+  parents: "parents",
+  children: "children",
+};
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroupDoc> {
   // Main Schema
@@ -46,17 +52,17 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     }
   );
 
-  SkillGroupSchema.virtual("parents", {
-    ref: "SkillHierarchyModel",
+  SkillGroupSchema.virtual(SkillGroupModelPaths.parents, {
+    ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
-    foreignField: "childId",
+    foreignField: SkillHierarchyModelPaths.childId,
     match: (skillGroup: ISkillGroupDoc) => ({ modelId: skillGroup.modelId }),
   });
 
-  SkillGroupSchema.virtual("children", {
-    ref: "SkillHierarchyModel",
+  SkillGroupSchema.virtual(SkillGroupModelPaths.children, {
+    ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
-    foreignField: "parentId",
+    foreignField: SkillHierarchyModelPaths.parentId,
     match: (skillGroup: ISkillGroupDoc) => ({ modelId: skillGroup.modelId }),
   });
 

@@ -4,6 +4,11 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "./skillHierarchy.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
+export const SkillHierarchyModelPaths = {
+  parentId: "parentId",
+  childId: "childId",
+};
+
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillHierarchyPairDoc> {
   // Main Schema
   const SkillHierarchySchema = new mongoose.Schema<ISkillHierarchyPairDoc>(
@@ -11,8 +16,16 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       parentType: { type: String, required: true, enum: [ObjectTypes.Skill, ObjectTypes.SkillGroup] },
       parentDocModel: { type: String, required: true, enum: [MongooseModelName.Skill, MongooseModelName.SkillGroup] },
-      parentId: { type: mongoose.Schema.Types.ObjectId, refPath: "parentDocModel", required: true },
-      childId: { type: mongoose.Schema.Types.ObjectId, refPath: "childDocModel", required: true },
+      [SkillHierarchyModelPaths.parentId]: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: "parentDocModel",
+        required: true,
+      },
+      [SkillHierarchyModelPaths.childId]: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: "childDocModel",
+        required: true,
+      },
       childType: { type: String, required: true, enum: [ObjectTypes.Skill, ObjectTypes.SkillGroup] },
       childDocModel: { type: String, required: true, enum: [MongooseModelName.Skill, MongooseModelName.SkillGroup] },
     },

@@ -14,6 +14,17 @@ import { stringRequired } from "server/stringRequired";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
+import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
+import { SkillToSkillRelationModelPaths } from "esco/skillToSkillRelation/skillToSkillRelationModel";
+import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
+
+export const SkillModelPaths = {
+  parents: "parents",
+  children: "children",
+  requiresSkills: "requiresSkills",
+  requiredBySkills: "requiredBySkills",
+  requiredByOccupations: "requiredByOccupations",
+};
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillDoc> {
   // Main Schema
@@ -47,34 +58,34 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(),
     }
   );
-  SkillSchema.virtual("parents", {
+  SkillSchema.virtual(SkillModelPaths.parents, {
     ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
-    foreignField: "childId",
+    foreignField: SkillHierarchyModelPaths.childId,
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
-  SkillSchema.virtual("children", {
+  SkillSchema.virtual(SkillModelPaths.children, {
     ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
-    foreignField: "parentId",
+    foreignField: SkillHierarchyModelPaths.parentId,
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
-  SkillSchema.virtual("requiresSkills", {
+  SkillSchema.virtual(SkillModelPaths.requiresSkills, {
     ref: MongooseModelName.SkillToSkillRelation,
     localField: "_id",
-    foreignField: "requiringSkillId",
+    foreignField: SkillToSkillRelationModelPaths.requiringSkillId,
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
-  SkillSchema.virtual("requiredBySkills", {
+  SkillSchema.virtual(SkillModelPaths.requiredBySkills, {
     ref: MongooseModelName.SkillToSkillRelation,
     localField: "_id",
-    foreignField: "requiredSkillId",
+    foreignField: SkillToSkillRelationModelPaths.requiredSkillId,
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
-  SkillSchema.virtual("requiredByOccupations", {
+  SkillSchema.virtual(SkillModelPaths.requiredByOccupations, {
     ref: MongooseModelName.OccupationToSkillRelation,
     localField: "_id",
-    foreignField: "requiredSkillId",
+    foreignField: OccupationToSkillRelationModelPaths.requiredSkillId,
     match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
   });
   SkillSchema.index({ UUID: 1 }, { unique: true });

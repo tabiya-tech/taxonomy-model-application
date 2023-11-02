@@ -9,13 +9,15 @@ import {
   getOccupationHierarchyChildReference,
   getOccupationHierarchyParentReference,
 } from "esco/occupationHierarchy/populateFunctions";
+import { OccupationModelPaths } from "./occupationModel";
+import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 
 export const populateOccupationParentOptions = {
-  path: "parent",
+  path: OccupationModelPaths.parent,
   populate: {
-    path: "parentId",
+    path: OccupationHierarchyModelPaths.parentId,
     transform: function (
       doc: ModelConstructed & (ISCOGroupDocument | OccupationDocument)
     ): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
@@ -37,9 +39,9 @@ export const populateOccupationParentOptions = {
 };
 
 export const populateOccupationChildrenOptions = {
-  path: "children",
+  path: OccupationModelPaths.children,
   populate: {
-    path: "childId",
+    path: OccupationHierarchyModelPaths.childId,
     transform: function (doc: ModelConstructed & OccupationDocument): IOccupationReferenceDoc | null {
       // return only the relevant fields
       const modelName = (doc as ModelConstructed).constructor.modelName;

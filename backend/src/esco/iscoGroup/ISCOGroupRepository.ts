@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { IISCOGroup, IISCOGroupDoc, INewISCOGroupSpec } from "./ISCOGroup.types";
 import { populateISCOGroupChildrenOptions, populateISCOGroupParentOptions } from "./populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { ISCOGroupModelPaths } from "./ISCOGroupModel";
 
 export interface IISCOGroupRepository {
   readonly Model: mongoose.Model<IISCOGroupDoc>;
@@ -57,7 +58,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         UUID: randomUUID(),
       });
       await newISCOGroupModel.save();
-      await newISCOGroupModel.populate([{ path: "parent" }, { path: "children" }]);
+      await newISCOGroupModel.populate([{ path: ISCOGroupModelPaths.parent }, { path: ISCOGroupModelPaths.children }]);
       return newISCOGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -81,7 +82,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         .filter(Boolean);
       const newISCOGroups = await this.Model.insertMany(newISCOGroupModels, {
         ordered: false,
-        populate: ["parent", "children"],
+        populate: [ISCOGroupModelPaths.parent, ISCOGroupModelPaths.children],
       });
       if (newISCOGroupSpecs.length !== newISCOGroups.length) {
         console.warn(
@@ -92,7 +93,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       }
       return newISCOGroups.map((iscoGroup) => iscoGroup.toObject());
     } catch (e: unknown) {
-      const populationOptions = [{ path: "parent" }, { path: "children" }];
+      const populationOptions = [{ path: ISCOGroupModelPaths.parent }, { path: ISCOGroupModelPaths.children }];
       return handleInsertManyError<IISCOGroup>(
         e,
         "ISCOGroupRepository.createMany",

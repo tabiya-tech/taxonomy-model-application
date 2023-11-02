@@ -3,13 +3,15 @@ import mongoose from "mongoose";
 import { getOccupationDocReference, OccupationDocument } from "esco/occupation/occupationReference";
 import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
 import { getSkillRequiredByOccupationReference } from "esco/occupationToSkillRelation/populateFunctions";
+import { SkillModelPaths } from "./skillModel";
+import { OccupationToSkillRelationModelPaths } from "../occupationToSkillRelation/occupationToSkillRelationModel";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 
 export const populateSkillRequiredByOccupationOptions = {
-  path: "requiredByOccupations",
+  path: SkillModelPaths.requiredByOccupations,
   populate: {
-    path: "requiringOccupationId",
+    path: OccupationToSkillRelationModelPaths.requiringOccupationId,
     transform: function (doc: ModelConstructed & OccupationDocument): IOccupationReferenceDoc | null {
       const modelName = (doc as ModelConstructed).constructor.modelName;
       if (modelName === MongooseModelName.Occupation) {

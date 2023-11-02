@@ -4,6 +4,11 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
+export const OccupationHierarchyModelPaths = {
+  parentId: "parentId",
+  childId: "childId",
+};
+
 export function initializeSchemaAndModel(
   dbConnection: mongoose.Connection
 ): mongoose.Model<IOccupationHierarchyPairDoc> {
@@ -21,12 +26,12 @@ export function initializeSchemaAndModel(
         required: true,
         enum: [MongooseModelName.Occupation, MongooseModelName.ISCOGroup],
       },
-      parentId: {
+      [OccupationHierarchyModelPaths.parentId]: {
         type: mongoose.Schema.Types.ObjectId,
         refPath: "parentDocModel",
         required: true,
       },
-      childId: {
+      [OccupationHierarchyModelPaths.childId]: {
         type: mongoose.Schema.Types.ObjectId,
         refPath: "childDocModel",
         required: true,

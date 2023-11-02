@@ -12,6 +12,12 @@ import {
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IISCOGroupDoc } from "./ISCOGroup.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
+import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
+
+export const ISCOGroupModelPaths = {
+  parent: "parent",
+  children: "children",
+};
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IISCOGroupDoc> {
   // Main Schema
@@ -34,17 +40,17 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(),
     }
   );
-  ISCOGroupSchema.virtual("parent", {
-    ref: "OccupationHierarchyModel",
+  ISCOGroupSchema.virtual(ISCOGroupModelPaths.parent, {
+    ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
-    foreignField: "childId",
+    foreignField: OccupationHierarchyModelPaths.childId,
     match: (iscoGroup: IISCOGroupDoc) => ({ modelId: iscoGroup.modelId }),
     justOne: true,
   });
-  ISCOGroupSchema.virtual("children", {
-    ref: "OccupationHierarchyModel",
+  ISCOGroupSchema.virtual(ISCOGroupModelPaths.children, {
+    ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
-    foreignField: "parentId",
+    foreignField: OccupationHierarchyModelPaths.parentId,
     match: (iscoGroup: IISCOGroupDoc) => ({ modelId: iscoGroup.modelId }),
   });
 
