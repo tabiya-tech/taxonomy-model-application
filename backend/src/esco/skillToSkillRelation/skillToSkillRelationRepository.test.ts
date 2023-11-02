@@ -16,6 +16,7 @@ import { INewSkillToSkillPairSpec, ISkillToSkillRelationPair } from "./skillToSk
 import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
 import { expectedRelatedSkillReference } from "esco/_test_utilities/expectedReference";
+import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 
 describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -169,6 +170,8 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
 
+      const handleInsertManyErrorSpy = jest.spyOn(HandleInsertManyErrors, "handleInsertManyError");
+      // AND the following specs
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [
         {
           requiringSkillId: givenSkill_1.id,
@@ -187,6 +190,24 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
 
       // THEN expect only one new entry to be created, as the second one is a duplicate
       expect(actualNewSkillToSkillRelations).toHaveLength(1);
+      // AND expect the error handler function to have been called
+      expect(handleInsertManyErrorSpy).toHaveBeenCalled();
+      // AND expect the created entry to be valid
+      expect(actualNewSkillToSkillRelations).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...givenNewRelationSpecs[0],
+            id: expect.any(String),
+            modelId: givenModelId,
+            requiringSkillDocModel: MongooseModelName.Skill,
+            requiredSkillDocModel: MongooseModelName.Skill,
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date),
+          }),
+        ])
+      );
+      // cleanup the mock
+      handleInsertManyErrorSpy.mockRestore();
     });
 
     test("should throw an error if the modelId is invalid", async () => {
@@ -305,7 +326,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     };
 
     TestDBConnectionFailure<SetupResult, unknown>(
-      async (setupResult) => {
+      async () => {
         // GIVEN 4 Skills exist in the database in the same model
         const givenModelId = getMockStringId(1);
         const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));

@@ -23,6 +23,7 @@ import {
 } from "esco/_test_utilities/expectedReference";
 import { IOccupationToSkillRelationRepository } from "./occupationToSkillRelationRepository";
 import { INewOccupationToSkillPairSpec, IOccupationToSkillRelationPair } from "./occupationToSkillRelation.types";
+import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 
 describe("Test the OccupationToSkillRelation Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -204,6 +205,8 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
 
+      const handleInsertManyErrorSpy = jest.spyOn(HandleInsertManyErrors, "handleInsertManyError");
+
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: givenOccupation_1.id,
@@ -224,6 +227,24 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
 
       // THEN expect only one new entry to be created, as the second one is a duplicate
       expect(actualNewOccupationToSkillRelations).toHaveLength(1);
+      // AND expect the error handler function to have been called
+      expect(handleInsertManyErrorSpy).toHaveBeenCalled();
+      // AND expect the created entry to be valid
+      expect(actualNewOccupationToSkillRelations).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...givenNewRelationSpecs[0],
+            id: expect.any(String),
+            modelId: givenModelId,
+            requiringOccupationDocModel: MongooseModelName.Occupation,
+            requiredSkillDocModel: MongooseModelName.Skill,
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date),
+          }),
+        ])
+      );
+      // cleanup the mock
+      handleInsertManyErrorSpy.mockRestore();
     });
 
     test("should throw an error if the modelId is invalid", async () => {
@@ -348,7 +369,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
     };
 
     TestDBConnectionFailure<SetupResult, unknown>(
-      async (setupResult) => {
+      async () => {
         // GIVEN 4 Skills exist in the database in the same model
         const givenModelId = getMockStringId(1);
         const givenOccupation_1 = await repositoryRegistry.occupation.create(
