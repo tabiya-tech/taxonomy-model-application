@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { IISCOGroup, IISCOGroupDoc, INewISCOGroupSpec } from "./ISCOGroup.types";
 import { populateISCOGroupChildrenOptions, populateISCOGroupParentOptions } from "./populateOccupationHierarchyOptions";
+import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 
 export interface IISCOGroupRepository {
   readonly Model: mongoose.Model<IISCOGroupDoc>;
@@ -91,25 +92,13 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       }
       return newISCOGroups.map((iscoGroup) => iscoGroup.toObject());
     } catch (e: unknown) {
-      // If the error is a bulk write error, we can still return the created documents
-      // Such an error will occur if a unique index is violated
-      if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
-        console.warn(
-          `ISCOGroupRepository.createMany: ${
-            newISCOGroupSpecs.length - bulkWriteError.insertedDocs.length
-          } invalid entries were not created`,
-          e
-        );
-        const newISCOGroups: IISCOGroup[] = [];
-        for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate([{ path: "parent" }, { path: "children" }]);
-          newISCOGroups.push(doc.toObject());
-        }
-        return newISCOGroups;
-      }
-      console.error("batch create failed", e);
-      throw e;
+      const populationOptions = [{ path: "parent" }, { path: "children" }];
+      return handleInsertManyError<IISCOGroup>(
+        e,
+        "ISCOGroupRepository.createMany",
+        newISCOGroupSpecs.length,
+        populationOptions
+      );
     }
   }
 

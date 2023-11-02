@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
 import { populateSkillGroupChildrenOptions, populateSkillGroupParentsOptions } from "./populateSkillHierarchyOptions";
+import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -92,26 +93,8 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       }
       return newSkillGroups.map((skillGroup) => skillGroup.toObject());
     } catch (e: unknown) {
-      // If the error is a bulk write error, we can still return the created documents
-      // Such an error will occur if a unique index is violated
-      if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
-        console.warn(
-          `SkillGroupRepository.createMany: ${
-            newSkillGroupSpecs.length - bulkWriteError.insertedDocs.length
-          } invalid entries were not created`,
-          e
-        );
-        const newSkillGroups: ISkillGroup[] = [];
-        for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate("parents");
-          await doc.populate("children");
-          newSkillGroups.push(doc.toObject());
-        }
-        return newSkillGroups;
-      }
-      console.error("batch create failed", e);
-      throw e;
+      const populationOptions = [{ path: "parents" }, { path: "children" }];
+      return handleInsertManyError(e, "SkillGroupRepository.createMany", newSkillGroupSpecs.length, populationOptions);
     }
   }
 

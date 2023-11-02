@@ -5,6 +5,7 @@ import { INewSkillHierarchyPairSpec, ISkillHierarchyPair, ISkillHierarchyPairDoc
 import { ISkillGroupDoc } from "esco/skillGroup/skillGroup.types";
 import { isNewSkillHierarchyPairSpecValid } from "./skillHierarchyValidation";
 import { getModelName } from "esco/common/mongooseModelNames";
+import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 
 export interface ISkillHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
@@ -89,24 +90,11 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
       }
       return newHierarchy.map((pair) => pair.toObject());
     } catch (e: unknown) {
-      // If the error is a bulk write error, we can still return the created documents
-      // Such an error will occur if a unique index is violated
-      if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
-        console.warn(
-          `SkillHierarchyRepository.createMany: ${
-            newSkillHierarchyPairSpecs.length - bulkWriteError.insertedDocs.length
-          } invalid entries were not created`,
-          e
-        );
-        const newHierarchy: ISkillHierarchyPair[] = [];
-        for await (const doc of bulkWriteError.insertedDocs) {
-          newHierarchy.push(doc.toObject());
-        }
-        return newHierarchy;
-      }
-      console.error("batch create failed", e);
-      throw e;
+      return handleInsertManyError<ISkillHierarchyPair>(
+        e,
+        "SkillHierarchyRepository.createMany",
+        newSkillHierarchyPairSpecs.length
+      );
     }
   }
 }

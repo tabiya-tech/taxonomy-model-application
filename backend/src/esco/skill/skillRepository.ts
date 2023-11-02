@@ -7,6 +7,7 @@ import {
   populateSkillRequiresSkillsOptions,
 } from "./populateSkillToSkillRelationOptions";
 import { populateSkillRequiredByOccupationOptions } from "./populateOccupationToSkillRelationOptions";
+import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -100,31 +101,14 @@ export class SkillRepository implements ISkillRepository {
       }
       return newSkills.map((skill) => skill.toObject());
     } catch (e: unknown) {
-      // If the error is a bulk write error, we can still return the created documents
-      // Such an error will occur if a unique index is violated
-      if ((e as { name?: string }).name === "MongoBulkWriteError") {
-        const bulkWriteError = e as mongoose.mongo.MongoBulkWriteError;
-        console.warn(
-          `SkillRepository.createMany: ${
-            newSkillSpecs.length - bulkWriteError.insertedDocs.length
-          } invalid entries were not created`,
-          e
-        );
-        const newSkills: ISkill[] = [];
-        for await (const doc of bulkWriteError.insertedDocs) {
-          await doc.populate([
-            { path: "parents" },
-            { path: "children" },
-            { path: "requiresSkills" },
-            { path: "requiredBySkills" },
-            { path: "requiredByOccupations" },
-          ]);
-          newSkills.push(doc.toObject());
-        }
-        return newSkills;
-      }
-      console.error("batch create failed", e);
-      throw e;
+      const populationOptions = [
+        { path: "parents" },
+        { path: "children" },
+        { path: "requiresSkills" },
+        { path: "requiredBySkills" },
+        { path: "requiredByOccupations" },
+      ];
+      return handleInsertManyError<ISkill>(e, "SkillRepository.createMany", newSkillSpecs.length, populationOptions);
     }
   }
 
