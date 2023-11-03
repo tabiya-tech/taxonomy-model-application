@@ -11,11 +11,13 @@ import {
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { IOccupationDoc } from "esco/occupation/occupation.types";
 import { getModelName } from "esco/common/mongooseModelNames";
+import { ILocalizedOccupationDoc } from "esco/localizedOccupation/localizedOccupation.types";
 
 export interface IOccupationToSkillRelationRepository {
   readonly relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>;
   readonly skillModel: mongoose.Model<ISkillDoc>;
   readonly occupationModel: mongoose.Model<IOccupationDoc>;
+  readonly localizedOccupationModel: mongoose.Model<ILocalizedOccupationDoc>;
 
   /**
    * Creates multiple new OccupationToSkillRelation entries.
@@ -36,15 +38,18 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
   public readonly relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>;
   public readonly skillModel: mongoose.Model<ISkillDoc>;
   public readonly occupationModel: mongoose.Model<IOccupationDoc>;
+  public readonly localizedOccupationModel: mongoose.Model<ILocalizedOccupationDoc>;
 
   constructor(
     relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>,
     skillModel: mongoose.Model<ISkillDoc>,
-    occupationModel: mongoose.Model<IOccupationDoc>
+    occupationModel: mongoose.Model<IOccupationDoc>,
+    localizedOccupationModel: mongoose.Model<ILocalizedOccupationDoc>
   ) {
     this.relationModel = relationModel;
     this.skillModel = skillModel;
     this.occupationModel = occupationModel;
+    this.localizedOccupationModel = localizedOccupationModel;
   }
 
   async createMany(
@@ -74,8 +79,14 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
       _existingOccupationsIds.forEach((occupation) =>
         existingIds.set(occupation._id.toString(), ObjectTypes.Occupation)
       );
-      // get all local occupations
       // get all localized occupations
+      const _existingLocalizedOccupationIds = await this.localizedOccupationModel
+        .find({ modelId: { $eq: modelId } })
+        .select("_id")
+        .exec();
+      _existingLocalizedOccupationIds.forEach((localizedOccupation) =>
+        existingIds.set(localizedOccupation._id.toString(), ObjectTypes.Occupation)
+      );
 
       const newOccupationToSkillRelationPairModels = newOccupationToSkillRelationPairSpecs
         .filter((spec) => isNewOccupationToSkillRelationPairSpecValid(spec, existingIds))

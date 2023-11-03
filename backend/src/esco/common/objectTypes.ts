@@ -16,6 +16,16 @@ export enum RelationType {
   OPTIONAL = "optional",
 }
 
+/**
+ * Describes the three Types of Occupations
+ */
+
+export enum OccupationType {
+  ESCO = "ESCO",
+  LOCAL = "LOCAL",
+  LOCALIZED = "LOCALIZED",
+}
+
 export type ReferenceWithRelationType<T> = T & {
   relationType: RelationType;
 };

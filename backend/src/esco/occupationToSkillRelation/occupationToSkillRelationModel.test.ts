@@ -9,7 +9,7 @@ import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { testDocModel, testObjectIdField, testObjectType } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
 import { IOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
 
 describe("Test the definition of the OccupationToSkillRelation Model", () => {
@@ -39,7 +39,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       requiringOccupationDocModel: MongooseModelName.Occupation,
       requiringOccupationId: getMockObjectId(2),
       relationType: RelationType.OPTIONAL,
-      requiringOccupationType: ObjectTypes.Occupation,
+      requiringOccupationType: OccupationType.ESCO,
     };
     const givenOccupationToSkillRelationDocument = new OccupationToSkillRelationModel(givenObject);
 
@@ -70,10 +70,6 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
     testObjectIdField<IOccupationToSkillRelationPairDoc>(() => OccupationToSkillRelationModel, "requiringOccupationId");
 
     testObjectIdField<IOccupationToSkillRelationPairDoc>(() => OccupationToSkillRelationModel, "requiredSkillId");
-
-    testObjectType<IOccupationToSkillRelationPairDoc>(() => OccupationToSkillRelationModel, "requiringOccupationType", [
-      ObjectTypes.Occupation,
-    ]);
 
     testDocModel<IOccupationToSkillRelationPairDoc>(
       () => OccupationToSkillRelationModel,
@@ -106,7 +102,9 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       [CaseType.Failure, undefined, "Path `requiringOccupationType` is required."],
       [CaseType.Failure, null, "Path `requiringOccupationType` is required."],
       [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `requiringOccupationType`."],
-      [CaseType.Success, ObjectTypes.Occupation, undefined],
+      [CaseType.Success, OccupationType.ESCO, undefined],
+      [CaseType.Success, OccupationType.LOCALIZED, undefined],
+      [CaseType.Success, OccupationType.LOCAL, undefined],
     ])(`(%s) Validate 'requiringOccupationType' when it is %s`, (caseType: CaseType, value, expectedFailureMessage) => {
       assertCaseForProperty<IOccupationToSkillRelationPairDoc>(
         OccupationToSkillRelationModel,

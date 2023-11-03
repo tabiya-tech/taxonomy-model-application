@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { isSpecified } from "server/isUnspecified";
 import { stringRequired } from "server/stringRequired";
 import { RegExp_UUIDv4 } from "server/regex";
-import { OccupationType } from "../occupation/occupation.types";
+import { OccupationType } from "esco/common/objectTypes";
 
 // check for unique values in an array
 export function hasUniqueValues<T>(value: T[]) {

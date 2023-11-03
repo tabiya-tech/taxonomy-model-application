@@ -21,8 +21,9 @@ import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
-import { IOccupationDoc, OccupationType } from "./occupation.types";
+import { IOccupationDoc } from "./occupation.types";
 import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { OccupationType } from "esco/common/objectTypes";
 
 describe("Test the definition of the Occupation Model", () => {
   let dbConnection: Connection;

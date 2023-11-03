@@ -13,7 +13,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationReference } from "./occupation.types";
 import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getNewISCOGroupSpec,
@@ -125,12 +125,24 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a valid OccupationSpec
       const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
 
-      // WHEN Creating a new ISCOGroup with given specifications
+      // WHEN Creating a new occupation with given specifications
       const actualNewOccupation: INewOccupationSpec = await repository.create(givenNewOccupationSpec);
 
-      // THEN expect the new ISCOGroup to be created with the specific attributes
+      // THEN expect the new occupation to be created with the specific attributes
       const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec);
       expect(actualNewOccupation).toEqual(expectedNewISCO);
+    });
+
+    test("should successfully create a new LocalOccupation", async () => {
+      // GIVEN a valid OccupationSpec
+      const givenNewLocalOccupationSpec: INewOccupationSpec = getNewOccupationSpec(true);
+
+      // WHEN Creating a new occupation with given specifications
+      const actualNewLocalOccupation: INewOccupationSpec = await repository.create(givenNewLocalOccupationSpec);
+
+      // THEN expect the new occupation to be created with the specific attributes
+      const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewLocalOccupationSpec);
+      expect(actualNewLocalOccupation).toEqual(expectedNewISCO);
     });
 
     test("should reject with an error when creating a model and providing a UUID", async () => {
@@ -252,7 +264,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       );
     });
 
-    test("should resolve to an empty array if none of the element could be validated", async () => {
+    test("should resolve to an empty array if none of the elements could be validated", async () => {
       // GIVEN only invalid OccupationSpec
       const givenBatchSize = 3;
       const givenValidOccupationSpecs: INewOccupationSpec[] = [];
@@ -728,13 +740,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const actualRequiresSkills = await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
         {
           requiringOccupationId: givenSubject.id,
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiredSkillId: givenSkill_1.id,
           relationType: RelationType.ESSENTIAL,
         },
         {
           requiringOccupationId: givenSubject.id,
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiredSkillId: givenSkill_2.id,
           relationType: RelationType.OPTIONAL,
         },
@@ -777,7 +789,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiringOccupationDocModel: MongooseModelName.Occupation,
 
           requiredSkillId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
@@ -814,7 +826,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiringOccupationDocModel: MongooseModelName.Occupation,
 
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
@@ -846,7 +858,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiringOccupationDocModel: MongooseModelName.Occupation,
 
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { OccupationType, RelationType } from "esco/common/objectTypes";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
 import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
 
@@ -10,7 +10,7 @@ import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
 export interface IOccupationToSkillRelationPairDoc {
   modelId: mongoose.Types.ObjectId;
 
-  requiringOccupationType: ObjectTypes.Occupation; // LocalOccupation | LocalizedOccupation ;
+  requiringOccupationType: OccupationType;
   requiringOccupationId: mongoose.Types.ObjectId;
   requiringOccupationDocModel: MongooseModelName;
 

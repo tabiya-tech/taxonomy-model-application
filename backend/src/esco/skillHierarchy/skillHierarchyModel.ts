@@ -37,7 +37,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     }
   );
   SkillHierarchySchema.index({ modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 }, { unique: true });
-  SkillHierarchySchema.index({ modelId: 1, parentId: 1 });// Needed from the virtual children field that is populated via the populateSkillChildrenOptions
+  SkillHierarchySchema.index({ modelId: 1, parentId: 1 }); // Needed from the virtual children field that is populated via the populateSkillChildrenOptions
   SkillHierarchySchema.index({ modelId: 1, childId: 1 }); // Needed from the virtual parents field that is populated via the populateSkillParentsOptions
 
   // Model

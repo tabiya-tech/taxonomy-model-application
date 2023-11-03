@@ -9,8 +9,8 @@ import {
   getOccupationHierarchyChildReference,
   getOccupationHierarchyParentReference,
 } from "esco/occupationHierarchy/populateFunctions";
-import { OccupationModelPaths } from "./occupationModel";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
+import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 

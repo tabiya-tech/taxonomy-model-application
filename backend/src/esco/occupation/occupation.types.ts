@@ -1,17 +1,7 @@
-import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco/common/objectTypes";
+import { ImportIdentifiable, ObjectTypes, OccupationType, ReferenceWithRelationType } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
-
-/**
- * Describes the three Types of Occupations
- */
-
-export enum OccupationType {
-  ESCO = "ESCO",
-  LOCAL = "LOCAL",
-  LOCALIZED = "LOCALIZED",
-}
 
 /**
  * Describes how an occupation is saved in MongoDB
@@ -35,7 +25,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
 /**
  * Describes how occupations are return from the API
  */
-export interface IOccupation extends Omit<IOccupationDoc, "id" | "modelId"> {
+export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
   id: string;
   modelId: string;
   parent: IISCOGroupReference | IOccupationReference | null;
