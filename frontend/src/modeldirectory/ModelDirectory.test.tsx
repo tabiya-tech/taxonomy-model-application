@@ -146,8 +146,15 @@ describe("ModelDirectory", () => {
   });
 
   afterEach(() => {
-    // run the timers so that the timers are cleared before the next test
-    jest.runOnlyPendingTimers();
+    // When using fake timers run the timers so that the timers are cleared before the next test.
+    // Currently, there is not a standard way to do check if the fake timers are being used.
+    // The following is a hack to check if the fake timers are being used. See https://github.com/jestjs/jest/issues/10555
+    // In case we runOnlyPendingTimers() when not using fake timer a jest warning will be shown in the console.
+    // @ts-ignore
+    if (typeof jest !== "undefined" && setTimeout.clock != null && typeof setTimeout.clock.Date === "function") {
+      // if fake timers are being used
+      jest.runOnlyPendingTimers();
+    }
     jest.useRealTimers();
   });
 
