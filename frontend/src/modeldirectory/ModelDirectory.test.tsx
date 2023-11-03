@@ -203,6 +203,9 @@ describe("ModelDirectory", () => {
           expect.anything()
         );
       });
+      // AND finally expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
     });
 
     test("should re-render the modelTable when new models are fetched", async () => {
@@ -226,13 +229,22 @@ describe("ModelDirectory", () => {
       // The ModelsTable should be rendered with the default props
       expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
       // AND the ModelsTable should be rendered succeeds at first
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
+
       await waitFor(() => {
         expect(ModelsTable).toHaveBeenNthCalledWith(2, { models: ["foo1"], isLoading: false }, {});
+      });
+      act(() => {
+        jest.advanceTimersToNextTimer();
       });
       await waitFor(() => {
         expect(ModelsTable).toHaveBeenNthCalledWith(3, { models: ["foo2"], isLoading: false }, {});
       });
+      // AND finally expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
     });
 
     test("should not re-render the modelTable when the models fetched are the same as the previous", async () => {
@@ -255,7 +267,10 @@ describe("ModelDirectory", () => {
       expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
 
       // AND the ModelsTable should be rendered with the data returned by the ModelInfoService
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
+
       await waitFor(() => {
         expect(callback).toHaveBeenCalledTimes(1);
       });
@@ -266,7 +281,9 @@ describe("ModelDirectory", () => {
       // AND the ModelsTable should not be re-rendered when the ModelInfoService returns the same data
 
       //  let the timer run and to fetch the data again
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
       await waitFor(() => {
         expect(callback).toHaveBeenCalledTimes(2);
       });
@@ -276,7 +293,9 @@ describe("ModelDirectory", () => {
         const givenMockData = ["bar"] as any;
         onSuccess(givenMockData);
       });
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
       await waitFor(() => {
         expect(callback).toHaveBeenCalledTimes(3);
       });
@@ -284,6 +303,9 @@ describe("ModelDirectory", () => {
       await waitFor(() => {
         expect(ModelsTable).toHaveBeenNthCalledWith(3, { models: ["bar"], isLoading: false }, {});
       });
+      // AND finally expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
     });
 
     test("should show the error message when data fetching fails while the table is loading for the first time", async () => {
@@ -315,6 +337,8 @@ describe("ModelDirectory", () => {
       expect(ModelsTable).toHaveBeenCalledWith({ models: [], isLoading: true }, {});
       // AND the ModelsTable should not be re-rendered
       expect(ModelsTable).toHaveBeenCalledTimes(1);
+      // AND finally expect no warning to have occurred
+      expect(console.warn).not.toHaveBeenCalled();
     });
 
     test("should show the table with the previous data and the error message when data fetching fails after it has succeed once", async () => {
@@ -345,7 +369,10 @@ describe("ModelDirectory", () => {
       // AND the ModelsTable should receive the correct default props
       expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
       // AND WHEN the ModelInfoService succeeds at first
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
+
       await waitFor(() => {
         // THEN expect the ModelsTable to have been called with the correct props
         expect(ModelsTable).toHaveBeenNthCalledWith(
@@ -358,7 +385,10 @@ describe("ModelDirectory", () => {
         );
       });
       // AND WHEN the ModelInfoService fails
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
+
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be shown
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
@@ -368,6 +398,8 @@ describe("ModelDirectory", () => {
       });
       // AND the ModelsTable to have been called with the previous props
       expect(ModelsTable).toHaveBeenLastCalledWith({ models: givenMockData, isLoading: false }, {});
+      // AND finally expect no warning to have occurred
+      expect(console.warn).not.toHaveBeenCalled();
     });
 
     test("should remove error snackbar when fetch model succeeds after it has failed", async () => {
@@ -390,7 +422,10 @@ describe("ModelDirectory", () => {
       render(<ModelDirectory />);
 
       // AND WHEN the ModelInfoService fails at first
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
+
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be shown
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
@@ -400,11 +435,16 @@ describe("ModelDirectory", () => {
       });
 
       // AND WHEN the ModelInfoService succeeds
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
+
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be closed
         expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_ID.INTERNET_ERROR);
       });
+      // AND finally expect no warning to have occurred
+      expect(console.warn).not.toHaveBeenCalled();
     });
 
     test("should clear all the the timers created when the ModelDirectory is unmounted", async () => {
@@ -440,14 +480,18 @@ describe("ModelDirectory", () => {
       const actualModelDirectory = screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE);
       expect(container).toBeInTheDocument();
       // AND expect the model info service to have been called twice (once when the component is mounted and once when the timer fires)
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
       await waitFor(() => {
         expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(2);
       });
       expect(timerIds.length).toBe(2);
 
       // AND WHEN the model info service is called for the third time
-      jest.advanceTimersToNextTimer();
+      act(() => {
+        jest.advanceTimersToNextTimer();
+      });
       await waitFor(() => {
         expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(3);
       });
@@ -463,11 +507,14 @@ describe("ModelDirectory", () => {
       timerIds.forEach((timerId) => {
         expect(clearIntervalSpy).toHaveBeenCalledWith(timerId);
       });
-
       // at the end of the test, the clearInterval spy otherwise the following tests will fail with the error
       //  clearInterval is not defined
       //  ReferenceError: clearInterval is not defined
       clearIntervalSpy.mockRestore();
+
+      // AND finally expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
     });
   });
 
