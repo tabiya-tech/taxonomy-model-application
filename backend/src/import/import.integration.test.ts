@@ -21,7 +21,9 @@ import fs from "fs";
 import { parse } from "csv-parse";
 import { parseSkillToSkillRelationFromFile } from "./esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromFile } from "./esco/occupationToSkillRelation/occupationToSkillRelationParser";
-import { OccupationType } from "esco/occupation/occupation.types";
+import { OccupationType } from "esco/common/objectTypes";
+import { parseLocalizedOccupationsFromFile } from "./esco/localizedOccupations/localizedOccupationsParser";
+import { toBeOdd } from "jest-extended";
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -109,6 +111,11 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       importIdToDBIdMap,
       true
     );
+    const statsLocalizedOccupations = await parseLocalizedOccupationsFromFile(
+      modelInfo.id,
+      dataFolder + "localized_occupations.csv",
+      importIdToDBIdMap
+    );
     const statsOccHierarchy = await parseOccupationHierarchyFromFile(
       modelInfo.id,
       dataFolder + "occupations_hierarchy.csv",
@@ -136,6 +143,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       SkillsCSVRowCount,
       OccupationsCSVRowCount,
       LocalOccupationsCSVRowCount,
+      LocalizedOccupationCSVRowCount,
       OccupationHierarchyCSVRowCount,
       SkillHierarchyCSVRowCount,
       SkillToSkillRelationCSVRowCount,
@@ -146,6 +154,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       countRowsInCSV(dataFolder + "skills.csv"),
       countRowsInCSV(dataFolder + "occupations.csv"),
       countRowsInCSV(dataFolder + "local_occupations.csv"),
+      countRowsInCSV(dataFolder + "localized_occupations.csv"),
       countRowsInCSV(dataFolder + "occupations_hierarchy.csv"),
       countRowsInCSV(dataFolder + "skills_hierarchy.csv"),
       countRowsInCSV(dataFolder + "skill_skill_relations.csv"),
@@ -158,6 +167,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       SkillsDBRowCount,
       OccupationsDBRowCount,
       LocalOccupationsDBRowCount,
+      LocalizedOccupationsDBRowCount,
       OccupationHierarchyDBRowCount,
       SkillHierarchyDBRowCount,
       SkillToSkillRelationDBRowCount,
@@ -168,6 +178,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       getRepositoryRegistry().skill.Model.countDocuments({}),
       getRepositoryRegistry().occupation.Model.countDocuments({ occupationType: OccupationType.ESCO }),
       getRepositoryRegistry().occupation.Model.countDocuments({ occupationType: OccupationType.LOCAL }),
+      getRepositoryRegistry().localizedOccupation.Model.countDocuments({}),
       getRepositoryRegistry().occupationHierarchy.hierarchyModel.countDocuments({}),
       getRepositoryRegistry().skillHierarchy.hierarchyModel.countDocuments({}),
       getRepositoryRegistry().skillToSkillRelation.relationModel.countDocuments({}),
@@ -201,6 +212,13 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       statsLocalOccupations,
       LocalOccupationsCSVRowCount,
       LocalOccupationsDBRowCount,
+      consoleErrorSpy,
+      consoleWarnSpy
+    );
+    assertSuccessfullyImported(
+      statsLocalizedOccupations,
+      LocalizedOccupationCSVRowCount,
+      LocalizedOccupationsDBRowCount,
       consoleErrorSpy,
       consoleWarnSpy
     );

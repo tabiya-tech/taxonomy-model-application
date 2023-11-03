@@ -4,27 +4,22 @@ import {
   AltLabelsProperty,
   DefinitionProperty,
   DescriptionProperty,
-  OccupationCodeProperty,
   ESCOUriProperty,
   ImportIDProperty,
   ISCOCodeProperty,
+  OccupationCodeProperty,
+  OccupationTypeProperty,
   OriginUUIDProperty,
   PreferredLabelProperty,
   RegulatedProfessionNoteProperty,
   ScopeNoteProperty,
-  OccupationTypeProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationDoc } from "./occupation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
-
-export const OccupationModelPaths = {
-  parent: "parent",
-  children: "children",
-  requiresSkills: "requiresSkills",
-};
+import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
   // Main Schema

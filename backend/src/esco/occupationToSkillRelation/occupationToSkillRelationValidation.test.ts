@@ -1,4 +1,4 @@
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
 import * as relationValidationModule from "esco/common/relationValidation";
 import { INewOccupationToSkillPairSpec } from "./occupationToSkillRelation.types";
 import { isNewOccupationToSkillRelationPairSpecValid } from "./occupationToSkillRelationValidation";
@@ -11,7 +11,7 @@ describe("OccupationToSkillsRelationValidation", () => {
       requiringOccupationId: "foo",
       requiredSkillId: "bar",
       relationType: RelationType.ESSENTIAL,
-      requiringOccupationType: ObjectTypes.Occupation,
+      requiringOccupationType: OccupationType.ESCO,
     };
     // AND some existingIds
     const givenExistingIds: Map<string, ObjectTypes> = new Map<string, ObjectTypes>();

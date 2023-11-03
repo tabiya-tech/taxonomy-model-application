@@ -5,6 +5,7 @@ import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";
 import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
 import * as occupationModel from "esco/occupation/occupationModel";
+import * as localizedOccupationModel from "esco/localizedOccupation/localizedOccupationModel";
 import * as occupationHierarchyModel from "esco/occupationHierarchy/occupationHierarchyModel";
 import * as skillHierarchyModel from "esco/skillHierarchy/skillHierarchyModel";
 import * as skillToSkillRelationModel from "esco/skillToSkillRelation/skillToSkillRelationModel";
@@ -33,6 +34,10 @@ import {
   IOccupationToSkillRelationRepository,
   OccupationToSkillRelationRepository,
 } from "esco/occupationToSkillRelation/occupationToSkillRelationRepository";
+import {
+  ILocalizedOccupationRepository,
+  LocalizedOccupationRepository,
+} from "esco/localizedOccupation/localizedOccupationRepository";
 import {
   ExportProcessStateRepository,
   IExportProcessStateRepository,
@@ -80,6 +85,14 @@ export class RepositoryRegistry {
 
   public set occupation(repository: IOccupationRepository) {
     this._repositories.set("IOccupationRepository", repository);
+  }
+
+  public get localizedOccupation(): ILocalizedOccupationRepository {
+    return this._repositories.get("ILocalizedOccupationRepository");
+  }
+
+  public set localizedOccupation(repository: ILocalizedOccupationRepository) {
+    this._repositories.set("ILocalizedOccupationRepository", repository);
   }
 
   public get occupationHierarchy(): IOccupationHierarchyRepository {
@@ -139,6 +152,10 @@ export class RepositoryRegistry {
     this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
     this.occupation = new OccupationRepository(occupationModel.initializeSchemaAndModel(connection));
+    this.localizedOccupation = new LocalizedOccupationRepository(
+      localizedOccupationModel.initializeSchemaAndModel(connection),
+      this.occupation.Model
+    );
     this.occupationHierarchy = new OccupationHierarchyRepository(
       occupationHierarchyModel.initializeSchemaAndModel(connection),
       this.ISCOGroup.Model,
@@ -156,7 +173,8 @@ export class RepositoryRegistry {
     this.occupationToSkillRelation = new OccupationToSkillRelationRepository(
       occupationToSkillRelationModel.initializeSchemaAndModel(connection),
       this.skill.Model,
-      this.occupation.Model
+      this.occupation.Model,
+      this.localizedOccupation.Model
     );
     this.importProcessState = new ImportProcessStateRepository(importStateModel.initializeSchemaAndModel(connection));
     this.exportProcessState = new ExportProcessStateRepository(
@@ -174,6 +192,7 @@ export class RepositoryRegistry {
     await this.skillGroup.Model.createIndexes();
     await this.skill.Model.createIndexes();
     await this.occupation.Model.createIndexes();
+    await this.localizedOccupation.Model.createIndexes();
     await this.occupationHierarchy.hierarchyModel.createIndexes();
     await this.skillHierarchy.hierarchyModel.createIndexes();
     await this.skillToSkillRelation.relationModel.createIndexes();

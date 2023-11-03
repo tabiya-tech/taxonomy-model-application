@@ -1,8 +1,7 @@
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, OccupationType } from "esco/common/objectTypes";
 import { INewOccupationHierarchyPairSpec } from "./occupationHierarchy.types";
 import { isNewOccupationHierarchyPairSpecValid } from "./occupationHierarchyValidation";
 import * as relationValidationModule from "esco/common/relationValidation";
-import { OccupationType } from "esco/occupation/occupation.types";
 
 describe("OccupationHierarchyValidation", () => {
   test.each([OccupationType.ESCO, OccupationType.LOCALIZED])(

@@ -10,12 +10,14 @@ import {
 } from "esco/common/modelSchema";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewOccupationSpec, OccupationType } from "esco/occupation/occupation.types";
+import { INewOccupationSpec } from "esco/occupation/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { randomUUID } from "crypto";
+import { OccupationType } from "esco/common/objectTypes";
+import { INewLocalizedOccupationSpec } from "esco/localizedOccupation/localizedOccupation.types";
 
 /**
  * Helper function to create an INewISCOGroupSpec with random values,
@@ -33,6 +35,7 @@ export function getNewISCOGroupSpec(): INewISCOGroupSpec {
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
+
 /**
  * Helper function to create an INewISCOGroupSpec with simplest possible values,
  * that can be used for creating a new ISCOGroup
@@ -71,6 +74,7 @@ export function getNewOccupationSpec(isLocal: boolean = false): INewOccupationSp
     occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
   };
 }
+
 /**
  * Helper function to create an INewOccupationSpec with simplest possible values,
  * that can be used for creating a new Occupation
@@ -98,6 +102,41 @@ export function getSimpleNewOccupationSpec(
 }
 
 /**
+ * Helper function to create an INewLocalizedOccupationSpec with random values,
+ * that can be used for creating a new Localized Occupation
+ */
+export function getNewLocalizedOccupationSpec(
+  localizedFromId: string = getMockStringId(999)
+): INewLocalizedOccupationSpec {
+  return {
+    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+    modelId: getMockStringId(2),
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    occupationType: OccupationType.LOCALIZED,
+    localizesOccupationId: localizedFromId,
+    importId: getTestString(IMPORT_ID_MAX_LENGTH),
+  };
+}
+
+/**
+ * Helper function to create an INewLocalizedOccupationSpec with the simplest possible values,
+ * that can be used for creating a new Localized Occupation
+ */
+export function getSimpleNewLocalizedOccupationSpec(
+  modelId: string,
+  localizedFromId: string
+): INewLocalizedOccupationSpec {
+  return {
+    altLabels: [],
+    modelId: modelId,
+    description: "",
+    occupationType: OccupationType.LOCALIZED,
+    localizesOccupationId: localizedFromId,
+    importId: "",
+  };
+}
+
+/**
  * Helper function to create an INewSkillGroupSpec with random values,
  * that can be used for creating a new ISkillGroup
  */
@@ -114,6 +153,7 @@ export function getNewSkillGroupSpec(): INewSkillGroupSpec {
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
+
 /**
  * Helper function to create an INewSkillGroupSpec with simplest possible values,
  * that can be used for creating a new Occupation
@@ -151,6 +191,7 @@ export function getNewSkillSpec(): INewSkillSpec {
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
+
 /**
  * Helper function to create an INewSkillSpec with simplest possible values,
  * that can be used for creating a new Occupation

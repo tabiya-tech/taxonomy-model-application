@@ -1,8 +1,7 @@
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, OccupationType } from "esco/common/objectTypes";
 import { isRelationPairValid } from "esco/common/relationValidation";
 import { toRelationshipPairSpec } from "esco/common/hierarchy";
 import { INewOccupationHierarchyPairSpec } from "./occupationHierarchy.types";
-import { OccupationType } from "esco/occupation/occupation.types";
 
 export function isNewOccupationHierarchyPairSpecValid(
   spec: INewOccupationHierarchyPairSpec,

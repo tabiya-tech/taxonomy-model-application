@@ -1,4 +1,4 @@
-import { ObjectTypes } from "./objectTypes";
+import { ObjectTypes, OccupationType } from "./objectTypes";
 
 /**
  * Enum for the different name of models.
@@ -11,6 +11,7 @@ import { ObjectTypes } from "./objectTypes";
 export enum MongooseModelName {
   ISCOGroup = "ISCOGroupModel",
   Occupation = "OccupationModel",
+  LocalizedOccupation = "LocalizedOccupationModel",
   Skill = "SkillModel",
   SkillGroup = "SkillGroupModel",
   OccupationHierarchy = "OccupationHierarchyModel",
@@ -19,10 +20,13 @@ export enum MongooseModelName {
   OccupationToSkillRelation = "OccupationToSkillRelationModel",
 }
 
-export function getModelName(objectType: ObjectTypes): MongooseModelName {
+export function getModelName(objectType: ObjectTypes | OccupationType): MongooseModelName {
   switch (objectType) {
     case ObjectTypes.ISCOGroup:
       return MongooseModelName.ISCOGroup;
+    case OccupationType.ESCO:
+    case OccupationType.LOCAL:
+    case OccupationType.LOCALIZED:
     case ObjectTypes.Occupation:
       return MongooseModelName.Occupation;
     case ObjectTypes.Skill:
