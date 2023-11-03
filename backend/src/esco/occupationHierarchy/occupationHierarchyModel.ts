@@ -58,6 +58,8 @@ export function initializeSchemaAndModel(
     { modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 },
     { unique: true }
   );
+  OccupationHierarchySchema.index({ parentId: 1 });
+  OccupationHierarchySchema.index({ childId: 1 });
 
   // Model
   return dbConnection.model<IOccupationHierarchyPairDoc>(

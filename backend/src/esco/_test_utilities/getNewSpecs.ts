@@ -10,7 +10,7 @@ import {
 } from "esco/common/modelSchema";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewOccupationSpec } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, OccupationType } from "esco/occupation/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
@@ -54,40 +54,46 @@ export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: strin
  * Helper function to create an INewOccupationSpec with random values,
  * that can be used for creating a new Occupation
  */
-export function getNewOccupationSpec(): INewOccupationSpec {
+export function getNewOccupationSpec(isLocal: boolean = false): INewOccupationSpec {
   return {
     ISCOGroupCode: getMockRandomISCOGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getMockRandomOccupationCode(),
+    code: getMockRandomOccupationCode(isLocal),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
     originUUID: "",
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
+    occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
   };
 }
 /**
  * Helper function to create an INewOccupationSpec with simplest possible values,
  * that can be used for creating a new Occupation
  */
-export function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
+export function getSimpleNewOccupationSpec(
+  modelId: string,
+  preferredLabel: string,
+  isLocal: boolean = false
+): INewOccupationSpec {
   return {
     ISCOGroupCode: getMockRandomISCOGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",
     altLabels: [],
-    code: getMockRandomOccupationCode(),
+    code: getMockRandomOccupationCode(isLocal),
     preferredLabel: preferredLabel,
     modelId: modelId,
     originUUID: "",
     ESCOUri: "",
     description: "",
     importId: "",
+    occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
   };
 }
 

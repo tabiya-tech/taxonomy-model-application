@@ -1,11 +1,11 @@
-import { INewOccupationSpec } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, OccupationType } from "esco/occupation/occupation.types";
 
 export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     ESCOUri: "esco uri",
     originUUID: "origin uuid",
     ISCOGroupCode: "01",
-    code: "01.1.2.3",
+    code: "0001.1.2.3",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description",
@@ -13,6 +13,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope note",
     regulatedProfessionNote: "regulated profession note",
     importId: "key_1",
+    occupationType: OccupationType.ESCO,
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
@@ -26,18 +27,6 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope\nnote\nwith\nlinebreak",
     regulatedProfessionNote: "regulated\nprofession\nnote\nwith\nlinebreak",
     importId: "key_2",
-  },
-  {
-    ESCOUri: "",
-    originUUID: "",
-    ISCOGroupCode: "",
-    code: "",
-    preferredLabel: "",
-    altLabels: [],
-    description: "",
-    definition: "",
-    scopeNote: "",
-    regulatedProfessionNote: "",
-    importId: "key_3",
+    occupationType: OccupationType.ESCO,
   },
 ];

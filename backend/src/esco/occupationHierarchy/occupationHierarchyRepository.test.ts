@@ -10,47 +10,20 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { IOccupationHierarchyRepository } from "./occupationHierarchyRepository";
-import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { IISCOGroup } from "esco/iscoGroup/ISCOGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
-import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
+import { IOccupation, OccupationType } from "esco/occupation/occupation.types";
 import { INewOccupationHierarchyPairSpec, IOccupationHierarchyPair } from "./occupationHierarchy.types";
-import { getSimpleNewSkillGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
+import {
+  getSimpleNewISCOGroupSpec,
+  getSimpleNewOccupationSpec,
+  getSimpleNewSkillGroupSpec,
+  getSimpleNewSkillSpec,
+} from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
-
-function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
-  return {
-    altLabels: [],
-    code: getMockRandomISCOGroupCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ESCOUri: "",
-    description: "",
-    importId: "",
-  };
-}
-
-function getSimpleNewOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
-  return {
-    altLabels: [],
-    code: getMockRandomOccupationCode(),
-    preferredLabel: preferredLabel,
-    modelId: modelId,
-    originUUID: "",
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
-    ESCOUri: "",
-    description: "",
-    definition: "",
-    scopeNote: "",
-    regulatedProfessionNote: "",
-    importId: "",
-  };
-}
 
 describe("Test the OccupationHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -103,239 +76,90 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       }
     });
 
-    test("should successfully create the hierarchy of the ISCOGroups", async () => {
-      // GIVEN 4 ISCOGroups exist in the database in the same model
-      const givenModelId = getMockStringId(1);
-      const givenGroup_1 = await repositoryRegistry.ISCOGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
-      );
-      const givenGroup_1_1 = await repositoryRegistry.ISCOGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1_1")
-      );
-      const givenGroup_1_2 = await repositoryRegistry.ISCOGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1_2")
-      );
-      const givenGroup_1_2_1 = await repositoryRegistry.ISCOGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1_2_1")
-      );
-      // AND the following hierarchy
-      const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
-        {
-          parentId: givenGroup_1.id,
-          parentType: ObjectTypes.ISCOGroup,
-          childId: givenGroup_1_1.id,
-          childType: ObjectTypes.ISCOGroup,
-        },
-        {
-          parentId: givenGroup_1.id,
-          parentType: ObjectTypes.ISCOGroup,
-          childId: givenGroup_1_2.id,
-          childType: ObjectTypes.ISCOGroup,
-        },
-        {
-          parentId: givenGroup_1_2.id,
-          parentType: ObjectTypes.ISCOGroup,
-          childId: givenGroup_1_2_1.id,
-          childType: ObjectTypes.ISCOGroup,
-        },
-      ];
+    test.each([
+      ["ISCO group", ObjectTypes.ISCOGroup, [ObjectTypes.ISCOGroup, OccupationType.ESCO, OccupationType.LOCAL]],
+      ["ESCO occupation", OccupationType.ESCO, [OccupationType.ESCO, OccupationType.LOCAL]],
+      ["Local occupation", OccupationType.LOCAL, [OccupationType.LOCAL]],
+    ])(
+      "should successfully create the hierarchy of %s with multiple children",
+      async (
+        description: string,
+        parentType: ObjectTypes | OccupationType,
+        childrenTypes: (ObjectTypes | OccupationType)[]
+      ) => {
+        const givenModelId = getMockStringId(1);
 
-      // WHEN updating the hierarchy of the ISCOGroups
-      const actualNewOccupationHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
+        const createEntityFromType = (type: ObjectTypes | OccupationType) => {
+          switch (type) {
+            case ObjectTypes.ISCOGroup:
+              return repositoryRegistry.ISCOGroup.create(getSimpleNewISCOGroupSpec(givenModelId, "group_1"));
+            case OccupationType.ESCO:
+              return repositoryRegistry.occupation.create(getSimpleNewOccupationSpec(givenModelId, "occupation_1"));
+            case OccupationType.LOCAL:
+              return repositoryRegistry.occupation.create(
+                getSimpleNewOccupationSpec(givenModelId, "occupation_1", true)
+              );
+            default:
+              throw new Error(`Unexpected type: ${type}`);
+          }
+        };
+        const findEntityFromType = (type: ObjectTypes | OccupationType, id: string) => {
+          switch (type) {
+            case ObjectTypes.ISCOGroup:
+              return repositoryRegistry.ISCOGroup.findById(id);
+            case OccupationType.ESCO:
+            case OccupationType.LOCAL:
+              return repositoryRegistry.occupation.findById(id);
+            default:
+              throw new Error(`Unexpected type: ${type}`);
+          }
+        };
+        // GIVEN a parent and children that exist in the same model
+        const givenParent = await createEntityFromType(parentType);
+        const givenChildren = await Promise.all(childrenTypes.map((type) => createEntityFromType(type)));
+        // AND the following hierarchy
+        const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = givenChildren.map((child, index) => ({
+          parentId: givenParent.id,
+          parentType: parentType in OccupationType ? ObjectTypes.Occupation : ObjectTypes.ISCOGroup,
+          childId: child.id,
+          childType: childrenTypes[index] in OccupationType ? ObjectTypes.Occupation : ObjectTypes.ISCOGroup,
+        }));
 
-      // THEN expect all the Hierarchy entries to be created
-      expect(actualNewOccupationHierarchy).toHaveLength(givenNewHierarchySpecs.length);
-      expect(actualNewOccupationHierarchy).toEqual(
-        expect.arrayContaining(
-          givenNewHierarchySpecs.map<IOccupationHierarchyPair>((newSpec: INewOccupationHierarchyPairSpec) => {
-            return {
-              ...newSpec,
-              parentDocModel: MongooseModelName.ISCOGroup,
-              childDocModel: MongooseModelName.ISCOGroup,
-              id: expect.any(String),
-              modelId: givenModelId,
-              createdAt: expect.any(Date),
-              updatedAt: expect.any(Date),
-            };
-          })
-        )
-      );
-      // AND  to have the expected hierarchy
-      const actualGroup_1 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1.id);
-      expect(actualGroup_1).toEqual({
-        ...givenGroup_1,
-        children: [expectedISCOGroupReference(givenGroup_1_1), expectedISCOGroupReference(givenGroup_1_2)],
-        parent: null,
-        updatedAt: expect.any(Date),
-      } as IISCOGroup);
-      const actualGroup_1_1 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1_1.id);
-      expect(actualGroup_1_1).toEqual({
-        ...givenGroup_1_1,
-        children: [],
-        parent: expectedISCOGroupReference(givenGroup_1),
-        updatedAt: expect.any(Date),
-      } as IISCOGroup);
-      const actualGroup_1_2 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1_2.id);
-      expect(actualGroup_1_2).toEqual({
-        ...givenGroup_1_2,
-        children: [expectedISCOGroupReference(givenGroup_1_2_1)],
-        parent: expectedISCOGroupReference(givenGroup_1),
-        updatedAt: expect.any(Date),
-      } as IISCOGroup);
-      const actualGroup_1_2_1 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1_2_1.id);
-      expect(actualGroup_1_2_1).toEqual({
-        ...givenGroup_1_2_1,
-        children: [],
-        parent: expectedISCOGroupReference(givenGroup_1_2),
-        updatedAt: expect.any(Date),
-      } as IISCOGroup);
-    });
+        // WHEN updating the hierarchy
+        const actualNewOccupationHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
 
-    test("should successfully create the hierarchy of Occupations", async () => {
-      // GIVEN 4 ISCOGroups exist in the database in the same model
-      const givenModelId = getMockStringId(1);
-      const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
-      );
-      const givenOccupation_1_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1_1")
-      );
-      const givenOccupation_1_1_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1_1_1")
-      );
-      const givenOccupation_1_2_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1_2_1")
-      );
-      // AND the following hierarchy
-      const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
-        {
-          parentId: givenOccupation_1.id,
-          parentType: ObjectTypes.Occupation,
-          childId: givenOccupation_1_1.id,
-          childType: ObjectTypes.Occupation,
-        },
-        {
-          parentId: givenOccupation_1.id,
-          parentType: ObjectTypes.Occupation,
-          childId: givenOccupation_1_1_1.id,
-          childType: ObjectTypes.Occupation,
-        },
-        {
-          parentId: givenOccupation_1_1_1.id,
-          parentType: ObjectTypes.Occupation,
-          childId: givenOccupation_1_2_1.id,
-          childType: ObjectTypes.Occupation,
-        },
-      ];
+        // THEN expect all the Hierarchy entries to be created
+        expect(actualNewOccupationHierarchy).toHaveLength(givenNewHierarchySpecs.length);
 
-      // WHEN updating the hierarchy of the ISCOGroups
-      const actualNewOccupationHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
+        // AND to have the expected hierarchy
+        const actualParent = await findEntityFromType(parentType, givenParent.id);
+        expect(actualParent).toEqual({
+          ...givenParent,
+          parent: null,
+          children: givenChildren.map((child, index) =>
+            childrenTypes[index] in OccupationType
+              ? expectedOccupationReference(child as IOccupation)
+              : expectedISCOGroupReference(child as IISCOGroup)
+          ),
+          updatedAt: expect.any(Date),
+        } as IISCOGroup);
 
-      // THEN expect all the Hierarchy entries to be created
-      expect(actualNewOccupationHierarchy).toHaveLength(givenNewHierarchySpecs.length);
-      expect(actualNewOccupationHierarchy).toEqual(
-        expect.arrayContaining(
-          givenNewHierarchySpecs.map<IOccupationHierarchyPair>((newSpec: INewOccupationHierarchyPairSpec) => {
-            return {
-              ...newSpec,
-              parentDocModel: MongooseModelName.Occupation,
-              childDocModel: MongooseModelName.Occupation,
-              id: expect.any(String),
-              modelId: givenModelId,
-              createdAt: expect.any(Date),
-              updatedAt: expect.any(Date),
-            };
-          })
-        )
-      );
-      // AND to have the expected hierarchy
-      const actual_occupation_1 = await repositoryRegistry.occupation.findById(givenOccupation_1.id);
-      expect(actual_occupation_1).toEqual({
-        ...givenOccupation_1,
-        children: [
-          expectedOccupationReference(givenOccupation_1_1),
-          expectedOccupationReference(givenOccupation_1_1_1),
-        ],
-        parent: null,
-        updatedAt: expect.any(Date),
-      } as IISCOGroup);
-      const actual_occupation_1_1 = await repositoryRegistry.occupation.findById(givenOccupation_1_1.id);
-      expect(actual_occupation_1_1).toEqual({
-        ...givenOccupation_1_1,
-        children: [],
-        parent: expectedOccupationReference(givenOccupation_1),
-        updatedAt: expect.any(Date),
-      } as IOccupation);
-      const actual_occupation_1_2 = await repositoryRegistry.occupation.findById(givenOccupation_1_1_1.id);
-      expect(actual_occupation_1_2).toEqual({
-        ...givenOccupation_1_1_1,
-        children: [expectedOccupationReference(givenOccupation_1_2_1)],
-        parent: expectedOccupationReference(givenOccupation_1),
-        updatedAt: expect.any(Date),
-      } as IOccupation);
-      const actual_occupation_1_2_1 = await repositoryRegistry.occupation.findById(givenOccupation_1_2_1.id);
-      expect(actual_occupation_1_2_1).toEqual({
-        ...givenOccupation_1_2_1,
-        children: [],
-        parent: expectedOccupationReference(givenOccupation_1_1_1),
-        updatedAt: expect.any(Date),
-      } as IOccupation);
-    });
-
-    test("should successfully create the hierarchy of ISCO Groups/Occupations", async () => {
-      // GIVEN 1 ISCOGroup and an Occupation exist in the database in the same model
-      const givenModelId = getMockStringId(1);
-      const givenGroup_1 = await repositoryRegistry.ISCOGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
-      );
-      const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
-      );
-      // AND the following hierarchy
-      const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
-        {
-          parentId: givenGroup_1.id,
-          parentType: ObjectTypes.ISCOGroup,
-          childId: givenOccupation_1.id,
-          childType: ObjectTypes.Occupation,
-        },
-      ];
-
-      // WHEN updating the hierarchy of the ISCOGroups
-      const actualNewOccupationHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
-
-      // THEN expect all the Hierarchy entries to be created
-      expect(actualNewOccupationHierarchy).toHaveLength(givenNewHierarchySpecs.length);
-      expect(actualNewOccupationHierarchy).toEqual(
-        expect.arrayContaining([
-          {
-            ...givenNewHierarchySpecs[0],
-            parentDocModel: MongooseModelName.ISCOGroup,
-            childDocModel: MongooseModelName.Occupation,
-            id: expect.any(String),
-            modelId: givenModelId,
-            createdAt: expect.any(Date),
+        const actualChildren = await Promise.all(
+          givenChildren.map((child, index) => findEntityFromType(childrenTypes[index], child.id))
+        );
+        actualChildren.forEach((actualChild, index) => {
+          expect(actualChild).toEqual({
+            ...givenChildren[index],
+            children: [],
+            parent:
+              parentType in OccupationType
+                ? expectedOccupationReference(givenParent as IOccupation)
+                : expectedISCOGroupReference(givenParent as IISCOGroup),
             updatedAt: expect.any(Date),
-          },
-        ])
-      );
-      // AND to have the expected hierarchy
-      const actualGroup_1 = await repositoryRegistry.ISCOGroup.findById(givenGroup_1.id);
-      expect(actualGroup_1).toEqual({
-        ...givenGroup_1,
-        parent: null,
-        children: [expectedOccupationReference(givenOccupation_1)],
-        updatedAt: expect.any(Date),
-      } as IISCOGroup);
-
-      const actualOccupation_1 = await repositoryRegistry.occupation.findById(givenOccupation_1.id);
-      expect(actualOccupation_1).toEqual({
-        ...givenOccupation_1,
-        children: [],
-        parent: expectedISCOGroupReference(givenGroup_1),
-        updatedAt: expect.any(Date),
-      } as IOccupation);
-    });
+          } as IOccupation);
+        });
+      }
+    );
 
     test("should successfully update the hierarchy even if some don't validate", async () => {
       // GIVEN 3 ISCOGroups exist in the database
@@ -709,6 +533,33 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const actualNewOccupationHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
 
       // THEN expect no new entries to be created
+      expect(actualNewOccupationHierarchy).toHaveLength(0);
+    });
+
+    test("should ignore entries where the parent is a local occupation and the child is an esco occupation", async () => {
+      // GIVEN 2 Occupations exist in the database in the same model
+      const givenModelId = getMockStringId(1);
+      // AND the parent occupation is a local occupation
+      const occupation_1_spec = getSimpleNewOccupationSpec(givenModelId, "occupation_1", true); //<---- this is the inconsistency
+      const givenOccupation_1 = await repositoryRegistry.occupation.create(occupation_1_spec);
+      // AND the child occupation is an esco occupation
+      const givenOccupation_1_1 = await repositoryRegistry.occupation.create(
+        getSimpleNewOccupationSpec(givenModelId, "occupation_1_1")
+      );
+      // AND the following hierarchy
+      const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
+        {
+          parentId: givenOccupation_1.id,
+          parentType: ObjectTypes.Occupation,
+          childId: givenOccupation_1_1.id,
+          childType: ObjectTypes.Occupation,
+        },
+      ];
+      // WHEN updating the hierarchy of the ISCOGroups
+      const actualNewOccupationHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
+
+      console.log(actualNewOccupationHierarchy);
+      // THEN expect no Hierarchy entries to be created
       expect(actualNewOccupationHierarchy).toHaveLength(0);
     });
 

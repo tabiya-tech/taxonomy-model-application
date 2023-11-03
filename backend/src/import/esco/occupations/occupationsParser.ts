@@ -5,9 +5,11 @@ import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
-import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation, OccupationType } from "esco/occupation/occupation.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
+import importLogger from "import/importLogger/importLogger";
+import { RegExESCOOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
 
 // expect all columns to be in upper case
 export interface IOccupationRow {
@@ -22,6 +24,7 @@ export interface IOccupationRow {
   SCOPENOTE: string;
   REGULATEDPROFESSIONNOTE: string;
   ID: string;
+  OCCUPATIONTYPE: string;
 }
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
@@ -37,6 +40,7 @@ function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
     "DEFINITION",
     "SCOPENOTE",
     "REGULATEDPROFESSIONNOTE",
+    "OCCUPATIONTYPE",
   ]);
 }
 
@@ -50,10 +54,54 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   return new BatchProcessor<INewOccupationSpec>(BATCH_SIZE, batchProcessFn);
 }
 
+const getOccupationTypeFromRow = (row: IOccupationRow) => {
+  switch (row.OCCUPATIONTYPE.toUpperCase()) {
+    case "ESCO":
+      return OccupationType.ESCO;
+    case "LOCAL":
+      return OccupationType.LOCAL;
+    default:
+      return null;
+  }
+};
+
 function getRowToSpecificationTransformFn(
-  modelId: string
+  modelId: string,
+  isLocalImport: boolean
 ): TransformRowToSpecificationFunction<IOccupationRow, INewOccupationSpec> {
   return (row: IOccupationRow) => {
+    const occupationType = getOccupationTypeFromRow(row);
+
+    if (!occupationType) {
+      //check that the occupationType exists
+      importLogger.logWarning(`Failed to import Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`);
+      return null;
+    }
+    if (isLocalImport && occupationType !== OccupationType.LOCAL) {
+      // if it is a local import ensure that the occupationType is LOCAL
+      importLogger.logWarning(`Failed to import Local Occupation row with id:'${row.ID}'. Not a local occupation.`);
+      return null;
+    }
+    if (!isLocalImport && occupationType !== OccupationType.ESCO) {
+      // if it is not a local import ensure that the occupationType is ESCO
+      importLogger.logWarning(`Failed to import ESCO Occupation row with id:'${row.ID}'. Not an ESCO occupation.`);
+      return null;
+    }
+
+    //check against the code regex for local occupation code
+    let validCode;
+    if (isLocalImport) {
+      validCode = RegExLocalOccupationCode.test(row.CODE);
+    } else {
+      validCode = RegExESCOOccupationCode.test(row.CODE);
+    }
+    if (!validCode) {
+      importLogger.logWarning(
+        `Failed to import ${isLocalImport ? "Local" : "ESCO"} Occupation row with id:'${row.ID}'. Code not valid.`
+      );
+      return null;
+    }
+
     return {
       ESCOUri: row.ESCOURI,
       modelId: modelId,
@@ -67,6 +115,7 @@ function getRowToSpecificationTransformFn(
       scopeNote: row.SCOPENOTE,
       regulatedProfessionNote: row.REGULATEDPROFESSIONNOTE,
       importId: row.ID,
+      occupationType: occupationType,
     };
   };
 }
@@ -75,10 +124,11 @@ function getRowToSpecificationTransformFn(
 export async function parseOccupationsFromUrl(
   modelId: string,
   url: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  isLocalImport: boolean
 ): Promise<RowsProcessedStats> {
   const headersValidator = getHeadersValidator("Occupation");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, isLocalImport);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, "Occupation", batchRowProcessor);
@@ -87,11 +137,12 @@ export async function parseOccupationsFromUrl(
 export async function parseOccupationsFromFile(
   modelId: string,
   filePath: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  isLocalImport: boolean = false
 ): Promise<RowsProcessedStats> {
   const OccupationsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator("Occupation");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, isLocalImport);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<IOccupationRow>("Occupation", OccupationsCSVFileStream, batchRowProcessor);

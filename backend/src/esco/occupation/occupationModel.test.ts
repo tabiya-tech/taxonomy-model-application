@@ -21,7 +21,7 @@ import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
-import { IOccupationDoc } from "./occupation.types";
+import { IOccupationDoc, OccupationType } from "./occupation.types";
 import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the Occupation Model", () => {
@@ -44,10 +44,10 @@ describe("Test the definition of the Occupation Model", () => {
 
   test.each([
     [
-      "mandatory fields",
+      "mandatory fields ESCO occupation",
       {
         UUID: randomUUID(),
-        code: getMockRandomOccupationCode(),
+        code: getMockRandomOccupationCode(false),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         originUUID: randomUUID(),
@@ -59,13 +59,14 @@ describe("Test the definition of the Occupation Model", () => {
         scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
         regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
+        occupationType: OccupationType.ESCO,
       },
     ],
     [
-      "optional fields",
+      "optional fields ESCO occupation",
       {
         UUID: randomUUID(),
-        code: getMockRandomOccupationCode(),
+        code: getMockRandomOccupationCode(false),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         originUUID: "",
@@ -77,6 +78,45 @@ describe("Test the definition of the Occupation Model", () => {
         scopeNote: "",
         regulatedProfessionNote: "",
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
+        occupationType: OccupationType.ESCO,
+      },
+    ],
+    [
+      "mandatory fields local occupation",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomOccupationCode(true),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: randomUUID(),
+        ESCOUri: generateRandomUrl(),
+        altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
+        description: getTestString(DESCRIPTION_MAX_LENGTH),
+        ISCOGroupCode: getMockRandomISCOGroupCode(),
+        definition: getTestString(DEFINITION_MAX_LENGTH),
+        scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+        regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+        occupationType: OccupationType.LOCAL,
+      },
+    ],
+    [
+      "optional fields Local occupation",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomOccupationCode(true),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUUID: "",
+        ESCOUri: "",
+        altLabels: [],
+        description: "",
+        ISCOGroupCode: getMockRandomISCOGroupCode(),
+        definition: "",
+        scopeNote: "",
+        regulatedProfessionNote: "",
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+        occupationType: OccupationType.LOCAL,
       },
     ],
   ])("Successfully validate Occupation with %s", async (description, givenObject: IOccupationDoc) => {
@@ -176,25 +216,102 @@ describe("Test the definition of the Occupation Model", () => {
       );
     });
 
-    describe("Test validation of 'code'", () => {
+    describe("Test validation of 'code", () => {
+      describe("Test validation of 'code' for ESCO occupations", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "only whitespace characters",
+            WHITESPACE,
+            `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+          ],
+          [CaseType.Failure, "not a string of digits", "foo1", "Validator failed for path `{0}` with value `foo1`"],
+          [CaseType.Failure, "less than 4 digits", "555.1", "Validator failed for path `{0}` with value `555.1`"],
+          [CaseType.Failure, "more than 4 digits", "55555.1", "Validator failed for path `{0}` with value `55555.1`"],
+          [CaseType.Failure, "with negative sign", "-9999.1", "Validator failed for path `{0}` with value `-9999.1`"],
+          [CaseType.Success, "extremely deep 1234.1.2.3.4.5.6.7.8.9", "1234.1.2.3.4.5.6.7.8.9", undefined],
+          [CaseType.Success, "leading zeros 0001.01.01", "0001.01.01", undefined],
+          [CaseType.Success, " typical value 1234.1", "1234.1", undefined],
+        ])(
+          `(%s) Validate 'code' when it is %s`,
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IOccupationDoc>(OccupationModel, "code", caseType, value, expectedFailureMessage, {
+              occupationType: OccupationType.ESCO,
+            });
+          }
+        );
+      });
+
+      describe("Test validation of 'code' for Local occupations", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "only whitespace characters",
+            WHITESPACE,
+            `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+          ],
+          [CaseType.Failure, "not matching pattern", "foo1_2", "Validator failed for path `{0}` with value `foo1_2`"],
+          [CaseType.Failure, "extra characters", "1234.1_1x", "Validator failed for path `{0}` with value `1234.1_1x`"],
+          [
+            CaseType.Failure,
+            "inconsistent ESCO segment",
+            "1234._01_12",
+            "Validator failed for path `{0}` with value `1234._01_12`",
+          ],
+          [CaseType.Failure, "only underscores", "____", "Validator failed for path `{0}` with value `____`"],
+          [
+            CaseType.Failure,
+            "ISCO Missing segment",
+            ".1234.1_01_12",
+            "Validator failed for path `{0}` with value `.1234.1_01_12`",
+          ],
+          [
+            CaseType.Failure,
+            "more than four ISCO digits",
+            "12345.1_1",
+            "Validator failed for path `{0}` with value `12345.1_1`",
+          ],
+          [
+            CaseType.Failure,
+            "less than four ISCO digits",
+            "123.1_1",
+            "Validator failed for path `{0}` with value `123.1_1`",
+          ],
+          [CaseType.Failure, "ESCO bellow local ", "1234_1.1", "Validator failed for path `{0}` with value `1234_1.1`"],
+          [CaseType.Success, "simplest valid code direct bellow ISCO", "1234_1", undefined],
+          [CaseType.Success, "simplest valid code direct bellow ESCO", "1234.1_1", undefined],
+          [CaseType.Success, "typical valid code bellow ISCO", "1234_01_12", undefined],
+          [CaseType.Success, "typical valid code bellow ESCO", "1234.1.2_01_12", undefined],
+          [CaseType.Success, "leading zeros", "0001.01.01_01_01", undefined],
+          [CaseType.Success, "multiple underscores", "1234.1.2.3.4.5_01_12_02_34_934_23_3_42_12", undefined],
+          [CaseType.Success, "long digits after underscores", "1234.1.2_01234_12345", undefined],
+        ])(
+          `(%s) Validate 'code' when it is %s`,
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IOccupationDoc>(OccupationModel, "code", caseType, value, expectedFailureMessage, {
+              occupationType: OccupationType.LOCAL,
+            });
+          }
+        );
+      });
+
       test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a string od digits", "foo1", "Validator failed for path `{0}` with value `foo1`"],
-        [CaseType.Failure, "more than 4 digits", "55555.1", "Validator failed for path `{0}` with value `55555.1`"],
-        [CaseType.Failure, "with negative sign", "-9999.1", "Validator failed for path `{0}` with value `-9999.1`"],
-        [CaseType.Success, "extremely deep 1234.1.2.3.4.5.6.7.8.9", "1234.1.2.3.4.5.6.7.8.9", undefined],
-        [CaseType.Success, "leading zeros 0001.01.01", "0001.01.01", undefined],
-        [CaseType.Success, " typical value 1234.1", "1234.1", undefined],
-      ])(`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupationDoc>(OccupationModel, "code", caseType, value, expectedFailureMessage);
+        ["undefined", undefined],
+        ["null", null],
+        ["unknown type", "foo"],
+      ])(`should fail validation with reason when occupation type is %s `, (desc, givenOccupationType) => {
+        const givenOccupation = {
+          code: "1234.1", // valid code for ESCO
+          occupationType: givenOccupationType, // invalid occupation type
+        };
+        const actual = new OccupationModel(givenOccupation).validateSync();
+        expect(actual?.errors["code"]?.reason).toEqual(new Error("Value of 'occupationType' path is not supported"));
       });
     });
 
@@ -408,6 +525,28 @@ describe("Test the definition of the Occupation Model", () => {
 
     describe("Test validation of 'importId'", () => {
       testImportId<IOccupationDoc>(() => OccupationModel);
+    });
+
+    describe("Test validation of 'occupationType", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+        [CaseType.Success, "ESCO", OccupationType.ESCO, undefined],
+        [CaseType.Success, "LOCAL", OccupationType.LOCAL, undefined],
+        [CaseType.Success, "LOCALIZED", OccupationType.LOCALIZED, undefined],
+      ])(
+        `(%s) Validate 'definition' when it is %s`,
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IOccupationDoc>(
+            OccupationModel,
+            "occupationType",
+            caseType,
+            value,
+            expectedFailureMessage
+          );
+        }
+      );
     });
   });
 });

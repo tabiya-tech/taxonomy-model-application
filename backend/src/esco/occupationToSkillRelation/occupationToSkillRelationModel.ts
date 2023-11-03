@@ -39,6 +39,8 @@ export function initializeSchemaAndModel(
       }
     );
   OccupationToSkillRelationSchema.index({ modelId: 1, requiringOccupationId: 1, requiredSkillId: 1 }, { unique: true });
+  OccupationToSkillRelationSchema.index({ requiredSkillId: 1 }); // Needed for populateOccupationRequiresSkillsOptions
+  OccupationToSkillRelationSchema.index({ requiringOccupationId: 1 }); // Needed for populateSkillRequiredByOccupationsOptions
 
   return dbConnection.model<IOccupationToSkillRelationPairDoc>(
     MongooseModelName.OccupationToSkillRelation,

@@ -14,6 +14,7 @@ export function getOccupationDocReference(occupation: OccupationDocument): IOccu
     ISCOGroupCode: occupation.ISCOGroupCode,
     code: occupation.code,
     preferredLabel: occupation.preferredLabel,
+    occupationType: occupation.occupationType,
   };
 }
 export function getOccupationReferenceWithRelationType(

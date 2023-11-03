@@ -30,6 +30,7 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
     code: givenOccupation.code,
     ISCOGroupCode: givenOccupation.ISCOGroupCode,
     preferredLabel: givenOccupation.preferredLabel,
+    occupationType: givenOccupation.occupationType,
   };
 }
 
