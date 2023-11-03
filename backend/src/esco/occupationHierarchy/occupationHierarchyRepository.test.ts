@@ -10,10 +10,10 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { IOccupationHierarchyRepository } from "./occupationHierarchyRepository";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, OccupationType } from "esco/common/objectTypes";
 import { IISCOGroup } from "esco/iscoGroup/ISCOGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IOccupation, OccupationType } from "esco/occupation/occupation.types";
+import { IOccupation } from "esco/occupation/occupation.types";
 import { INewOccupationHierarchyPairSpec, IOccupationHierarchyPair } from "./occupationHierarchy.types";
 import {
   getSimpleNewISCOGroupSpec,
@@ -104,15 +104,8 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
           }
         };
         const findEntityFromType = (type: ObjectTypes | OccupationType, id: string) => {
-          switch (type) {
-            case ObjectTypes.ISCOGroup:
-              return repositoryRegistry.ISCOGroup.findById(id);
-            case OccupationType.ESCO:
-            case OccupationType.LOCAL:
-              return repositoryRegistry.occupation.findById(id);
-            default:
-              throw new Error(`Unexpected type: ${type}`);
-          }
+          if (type in OccupationType) return repositoryRegistry.occupation.findById(id);
+          else return repositoryRegistry.ISCOGroup.findById(id);
         };
         // GIVEN a parent and children that exist in the same model
         const givenParent = await createEntityFromType(parentType);

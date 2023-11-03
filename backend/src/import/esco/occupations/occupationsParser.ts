@@ -5,11 +5,13 @@ import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
-import { INewOccupationSpec, IOccupation, OccupationType } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import importLogger from "import/importLogger/importLogger";
 import { RegExESCOOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
+import { OccupationType } from "esco/common/objectTypes";
+import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
 
 // expect all columns to be in upper case
 export interface IOccupationRow {
@@ -53,17 +55,6 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   );
   return new BatchProcessor<INewOccupationSpec>(BATCH_SIZE, batchProcessFn);
 }
-
-const getOccupationTypeFromRow = (row: IOccupationRow) => {
-  switch (row.OCCUPATIONTYPE.toUpperCase()) {
-    case "ESCO":
-      return OccupationType.ESCO;
-    case "LOCAL":
-      return OccupationType.LOCAL;
-    default:
-      return null;
-  }
-};
 
 function getRowToSpecificationTransformFn(
   modelId: string,

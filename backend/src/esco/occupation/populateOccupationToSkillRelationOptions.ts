@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 import { getOccupationRequiresSkillReference } from "esco/occupationToSkillRelation/populateFunctions";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
 import { getSkillDocReference, SkillDocument } from "esco/skill/skillReference";
-import { OccupationToSkillRelationModelPaths } from "../occupationToSkillRelation/occupationToSkillRelationModel";
-import { OccupationModelPaths } from "./occupationModel";
+import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
+
+import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 

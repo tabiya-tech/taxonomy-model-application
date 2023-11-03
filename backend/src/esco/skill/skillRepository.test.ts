@@ -12,7 +12,7 @@ import { ISkillRepository } from "./skillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill, ISkillReference } from "./skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, OccupationType, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
 import { INewOccupationSpec } from "esco/occupation/occupation.types";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ISkillToSkillRelationPairDoc } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -845,20 +845,20 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupationSpecs_1);
 
       // The second requiring occupation
-      const givenOccupationSpecs_2: INewOccupationSpec = getSimpleNewOccupationSpec(givenModelId, "occupation_2");
+      const givenOccupationSpecs_2: INewOccupationSpec = getSimpleNewOccupationSpec(givenModelId, "occupation_2", true);
       const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
 
       // AND the subject Skill is required by two occupation
       const actualRequiredByOccupation = await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
         {
           requiringOccupationId: givenOccupation_1.id,
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiredSkillId: givenSubject.id,
           relationType: RelationType.ESSENTIAL,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.LOCAL,
           requiredSkillId: givenSubject.id,
           relationType: RelationType.ESSENTIAL,
         },
@@ -901,7 +901,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           //@ts-ignore
           requiringOccupationDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
 
@@ -939,7 +939,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiringOccupationDocModel: MongooseModelName.Occupation,
 
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
@@ -971,7 +971,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
-          requiringOccupationType: ObjectTypes.Occupation,
+          requiringOccupationType: OccupationType.ESCO,
           requiringOccupationDocModel: MongooseModelName.Occupation,
 
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),

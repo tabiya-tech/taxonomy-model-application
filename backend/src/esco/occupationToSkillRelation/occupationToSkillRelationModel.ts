@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { OccupationType, RelationType } from "esco/common/objectTypes";
 import { IOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
@@ -16,7 +16,11 @@ export function initializeSchemaAndModel(
     new mongoose.Schema<IOccupationToSkillRelationPairDoc>(
       {
         modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
-        requiringOccupationType: { type: String, required: true, enum: [ObjectTypes.Occupation] },
+        requiringOccupationType: {
+          type: String,
+          required: true,
+          enum: OccupationType,
+        },
         [OccupationToSkillRelationModelPaths.requiringOccupationId]: {
           type: mongoose.Schema.Types.ObjectId,
           refPath: "requiringOccupationDocModel",

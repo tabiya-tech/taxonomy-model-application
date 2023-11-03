@@ -7,7 +7,8 @@ import {
 } from "./populateOccupationHierarchyOptions";
 import { populateOccupationRequiresSkillsOptions } from "./populateOccupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { OccupationModelPaths } from "./occupationModel";
+
+import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -39,14 +40,6 @@ export interface IOccupationRepository {
    * Rejects with an error if the operation fails.
    */
   findById(id: string): Promise<IOccupation | null>;
-  /*
-  // GET /occupations/{id}
-{
-  ...
-  isLocalized: boolean,
-  localizedId: string,
-}
-  */
 }
 
 export class OccupationRepository implements IOccupationRepository {

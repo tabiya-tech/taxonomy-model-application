@@ -13,6 +13,7 @@ import importLogger from "import/importLogger/importLogger";
 import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
+import { parseLocalizedOccupationsFromUrl } from "import/esco/localizedOccupations/localizedOccupationsParser";
 
 const getPresignedUrls = async (
   filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths
@@ -71,6 +72,10 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     const stats = await parseOccupationsFromUrl(modelId, downloadUrls.LOCAL_OCCUPATION, importIdToDBIdMap, true);
     countOccupations += stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} Local Occupations`);
+  }
+  if (downloadUrls.LOCALIZED_OCCUPATION) {
+    const stats = await parseLocalizedOccupationsFromUrl(modelId, downloadUrls.LOCALIZED_OCCUPATION, importIdToDBIdMap);
+    console.info(`Processed ${JSON.stringify(stats)} Localized Occupations`);
   }
   if (downloadUrls.OCCUPATION_HIERARCHY) {
     const stats = await parseOccupationHierarchyFromUrl(modelId, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);

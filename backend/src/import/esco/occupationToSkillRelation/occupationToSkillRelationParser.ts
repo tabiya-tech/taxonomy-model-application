@@ -12,14 +12,14 @@ import {
   INewOccupationToSkillPairSpec,
   IOccupationToSkillRelationPair,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { OccupationType, RelationType } from "esco/common/objectTypes";
 
 // Expect all columns to be in upper case
 export interface OccupationToSkillsRelationRow {
-  OCCUPATIONTYPE: string;
   OCCUPATIONID: string;
   SKILLID: string;
   RELATIONTYPE: RelationType;
+  OCCUPATIONTYPE: OccupationType;
 }
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
@@ -48,16 +48,20 @@ function getRowToSpecificationTransformFn(
       return null;
     }
     // Check if occupation type is valid
-    const csv2EscoObjectType = (type: string): ObjectTypes.Occupation | null => {
+    const csv2EscoOccupationType = (type: string): OccupationType | null => {
       // | ObjectTypes.LocalOccupation | ObjectTypes.LocalizedOccupation
       switch (type.toUpperCase()) {
         case "ESCO":
-          return ObjectTypes.Occupation;
+          return OccupationType.ESCO;
+        case "LOCAL":
+          return OccupationType.LOCAL;
+        case "LOCALIZED":
+          return OccupationType.LOCALIZED;
         default:
           return null;
       }
     };
-    const occupationType = csv2EscoObjectType(row.OCCUPATIONTYPE);
+    const occupationType = csv2EscoOccupationType(row.OCCUPATIONTYPE);
     if (!occupationType) {
       importLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
