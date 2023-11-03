@@ -444,19 +444,15 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // AND expect the error handler function to have been called
       expect(handleInsertManyErrorSpy).toHaveBeenCalled();
       // AND expect the created entry to be valid
-      expect(actualNewOccupationHierarchy).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            ...givenNewHierarchySpecs[0],
-            id: expect.any(String),
-            modelId: givenModelId,
-            childDocModel: MongooseModelName.Occupation,
-            parentDocModel: MongooseModelName.ISCOGroup,
-            createdAt: expect.any(Date),
-            updatedAt: expect.any(Date),
-          }),
-        ])
-      );
+      expect(actualNewOccupationHierarchy[0]).toEqual({
+        ...givenNewHierarchySpecs[0],
+        id: expect.any(String),
+        modelId: givenModelId,
+        childDocModel: MongooseModelName.Occupation,
+        parentDocModel: MongooseModelName.ISCOGroup,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      });
       // cleanup the mock
       handleInsertManyErrorSpy.mockRestore();
     });
