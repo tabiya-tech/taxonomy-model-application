@@ -408,19 +408,15 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       // AND expect the error handler function to have been called
       expect(handleInsertManyErrorSpy).toHaveBeenCalled();
       // AND expect the created entry to be valid
-      expect(actualNewSkillHierarchy).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            ...givenNewHierarchySpecs[0],
-            id: expect.any(String),
-            modelId: givenModelId,
-            childDocModel: MongooseModelName.Skill,
-            parentDocModel: MongooseModelName.SkillGroup,
-            createdAt: expect.any(Date),
-            updatedAt: expect.any(Date),
-          }),
-        ])
-      );
+      expect(actualNewSkillHierarchy[0]).toEqual({
+        ...givenNewHierarchySpecs[0],
+        id: expect.any(String),
+        modelId: givenModelId,
+        childDocModel: MongooseModelName.Skill,
+        parentDocModel: MongooseModelName.SkillGroup,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      });
       // cleanup the mock
       handleInsertManyErrorSpy.mockRestore();
     });
@@ -674,7 +670,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
     };
 
     TestDBConnectionFailure<SetupResult, unknown>(
-      async () => {
+      async (repositoryRegistry) => {
         // GIVEN 4 SkillGroups exist in the database in the same model
         const givenModelId = getMockStringId(1);
         const givenGroup_1 = await repositoryRegistry.skillGroup.create(
