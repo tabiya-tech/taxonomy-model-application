@@ -4,6 +4,16 @@ import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
 
 /**
+ * Describes the three Types of Occupations
+ */
+
+export enum OccupationType {
+  ESCO = "ESCO",
+  LOCAL = "LOCAL",
+  LOCALIZED = "LOCALIZED",
+}
+
+/**
  * Describes how an occupation is saved in MongoDB
  */
 export interface IOccupationDoc extends ImportIdentifiable {
@@ -19,6 +29,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   definition: string;
   scopeNote: string;
   regulatedProfessionNote: string;
+  occupationType: OccupationType;
 }
 
 /**
@@ -46,7 +57,7 @@ export type INewOccupationSpec = Omit<
  * Describes how a reference to an occupation is returned from the API
  */
 export interface IOccupationReference
-  extends Pick<IOccupation, "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"> {
+  extends Pick<IOccupation, "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel" | "occupationType"> {
   objectType: ObjectTypes.Occupation;
 }
 
@@ -55,7 +66,7 @@ export interface IOccupationReference
  * This is not returned from the API.
  */
 export interface IOccupationReferenceDoc
-  extends Pick<IOccupationDoc, "modelId" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel"> {
+  extends Pick<IOccupationDoc, "modelId" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel" | "occupationType"> {
   id: string;
   objectType: ObjectTypes.Occupation;
 }

@@ -4,7 +4,7 @@ import {
   AltLabelsProperty,
   DefinitionProperty,
   DescriptionProperty,
-  ESCOOccupationCodeProperty,
+  OccupationCodeProperty,
   ESCOUriProperty,
   ImportIDProperty,
   ISCOCodeProperty,
@@ -12,6 +12,7 @@ import {
   PreferredLabelProperty,
   RegulatedProfessionNoteProperty,
   ScopeNoteProperty,
+  OccupationTypeProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationDoc } from "./occupation.types";
@@ -33,7 +34,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       originUUID: OriginUUIDProperty,
       ESCOUri: ESCOUriProperty,
-      code: ESCOOccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
+      code: OccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
       ISCOGroupCode: ISCOCodeProperty,
       preferredLabel: PreferredLabelProperty,
       altLabels: AltLabelsProperty,
@@ -42,6 +43,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       regulatedProfessionNote: RegulatedProfessionNoteProperty,
       scopeNote: ScopeNoteProperty,
       importId: ImportIDProperty,
+      occupationType: OccupationTypeProperty,
     },
     {
       timestamps: true,

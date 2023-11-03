@@ -3,11 +3,12 @@ import { generateRandomDigitString } from "./specialCharacters";
 const currentSegments: number[] = [0];
 const MAX_SEGMENT_ITEMS = 15;
 
-export function getMockRandomOccupationCode(): string {
-  const code = generateRandomDigitString(2, 4);
+export function getMockRandomOccupationCode(local: boolean): string {
+  const code = generateRandomDigitString(4, 4);
   // increment the segment counter
   incrementSegment(currentSegments.length - 1);
-  return code + "." + currentSegments.join(".");
+  const separator = local ? "_" : ".";
+  return code + separator + currentSegments.join(separator);
 }
 
 function incrementSegment(index: number) {

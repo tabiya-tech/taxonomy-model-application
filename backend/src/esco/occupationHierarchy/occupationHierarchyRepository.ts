@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { IOccupationDoc } from "esco/occupation/occupation.types";
+import { IOccupationDoc, OccupationType } from "esco/occupation/occupation.types";
 import { IISCOGroupDoc } from "esco/iscoGroup/ISCOGroup.types";
 import {
   INewOccupationHierarchyPairSpec,
@@ -55,6 +55,8 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     try {
       const existingIds = new Map<string, ObjectTypes>();
 
+      const occupationsTypes = new Map<string, OccupationType>();
+
       //  get all ISCO groups
       const _existingIscoGroupIds = await this.iscoGroupModel
         .find({ modelId: { $eq: modelId } })
@@ -63,16 +65,21 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       _existingIscoGroupIds.forEach((iscoGroup) => existingIds.set(iscoGroup._id.toString(), ObjectTypes.ISCOGroup));
 
       //  get all Occupations
-      const _existingOccupationsIds = await this.occupationModel
+      const _existingOccupations = await this.occupationModel
         .find({ modelId: { $eq: modelId } })
-        .select("_id")
+        .select("_id occupationType")
         .exec();
-      _existingOccupationsIds.forEach((occupation) =>
-        existingIds.set(occupation._id.toString(), ObjectTypes.Occupation)
-      );
+
+      // beside the id, we also need to know the occupationType
+      _existingOccupations.forEach((occupation) => {
+        existingIds.set(occupation._id.toString(), ObjectTypes.Occupation);
+        occupationsTypes.set(occupation._id.toString(), occupation.occupationType);
+      });
 
       const newOccupationHierarchyPairModels = newOccupationHierarchyPairSpecs
-        .filter((spec) => isNewOccupationHierarchyPairSpecValid(spec, existingIds))
+        .filter((spec) => {
+          return isNewOccupationHierarchyPairSpecValid(spec, existingIds, occupationsTypes);
+        })
         .map((spec) => {
           try {
             return new this.hierarchyModel({

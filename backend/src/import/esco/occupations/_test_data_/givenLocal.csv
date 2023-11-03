@@ -1,0 +1,34 @@
+"ESCOURI",ID,"ORIGINUUID","ISCOGROUPCODE","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SCOPENOTE","REGULATEDPROFESSIONNOTE","OCCUPATIONTYPE"
+,,,,,,,,,,,
+,,,,,,,,,,,
+"esco uri",key_1,origin uuid,01,0001.1.2.3_01,"preferred label","label1
+label2","description","definition","scope note","regulated profession note",LOCAL
+"esco
+uri
+with
+linebreak",key_2,"origin
+uuid
+with
+linebreak",0101,0101.01.02.03_01,"preferred
+label
+with
+linebreak","label1
+label2","description
+with
+linebreak","definition
+with
+linebreak","scope
+note
+with
+linebreak","regulated
+profession
+note
+with
+linebreak",LOCAL
+,key_3,,,,,,,,,,LOCAL
+esco uri,key_4,origin uuid,01,1001.1.2.3_03,preferred label,"label1
+label2",description,definition,scope note,regulated profession note,invalid_should_not_validate
+esco uri,key_5,origin uuid,01,001_1.2.3_01,preferred label,"label1
+label2",description,definition,scope note,regulated profession note,LOCAL
+esco uri,key_6,origin uuid,011,0011.1.2.3_02,preferred label,"label1
+label2",description,definition,scope note,regulated profession note,ESCO

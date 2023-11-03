@@ -63,9 +63,14 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
   }
   let countOccupations = 0;
   if (downloadUrls.ESCO_OCCUPATION) {
-    const stats = await parseOccupationsFromUrl(modelId, downloadUrls.ESCO_OCCUPATION, importIdToDBIdMap);
+    const stats = await parseOccupationsFromUrl(modelId, downloadUrls.ESCO_OCCUPATION, importIdToDBIdMap, false);
     countOccupations = stats.rowsSuccess;
-    console.info(`Processed ${JSON.stringify(stats)} Occupations`);
+    console.info(`Processed ${JSON.stringify(stats)} ESCO Occupations`);
+  }
+  if (downloadUrls.LOCAL_OCCUPATION) {
+    const stats = await parseOccupationsFromUrl(modelId, downloadUrls.LOCAL_OCCUPATION, importIdToDBIdMap, true);
+    countOccupations += stats.rowsSuccess;
+    console.info(`Processed ${JSON.stringify(stats)} Local Occupations`);
   }
   if (downloadUrls.OCCUPATION_HIERARCHY) {
     const stats = await parseOccupationHierarchyFromUrl(modelId, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);
@@ -74,7 +79,9 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
       importLogger.logWarning(
         `Expected to successfully process ${
           countISCOGroups + countOccupations - 10
-        } (ISCO groups + Occupations - 10) hierarchy entries. Instead processed ${stats.rowsSuccess} entries.`
+        } (ISCO groups + Occupations (Local and ESCO) - 10) hierarchy entries. Instead processed ${
+          stats.rowsSuccess
+        } entries.`
       );
     }
   }

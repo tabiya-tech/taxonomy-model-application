@@ -39,6 +39,14 @@ export interface IOccupationRepository {
    * Rejects with an error if the operation fails.
    */
   findById(id: string): Promise<IOccupation | null>;
+  /*
+  // GET /occupations/{id}
+{
+  ...
+  isLocalized: boolean,
+  localizedId: string,
+}
+  */
 }
 
 export class OccupationRepository implements IOccupationRepository {

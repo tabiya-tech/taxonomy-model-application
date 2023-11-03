@@ -286,7 +286,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(actualNewOccupations).toEqual(
           expect.arrayContaining(
             givenNewOccupationSpecs
-              .filter((spec, index) => index !== 1)
+              .filter((_, index) => index !== 1)
               .map((givenNewOccupationSpec) => {
                 return expectedFromGivenSpec(givenNewOccupationSpec);
               })
@@ -310,7 +310,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(actualNewOccupations).toEqual(
           expect.arrayContaining(
             givenNewOccupationSpecs
-              .filter((spec, index) => index !== 1)
+              .filter((_, index) => index !== 1)
               .map((givenNewOccupationSpec) => {
                 return expectedFromGivenSpec(givenNewOccupationSpec);
               })

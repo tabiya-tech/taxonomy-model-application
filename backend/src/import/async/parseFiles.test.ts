@@ -69,11 +69,18 @@ jest.mock("import/esco/skills/skillsParser.ts", () => {
 // Mock the OccupationsParser
 jest.mock("import/esco/occupations/occupationsParser.ts", () => {
   return {
-    parseOccupationsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      rowsProcessed: 200,
-      rowsSuccess: 200,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseOccupationsFromUrl: jest
+      .fn<Promise<RowsProcessedStats>, any>()
+      .mockImplementation(
+        (modelId: string, url: string, importIdToDBIdMap: Map<string, string>, isLocalImport: boolean) => {
+          const rows = isLocalImport ? 200 : 300;
+            return Promise.resolve({
+            rowsProcessed: rows,
+            rowsSuccess: rows,
+            rowsFailed: 0,
+          } as RowsProcessedStats);
+        }
+      ),
   };
 });
 
@@ -81,9 +88,9 @@ jest.mock("import/esco/occupations/occupationsParser.ts", () => {
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
   return {
     parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
-      // countISCOGroups + countOccupations - 10
-      rowsProcessed: 100 + 200 - 10,
-      rowsSuccess: 100 + 200 - 10,
+      // countISCOGroups + countOccupations(Local and ESCO) - 10
+      rowsProcessed: 100 + 200 + 300 - 10,
+      rowsSuccess: 100 + 200 + 300 - 10,
       rowsFailed: 0,
     } as RowsProcessedStats),
   };
@@ -188,6 +195,7 @@ describe("Test the main async handler", () => {
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION]: "path/to/LOCAL_OCCUPATION.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]: "path/to/ESCO_SKILL_SKILL_RELATIONS.csv",
@@ -239,7 +247,16 @@ describe("Test the main async handler", () => {
           expect(parseOccupationsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
-            expect.any(Map)
+            expect.any(Map),
+            false
+          );
+          break;
+        case ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION:
+          expect(parseOccupationsFromUrl).toHaveBeenCalledWith(
+            givenEvent.modelId,
+            expectedPresignedUrl,
+            expect.any(Map),
+            true
           );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
@@ -337,20 +354,10 @@ describe("Test the main async handler", () => {
       [
         "report parsingWarnings when the occupations hierarchy has more or less rows than expected",
         () => {
-          // AND the parser will parse a different number of occupation hierarchy rows than expected
-          (parseISCOGroupsFromUrl as jest.Mock).mockResolvedValueOnce({
-            rowsProcessed: 100,
-            rowsSuccess: 100,
-            rowsFailed: 0,
-          } as RowsProcessedStats);
-          (parseOccupationsFromUrl as jest.Mock).mockResolvedValueOnce({
-            rowsProcessed: 200,
-            rowsSuccess: 200,
-            rowsFailed: 0,
-          } as RowsProcessedStats);
           (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
-            rowsProcessed: 1, //<------- should have been 100 + 200 - 10
-            rowsSuccess: 1, //<------- should have been 100 + 200 - 10
+              // see the mock implementation of parseISCOGroupsFromUrl and parseOccupationsFromUrl
+            rowsProcessed: 1, //<------- should have been 100 + 200  + 300 - 10
+            rowsSuccess: 1, //<------- should have been 100 + 200  + 300 - 10
             rowsFailed: 0,
           } as RowsProcessedStats);
         },
@@ -395,6 +402,7 @@ describe("Test the main async handler", () => {
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION]: "path/to/LOCAL_OCCUPATION.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]:

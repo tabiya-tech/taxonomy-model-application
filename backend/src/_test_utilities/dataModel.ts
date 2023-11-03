@@ -36,13 +36,18 @@ export function assertCaseForProperty<T>(
   propertyNames: string | string[],
   caseType: CaseType,
   testValue: unknown,
-  expectedFailureMessage?: string
+  expectedFailureMessage?: string,
+  dependencies?: Partial<T>
 ) {
   if (typeof propertyNames === "string") {
     propertyNames = [propertyNames];
   }
   // @ts-ignore
-  const docSpec: Partial<T> = createNestedObject(propertyNames, testValue);
+  let docSpec: Partial<T> = createNestedObject(propertyNames, testValue);
+
+  if (dependencies) {
+    docSpec = { ...docSpec, ...dependencies };
+  }
 
   const propertyPath = propertyNames.join(".");
 
