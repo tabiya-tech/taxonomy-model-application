@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+  width="24"
+  height="24"
+  viewBox="0 0 128 128"
+  version="1.1"
+  id="svg19188"
+  xml:space="preserve"
+  xmlns="http://www.w3.org/2000/svg"
+><defs id="defs29929" />
+  <g id="layer4"><path
+      style="display:inline;fill:#002147;fill-opacity:1;stroke:none;stroke-width:0.204616;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+      d="M 63.999999,128.00011 C 85.225344,115.76207 106.77465,103.23804 127.99999,91 L 63.999999,54 C 42.774653,66.238036 21.225347,78.761963 -4.7061206e-8,91 21.225347,103.23804 42.774653,115.76207 63.999999,128.00011 Z"
+      id="plane0"
+    >
+    <animateTransform
+      attributeName="transform"
+      attributeType="XML"
+      type="translate"
+      from="0 0"
+      to="0 -64"
+      begin="anim1.begin + 1s"
+      dur="4s"
+      fill="freeze"
+    />
+  </path>
+    <path
+      style="display:inline;fill:#246f66;fill-opacity:1;stroke:ffff;stroke-width:1.204616;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+      d="M 63.999999,119.00009 C 85.225344,106.76205 106.77465,94.238023 127.99999,81.999983 l -63.999991,-37 C 42.774653,57.238019 21.225347,69.761946 -4.7061206e-8,81.999983 21.225347,94.238023 42.774653,106.76205 63.999999,119.00009 Z"
+      id="plane1"
+    >
+             <animateTransform
+               id="anim1"
+               attributeName="transform"
+               attributeType="XML"
+               type="translate"
+               from="0 0"
+               to="0 -64"
+               begin="anim2.begin + 1s"
+               dur="4s"
+               fill="freeze"
+             />
+  </path>
+
+    <path
+      style="display:inline;fill:#27b87d;fill-opacity:1;stroke:ffff;stroke-width:1.204616;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+      d="M 63.999999,110.00008 C 85.225344,97.762037 106.77465,85.238007 127.99999,72.999967 l -63.999991,-37 C 42.774653,48.238003 21.225347,60.76193 -4.7061206e-8,72.999967 21.225347,85.238007 42.774653,97.762037 63.999999,110.00008 Z"
+      id="plane2"
+    >
+      <animateTransform
+        id="anim2"
+        attributeName="transform"
+        attributeType="XML"
+        type="translate"
+        from="0 0"
+        to="0 -64"
+        begin="anim3.begin + 1s"
+        dur="4s"
+        fill="freeze"
+      />-->
+  </path>
+
+    <path
+      style="display:inline;fill:#00ff91;fill-opacity:1;stroke:#ffff;stroke-width:1.204616;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0"
+      d="M 63.999999,101.00006 C 85.225344,88.762015 106.77465,76.237985 127.99999,63.999945 l -63.999991,-37 C 42.774653,39.237981 21.225347,51.761908 -4.7061206e-8,63.999945 21.225347,76.237985 42.774653,88.762015 63.999999,101.00006 Z"
+      id="plane3"
+    >
+  </path>
+    <path id="motionPath3" d="M 0,0 L 0,-27 L0,0" style="visibility: hidden;"/>
+    <path id="motionPath2" d="M 0,0 L 0,-18 L0,0" style="visibility: hidden;"/>
+    <path id="motionPath1" d="M 0,0 L 0,-9 L0,0" style="visibility: hidden;"/>
+
+    <animateMotion href="#plane3" dur="4s" repeatCount="indefinite">
+      <mpath href="#motionPath3"/>
+    </animateMotion>
+
+    <animateMotion href="#plane2" dur="4s" repeatCount="indefinite">
+    <mpath href="#motionPath2"/>
+
+    </animateMotion>
+
+    <animateMotion href="#plane1" dur="4s" repeatCount="indefinite">
+      <mpath href="#motionPath1"/>
+    </animateMotion>
+ </g></svg>
