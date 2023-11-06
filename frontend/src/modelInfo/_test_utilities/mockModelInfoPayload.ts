@@ -50,7 +50,7 @@ export namespace GET {
         locale: {
           UUID: uuidv4(),
           name: getRandomLorem(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-          shortCode: getRandomLorem(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+          shortCode: faker.location.countryCode("alpha-3"),
         },
         description: getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
         released: i % 2 === 0, // 50% chance of released
