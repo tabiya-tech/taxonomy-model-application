@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -34,10 +35,12 @@ export namespace GET {
    * @param count
    */
   export function getPayloadWithArrayOfFakeModelInfo(count: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
-    const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+    const allImportStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+    const allExportStatuses = Object.values(ExportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
 
     return Array.from({ length: count }, (_, i) => {
-      const randomizedStatus = allStatuses[i % allStatuses.length];
+      const randomizedImportStatus = allImportStatuses[i % allImportStatuses.length];
+      const randomizedExportStatus = allExportStatuses[i % allExportStatuses.length];
       return {
         id: getMockId(i),
         UUID: uuidv4(),
@@ -58,9 +61,22 @@ export namespace GET {
         version: getRandomLorem(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
         path: faker.internet.url(),
         tabiyaPath: faker.internet.url(),
+        exportProcessState: [
+          {
+            id: getMockId(10000 + i),
+            status: randomizedExportStatus,
+            result: {
+              errored: false,
+              exportErrors: faker.datatype.boolean(),
+              exportWarnings: faker.datatype.boolean(),
+            },
+            downloadUrl: faker.internet.url(),
+            timestamp: new Date().toISOString(),
+          },
+        ],
         importProcessState: {
           id: getMockId(10000 + i),
-          status: randomizedStatus,
+          status: randomizedImportStatus,
           result: {
             errored: false,
             parsingErrors: faker.datatype.boolean(),
@@ -74,9 +90,17 @@ export namespace GET {
   }
 }
 
-export function getRandomModelInfo(_id: number) {
-  const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
-  const randomizedStatus = allStatuses[_id % allStatuses.length];
+/**
+ * Extracts the type of the elements of an array.
+ */
+type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends (infer ItemType)[]
+  ? ItemType
+  : never;
+export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.Types.GET.Response.Payload> {
+  const allImportStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  const randomizedImportStatus = allImportStatuses[_id % allImportStatuses.length];
+  const allExportStatuses = Object.values(ExportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  const randomizeExportStatus = allExportStatuses[_id % allExportStatuses.length];
 
   return {
     id: getMockId(_id),
@@ -95,9 +119,22 @@ export function getRandomModelInfo(_id: number) {
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
     path: "https://foo/bar",
     tabiyaPath: "https://foo/bar/baz",
+    exportProcessState: [
+      {
+        id: getMockId(10000 + _id),
+        status: randomizeExportStatus,
+        result: {
+          errored: _id % 2 === 0,
+          exportErrors: faker.datatype.boolean(),
+          exportWarnings: faker.datatype.boolean(),
+        },
+        downloadUrl: "https://foo/bar/baz",
+        timestamp: new Date().toISOString(),
+      },
+    ],
     importProcessState: {
       id: getMockId(10000 + _id),
-      status: randomizedStatus,
+      status: randomizedImportStatus,
       result: {
         errored: _id % 2 === 0,
         parsingErrors: faker.datatype.boolean(),

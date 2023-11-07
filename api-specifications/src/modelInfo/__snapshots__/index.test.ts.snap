@@ -1,0 +1,484 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the modelInfo module The export module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "DESCRIPTION_MAX_LENGTH": 4000,
+    "MAX_PAYLOAD_LENGTH": 6000,
+    "NAME_MAX_LENGTH": 256,
+    "RELEASE_NOTES_MAX_LENGTH": 100000,
+    "VERSION_MAX_LENGTH": 256,
+  },
+  "Enums": {
+    "GET": {
+      "Response": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_RETRIEVE_MODELS": "DB_FAILED_TO_RETRIEVE_MODELS",
+        },
+      },
+    },
+    "POST": {
+      "Response": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_CREATE_MODEL": "DB_FAILED_TO_CREATE_MODEL",
+          "MODEL_COULD_NOT_VALIDATE": "MODEL_COULD_NOT_VALIDATE",
+        },
+      },
+    },
+  },
+  "Schemas": {
+    "GET": {
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/ModelInfoResponseSchemaGET",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "UUID": {
+                "description": "The UUID of the model. It can be used to identify the model across systems.",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "createdAt": {
+                "format": "date-time",
+                "type": "string",
+              },
+              "description": {
+                "description": "The description of the model",
+                "maxLength": 4000,
+                "type": "string",
+              },
+              "exportProcessState": {
+                "description": "The export process state of the model.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "downloadUrl": {
+                      "description": "The url to download the exported model.",
+                      "format": "uri",
+                      "pattern": "^https://",
+                      "type": "string",
+                    },
+                    "id": {
+                      "description": "The identifier of the specific export state.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": "string",
+                    },
+                    "result": {
+                      "additionalProperties": false,
+                      "description": "The result of the export process of the model. It can be errored, export errors or export warnings.",
+                      "properties": {
+                        "errored": {
+                          "description": "if the export process has completed or it was did not complete due to some unexpected error.",
+                          "type": "boolean",
+                        },
+                        "exportErrors": {
+                          "description": "if the export encountered errors while processing the data and generating the csv files.",
+                          "type": "boolean",
+                        },
+                        "exportWarnings": {
+                          "description": "if the export encountered warnings while exporting the data.",
+                          "type": "boolean",
+                        },
+                      },
+                      "required": [
+                        "errored",
+                        "exportErrors",
+                        "exportWarnings",
+                      ],
+                      "type": "object",
+                    },
+                    "status": {
+                      "description": "The status of the export of the model.",
+                      "enum": [
+                        "pending",
+                        "running",
+                        "completed",
+                      ],
+                      "type": "string",
+                    },
+                    "timestamp": {
+                      "description": "The timestamp of the export process.",
+                      "format": "date-time",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "downloadUrl",
+                    "timestamp",
+                    "result",
+                  ],
+                  "type": "object",
+                },
+                "minItems": 0,
+                "type": "array",
+              },
+              "id": {
+                "description": "The id of the model. It can be used to retrieve the model from the server.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+              "importProcessState": {
+                "additionalProperties": false,
+                "description": "The import process state of the model.",
+                "properties": {
+                  "id": {
+                    "description": "The identifier of the specific import state.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "result": {
+                    "additionalProperties": false,
+                    "description": "The result of the import process of the model. It can be errored, parsing errors or parsing warnings.",
+                    "properties": {
+                      "errored": {
+                        "description": "if the import process has completed or it was did not complete due to some unexpected error.",
+                        "type": "boolean",
+                      },
+                      "parsingErrors": {
+                        "description": "if the import encountered errors while parsing the csv files.",
+                        "type": "boolean",
+                      },
+                      "parsingWarnings": {
+                        "description": "if the import encountered warnings while parsing the csv files.",
+                        "type": "boolean",
+                      },
+                    },
+                    "required": [
+                      "errored",
+                      "parsingErrors",
+                      "parsingWarnings",
+                    ],
+                    "type": "object",
+                  },
+                  "status": {
+                    "description": "The status of the import process of the model.",
+                    "enum": [
+                      "pending",
+                      "running",
+                      "completed",
+                    ],
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "status",
+                  "result",
+                ],
+                "type": "object",
+              },
+              "locale": {
+                "$ref": "/components/schemas/LocaleSchema",
+              },
+              "name": {
+                "description": "The name of the model",
+                "maxLength": 256,
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "originUUID": {
+                "description": "The UUID of the model this model originated from.",
+                "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
+                "type": "string",
+              },
+              "path": {
+                "description": "The path to the model resource using the resource id",
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "previousUUID": {
+                "description": "The UUID of the previous version this model.",
+                "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
+                "type": "string",
+              },
+              "releaseNotes": {
+                "description": "The release notes of the model",
+                "maxLength": 100000,
+                "type": "string",
+              },
+              "released": {
+                "description": "Whether the model is released or not",
+                "type": "boolean",
+              },
+              "tabiyaPath": {
+                "description": "The path to the model resource using the resource UUID",
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "type": "string",
+              },
+              "version": {
+                "description": "The version of the model. It should follow the conventions of semantic versioning.",
+                "maxLength": 256,
+                "type": "string",
+              },
+            },
+            "required": [
+              "name",
+              "description",
+              "locale",
+              "id",
+              "UUID",
+              "path",
+              "tabiyaPath",
+              "released",
+              "releaseNotes",
+              "version",
+              "exportProcessState",
+              "importProcessState",
+              "createdAt",
+              "updatedAt",
+            ],
+            "type": "object",
+          },
+          "type": "array",
+        },
+      },
+    },
+    "POST": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/ModelInfoRequestSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "description": "The description of the model",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "locale": {
+              "$ref": "/components/schemas/LocaleSchema",
+            },
+            "name": {
+              "description": "The name of the model",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+          },
+          "required": [
+            "name",
+            "description",
+            "locale",
+          ],
+          "type": "object",
+        },
+      },
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/ModelInfoResponseSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "UUID": {
+              "description": "The UUID of the model. It can be used to identify the model across systems.",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string",
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+            "description": {
+              "description": "The description of the model",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "exportProcessState": {
+              "description": "The export process state of the model.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "downloadUrl": {
+                    "description": "The url to download the exported model.",
+                    "format": "uri",
+                    "pattern": "^https://",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The identifier of the specific export state.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "result": {
+                    "additionalProperties": false,
+                    "description": "The result of the export process of the model. It can be errored, export errors or export warnings.",
+                    "properties": {
+                      "errored": {
+                        "description": "if the export process has completed or it was did not complete due to some unexpected error.",
+                        "type": "boolean",
+                      },
+                      "exportErrors": {
+                        "description": "if the export encountered errors while processing the data and generating the csv files.",
+                        "type": "boolean",
+                      },
+                      "exportWarnings": {
+                        "description": "if the export encountered warnings while exporting the data.",
+                        "type": "boolean",
+                      },
+                    },
+                    "required": [
+                      "errored",
+                      "exportErrors",
+                      "exportWarnings",
+                    ],
+                    "type": "object",
+                  },
+                  "status": {
+                    "description": "The status of the export of the model.",
+                    "enum": [
+                      "pending",
+                      "running",
+                      "completed",
+                    ],
+                    "type": "string",
+                  },
+                  "timestamp": {
+                    "description": "The timestamp of the export process.",
+                    "format": "date-time",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "status",
+                  "downloadUrl",
+                  "timestamp",
+                  "result",
+                ],
+                "type": "object",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
+            "id": {
+              "description": "The id of the model. It can be used to retrieve the model from the server.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "importProcessState": {
+              "additionalProperties": false,
+              "description": "The import process state of the model.",
+              "properties": {
+                "id": {
+                  "description": "The identifier of the specific import state.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+                "result": {
+                  "additionalProperties": false,
+                  "description": "The result of the import process of the model. It can be errored, parsing errors or parsing warnings.",
+                  "properties": {
+                    "errored": {
+                      "description": "if the import process has completed or it was did not complete due to some unexpected error.",
+                      "type": "boolean",
+                    },
+                    "parsingErrors": {
+                      "description": "if the import encountered errors while parsing the csv files.",
+                      "type": "boolean",
+                    },
+                    "parsingWarnings": {
+                      "description": "if the import encountered warnings while parsing the csv files.",
+                      "type": "boolean",
+                    },
+                  },
+                  "required": [
+                    "errored",
+                    "parsingErrors",
+                    "parsingWarnings",
+                  ],
+                  "type": "object",
+                },
+                "status": {
+                  "description": "The status of the import process of the model.",
+                  "enum": [
+                    "pending",
+                    "running",
+                    "completed",
+                  ],
+                  "type": "string",
+                },
+              },
+              "required": [
+                "id",
+                "status",
+                "result",
+              ],
+              "type": "object",
+            },
+            "locale": {
+              "$ref": "/components/schemas/LocaleSchema",
+            },
+            "name": {
+              "description": "The name of the model",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "originUUID": {
+              "description": "The UUID of the model this model originated from.",
+              "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
+              "type": "string",
+            },
+            "path": {
+              "description": "The path to the model resource using the resource id",
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "previousUUID": {
+              "description": "The UUID of the previous version this model.",
+              "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
+              "type": "string",
+            },
+            "releaseNotes": {
+              "description": "The release notes of the model",
+              "maxLength": 100000,
+              "type": "string",
+            },
+            "released": {
+              "description": "Whether the model is released or not",
+              "type": "boolean",
+            },
+            "tabiyaPath": {
+              "description": "The path to the model resource using the resource UUID",
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+            "version": {
+              "description": "The version of the model. It should follow the conventions of semantic versioning.",
+              "maxLength": 256,
+              "type": "string",
+            },
+          },
+          "required": [
+            "name",
+            "description",
+            "locale",
+            "id",
+            "UUID",
+            "path",
+            "tabiyaPath",
+            "released",
+            "releaseNotes",
+            "version",
+            "exportProcessState",
+            "importProcessState",
+            "createdAt",
+            "updatedAt",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;

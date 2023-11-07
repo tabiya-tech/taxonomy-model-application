@@ -15,8 +15,10 @@ describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () 
 
     // THEN expect the transformation function to return a IModelInfoResponse
     // that contains the input from the IModelInfo
-    expect(actual).toMatchObject({
+    expect(actual).toEqual({
       ...givenObject,
+      // AND the exportProcessState as an empty array
+      exportProcessState: [], // TODO: eventually once the exportProcessState is implemented, this should removed
       // AND the path and tabiya path as based on the given base path
       path: `${givenBasePath}/${givenObject.id}`,
       tabiyaPath: `${givenBasePath}/${givenObject.UUID}`,

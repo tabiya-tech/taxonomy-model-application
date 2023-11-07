@@ -9,6 +9,7 @@ import {
   testValidSchema,
 } from "../_test_utilities/stdSchemaTests";
 import LocaleAPISpecs from "../locale";
+import { ExportProcessState } from "exportProcessState/enums";
 
 describe("Test ModelInfoAPISpecs Schema", () => {
   // WHEN the ModelInfoAPISpecs.Schemas.GET.Response.Schema.Payload schema
@@ -38,6 +39,17 @@ describe("Test ModelInfoAPISpecs Schema", () => {
 
 describe("Validate JSON against the Schema", () => {
   // GIVEN the valid ModelInfoPOSTResponse and ModelInfoPOSTRequest objects
+  const givenExportProcessState = {
+    id: getMockId(2),
+    status: ExportProcessState.Enums.Status.PENDING,
+    result: {
+      errored: false,
+      exportErrors: false,
+      exportWarnings: false,
+    },
+    downloadUrl: "https://foo/bar",
+    timestamp: new Date().toISOString(),
+  };
   const givenValidModelInfoPOSTResponse = {
     id: getMockId(1),
     UUID: randomUUID(),
@@ -55,6 +67,7 @@ describe("Validate JSON against the Schema", () => {
     releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+    exportProcessState: [givenExportProcessState],
     importProcessState: {
       id: getMockId(1),
       status: ImportProcessState.Enums.Status.PENDING,
