@@ -18,6 +18,15 @@ describe("Test the error module", () => {
       expect(Constants.ReasonPhrases).toBeDefined();
     }).not.toThrowError();
   });
+
+  test("The export module matches the snapshot", () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(() => {
+      // THEN Check if the module can be required without error
+      expect(require("./").default).toMatchSnapshot();
+    }).not.toThrowError();
+  });
 });
 
 export {};

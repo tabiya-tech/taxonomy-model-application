@@ -40,6 +40,8 @@ export const testSchemaWithValidObject = (
 
     // THEN expect the object to validate successfully
     expect(isValid).toBe(true);
+    // AND no errors to be present
+    expect(validateFunction.errors).toBeNull();
   });
 };
 

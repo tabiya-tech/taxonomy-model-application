@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the export module The export module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "MAX_PAYLOAD_LENGTH": 60,
+  },
+  "Enums": {
+    "POST": {
+      "Response": {
+        "ExportResponseErrorCodes": {
+          "FAILED_TO_TRIGGER_EXPORT": "FAILED_TO_TRIGGER_EXPORT",
+        },
+      },
+    },
+  },
+  "Schemas": {
+    "POST": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/ExportRequestSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "modelId": {
+              "description": "The identifier of the model to be exported.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+          },
+          "required": [
+            "modelId",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;
