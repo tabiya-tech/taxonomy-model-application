@@ -18,7 +18,7 @@ function findSchemasRecursive(object: any){
     Object.entries(object).forEach((entry)=>{
         const currentEntry = entry[1] as any;
         if ( typeof currentEntry === "object" && (currentEntry.$id !== undefined || currentEntry.$ref !== undefined ) ){
-            const filename = path.join(outputDirName,`${currentEntry.$id.substr(1).replace(/\//g, ".")}.json`);
+            const filename = path.join(outputDirName,`${currentEntry.$id.substring(1).replace(/\//g, ".")}.json`);
             fs.writeFileSync(filename, JSON.stringify(currentEntry, undefined, 2));
             filesToArchive.push(filename);
         }else if ( typeof currentEntry === "object" ){
