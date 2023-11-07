@@ -23,6 +23,15 @@ describe("Test the modelInfo module", () => {
       expect(Constants.VERSION_MAX_LENGTH).toBeDefined();
     }).not.toThrowError();
   });
+
+  test("The export module matches the snapshot", () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(() => {
+      // THEN Check if the module can be required without error
+      expect(require("./").default).toMatchSnapshot();
+    }).not.toThrowError();
+  });
 });
 
 export {};

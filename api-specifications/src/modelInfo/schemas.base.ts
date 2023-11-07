@@ -2,6 +2,7 @@ import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str
 import ModelInfoConstants from "./constants";
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
+import ExportProcessState from "../exportProcessState";
 
 /**
  *  The base schema for the model info request
@@ -75,6 +76,61 @@ export const _baseResponseSchema = {
       type: "string",
       maxLength: ModelInfoConstants.VERSION_MAX_LENGTH,
     },
+    exportProcessState: {
+      description: "The export process state of the model.",
+      type: "array",
+      minItems: 0,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: {
+            description: "The identifier of the specific export state.",
+            type: "string",
+            pattern: RegExp_Str_ID,
+          },
+          status: {
+            description: "The status of the export of the model.",
+            type: "string",
+            enum: Object.values(ExportProcessState.Enums.Status),
+          },
+          result: {
+            description:
+              "The result of the export process of the model. It can be errored, export errors or export warnings.",
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              errored: {
+                description:
+                  "if the export process has completed or it was did not complete due to some unexpected error.",
+                type: "boolean",
+              },
+              exportErrors: {
+                description: "if the export encountered errors while processing the data and generating the csv files.",
+                type: "boolean",
+              },
+              exportWarnings: {
+                description: "if the export encountered warnings while exporting the data.",
+                type: "boolean",
+              },
+            },
+            required: ["errored", "exportErrors", "exportWarnings"],
+          },
+          downloadUrl: {
+            description: "The url to download the exported model.",
+            type: "string",
+            format: "uri",
+            pattern: "^https://",
+          },
+          timestamp: {
+            description: "The timestamp of the export process.",
+            type: "string",
+            format: "date-time",
+          },
+        },
+        required: ["id", "status", "downloadUrl", "timestamp", "result"],
+      },
+    },
     importProcessState: {
       description: "The import process state of the model.",
       type: "object",
@@ -130,6 +186,7 @@ export const _baseResponseSchema = {
     "released",
     "releaseNotes",
     "version",
+    "exportProcessState",
     "importProcessState",
     "createdAt",
     "updatedAt",

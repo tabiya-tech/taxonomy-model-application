@@ -73,6 +73,10 @@ describe("ModelInfoService", () => {
       givenResponseBody.forEach((givenModel, index) => {
         expect(actualModels[index]).toEqual({
           ...givenModel,
+          exportProcessState: givenModel.exportProcessState.map((givenExportProcessState) => ({
+            ...givenExportProcessState,
+            timestamp: new Date(givenExportProcessState.timestamp),
+          })),
           createdAt: new Date(givenModel.createdAt),
           updatedAt: new Date(givenModel.updatedAt),
         }); // currently we do not transform the response, so it should be the same
@@ -442,6 +446,10 @@ describe("ModelInfoService", () => {
       // AND returns the newly created model
       expect(actualCreatedModel).toEqual({
         ...givenResponseBody,
+        exportProcessState: givenResponseBody.exportProcessState.map((givenExportProcessState) => ({
+          ...givenExportProcessState,
+          timestamp: new Date(givenExportProcessState.timestamp),
+        })),
         createdAt: new Date(givenResponseBody.createdAt),
         updatedAt: new Date(givenResponseBody.updatedAt),
       });

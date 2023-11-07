@@ -1,4 +1,6 @@
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+
 export namespace ModelInfoTypes {
   export type Locale = {
     UUID: string;
@@ -15,6 +17,19 @@ export namespace ModelInfoTypes {
       parsingWarnings: boolean;
     };
   };
+
+  export type ExportProcessState = {
+    id: string;
+    status: ExportProcessStateAPISpecs.Enums.Status;
+    result: {
+      errored: boolean;
+      exportErrors: boolean;
+      exportWarnings: boolean;
+    };
+    downloadUrl: string;
+    timestamp: Date;
+  };
+
   export type ModelInfo = {
     id: string;
     UUID: string;
@@ -28,6 +43,7 @@ export namespace ModelInfoTypes {
     description: string;
     path: string;
     tabiyaPath: string;
+    exportProcessState: ExportProcessState[];
     importProcessState: ImportProcessState;
     createdAt: Date;
     updatedAt: Date;

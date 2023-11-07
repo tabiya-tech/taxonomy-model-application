@@ -207,31 +207,13 @@ export default class ModelInfoService {
 
   transform(payloadItem: ModelInfoTypeAPISpecs): ModelInfoTypes.ModelInfo {
     return {
-      id: payloadItem.id,
-      UUID: payloadItem.UUID,
-      previousUUID: payloadItem.previousUUID,
-      originUUID: payloadItem.originUUID,
-      name: payloadItem.name,
-      description: payloadItem.description,
-      locale: {
-        UUID: payloadItem.locale.UUID,
-        name: payloadItem.locale.name,
-        shortCode: payloadItem.locale.shortCode,
-      },
-      released: payloadItem.released,
-      releaseNotes: payloadItem.releaseNotes,
-      version: payloadItem.version,
-      path: payloadItem.path,
-      tabiyaPath: payloadItem.tabiyaPath,
-      importProcessState: {
-        id: payloadItem.importProcessState.id,
-        status: payloadItem.importProcessState.status,
-        result: {
-          errored: payloadItem.importProcessState.result.errored,
-          parsingErrors: payloadItem.importProcessState.result.parsingErrors,
-          parsingWarnings: payloadItem.importProcessState.result.parsingWarnings,
-        },
-      },
+      ...payloadItem,
+      exportProcessState: payloadItem.exportProcessState.map((exportProcessState) => {
+        return {
+          ...exportProcessState,
+          timestamp: new Date(exportProcessState.timestamp),
+        };
+      }),
       createdAt: new Date(payloadItem.createdAt),
       updatedAt: new Date(payloadItem.updatedAt),
     };

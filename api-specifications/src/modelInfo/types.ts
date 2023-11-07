@@ -1,5 +1,6 @@
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
+import ExportProcessState from "../exportProcessState";
 // Have a common supertype for all the responses to inherit from
 // These types are hidden because they should only be referenced through the index.
 interface IModelInfoResponse extends IModelInfoRequest {
@@ -12,6 +13,17 @@ interface IModelInfoResponse extends IModelInfoRequest {
   released: boolean;
   releaseNotes: string;
   version: string;
+  exportProcessState: {
+    id: string;
+    status: ExportProcessState.Enums.Status;
+    result: {
+      errored: boolean;
+      exportErrors: boolean;
+      exportWarnings: boolean;
+    };
+    downloadUrl: string;
+    timestamp: string;
+  }[];
   importProcessState: {
     id: string;
     status: ImportProcessState.Enums.Status;

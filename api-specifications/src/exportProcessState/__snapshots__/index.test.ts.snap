@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the exportProcessState module The export module matches the snapshot 1`] = `
+{
+  "Enums": {
+    "Status": {
+      "COMPLETED": "completed",
+      "PENDING": "pending",
+      "RUNNING": "running",
+    },
+  },
+  "Schemas": {
+    "GET": {
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/ExportProcessStateSchema",
+          "additionalProperties": false,
+          "description": "The state of the import process of the model. Since the import process is asynchronous, use the status to check if the import process has completed and the result to check if the process encountered any issues",
+          "properties": {
+            "createdAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+            "downloadUrl": {
+              "description": "The url to download the exported model.",
+              "format": "uri",
+              "pattern": "^https://",
+              "type": "string",
+            },
+            "id": {
+              "description": "The identifier of the specific export state.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "modelId": {
+              "description": "The identifier of the model to be exported.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "result": {
+              "additionalProperties": false,
+              "description": "The result of the export process of the model. It can be errored, export errors or export warnings.",
+              "properties": {
+                "errored": {
+                  "description": "if the export process has completed or it was did not complete due to some unexpected error.",
+                  "type": "boolean",
+                },
+                "exportErrors": {
+                  "description": "if the export encountered errors while export the csv files.",
+                  "type": "boolean",
+                },
+                "exportWarnings": {
+                  "description": "if the export encountered warnings while export the csv files.",
+                  "type": "boolean",
+                },
+              },
+              "required": [
+                "errored",
+                "exportErrors",
+                "exportWarnings",
+              ],
+              "type": "object",
+            },
+            "status": {
+              "description": "The status of the export process of the model.",
+              "enum": [
+                "pending",
+                "running",
+                "completed",
+              ],
+              "type": "string",
+            },
+            "timestamp": {
+              "description": "The timestamp of the export process.",
+              "format": "date-time",
+              "type": "string",
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+          },
+          "required": [
+            "id",
+            "modelId",
+            "status",
+            "result",
+            "downloadUrl",
+            "timestamp",
+            "createdAt",
+            "updatedAt",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;

@@ -45,6 +45,7 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
+      exportProcessState: [],
       importProcessState: {
         id: getMockId(10000 + i),
         status: getRandomStatus(i),
@@ -85,6 +86,7 @@ export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.Mod
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
+      exportProcessState: [],
       importProcessState: {
         id: getMockId(10000 + i),
         status: getRandomStatus(i),
@@ -126,6 +128,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
+      exportProcessState: [],
       importProcessState: {
         id: getMockId(10000 + i),
         status: getRandomStatus(i),
