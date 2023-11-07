@@ -16,7 +16,7 @@
     "postinstall:darwin:linux": "(cd .. && ./link-tabiya-prettier-config.sh)",
     "postinstall": "run-script-os",
     "pregenerateSchemas": "rimraf -I schemas",
-    "generateSchemas": "ts-node generateJsonSchemaFiles.ts './src/error/index.ts' './src/importProcessState/index.ts' './src/info/index.ts' './src/locale/index.ts' './src/modelInfo/index.ts' './src/presigned/index.ts'",
+    "generateSchemas": "ts-node generateJsonSchemaFiles.ts './src/error/index.ts' './src/import/index.ts' './src/export/index.ts' './src/importProcessState/index.ts' './src/info/index.ts' './src/locale/index.ts' './src/modelInfo/index.ts' './src/presigned/index.ts'",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/"
   },

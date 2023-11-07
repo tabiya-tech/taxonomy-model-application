@@ -2,6 +2,7 @@ import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import ErrorAPISpecs from "api-specifications/error";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import ImportAPISpecs from "api-specifications/import";
+import ExportAPISpecs from "api-specifications/export";
 
 export enum HTTP_VERBS {
   GET = "GET",
@@ -58,6 +59,7 @@ export function errorResponse(
   errorCode:
     | ErrorAPISpecs.Constants.ErrorCodes
     | ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes
+    | ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes
     | ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes
     | ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes,
   message: string,

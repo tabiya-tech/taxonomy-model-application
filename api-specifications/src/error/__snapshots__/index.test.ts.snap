@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the error module The export module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "ErrorCodes": {
+      "BAD_REQUEST": "BAD_REQUEST",
+      "INTERNAL_SERVER_ERROR": "INTERNAL_SERVER_ERROR",
+      "INVALID_JSON_SCHEMA": "INVALID_JSON_SCHEMA",
+      "MALFORMED_BODY": "MALFORMED_BODY",
+      "METHOD_NOT_ALLOWED": "METHOD_NOT_ALLOWED",
+      "NOT_FOUND": "NOT_FOUND",
+      "TOO_LARGE_PAYLOAD": "TOO_LARGE_PAYLOAD",
+      "UNSUPPORTED_MEDIA_TYPE": "UNSUPPORTED_MEDIA_TYPE",
+    },
+    "ReasonPhrases": {
+      "BAD_REQUEST": "Bad Request",
+      "INTERNAL_SERVER_ERROR": "Internal Server Error",
+      "INVALID_JSON_SCHEMA": "Invalid json schema",
+      "MALFORMED_BODY": "Payload is malformed, it should be a valid model json",
+      "METHOD_NOT_ALLOWED": "Method Not Allowed",
+      "NOT_FOUND": "Not Found",
+      "TOO_LARGE_PAYLOAD": "Payload is too long",
+      "UNSUPPORTED_MEDIA_TYPE": "Unsupported Media Type",
+    },
+  },
+  "Schemas": {
+    "Payload": {
+      "$id": "/components/schemas/ErrorSchema",
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "description": "Additional details about the error. Might be an empty string if no additional details are available",
+          "type": "string",
+        },
+        "errorCode": {
+          "description": "A code that API consumers can use to determine the type of error that occurred",
+          "enum": [
+            "MALFORMED_BODY",
+            "METHOD_NOT_ALLOWED",
+            "NOT_FOUND",
+            "INTERNAL_SERVER_ERROR",
+            "UNSUPPORTED_MEDIA_TYPE",
+            "TOO_LARGE_PAYLOAD",
+            "BAD_REQUEST",
+            "INVALID_JSON_SCHEMA",
+            "FAILED_TO_TRIGGER_IMPORT",
+            "FAILED_TO_TRIGGER_EXPORT",
+            "DB_FAILED_TO_CREATE_MODEL",
+            "MODEL_COULD_NOT_VALIDATE",
+          ],
+          "pattern": "\\S",
+          "type": "string",
+        },
+        "message": {
+          "description": "A human readable description of the error",
+          "type": "string",
+        },
+      },
+      "required": [
+        "errorCode",
+        "message",
+        "details",
+      ],
+      "type": "object",
+    },
+  },
+  "Types": {},
+}
+`;
