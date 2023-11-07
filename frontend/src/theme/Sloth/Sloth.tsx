@@ -76,6 +76,8 @@ export const Sloth = (props: SlothProps) => {
 
   const animationStyle = () => {
     return {
+      margin: "0",
+      padding: "0",
       overflow: "visible",
       animation: `moveBackAndForth 1200s linear infinite`,
       "@keyframes moveBackAndForth": {
@@ -192,8 +194,8 @@ export const Sloth = (props: SlothProps) => {
       data-testid={DATA_TEST_ID.SLOTH}
       style={{
         position: "relative",
-        padding: "none",
-        margin: theme.spacing(theme.tabiyaSpacing.lg),
+        margin: "0",
+        padding: "0",
       }}
     >
       {props.children}

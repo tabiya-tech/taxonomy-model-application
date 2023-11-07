@@ -3,13 +3,13 @@
 exports[`Sloth should render the sloth with given props 1`] = `
 <div
   data-testid="sloth-5f51c2ff-74cd-4a23-98b4-0c1f5404d5ee"
-  style="position: relative;"
+  style="position: relative; margin: 0px; padding: 0px;"
 >
   <div
     data-testid="children"
   />
   <div
-    class="MuiContainer-root MuiContainer-maxWidthLg css-1mk5h0z-MuiContainer-root"
+    class="MuiContainer-root MuiContainer-maxWidthLg css-19c55h0-MuiContainer-root"
   >
     <svg
       overflow="visible"
@@ -132,13 +132,13 @@ exports[`Sloth should render the sloth with given props 1`] = `
 exports[`Sloth should render the sloth with the default props 1`] = `
 <div
   data-testid="sloth-5f51c2ff-74cd-4a23-98b4-0c1f5404d5ee"
-  style="position: relative;"
+  style="position: relative; margin: 0px; padding: 0px;"
 >
   <div
     data-testid="children"
   />
   <div
-    class="MuiContainer-root MuiContainer-maxWidthLg css-v5c7zv-MuiContainer-root"
+    class="MuiContainer-root MuiContainer-maxWidthLg css-s6ksas-MuiContainer-root"
   >
     <svg
       overflow="visible"
