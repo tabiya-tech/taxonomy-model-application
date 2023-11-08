@@ -15,7 +15,9 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
+import ExportProcessStateApiSpecs from "api-specifications/exportProcessState";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import { IExportProcessState, INewExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -37,6 +39,20 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+  };
+}
+
+function getNewExportProcessStateSpec(modelId: string): INewExportProcessStateSpec {
+  return {
+    modelId: modelId,
+    status: ExportProcessStateApiSpecs.Enums.Status.RUNNING,
+    result: {
+      errored: false,
+      exportErrors: false,
+      exportWarnings: false,
+    },
+    downloadUrl: "https://example.com/" + randomUUID(),
+    timestamp: new Date(),
   };
 }
 
@@ -110,6 +126,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
             parsingWarnings: false,
           },
         },
+        exportProcessState: [],
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       };
@@ -164,6 +181,17 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       expect(actualFoundModel).toEqual(givenExistingModel);
     });
 
+    testExportProcessStatePopulation(
+      async () => {
+        const givenExistingModel = await repository.create(getNewModelInfoSpec());
+        return [givenExistingModel];
+      },
+      async (givenModels: IModelInfo[]) => {
+        const actualModel = (await repository.getModelById(givenModels[0].id)) as IModelInfo;
+        return [actualModel];
+      }
+    );
+
     test("Should return null if the model does not exist", async () => {
       // GIVEN a model in the database does not exist, i.e. the id is not in the database because it was deleted
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
@@ -195,6 +223,17 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       // THEN expect the found model to be equal to the existing model
       expect(actualFoundModel).toEqual(givenExistingModel);
     });
+
+    testExportProcessStatePopulation(
+      async () => {
+        const givenExistingModel = await repository.create(getNewModelInfoSpec());
+        return [givenExistingModel];
+      },
+      async (givenModels: IModelInfo[]) => {
+        const actualModel = (await repository.getModelByUUID(givenModels[0].UUID)) as IModelInfo;
+        return [actualModel];
+      }
+    );
 
     test("Should return null if a model with the provided UUID does not exist", async () => {
       // GIVEN a model in the database does not exist i.e. the UUID is not in the database because it was deleted
@@ -233,6 +272,19 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       });
     });
 
+    testExportProcessStatePopulation(
+      async () => {
+        const givenExistingModels = [];
+        for (let i = 0; i < 3; i++) {
+          givenExistingModels.push(await repository.create(getNewModelInfoSpec()));
+        }
+        return givenExistingModels;
+      },
+      async () => {
+        return (await repository.getModels()) as IModelInfo[];
+      }
+    );
+
     test("should return an empty array when no models exist in the database", async () => {
       // GIVEN no models exist in the database
       const givenEmptyArray: IModelInfo[] = [];
@@ -248,4 +300,48 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       return repository.modelInfo.getModels();
     });
   });
+
+  function testExportProcessStatePopulation(
+    setupFn: () => Promise<IModelInfo[]>,
+    getActualModelsFn: (givenModels: IModelInfo[]) => Promise<IModelInfo[]>
+  ) {
+    return test("should populate the exportProcessState", async () => {
+      // GIVEN n model info exists in the database
+      const givenExistingModels = await setupFn();
+      // AND some exportProcessState entries related to the model exist in the database
+
+      let givenExportProcessStates: IExportProcessState[] = [];
+      for (const givenExistingModel of givenExistingModels) {
+        const givenExportProcessStateSpec1 = getNewExportProcessStateSpec(givenExistingModel.id);
+        const givenExportProcessStateSpec2 = getNewExportProcessStateSpec(givenExistingModel.id);
+        const exportProcessStates = await Promise.all([
+          repositoryRegistry.exportProcessState.create(givenExportProcessStateSpec1),
+          repositoryRegistry.exportProcessState.create(givenExportProcessStateSpec2),
+        ]);
+        givenExportProcessStates.push(...exportProcessStates);
+      }
+
+      // WHEN retrieving the actual model
+      const actualModels = await getActualModelsFn(givenExistingModels);
+
+      for (const actualModel of actualModels) {
+        // THEN expect the model to be found
+        expect(actualModel).toBeDefined();
+        // AND expect the exportProcessState to be populated
+        const actualExportProcessStates = givenExportProcessStates.filter(
+          (exportProcessState) => exportProcessState.modelId === actualModel.id
+        );
+        expect(actualExportProcessStates.length).toEqual(2);
+        actualExportProcessStates.forEach((givenExportProcessState, index) => {
+          expect(actualModel.exportProcessState).toContainEqual({
+            id: givenExportProcessState.id,
+            downloadUrl: givenExportProcessState.downloadUrl,
+            status: givenExportProcessState.status,
+            result: givenExportProcessState.result,
+            timestamp: expect.any(Date),
+          });
+        });
+      }
+    });
+  }
 });

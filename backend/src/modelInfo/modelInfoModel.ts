@@ -6,8 +6,15 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfoDoc } from "./modelInfo.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
+import {
+  ExportProcessStateModelPaths,
+  ModelName as ExportProcessStateModelName,
+} from "export/exportProcessState/exportProcessStateModel";
 
 export const ModelName = "ModelInfo";
+export const ModelInfoModelPaths = {
+  exportProcessState: "exportProcessState",
+};
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IModelInfoDoc> {
   // Schema for Locale
@@ -99,6 +106,13 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
+
+  modelInfoSchema.virtual(ModelInfoModelPaths.exportProcessState, {
+    ref: ExportProcessStateModelName,
+    localField: "_id",
+    foreignField: ExportProcessStateModelPaths.modelId,
+    justOne: false,
+  });
 
   modelInfoSchema.index({ UUID: 1 }, { unique: true });
   // Model

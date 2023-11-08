@@ -10,6 +10,7 @@ import * as skillHierarchyModel from "esco/skillHierarchy/skillHierarchyModel";
 import * as skillToSkillRelationModel from "esco/skillToSkillRelation/skillToSkillRelationModel";
 import * as occupationToSkillRelationModel from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
+import * as exportProcessStateModel from "export/exportProcessState/exportProcessStateModel";
 
 import { IISCOGroupRepository, ISCOGroupRepository } from "esco/iscoGroup/ISCOGroupRepository";
 import { ISkillGroupRepository, SkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
@@ -32,6 +33,10 @@ import {
   IOccupationToSkillRelationRepository,
   OccupationToSkillRelationRepository,
 } from "esco/occupationToSkillRelation/occupationToSkillRelationRepository";
+import {
+  ExportProcessStateRepository,
+  IExportProcessStateRepository,
+} from "export/exportProcessState/exportProcessStateRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -117,6 +122,14 @@ export class RepositoryRegistry {
     this._repositories.set("IImportProcessStateRepository", repository);
   }
 
+  public get exportProcessState(): IExportProcessStateRepository {
+    return this._repositories.get("IExportProcessStateRepository");
+  }
+
+  public set exportProcessState(repository: IExportProcessStateRepository) {
+    this._repositories.set("IExportProcessStateRepository", repository);
+  }
+
   async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
 
@@ -146,6 +159,9 @@ export class RepositoryRegistry {
       this.occupation.Model
     );
     this.importProcessState = new ImportProcessStateRepository(importStateModel.initializeSchemaAndModel(connection));
+    this.exportProcessState = new ExportProcessStateRepository(
+      exportProcessStateModel.initializeSchemaAndModel(connection)
+    );
 
     // Set up the indexes
     // This is done here because the autoIndex is turned off in production
@@ -163,6 +179,7 @@ export class RepositoryRegistry {
     await this.skillToSkillRelation.relationModel.createIndexes();
     await this.occupationToSkillRelation.relationModel.createIndexes();
     await this.importProcessState.Model.createIndexes();
+    await this.exportProcessState.Model.createIndexes();
   }
 }
 

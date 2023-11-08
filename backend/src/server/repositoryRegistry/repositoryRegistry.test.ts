@@ -42,6 +42,7 @@ describe("test the RepositoryRegistry", () => {
     expect(repositoryRegistry.occupation).toBeDefined();
     expect(repositoryRegistry.occupationHierarchy).toBeDefined();
     expect(repositoryRegistry.importProcessState).toBeDefined();
+    expect(repositoryRegistry.exportProcessState).toBeDefined();
     expect(repositoryRegistry.skillHierarchy).toBeDefined();
     expect(repositoryRegistry.skillToSkillRelation).toBeDefined();
     expect(repositoryRegistry.occupationToSkillRelation).toBeDefined();

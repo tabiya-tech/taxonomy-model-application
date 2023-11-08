@@ -14,7 +14,10 @@ export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.
     locale: data.locale,
     path: `${baseURL}/${data.id}`,
     tabiyaPath: `${baseURL}/${data.UUID}`,
-    exportProcessState: [],
+    exportProcessState: data.exportProcessState.map((exportProcessState) => ({
+      ...exportProcessState,
+      timestamp: exportProcessState.timestamp.toISOString(),
+    })),
     importProcessState: data.importProcessState,
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
