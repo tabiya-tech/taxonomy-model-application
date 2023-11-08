@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
-import { TableCellProps, Typography } from "@mui/material";
+import { Button, TableCellProps, Typography } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -15,10 +15,14 @@ import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
 import { ExportStateCellContent } from "./ExportStateCellContent/ExportStateCellContent";
 import Container from "@mui/material/Container";
+import ContextMenu from "./ContextMenu/ContextMenu";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Theme } from "@mui/material/styles";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
   isLoading?: boolean;
+  notifyOnExport?: (modelId: string) => void;
 }
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";
@@ -31,6 +35,7 @@ export const TEXT = {
   TABLE_HEADER_LABEL_DESCRIPTION: "Description",
   TABLE_HEADER_LABEL_IMPORT_STATE: "Import state",
   TABLE_HEADER_LABEL_EXPORT_STATE: "Export state and model download",
+  TABLE_HEADER_LABEL_MODEL_ACTIONS: "Model Actions",
 };
 
 export const DATA_TEST_ID = {
@@ -42,6 +47,7 @@ export const DATA_TEST_ID = {
   MODEL_CELL_RELEASED_ICON: `model-cell-released-icon-${uniqueId}`,
   MODEL_CELL_IMPORT_STATE_ICON_CONTAINER: `model-cell-import-state-icon-container-${uniqueId}`,
   MODEL_CELL_EXPORT_STATE_CONTAINER: `model-cell-export-state-container-${uniqueId}`,
+  MODEL_CELL_MORE_BUTTON: `model-cell-more-icon-${uniqueId}`,
 };
 
 interface StyledCellProps extends TableCellProps {
@@ -53,7 +59,7 @@ const StyledHeaderCell = ({ cellSx, typoSx, ...props }: Readonly<StyledCellProps
   return (
     <TableCell
       sx={{
-        padding: (theme) => theme.tabiyaSpacing.sm,
+        padding: CELL_PADDING,
         backgroundColor: (theme) => theme.palette.containerBackground.main,
         ...cellSx,
       }}
@@ -83,7 +89,7 @@ const StyledBodyCell = ({ cellSx, typoSx, ...props }: Readonly<StyledCellProps>)
         // --- Break long text at any part of the word, and shown a hyphen (-) at the break
         wordWrap: "break-word",
         hyphens: "auto",
-        padding: (theme) => theme.tabiyaSpacing.sm,
+        padding: CELL_PADDING,
         ...cellSx,
       }}
       data-testid={DATA_TEST_ID.MODEL_CELL}
@@ -103,7 +109,29 @@ const StyledBodyCell = ({ cellSx, typoSx, ...props }: Readonly<StyledCellProps>)
 };
 
 export const CELL_MAX_LENGTH = 256;
+
+const MORE_BUTTON_WIDTH = "32px";
+const MORE_COLUMN_WIDTH = "48px"; // 32px + 16px (padding)
+const EXPORT_STATE_COLUMN_WIDTH = "106px"; // approx 90px for the icon + 16px for the button padding
+const IMPORT_STATE_COLUMN_WIDTH = "40px"; // 24px for the icon + 16px for the button padding
+const CELL_PADDING = (theme: Theme) => theme.tabiyaSpacing.sm;
+
+type CurrentContext = {
+  anchorEl: HTMLElement;
+  modelId: string;
+};
 const ModelsTable = (props: Readonly<ModelsTableProps>) => {
+  const [currentContext, setCurrentContext] = React.useState<CurrentContext | undefined>(undefined);
+  const handleShowContextMenu = (anchorEl: HTMLElement, modelId: string) => {
+    setCurrentContext({ anchorEl, modelId });
+  };
+
+  const handleExport = (modelId: string | undefined) => {
+    if (modelId !== undefined && props.notifyOnExport !== undefined) {
+      props.notifyOnExport(modelId);
+    }
+  };
+
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
     // sorts the incoming in descending order of createdAt
     return models.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -137,7 +165,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
         sx={{
           width: `calc(100% - ${2 * paperElevation}px)`,
           height: `calc(100% - ${2 * paperElevation}px)`,
-          borderRadius: (theme) => theme.tabiyaSpacing.sm,
+          borderRadius: (theme) => theme.tabiyaRounding.sm,
         }}
       >
         <Table
@@ -154,18 +182,19 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
         >
           <TableHead>
             <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
-              <StyledHeaderCell width="50px" aria-label={TEXT.TABLE_HEADER_LABEL_IMPORT_STATE} />
+              <StyledHeaderCell width={IMPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_IMPORT_STATE} />
               <StyledHeaderCell cellSx={{ width: "calc(35%)" }}>{TEXT.TABLE_HEADER_LABEL_NAME}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_LOCALE}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_VERSION}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_RELEASED}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(35%)" }}>{TEXT.TABLE_HEADER_LABEL_DESCRIPTION}</StyledHeaderCell>
-              <StyledHeaderCell width={"120px"} aria-label={TEXT.TABLE_HEADER_LABEL_EXPORT_STATE} />
+              <StyledHeaderCell width={EXPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_EXPORT_STATE} />
+              <StyledHeaderCell width={MORE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_MODEL_ACTIONS} />
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.isLoading ? ( // Number of cols is 7 because we have 7 columns in the table
-              <TableLoadingRows numberOfCols={7} numberOfRows={10} />
+            {props.isLoading ? ( // Number of cols is 8 because we have 8 columns in the table
+              <TableLoadingRows numberOfCols={8} numberOfRows={10} />
             ) : (
               sortedModels.map((model) => (
                 <TableRow
@@ -180,12 +209,12 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                   <TableCell
                     align={"center"}
                     sx={{
-                      padding: (theme) => theme.tabiyaSpacing.sm,
+                      padding: CELL_PADDING,
                     }}
                     data-testid={DATA_TEST_ID.MODEL_CELL}
                   >
                     <Container
-                      style={{ display: "contents" }}
+                      style={{ display: "contents", padding: 0, margin: 0 }}
                       data-testid={DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER}
                     >
                       <ImportProcessStateIcon importProcessState={model.importProcessState} />
@@ -216,17 +245,39 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                       ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
                       : model.description}
                   </StyledBodyCell>
-                  <TableCell
-                    align={"center"}
-                    sx={{ padding: (theme) => theme.tabiyaSpacing.sm }}
-                    data-testid={DATA_TEST_ID.MODEL_CELL}
-                  >
+                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
                     <Container
-                      style={{ display: "contents" }}
+                      style={{
+                        display: "contents",
+                        padding: 0,
+                        margin: 0,
+                      }}
                       data-testid={DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER}
                     >
                       <ExportStateCellContent model={model} />
                     </Container>
+                  </TableCell>
+                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
+                    <Button
+                      sx={{
+                        minWidth: MORE_BUTTON_WIDTH,
+                        width: "100%",
+                        margin: 0,
+                        padding: 0,
+                      }}
+                      color={"primary"}
+                      onClick={(event) => handleShowContextMenu(event.currentTarget, model.id)}
+                      data-testid={DATA_TEST_ID.MODEL_CELL_MORE_BUTTON}
+                    >
+                      <MoreVertIcon
+                        titleAccess={TEXT.TABLE_HEADER_LABEL_MODEL_ACTIONS}
+                        sx={{
+                          cursor: "pointer",
+                          margin: 0,
+                          padding: 0,
+                        }}
+                      />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -234,6 +285,12 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <ContextMenu
+        anchorEl={currentContext?.anchorEl}
+        open={Boolean(currentContext)}
+        notifyOnClose={() => setCurrentContext(undefined)}
+        notifyOnExport={() => handleExport(currentContext?.modelId)}
+      />
     </Box>
   );
 };

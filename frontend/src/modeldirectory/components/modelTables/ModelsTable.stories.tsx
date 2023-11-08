@@ -5,7 +5,7 @@ import { getArrayOfFakeModels, getArrayOfFakeModelsMaxLength, getOneFakeModel } 
 import { getAllImportProcessStatePermutations } from "../importProcessStateIcon/_test_utilities/importProcesStateTestData";
 
 const meta: Meta<typeof ModelsTable> = {
-  title: "ModelDirectory/ModelsTable",
+  title: "ModelDirectory/ModelsTable/ModelsTable",
   component: ModelsTable,
   tags: ["autodocs"],
   argTypes: {},
