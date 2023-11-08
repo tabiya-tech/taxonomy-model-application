@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { IModelInfo, IModelInfoDoc, INewModelInfoSpec } from "./modelInfo.types";
 import { populateImportProcessStateOptions } from "./populateImportProcessStateOptions";
+import { populateExportProcessStateOptions } from "./populateExportProcessStateOptions";
 
 export interface IModelRepository {
   readonly Model: mongoose.Model<IModelInfoDoc>;
@@ -66,7 +67,7 @@ export class ModelRepository implements IModelRepository {
         importProcessState: new mongoose.Types.ObjectId(), // models are created empty and are populated asynchronously with data via an import process
       });
       await newModelInfo.save();
-      await newModelInfo.populate(populateImportProcessStateOptions);
+      await newModelInfo.populate([populateImportProcessStateOptions, populateExportProcessStateOptions]);
       return newModelInfo.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -76,7 +77,9 @@ export class ModelRepository implements IModelRepository {
 
   async getModelById(modelId: string): Promise<IModelInfo | null> {
     try {
-      const modelInfo = await this.Model.findById(modelId).populate(populateImportProcessStateOptions).exec();
+      const modelInfo = await this.Model.findById(modelId)
+        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
       console.error("getModelById failed", e);
@@ -90,7 +93,9 @@ export class ModelRepository implements IModelRepository {
       const filter = {
         UUID: { $eq: modelUUID },
       };
-      const modelInfo = await this.Model.findOne(filter).populate(populateImportProcessStateOptions).exec();
+      const modelInfo = await this.Model.findOne(filter)
+        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
       console.error("getModelByUUID failed", e);
@@ -100,7 +105,9 @@ export class ModelRepository implements IModelRepository {
 
   async getModels(): Promise<IModelInfo[]> {
     try {
-      const modelInfos = await this.Model.find({}).populate(populateImportProcessStateOptions).exec();
+      const modelInfos = await this.Model.find({})
+        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .exec();
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {
       console.error("getModels failed", e);

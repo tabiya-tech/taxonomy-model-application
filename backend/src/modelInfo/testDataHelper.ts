@@ -32,6 +32,19 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
         parsingWarnings: false,
       },
     },
+    exportProcessState: [
+      {
+        id: getMockStringId(200000 + n),
+        status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+        result: {
+          errored: false,
+          exportErrors: false,
+          exportWarnings: false,
+        },
+        downloadUrl: "https://foo.bar/" + n,
+        timestamp: new Date(),
+      },
+    ],
     createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
     updatedAt: new Date(), //.toISOString()
   };

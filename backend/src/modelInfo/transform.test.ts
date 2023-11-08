@@ -18,7 +18,10 @@ describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () 
     expect(actual).toEqual({
       ...givenObject,
       // AND the exportProcessState as an empty array
-      exportProcessState: [], // TODO: eventually once the exportProcessState is implemented, this should removed
+      exportProcessState: givenObject.exportProcessState.map((exportProcessState) => ({
+        ...exportProcessState,
+        timestamp: exportProcessState.timestamp.toISOString(),
+      })),
       // AND the path and tabiya path as based on the given base path
       path: `${givenBasePath}/${givenObject.id}`,
       tabiyaPath: `${givenBasePath}/${givenObject.UUID}`,

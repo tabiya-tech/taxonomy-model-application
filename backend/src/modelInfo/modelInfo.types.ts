@@ -1,4 +1,5 @@
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
+import ExportProcessStateApiSpecs from "api-specifications/exportProcessState/";
 import mongoose from "mongoose";
 
 /**
@@ -29,9 +30,20 @@ export interface IModelInfoDoc {
 /**
  * Describes how a model info is returned from the API
  */
-export interface IModelInfo extends Omit<IModelInfoDoc, "id" | "modelId" | "importProcessState"> {
+export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProcessState" | "exportProcessState"> {
   id: string;
   name: string;
+  exportProcessState: {
+    id: string;
+    status: ExportProcessStateApiSpecs.Enums.Status;
+    result: {
+      errored: boolean;
+      exportErrors: boolean;
+      exportWarnings: boolean;
+    };
+    downloadUrl: string;
+    timestamp: Date;
+  }[];
   importProcessState: {
     id: string;
     status: ImportProcessStateApiSpecs.Enums.Status;
