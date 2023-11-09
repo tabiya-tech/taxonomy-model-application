@@ -1,6 +1,8 @@
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+
 import { v4 as uuidv4 } from "uuid";
 
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
@@ -45,10 +47,10 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
-      exportProcessState: [],
+      exportProcessState: [getOneFakeExportProcessState(i)],
       importProcessState: {
         id: getMockId(10000 + i),
-        status: getRandomStatus(i),
+        status: getRandomImportStatus(i),
         result: {
           errored: i % 2 === 0,
           parsingErrors: i % 2 === 0,
@@ -86,10 +88,10 @@ export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.Mod
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
-      exportProcessState: [],
+      exportProcessState: [getOneFakeExportProcessState(i)],
       importProcessState: {
         id: getMockId(10000 + i),
-        status: getRandomStatus(i),
+        status: getRandomImportStatus(i),
         result: {
           errored: i % 2 === 0,
           parsingErrors: i % 2 === 0,
@@ -128,10 +130,10 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
       updatedAt: new Date(),
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
-      exportProcessState: [],
+      exportProcessState: [getOneFakeExportProcessState(i)],
       importProcessState: {
         id: getMockId(10000 + i),
-        status: getRandomStatus(i),
+        status: getRandomImportStatus(i),
         result: {
           errored: i % 2 === 0,
           parsingErrors: i % 2 === 0,
@@ -144,7 +146,26 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
   return models;
 }
 
-export function getRandomStatus(id: number) {
+export function getRandomImportStatus(id: number) {
   const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
   return allStatuses[id % allStatuses.length];
+}
+
+export function getRandomExportStatus(id: number) {
+  const allStatuses = Object.values(ExportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  return allStatuses[id % allStatuses.length];
+}
+
+export function getOneFakeExportProcessState(i: number): ModelInfoTypes.ExportProcessState {
+  return {
+    id: getMockId(10000 + i),
+    status: getRandomExportStatus(i),
+    result: {
+      errored: i % 2 === 0,
+      exportErrors: i % 2 === 0,
+      exportWarnings: i % 2 === 0,
+    },
+    downloadUrl: faker.internet.url(),
+    timestamp: new Date(Date.now() - i * 1000 * 60 * 60 * 24),
+  };
 }

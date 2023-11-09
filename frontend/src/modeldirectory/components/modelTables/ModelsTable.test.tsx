@@ -22,17 +22,37 @@ function encodeHtmlAttribute(value: string) {
 jest.mock("src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon", () => {
   const actual = jest.requireActual("src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon");
   const mockImportProcessStateIcon = jest.fn().mockImplementation(() => {
-    return <div data-testid="mock-state-icon"></div>;
+    return <div data-testid="mock-import-state-icon"></div>;
   });
 
   return {
     ...actual,
     __esModule: true,
+    ImportProcessStateIcon: mockImportProcessStateIcon,
     default: mockImportProcessStateIcon,
   };
 });
 
 import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
+
+// mock the ExportStateCellContent
+jest.mock("src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent", () => {
+  const actual = jest.requireActual(
+    "src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent"
+  );
+  const mockExportStateCellContent = jest.fn().mockImplementation(() => {
+    return <div data-testid="mock-export-state-content"></div>;
+  });
+
+  return {
+    ...actual,
+    __esModule: true,
+    ExportStateCellContent: mockExportStateCellContent,
+    default: mockExportStateCellContent,
+  };
+});
+
+import ExportStateCellContent from "src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent";
 
 // mock the TableLoadingRows
 jest.mock("src/modeldirectory/components/tableLoadingRows/TableLoadingRows", () => {
@@ -75,7 +95,10 @@ describe("ModelsTable", () => {
     // AND the table to have a header row
     const actualModelTableHeaderRow = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
     expect(actualModelTableHeaderRow).toBeInTheDocument();
+
+    // expect to find the correct number of header cells
     const actualHeaderCells = within(actualModelTableHeaderRow).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+    expect(actualHeaderCells.length).toEqual(7);
 
     // AND the NAME header cell to be shown
     const actualModelNameHeaderIndex = actualHeaderCells.findIndex(
@@ -109,14 +132,23 @@ describe("ModelsTable", () => {
     const actualModelReleasedHeaderCell = actualHeaderCells[actualModelReleasedHeaderIndex];
     expect(actualModelReleasedHeaderCell).toBeInTheDocument();
 
-    // AND the STATUS header cell to be shown
-    const actualModelStatusHeaderIndex = actualHeaderCells.findIndex(
+    // AND the IMPORT STATE header cell to be shown
+    const actualModelImportStateHeaderIndex = actualHeaderCells.findIndex(
       // @ts-ignore
-      (headerCell) => headerCell.attributes["aria-label"].value === TEXT.TABLE_HEADER_LABEL_STATUS
+      (headerCell) => headerCell.attributes["aria-label"]?.value === TEXT.TABLE_HEADER_LABEL_IMPORT_STATE
     );
-    expect(actualModelStatusHeaderIndex).toBeGreaterThanOrEqual(0);
-    const actualModelStatusHeaderCell = actualHeaderCells[actualModelStatusHeaderIndex];
-    expect(actualModelStatusHeaderCell).toBeInTheDocument();
+    expect(actualModelImportStateHeaderIndex).toBeGreaterThanOrEqual(0);
+    const actualModelImportStateHeaderCell = actualHeaderCells[actualModelImportStateHeaderIndex];
+    expect(actualModelImportStateHeaderCell).toBeInTheDocument();
+
+    // AND the EXPORT STATE header cell to be shown
+    const actualModelExportStateHeaderIndex = actualHeaderCells.findIndex(
+      // @ts-ignore
+      (headerCell) => headerCell.attributes["aria-label"]?.value === TEXT.TABLE_HEADER_LABEL_EXPORT_STATE
+    );
+    expect(actualModelExportStateHeaderIndex).toBeGreaterThanOrEqual(0);
+    const actualModelExportStateHeaderCell = actualHeaderCells[actualModelExportStateHeaderIndex];
+    expect(actualModelExportStateHeaderCell).toBeInTheDocument();
 
     // AND the DESCRIPTION header cell to be shown
     const actualModelDescriptionHeaderIndex = actualHeaderCells.findIndex(
@@ -151,11 +183,17 @@ describe("ModelsTable", () => {
       // AND the model's VERSION to be shown in the correct column
       expect(actualModelCells[actualModelVersionHeaderIndex]).toHaveTextContent(model.version);
 
-      // AND the model's STATUS icon to be shown in the correct column
-      const actualModelStatusIcon = within(actualModelCells[actualModelStatusHeaderIndex]).getByTestId(
-        DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER
+      // AND the model's IMPORT STATE icon to be shown in the correct column
+      const actualModelImportStateIcon = within(actualModelCells[actualModelImportStateHeaderIndex]).getByTestId(
+        DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER
       );
-      expect(actualModelStatusIcon).toBeInTheDocument();
+      expect(actualModelImportStateIcon).toBeInTheDocument();
+
+      // AND the model's EXPORT STATE Cell to be shown in the correct column
+      const actualModelExportStateCell = within(actualModelCells[actualModelExportStateHeaderIndex]).getByTestId(
+        DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER
+      );
+      expect(actualModelExportStateCell).toBeInTheDocument();
 
       // AND the model's RELEASE to be shown in the correct column
       let expectedReleasedContent = "";
@@ -199,25 +237,41 @@ describe("ModelsTable", () => {
     // AND the table to have a header row
     const actualModelTableHeaderRow = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
     expect(actualModelTableHeaderRow).toBeInTheDocument();
-    // AND the header row to have a name cell
+
+    // expect to find the correct number of header cells
+    const actualHeaderCells = within(actualModelTableHeaderRow).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+    expect(actualHeaderCells.length).toEqual(7);
+
+    // AND the header row to have a IMPORT STATE cell
+    const actualImportStateHeaderCell = within(actualModelTableHeaderRow).getByRole("columnheader", {
+      name: TEXT.TABLE_HEADER_LABEL_IMPORT_STATE,
+    });
+    expect(actualImportStateHeaderCell).toBeInTheDocument();
+    // AND the header row to have a EXPORT STATE cell
+    const actualExportStateHeaderCell = within(actualModelTableHeaderRow).getByRole("columnheader", {
+      name: TEXT.TABLE_HEADER_LABEL_EXPORT_STATE,
+    });
+    expect(actualExportStateHeaderCell).toBeInTheDocument();
+    // AND the header row to have a NAME cell
     const actualNameHeaderCell = await within(actualModelTableHeaderRow).findByText(TEXT.TABLE_HEADER_LABEL_NAME);
     expect(actualNameHeaderCell).toBeInTheDocument();
-    // AND the header row to have a locale cell
+    // AND the header row to have a LOCAL cell
     const actualLocaleHeaderCell = await within(actualModelTableHeaderRow).findByText(TEXT.TABLE_HEADER_LABEL_LOCALE);
     expect(actualLocaleHeaderCell).toBeInTheDocument();
-    // AND the header row to have a Version cell
+    // AND the header row to have a VERSION cell
     const actualVersionHeaderCell = await within(actualModelTableHeaderRow).findByText(TEXT.TABLE_HEADER_LABEL_VERSION);
     expect(actualVersionHeaderCell).toBeInTheDocument();
-    // AND the header row to have a Released cell
+    // AND the header row to have a RELEASE cell
     const actualReleasedHeaderCell = await within(actualModelTableHeaderRow).findByText(
       TEXT.TABLE_HEADER_LABEL_RELEASED
     );
     expect(actualReleasedHeaderCell).toBeInTheDocument();
-    // AND the header row to have a Description cell
+    // AND the header row to have a DESCRIPTION cell
     const actualDescriptionHeaderCell = await within(actualModelTableHeaderRow).findByText(
       TEXT.TABLE_HEADER_LABEL_DESCRIPTION
     );
     expect(actualDescriptionHeaderCell).toBeInTheDocument();
+
     // AND the table should not have any row
     const modelTableRows = screen.queryAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
     expect(modelTableRows).toHaveLength(0);
@@ -244,102 +298,133 @@ describe("ModelsTable", () => {
     });
   });
 
-  describe("should render the model.released", () => {
-    test.each([[true], [false]])("should render model.released = %s", (givenIsReleasedFlag) => {
-      // GIVEN n models with random data
-      const givenModels = getArrayOfRandomModelsMaxLength(1);
-      // AND a given released flag
-      givenModels[0].released = givenIsReleasedFlag;
+  describe("should render complex cells", () => {
+    describe("should render the model.released", () => {
+      test.each([[true], [false]])("should render model.released = %s", (givenIsReleasedFlag) => {
+        // GIVEN n models with random data
+        const givenModels = getArrayOfRandomModelsMaxLength(1);
+        // AND a given released flag
+        givenModels[0].released = givenIsReleasedFlag;
 
-      // WHEN the ModelsTable is rendered
-      render(<ModelsTable models={givenModels} />);
+        // WHEN the ModelsTable is rendered
+        render(<ModelsTable models={givenModels} />);
 
-      // THEN expect no errors or warning to have occurred
-      expect(console.error).not.toHaveBeenCalled();
-      expect(console.warn).not.toHaveBeenCalled();
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
 
-      // AND expect the released to be rendered based on the value
-      const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
-      const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
-      const releasedCellIndex = headerCells.findIndex(
-        (headerCell) => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_RELEASED
-      );
-      const actualModelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+        // AND expect the released to be rendered based on the value
+        const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
+        const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+        const releasedCellIndex = headerCells.findIndex(
+          (headerCell) => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_RELEASED
+        );
+        const actualModelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
 
-      actualModelRows.forEach((actualRow, index) => {
-        const actualRowCells = within(actualRow).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
-        const actualReleasedCell = actualRowCells[releasedCellIndex];
-        let expectedReleasedContent = "";
-        if (givenIsReleasedFlag) {
-          const icon = within(actualReleasedCell).getByTestId(DATA_TEST_ID.MODEL_CELL_RELEASED_ICON);
-          expectedReleasedContent = icon.innerHTML;
-        }
-        expect(actualReleasedCell).toContainHTML(expectedReleasedContent);
+        actualModelRows.forEach((actualRow, index) => {
+          const actualRowCells = within(actualRow).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+          const actualReleasedCell = actualRowCells[releasedCellIndex];
+          let expectedReleasedContent = "";
+          if (givenIsReleasedFlag) {
+            const icon = within(actualReleasedCell).getByTestId(DATA_TEST_ID.MODEL_CELL_RELEASED_ICON);
+            expectedReleasedContent = icon.innerHTML;
+          }
+          expect(actualReleasedCell).toContainHTML(expectedReleasedContent);
+        });
       });
     });
-  });
 
-  describe("should render the model.description", () => {
-    test.each([
-      ["empty", ""],
-      ["less than CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH - 1)],
-      ["equal to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH)],
-      ["longer than to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH + 1)],
-    ])("should render the 'model.description' then it is %s", (desc, givenDescription) => {
-      // GIVEN n models with random data of max length
-      const givenModels = getArrayOfRandomModelsMaxLength(1);
-      // AND a given description
-      givenModels[0].description = givenDescription;
+    describe("should render the model.description", () => {
+      test.each([
+        ["empty", ""],
+        ["less than CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH - 1)],
+        ["equal to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH)],
+        ["longer than to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH + 1)],
+      ])("should render the 'model.description' then it is %s", (desc, givenDescription) => {
+        // GIVEN n models with random data of max length
+        const givenModels = getArrayOfRandomModelsMaxLength(1);
+        // AND a given description
+        givenModels[0].description = givenDescription;
 
-      // WHEN the ModelsTable is rendered
-      render(<ModelsTable models={givenModels} />);
+        // WHEN the ModelsTable is rendered
+        render(<ModelsTable models={givenModels} />);
 
-      // THEN expect no errors or warning to have occurred
-      expect(console.error).not.toHaveBeenCalled();
-      expect(console.warn).not.toHaveBeenCalled();
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
 
-      // AND expected the description to render based on it's length
-      const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
-      const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
-      const descriptionCellIndex = headerCells.findIndex(
-        (headerCell) => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_DESCRIPTION
-      );
-      const actualModelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
+        // AND expected the description to render based on it's length
+        const tableHeader = screen.getByTestId(DATA_TEST_ID.MODEL_TABLE_HEADER_ROW);
+        const headerCells = within(tableHeader).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+        const descriptionCellIndex = headerCells.findIndex(
+          (headerCell) => headerCell.textContent === TEXT.TABLE_HEADER_LABEL_DESCRIPTION
+        );
+        const actualModelRows = screen.getAllByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
 
-      actualModelRows.forEach((row, index) => {
-        const rowCells = within(row).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
-        const descriptionCell = rowCells[descriptionCellIndex];
-        let expectedDescription = "";
-        if (givenDescription.length > CELL_MAX_LENGTH) {
-          expectedDescription = givenDescription.substring(0, CELL_MAX_LENGTH) + "...";
-        } else {
-          expectedDescription = givenDescription;
-        }
-        expect(descriptionCell.textContent).toMatch(expectedDescription);
+        actualModelRows.forEach((row, index) => {
+          const rowCells = within(row).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
+          const descriptionCell = rowCells[descriptionCellIndex];
+          let expectedDescription = "";
+          if (givenDescription.length > CELL_MAX_LENGTH) {
+            expectedDescription = givenDescription.substring(0, CELL_MAX_LENGTH) + "...";
+          } else {
+            expectedDescription = givenDescription;
+          }
+          expect(descriptionCell.textContent).toMatch(expectedDescription);
+        });
       });
     });
-  });
 
-  describe("should render the model.importStatus", () => {
-    test("should render the model.importStatus", () => {
-      // GIVEN a model with some Import status
-      const givenModel = getOneRandomModelMaxLength();
-      expect(givenModel.importProcessState).toBeDefined();
+    describe("should render the model.importProcessState", () => {
+      test("should render the model.importProcessState", () => {
+        // GIVEN a model with some Import state
+        const givenModel = getOneRandomModelMaxLength();
+        expect(givenModel.importProcessState).toBeDefined();
 
-      // WHEN the ModelsTable is rendered with the given model
-      render(<ModelsTable models={[givenModel]} />);
+        // WHEN the ModelsTable is rendered with the given model
+        render(<ModelsTable models={[givenModel]} />);
 
-      // THEN expect no errors or warning to have occurred
-      expect(console.error).not.toHaveBeenCalled();
-      expect(console.warn).not.toHaveBeenCalled();
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
 
-      // AND expect the icon to be shown
-      const actualModelCellStatusIconContainer = screen.getByTestId(DATA_TEST_ID.MODEL_CELL_STATUS_ICON_CONTAINER);
-      const actualImportStatusIcon = within(actualModelCellStatusIconContainer).getByTestId("mock-state-icon");
-      expect(actualImportStatusIcon).toBeInTheDocument();
+        // AND expect the icon to be shown
+        const actualModelCellImportStateIconContainer = screen.getByTestId(
+          DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER
+        );
+        const actualImportStateIcon = within(actualModelCellImportStateIconContainer).getByTestId(
+          "mock-import-state-icon"
+        );
+        expect(actualImportStateIcon).toBeInTheDocument();
 
-      // AND expect the ImportProcessStateIcon to have been called with the given import status
-      expect(ImportProcessStateIcon).toHaveBeenCalledWith({ importProcessState: givenModel.importProcessState }, {});
+        // AND expect the ImportProcessStateIcon to have been called with the given import state
+        expect(ImportProcessStateIcon).toHaveBeenCalledWith({ importProcessState: givenModel.importProcessState }, {});
+      });
+    });
+
+    describe("should render the model.exportProcessState", () => {
+      test("should render the model.exportProcessState", () => {
+        // GIVEN a model with some Export Process State
+        const givenModel = getOneRandomModelMaxLength();
+        expect(givenModel.exportProcessState).toBeDefined();
+
+        // WHEN the ModelsTable is rendered with the given model
+        render(<ModelsTable models={[givenModel]} />);
+
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
+
+        // AND expect the export content to be shown
+        const actualModelCellExportStateContainer = screen.getByTestId(DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER);
+        const actualExportStateContent = within(actualModelCellExportStateContainer).getByTestId(
+          "mock-export-state-content"
+        );
+        expect(actualExportStateContent).toBeInTheDocument();
+
+        // AND expect the ImportProcessStateIcon to have been called with the given import state
+        expect(ExportStateCellContent).toHaveBeenCalledWith({ model: givenModel }, {});
+      });
     });
   });
 

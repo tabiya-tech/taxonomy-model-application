@@ -2,8 +2,7 @@ import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { CheckCircle, Circle, ErrorOutline, WatchLater } from "@mui/icons-material";
 import * as React from "react";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import { runningIconStyle } from "./ImportProcessStateIcon.style";
-import { styled } from "@mui/material";
+import { PulsatingIcon } from "src/theme/PulsatingIcon/PulsatingIcon";
 
 const uniqueId = "bae86ed9-33bf-4492-a0e2-f9c8bd112bae";
 export const DATA_TEST_ID = {
@@ -18,17 +17,20 @@ export type ImportStatusIconProps = {
   importProcessState: ModelInfoTypes.ImportProcessState;
 };
 
-const StyledCircle = styled(Circle)(runningIconStyle);
-
-const PulsatingCircle = (props: any) => <StyledCircle {...props} />;
-
 export default function ImportProcessStateIcon(props: Readonly<ImportStatusIconProps>) {
   switch (props?.importProcessState?.status) {
     case ImportProcessStateAPISpecs.Enums.Status.PENDING:
       return <WatchLater titleAccess="Pending" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_PENDING} />;
     case ImportProcessStateAPISpecs.Enums.Status.RUNNING:
-      return <PulsatingCircle titleAccess="Running" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_RUNNING} />;
-    case ImportProcessStateAPISpecs.Enums.Status.COMPLETED:
+      return (
+        <PulsatingIcon
+          icon={Circle}
+          titleAccess="Running"
+          color="info"
+          data-testid={DATA_TEST_ID.ICON_STATUS_RUNNING}
+        />
+      );
+    case ImportProcessStateAPISpecs.Enums.Status.COMPLETED: {
       const result = props.importProcessState.result;
       if (result.errored || result.parsingErrors || result.parsingWarnings) {
         let title = "";
@@ -49,6 +51,7 @@ export default function ImportProcessStateIcon(props: Readonly<ImportStatusIconP
           data-testid={DATA_TEST_ID.ICON_STATUS_SUCCESS}
         />
       );
+    }
     default:
       return <div title="Unknown import status" data-testid={DATA_TEST_ID.ICON_STATUS_UNKNOWN} />;
   }

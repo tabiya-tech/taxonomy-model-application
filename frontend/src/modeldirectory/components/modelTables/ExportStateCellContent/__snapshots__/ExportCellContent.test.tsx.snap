@@ -1,0 +1,145 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExportStateCellContent should render the download button when the last export was successful and there were no errors or warnings 1`] = `
+<div
+  data-testid="mock-DownLoadButton-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 0 - pending - {"errored":true,"exportErrors":true,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 1 - pending - {"errored":true,"exportErrors":true,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 2 - pending - {"errored":true,"exportErrors":false,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 3 - pending - {"errored":true,"exportErrors":false,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 4 - pending - {"errored":false,"exportErrors":true,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 5 - pending - {"errored":false,"exportErrors":true,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 6 - pending - {"errored":false,"exportErrors":false,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 7 - pending - {"errored":false,"exportErrors":false,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 8 - running - {"errored":true,"exportErrors":true,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 9 - running - {"errored":true,"exportErrors":true,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 10 - running - {"errored":true,"exportErrors":false,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 11 - running - {"errored":true,"exportErrors":false,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 12 - running - {"errored":false,"exportErrors":true,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 13 - running - {"errored":false,"exportErrors":true,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 14 - running - {"errored":false,"exportErrors":false,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 15 - running - {"errored":false,"exportErrors":false,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 16 - completed - {"errored":true,"exportErrors":true,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 17 - completed - {"errored":true,"exportErrors":true,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 18 - completed - {"errored":true,"exportErrors":false,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 19 - completed - {"errored":true,"exportErrors":false,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 20 - completed - {"errored":false,"exportErrors":true,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 21 - completed - {"errored":false,"exportErrors":true,"exportWarnings":false} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the export process state icon when the last export was not successful 22 - completed - {"errored":false,"exportErrors":false,"exportWarnings":true} 1`] = `
+<div
+  data-testid="mock-ExportProcessState-icon"
+/>
+`;

@@ -1,0 +1,409 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_FAILED is rendered for completed 0 - {"errored":true,"exportErrors":true,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export failed
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_FAILED is rendered for completed 1 - {"errored":true,"exportErrors":true,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export failed
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_FAILED is rendered for completed 2 - {"errored":true,"exportErrors":false,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export failed
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_FAILED is rendered for completed 3 - {"errored":true,"exportErrors":false,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export failed
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_FAILED is rendered for completed 4 - {"errored":false,"exportErrors":true,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Exported completed with errors
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_FAILED is rendered for completed 5 - {"errored":false,"exportErrors":true,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Exported completed with errors
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_FAILED is rendered for completed 6 - {"errored":false,"exportErrors":false,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export completed with warnings
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 0 - {"errored":true,"exportErrors":true,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 1 - {"errored":true,"exportErrors":true,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 2 - {"errored":true,"exportErrors":false,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 3 - {"errored":true,"exportErrors":false,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 4 - {"errored":false,"exportErrors":true,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 5 - {"errored":false,"exportErrors":true,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 6 - {"errored":false,"exportErrors":false,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_PENDING is rendered for pending 7 - {"errored":false,"exportErrors":false,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+  data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Pending
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 0 - {"errored":true,"exportErrors":true,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 1 - {"errored":true,"exportErrors":true,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 2 - {"errored":true,"exportErrors":false,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 3 - {"errored":true,"exportErrors":false,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 4 - {"errored":false,"exportErrors":true,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 5 - {"errored":false,"exportErrors":true,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 6 - {"errored":false,"exportErrors":false,"exportWarnings":true} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_RUNNING is rendered for running 7 - {"errored":false,"exportErrors":false,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+  data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export in progress
+  </title>
+</svg>
+`;
+
+exports[`ExportProcessStateIcon Correct ICON_STATUS_SUCCESS is rendered for completed 0 - {"errored":false,"exportErrors":false,"exportWarnings":false} 1`] = `
+<svg
+  class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeMedium css-1x9cg3q-MuiSvgIcon-root"
+  data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+  focusable="false"
+  role="img"
+  viewBox="0 0 24 24"
+>
+  <path
+    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+  />
+  <title>
+    Export was successful
+  </title>
+</svg>
+`;
