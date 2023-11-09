@@ -504,14 +504,14 @@ describe("ModelDirectory", () => {
       const clearIntervalSpy = jest.spyOn(global, "clearInterval");
 
       // WHEN the ModelDirectory is mounted
-      const { unmount, container } = render(<ModelDirectory />);
+      const { unmount } = render(<ModelDirectory />);
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
       // AND  expect the ModelDirectory to be visible
       const actualModelDirectory = screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE);
-      expect(container).toBeInTheDocument();
+      expect(actualModelDirectory).toBeInTheDocument();
       // AND expect the model info service to have been called twice (once when the component is mounted and once when the timer fires)
       act(() => {
         jest.advanceTimersToNextTimer();

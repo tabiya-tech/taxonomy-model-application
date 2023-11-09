@@ -3,7 +3,7 @@ import ImportModelDialog, { CloseEvent, ImportData } from "src/import/ImportMode
 import { ServiceError, getUserFriendlyErrorMessage } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
-import { writeServiceErrorToLog } from "../error/logger";
+import { writeServiceErrorToLog } from "src/error/logger";
 import { Backdrop } from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/modelTables/ModelsTable";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";

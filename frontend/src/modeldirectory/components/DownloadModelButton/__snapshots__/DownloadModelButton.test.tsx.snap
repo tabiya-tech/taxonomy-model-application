@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DownloadModelButton should render 1`] = `
+<a
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-aqwr9w-MuiButtonBase-root-MuiIconButton-root"
+  data-testid="download-model-button-1623572c-456c-419e-9201-3c4971406fe1"
+  download="https://foo/bar"
+  href="https://foo/bar"
+  tabindex="0"
+  title="Download"
+>
+  <svg
+    aria-hidden="true"
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-dy5dri-MuiSvgIcon-root"
+    data-testid="FileDownloadIcon"
+    focusable="false"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
+    />
+  </svg>
+  <span
+    class="MuiTypography-root MuiTypography-caption css-1w1i5dg-MuiTypography-root"
+  >
+    Download
+  </span>
+  <span
+    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+  />
+</a>
+`;
