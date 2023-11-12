@@ -4,3 +4,9 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 import "@testing-library/jest-dom/extend-expect";
+
+// jest extended adds more matchers
+// allows you to do things like:
+// expect().toHaveBeenCalledBefore();
+// learn more: https://jest-extended.jestcommunity.dev/docs/
+import "jest-extended/all";
