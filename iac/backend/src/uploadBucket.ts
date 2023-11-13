@@ -47,7 +47,7 @@ export function setupUploadBucket(allowedOrigins: string[]): Bucket {
   return uploadBucket;
 }
 
-export function setupUploadBucketPolicy(uploadBucket: Bucket, restApiLambdaRole: aws.iam.Role, asyncLambdaRole: aws.iam.Role): void {
+export function setupUploadBucketPolicy(uploadBucket: Bucket, restApiLambdaRole: aws.iam.Role, asyncImportLambdaRole: aws.iam.Role): void {
   // Alternatively, you can attach a policy to the lambda function directly. It would work since the lambda function is
   // in the same account as the bucket. However, attaching a policy to the bucket would work even if the lambda is on a different account.
   // See https://repost.aws/knowledge-center/lambda-execution-role-s3-bucket for more details.
@@ -61,7 +61,7 @@ export function setupUploadBucketPolicy(uploadBucket: Bucket, restApiLambdaRole:
         Sid: "AllowS3ReadWrite",
         Effect: "Allow",
         Principal: {
-          "AWS": [restApiLambdaRole.arn, asyncLambdaRole.arn],
+          "AWS": [restApiLambdaRole.arn, asyncImportLambdaRole.arn],
         },
         Action: [
           "s3:GetObject",
