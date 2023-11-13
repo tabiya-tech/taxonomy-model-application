@@ -37,13 +37,15 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     }
   );
   SkillHierarchySchema.index({ modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 }, { unique: true });
+  SkillHierarchySchema.index({ modelId: 1, parentId: 1 });// Needed from the virtual children field that is populated via the populateSkillChildrenOptions
+  SkillHierarchySchema.index({ modelId: 1, childId: 1 }); // Needed from the virtual parents field that is populated via the populateSkillParentsOptions
 
   // Model
   return dbConnection.model<ISkillHierarchyPairDoc>(MongooseModelName.SkillHierarchy, SkillHierarchySchema);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const _TransformFn = (doc: any, ret: any) => {
+const _TransformFn = (_doc: any, ret: any) => {
   ret.parentId = ret.parentId.toString(); // Convert parentId to string
   ret.childId = ret.childId.toString(); // Convert childId to string
   return ret;
