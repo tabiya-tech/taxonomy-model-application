@@ -58,8 +58,8 @@ export function initializeSchemaAndModel(
     { modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 },
     { unique: true }
   );
-  OccupationHierarchySchema.index({ parentId: 1 });
-  OccupationHierarchySchema.index({ childId: 1 });
+  OccupationHierarchySchema.index({ modelId: 1, parentId: 1 }); // Needed from the virtual children field that is populated via the populateOccupationChildrenOptions
+  OccupationHierarchySchema.index({ modelId: 1, childId: 1 }); // Needed from the virtual parent field that is populated via the populateOccupationParentOptions
 
   // Model
   return dbConnection.model<IOccupationHierarchyPairDoc>(

@@ -39,8 +39,8 @@ export function initializeSchemaAndModel(
       }
     );
   OccupationToSkillRelationSchema.index({ modelId: 1, requiringOccupationId: 1, requiredSkillId: 1 }, { unique: true });
-  OccupationToSkillRelationSchema.index({ requiredSkillId: 1 }); // Needed for populateOccupationRequiresSkillsOptions
-  OccupationToSkillRelationSchema.index({ requiringOccupationId: 1 }); // Needed for populateSkillRequiredByOccupationsOptions
+  OccupationToSkillRelationSchema.index({ modelId: 1, requiredSkillId: 1 }); // Needed for the virtual Skill.requiredByOccupations field that is populated via the populateOccupationRequiresSkillsOptions
+  OccupationToSkillRelationSchema.index({ modelId: 1, requiringOccupationId: 1 }); // Needed for the virtual Occupation.requiresSkills field that is populated via the populateSkillRequiredByOccupationsOptions
 
   return dbConnection.model<IOccupationToSkillRelationPairDoc>(
     MongooseModelName.OccupationToSkillRelation,
