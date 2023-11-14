@@ -3,7 +3,7 @@ import "src/_test_utilities/consoleMock";
 
 import { fireEvent, render, waitFor, screen } from "@testing-library/react";
 import ContextMenu, { ContextMenuProps, DATA_TEST_ID } from "./ContextMenu";
-import { getOneRandomModelMaxLength } from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
+import { getOneRandomModelMaxLength } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
 describe("ContextMenu", () => {

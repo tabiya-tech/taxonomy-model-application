@@ -3,13 +3,13 @@ import "src/_test_utilities/consoleMock";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { DATA_TEST_ID, ExportStateCellContent } from "./ExportStateCellContent";
 import DownloadModelButton from "src/modeldirectory/components/DownloadModelButton/DownloadModelButton";
-import { getOneFakeModel } from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
+import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
-import { getAllExportProcessStatePermutations } from "src/modeldirectory/components/exportProcessStateIcon/_test_utilities/exportProcesStateTestData";
-import ExportProcessStateIcon from "src/modeldirectory/components/exportProcessStateIcon/exportProcessStateIcon";
+import { getAllExportProcessStatePermutations } from "src/modeldirectory/components/ExportProcessStateIcon/_test_utilities/exportProcesStateTestData";
+import ExportProcessStateIcon from "src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon";
 
 // mock the ExportProcessStateIcon component
-jest.mock("src/modeldirectory/components/exportProcessStateIcon/exportProcessStateIcon", () => {
+jest.mock("src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon", () => {
   const mock = jest.fn(() => {
     return <div data-testid={"mock-ExportProcessState-icon"} />;
   });

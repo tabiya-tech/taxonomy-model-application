@@ -4,7 +4,7 @@ import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import * as React from "react";
 import { useEffect } from "react";
 import Box from "@mui/material/Box";
-import { getOneRandomModelMaxLength } from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
+import { getOneRandomModelMaxLength } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ContextMenu> = {
   title: "ModelDirectory/ModelsTable/ContextMenu",

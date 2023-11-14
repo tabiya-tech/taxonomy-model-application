@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { useMenuService } from "./useMenuService";
 import React from "react";
-import { getOneRandomModelMaxLength } from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
+import { getOneRandomModelMaxLength } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
 describe("useMenuService", () => {
