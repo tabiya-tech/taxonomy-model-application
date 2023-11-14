@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ContextMenu render tests should render the ContextMenu visible 1`] = `
+exports[`ContextMenu Render tests should render the ContextMenu visible 1`] = `
 <div
   class="MuiPopover-root MuiMenu-root MuiModal-root css-10nakn3-MuiModal-root-MuiPopover-root-MuiMenu-root"
   data-testid="context-menu-715a535d-ca4b-4252-b967-8d5b5b2381b9"
@@ -25,11 +25,12 @@ exports[`ContextMenu render tests should render the ContextMenu visible 1`] = `
       role="menu"
       tabindex="-1"
     >
-      <li
+      <button
         class="MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters Mui-focusVisible MuiMenuItem-root MuiMenuItem-gutters css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root"
         data-testid="menu-item-export-715a535d-ca4b-4252-b967-8d5b5b2381b9"
         role="menuitem"
         tabindex="0"
+        type="button"
       >
         <div
           class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
@@ -58,7 +59,7 @@ exports[`ContextMenu render tests should render the ContextMenu visible 1`] = `
         <span
           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
-      </li>
+      </button>
     </ul>
   </div>
   <div
