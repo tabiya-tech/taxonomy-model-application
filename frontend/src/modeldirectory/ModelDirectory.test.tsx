@@ -16,7 +16,7 @@ import ImportDirectorService from "src/import/importDirector.service";
 import { ImportFiles } from "src/import/ImportFiles.type";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID } from "src/theme/Backdrop/Backdrop";
-import ModelsTable, { DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID } from "./components/modelTables/ModelsTable";
+import ModelsTable, { DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID } from "./components/ModelsTable/ModelsTable";
 import ModelDirectoryHeader, {
   DATA_TEST_ID as MODEL_DIRECTORY_HEADER_DATA_TEST_ID,
 } from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
@@ -26,7 +26,7 @@ import ImportAPISpecs from "api-specifications/import";
 import {
   getArrayOfRandomModelsMaxLength,
   getOneRandomModelMaxLength,
-} from "./components/modelTables/_test_utilities/mockModelData";
+} from "./components/ModelsTable/_test_utilities/mockModelData";
 import LocaleAPISpecs from "api-specifications/locale";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
@@ -91,8 +91,8 @@ jest.mock("src/import/ImportModelDialog", () => {
 });
 
 // mock the ModelsTable
-jest.mock("src/modeldirectory/components/modelTables/ModelsTable", () => {
-  const actual = jest.requireActual("src/modeldirectory/components/modelTables/ModelsTable");
+jest.mock("src/modeldirectory/components/ModelsTable/ModelsTable", () => {
+  const actual = jest.requireActual("src/modeldirectory/components/ModelsTable/ModelsTable");
   const mockModelsTable = jest.fn().mockImplementation(() => {
     return <div data-testid={actual.DATA_TEST_ID.MODELS_TABLE_ID}> My Models Table</div>;
   });

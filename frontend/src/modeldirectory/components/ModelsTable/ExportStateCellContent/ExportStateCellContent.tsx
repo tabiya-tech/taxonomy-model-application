@@ -1,6 +1,6 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { DownloadModelButton } from "src/modeldirectory/components/DownloadModelButton/DownloadModelButton";
-import ExportProcessStateIcon from "src/modeldirectory/components/exportProcessStateIcon/exportProcessStateIcon";
+import ExportProcessStateIcon from "src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import * as React from "react";
 

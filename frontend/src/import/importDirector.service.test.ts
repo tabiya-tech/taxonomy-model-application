@@ -47,7 +47,7 @@ import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
 import { ImportFiles } from "./ImportFiles.type";
-import { getOneRandomModelMaxLength } from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
+import { getOneRandomModelMaxLength } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 
 describe("Test the import director service", () => {
   it("should successfully direct the import", async () => {

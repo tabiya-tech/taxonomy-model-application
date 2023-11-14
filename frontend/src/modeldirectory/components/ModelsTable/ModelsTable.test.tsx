@@ -4,6 +4,7 @@ import "src/_test_utilities/consoleMock";
 import { render, screen, within } from "src/_test_utilities/test-utils";
 import ModelsTable, { CELL_MAX_LENGTH, DATA_TEST_ID, TEXT } from "./ModelsTable";
 import {
+  fakeModel,
   getArrayOfFakeModels,
   getArrayOfRandomModelsMaxLength,
   getOneRandomModelMaxLength,
@@ -11,11 +12,11 @@ import {
 import * as React from "react";
 import { getRandomLorem } from "src/_test_utilities/specialCharacters";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
+import ExportStateCellContent from "src/modeldirectory/components/ModelsTable/ExportStateCellContent/ExportStateCellContent";
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 import { fireEvent } from "@testing-library/react";
 import ContextMenu from "src/modeldirectory/components/ContextMenu/ContextMenu";
-import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
-import ExportStateCellContent from "src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent";
 import { getModelDisabledState } from "src/modeldirectory/components/ContextMenu/useMenuService";
 
 function encodeHtmlAttribute(value: string) {
@@ -25,8 +26,8 @@ function encodeHtmlAttribute(value: string) {
 }
 
 // mock the ImportProcessStateIcon
-jest.mock("src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon", () => {
-  const actual = jest.requireActual("src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon");
+jest.mock("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon", () => {
+  const actual = jest.requireActual("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon");
   const mockImportProcessStateIcon = jest.fn().mockImplementation(() => {
     return <div data-testid="mock-import-state-icon"></div>;
   });
@@ -52,9 +53,9 @@ jest.mock("src/modeldirectory/components/ContextMenu/ContextMenu", () => {
 });
 
 // mock the ExportStateCellContent
-jest.mock("src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent", () => {
+jest.mock("src/modeldirectory/components/ModelsTable/ExportStateCellContent/ExportStateCellContent", () => {
   const actual = jest.requireActual(
-    "src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent"
+    "src/modeldirectory/components/ModelsTable/ExportStateCellContent/ExportStateCellContent"
   );
   const mockExportStateCellContent = jest.fn().mockImplementation(() => {
     return <div data-testid="mock-export-state-content"></div>;
@@ -71,7 +72,7 @@ jest.mock("src/modeldirectory/components/modelTables/ExportStateCellContent/Expo
 // mock the TableLoadingRows
 jest.mock("src/modeldirectory/components/tableLoadingRows/TableLoadingRows", () => {
   const actual = jest.requireActual("src/modeldirectory/components/tableLoadingRows/TableLoadingRows");
-  const actualModelsTable = jest.requireActual("src/modeldirectory/components/modelTables/ModelsTable"); // need this just to be able to access the DATA_TEST_ID.MODELS_LOADER
+  const actualModelsTable = jest.requireActual("src/modeldirectory/components/ModelsTable/ModelsTable"); // need this just to be able to access the DATA_TEST_ID.MODELS_LOADER
   const mockTableLoadingBody = jest.fn().mockImplementation(() => {
     return <tr data-testid={actualModelsTable.DATA_TEST_ID.MODELS_LOADER}></tr>;
   });
@@ -242,6 +243,18 @@ describe("ModelsTable", () => {
         );
         expect(actualModelMoreIcon).toBeInTheDocument();
       });
+    });
+
+    test("should render the table with the single model and match the snapshot", () => {
+      // GIVEN a single model
+      // WHEN the ModelsTable is rendered with the single model in an array
+      render(<ModelsTable models={[fakeModel]} />);
+
+      // THEN expect the table to be shown
+      const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
+      expect(tableElement).toBeInTheDocument();
+      // AND the table to match the snapshot
+      expect(tableElement).toMatchSnapshot();
     });
 
     test.each([
@@ -501,6 +514,9 @@ describe("ModelsTable", () => {
         // AND no model should be shown
         const modelTableDataRowElement = screen.queryByTestId(DATA_TEST_ID.MODEL_TABLE_DATA_ROW);
         expect(modelTableDataRowElement).not.toBeInTheDocument();
+
+        // AND the table to match the snapshot
+        expect(tableElement).toMatchSnapshot();
       });
 
       test("should render the table without the loader component when the loading property is false", () => {

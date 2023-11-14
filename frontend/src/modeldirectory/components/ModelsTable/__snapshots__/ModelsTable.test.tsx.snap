@@ -1,0 +1,367 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelsTable render tests should render the table with the loader component when the loading property is set to true should render the table with the loader component when the loading property is set to true 1`] = `
+<div
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 MuiTableContainer-root css-151flt6-MuiPaper-root-MuiTableContainer-root"
+  data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+>
+  <table
+    aria-label="models table"
+    class="MuiTable-root MuiTable-stickyHeader css-4en0s3-MuiTable-root"
+    tabindex="0"
+  >
+    <thead
+      class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+      style="background: rgb(243, 241, 238);"
+    >
+      <tr
+        class="MuiTableRow-root MuiTableRow-head css-1ainsvg-MuiTableRow-root"
+        data-testid="model-table-header-row-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+      >
+        <th
+          aria-label="Import state"
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+          width="40px"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          />
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-11oy5px-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Name
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-wuo1dw-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Locale
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-wuo1dw-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Version
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-wuo1dw-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Released
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-11oy5px-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Description
+          </p>
+        </th>
+        <th
+          aria-label="Export state and model download"
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+          width="106px"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          />
+        </th>
+        <th
+          aria-label="Model Actions"
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+          width="48px"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          />
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+    >
+      <tr
+        data-testid="models-loader-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+      />
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`ModelsTable render tests should render the table with the single model and match the snapshot 1`] = `
+<div
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 MuiTableContainer-root css-151flt6-MuiPaper-root-MuiTableContainer-root"
+  data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+>
+  <table
+    aria-label="models table"
+    class="MuiTable-root MuiTable-stickyHeader css-4en0s3-MuiTable-root"
+    tabindex="0"
+  >
+    <thead
+      class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+      style="background: rgb(243, 241, 238);"
+    >
+      <tr
+        class="MuiTableRow-root MuiTableRow-head css-1ainsvg-MuiTableRow-root"
+        data-testid="model-table-header-row-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+      >
+        <th
+          aria-label="Import state"
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+          width="40px"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          />
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-11oy5px-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Name
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-wuo1dw-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Locale
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-wuo1dw-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Version
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-wuo1dw-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Released
+          </p>
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-11oy5px-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          >
+            Description
+          </p>
+        </th>
+        <th
+          aria-label="Export state and model download"
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+          width="106px"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          />
+        </th>
+        <th
+          aria-label="Model Actions"
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+          width="48px"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          />
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+    >
+      <tr
+        class="MuiTableRow-root css-fa68kn-MuiTableRow-root"
+        data-modelid="000000000000000000000001"
+        data-testid="model-table-row-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        tabindex="0"
+      >
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <div
+            class="MuiContainer-root MuiContainer-maxWidthLg css-dj5201-MuiContainer-root"
+            data-testid="model-cell-import-state-icon-container-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+            style="display: contents; padding: 0px; margin: 0px;"
+          >
+            <div
+              data-testid="mock-import-state-icon"
+            />
+          </div>
+        </td>
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="row"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
+          >
+            1/1 - fysmros tcgcnjbbrrev
+          </p>
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
+          >
+            Palestine
+             (
+            ETH
+            )
+          </p>
+        </td>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
+          >
+            0.2.2
+          </p>
+        </td>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-sqwehr-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
+          >
+            <svg
+              class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+              data-testid="model-cell-released-icon-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+              focusable="false"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m17.66 9.53-7.07 7.07-4.24-4.24 1.41-1.41 2.83 2.83 5.66-5.66 1.41 1.41zM4 12c0-2.33 1.02-4.42 2.62-5.88L9 8.5v-6H3l2.2 2.2C3.24 6.52 2 9.11 2 12c0 5.19 3.95 9.45 9 9.95v-2.02c-3.94-.49-7-3.86-7-7.93zm18 0c0-5.19-3.95-9.45-9-9.95v2.02c3.94.49 7 3.86 7 7.93 0 2.33-1.02 4.42-2.62 5.88L15 15.5v6h6l-2.2-2.2c1.96-1.82 3.2-4.41 3.2-7.3z"
+              />
+              <title>
+                Released
+              </title>
+            </svg>
+          </p>
+        </td>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
+          >
+            aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+          </p>
+        </td>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <div
+            class="MuiContainer-root MuiContainer-maxWidthLg css-dj5201-MuiContainer-root"
+            data-testid="model-cell-export-state-container-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+            style="display: contents; padding: 0px; margin: 0px;"
+          >
+            <div
+              data-testid="mock-export-state-content"
+            />
+          </div>
+        </td>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1eue9gk-MuiButtonBase-root-MuiButton-root"
+            data-testid="model-cell-more-icon-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+            tabindex="0"
+            type="button"
+          >
+            <svg
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-12v9cuf-MuiSvgIcon-root"
+              data-testid="MoreVertIcon"
+              focusable="false"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+              />
+              <title>
+                Model Actions
+              </title>
+            </svg>
+            <span
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+            />
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

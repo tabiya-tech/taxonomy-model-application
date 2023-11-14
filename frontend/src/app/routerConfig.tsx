@@ -1,5 +1,5 @@
-import Info from "../info/Info";
-import ModelDirectory from "../modeldirectory/ModelDirectory";
+import Info from "src/info/Info";
+import ModelDirectory from "src/modeldirectory/ModelDirectory";
 import NotFound from "src/errorPage/NotFound";
 import { Navigate } from "react-router-dom";
 

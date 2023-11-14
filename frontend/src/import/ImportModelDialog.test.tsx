@@ -11,7 +11,7 @@ import { DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID } from "src/import/components/F
 import ImportAPISpecs from "api-specifications/import";
 import { clickDebouncedButton, typeDebouncedInput } from "src/_test_utilities/userEventFakeTimer";
 import { ImportFiles } from "./ImportFiles.type";
-import { isSpecified } from "../utils/isUnspecified";
+import { isSpecified } from "src/utils/isUnspecified";
 import userEvent from "@testing-library/user-event";
 import { unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
