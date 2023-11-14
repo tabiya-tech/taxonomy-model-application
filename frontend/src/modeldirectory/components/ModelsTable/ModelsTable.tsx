@@ -23,7 +23,7 @@ import { useMenuService } from "src/modeldirectory/components/ContextMenu/useMen
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
   isLoading?: boolean;
-  notifyOnExport?: (modelId: string) => void;
+  notifyOnExport: (modelId: string) => void;
 }
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";
@@ -119,6 +119,12 @@ const CELL_PADDING = (theme: Theme) => theme.tabiyaSpacing.sm;
 
 const ModelsTable = (props: Readonly<ModelsTableProps>) => {
   const { menuState, openMenu, closeMenu } = useMenuService();
+
+  const handleExport = () => {
+    if (menuState.model) {
+      props.notifyOnExport(menuState.model.id);
+    }
+  };
 
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
     // sorts the incoming in descending order of createdAt
@@ -273,7 +279,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <ContextMenu {...menuState} notifyOnClose={closeMenu} notifyOnExport={() => {}} />
+      <ContextMenu {...menuState} notifyOnClose={closeMenu} notifyOnExport={handleExport} />
     </Box>
   );
 };

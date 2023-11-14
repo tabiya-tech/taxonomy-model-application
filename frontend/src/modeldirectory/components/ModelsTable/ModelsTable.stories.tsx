@@ -19,6 +19,7 @@ export const Shown: Story = {
   args: {
     models: getArrayOfFakeModels(20),
     isLoading: false,
+    notifyOnExport: () => {},
   },
 };
 
@@ -26,6 +27,7 @@ export const ShownWithLongData: Story = {
   args: {
     models: getArrayOfFakeModelsMaxLength(10),
     isLoading: false,
+    notifyOnExport: () => {},
   },
 };
 
@@ -33,6 +35,7 @@ export const ShownInLoadingState: Story = {
   args: {
     models: [],
     isLoading: true,
+    notifyOnExport: () => {},
   },
 };
 
@@ -44,6 +47,7 @@ export const ShownWithDifferentImportStates: Story = {
       return model;
     }),
     isLoading: false,
+    notifyOnExport: () => {},
   },
 };
 
@@ -55,5 +59,6 @@ export const ShownWithDifferentExportStates: Story = {
       return model;
     }),
     isLoading: false,
+    notifyOnExport: () => {},
   },
 };

@@ -12,6 +12,7 @@ import LocaleAPISpecs from "api-specifications/locale";
 import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
 import { IsOnlineContext } from "src/app/providers";
+import ExportService from "src/export/export.service";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -24,6 +25,7 @@ export const SNACKBAR_ID = {
 };
 const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
 const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
+const exportService = new ExportService("https://dev.tabiya.tech/api");
 export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
   {
     name: "South Africa",
@@ -42,6 +44,7 @@ const ModelDirectory = () => {
   const [isBackDropShown, setIsBackDropShown] = React.useState(false);
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
+  const [message, setMessage] = React.useState("");
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -111,6 +114,7 @@ const ModelDirectory = () => {
   const handleOnImportDialogClose = async (event: CloseEvent) => {
     showImportDialog(false);
     if (event.name === "IMPORT") {
+      setMessage("The model is being created and the files uploaded. Please wait ... ");
       setIsBackDropShown(true);
       const importData = event.importData as ImportData;
       try {
@@ -139,11 +143,38 @@ const ModelDirectory = () => {
     }
   };
 
+  const handleNotifyOnExport = async (modelId: string) => {
+    setMessage("The model is being exported. Please wait ...");
+    setIsBackDropShown(true);
+    const modelName = models.find((model) => model.id === modelId)?.name;
+    try {
+      await exportService.exportModel(modelId);
+      enqueueSnackbar(`The model '${modelName}' export has started.`, {
+        variant: "success",
+        preventDuplicate: true,
+      });
+    } catch (e) {
+      enqueueSnackbar(`The model '${modelName}' export could not be started. Please try again.`, {
+        variant: "error",
+        preventDuplicate: true,
+      });
+      if (e instanceof ServiceError) {
+        writeServiceErrorToLog(e, console.error);
+      } else {
+        console.error(e);
+      }
+    } finally {
+      setIsBackDropShown(false);
+    }
+  };
+
   return (
     <div style={{ width: "100%", height: "100%" }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
       <ContentLayout
         headerComponent={<ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />}
-        mainComponent={<ModelsTable models={models} isLoading={isLoadingModels} />}
+        mainComponent={
+          <ModelsTable models={models} isLoading={isLoadingModels} notifyOnExport={handleNotifyOnExport} />
+        }
       >
         {isImportDlgOpen && (
           <ImportModelDialog
@@ -152,12 +183,7 @@ const ModelDirectory = () => {
             notifyOnClose={handleOnImportDialogClose}
           />
         )}
-        {isBackDropShown && (
-          <Backdrop
-            isShown={isBackDropShown}
-            message="The model is being created and the files uploaded. Please wait ... "
-          />
-        )}
+        {isBackDropShown && <Backdrop isShown={isBackDropShown} message={message} />}
       </ContentLayout>
     </div>
   );
