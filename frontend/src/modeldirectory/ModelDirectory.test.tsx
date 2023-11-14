@@ -21,6 +21,7 @@ import ModelDirectoryHeader, {
   DATA_TEST_ID as MODEL_DIRECTORY_HEADER_DATA_TEST_ID,
 } from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
+import ExportService from "src/export/export.service";
 import ImportAPISpecs from "api-specifications/import";
 
 import {
@@ -204,7 +205,11 @@ describe("ModelDirectory", () => {
       expect(modelsTable).toBeInTheDocument();
 
       // AND the ModelsTable should receive the correct default props.
-      expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
+      expect(ModelsTable).toHaveBeenNthCalledWith(
+        1,
+        { models: [], isLoading: true, notifyOnExport: expect.any(Function) },
+        {}
+      );
 
       // AND WHEN the ModelInfoService resolves
       await waitFor(() => {
@@ -218,6 +223,7 @@ describe("ModelDirectory", () => {
           {
             models: givenMockData,
             isLoading: false,
+            notifyOnExport: expect.any(Function),
           },
           expect.anything()
         );
@@ -246,20 +252,32 @@ describe("ModelDirectory", () => {
       render(<ModelDirectory />);
 
       // The ModelsTable should be rendered with the default props
-      expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
+      expect(ModelsTable).toHaveBeenNthCalledWith(
+        1,
+        { models: [], isLoading: true, notifyOnExport: expect.any(Function) },
+        {}
+      );
       // AND the ModelsTable should be rendered succeeds at first
       act(() => {
         jest.advanceTimersToNextTimer();
       });
 
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(2, { models: ["foo1"], isLoading: false }, {});
+        expect(ModelsTable).toHaveBeenNthCalledWith(
+          2,
+          { models: ["foo1"], isLoading: false, notifyOnExport: expect.any(Function) },
+          {}
+        );
       });
       act(() => {
         jest.advanceTimersToNextTimer();
       });
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(3, { models: ["foo2"], isLoading: false }, {});
+        expect(ModelsTable).toHaveBeenNthCalledWith(
+          3,
+          { models: ["foo2"], isLoading: false, notifyOnExport: expect.any(Function) },
+          {}
+        );
       });
       // AND finally expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -283,7 +301,11 @@ describe("ModelDirectory", () => {
       render(<ModelDirectory />);
 
       // The ModelsTable should be rendered with the default props
-      expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
+      expect(ModelsTable).toHaveBeenNthCalledWith(
+        1,
+        { models: [], isLoading: true, notifyOnExport: expect.any(Function) },
+        {}
+      );
 
       // AND the ModelsTable should be rendered with the data returned by the ModelInfoService
       act(() => {
@@ -294,7 +316,11 @@ describe("ModelDirectory", () => {
         expect(callback).toHaveBeenCalledTimes(1);
       });
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(2, { models: ["foo"], isLoading: false }, {});
+        expect(ModelsTable).toHaveBeenNthCalledWith(
+          2,
+          { models: ["foo"], isLoading: false, notifyOnExport: expect.any(Function) },
+          {}
+        );
       });
 
       // AND the ModelsTable should not be re-rendered when the ModelInfoService returns the same data
@@ -320,7 +346,11 @@ describe("ModelDirectory", () => {
       });
       // now the ModelsTable should be re-rendered with the new data for a total of 3 times ( it was not re-rendered when the same data was returned)
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(3, { models: ["bar"], isLoading: false }, {});
+        expect(ModelsTable).toHaveBeenNthCalledWith(
+          3,
+          { models: ["bar"], isLoading: false, notifyOnExport: expect.any(Function) },
+          {}
+        );
       });
     });
 
@@ -339,7 +369,10 @@ describe("ModelDirectory", () => {
       const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
       expect(modelsTable).toBeInTheDocument();
       // AND the ModelsTable should receive the correct default props.
-      expect(ModelsTable).toHaveBeenCalledWith({ models: [], isLoading: true }, {});
+      expect(ModelsTable).toHaveBeenCalledWith(
+        { models: [], isLoading: true, notifyOnExport: expect.any(Function) },
+        {}
+      );
 
       // AND WHEN the ModelInfoService fails
       await waitFor(() => {
@@ -355,7 +388,10 @@ describe("ModelDirectory", () => {
         });
       });
       // AND the ModelsTable props to remain the same
-      expect(ModelsTable).toHaveBeenCalledWith({ models: [], isLoading: true }, {});
+      expect(ModelsTable).toHaveBeenCalledWith(
+        { models: [], isLoading: true, notifyOnExport: expect.any(Function) },
+        {}
+      );
       // AND the ModelsTable should not be re-rendered
       expect(ModelsTable).toHaveBeenCalledTimes(1);
       // AND finally expect no warning to have occurred
@@ -389,7 +425,11 @@ describe("ModelDirectory", () => {
       const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
       expect(modelsTable).toBeInTheDocument();
       // AND the ModelsTable should receive the correct default props
-      expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
+      expect(ModelsTable).toHaveBeenNthCalledWith(
+        1,
+        { models: [], isLoading: true, notifyOnExport: expect.any(Function) },
+        {}
+      );
       // AND WHEN the ModelInfoService succeeds at first
       act(() => {
         jest.advanceTimersToNextTimer();
@@ -402,6 +442,7 @@ describe("ModelDirectory", () => {
           {
             models: givenMockData,
             isLoading: false,
+            notifyOnExport: expect.any(Function),
           },
           expect.anything()
         );
@@ -424,7 +465,10 @@ describe("ModelDirectory", () => {
         });
       });
       // AND the ModelsTable to have been called with the previous props
-      expect(ModelsTable).toHaveBeenLastCalledWith({ models: givenMockData, isLoading: false }, {});
+      expect(ModelsTable).toHaveBeenLastCalledWith(
+        { models: givenMockData, isLoading: false, notifyOnExport: expect.any(Function) },
+        {}
+      );
       // AND finally expect no warning to have occurred
       expect(console.warn).not.toHaveBeenCalled();
     });
@@ -677,7 +721,11 @@ describe("ModelDirectory", () => {
         // THEN expect the fetchAllModelsPeriodically to not have been called
         expect(ModelInfoService.prototype.fetchAllModelsPeriodically).not.toHaveBeenCalled();
         // AND the table is rendered with the isLoading state
-        expect(ModelsTable).toHaveBeenNthCalledWith(1, { models: [], isLoading: true }, {});
+        expect(ModelsTable).toHaveBeenNthCalledWith(
+          1,
+          { models: [], isLoading: true, notifyOnExport: expect.any(Function) },
+          {}
+        );
 
         // AND WHEN the internet goes online
         act(() => mockBrowserIsOnLine(true));
@@ -692,7 +740,10 @@ describe("ModelDirectory", () => {
         // THEN the table is not rendered in the isLoading state
         //  The model is rendered three times, because offline/online notification causes it to re-render
         //  so simply checking the last call here would do the job
-        expect(ModelsTable).toHaveBeenLastCalledWith({ models: [], isLoading: false }, {});
+        expect(ModelsTable).toHaveBeenLastCalledWith(
+          { models: [], isLoading: false, notifyOnExport: expect.any(Function) },
+          {}
+        );
 
         // AND no error or warning to have occurred
         expect(console.error).not.toHaveBeenCalled();
@@ -785,7 +836,11 @@ describe("ModelDirectory", () => {
       expect(screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeNull();
 
       // AND the backdrop was shown
-      expect(Backdrop).toHaveBeenNthCalledWith(1, { isShown: true, message: expect.any(String) }, {});
+      expect(Backdrop).toHaveBeenNthCalledWith(
+        1,
+        { isShown: true, message: "The model is being created and the files uploaded. Please wait ... " },
+        {}
+      );
 
       // AND expect the import director service to have been called with the data entered by the user
       expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(
@@ -803,6 +858,7 @@ describe("ModelDirectory", () => {
           {
             models: expect.arrayContaining([givenNewModel]),
             isLoading: expect.any(Boolean),
+            notifyOnExport: expect.any(Function),
           },
           expect.anything()
         );
@@ -859,7 +915,11 @@ describe("ModelDirectory", () => {
       expect(screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeNull();
 
       // AND the backdrop was shown
-      expect(Backdrop).toHaveBeenNthCalledWith(1, { isShown: true, message: expect.any(String) }, {});
+      expect(Backdrop).toHaveBeenNthCalledWith(
+        1,
+        { isShown: true, message: "The model is being created and the files uploaded. Please wait ... " },
+        {}
+      );
 
       // AND expect the import director service to have been called with the data entered by the user
       expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(
@@ -929,8 +989,81 @@ describe("ModelDirectory", () => {
           {
             models: [givenNewModel, ...givenExistingModels],
             isLoading: false,
+            notifyOnExport: expect.any(Function),
           },
           expect.anything()
+        );
+      });
+    });
+  });
+
+  describe("handleNotifyOnExport", () => {
+    test("should handle export successfully", async () => {
+      // GIVEN the ModelDirectory is rendered
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
+        onSuccess(givenModels);
+        return 1 as unknown as NodeJS.Timer;
+      });
+      render(<ModelDirectory />);
+      // AND the export will succeed
+      const givenExportedModel = givenModels[1];
+      ExportService.prototype.exportModel = jest.fn().mockResolvedValueOnce(givenExportedModel);
+
+      // WHEN the user clicks the export button
+      act(() => {
+        const mock = (ModelsTable as jest.Mock).mock;
+        mock.lastCall[0].notifyOnExport(givenExportedModel.id);
+      });
+
+      // THEN expect the backdrop to be shown
+      expect(Backdrop).toHaveBeenNthCalledWith(
+        1,
+        { isShown: true, message: "The model is being exported. Please wait ..." },
+        {}
+      );
+      // AND the exportModel service to have been called with the modelId
+      expect(ExportService.prototype.exportModel).toHaveBeenCalledWith(givenExportedModel.id);
+      // AND the snackbar notification to be shown
+      await waitFor(() => {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+          `The model '${givenExportedModel.name}' export has started.`,
+          { variant: "success", preventDuplicate: true }
+        );
+      });
+    });
+
+    test("should handle export failure", async () => {
+      // GIVEN the ModelDirectory is rendered
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
+        onSuccess(givenModels);
+        return 1 as unknown as NodeJS.Timer;
+      });
+      render(<ModelDirectory />);
+      // AND the export will fail
+      const givenExportedModel = givenModels[1];
+      ExportService.prototype.exportModel = jest.fn().mockRejectedValueOnce(new Error("Export failed"));
+
+      // WHEN the user clicks the export button
+      act(() => {
+        const mock = (ModelsTable as jest.Mock).mock;
+        mock.lastCall[0].notifyOnExport(givenExportedModel.id);
+      });
+
+      // THEN expect the backdrop to be shown
+      expect(Backdrop).toHaveBeenNthCalledWith(
+        1,
+        { isShown: true, message: "The model is being exported. Please wait ..." },
+        {}
+      );
+      // AND the exportModel service to have been called with the modelId
+      expect(ExportService.prototype.exportModel).toHaveBeenCalledWith(givenExportedModel.id);
+      // AND the snackbar notification to be shown
+      await waitFor(() => {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+          `The model '${givenExportedModel.name}' export could not be started. Please try again.`,
+          { variant: "error", preventDuplicate: true }
         );
       });
     });
