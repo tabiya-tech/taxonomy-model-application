@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import ExportProcessStateIcon from "./exportProcessStateIcon";
+import ExportProcessStateIcon from "./ExportProcessStateIcon";
 import { getAllExportProcessStatePermutations } from "./_test_utilities/exportProcesStateTestData";
 import React from "react";
 

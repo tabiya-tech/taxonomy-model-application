@@ -8,7 +8,7 @@ import CancelButton from "src/theme/CancelButton/CancelButton";
 import { ImportFiles } from "./ImportFiles.type";
 import ModelLocalSelectField from "./components/ModelLocalSelectField";
 import LocaleAPISpecs from "api-specifications/locale";
-import PrimaryButton from "../theme/PrimaryButton/PrimaryButton";
+import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f";
 export const DATA_TEST_ID = {

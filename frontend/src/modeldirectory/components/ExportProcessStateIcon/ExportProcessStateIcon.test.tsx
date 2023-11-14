@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import * as React from "react";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { getAllExportProcessStatePermutations } from "./_test_utilities/exportProcesStateTestData";
-import ExportProcessStateIcon, { DATA_TEST_ID } from "./exportProcessStateIcon";
+import ExportProcessStateIcon, { DATA_TEST_ID } from "./ExportProcessStateIcon";
 import ExportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { ModelInfoTypes } from "../../../modelInfo/modelInfoTypes";
 

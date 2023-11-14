@@ -5,7 +5,7 @@ import { render, RenderOptions } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
 import applicationTheme, { ThemeMode } from "src/theme/applicationTheme";
 import SnackbarProvider from "src/theme/SnackbarProvider/SnackbarProvider";
-import { IsOnlineProvider } from "../app/providers";
+import { IsOnlineProvider } from "src/app/providers";
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (

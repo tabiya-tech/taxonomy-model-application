@@ -5,7 +5,7 @@ import ImportDirectorService from "src/import/importDirector.service";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { writeServiceErrorToLog } from "src/error/logger";
 import { Backdrop } from "src/theme/Backdrop/Backdrop";
-import ModelsTable from "./components/modelTables/ModelsTable";
+import ModelsTable from "./components/ModelsTable/ModelsTable";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocaleAPISpecs from "api-specifications/locale";

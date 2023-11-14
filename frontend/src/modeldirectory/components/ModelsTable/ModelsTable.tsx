@@ -12,7 +12,7 @@ import Box from "@mui/material/Box";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
-import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
+import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
 import { ExportStateCellContent } from "./ExportStateCellContent/ExportStateCellContent";
 import Container from "@mui/material/Container";
 import ContextMenu from "src/modeldirectory/components/ContextMenu/ContextMenu";
