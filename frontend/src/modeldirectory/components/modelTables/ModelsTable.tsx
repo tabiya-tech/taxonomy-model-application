@@ -15,9 +15,10 @@ import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
 import { ExportStateCellContent } from "./ExportStateCellContent/ExportStateCellContent";
 import Container from "@mui/material/Container";
-import ContextMenu from "./ContextMenu/ContextMenu";
+import ContextMenu from "src/modeldirectory/components/ContextMenu/ContextMenu";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Theme } from "@mui/material/styles";
+import { useMenuService } from "src/modeldirectory/components/ContextMenu/useMenuService";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
@@ -116,21 +117,8 @@ const EXPORT_STATE_COLUMN_WIDTH = "106px"; // approx 90px for the icon + 16px fo
 const IMPORT_STATE_COLUMN_WIDTH = "40px"; // 24px for the icon + 16px for the button padding
 const CELL_PADDING = (theme: Theme) => theme.tabiyaSpacing.sm;
 
-type CurrentContext = {
-  anchorEl: HTMLElement;
-  modelId: string;
-};
 const ModelsTable = (props: Readonly<ModelsTableProps>) => {
-  const [currentContext, setCurrentContext] = React.useState<CurrentContext | undefined>(undefined);
-  const handleShowContextMenu = (anchorEl: HTMLElement, modelId: string) => {
-    setCurrentContext({ anchorEl, modelId });
-  };
-
-  const handleExport = (modelId: string | undefined) => {
-    if (modelId !== undefined && props.notifyOnExport !== undefined) {
-      props.notifyOnExport(modelId);
-    }
-  };
+  const { menuState, openMenu, closeMenu } = useMenuService();
 
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
     // sorts the incoming in descending order of createdAt
@@ -266,7 +254,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                         padding: 0,
                       }}
                       color={"primary"}
-                      onClick={(event) => handleShowContextMenu(event.currentTarget, model.id)}
+                      onClick={(event) => openMenu(event, model)}
                       data-testid={DATA_TEST_ID.MODEL_CELL_MORE_BUTTON}
                     >
                       <MoreVertIcon
@@ -285,12 +273,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <ContextMenu
-        anchorEl={currentContext?.anchorEl}
-        open={Boolean(currentContext)}
-        notifyOnClose={() => setCurrentContext(undefined)}
-        notifyOnExport={() => handleExport(currentContext?.modelId)}
-      />
+      <ContextMenu {...menuState} notifyOnClose={closeMenu} notifyOnExport={() => {}} />
     </Box>
   );
 };
