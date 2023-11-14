@@ -4,6 +4,7 @@ import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import * as React from "react";
 import { useEffect } from "react";
 import Box from "@mui/material/Box";
+import { getOneRandomModelMaxLength } from "src/modeldirectory/components/modelTables/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ContextMenu> = {
   title: "ModelDirectory/ModelsTable/ContextMenu",
@@ -13,16 +14,6 @@ const meta: Meta<typeof ContextMenu> = {
     open: {
       control: {
         type: "boolean",
-      },
-    },
-    anchorEl: {
-      table: {
-        disable: true,
-      },
-    },
-    notifyOnExport: {
-      table: {
-        disable: true,
       },
     },
     notifyOnClose: {
@@ -43,7 +34,7 @@ export const Shown: Story = {
   },
 };
 
-function SetupComponent(props: ContextMenuProps) {
+function SetupComponent(props: Readonly<ContextMenuProps>) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   useEffect(() => {
     const anchor = document.getElementById("anchor-on-me");
@@ -56,10 +47,10 @@ function SetupComponent(props: ContextMenuProps) {
         <div style={{ border: "1px dashed", height: "20px", width: "100px" }} id="anchor-on-me" />
       </Box>
       <ContextMenu
-        anchorEl={anchorEl!}
+        anchorEl={anchorEl}
+        model={getOneRandomModelMaxLength()}
         open={anchorEl !== null && props.open}
         notifyOnClose={action("notifyOnClose")}
-        notifyOnExport={action("notifyOnExport")}
       />
     </>
   );

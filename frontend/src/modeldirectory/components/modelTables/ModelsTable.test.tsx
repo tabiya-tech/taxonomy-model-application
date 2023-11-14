@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { render, screen, within, act } from "src/_test_utilities/test-utils";
+import { render, screen, within } from "src/_test_utilities/test-utils";
 import ModelsTable, { CELL_MAX_LENGTH, DATA_TEST_ID, TEXT } from "./ModelsTable";
 import {
   getArrayOfFakeModels,
@@ -11,6 +11,12 @@ import {
 import * as React from "react";
 import { getRandomLorem } from "src/_test_utilities/specialCharacters";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
+import { fireEvent } from "@testing-library/react";
+import ContextMenu from "src/modeldirectory/components/ContextMenu/ContextMenu";
+import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
+import ExportStateCellContent from "src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent";
+import { getModelDisabledState } from "src/modeldirectory/components/ContextMenu/useMenuService";
 
 function encodeHtmlAttribute(value: string) {
   const element = document.createElement("div");
@@ -33,8 +39,8 @@ jest.mock("src/modeldirectory/components/importProcessStateIcon/ImportProcessSta
   };
 });
 
-jest.mock("src/modeldirectory/components/modelTables/ContextMenu/ContextMenu", () => {
-  const actual = jest.requireActual("src/modeldirectory/components/modelTables/ContextMenu/ContextMenu");
+jest.mock("src/modeldirectory/components/ContextMenu/ContextMenu", () => {
+  const actual = jest.requireActual("src/modeldirectory/components/ContextMenu/ContextMenu");
   const mockContextMenu = jest.fn().mockImplementation(() => {
     return <div data-testid="mock-context-menu"></div>;
   });
@@ -44,8 +50,6 @@ jest.mock("src/modeldirectory/components/modelTables/ContextMenu/ContextMenu", (
     default: mockContextMenu,
   };
 });
-
-import ImportProcessStateIcon from "src/modeldirectory/components/importProcessStateIcon/ImportProcessStateIcon";
 
 // mock the ExportStateCellContent
 jest.mock("src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent", () => {
@@ -64,8 +68,6 @@ jest.mock("src/modeldirectory/components/modelTables/ExportStateCellContent/Expo
   };
 });
 
-import ExportStateCellContent from "src/modeldirectory/components/modelTables/ExportStateCellContent/ExportStateCellContent";
-
 // mock the TableLoadingRows
 jest.mock("src/modeldirectory/components/tableLoadingRows/TableLoadingRows", () => {
   const actual = jest.requireActual("src/modeldirectory/components/tableLoadingRows/TableLoadingRows");
@@ -80,10 +82,6 @@ jest.mock("src/modeldirectory/components/tableLoadingRows/TableLoadingRows", () 
     default: mockTableLoadingBody,
   };
 });
-
-import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
-import { fireEvent, waitFor } from "@testing-library/react";
-import ContextMenu from "./ContextMenu/ContextMenu";
 
 describe("ModelsTable", () => {
   beforeEach(() => {
@@ -551,87 +549,61 @@ describe("ModelsTable", () => {
         expect(modelsLoaderElement).not.toBeInTheDocument();
       });
     });
+
+    test("should render the context menu with the initial state", () => {
+      // GIVEN n models are provided
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+
+      // WHEN the ModelsTable component is rendered with the given models
+      render(<ModelsTable models={givenModels} />);
+
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+
+      // AND the context menu to be called with the correct initial props
+      expect(ContextMenu).toHaveBeenCalledWith(
+        {
+          anchorEl: null,
+          model: null,
+          open: false,
+          notifyOnClose: expect.any(Function),
+          notifyOnExport: expect.any(Function),
+          isExportDisabled: false,
+        },
+        {}
+      );
+    });
   });
 
   describe("action tests", () => {
-    test("should display the ContextMenu when the 'more' button is clicked", async () => {
+    test("should display the ContextMenu with the correct props when the 'more' button is clicked", async () => {
       // GIVEN that the ModelsTable is shown with N models
       const givenModels = getArrayOfRandomModelsMaxLength(5);
       render(<ModelsTable models={givenModels} />);
 
       // WHEN the more button is clicked for a model
-      const actualButtons = screen.queryAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON);
-      const actualChosenIndex = 2; // choose and index that is not the first or last to avoid the edge cases
-      const actualChosenButton = actualButtons[actualChosenIndex];
-      fireEvent.click(actualChosenButton);
+      for (const model of givenModels) {
+        const index = givenModels.indexOf(model);
+        const actualMoreButton = screen.getAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON)[index];
+        fireEvent.click(actualMoreButton);
 
-      // THEN expect the context menu to be shown
-      const actualContextMenu = screen.getByTestId("mock-context-menu");
-      expect(actualContextMenu).toBeInTheDocument();
-      // AND expect the context menu to have been called with the correct props
-      await waitFor(() => {
-        expect(ContextMenu).toHaveBeenLastCalledWith(
+        // THEN expect the context menu to be shown
+        const actualContextMenu = screen.getByTestId("mock-context-menu");
+        expect(actualContextMenu).toBeInTheDocument();
+        // AND expect the context menu to have been called with the correct props
+        expect(ContextMenu).toHaveBeenCalledWith(
           {
-            anchorEl: actualChosenButton,
+            anchorEl: actualMoreButton,
             open: true,
+            model: model,
             notifyOnClose: expect.any(Function),
             notifyOnExport: expect.any(Function),
+            isExportDisabled: getModelDisabledState(model),
           },
           {}
         );
-      });
-    });
-
-    test("should close the ContextMenu when the context menu's notifyOnClose is called", () => {
-      // GIVEN the table is rendered with one model
-      const givenModel = getArrayOfRandomModelsMaxLength(1);
-      render(<ModelsTable models={givenModel} />);
-      // AND the export button is clicked
-      const actualButton = screen.getByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON);
-      fireEvent.click(actualButton);
-      // AND the context menu of the model is shown
-      const actualContextMenu = screen.getByTestId("mock-context-menu");
-      expect(actualContextMenu).toBeInTheDocument();
-
-      // WHEN the context menu's notifyOnClose function is called
-      act(() => {
-        (ContextMenu as jest.Mock).mock.lastCall[0].notifyOnClose();
-      });
-
-      // THEN expect the context menu to be closed
-      expect(ContextMenu).toHaveBeenLastCalledWith(
-        {
-          anchorEl: undefined,
-          open: false,
-          notifyOnClose: expect.any(Function),
-          notifyOnExport: expect.any(Function),
-        },
-        {}
-      );
-    });
-
-    test("should call the model table's notifyOnExport with the modelId when the context menu's notifyOnExport is called", () => {
-      // GIVEN a notifyOnExport function
-      const givenNotifyOnExport = jest.fn();
-      // AND the table is rendered with some models and the notifyOnExport
-      const givenModels = getArrayOfRandomModelsMaxLength(5);
-      render(<ModelsTable models={givenModels} notifyOnExport={givenNotifyOnExport} />);
-
-      // WHEN the context menu of one model is clicked
-      const actualButtons = screen.queryAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON);
-      const actualChosenIndex = 2; // choose and index that is not the first or last to avoid the edge cases
-      const actualChosenButton = actualButtons[actualChosenIndex];
-      fireEvent.click(actualChosenButton);
-      // AND the context menu of that  model is shown
-      const actualContextMenu = screen.getByTestId("mock-context-menu");
-      expect(actualContextMenu).toBeInTheDocument();
-      // AND the context menu's notifyOnExport function is called
-      act(() => {
-        (ContextMenu as jest.Mock).mock.lastCall[0].notifyOnExport();
-      });
-
-      // THEN expect the notifyOnExport function provided to the table to have been called with the modelId of the given model
-      expect(givenNotifyOnExport).toHaveBeenCalledWith(givenModels[actualChosenIndex].id);
+      }
     });
   });
 });
