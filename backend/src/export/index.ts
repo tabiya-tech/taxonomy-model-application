@@ -37,7 +37,7 @@ export const handler: (
  *               $ref: '#/components/schemas/ExportSchema'
  *         required: true
  *       responses:
- *         '201':
+ *         '202':
  *           description: Successfully triggered the export process.
  *         '400':
  *           description: |
@@ -96,11 +96,12 @@ async function postTriggerExport(event: APIGatewayProxyEvent) {
     });
     return responseJSON(StatusCodes.ACCEPTED, "");
   } catch (e: unknown) {
+    console.log(e);
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,
       ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes.FAILED_TO_TRIGGER_EXPORT,
       "Failed to trigger the export process",
-      ""
+      "Could not create the exportProcess State in the database"
     );
   }
 }
