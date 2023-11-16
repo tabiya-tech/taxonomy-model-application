@@ -1,4 +1,4 @@
-import { Context, Callback, APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import version from "./version.json";
 import { HTTP_VERBS, responseJSON, STD_ERRORS_RESPONSES } from "server/httpUtils";
@@ -26,11 +26,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
  *        500:
  *          $ref: '#/components/responses/InternalServerErrorResponse'
  */
-export const handler: (
-  event: APIGatewayProxyEvent,
-  context: Context,
-  callback: Callback
-) => Promise<APIGatewayProxyResult> = async (
+export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => {
   if (event?.httpMethod === HTTP_VERBS.GET) {

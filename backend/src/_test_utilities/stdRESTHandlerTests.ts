@@ -38,6 +38,7 @@ export function testRequestJSONMalformed(
   test.each([
     ["is a malformed json", "{"],
     ["is a string", "foo"],
+    ["is an empty string", ""],
   ])("POST should respond with BAD_REQUEST if request body %s", async (description, givenPayload) => {
     // GIVEN an event with the given payload
     const givenEvent = {

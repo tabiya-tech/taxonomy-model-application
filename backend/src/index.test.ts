@@ -34,10 +34,11 @@ import * as InfoHandler from "./applicationInfo";
 import * as ModelHandler from "./modelInfo/index";
 import * as PresignedHandler from "./presigned/index";
 import * as ImportHandler from "./import/index";
+import * as ExportHandler from "./export/index";
 import { APIGatewayProxyEventBase, APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { response, STD_ERRORS_RESPONSES } from "./server/httpUtils";
 import { initOnce } from "./server/init";
-import { APIGatewayEventDefaultAuthorizerContext, Callback, Context } from "aws-lambda";
+import { APIGatewayEventDefaultAuthorizerContext } from "aws-lambda";
 
 describe("test the main handler function", () => {
   beforeEach(() => {
@@ -52,20 +53,16 @@ describe("test the main handler function", () => {
     const givenEvent = {
       event: "",
     } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
-    // AND some context
-    const givenContext = { context: "" } as unknown as Context;
-    // AND some callback
-    const givenCallback = jest.fn();
     // AND the handleRouteEvent will successfully handle the event and return a response
     const givenResponse = response(200, { foo: "bar" });
     const givenHandleRouteEventSpy = jest.spyOn(MainHandler, "handleRouteEvent").mockResolvedValue(givenResponse);
 
-    // WHEN the main handler is invoked with the given event, context and callback
+    // WHEN the main handler is invoked with the given event
     // @ts-ignore
-    const actualResponse = await MainHandler.handler(givenEvent, givenContext, givenCallback);
+    const actualResponse = await MainHandler.handler(givenEvent);
 
     // THEN expect the handleRouteEvent function to be called with the given event, context and callback
-    expect(givenHandleRouteEventSpy).toBeCalledWith(givenEvent, givenContext, givenCallback);
+    expect(givenHandleRouteEventSpy).toBeCalledWith(givenEvent);
     // AND the main handler to return the response from the handleRouteEvent function
     expect(actualResponse).toEqual(givenResponse);
   });
@@ -118,95 +115,28 @@ describe("test the main handler function", () => {
 });
 
 describe("test the handleRouteEvent function", () => {
-  test("should call Info handler if path is /info", async () => {
-    // GIVEN an event with a path that is /info & any method
+  test.each([
+    ["/info", InfoHandler],
+    ["/presigned", PresignedHandler],
+    ["/import", ImportHandler],
+    ["/models", ModelHandler],
+    ["/export", ExportHandler],
+  ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
+    // GIVEN an event with the given path & any HTTP method
     const givenEvent = {
-      path: "/info",
+      path: givenPath,
     } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
-    // AND the InfoHandler will successfully handle the event and return a response
+    // AND the Handler will successfully handle the event and return a response
     const givenResponse = response(200, { foo: "bar" });
-    const givenInfoHandlerSpy = jest.spyOn(InfoHandler, "handler").mockResolvedValue(givenResponse);
-
-    // WHEN the handleRouteEvent is invoked with the given event
-    // @ts-ignore
-    const actualResponse = await MainHandler.handleRouteEvent(
-      givenEvent,
-      null as unknown as Context,
-      null as unknown as Callback<APIGatewayProxyResult>
-    );
-
-    // THEN expect InfoHandler to have been called with the given event
-    expect(givenInfoHandlerSpy).toBeCalledWith(givenEvent, null, null);
-    // AND the handleRouteEvent function to return the response from the InfoHandler
-    expect(actualResponse).toEqual(givenResponse);
-  });
-
-  test("should call presigned handler if path is /presigned", async () => {
-    // GIVEN an event with a path that is /presigned & any method
-    const givenEvent = {
-      path: "/presigned",
-    } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
-    // AND the PresignedHandler will successfully handle the event and return a response
-    const givenResponse = response(200, { foo: "bar" });
-    const givenPresignedHandlerSpy = jest.spyOn(PresignedHandler, "handler").mockResolvedValue(givenResponse);
-
-    // WHEN the handleRouteEvent is invoked with the given event
-    // @ts-ignore
-    const actualResponse = await MainHandler.handleRouteEvent(
-      givenEvent,
-      null as unknown as Context,
-      null as unknown as Callback<APIGatewayProxyResult>
-    );
-
-    // THEN expect PresignedHandler to have been called with the given event
-    expect(givenPresignedHandlerSpy).toBeCalledWith(givenEvent);
-    // AND the handleRouteEvent function to return the response from the PresignedHandler
-    expect(actualResponse).toEqual(givenResponse);
-  });
-
-  test("should call import handler if path is /import", async () => {
-    // GIVEN an event with a path that is /import & any method
-    const givenEvent = {
-      path: "/import",
-    } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
-    // AND the ImportHandler will successfully handle the event and return a response
-    const givenResponse = response(200, { foo: "bar" });
-    const givenImportHandlerSpy = jest.spyOn(ImportHandler, "handler").mockResolvedValue(givenResponse);
+    const givenHandlerSpy = jest.spyOn(handler, "handler").mockResolvedValue(givenResponse);
 
     // WHEN the handleRouteEvent is invoked and resolves with the given response
     // @ts-ignore
-    const actualResponse = await MainHandler.handleRouteEvent(
-      givenEvent,
-      null as unknown as Context,
-      null as unknown as Callback<APIGatewayProxyResult>
-    );
+    const actualResponse = await MainHandler.handleRouteEvent(givenEvent);
 
-    // THEN expect ImportHandler to have been called with the given event
-    expect(givenImportHandlerSpy).toBeCalledWith(givenEvent);
-    // AND the handleRouteEvent function to return the response from the ImportHandler
-    expect(actualResponse).toEqual(givenResponse);
-  });
-
-  test("should call model handler if path is /models", async () => {
-    // GIVEN an event with a path that is /models & any method
-    const givenEvent = {
-      path: "/models",
-    } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
-    // AND the ModelHandler will successfully handle the event and return a response
-    const givenResponse = response(200, { foo: "bar" });
-    const givenModelHandlerSpy = jest.spyOn(ModelHandler, "handler").mockResolvedValue(givenResponse);
-
-    // WHEN the handleRouteEvent is invoked and resolves with the given response
-    // @ts-ignore
-    const actualResponse = await MainHandler.handleRouteEvent(
-      givenEvent,
-      null as unknown as Context,
-      null as unknown as Callback<APIGatewayProxyResult>
-    );
-
-    // THEN expect ModelHandler to have been called with the given event
-    expect(givenModelHandlerSpy).toBeCalledWith(givenEvent);
-    // AND the handleRouteEvent function to return the response from the ModelHandler
+    // THEN expect Handler to have been called with the given event
+    expect(givenHandlerSpy).toBeCalledWith(givenEvent);
+    // AND the handleRouteEvent function to return the response from the Handler
     expect(actualResponse).toEqual(givenResponse);
   });
 
@@ -217,11 +147,7 @@ describe("test the handleRouteEvent function", () => {
     } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
     // WHEN the handleRouteEvent is called
     // @ts-ignore
-    const actualResponse: APIGatewayProxyResult = await MainHandler.handleRouteEvent(
-      givenEvent,
-      null as unknown as Context,
-      null as unknown as Callback<APIGatewayProxyResult>
-    );
+    const actualResponse: APIGatewayProxyResult = await MainHandler.handleRouteEvent(givenEvent);
 
     // THEN expect response to be NOT_FOUND
     expect(actualResponse).toBe(STD_ERRORS_RESPONSES.NOT_FOUND);
