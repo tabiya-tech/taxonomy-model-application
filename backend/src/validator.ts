@@ -3,6 +3,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import addFormats from "ajv-formats";
 import LocaleAPISpecs from "api-specifications/locale";
 import ImportAPISpecs from "api-specifications/import";
+import ExportAPISpecs from "api-specifications/export";
 
 export const ajvInstance = new Ajv({
   validateSchema: true,
@@ -20,6 +21,7 @@ ajvInstance.addSchema(
   ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id
 );
 ajvInstance.addSchema(ImportAPISpecs.Schemas.POST.Request.Payload, ImportAPISpecs.Schemas.POST.Request.Payload.$id);
+ajvInstance.addSchema(ExportAPISpecs.Schemas.POST.Request.Payload, ExportAPISpecs.Schemas.POST.Request.Payload.$id);
 /**
  * Turn the errors from ajv and turn into a string that consumers can read.
  * @param errors
