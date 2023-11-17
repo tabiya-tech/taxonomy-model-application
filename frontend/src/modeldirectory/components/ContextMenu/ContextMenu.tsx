@@ -1,16 +1,13 @@
 import * as React from "react";
 import { ListItemIcon, ListItemText, Menu, MenuItem, Typography } from "@mui/material";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
-import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 
-import ModelInfo = ModelInfoTypes.ModelInfo;
 export interface ContextMenuProps {
   anchorEl?: HTMLElement | null;
-  model?: ModelInfo | null;
   open: boolean;
-  isExportDisabled?: boolean;
+  isExportDisabled: boolean;
   notifyOnClose: () => void;
-  notifyOnExport?: () => void;
+  notifyOnExport: () => void;
 }
 
 const uniqueId = "715a535d-ca4b-4252-b967-8d5b5b2381b9";
@@ -23,9 +20,7 @@ export const DATA_TEST_ID = {
 const ContextMenu = (props: Readonly<ContextMenuProps>) => {
   function handleExport() {
     props.notifyOnClose();
-    if (props.notifyOnExport) {
-      props.notifyOnExport();
-    }
+    props.notifyOnExport();
   }
 
   return (

@@ -1,9 +1,10 @@
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ModelInfo = ModelInfoTypes.ModelInfo;
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { IsOnlineContext } from "src/app/providers";
 
-export const getModelDisabledState = (model: ModelInfo) => {
+export const isModelNotSuccessfullyImported = (model: ModelInfo) => {
   return (
     model?.importProcessState?.status !== ImportProcessStateAPISpecs.Enums.Status.COMPLETED ||
     model?.importProcessState?.result.errored !== false
@@ -11,37 +12,53 @@ export const getModelDisabledState = (model: ModelInfo) => {
 };
 
 export function useMenuService() {
+  const isOnline = useContext(IsOnlineContext);
   const [menuState, setMenuState] = useState<{
     anchorEl: HTMLElement | null;
-    model: ModelInfo | null;
     open: boolean;
-    isExportDisabled?: boolean;
+    isExportDisabled: boolean;
   }>({
     anchorEl: null,
-    model: null,
     open: false,
-    isExportDisabled: false,
+    isExportDisabled: !isOnline,
   });
+  const [model, setModel] = useState<ModelInfo | null>(null);
 
   const openMenu = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, model: ModelInfo) => {
     setMenuState({
       anchorEl: event.currentTarget,
-      model,
       open: true,
-      isExportDisabled: getModelDisabledState(model),
+      isExportDisabled: !isOnline || isModelNotSuccessfullyImported(model),
     });
+    setModel(model);
   };
 
   const closeMenu = () => {
     setMenuState({
       anchorEl: null,
-      model: null,
       open: false,
+      isExportDisabled: !isOnline,
     });
+    setModel(null);
   };
+
+  useEffect(() => {
+    if (!isOnline) {
+      setMenuState((prevState) => ({
+        ...prevState,
+        isExportDisabled: true,
+      }));
+    } else {
+      setMenuState((prevState) => ({
+        ...prevState,
+        isExportDisabled: isModelNotSuccessfullyImported(model!),
+      }));
+    }
+  }, [isOnline, model]);
 
   return {
     menuState,
+    model,
     openMenu,
     closeMenu,
   };

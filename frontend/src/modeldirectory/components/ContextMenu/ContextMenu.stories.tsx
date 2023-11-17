@@ -4,7 +4,6 @@ import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import * as React from "react";
 import { useEffect } from "react";
 import Box from "@mui/material/Box";
-import { getOneRandomModelMaxLength } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ContextMenu> = {
   title: "ModelDirectory/ModelsTable/ContextMenu",
@@ -34,6 +33,14 @@ export const Shown: Story = {
   },
 };
 
+export const DisabledOptions: Story = {
+  render: (args) => <SetupComponent {...args} />,
+  args: {
+    open: true,
+    isExportDisabled: true,
+  },
+};
+
 function SetupComponent(props: Readonly<ContextMenuProps>) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   useEffect(() => {
@@ -48,9 +55,10 @@ function SetupComponent(props: Readonly<ContextMenuProps>) {
       </Box>
       <ContextMenu
         anchorEl={anchorEl}
-        model={getOneRandomModelMaxLength()}
         open={anchorEl !== null && props.open}
         notifyOnClose={action("notifyOnClose")}
+        notifyOnExport={action("notifyOnExport")}
+        isExportDisabled={props.isExportDisabled}
       />
     </>
   );

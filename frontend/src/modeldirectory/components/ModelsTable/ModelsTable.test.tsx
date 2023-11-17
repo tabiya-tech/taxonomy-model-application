@@ -17,7 +17,7 @@ import ExportStateCellContent from "src/modeldirectory/components/ModelsTable/Ex
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 import { fireEvent } from "@testing-library/react";
 import ContextMenu from "src/modeldirectory/components/ContextMenu/ContextMenu";
-import { getModelDisabledState } from "src/modeldirectory/components/ContextMenu/useMenuService";
+import { isModelNotSuccessfullyImported } from "src/modeldirectory/components/ContextMenu/useMenuService";
 
 function encodeHtmlAttribute(value: string) {
   const element = document.createElement("div");
@@ -581,7 +581,6 @@ describe("ModelsTable", () => {
       expect(ContextMenu).toHaveBeenCalledWith(
         {
           anchorEl: null,
-          model: null,
           open: false,
           notifyOnClose: expect.any(Function),
           notifyOnExport: expect.any(Function),
@@ -612,10 +611,9 @@ describe("ModelsTable", () => {
           {
             anchorEl: actualMoreButton,
             open: true,
-            model: model,
             notifyOnClose: expect.any(Function),
             notifyOnExport: expect.any(Function),
-            isExportDisabled: getModelDisabledState(model),
+            isExportDisabled: isModelNotSuccessfullyImported(model),
           },
           {}
         );

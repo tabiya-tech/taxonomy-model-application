@@ -3,16 +3,14 @@ import "src/_test_utilities/consoleMock";
 
 import { fireEvent, render, waitFor, screen } from "@testing-library/react";
 import ContextMenu, { ContextMenuProps, DATA_TEST_ID } from "./ContextMenu";
-import { getOneRandomModelMaxLength } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
 describe("ContextMenu", () => {
   const stdGivenProps: ContextMenuProps = {
     anchorEl: document.createElement("div"), // Mock an HTMLElement
-    model: getOneRandomModelMaxLength(),
     open: true,
     notifyOnClose: jest.fn(),
     notifyOnExport: jest.fn(),
+    isExportDisabled: false,
   };
 
   describe("Render tests", () => {
@@ -57,23 +55,7 @@ describe("ContextMenu", () => {
 
     test("should call notifyOnExport and notifyOnClose when the export menu item is clicked", async () => {
       // WHEN the ContextMenu is rendered with the std given props
-      render(
-        <ContextMenu
-          {...stdGivenProps}
-          model={{
-            ...getOneRandomModelMaxLength(),
-            importProcessState: {
-              id: "some-id",
-              status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
-              result: {
-                parsingErrors: false,
-                parsingWarnings: false,
-                errored: false,
-              },
-            },
-          }}
-        />
-      );
+      render(<ContextMenu {...stdGivenProps} />);
 
       // WHEN the menu item is clicked
       fireEvent.click(screen.getByTestId(DATA_TEST_ID.MENU_ITEM_EXPORT));
