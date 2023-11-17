@@ -14,6 +14,15 @@ describe("Test the importProcessState module", () => {
       expect(importProcessStateModule.Enums.Status).toBeDefined();
     }).not.toThrowError();
   });
+
+  test("The import module matches the snapshot", () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(() => {
+      // THEN Check if the module can be required without error
+      expect(require("./").default).toMatchSnapshot();
+    }).not.toThrowError();
+  });
 });
 
 export {};

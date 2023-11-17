@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the info module The info module matches the snapshot 1`] = `
+{
+  "Schemas": {
+    "GET": {
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/InfoResponseSchemaGET",
+          "additionalProperties": false,
+          "properties": {
+            "branch": {
+              "description": "The name of the git branch the application was built from.",
+              "type": "string",
+            },
+            "buildNumber": {
+              "description": "The build number of the application.",
+              "type": "string",
+            },
+            "database": {
+              "description": "The database connection status.",
+              "enum": [
+                "connected",
+                "not connected",
+              ],
+              "type": "string",
+            },
+            "date": {
+              "description": "The date and time when the application was built.",
+              "format": "date-time",
+              "type": "string",
+            },
+            "path": {
+              "description": "The URL path of the endpoint.",
+              "type": "string",
+            },
+            "sha": {
+              "description": "The git SHA of the commit used to build the application.",
+              "type": "string",
+            },
+          },
+          "required": [
+            "date",
+            "branch",
+            "buildNumber",
+            "sha",
+            "path",
+            "database",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;

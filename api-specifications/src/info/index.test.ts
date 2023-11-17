@@ -11,6 +11,15 @@ describe("Test the info module", () => {
       expect(require("./").default.Schemas.GET.Response.Payload).toBeDefined();
     }).not.toThrowError();
   });
+
+  test("The info module matches the snapshot", () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(() => {
+      // THEN Check if the module can be required without error
+      expect(require("./").default).toMatchSnapshot();
+    }).not.toThrowError();
+  });
 });
 
 export {};

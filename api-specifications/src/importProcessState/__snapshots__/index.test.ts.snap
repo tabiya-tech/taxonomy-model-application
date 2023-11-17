@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the importProcessState module The import module matches the snapshot 1`] = `
+{
+  "Enums": {
+    "Status": {
+      "COMPLETED": "completed",
+      "PENDING": "pending",
+      "RUNNING": "running",
+    },
+  },
+  "Schemas": {
+    "GET": {
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/ImportProcessStateSchema",
+          "additionalProperties": false,
+          "description": "The state of the import process of the model. Since the import process is asynchronous, use the status to check if the import process has completed and the result to check if the process encountered any issues",
+          "properties": {
+            "createdAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+            "id": {
+              "description": "The identifier of the specific import state.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "modelId": {
+              "description": "The identifier of the model for importing the files to.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "result": {
+              "additionalProperties": false,
+              "description": "The result of the import process of the model. It can be errored, parsing errors or parsing warnings.",
+              "properties": {
+                "errored": {
+                  "description": "if the import process has completed or it was did not complete due to some unexpected error.",
+                  "type": "boolean",
+                },
+                "parsingErrors": {
+                  "description": "if the import encountered errors while parsing the csv files.",
+                  "type": "boolean",
+                },
+                "parsingWarnings": {
+                  "description": "if the import encountered warnings while parsing the csv files.",
+                  "type": "boolean",
+                },
+              },
+              "required": [
+                "errored",
+                "parsingErrors",
+                "parsingWarnings",
+              ],
+              "type": "object",
+            },
+            "status": {
+              "description": "The status of the import process of the model.",
+              "enum": [
+                "pending",
+                "running",
+                "completed",
+              ],
+              "type": "string",
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+          },
+          "required": [
+            "id",
+            "modelId",
+            "status",
+            "result",
+            "createdAt",
+            "updatedAt",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;

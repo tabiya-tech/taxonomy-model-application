@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the locale module The locale module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "LOCALE_SHORTCODE_MAX_LENGTH": 3,
+    "NAME_MAX_LENGTH": 256,
+  },
+  "Schemas": {
+    "Payload": {
+      "$id": "/components/schemas/LocaleSchema",
+      "additionalProperties": false,
+      "properties": {
+        "UUID": {
+          "description": "The UUID of the locale",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string",
+        },
+        "name": {
+          "description": "The name of the locale",
+          "maxLength": 256,
+          "pattern": "\\S",
+          "type": "string",
+        },
+        "shortCode": {
+          "description": "The short code of the locale",
+          "maxLength": 3,
+          "pattern": "\\S",
+          "type": "string",
+        },
+      },
+      "required": [
+        "UUID",
+        "shortCode",
+        "name",
+      ],
+      "type": "object",
+    },
+  },
+  "Types": {},
+}
+`;
