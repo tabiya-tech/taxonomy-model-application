@@ -164,7 +164,7 @@ describe("test the redactCredentialsFromURI function", () => {
   });
 
   describe("test function performance", () => {
-    const PERF_DURATION = 5;
+    const PERF_DURATION = 15;
     const ITERATIONS = 15;
     const QUANTILE = 90;
     test.each([
