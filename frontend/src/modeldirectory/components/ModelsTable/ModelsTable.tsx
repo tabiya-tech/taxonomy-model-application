@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button, TableCellProps, Typography } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -15,10 +15,10 @@ import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
 import { ExportStateCellContent } from "./ExportStateCellContent/ExportStateCellContent";
 import Container from "@mui/material/Container";
-import ContextMenu from "src/modeldirectory/components/ContextMenu/ContextMenu";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Theme } from "@mui/material/styles";
-import { useMenuService } from "src/modeldirectory/components/ContextMenu/useMenuService";
+import MenuBuilder, { MenuItemConfig } from "../MenuBuilder/MenuBuilder";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
@@ -118,13 +118,15 @@ const IMPORT_STATE_COLUMN_WIDTH = "40px"; // 24px for the icon + 16px for the bu
 const CELL_PADDING = (theme: Theme) => theme.tabiyaSpacing.sm;
 
 const ModelsTable = (props: Readonly<ModelsTableProps>) => {
-  const { menuState, openMenu, closeMenu } = useMenuService();
-
-  const handleExport = () => {
-    if (menuState.model) {
-      props.notifyOnExport(menuState.model.id);
-    }
-  };
+  const [contextMenu, setContextMenu] = useState<{
+    open: boolean;
+    anchorEl: HTMLElement | null;
+    model: ModelInfoTypes.ModelInfo | null;
+  }>({
+    open: false,
+    anchorEl: null,
+    model: null,
+  });
 
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
     // sorts the incoming in descending order of createdAt
@@ -141,6 +143,33 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
   }, [props.models]);
 
   const paperElevation = 2; // px
+
+  const handleCloseContextMenu = () => {
+    setContextMenu({
+      open: false,
+      anchorEl: null,
+      model: null,
+    });
+  };
+
+  const handleOpenContextMenu = (element: HTMLElement, model: ModelInfoTypes.ModelInfo) => {
+    setContextMenu({
+      open: true,
+      anchorEl: element,
+      model: model,
+    });
+  };
+
+  const menuItems: MenuItemConfig[] = [
+    {
+      text: "Export",
+      onClick: props.notifyOnExport,
+      icon: <CloudDownloadIcon />,
+      disableOnNonSuccessfulImport: true,
+      disableWhenOffline: true,
+    },
+  ];
+
   return (
     <Box
       sx={{
@@ -260,7 +289,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                         padding: 0,
                       }}
                       color={"primary"}
-                      onClick={(event) => openMenu(event, model)}
+                      onClick={(event) => handleOpenContextMenu(event.currentTarget, model)}
                       data-testid={DATA_TEST_ID.MODEL_CELL_MORE_BUTTON}
                     >
                       <MoreVertIcon
@@ -279,7 +308,13 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <ContextMenu {...menuState} notifyOnClose={closeMenu} notifyOnExport={handleExport} />
+      <MenuBuilder
+        items={menuItems}
+        open={contextMenu.open}
+        anchorEl={contextMenu.anchorEl}
+        model={contextMenu.model}
+        notifyOnClose={handleCloseContextMenu}
+      />
     </Box>
   );
 };
