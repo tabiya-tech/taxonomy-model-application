@@ -1,0 +1,228 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the import module The import module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "FILEPATH_MAX_LENGTH": 255,
+    "ImportFileTypes": {
+      "ESCO_OCCUPATION": "ESCO_OCCUPATION",
+      "ESCO_SKILL": "ESCO_SKILL",
+      "ESCO_SKILL_GROUP": "ESCO_SKILL_GROUP",
+      "ESCO_SKILL_HIERARCHY": "ESCO_SKILL_HIERARCHY",
+      "ESCO_SKILL_SKILL_RELATIONS": "ESCO_SKILL_SKILL_RELATIONS",
+      "ISCO_GROUP": "ISCO_GROUP",
+      "LOCALIZED_OCCUPATION": "LOCALIZED_OCCUPATION",
+      "LOCAL_OCCUPATION": "LOCAL_OCCUPATION",
+      "MODEL_INFO": "MODEL_INFO",
+      "OCCUPATION_HIERARCHY": "OCCUPATION_HIERARCHY",
+      "OCCUPATION_LOGS": "OCCUPATION_LOGS",
+      "OCCUPATION_LOG_CHANGES": "OCCUPATION_LOG_CHANGES",
+      "OCCUPATION_SKILL_RELATION": "OCCUPATION_SKILL_RELATION",
+    },
+    "MAX_PAYLOAD_LENGTH": 4000,
+  },
+  "Enums": {
+    "ImportResponseErrorCodes": {
+      "FAILED_TO_TRIGGER_IMPORT": "FAILED_TO_TRIGGER_IMPORT",
+    },
+    "POST": {
+      "Response": {
+        "ImportResponseErrorCodes": {
+          "FAILED_TO_TRIGGER_IMPORT": "FAILED_TO_TRIGGER_IMPORT",
+        },
+      },
+    },
+  },
+  "Schemas": {
+    "POST": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/ImportRequestSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "filePaths": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "ESCO_OCCUPATION": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "ESCO_OCCUPATION",
+                  ],
+                },
+                {
+                  "properties": {
+                    "ESCO_SKILL_HIERARCHY": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "ESCO_SKILL_HIERARCHY",
+                  ],
+                },
+                {
+                  "properties": {
+                    "ESCO_SKILL_GROUP": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "ESCO_SKILL_GROUP",
+                  ],
+                },
+                {
+                  "properties": {
+                    "ESCO_SKILL": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "ESCO_SKILL",
+                  ],
+                },
+                {
+                  "properties": {
+                    "ESCO_SKILL_SKILL_RELATIONS": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "ESCO_SKILL_SKILL_RELATIONS",
+                  ],
+                },
+                {
+                  "properties": {
+                    "ISCO_GROUP": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "ISCO_GROUP",
+                  ],
+                },
+                {
+                  "properties": {
+                    "LOCAL_OCCUPATION": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "LOCAL_OCCUPATION",
+                  ],
+                },
+                {
+                  "properties": {
+                    "LOCALIZED_OCCUPATION": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "LOCALIZED_OCCUPATION",
+                  ],
+                },
+                {
+                  "properties": {
+                    "MODEL_INFO": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "MODEL_INFO",
+                  ],
+                },
+                {
+                  "properties": {
+                    "OCCUPATION_HIERARCHY": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "OCCUPATION_HIERARCHY",
+                  ],
+                },
+                {
+                  "properties": {
+                    "OCCUPATION_LOGS": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "OCCUPATION_LOGS",
+                  ],
+                },
+                {
+                  "properties": {
+                    "OCCUPATION_LOG_CHANGES": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "OCCUPATION_LOG_CHANGES",
+                  ],
+                },
+                {
+                  "properties": {
+                    "OCCUPATION_SKILL_RELATION": {
+                      "maxLength": 255,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "OCCUPATION_SKILL_RELATION",
+                  ],
+                },
+              ],
+              "description": "A key value map of the files to import. The key represents the type of the file, and the value the path to the file. The path is relative to the root of the upload bucket and starts with the folder name that the presigned url was generated for.",
+              "examples": [
+                {
+                  "ESCO_SKILL_GROUP": "some-random-folder/skillGroups_en.csv",
+                  "ISCO_GROUP": "some-random-folder/ISCOGroups_en.csv",
+                },
+              ],
+              "type": "object",
+            },
+            "modelId": {
+              "description": "The identifier of the model for importing the files to.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+          },
+          "required": [
+            "modelId",
+            "filePaths",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;
