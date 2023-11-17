@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { render, screen, within, act } from "src/_test_utilities/test-utils";
+import { render, screen, within } from "src/_test_utilities/test-utils";
 import ModelsTable, { CELL_MAX_LENGTH, DATA_TEST_ID, TEXT } from "./ModelsTable";
 import {
   fakeModel,
@@ -15,9 +15,8 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
 import ExportStateCellContent from "src/modeldirectory/components/ModelsTable/ExportStateCellContent/ExportStateCellContent";
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
-import { fireEvent } from "@testing-library/react";
-import ContextMenu from "src/modeldirectory/components/ContextMenu/ContextMenu";
-import { getModelDisabledState } from "src/modeldirectory/components/ContextMenu/useMenuService";
+import { act, fireEvent } from "@testing-library/react";
+import MenuBuilder from "src/modeldirectory/components/MenuBuilder/MenuBuilder";
 
 function encodeHtmlAttribute(value: string) {
   const element = document.createElement("div");
@@ -40,8 +39,8 @@ jest.mock("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessSta
   };
 });
 
-jest.mock("src/modeldirectory/components/ContextMenu/ContextMenu", () => {
-  const actual = jest.requireActual("src/modeldirectory/components/ContextMenu/ContextMenu");
+jest.mock("src/modeldirectory/components/MenuBuilder/MenuBuilder", () => {
+  const actual = jest.requireActual("src/modeldirectory/components/MenuBuilder/MenuBuilder");
   const mockContextMenu = jest.fn().mockImplementation(() => {
     return <div data-testid="mock-context-menu"></div>;
   });
@@ -266,7 +265,7 @@ describe("ModelsTable", () => {
 
       // WHEN the ModelsTable is rendered
       // @ts-ignore
-      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+      render(<ModelsTable models={givenModels} />);
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -481,10 +480,9 @@ describe("ModelsTable", () => {
         // GIVEN isLoading property is true
         const givenIsLoading = true;
         // AND an empty models list is provided
-        const givenModels: ModelInfoTypes.ModelInfo[] = [];
 
         // WHEN the ModelsTable component is rendered with the given properties
-        render(<ModelsTable models={givenModels} isLoading={givenIsLoading} notifyOnExport={jest.fn()} />);
+        render(<ModelsTable models={[]} isLoading={givenIsLoading} notifyOnExport={jest.fn()} />);
 
         // THEN expect no errors or warning to have occurred
         expect(console.error).not.toHaveBeenCalled();
@@ -569,23 +567,32 @@ describe("ModelsTable", () => {
     test("should render the context menu with the initial state", () => {
       // GIVEN n models are provided
       const givenModels = getArrayOfRandomModelsMaxLength(3);
+      // AND a function notifyOnExport will be passed to the ModelsTable
+      const mockNotifyOnExport = jest.fn();
 
       // WHEN the ModelsTable component is rendered with the given models
-      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn} />);
+      render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
 
       // AND the context menu to be called with the correct initial props
-      expect(ContextMenu).toHaveBeenCalledWith(
+      expect(MenuBuilder).toHaveBeenCalledWith(
         {
           anchorEl: null,
-          model: null,
           open: false,
           notifyOnClose: expect.any(Function),
-          notifyOnExport: expect.any(Function),
-          isExportDisabled: false,
+          model: null,
+          items: [
+            {
+              disableOnNonSuccessfulImport: true,
+              disableWhenOffline: true,
+              icon: expect.any(Object),
+              onClick: mockNotifyOnExport,
+              text: "Export",
+            },
+          ],
         },
         {}
       );
@@ -596,7 +603,9 @@ describe("ModelsTable", () => {
     test("should display the ContextMenu with the correct props when the 'more' button is clicked", async () => {
       // GIVEN that the ModelsTable is shown with N models
       const givenModels = getArrayOfRandomModelsMaxLength(5);
-      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+      // AND a function notifyOnExport will be passed to the ModelsTable
+      const mockNotifyOnExport = jest.fn();
+      render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
 
       // WHEN the more button is clicked for a model
       for (const model of givenModels) {
@@ -608,42 +617,62 @@ describe("ModelsTable", () => {
         const actualContextMenu = screen.getByTestId("mock-context-menu");
         expect(actualContextMenu).toBeInTheDocument();
         // AND expect the context menu to have been called with the correct props
-        expect(ContextMenu).toHaveBeenCalledWith(
+        expect(MenuBuilder).toHaveBeenCalledWith(
           {
             anchorEl: actualMoreButton,
             open: true,
-            model: model,
             notifyOnClose: expect.any(Function),
-            notifyOnExport: expect.any(Function),
-            isExportDisabled: getModelDisabledState(model),
+            model: model,
+            items: [
+              {
+                disableOnNonSuccessfulImport: true,
+                disableWhenOffline: true,
+                icon: expect.any(Object),
+                onClick: mockNotifyOnExport,
+                text: "Export",
+              },
+            ],
           },
           {}
         );
       }
     });
 
-    test("should call the model table's notifyOnExport with the modelId when the context menu's notifyOnExport is called", () => {
-      // GIVEN a notifyOnExport function
-      const givenNotifyOnExport = jest.fn();
-      // AND the table is rendered with some models and the notifyOnExport
-      const givenModels = getArrayOfRandomModelsMaxLength(5);
-      render(<ModelsTable models={givenModels} notifyOnExport={givenNotifyOnExport} />);
+    test("should close the menu when notifyOnClose is called", () => {
+      // GIVEN that the ModelsTable is shown with N models
+      const givenModels = getArrayOfRandomModelsMaxLength(1);
+      // AND a function notifyOnExport will be passed to the ModelsTable
+      const mockNotifyOnExport = jest.fn();
+      render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
+      // AND the more button is clicked to open the context menu
+      const actualMoreButton = screen.getAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON)[0];
+      fireEvent.click(actualMoreButton);
 
-      // WHEN the more button is clicked for a model
-      const actualButtons = screen.queryAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON);
-      const actualChosenIndex = 2; // choose and index that is not the first or last to avoid the edge cases
-      const actualChosenButton = actualButtons[actualChosenIndex];
-      fireEvent.click(actualChosenButton);
-      // AND the context menu of that  model is shown
-      const actualContextMenu = screen.getByTestId("mock-context-menu");
-      expect(actualContextMenu).toBeInTheDocument();
-      // AND the context menu's notifyOnExport function is called
+      // WHEN the notifyOnClose is called
       act(() => {
-        (ContextMenu as jest.Mock).mock.lastCall[0].notifyOnExport();
+        const mock = (MenuBuilder as jest.Mock).mock;
+        mock.calls[0][0].notifyOnClose();
       });
 
-      // THEN expect the notifyOnExport function provided to the table to have been called with the modelId of the given model
-      expect(givenNotifyOnExport).toHaveBeenCalledWith(givenModels[actualChosenIndex].id);
+      // THEN expect the context menu to be closed
+      expect(MenuBuilder).toHaveBeenCalledWith(
+        {
+          anchorEl: null,
+          open: false,
+          notifyOnClose: expect.any(Function),
+          model: null,
+          items: [
+            {
+              disableOnNonSuccessfulImport: true,
+              disableWhenOffline: true,
+              icon: expect.any(Object),
+              onClick: expect.any(Function),
+              text: "Export",
+            },
+          ],
+        },
+        {}
+      );
     });
   });
 });
