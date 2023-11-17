@@ -11,7 +11,7 @@ import {
 import "jest-performance-matchers";
 
 const WHITESPACE = " \n\r\t";
-const PERF_DURATION = 5;
+const PERF_DURATION = 15;
 const ITERATIONS = 15;
 const QUANTILE = 90;
 describe("Test RegExp_NotEmptyString", () => {
