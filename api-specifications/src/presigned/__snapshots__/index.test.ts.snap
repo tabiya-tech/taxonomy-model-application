@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the presigned module The presigned module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "EXPIRES": 3600,
+    "MAX_FILE_SIZE": 10485760,
+  },
+  "Schemas": {
+    "GET": {
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/PresignedResponseSchemaGET",
+          "additionalProperties": false,
+          "properties": {
+            "fields": {
+              "description": "The fields should be added to the form-data when uploading the files",
+              "items": {
+                "properties": {
+                  "name": {
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "value": {
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "name",
+                  "value",
+                ],
+                "type": "object",
+              },
+              "minItems": 1,
+              "type": "array",
+            },
+            "folder": {
+              "description": "The folder name to upload the files to",
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "url": {
+              "description": "The url to upload the files to",
+              "format": "uri",
+              "type": "string",
+            },
+          },
+          "required": [
+            "url",
+            "fields",
+            "folder",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;
