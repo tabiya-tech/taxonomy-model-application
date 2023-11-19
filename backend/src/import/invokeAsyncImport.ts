@@ -1,14 +1,14 @@
 import { errorResponse, response, StatusCodes } from "server/httpUtils";
 import ImportAPISpecs from "api-specifications/import";
 import { LambdaClient, InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
-import { getAsyncLambdaFunctionArn, getAsyncLambdaFunctionRegion } from "server/config/config";
+import { getAsyncImportLambdaFunctionArn, getAsyncLambdaFunctionRegion } from "server/config/config";
 
 export async function lambda_invokeAsyncImport(request: ImportAPISpecs.Types.POST.Request.Payload) {
   try {
     const client = new LambdaClient({ region: getAsyncLambdaFunctionRegion() });
     const input: InvokeCommandInput = {
       // InvocationRequest
-      FunctionName: getAsyncLambdaFunctionArn(), // required
+      FunctionName: getAsyncImportLambdaFunctionArn(), // required
       InvocationType: "Event",
       Payload: new TextEncoder().encode(JSON.stringify(request)), // make sure it is utf-8
     };

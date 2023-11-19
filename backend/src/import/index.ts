@@ -6,7 +6,7 @@ import ImportAPISpecs from "api-specifications/import";
 import ErrorAPISpecs from "api-specifications/error";
 
 import { ValidateFunction } from "ajv";
-import { lambda_invokeAsyncImport } from "./asyncImport";
+import { lambda_invokeAsyncImport } from "./invokeAsyncImport";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/

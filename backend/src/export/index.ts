@@ -1,11 +1,12 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { errorResponse, HTTP_VERBS, responseJSON, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
+import { errorResponse, HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { ajvInstance, ParseValidationError } from "validator";
 import { ValidateFunction } from "ajv";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ExportAPISpecs from "api-specifications/export";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
+import { lambda_invokeAsyncExport } from "./invokeAsyncExport";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -82,8 +83,17 @@ async function postTriggerExport(event: APIGatewayProxyEvent) {
     const errorDetail = ParseValidationError(validateFunction.errors);
     return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
   }
+  const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
+  if(!model) {
+    return errorResponse(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes.FAILED_TO_TRIGGER_EXPORT,
+      "Failed to trigger the export process",
+      "Model could not be found"
+    );
+  }
   try {
-    await getRepositoryRegistry().exportProcessState.create({
+    const exportProcessState = await getRepositoryRegistry().exportProcessState.create({
       modelId: payload.modelId,
       status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
       result: {
@@ -94,7 +104,7 @@ async function postTriggerExport(event: APIGatewayProxyEvent) {
       downloadUrl: "",
       timestamp: new Date(),
     });
-    return responseJSON(StatusCodes.ACCEPTED, "");
+    return lambda_invokeAsyncExport(payload, exportProcessState.id);
   } catch (e: unknown) {
     console.log(e);
     return errorResponse(

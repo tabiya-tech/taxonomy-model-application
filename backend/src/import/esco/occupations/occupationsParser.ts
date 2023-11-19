@@ -8,7 +8,7 @@ import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { RegExESCOOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
 import { OccupationType } from "esco/common/objectTypes";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
@@ -65,17 +65,17 @@ function getRowToSpecificationTransformFn(
 
     if (!occupationType) {
       //check that the occupationType exists
-      importLogger.logWarning(`Failed to import Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`);
+      errorLogger.logWarning(`Failed to import Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`);
       return null;
     }
     if (isLocalImport && occupationType !== OccupationType.LOCAL) {
       // if it is a local import ensure that the occupationType is LOCAL
-      importLogger.logWarning(`Failed to import Local Occupation row with id:'${row.ID}'. Not a local occupation.`);
+      errorLogger.logWarning(`Failed to import Local Occupation row with id:'${row.ID}'. Not a local occupation.`);
       return null;
     }
     if (!isLocalImport && occupationType !== OccupationType.ESCO) {
       // if it is not a local import ensure that the occupationType is ESCO
-      importLogger.logWarning(`Failed to import ESCO Occupation row with id:'${row.ID}'. Not an ESCO occupation.`);
+      errorLogger.logWarning(`Failed to import ESCO Occupation row with id:'${row.ID}'. Not an ESCO occupation.`);
       return null;
     }
 
@@ -87,7 +87,7 @@ function getRowToSpecificationTransformFn(
       validCode = RegExESCOOccupationCode.test(row.CODE);
     }
     if (!validCode) {
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import ${isLocalImport ? "Local" : "ESCO"} Occupation row with id:'${row.ID}'. Code not valid.`
       );
       return null;

@@ -6,7 +6,8 @@ export function getTestConfiguration(dbname: string): IConfiguration {
     resourcesBaseUrl: "https://path/to/resources",
     uploadBucketRegion: "us-east-1",
     uploadBucketName: "test-bucket",
-    asyncLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz",
+    asyncImportLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz",
+    asyncExportLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz",
     asyncLambdaFunctionRegion: "foo",
   };
 }

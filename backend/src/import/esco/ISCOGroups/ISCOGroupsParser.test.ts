@@ -10,7 +10,7 @@ import https from "https";
 import { StatusCodes } from "server/httpUtils";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 jest.mock("https");
 
@@ -41,8 +41,8 @@ const parseFromFileCallback = (
 
 describe("test parseISCOGroups from", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -118,16 +118,10 @@ describe("test parseISCOGroups from", () => {
           );
         });
       // AND no error should be logged
-      expect(importLogger.logError).not.toHaveBeenCalled();
+      expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
-        1,
-        "Failed to import ISCOGroup from row:1 with importId:"
-      );
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
-        2,
-        "Failed to import ISCOGroup from row:2 with importId:"
-      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(1, "Failed to import ISCOGroup from row:1 with importId:");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(2, "Failed to import ISCOGroup from row:2 with importId:");
     }
   );
 });

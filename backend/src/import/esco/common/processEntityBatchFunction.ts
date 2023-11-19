@@ -1,6 +1,6 @@
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { isSpecified } from "server/isUnspecified";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { ProcessBatchFunction } from "import/batch/BatchProcessor";
 import { ImportIdentifiable } from "esco/common/objectTypes";
 
@@ -37,12 +37,12 @@ export function getProcessEntityBatchFunction<
       });
       stats.rowsSuccess = entities.length;
     } catch (e: unknown) {
-      importLogger.logError(`Failed to process ${entityName}s batch`, e);
+      errorLogger.logError(`Failed to process ${entityName}s batch`, e);
     }
     // iterate over the specs and look if the importId is in the map, if it is not then declare that the row has failed
     specs.forEach((spec, index) => {
       if (!importIdToDBIdMap.has(spec.importId)) {
-        importLogger.logWarning(
+        errorLogger.logWarning(
           `Failed to import ${entityName} from row:${totalRowsProcessed + index + 1} with importId:${spec.importId}`
         );
       }

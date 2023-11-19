@@ -4,7 +4,7 @@ import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   parseOccupationToSkillRelationFromFile,
@@ -45,8 +45,8 @@ const parseFromFileCallback = (
 
 describe("test parseOccupationToSkillRelation from", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
 
   beforeEach(() => {
@@ -116,31 +116,31 @@ describe("test parseOccupationToSkillRelation from", () => {
     });
 
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
 
     // AND warning should be logged for each of the failed rows
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(6);
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenCalledTimes(6);
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       1,
       `Failed to import OccupationToSkillRelation row with occupationId:'' and skillId:'key_5'.`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       2,
       `Failed to import OccupationToSkillRelation row with occupationId:'key_6' and skillId:''.`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       3,
       `Failed to import OccupationToSkillRelation row with occupationId:'key_9' and skillId:'key_10'.`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       4,
       `Failed to import OccupationToSkillRelation row with occupationId:'key_11' and skillId:'key_12'.`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       5,
       `Failed to import OccupationToSkillRelation row with occupationId:'key_13' and skillId:'key_14'.`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       6,
       `Failed to import OccupationToSkillRelation row with occupationId:'key_15' and skillId:'key_16'.`
     );

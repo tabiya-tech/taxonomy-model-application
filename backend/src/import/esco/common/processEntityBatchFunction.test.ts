@@ -1,14 +1,14 @@
 // mute console.log
 import "_test_utilities/consoleMock";
 
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { ImportIdentifiable } from "esco/common/objectTypes";
 import { getProcessEntityBatchFunction } from "./processEntityBatchFunction";
 
 describe("test getProcessEntityBatchFunction", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -74,9 +74,9 @@ describe("test getProcessEntityBatchFunction", () => {
       );
     });
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
     // AND warning should be logged fo reach of the failed rows
-    expect(importLogger.logWarning).not.toHaveBeenCalled();
+    expect(errorLogger.logWarning).not.toHaveBeenCalled();
     //
   });
 
@@ -144,11 +144,11 @@ describe("test getProcessEntityBatchFunction", () => {
       );
     });
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
     // AND a warning should be logged for each spec without an importId
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(4);
+    expect(errorLogger.logWarning).toHaveBeenCalledTimes(4);
     [givenBatch[1], givenBatch[3], givenBatch[5], givenBatch[7]].forEach((givenSpec, index: number) => {
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         index + 1,
         expect.stringContaining(`Failed to import ${givenEntityName} from row:${2 * (index + 1)} with importId:`)
       );
@@ -206,10 +206,10 @@ describe("test getProcessEntityBatchFunction", () => {
     });
 
     // AND a warning should be logged for each spec without an importId
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(givenSecondBatch.length);
+    expect(errorLogger.logWarning).toHaveBeenCalledTimes(givenSecondBatch.length);
     // AND the warning should contain the correct row number
     givenSecondBatch.forEach((givenSpec, index: number) => {
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         index + 1,
         expect.stringContaining(
           `Failed to import ${givenEntityName} from row:${givenFirstBatch.length + index + 1} with importId:`
@@ -255,13 +255,13 @@ describe("test getProcessEntityBatchFunction", () => {
       rowsFailed: givenBatch.length,
     });
     // AND an error should be logged for the failed repository call
-    expect(importLogger.logError).toHaveBeenCalledWith(
+    expect(errorLogger.logError).toHaveBeenCalledWith(
       expect.stringContaining(`Failed to process ${givenEntityName}s batch`),
       givenError
     );
     // AND a warning should be logged for each row
     for (let i = 1; i <= givenBatch.length; i++) {
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         i,
         expect.stringContaining(`Failed to import ${givenEntityName} from row:${i} with importId:${i}`)
       );
@@ -316,11 +316,11 @@ describe("test getProcessEntityBatchFunction", () => {
       rowsFailed: 3,
     });
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
     // AND a warning should be logged for each spec that could not be created
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(3);
+    expect(errorLogger.logWarning).toHaveBeenCalledTimes(3);
     [givenBatch[1], givenBatch[3], givenBatch[5]].forEach((givenSpec, index: number) => {
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         index + 1,
         expect.stringContaining(`Failed to import ${givenEntityName} from row:${2 * index + 1} with importId:`)
       );

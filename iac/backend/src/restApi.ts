@@ -19,7 +19,8 @@ export function setupBackendRESTApi(environment: string, config: {
   resourcesBaseUrl: string,
   upload_bucket_name: Output<string>,
   upload_bucket_region: Output<string>,
-  async_lambda_function_arn: Output<string>,
+  async_import_lambda_function_arn: Output<string>,
+  async_export_lambda_function_arn: Output<string>,
   async_lambda_function_region: Output<string>,
 }): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
   /**
@@ -58,22 +59,43 @@ export function setupBackendRESTApi(environment: string, config: {
     role: lambdaRole.name,
   });
 
-  // Invoke async lambda function policy
-  const asyncLambdaInvokePolicy = new aws.iam.Policy("model-api-function-async-lambda-invoke-policy", {
+  // Invoke async import lambda function policy
+  const asyncImportLambdaInvokePolicy = new aws.iam.Policy("model-api-function-async-import-lambda-invoke-policy", {
     policy: {
       Version: "2012-10-17",
       Statement: [
         {
           Action: "lambda:InvokeFunction",
           Effect: "Allow",
-          Resource: config.async_lambda_function_arn,
+          Resource: config.async_import_lambda_function_arn,
         }
       ]
     }
   });
 
-  new aws.iam.RolePolicyAttachment("model-api-function-role-lambda-invoke-policy-attachment", {
-    policyArn: asyncLambdaInvokePolicy.arn,
+  // Invoke async import lambda function policy
+  const asyncExportLambdaInvokePolicy = new aws.iam.Policy("model-api-function-async-export-lambda-invoke-policy", {
+    policy: {
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Action: "lambda:InvokeFunction",
+          Effect: "Allow",
+          Resource: config.async_export_lambda_function_arn,
+        }
+      ]
+    }
+  });
+
+
+
+  new aws.iam.RolePolicyAttachment("model-api-function-role-import-lambda-invoke-policy-attachment", {
+    policyArn: asyncImportLambdaInvokePolicy.arn,
+    role: lambdaRole.name,
+  });
+
+  new aws.iam.RolePolicyAttachment("model-api-function-role-export-lambda-invoke-policy-attachment", {
+    policyArn: asyncExportLambdaInvokePolicy.arn,
     role: lambdaRole.name,
   });
     
@@ -96,7 +118,8 @@ export function setupBackendRESTApi(environment: string, config: {
         MONGODB_URI: config.mongodb_uri,
         UPLOAD_BUCKET_NAME: config.upload_bucket_name,
         UPLOAD_BUCKET_REGION: config.upload_bucket_region,
-        ASYNC_LAMBDA_FUNCTION_ARN: config.async_lambda_function_arn,
+        ASYNC_IMPORT_LAMBDA_FUNCTION_ARN: config.async_import_lambda_function_arn,
+        ASYNC_EXPORT_LAMBDA_FUNCTION_ARN: config.async_export_lambda_function_arn,
         ASYNC_LAMBDA_FUNCTION_REGION: config.async_lambda_function_region,
       }
     }

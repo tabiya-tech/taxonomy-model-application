@@ -158,7 +158,7 @@ import { parseOccupationHierarchyFromUrl } from "import/esco/occupationHierarchy
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
@@ -168,8 +168,8 @@ import { parseLocalizedOccupationsFromUrl } from "import/esco/localizedOccupatio
 
 describe("Test the main async handler", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -332,8 +332,8 @@ describe("Test the main async handler", () => {
       [
         "not report parsingWarnings or parsingErrors when the importLogger has not logged neither errors nor warnings",
         () => {
-          jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(0);
-          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(0);
+          jest.spyOn(errorLogger, "errorCount", "get").mockReturnValueOnce(0);
+          jest.spyOn(errorLogger, "warningCount", "get").mockReturnValueOnce(0);
         },
         {
           errored: false,
@@ -344,8 +344,8 @@ describe("Test the main async handler", () => {
       [
         "report parsingWarnings when the importLogger has logged a warning",
         () => {
-          jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(0);
-          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(1);
+          jest.spyOn(errorLogger, "errorCount", "get").mockReturnValueOnce(0);
+          jest.spyOn(errorLogger, "warningCount", "get").mockReturnValueOnce(1);
         },
         {
           errored: false,
@@ -356,8 +356,8 @@ describe("Test the main async handler", () => {
       [
         "report parsingErrors when the importLogger has logged an error",
         () => {
-          jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(1);
-          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(0);
+          jest.spyOn(errorLogger, "errorCount", "get").mockReturnValueOnce(1);
+          jest.spyOn(errorLogger, "warningCount", "get").mockReturnValueOnce(0);
         },
         {
           errored: false,
@@ -368,8 +368,8 @@ describe("Test the main async handler", () => {
       [
         "report parsingErrors and parsingWarnings when the importLogger has logged an error and a warning",
         () => {
-          jest.spyOn(importLogger, "errorCount", "get").mockReturnValueOnce(1);
-          jest.spyOn(importLogger, "warningCount", "get").mockReturnValueOnce(1);
+          jest.spyOn(errorLogger, "errorCount", "get").mockReturnValueOnce(1);
+          jest.spyOn(errorLogger, "warningCount", "get").mockReturnValueOnce(1);
         },
         {
           errored: false,

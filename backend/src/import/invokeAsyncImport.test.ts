@@ -1,7 +1,7 @@
 // mute console.log during test
 import "_test_utilities/consoleMock";
 
-import { lambda_invokeAsyncImport } from "./asyncImport";
+import { lambda_invokeAsyncImport } from "./invokeAsyncImport";
 import ImportAPISpecs from "api-specifications/import";
 import { StatusCodes } from "server/httpUtils";
 import * as config from "server/config/config";
@@ -32,7 +32,7 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     };
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
-    jest.spyOn(config, "getAsyncLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
+    jest.spyOn(config, "getAsyncImportLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
     // AND some lambda function region will be return by the  configuration
     const givenConfigAsyncLambdaFunctionRegion = "foo";
     jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
@@ -70,7 +70,7 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     };
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
-    jest.spyOn(config, "getAsyncLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
+    jest.spyOn(config, "getAsyncImportLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
     // AND some lambda function region will be return by the  configuration
     const givenConfigAsyncLambdaFunctionRegion = "foo";
     jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);

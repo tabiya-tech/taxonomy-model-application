@@ -10,7 +10,7 @@ import { StatusCodes } from "server/httpUtils";
 import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 jest.mock("https");
 
@@ -43,8 +43,8 @@ const parseFromFileCallback = (
 
 describe("test parseOccupations from", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -150,47 +150,47 @@ describe("test parseOccupations from", () => {
           );
         });
       // AND no error should be logged
-      expect(importLogger.logError).not.toHaveBeenCalled();
+      expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
         "Failed to import Occupation row with id:''. OccupationType not found/invalid."
       );
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         2,
         "Failed to import Occupation row with id:''. OccupationType not found/invalid."
       );
       if (isLocalImport) {
-        expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
           3,
           "Failed to import Local Occupation row with id:'key_3'. Code not valid."
         );
       } else {
-        expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
           3,
           "Failed to import ESCO Occupation row with id:'key_3'. Code not valid."
         );
       }
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         4,
         "Failed to import Occupation row with id:'key_4'. OccupationType not found/invalid."
       );
 
       if (isLocalImport) {
-        expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
           5,
           "Failed to import Local Occupation row with id:'key_5'. Code not valid."
         );
-        expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
           6,
           "Failed to import Local Occupation row with id:'key_6'. Not a local occupation."
         );
       } else {
-        expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
           5,
           "Failed to import ESCO Occupation row with id:'key_5'. Code not valid."
         );
-        expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
           6,
           "Failed to import ESCO Occupation row with id:'key_6'. Not an ESCO occupation."
         );

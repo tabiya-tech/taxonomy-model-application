@@ -4,7 +4,7 @@ import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { parseSkillToSkillRelationFromFile, parseSkillToSkillRelationFromUrl } from "./skillToSkillRelationParser";
 import { SkillToSkillRelationRepository } from "esco/skillToSkillRelation/skillToSkillRelationRepository";
@@ -42,8 +42,8 @@ const parseFromFileCallback = (
 
 describe("test parseSkillToSkillRelation from", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
 
   beforeEach(() => {
@@ -111,31 +111,31 @@ describe("test parseSkillToSkillRelation from", () => {
     });
 
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
 
     // AND warning should be logged for each of the failed rows
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(6);
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenCalledTimes(6);
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       1,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'' and requiredSkillId:'key_5'`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       2,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'key_6' and requiredSkillId:''`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       3,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'' and requiredSkillId:'key_9'`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       4,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'key_10' and requiredSkillId:''`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       5,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'key_11' and requiredSkillId:'key_12'`
     );
-    expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
       6,
       `Failed to import SkillToSkillRelation row with requiringSkillId:'key_13' and requiredSkillId:'key_14'`
     );

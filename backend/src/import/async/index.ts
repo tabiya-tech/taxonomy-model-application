@@ -6,13 +6,13 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { parseFiles } from "./parseFiles";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<unknown> => {
   console.info("Import started", event);
-  // Clear the importLogger from previous runs
-  importLogger.clear();
+  // Clear the errorLogger from previous runs
+  errorLogger.clear();
 
   // Validate the event against the schema
   const validateFunction = ajvInstance.getSchema(

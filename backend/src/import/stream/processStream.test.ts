@@ -6,14 +6,14 @@ import { Readable } from "node:stream";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
 import { RowProcessor } from "import/parse/RowProcessor.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 jest.mock("https");
 
 describe("test processStream", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -56,8 +56,8 @@ describe("test processStream", () => {
     expect(givenRowProcessor.completed).toHaveBeenCalledTimes(1);
 
     // AND no error or warning to have been logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
-    expect(importLogger.logWarning).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logWarning).not.toHaveBeenCalled();
   });
 
   describe("test processStream with errors", () => {
@@ -81,11 +81,11 @@ describe("test processStream", () => {
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
 
       // AND an error to have been logged
-      expect(importLogger.logError).toHaveBeenCalledWith(
+      expect(errorLogger.logError).toHaveBeenCalledWith(
         `Error while processing the stream:${givenStreamName}`,
         givenError
       );
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("readable stream throws an error", async () => {
@@ -112,11 +112,11 @@ describe("test processStream", () => {
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
 
       // AND an error to have been logged
-      expect(importLogger.logError).toHaveBeenCalledWith(
+      expect(errorLogger.logError).toHaveBeenCalledWith(
         `Error from the reading the stream:${givenStreamName}`,
         givenError
       );
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("csv parser throws error due to invalid data", async () => {
@@ -139,11 +139,11 @@ describe("test processStream", () => {
       await expect(actualProcessPromise).rejects.toThrowError(expectedError);
 
       // AND an error to have been logged
-      expect(importLogger.logError).toHaveBeenCalledWith(
+      expect(errorLogger.logError).toHaveBeenCalledWith(
         `Error while processing the stream:${givenStreamName}`,
         expectedError
       );
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("csv parser logs error due to invalid headers", async () => {
@@ -168,16 +168,16 @@ describe("test processStream", () => {
 
       // AND an error to have been logged
       const expectedError = new Error(`Invalid headers:NAME,AGE in stream:${givenStreamName}`);
-      expect(importLogger.logError).toHaveBeenCalledWith(expectedError);
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logError).toHaveBeenCalledWith(expectedError);
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
   });
 });
 
 describe("test processDownloadStream", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -222,8 +222,8 @@ describe("test processDownloadStream", () => {
     expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(2, { NAME: "Alice", AGE: "25" }, 2);
     expect(givenRowProcessor.processRow).toHaveBeenNthCalledWith(3, { NAME: "Bob", AGE: "35" }, 3);
     // AND no error or warning to have been logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
-    expect(importLogger.logWarning).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logWarning).not.toHaveBeenCalled();
   });
 
   describe("test processDownloadStream with errors", () => {
@@ -257,11 +257,11 @@ describe("test processDownloadStream", () => {
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
 
       // AND an error to have been logged
-      expect(importLogger.logError).toHaveBeenCalledWith(
+      expect(errorLogger.logError).toHaveBeenCalledWith(
         `Failed to download file ${givenUrl} for ${givenStreamName}`,
         givenError
       );
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("should reject if the response status code is not 200", async () => {
@@ -296,8 +296,8 @@ describe("test processDownloadStream", () => {
       );
       await expect(actualProcessPromise).rejects.toThrowError(expectedError);
       // AND an error to have been logged
-      expect(importLogger.logError).toHaveBeenCalledWith(expectedError);
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logError).toHaveBeenCalledWith(expectedError);
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("should reject if the response is not readable", async () => {
@@ -334,11 +334,11 @@ describe("test processDownloadStream", () => {
       // THEN expect it to reject with the given error
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
       // AND an error to have been logged
-      expect(importLogger.logError).toHaveBeenCalledWith(
+      expect(errorLogger.logError).toHaveBeenCalledWith(
         `Error while processing ${givenUrl} for ${givenStreamName}`,
         givenError
       );
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
 
     test("should reject if processStream rejects", async () => {
@@ -373,11 +373,11 @@ describe("test processDownloadStream", () => {
       await expect(actualProcessPromise).rejects.toThrowError(givenError);
 
       // AND an error to have been logged
-      expect(importLogger.logError).toHaveBeenCalledWith(
+      expect(errorLogger.logError).toHaveBeenCalledWith(
         `Error while processing ${givenUrl} for ${givenStreamName}`,
         givenError
       );
-      expect(importLogger.logWarning).not.toHaveBeenCalled();
+      expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
   });
 });

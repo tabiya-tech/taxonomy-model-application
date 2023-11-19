@@ -10,7 +10,7 @@ import { ISkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 jest.mock("https");
 
@@ -41,8 +41,8 @@ const parseFromFileCallback = (
 
 describe("test parseSkillGroups from", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
 
   beforeEach(() => {
@@ -120,13 +120,13 @@ describe("test parseSkillGroups from", () => {
           );
         });
       // AND no error should be logged
-      expect(importLogger.logError).not.toHaveBeenCalled();
+      expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
         "Failed to import SkillGroup from row:1 with importId:"
       );
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         2,
         "Failed to import SkillGroup from row:2 with importId:"
       );

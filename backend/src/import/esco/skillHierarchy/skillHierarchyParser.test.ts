@@ -10,7 +10,7 @@ import { parseSkillHierarchyFromFile, parseSkillHierarchyFromUrl } from "./skill
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 jest.mock("https");
 
@@ -41,8 +41,8 @@ const parseFromFileCallback = (
 
 describe("test parseSkillHierarchy from", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -117,22 +117,22 @@ describe("test parseSkillHierarchy from", () => {
         rowsFailed: 0,
       });
       // AND no error should be logged
-      expect(importLogger.logError).not.toHaveBeenCalled();
+      expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows
-      expect(importLogger.logWarning).toHaveBeenCalledTimes(4); // 4 entries are constructed in the csv to fail
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenCalledTimes(4); // 4 entries are constructed in the csv to fail
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
         `Failed to import SkillHierarchy row with parentType:'invalid should be ignored' and childType:'Skill'`
       );
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         2,
         `Failed to import SkillHierarchy row with parentType:'SkillGroup' and childType:'invalid should be ignored'`
       );
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         3,
         `Failed to import SkillHierarchy row with parent importId:'' and child importId:'key_11'`
       );
-      expect(importLogger.logWarning).toHaveBeenNthCalledWith(
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         4,
         `Failed to import SkillHierarchy row with parent importId:'key_12' and child importId:''`
       );

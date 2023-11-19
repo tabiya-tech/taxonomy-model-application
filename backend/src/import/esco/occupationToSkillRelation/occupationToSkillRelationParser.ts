@@ -6,7 +6,7 @@ import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/p
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
 import {
   INewOccupationToSkillPairSpec,
@@ -43,7 +43,7 @@ function getRowToSpecificationTransformFn(
   return (row: OccupationToSkillsRelationRow) => {
     // Check if relation type is valid
     if (!Object.values(RelationType).includes(row.RELATIONTYPE)) {
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );
       return null;
@@ -52,7 +52,7 @@ function getRowToSpecificationTransformFn(
 
     const occupationType = getOccupationTypeFromRow(row);
     if (!occupationType) {
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );
       return null;
@@ -63,7 +63,7 @@ function getRowToSpecificationTransformFn(
     const skillId = importIdToDBIdMap.get(row.SKILLID);
 
     if (!occupationId || !skillId) {
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );
       return null;

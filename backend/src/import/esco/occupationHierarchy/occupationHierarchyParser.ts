@@ -11,7 +11,7 @@ import {
 } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
 
 // expect all columns to be in upper case
@@ -60,7 +60,7 @@ function getRowToSpecificationTransformFn(
     const parentType = csv2EscoObjectType(row.PARENTOBJECTTYPE);
     const childType = csv2EscoObjectType(row.CHILDOBJECTTYPE);
     if (!parentType || !childType) {
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import OccupationHierarchy row with parentType:'${row.PARENTOBJECTTYPE}' and childType:'${row.CHILDOBJECTTYPE}'`
       );
       return null;
@@ -68,7 +68,7 @@ function getRowToSpecificationTransformFn(
     const parentId = importIdToDBIdMap.get(row.PARENTID);
     const childId = importIdToDBIdMap.get(row.CHILDID);
     if (!parentId || !childId) {
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import OccupationHierarchy row with parent importId:'${row.PARENTID}' and child importId:'${row.CHILDID}'`
       );
       return null;

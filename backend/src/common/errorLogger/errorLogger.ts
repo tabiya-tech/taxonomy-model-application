@@ -1,4 +1,4 @@
-class ImportLogger {
+class ErrorLogger {
   private _errorCount: number = 0;
   private _warningCount: number = 0;
 
@@ -42,6 +42,6 @@ class ImportLogger {
 }
 
 // singleton
-const importLoggerInstance = new ImportLogger();
+const errorLoggerInstance = new ErrorLogger();
 
-export default importLoggerInstance;
+export default errorLoggerInstance;

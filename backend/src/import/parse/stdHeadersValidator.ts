@@ -1,4 +1,4 @@
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 export function getStdHeadersValidator(
   validatorName: string,
@@ -9,7 +9,7 @@ export function getStdHeadersValidator(
     for (const element of expectedHeaders) {
       if (!actualHeaders.includes(element)) {
         valid = false;
-        importLogger.logError(`Failed to validate header for ${validatorName}, expected to include header ${element}`);
+        errorLogger.logError(`Failed to validate header for ${validatorName}, expected to include header ${element}`);
       }
     }
     return valid;

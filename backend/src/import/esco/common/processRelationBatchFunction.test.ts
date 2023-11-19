@@ -1,12 +1,12 @@
 // mute console.log
 import "_test_utilities/consoleMock";
 
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "./processRelationBatchFunction";
 describe("test getProcessRelationBatchFunction", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -58,9 +58,9 @@ describe("test getProcessRelationBatchFunction", () => {
       rowsFailed: 0,
     });
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
     // AND warning should be logged fo reach of the failed rows
-    expect(importLogger.logWarning).not.toHaveBeenCalled();
+    expect(errorLogger.logWarning).not.toHaveBeenCalled();
     //
   });
 
@@ -94,13 +94,13 @@ describe("test getProcessRelationBatchFunction", () => {
       rowsFailed: givenBatch.length,
     });
     // AND an error should be logged for the failed repository call
-    expect(importLogger.logError).toHaveBeenCalledWith(
+    expect(errorLogger.logError).toHaveBeenCalledWith(
       expect.stringContaining(`Failed to process ${givenRelationEntityName}s batch`),
       givenError
     );
     // AND a warning should be logged
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(1);
-    expect(importLogger.logWarning).toHaveBeenCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenCalledTimes(1);
+    expect(errorLogger.logWarning).toHaveBeenCalledWith(
       expect.stringContaining(
         `${givenBatch.length} of the ${givenRelationEntityName} entries could not be imported. Currently no further information is available.`
       )
@@ -147,10 +147,10 @@ describe("test getProcessRelationBatchFunction", () => {
       rowsFailed: 3,
     });
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
     // AND a warning should be logged that some specs could not be created
-    expect(importLogger.logWarning).toHaveBeenCalledTimes(1);
-    expect(importLogger.logWarning).toHaveBeenCalledWith(
+    expect(errorLogger.logWarning).toHaveBeenCalledTimes(1);
+    expect(errorLogger.logWarning).toHaveBeenCalledWith(
       expect.stringContaining(
         `${3} of the ${givenRelationEntityName} entries could not be imported. Currently no further information is available.`
       )
