@@ -1,6 +1,6 @@
 import * as ImportHandler from "./index";
 import { HTTP_VERBS, response, StatusCodes } from "server/httpUtils";
-import * as AsyncImport from "./asyncImport";
+import * as AsyncImport from "./invokeAsyncImport";
 import ImportAPISpecs from "api-specifications/import";
 
 import { getMockStringId } from "_test_utilities/mockMongoId";

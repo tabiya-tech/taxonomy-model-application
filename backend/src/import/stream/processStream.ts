@@ -4,7 +4,7 @@ import { parse, Parser } from "csv-parse";
 import { Readable } from "node:stream";
 import { RowProcessor } from "import/parse/RowProcessor.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 export function processDownloadStream<T>(
   url: string,
@@ -19,20 +19,20 @@ export function processDownloadStream<T>(
             const e = new Error(
               `Failed to download file ${url} for ${streamName}. Status Code: ${response.statusCode}`
             );
-            importLogger.logError(e);
+            errorLogger.logError(e);
             reject(e);
             return;
           }
           const stats = await processStream<T>(streamName, response, rowProcessor);
           resolve(stats);
         } catch (e: unknown) {
-          importLogger.logError(`Error while processing ${url} for ${streamName}`, e);
+          errorLogger.logError(`Error while processing ${url} for ${streamName}`, e);
           reject(e);
         }
       })();
     });
     request.on("error", (error: Error) => {
-      importLogger.logError(`Failed to download file ${url} for ${streamName}`, error);
+      errorLogger.logError(`Failed to download file ${url} for ${streamName}`, error);
       reject(error);
     });
   });
@@ -48,7 +48,7 @@ export function processStream<T>(
     (async () => {
       try {
         stream.on("error", (error: Error) => {
-          importLogger.logError(`Error from the reading the stream:${streamName}`, error);
+          errorLogger.logError(`Error from the reading the stream:${streamName}`, error);
           reject(error);
         });
         const parser: Parser = stream.pipe(
@@ -72,7 +72,7 @@ export function processStream<T>(
             const headersValidated = await rowProcessor.validateHeaders(Object.keys(record));
             if (!headersValidated) {
               const e = new Error(`Invalid headers:${Object.keys(record)} in stream:${streamName}`);
-              importLogger.logError(e);
+              errorLogger.logError(e);
               resolve({ rowsProcessed: 0, rowsFailed: 0, rowsSuccess: 0 });
               return; // stop processing the stream as it is unclear what the csv contains
             }
@@ -83,7 +83,7 @@ export function processStream<T>(
         const stats = await rowProcessor.completed();
         resolve(stats);
       } catch (e: unknown) {
-        importLogger.logError(`Error while processing the stream:${streamName}`, e);
+        errorLogger.logError(`Error while processing the stream:${streamName}`, e);
         reject(e);
       }
     })();

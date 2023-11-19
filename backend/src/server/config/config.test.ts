@@ -7,7 +7,8 @@ import {
   setConfiguration,
   getConfiguration,
   IConfiguration,
-  getAsyncLambdaFunctionArn,
+  getAsyncExportLambdaFunctionArn,
+  getAsyncImportLambdaFunctionArn,
   getAsyncLambdaFunctionRegion,
 } from "./config";
 import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
@@ -37,7 +38,8 @@ describe("Test read Configuration()", () => {
     process.env.RESOURCES_BASE_URL = getRandomString(10);
     process.env.UPLOAD_BUCKET_NAME = getRandomString(10);
     process.env.UPLOAD_BUCKET_REGION = getRandomString(10);
-    process.env.ASYNC_LAMBDA_FUNCTION_ARN = getRandomString(10);
+    process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
+    process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
     process.env.ASYNC_LAMBDA_FUNCTION_REGION = getRandomString(10);
 
     // WHEN reading the configuration from the environment
@@ -49,7 +51,8 @@ describe("Test read Configuration()", () => {
       resourcesBaseUrl: process.env.RESOURCES_BASE_URL,
       uploadBucketName: process.env.UPLOAD_BUCKET_NAME,
       uploadBucketRegion: process.env.UPLOAD_BUCKET_REGION,
-      asyncLambdaFunctionArn: process.env.ASYNC_LAMBDA_FUNCTION_ARN,
+      asyncImportLambdaFunctionArn: process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN,
+      asyncExportLambdaFunctionArn: process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN,
       asyncLambdaFunctionRegion: process.env.ASYNC_LAMBDA_FUNCTION_REGION,
     });
   });
@@ -72,7 +75,8 @@ describe("Test read Configuration()", () => {
       resourcesBaseUrl: "",
       uploadBucketName: "",
       uploadBucketRegion: "",
-      asyncLambdaFunctionArn: "",
+      asyncImportLambdaFunctionArn: "",
+      asyncExportLambdaFunctionArn: "",
       asyncLambdaFunctionRegion: "",
     });
   });
@@ -97,7 +101,17 @@ describe("Test current configuration", () => {
 
   stdConfigurationValuesTest("getUploadBucketRegion", getUploadBucketRegion, "uploadBucketRegion");
 
-  stdConfigurationValuesTest("getAsyncLambdaFunctionArn", getAsyncLambdaFunctionArn, "asyncLambdaFunctionArn");
+  stdConfigurationValuesTest(
+    "getAsyncLambdaFunctionArn",
+    getAsyncImportLambdaFunctionArn,
+    "asyncImportLambdaFunctionArn"
+  );
+
+  stdConfigurationValuesTest(
+    "getAsyncLambdaFunctionArn",
+    getAsyncExportLambdaFunctionArn,
+    "asyncExportLambdaFunctionArn"
+  );
 
   stdConfigurationValuesTest("getAsyncLambdaFunctionRegion", getAsyncLambdaFunctionRegion, "asyncLambdaFunctionRegion");
 });
@@ -161,7 +175,8 @@ function getMockConfig(): IConfiguration {
     resourcesBaseUrl: getTestString(10),
     uploadBucketName: getTestString(10),
     uploadBucketRegion: getTestString(10),
-    asyncLambdaFunctionArn: getTestString(10),
+    asyncImportLambdaFunctionArn: getTestString(10),
+    asyncExportLambdaFunctionArn: getTestString(10),
     asyncLambdaFunctionRegion: getTestString(10),
   };
 }

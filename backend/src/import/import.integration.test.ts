@@ -15,7 +15,7 @@ import { parseOccupationsFromFile } from "./esco/occupations/occupationsParser";
 import { parseOccupationHierarchyFromFile } from "./esco/occupationHierarchy/occupationHierarchyParser";
 import { RowsProcessedStats } from "./rowsProcessedStats.types";
 import { IModelInfo, INewModelInfoSpec } from "modelInfo/modelInfo.types";
-import importLogger from "./importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromFile } from "./esco/skillHierarchy/skillHierarchyParser";
 import fs from "fs";
 import { parse } from "csv-parse";
@@ -50,7 +50,8 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
     process.env[ENV_VAR_NAMES.MONGODB_URI] = process.env[ENV_VAR_NAMES.MONGODB_URI] + "CSVImportIntegrationTestDB";
     process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_NAME] = "not-used";
     process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_REGION] = "not-used";
-    process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_ARN] = "not-used";
+    process.env[ENV_VAR_NAMES.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN] = "not-used";
+    process.env[ENV_VAR_NAMES.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN] = "not-used";
     process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_REGION] = "not-used";
     await initOnce();
   });
@@ -269,8 +270,8 @@ function assertSuccessfullyImported(
   // expect no errors or warnings to have been logged
   expect(stats.rowsSuccess).toEqual(stats.rowsProcessed);
   expect(stats.rowsFailed).toEqual(0);
-  expect(importLogger.errorCount).toEqual(0);
-  expect(importLogger.warningCount).toEqual(0);
+  expect(errorLogger.errorCount).toEqual(0);
+  expect(errorLogger.warningCount).toEqual(0);
   expect(consoleErrorSpy).not.toHaveBeenCalled();
   expect(consoleWarnSpy).not.toHaveBeenCalled();
 }

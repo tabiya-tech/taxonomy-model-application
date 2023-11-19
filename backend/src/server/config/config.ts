@@ -1,9 +1,12 @@
+import * as process from "process";
+
 export const ENV_VAR_NAMES = {
   MONGODB_URI: "MONGODB_URI",
   RESOURCES_BASE_URL: "RESOURCES_BASE_URL",
   UPLOAD_BUCKET_NAME: "UPLOAD_BUCKET_NAME",
   UPLOAD_BUCKET_REGION: "UPLOAD_BUCKET_REGION",
-  ASYNC_LAMBDA_FUNCTION_ARN: "ASYNC_LAMBDA_FUNCTION_ARN",
+  ASYNC_IMPORT_LAMBDA_FUNCTION_ARN: "ASYNC_IMPORT_LAMBDA_FUNCTION_ARN",
+  ASYNC_EXPORT_LAMBDA_FUNCTION_ARN: "ASYNC_EXPORT_LAMBDA_FUNCTION_ARN",
   ASYNC_LAMBDA_FUNCTION_REGION: "ASYNC_LAMBDA_FUNCTION_REGION",
 };
 
@@ -12,7 +15,8 @@ export interface IConfiguration {
   resourcesBaseUrl: string;
   uploadBucketName: string;
   uploadBucketRegion: string;
-  asyncLambdaFunctionArn: string;
+  asyncImportLambdaFunctionArn: string;
+  asyncExportLambdaFunctionArn: string;
   asyncLambdaFunctionRegion: string;
 }
 export function readEnvironmentConfiguration(): IConfiguration {
@@ -21,7 +25,8 @@ export function readEnvironmentConfiguration(): IConfiguration {
     resourcesBaseUrl: process.env[ENV_VAR_NAMES.RESOURCES_BASE_URL] ?? "",
     uploadBucketName: process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_NAME] ?? "",
     uploadBucketRegion: process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_REGION] ?? "",
-    asyncLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_ARN] ?? "",
+    asyncImportLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN] ?? "",
+    asyncExportLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN] ?? "",
     asyncLambdaFunctionRegion: process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_REGION] ?? "",
   };
 }
@@ -51,9 +56,14 @@ export function getUploadBucketRegion() {
   return _configuration?.uploadBucketRegion ?? "";
 }
 
-export function getAsyncLambdaFunctionArn() {
-  return _configuration?.asyncLambdaFunctionArn ?? "";
+export function getAsyncImportLambdaFunctionArn() {
+  return _configuration?.asyncImportLambdaFunctionArn ?? "";
 }
+
+export function getAsyncExportLambdaFunctionArn() {
+  return _configuration?.asyncExportLambdaFunctionArn ?? "";
+}
+
 export function getAsyncLambdaFunctionRegion() {
   return _configuration?.asyncLambdaFunctionRegion ?? "";
 }

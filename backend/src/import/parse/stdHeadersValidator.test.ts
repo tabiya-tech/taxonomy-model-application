@@ -1,12 +1,12 @@
 import "_test_utilities/consoleMock";
 
 import { getStdHeadersValidator } from "./stdHeadersValidator";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 describe("getStdHeadersValidator", () => {
   beforeAll(() => {
-    jest.spyOn(importLogger, "logError");
-    jest.spyOn(importLogger, "logWarning");
+    jest.spyOn(errorLogger, "logError");
+    jest.spyOn(errorLogger, "logWarning");
   });
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,9 +40,9 @@ describe("getStdHeadersValidator", () => {
     const result = await headersValidator(actualHeaders);
     expect(result).toBe(true);
     // AND no error should be logged
-    expect(importLogger.logError).not.toHaveBeenCalled();
+    expect(errorLogger.logError).not.toHaveBeenCalled();
     // AND no warning should be logged
-    expect(importLogger.logWarning).not.toHaveBeenCalled();
+    expect(errorLogger.logWarning).not.toHaveBeenCalled();
   });
 
   test("should return false when actual headers do not include all expected headers", async () => {
@@ -60,10 +60,10 @@ describe("getStdHeadersValidator", () => {
     const result = await headersValidator(actualHeaders);
     expect(result).toBe(false);
     // AND an error should be logged
-    expect(importLogger.logError).toHaveBeenCalledWith(
+    expect(errorLogger.logError).toHaveBeenCalledWith(
       `Failed to validate header for ${givenValidatorName}, expected to include header header2`
     );
-    expect(importLogger.logError).toHaveBeenCalledWith(
+    expect(errorLogger.logError).toHaveBeenCalledWith(
       `Failed to validate header for ${givenValidatorName}, expected to include header header3`
     );
   });

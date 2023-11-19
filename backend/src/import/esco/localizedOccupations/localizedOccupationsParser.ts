@@ -12,7 +12,7 @@ import {
   INewLocalizedOccupationSpec,
 } from "esco/localizedOccupation/localizedOccupation.types";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 
 // expect all columns to be in upper case
 export interface ILocalizedOccupationRow {
@@ -51,7 +51,7 @@ function getRowToSpecificationTransformFn(
     const occupationType = getOccupationTypeFromRow(row);
     if (!occupationType) {
       //check that the occupationType exists
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import Localized Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`
       );
       return null;
@@ -59,7 +59,7 @@ function getRowToSpecificationTransformFn(
     const localizesOccupationId = importIdToDBIdMap.get(row.LOCALIZESOCCUPATIONID);
     if (!localizesOccupationId) {
       //check that the localizesOccupationId exists
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Failed to import Localized Occupation row with id:'${row.ID}'. LocalizesOccupationId not found/invalid.`
       );
       return null;

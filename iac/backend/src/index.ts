@@ -23,7 +23,7 @@ const downloadBucket = setupDownloadBucket(allowedOrigins);
 export const downloadBucketName = downloadBucket.id;
 
 /**
- * Setup Async Import
+ * Setup Async Export
  */
 
 const {asyncExportLambdaRole, asyncExportLambdaFunction} = setupAsyncExportApi(environment, {
@@ -66,7 +66,8 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
   upload_bucket_region: currentRegion,
-  async_lambda_function_arn: asyncImportLambdaFunction.arn,
+  async_import_lambda_function_arn: asyncImportLambdaFunction.arn,
+  async_export_lambda_function_arn: asyncExportLambdaFunction.arn,
   async_lambda_function_region: currentRegion
 });
 

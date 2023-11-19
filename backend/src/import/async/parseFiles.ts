@@ -9,7 +9,7 @@ import { parseOccupationsFromUrl } from "import/esco/occupations/occupationsPars
 import { parseOccupationHierarchyFromUrl } from "import/esco/occupationHierarchy/occupationHierarchyParser";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ImportAPISpecs from "api-specifications/import";
-import importLogger from "import/importLogger/importLogger";
+import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
@@ -81,7 +81,7 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     const stats = await parseOccupationHierarchyFromUrl(modelId, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);
     console.info(`Processed ${JSON.stringify(stats)} Occupation hierarchy entries`);
     if (stats.rowsSuccess !== countISCOGroups + countOccupations - 10) {
-      importLogger.logWarning(
+      errorLogger.logWarning(
         `Expected to successfully process ${
           countISCOGroups + countOccupations - 10
         } (ISCO groups + Occupations (Local and ESCO) - 10) hierarchy entries. Instead processed ${
@@ -116,8 +116,8 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
     result: {
       errored: false,
-      parsingErrors: importLogger.errorCount > 0,
-      parsingWarnings: importLogger.warningCount > 0,
+      parsingErrors: errorLogger.errorCount > 0,
+      parsingWarnings: errorLogger.warningCount > 0,
     },
   };
   await getRepositoryRegistry().importProcessState.update(importProcessStateId, state);
