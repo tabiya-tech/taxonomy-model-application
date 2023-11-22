@@ -31,7 +31,9 @@ import {
 import LocaleAPISpecs from "api-specifications/locale";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
-import { getUserFriendlyErrorMessage } from "src/error/error";
+import { getUserFriendlyErrorMessage, ServiceError } from "src/error/error";
+import { writeServiceErrorToLog } from "src/error/logger";
+import { ErrorCodes } from "src/error/errorCodes";
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
@@ -116,6 +118,20 @@ jest.mock("src/modeldirectory/components/ModelDirectoryHeader/ModelDirectoryHead
     ...actual,
     __esModule: true,
     default: mockModelsTable,
+  };
+});
+
+// mock the writeServiceErrorToLog
+jest.mock("src/error/logger", () => {
+  const actual = jest.requireActual("src/error/logger");
+  const mockWriteServiceErrorToLog = jest.fn().mockImplementation(() => {
+    return;
+  });
+
+  return {
+    ...actual,
+    __esModule: true,
+    writeServiceErrorToLog: mockWriteServiceErrorToLog,
   };
 });
 
@@ -594,6 +610,38 @@ describe("ModelDirectory", () => {
       expect(console.warn).not.toHaveBeenCalled();
     });
 
+    test("should throw a ServiceError when the model info service fails", async () => {
+      // GIVEN the model info service will fail with some error
+      const mockServiceError = new ServiceError(
+        "ServiceName",
+        "ServiceFunction",
+        "GET",
+        "/api/path",
+        500,
+        ErrorCodes.API_ERROR,
+        "Service Error Message"
+      );
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((_, onError) => {
+        onError(mockServiceError);
+        return 1 as unknown as NodeJS.Timer;
+      });
+
+      // WHEN the ModelDirectory is mounted
+      render(<ModelDirectory />);
+      // AND the ModelInfoService fails
+
+      // THEN expect a snackbar with the error message to be shown
+      await waitFor(() => {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
+          variant: "error",
+          key: SNACKBAR_ID.INTERNET_ERROR,
+          preventDuplicate: true,
+        });
+      });
+      // AND writeServiceErrorToLog to have been called
+      expect(writeServiceErrorToLog).toHaveBeenCalledWith(mockServiceError, console.error);
+    });
+
     describe("Internet status", () => {
       afterAll(() => {
         unmockBrowserIsOnLine();
@@ -945,6 +993,68 @@ describe("ModelDirectory", () => {
       );
     });
 
+    test("should throw a ServiceError when import director fails to import", async () => {
+      // GIVEN the ModelDirectory is rendered
+      render(<ModelDirectory />);
+      // AND the import will fail
+      const mockServiceError = new ServiceError(
+        "ServiceName",
+        "ServiceFunction",
+        "POST",
+        "/api/path",
+        500,
+        ErrorCodes.API_ERROR,
+        "Service Error Message"
+      );
+
+      ImportDirectorService.prototype.directImport = jest.fn().mockImplementation(
+        () =>
+          new Promise((resolve, reject) => {
+            reject(mockServiceError);
+          })
+      );
+
+      // WHEN the user clicks the import button
+      act(() => {
+        (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+      });
+
+      // AND the user has entered all the data required for the import
+      const givenImportData = getTestImportData();
+
+      // AND the triggers an import
+      act(() => {
+        const mock = (ImportModelDialog as jest.Mock).mock;
+        mock.lastCall[0].notifyOnClose({
+          name: "IMPORT",
+          importData: givenImportData,
+        });
+      });
+
+      // THEN expect the import director service to have been called with the data entered by the user
+      expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(
+        givenImportData.name,
+        givenImportData.description,
+        givenImportData.locale,
+        givenImportData.selectedFiles
+      );
+
+      // AND the backdrop will eventually be hidden
+      await waitFor(() => {
+        const backdrop = screen.queryByTestId(BACKDROP_DATA_TEST_ID.BACKDROP_CONTAINER);
+        expect(backdrop).not.toBeInTheDocument();
+      });
+
+      // AND the snackbar notification was shown
+      expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+        `The model '${givenImportData.name}' import could not be started. Please try again.`,
+        { variant: "error" }
+      );
+
+      // AND writeServiceErrorToLog to have been called
+      expect(writeServiceErrorToLog).toHaveBeenCalledWith(mockServiceError, console.error);
+    });
+
     test.each([
       [" has no existing models", []],
       [" has N existing models", getArrayOfRandomModelsMaxLength(3)],
@@ -1066,6 +1176,46 @@ describe("ModelDirectory", () => {
           { variant: "error", preventDuplicate: true }
         );
       });
+    });
+
+    test("should handle export failure with ServiceError", async () => {
+      // GIVEN the ModelDirectory is rendered
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
+        onSuccess(givenModels);
+        return 1 as unknown as NodeJS.Timer;
+      });
+      render(<ModelDirectory />);
+      // AND the export will fail
+      const givenExportedModel = givenModels[1];
+      const mockServiceError = new ServiceError(
+        "ServiceName",
+        "ServiceFunction",
+        "POST",
+        "/api/path",
+        500,
+        ErrorCodes.API_ERROR,
+        "Service Error Message"
+      );
+      ExportService.prototype.exportModel = jest.fn().mockRejectedValueOnce(mockServiceError);
+
+      // WHEN the user clicks the export button
+      act(() => {
+        const mock = (ModelsTable as jest.Mock).mock;
+        mock.lastCall[0].notifyOnExport(givenExportedModel.id);
+      });
+
+      // THEN expect the exportModel service to have been called with the modelId
+      expect(ExportService.prototype.exportModel).toHaveBeenCalledWith(givenExportedModel.id);
+      // AND the snackbar notification to be shown
+      await waitFor(() => {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+          `The model '${givenExportedModel.name}' export could not be started. Please try again.`,
+          { variant: "error", preventDuplicate: true }
+        );
+      });
+      // AND writeServiceErrorToLog to have been called
+      expect(writeServiceErrorToLog).toHaveBeenCalledWith(mockServiceError, console.error);
     });
   });
 });
