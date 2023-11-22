@@ -24,7 +24,7 @@ exports[`Test the exportProcessState module The export module matches the snapsh
             "downloadUrl": {
               "description": "The url to download the exported model.",
               "format": "uri",
-              "pattern": "^https://",
+              "pattern": "^$|^https?://.*",
               "type": "string",
             },
             "id": {
