@@ -10,7 +10,7 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { getMockId } from "src/_test_utilities/mockMongoId";
 import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
 import { faker } from "@faker-js/faker";
-import { CELL_MAX_LENGTH } from "../ModelsTable";
+import { CELL_MAX_LENGTH } from "src/modeldirectory/components/ModelsTable/ModelsTable";
 
 export function getOneFakeModel(id?: number): ModelInfoTypes.ModelInfo {
   const model = getArrayOfFakeModels(1)[0];

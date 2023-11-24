@@ -1,5 +1,5 @@
 import { Skeleton, TableCell, TableRow } from "@mui/material";
-import { getRandomString } from "../../../_test_utilities/specialCharacters";
+import { getRandomString } from "src/_test_utilities/specialCharacters";
 
 interface TableLoadingBodyProps {
   numberOfCols: number;

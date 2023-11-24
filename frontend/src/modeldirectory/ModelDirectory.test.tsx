@@ -1007,12 +1007,9 @@ describe("ModelDirectory", () => {
         "Service Error Message"
       );
 
-      ImportDirectorService.prototype.directImport = jest.fn().mockImplementation(
-        () =>
-          new Promise((resolve, reject) => {
-            reject(mockServiceError);
-          })
-      );
+      ImportDirectorService.prototype.directImport = jest
+        .fn()
+        .mockImplementation(() => Promise.reject(mockServiceError));
 
       // WHEN the user clicks the import button
       act(() => {
@@ -1178,7 +1175,7 @@ describe("ModelDirectory", () => {
       });
     });
 
-    test("should handle export failure with ServiceError", async () => {
+    test("should throw a ServiceError when export service fails to export", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
       jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
