@@ -6,7 +6,7 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import { getAllExportProcessStatePermutations } from "./_test_utilities/exportProcesStateTestData";
 import ExportProcessStateIcon, { DATA_TEST_ID } from "./ExportProcessStateIcon";
 import ExportProcessStateAPISpecs from "api-specifications/importProcessState";
-import { ModelInfoTypes } from "../../../modelInfo/modelInfoTypes";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 
 const allIconTestIds = [
   DATA_TEST_ID.ICON_STATUS_PENDING,

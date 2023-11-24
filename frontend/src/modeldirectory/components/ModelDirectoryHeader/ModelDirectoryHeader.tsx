@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import PrimaryButton from "../../../theme/PrimaryButton/PrimaryButton";
+import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import { AddCircleOutlined } from "@mui/icons-material";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d78u";
