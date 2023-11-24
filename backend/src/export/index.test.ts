@@ -89,7 +89,7 @@ describe("test for trigger ExportHandler", () => {
     expect(actualResponse).toEqual(expectedResult);
   });
 
-  test("should respond with INTERNAL_SERVER_ERROR status code if the model does not exist", async () => {
+  test("should respond with NOT_FOUND status code if the model does not exist", async () => {
     // GIVEN a correct payload & event with 'Content-Type: application/json; charset=utf-8'
     const givenPayload: ExportAPISpecs.Types.POST.Request.Payload = {
       modelId: getMockStringId(2),
@@ -117,8 +117,8 @@ describe("test for trigger ExportHandler", () => {
 
     // THEN expect the handler to call the repository with the given payload
     expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenPayload.modelId);
-    // AND to respond with the INTERNAL_SERVER_ERROR status
-    expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    // AND to respond with the NOT_FOUND status
+    expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
     // AND the response body contains the error information
     const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
       errorCode: ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes.FAILED_TO_TRIGGER_EXPORT,

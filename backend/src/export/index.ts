@@ -47,6 +47,8 @@ export const handler: (
  *             application/json:
  *               schema:
  *                 $ref: '#/components/schemas/ErrorSchema'
+ *         '404':
+ *            description: Model could not be found.
  *         '415':
  *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
  *         '500':
@@ -86,7 +88,7 @@ async function postTriggerExport(event: APIGatewayProxyEvent) {
   const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
   if(!model) {
     return errorResponse(
-      StatusCodes.INTERNAL_SERVER_ERROR,
+      StatusCodes.NOT_FOUND,
       ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes.FAILED_TO_TRIGGER_EXPORT,
       "Failed to trigger the export process",
       "Model could not be found"
