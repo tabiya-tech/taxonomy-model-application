@@ -29,8 +29,8 @@ export const downloadBucketName = downloadBucket.id;
 const {asyncExportLambdaRole, asyncExportLambdaFunction} = setupAsyncExportApi(environment, {
   mongodb_uri: process.env.MONGODB_URI ?? "",
   resourcesBaseUrl,
-  export_bucket_name: downloadBucketName,
-  export_bucket_region: currentRegion,
+  download_bucket_name: downloadBucketName,
+  download_bucket_region: currentRegion,
 });
 
 setupDownloadBucketWritePolicy(downloadBucket, asyncExportLambdaRole);

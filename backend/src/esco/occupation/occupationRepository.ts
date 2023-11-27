@@ -9,6 +9,10 @@ import { populateOccupationRequiresSkillsOptions } from "./populateOccupationToS
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 
 import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
+import { OccupationType } from "esco/common/objectTypes";
+import { Readable } from "node:stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import stream from "stream";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -40,6 +44,16 @@ export interface IOccupationRepository {
    * Rejects with an error if the operation fails.
    */
   findById(id: string): Promise<IOccupation | null>;
+
+  /**
+   * Returns all occupations as a stream. The Occupations are transformed to objects (via the .toObject()), however
+   * in the current version they are not populated with parents, children or required skills.This will be implemented in a future version.
+   * @param {string} modelId - The modelId of the occupations.
+   * @param {OccupationType} occupationType - Used for filtering between local and ESCO occupations.
+   * @return {Readable} - A Readable stream of IOccupations
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string, occupationType: OccupationType): Readable;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -131,6 +145,27 @@ export class OccupationRepository implements IOccupationRepository {
       return occupation !== null ? occupation.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
+      throw e;
+    }
+  }
+
+  findAll(modelId: string, occupationType: OccupationType): Readable {
+    // Allow only ESCO or local occupations
+    if (occupationType !== OccupationType.ESCO && occupationType !== OccupationType.LOCAL) {
+      const e = new Error("OccupationType must be either ESCO or LOCAL");
+      console.error("findAll failed", e);
+      throw e;
+    }
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.Model.find({ modelId: { $eq: modelId }, occupationType: { $eq: occupationType } }).cursor(),
+        // in the current version we do not populate the parent, children or requiresSkills
+        new DocumentToObjectTransformer<IOccupation>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
       throw e;
     }
   }

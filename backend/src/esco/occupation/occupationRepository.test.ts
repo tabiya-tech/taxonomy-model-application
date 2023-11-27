@@ -31,6 +31,7 @@ import {
 } from "esco/_test_utilities/expectedReference";
 import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { Readable } from "node:stream";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -86,6 +87,19 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  /** Helper function to create n simple occupations in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createOccupationsInDB(modelId: string, batchSize: number = 3) {
+    const givenNewOccupationSpecs: INewOccupationSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      givenNewOccupationSpecs.push(getSimpleNewOccupationSpec(modelId, `ESCO_occupation_${i}`));
+      givenNewOccupationSpecs.push(getSimpleNewOccupationSpec(modelId, `Local_occupation_${i}`, true));
+    }
+    return await repository.createMany(givenNewOccupationSpecs);
+  }
 
   async function cleanupDBCollections() {
     if (repository) await repository.Model.deleteMany({}).exec();
@@ -151,8 +165,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // WHEN Creating a new Occupation with a provided UUID
       const actualNewOccupationPromise = repository.create({
-        ...givenNewOccupationSpec,
-        //@ts-ignore
+        ...givenNewOccupationSpec, //@ts-ignore
         UUID: randomUUID(),
       });
 
@@ -571,8 +584,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
-          modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
-          //@ts-ignore
+          modelId: new mongoose.Types.ObjectId(givenOccupation.modelId), //@ts-ignore
           parentType: ObjectTypes.Skill, // <- This is the inconsistency
           parentDocModel: MongooseModelName.Skill, // <- This is the inconsistency
           parentId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
@@ -881,6 +893,118 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.occupation.findById(getMockStringId(1));
+    });
+  });
+
+  describe("Test findAll()", () => {
+    describe.each([
+      ["ESCO Occupations", OccupationType.ESCO],
+      ["Local Occupations", OccupationType.LOCAL],
+    ])("Test findAll() for %s", (caseDescription: string, givenOccupationType: OccupationType) => {
+      test(`should find all ${caseDescription} in the correct model`, async () => {
+        // Given some modelId
+        const givenModelId = getMockStringId(1);
+        // AND a set of Occupations exist in the database for a given Model
+        const givenOccupations = await createOccupationsInDB(givenModelId);
+        // AND some other Occupations exist in the database for a different model
+        const givenModelId_other = getMockStringId(2);
+        await createOccupationsInDB(givenModelId_other);
+
+        // WHEN searching for all occupations in the given model of a given type
+        const actualOccupations = repository.findAll(givenModelId, givenOccupationType);
+
+        // THEN the occupations should be returned as a consumable stream that emits all occupations
+        const actualOccupationsArray: IOccupation[] = [];
+        for await (const data of actualOccupations) {
+          actualOccupationsArray.push(data);
+        }
+        const expectedOccupations = givenOccupations
+          .filter((occupation) => occupation.occupationType == givenOccupationType)
+          .map((occupation) => {
+            const { parent, children, requiresSkills, ...occupationData } = occupation;
+            return occupationData;
+          });
+        expect(actualOccupationsArray).toEqual(expectedOccupations);
+      });
+
+      test(`should not return any ${caseDescription} when the model does not have any and other models have`, async () => {
+        // GIVEN no Occupations exist in the database for the given model
+        const givenModelId = getMockStringId(1);
+        const givenModelId_other = getMockStringId(2);
+        // BUT some other Occupations exist in the database for a different model
+        await createOccupationsInDB(givenModelId_other);
+
+        // WHEN the findAll method is called for occupations
+        const actualStream = repository.findAll(givenModelId, givenOccupationType);
+
+        // THEN the stream should end without emitting any data
+        const receivedData: IOccupation[] = [];
+        for await (const data of actualStream) {
+          receivedData.push(data);
+        }
+        expect(receivedData).toHaveLength(0);
+      });
+
+      test("should handle errors during data retrieval", async () => {
+        // GIVEN an error occurs during the find operation
+        const givenModelId = getMockStringId(1);
+        const givenError = new Error("foo");
+        jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+          throw givenError;
+        });
+
+        // THEN the findAll method should throw an error for occupations
+        expect(() => repository.findAll(givenModelId, givenOccupationType)).toThrowError(givenError);
+      });
+
+      test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+        // GIVEN an error occurs during the streaming of the find operation
+        const givenError = new Error("foo");
+        const mockStream = Readable.from([{ toObject: jest.fn() }]);
+        mockStream._read = jest.fn().mockImplementation(() => {
+          throw givenError;
+        });
+        const mockFind = jest.spyOn(repository.Model, "find");
+        // @ts-ignore
+        mockFind.mockReturnValue({
+          cursor: jest.fn().mockImplementationOnce(() => {
+            return mockStream;
+          }),
+        });
+
+        // WHEN searching for all occupations in the given model of a given type
+        const actualOccupations = repository.findAll(getMockStringId(1), givenOccupationType);
+
+        // THEN the occupations should be returned as a consumable stream that emits an error and ends
+        const actualOccupationsArray: IOccupation[] = [];
+        await expect(async () => {
+          for await (const data of actualOccupations) {
+            actualOccupationsArray.push(data);
+          }
+        }).rejects.toThrowError(givenError);
+        expect(actualOccupations.closed).toBeTruthy();
+        expect(actualOccupationsArray).toHaveLength(0);
+        mockFind.mockRestore();
+      });
+
+      TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+        const streamOfOccupations = repositoryRegistry.occupation.findAll(getMockStringId(1), givenOccupationType);
+        for await (const _ of streamOfOccupations) {
+          // iterate over the stream to hot the db and trigger the error
+          // do nothing
+        }
+      });
+    });
+
+    // should throw an error if occupationType is not ESCO or LOCAL
+    test("should throw an error if occupationType is not valid", async () => {
+      // GIVEN no Occupations exist in the database for the given model
+      const givenModelId = getMockStringId(1);
+
+      // WHEN the findAll method is called for occupations
+      expect(() => repository.findAll(givenModelId, OccupationType.LOCALIZED)).toThrowError(
+        "OccupationType must be either ESCO or LOCAL"
+      );
     });
   });
 });

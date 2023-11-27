@@ -1,7 +1,7 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import errorLogger from "common/errorLogger/errorLogger";
-import { parseModelToFile } from "./parseModelToFile";
+import { modelToS3 } from "./modelToS3";
 import { initOnce } from "server/init";
 import { AsyncExportEvent } from "./async.types";
 
@@ -64,7 +64,7 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
     }
 
     // We expect the parseModelToFile function to throw errors and set the export process status to FAILED in the catch block.
-    await parseModelToFile(event);
+    await modelToS3(event);
   } catch (e: unknown) {
     console.error("Error updating ExportProcessState:", e);
     // Set the export process status to FAILED
@@ -80,8 +80,8 @@ const exportErrored = async (exportProcessStateId: string) => {
       status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
       result: {
         errored: true, // checking parsing errors and warning is an upcoming feature
-        exportErrors: false,
-        exportWarnings: false,
+        exportErrors: errorLogger.errorCount > 0,
+        exportWarnings: errorLogger.warningCount > 0,
       },
     };
     console.info("Export failed", exportFailedState);

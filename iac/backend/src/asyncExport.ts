@@ -15,8 +15,8 @@ const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 2;
 export function setupAsyncExportApi(environment: string, config: {
   mongodb_uri: string,
   resourcesBaseUrl: string,
-  export_bucket_name: Output<string>,
-  export_bucket_region: Output<string>
+  download_bucket_name: Output<string>,
+  download_bucket_region: Output<string>
 }): { asyncExportLambdaRole: aws.iam.Role, asyncExportLambdaFunction: aws.lambda.Function } {
 
   // Create a new IAM role for the Lambda function
@@ -65,8 +65,8 @@ export function setupAsyncExportApi(environment: string, config: {
         NODE_OPTIONS: '--enable-source-maps',
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
         MONGODB_URI: config.mongodb_uri,
-        EXPORT_BUCKET_NAME: config.export_bucket_name,
-        EXPORT_BUCKET_REGION: config.export_bucket_region
+        DOWNLOAD_BUCKET_NAME: config.download_bucket_name,
+        DOWNLOAD_BUCKET_REGION: config.download_bucket_region
       }
     }
   });

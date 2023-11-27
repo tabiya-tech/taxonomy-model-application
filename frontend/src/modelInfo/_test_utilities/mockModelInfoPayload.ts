@@ -128,7 +128,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
           exportErrors: faker.datatype.boolean(),
           exportWarnings: faker.datatype.boolean(),
         },
-        downloadUrl: "https://foo/bar/baz",
+        downloadUrl: _id % 2 === 0? "": "https://foo/bar/baz", // errored models don't have downloadUrl
         timestamp: new Date().toISOString(),
       },
     ],

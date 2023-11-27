@@ -71,6 +71,7 @@ describe("test parseLocalizedOccupations from", () => {
       const givenMockRepository: ILocalizedOccupationRepository = {
         Model: undefined as any,
         findById: jest.fn().mockResolvedValue(null),
+        findAll: jest.fn(),
         create: jest.fn().mockResolvedValue({}),
         createMany: jest
           .fn()

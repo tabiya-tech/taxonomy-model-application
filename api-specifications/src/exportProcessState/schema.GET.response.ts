@@ -48,7 +48,6 @@ const SchemaGETResponse: SchemaObject = {
     downloadUrl: {
       description: "The url to download the exported model.",
       type: "string",
-      format: "uri",
       pattern: "^$|^https?://.*",
     },
     timestamp: {

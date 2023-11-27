@@ -84,6 +84,7 @@ describe("test parseISCOGroups from", () => {
           );
         }),
         findById: jest.fn().mockResolvedValue({}),
+        findAll: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV file to the database ids

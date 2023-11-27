@@ -51,7 +51,7 @@ describe("Test S3PresignerService", () => {
       Key: givenFileKey,
     });
     // AND expect the getSignedUrl to return whatever the getSignedUrl returned
-    const expectedPresignedURL  = await (getSignedUrl as jest.Mock).mock.results[0].value
+    const expectedPresignedURL = await (getSignedUrl as jest.Mock).mock.results[0].value;
     expect(actualPresigned).toEqual(expectedPresignedURL);
   });
 });

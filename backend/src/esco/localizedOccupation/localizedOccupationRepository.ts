@@ -18,6 +18,9 @@ import {
   populateLocalizedOccupationLocalizesOccupationOptions,
   occupationFromLocalizedOccupationTransform,
 } from "./populateLocalizesOccupationOptions";
+import { Readable } from "node:stream";
+import stream from "stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 
 export interface ILocalizedOccupationRepository {
   readonly Model: mongoose.Model<ILocalizedOccupationDoc>;
@@ -49,6 +52,15 @@ export interface ILocalizedOccupationRepository {
    * Rejects with an error if the operation fails.
    */
   findById(id: string): Promise<IExtendedLocalizedOccupation | null>;
+
+  /**
+   * Returns all Localized occupations as a stream. The Localized Occupations are transformed to objects (via the .toObject()), however
+   * in the current version they are not populated with parent, children, required skills or localizesOccupation.This will be implemented in a future version.
+   * @param {string} modelId - The modelId of the Localized occupations.
+   * @return {Readable} - A Readable stream of ILocalizedOccupation
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string): Readable;
 }
 
 export class LocalizedOccupationRepository implements ILocalizedOccupationRepository {
@@ -165,6 +177,21 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
+      throw e;
+    }
+  }
+
+  findAll(modelId: string): Readable {
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+        // in the current version we do not populate the parent, children, requiresSkills or localizesOccupation
+        new DocumentToObjectTransformer<ILocalizedOccupation>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
       throw e;
     }
   }

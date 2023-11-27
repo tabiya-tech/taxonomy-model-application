@@ -24,6 +24,7 @@ import {
 } from "esco/_test_utilities/getNewSpecs";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
+import { Readable } from "node:stream";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -70,6 +71,18 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  /** Helper function to create n simple SkillGroups in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createSkillGroupsInDB(modelId: string, batchSize: number = 3) {
+    const givenNewSkillGroupSpecs: INewSkillGroupSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      givenNewSkillGroupSpecs.push(getSimpleNewSkillGroupSpec(modelId, `skillGroup_${i}`));
+    }
+    return await repository.createMany(givenNewSkillGroupSpecs);
+  }
 
   async function cleanupDBCollections() {
     if (repository) await repository.Model.deleteMany({}).exec();
@@ -581,6 +594,100 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skillGroup.findById(getMockStringId(1));
+    });
+  });
+
+  describe("Test findAll()", () => {
+    test("should find all SkillGroups in the correct model", async () => {
+      // Given some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of SkillGroups exist in the database for the given Model
+      const givenSkillGroups = await createSkillGroupsInDB(givenModelId);
+      // AND some other SkillGroups exist in the database for a different model
+      const givenModelId_other = getMockStringId(2);
+      await createSkillGroupsInDB(givenModelId_other);
+
+      // WHEN searching for all SkillGroups in the given model
+      const actualSkillGroups = repository.findAll(givenModelId);
+
+      // THEN the SkillGroups should be returned as a consumable stream that emits all SkillGroups
+      const actualSkillGroupsArray: ISkillGroup[] = [];
+      for await (const data of actualSkillGroups) {
+        actualSkillGroupsArray.push(data);
+      }
+
+      const expectedSkillGroups = givenSkillGroups.map((ISkillGroup) => {
+        const { parents, children, ...SkillGroupData } = ISkillGroup;
+        return SkillGroupData;
+      });
+      expect(actualSkillGroupsArray).toEqual(expectedSkillGroups);
+    });
+
+    test("should not return any SkillGroups when the model does not have any and other models have", async () => {
+      // GIVEN no SkillGroups exist in the database for the given model
+      const givenModelId = getMockStringId(1);
+      // AND some other SkillGroups exist in the database for a different model
+      await createSkillGroupsInDB(getMockStringId(2));
+
+      // WHEN the findAll method is called
+      const actualStream = repository.findAll(givenModelId);
+
+      // THEN the stream should end without emitting any data
+      const receivedData: ISkillGroup[] = [];
+      for await (const data of actualStream) {
+        receivedData.push(data);
+      }
+      expect(receivedData).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN an error occurs during the find operation
+      const givenModelId = getMockStringId(1);
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // THEN the findAll method should throw an error for skillGroups
+      expect(() => repository.findAll(givenModelId)).toThrowError(givenError);
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN an error occurs during the streaming of the find operation
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.Model, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockImplementationOnce(() => {
+          return mockStream;
+        }),
+      });
+
+      // WHEN searching for all SkillGroups in the given model
+      const actualSkillGroups = repository.findAll(getMockStringId(1));
+
+      // THEN expect the SkillGroups to be returned as a consumable stream that emits an error and ends
+      const actualSkillGroupsArray: ISkillGroup[] = [];
+      await expect(async () => {
+        for await (const data of actualSkillGroups) {
+          actualSkillGroupsArray.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualSkillGroups.closed).toBeTruthy();
+      expect(actualSkillGroupsArray).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+      const streamOfSkillGroups = repositoryRegistry.skillGroup.findAll(getMockStringId(1));
+      for await (const _ of streamOfSkillGroups) {
+        // iterate over the stream to hot the db and trigger the error
+        // do nothing
+      }
     });
   });
 });

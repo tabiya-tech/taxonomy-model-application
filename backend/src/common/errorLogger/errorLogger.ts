@@ -3,7 +3,7 @@ class ErrorLogger {
   private _warningCount: number = 0;
 
   logError(error: unknown): void;
-  logError(message: string, reason?: unknown): void;
+  logError(message: string | unknown, reason?: unknown): void;
   logError(obj1: unknown, obj2?: unknown) {
     this._errorCount++;
     if (obj2 !== undefined) {
@@ -35,6 +35,7 @@ class ErrorLogger {
   get warningCount(): number {
     return this._warningCount;
   }
+
   clear() {
     this._errorCount = 0;
     this._warningCount = 0;

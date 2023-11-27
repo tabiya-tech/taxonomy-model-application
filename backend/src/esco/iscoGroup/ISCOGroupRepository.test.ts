@@ -24,6 +24,7 @@ import {
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import { IOccupationReference } from "esco/occupation/occupation.types";
+import { Readable } from "node:stream";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -75,6 +76,18 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  /** Helper function to create n simple ISCOGroups in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createISCOGroupsInDB(modelId: string, batchSize: number = 3) {
+    const givenNewISCOGroupSpecs: INewISCOGroupSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      givenNewISCOGroupSpecs.push(getSimpleNewISCOGroupSpec(modelId, `group_${i}`));
+    }
+    return await repository.createMany(givenNewISCOGroupSpecs);
+  }
 
   async function cleanupDBCollections() {
     if (repository) await repository.Model.deleteMany({}).exec();
@@ -616,6 +629,101 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.ISCOGroup.findById(getMockStringId(1));
+    });
+  });
+
+  describe("Test findAll()", () => {
+    test("should find all ISCOGroups in the correct model", async () => {
+      // Given some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of ISCOGroups exist in the database for a given Model
+      const givenISCOGroups = await createISCOGroupsInDB(givenModelId);
+      // AND some other ISCOGroups exist in the database for a different model
+      const givenModelId_other = getMockStringId(2);
+      await createISCOGroupsInDB(givenModelId_other);
+
+      // WHEN searching for all ISCOGroups in the given model of a given type
+      const actualISCOGroups = repository.findAll(givenModelId);
+
+      // THEN the ISCOGroups should be returned as a consumable stream that emits all ISCOGroups
+      const actualISCOGroupsArray: IISCOGroup[] = [];
+      for await (const data of actualISCOGroups) {
+        actualISCOGroupsArray.push(data);
+      }
+
+      const expectedISCOGroups = givenISCOGroups.map((ISCOGroup) => {
+        const { parent, children, ...ISCOGroupData } = ISCOGroup;
+        return ISCOGroupData;
+      });
+      expect(actualISCOGroupsArray).toEqual(expectedISCOGroups);
+    });
+
+    test("should not return any ISCOGroups when the model does not have any and other models have", async () => {
+      // GIVEN no ISCOGroups exist in the database for the given model
+      const givenModelId = getMockStringId(1);
+      const givenModelId_other = getMockStringId(2);
+      // BUT some other ISCOGroups exist in the database for a different model
+      await createISCOGroupsInDB(givenModelId_other);
+
+      // WHEN the findAll method is called for ISCOGroups
+      const actualStream = repository.findAll(givenModelId);
+
+      // THEN the stream should end without emitting any data
+      const receivedData: IISCOGroup[] = [];
+      for await (const data of actualStream) {
+        receivedData.push(data);
+      }
+      expect(receivedData).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN an error occurs during the find operation
+      const givenModelId = getMockStringId(1);
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // THEN the findAll method should throw an error for occupations
+      expect(() => repository.findAll(givenModelId)).toThrowError(givenError);
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN an error occurs during the streaming of the find operation
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.Model, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockImplementationOnce(() => {
+          return mockStream;
+        }),
+      });
+
+      // WHEN searching for all ISCOGroups in the given model of a given type
+      const actualISCOGroups = repository.findAll(getMockStringId(1));
+
+      // THEN the ISCOGroups should be returned as a consumable stream that emits an error and ends
+      const actualISCOGroupsArray: IISCOGroup[] = [];
+      await expect(async () => {
+        for await (const data of actualISCOGroups) {
+          actualISCOGroupsArray.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualISCOGroups.closed).toBeTruthy();
+      expect(actualISCOGroupsArray).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+      const streamOfISCOGroups = repositoryRegistry.ISCOGroup.findAll(getMockStringId(1));
+      for await (const _ of streamOfISCOGroups) {
+        // iterate over the stream to hot the db and trigger the error
+        // do nothing
+      }
     });
   });
 });

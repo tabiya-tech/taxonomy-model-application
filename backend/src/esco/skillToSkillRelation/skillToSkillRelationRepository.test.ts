@@ -14,9 +14,10 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillToSkillRelationRepository } from "./skillToSkillRelationRepository";
 import { INewSkillToSkillPairSpec, ISkillToSkillRelationPair } from "./skillToSkillRelation.types";
 import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
+import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { expectedRelatedSkillReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
+import { Readable } from "node:stream";
 
 describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -38,6 +39,35 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  afterEach(async () => {
+    await cleanupDBCollections();
+  });
+
+  async function cleanupDBCollections() {
+    if (repository) await repository.relationModel.deleteMany({}).exec();
+    if (repositoryRegistry) {
+      await repositoryRegistry.skill.Model.deleteMany({}).exec();
+    }
+  }
+
+  /** Helper function to create n simple SkillToSkillRelation in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createSkillToSkillRelationsInDB(modelId: string, batchSize: number = 3) {
+    const givenNewSkillToSkillPairSpecs: INewSkillToSkillPairSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_1"));
+      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
+      givenNewSkillToSkillPairSpecs.push({
+        requiringSkillId: givenSkill_1.id,
+        relationType: RelationType.OPTIONAL,
+        requiredSkillId: givenSkill_2.id,
+      });
+    }
+    return await repository.createMany(modelId, givenNewSkillToSkillPairSpecs);
+  }
 
   test("should return the model", async () => {
     expect(repository.relationModel).toBeDefined();
@@ -344,5 +374,93 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
         );
       }
     );
+  });
+
+  describe("Test findAll()", () => {
+    test("should find all skillToSkills relations in the given model", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of skillToSkill relations exist in the database
+      const givenNewSkillToSkillRelations = await createSkillToSkillRelationsInDB(givenModelId);
+      // AND some others exist for a different model
+      await createSkillToSkillRelationsInDB(getMockStringId(2));
+
+      // WHEN finding all skillToSkill relations for the given modelId
+      const actualSkillToSkillRelations = repository.findAll(givenModelId);
+
+      // THEN expect all the skillToSkill relations to be returned as a consumable stream
+      const actualSkillToSkillRelationsArray: ISkillToSkillRelationPair[] = [];
+      for await (const data of actualSkillToSkillRelations) {
+        actualSkillToSkillRelationsArray.push(data);
+      }
+      expect(actualSkillToSkillRelationsArray).toEqual(givenNewSkillToSkillRelations);
+    });
+
+    test("should not return any entry when the given model does not have any skillToSkill relations but other models does", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND some skillToSkill relations exist in the database for a different model
+      await createSkillToSkillRelationsInDB(getMockStringId(2));
+
+      // WHEN finding all skillToSkill relations for the given modelId
+      const actualSkillToSkillRelations = repository.findAll(givenModelId);
+
+      // THEN expect no skillToSkill relations to be returned
+      const actualSkillToSkillRelationsArray: ISkillToSkillRelationPair[] = [];
+      for await (const data of actualSkillToSkillRelations) {
+        actualSkillToSkillRelationsArray.push(data);
+      }
+      expect(actualSkillToSkillRelationsArray).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving data
+      const givenError = new Error("foo");
+      jest.spyOn(repository.relationModel, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding all skillToSkill relations for some modelId
+      const actualSkillToSkillRelations = () => repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to fail with the given error
+      expect(actualSkillToSkillRelations).toThrowError(givenError);
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN that an error will occur during the streaming of data
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.relationModel, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockReturnValueOnce(mockStream),
+      });
+
+      // WHEN finding all skillToSkill relations for some modelId
+      const actualStream = repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to return a stream that emits an error
+      const actualSkillToSkillRelationsArray: ISkillToSkillRelationPair[] = [];
+      await expect(async () => {
+        for await (const data of actualStream) {
+          actualSkillToSkillRelationsArray.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualStream.closed).toBeTruthy();
+      expect(actualSkillToSkillRelationsArray).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+      const streamOfOccupations = repositoryRegistry.skillToSkillRelation.findAll(getMockStringId(1));
+      for await (const _ of streamOfOccupations) {
+        // iterate over the stream to hot the db and trigger the error
+        // do nothing
+      }
+    });
   });
 });

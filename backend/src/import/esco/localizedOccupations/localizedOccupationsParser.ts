@@ -13,24 +13,10 @@ import {
 } from "esco/localizedOccupation/localizedOccupation.types";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
 import errorLogger from "common/errorLogger/errorLogger";
-
-// expect all columns to be in upper case
-export interface ILocalizedOccupationRow {
-  ID: string;
-  ALTLABELS: string;
-  DESCRIPTION: string;
-  OCCUPATIONTYPE: string;
-  LOCALIZESOCCUPATIONID: string;
-}
+import { ILocalizedOccupationRow, localizedOccupationHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, [
-    "ID",
-    "ALTLABELS",
-    "DESCRIPTION",
-    "OCCUPATIONTYPE",
-    "LOCALIZESOCCUPATIONID",
-  ]);
+  return getStdHeadersValidator(validatorName, localizedOccupationHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
