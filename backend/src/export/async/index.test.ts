@@ -4,7 +4,7 @@ import "_test_utilities/consoleMock";
 import { initOnce } from "server/init";
 import * as asyncIndex from "export/async";
 import { AsyncExportEvent } from "export/async/async.types";
-import { parseModelToFile } from "export/async/parseModelToFile";
+import { modelToS3 } from "export/async/modelToS3";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -19,8 +19,8 @@ jest.mock("server/init", () => {
   };
 });
 //Mock the parseModelToFile function
-jest.mock("./parseModelToFile", () => ({
-  parseModelToFile: jest.fn(),
+jest.mock("./modelToS3", () => ({
+  modelToS3: jest.fn(),
 }));
 
 const getMockExportEvent = (): AsyncExportEvent => {
@@ -72,8 +72,8 @@ describe("Test the main async handler", () => {
     expect(exportLogger.clear).toBeCalledTimes(1);
 
     // AND expect the parseFiles function to be called
-    expect(parseModelToFile).toHaveBeenCalledTimes(1);
-    expect(parseModelToFile).toHaveBeenCalledWith(givenEvent);
+    expect(modelToS3).toHaveBeenCalledTimes(1);
+    expect(modelToS3).toHaveBeenCalledWith(givenEvent);
   });
 
   describe("should fail to export", () => {
@@ -113,7 +113,7 @@ describe("Test the main async handler", () => {
         expect(actualPromiseHandler).not.toThrowError();
 
         // AND expect parseModelToFile not to have been called
-        expect(parseModelToFile).not.toHaveBeenCalled();
+        expect(modelToS3).not.toHaveBeenCalled();
         // AND expect initOnce not to have been called
         expect(initOnce).not.toHaveBeenCalled();
         // AND exportProcessStateRepository.create should not have been called
@@ -135,7 +135,7 @@ describe("Test the main async handler", () => {
       // THEN expect the handler to throw an error
       await expect(actualPromiseHandler).rejects.toThrow("foo");
       // AND parseFiles not to have been called
-      expect(parseModelToFile).not.toHaveBeenCalled();
+      expect(modelToS3).not.toHaveBeenCalled();
       // AND expect the status to not have been updated or created
       expect(getRepositoryRegistry().exportProcessState.create).not.toHaveBeenCalled();
       expect(getRepositoryRegistry().exportProcessState.update).not.toHaveBeenCalled();
@@ -184,7 +184,7 @@ describe("Test the main async handler", () => {
 
     test("should not throw error when parseFiles fails", async () => {
       // GIVEN parseModelToFile will fail
-      (parseModelToFile as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+      (modelToS3 as jest.Mock).mockRejectedValueOnce(new Error("foo"));
 
       // WHEN the handler is invoked with a valid event
       const givenExportEvent = getMockExportEvent();

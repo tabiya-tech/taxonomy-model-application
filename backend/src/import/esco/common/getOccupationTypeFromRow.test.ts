@@ -1,7 +1,6 @@
 import { getOccupationTypeFromRow } from "./getOccupationTypeFromRow";
 import { OccupationType } from "esco/common/objectTypes";
-import { IOccupationRow } from "import/esco/occupations/occupationsParser";
-import { ILocalizedOccupationRow } from "import/esco/localizedOccupations/localizedOccupationsParser";
+import { IOccupationRow, ILocalizedOccupationRow } from "esco/common/entityToCSV.types";
 
 describe("getOccupationTypeFromRow", () => {
   test("should return ESCO for occupation type ESCO", () => {

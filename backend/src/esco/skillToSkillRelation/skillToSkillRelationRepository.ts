@@ -9,6 +9,9 @@ import {
 import { ObjectTypes } from "esco/common/objectTypes";
 import { isNewSkillToSkillRelationPairSpecValid } from "./skillToSkillRelationValidation";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { Readable } from "node:stream";
+import stream from "stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 
 export interface ISkillToSkillRelationRepository {
   readonly relationModel: mongoose.Model<ISkillToSkillRelationPairDoc>;
@@ -27,6 +30,14 @@ export interface ISkillToSkillRelationRepository {
     modelId: string,
     newSkillToSkillRelationPairSpecs: INewSkillToSkillPairSpec[]
   ): Promise<ISkillToSkillRelationPair[]>;
+
+  /**
+   * Returns all SkillToSkillRelation entries as a stream. The entries are transformed to objects (via the .toObject()).
+   * @param {string} modelId - The modelId of the occupations.
+   * @return {Readable} - A Readable stream of ISkillToSkillRelationPairs
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string): Readable;
 }
 
 export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepository {
@@ -48,6 +59,7 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
 
       // Get all Skills
       const _existingSkillsIds = await this.skillModel
+        // use $eq to prevent NoSQL injection
         .find({ modelId: { $eq: modelId } })
         .select("_id")
         .exec();
@@ -86,6 +98,20 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
         "SkillToSkillRelationRepository.createMany",
         newSkillToSkillRelationPairSpecs.length
       );
+    }
+  }
+
+  findAll(modelId: string): Readable {
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.relationModel.find({ modelId: { $eq: modelId } }).cursor(),
+        new DocumentToObjectTransformer<ISkillToSkillRelationPair>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
+      throw e;
     }
   }
 }

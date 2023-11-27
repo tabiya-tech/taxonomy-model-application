@@ -8,30 +8,11 @@ import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
+import { ISkillGroupRow, skillGroupHeaders } from "esco/common/entityToCSV.types";
 
 // expect all columns to be in upper case
-export interface ISkillGroupRow {
-  ESCOURI: string;
-  ORIGINUUID: string;
-  CODE: string;
-  PREFERREDLABEL: string;
-  ALTLABELS: string;
-  DESCRIPTION: string;
-  SCOPENOTE: string;
-  ID: string;
-}
-
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, [
-    "ESCOURI",
-    "ID",
-    "ORIGINUUID",
-    "CODE",
-    "PREFERREDLABEL",
-    "ALTLABELS",
-    "DESCRIPTION",
-    "SCOPENOTE",
-  ]);
+  return getStdHeadersValidator(validatorName, skillGroupHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {

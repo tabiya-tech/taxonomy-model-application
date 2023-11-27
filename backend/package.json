@@ -23,11 +23,14 @@
     "format": "prettier --write src/ *.js"
   },
   "devDependencies": {
-    "@aws-sdk/client-lambda": "~3.338.0",
-    "@aws-sdk/s3-presigned-post": "^3.328.0",
-    "@aws-sdk/s3-request-presigner": "^3.338.0",
+    "@aws-sdk/client-lambda": "~3.468.0",
+    "@aws-sdk/s3-presigned-post": "~3.468.0",
+    "@aws-sdk/s3-request-presigner": "~3.468.0",
+    "@aws-sdk/client-s3": "~3.468.0",
+    "@aws-sdk/lib-storage": "~3.468.0",
     "@redocly/cli": "~1.0.2",
     "@shelf/jest-mongodb": "~4.1.7",
+    "@types/archiver": "^6.0.2",
     "@types/aws-lambda": "~8.10.114",
     "@types/jest": "~29.5.0",
     "@types/mongodb": "^4.0.7",
@@ -36,6 +39,7 @@
     "@types/swagger-jsdoc": "^6.0.1",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
+    "archiver": "~6.0.1",
     "esbuild": "~0.17.17",
     "eslint": "^8.40.0",
     "eslint-config-prettier": "^9.0.0",
@@ -58,6 +62,7 @@
     "ajv-formats": "~2.1.1",
     "aws-sdk": "^2.1368.0",
     "csv-parse": "~5.4.0",
+    "csv-stringify": "^6.4.4",
     "mongoose": "^7.6.3"
   }
 }

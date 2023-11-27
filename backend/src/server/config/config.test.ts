@@ -11,6 +11,7 @@ import {
   getAsyncImportLambdaFunctionArn,
   getAsyncLambdaFunctionRegion,
   getDownloadBucketRegion,
+  getDownloadBucketName,
 } from "./config";
 import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import * as process from "process";
@@ -110,7 +111,7 @@ describe("Test current configuration", () => {
 
   stdConfigurationValuesTest("getUploadBucketRegion", getUploadBucketRegion, "uploadBucketRegion");
 
-  stdConfigurationValuesTest("getDownloadBucketName", getUploadBucketName, "downloadBucketName");
+  stdConfigurationValuesTest("getDownloadBucketName", getDownloadBucketName, "downloadBucketName");
 
   stdConfigurationValuesTest("geDownloadBucketRegion", getDownloadBucketRegion, "downloadBucketRegion");
 

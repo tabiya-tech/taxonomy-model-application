@@ -4,6 +4,9 @@ import { IISCOGroup, IISCOGroupDoc, INewISCOGroupSpec } from "./ISCOGroup.types"
 import { populateISCOGroupChildrenOptions, populateISCOGroupParentOptions } from "./populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { ISCOGroupModelPaths } from "./ISCOGroupModel";
+import { Readable } from "node:stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import stream from "stream";
 
 export interface IISCOGroupRepository {
   readonly Model: mongoose.Model<IISCOGroupDoc>;
@@ -35,6 +38,15 @@ export interface IISCOGroupRepository {
    * Rejects with an error if the operation fails.
    */
   findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null>;
+
+  /**
+   * Returns all ISCOGroups as a stream. The ISCOGroups are transformed to objects (via the .toObject()), however
+   * in the current version they are not populated with parents or children. This will be implemented in a future version.
+   * @param {string} modelId - The modelId of the ISCOGroups.
+   * @return {Readable} - A Readable stream of IISCOGroups
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string): Readable;
 }
 
 export class ISCOGroupRepository implements IISCOGroupRepository {
@@ -113,6 +125,21 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       return iscoGroup ? iscoGroup.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
+      throw e;
+    }
+  }
+
+  findAll(modelId: string): Readable {
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+        // in the current version we do not populate the parent, children
+        new DocumentToObjectTransformer<IISCOGroup>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
       throw e;
     }
   }

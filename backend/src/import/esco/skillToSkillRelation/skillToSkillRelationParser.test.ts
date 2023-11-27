@@ -61,6 +61,7 @@ describe("test parseSkillToSkillRelation from", () => {
     const givenMockRepository: SkillToSkillRelationRepository = {
       relationModel: undefined as any,
       skillModel: undefined as any,
+      findAll: jest.fn(),
       createMany: jest
         .fn()
         .mockImplementation(

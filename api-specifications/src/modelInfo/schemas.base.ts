@@ -119,8 +119,7 @@ export const _baseResponseSchema = {
           downloadUrl: {
             description: "The url to download the exported model.",
             type: "string",
-            format: "uri",
-            pattern: "^https://",
+            pattern: "^$|^https?://.*",
           },
           timestamp: {
             description: "The timestamp of the export process.",

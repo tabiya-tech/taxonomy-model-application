@@ -8,28 +8,10 @@ import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-
-// expect all columns to be in upper case
-export interface IISCOGroupRow {
-  ESCOURI: string;
-  ORIGINUUID: string;
-  CODE: string;
-  PREFERREDLABEL: string;
-  ALTLABELS: string;
-  DESCRIPTION: string;
-  ID: string;
-}
+import { IISCOGroupRow, ISCOGroupHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, [
-    "ESCOURI",
-    "ID",
-    "ORIGINUUID",
-    "CODE",
-    "PREFERREDLABEL",
-    "ALTLABELS",
-    "DESCRIPTION",
-  ]);
+  return getStdHeadersValidator(validatorName, ISCOGroupHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {

@@ -4,6 +4,9 @@ import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.ty
 import { populateSkillGroupChildrenOptions, populateSkillGroupParentsOptions } from "./populateSkillHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { SkillGroupModelPaths } from "./skillGroupModel";
+import { Readable } from "node:stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import stream from "stream";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -36,6 +39,15 @@ export interface ISkillGroupRepository {
    * Rejects with an error if the operation fails.
    */
   findById(id: string): Promise<ISkillGroup | null>;
+
+  /**
+   * Returns all SkillGroups as a stream. The SkillGroups are transformed to objects (via the .toObject()), however
+   * in the current version they are not populated with parents or children. This will be implemented in a future version.
+   * @param {string} modelId - The modelId of the SkillGroups.
+   * @return {Readable} - A Readable stream of ISkillGroups
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string): Readable;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -112,6 +124,21 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return skillGroup != null ? skillGroup.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
+      throw e;
+    }
+  }
+
+  findAll(modelId: string): Readable {
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+        // in the current version we do not populate the parent, children
+        new DocumentToObjectTransformer<ISkillGroup>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
       throw e;
     }
   }

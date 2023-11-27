@@ -12,38 +12,10 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { RegExESCOOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
 import { OccupationType } from "esco/common/objectTypes";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
-
-// expect all columns to be in upper case
-export interface IOccupationRow {
-  ESCOURI: string;
-  ORIGINUUID: string;
-  ISCOGROUPCODE: string;
-  CODE: string;
-  PREFERREDLABEL: string;
-  ALTLABELS: string;
-  DESCRIPTION: string;
-  DEFINITION: string;
-  SCOPENOTE: string;
-  REGULATEDPROFESSIONNOTE: string;
-  ID: string;
-  OCCUPATIONTYPE: string;
-}
+import { IOccupationRow, occupationHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, [
-    "ESCOURI",
-    "ID",
-    "ORIGINUUID",
-    "ISCOGROUPCODE",
-    "CODE",
-    "PREFERREDLABEL",
-    "ALTLABELS",
-    "DESCRIPTION",
-    "DEFINITION",
-    "SCOPENOTE",
-    "REGULATEDPROFESSIONNOTE",
-    "OCCUPATIONTYPE",
-  ]);
+  return getStdHeadersValidator(validatorName, occupationHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {

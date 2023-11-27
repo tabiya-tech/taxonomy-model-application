@@ -32,8 +32,9 @@ import {
   expectedSkillReference,
 } from "esco/_test_utilities/expectedReference";
 import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
-import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { Readable } from "node:stream";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -85,6 +86,33 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       await dbConnection.dropDatabase();
       await dbConnection.close(false);
     }
+  });
+
+  /** Helper function to create n simple Skills in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createSkillsInDB(modelId: string, batchSize: number = 3) {
+    const givenNewSkillSpecs: INewSkillSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      givenNewSkillSpecs.push(getSimpleNewSkillSpec(modelId, `skill_${i}`));
+    }
+    return await repository.createMany(givenNewSkillSpecs);
+  }
+
+  async function cleanupDBCollections() {
+    if (repository) await repository.Model.deleteMany({}).exec();
+    if (repositoryRegistry) {
+      await repositoryRegistry.skill.Model.deleteMany({}).exec();
+    }
+  }
+
+  afterEach(async () => {
+    await cleanupDBCollections();
+  });
+
+  beforeEach(async () => {
+    await cleanupDBCollections();
   });
 
   test("should return the model", async () => {
@@ -251,7 +279,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         expect(actualNewSkills).toEqual(
           expect.arrayContaining(
             givenNewSkillSpecs
-              .filter((spec, index) => index !== 1)
+              .filter((_spec, index) => index !== 1)
               .map((givenNewSkillSpec) => {
                 return expectedFromGivenSpec(givenNewSkillSpec);
               })
@@ -591,7 +619,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenRequiredSkillSpecs_2 = getSimpleNewSkillSpec(givenModelId, "required_2");
       const givenRequiredSkill_2 = await repository.create(givenRequiredSkillSpecs_2);
 
-      // AND the subject Skill has two requiring and required sklls
+      // AND the subject Skill has two requiring and required skills
       const actualRelations = await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
         {
           // requiring 1 of the subject
@@ -994,6 +1022,101 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skill.findById(getMockStringId(1));
+    });
+  });
+
+  describe("Test findAll()", () => {
+    test("should find all Skills in the correct model", async () => {
+      // Given some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of Skills exist in the database for the given Model
+      const givenSkills = await createSkillsInDB(givenModelId);
+      // AND some other Skills exist in the database for a different model
+      const givenModelId_other = getMockStringId(2);
+      await createSkillsInDB(givenModelId_other);
+
+      // WHEN searching for all Skills in the given model
+      const actualSkills = repository.findAll(givenModelId);
+
+      // THEN the Skills should be returned as a consumable stream that emits all Skills
+      const actualSkillsArray: ISkill[] = [];
+      for await (const data of actualSkills) {
+        actualSkillsArray.push(data);
+      }
+
+      const expectedSkills = givenSkills.map((ISkill) => {
+        const { parents, children, requiresSkills, requiredBySkills, requiredByOccupations, ...SkillData } = ISkill;
+        return SkillData;
+      });
+      expect(actualSkillsArray).toEqual(expectedSkills);
+    });
+
+    test("should not return any Skills when the model does not have any and other models have", async () => {
+      // GIVEN no Skills exist in the database for the given model
+      const givenModelId = getMockStringId(1);
+      // AND some other Skills exist in the database for a different model
+      await createSkillsInDB(getMockStringId(2));
+
+      // WHEN the findAll method is called
+      const actualStream = repository.findAll(givenModelId);
+
+      // THEN the stream should end without emitting any data
+      const receivedData: ISkill[] = [];
+      for await (const data of actualStream) {
+        receivedData.push(data);
+      }
+      expect(receivedData).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN an error occurs during the find operation
+      const givenModelId = getMockStringId(1);
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // THEN the findAll method should throw an error for skillGroups
+      expect(() => repository.findAll(givenModelId)).toThrowError(givenError);
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN an error occurs during the streaming of the find operation
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.Model, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockImplementationOnce(() => {
+          return mockStream;
+        }),
+      });
+
+      // WHEN searching for all Skills in the given model
+      const actualSkills = repository.findAll(getMockStringId(1));
+
+      // THEN expect the Skills to be returned as a consumable stream that emits an error and ends
+      const actualSkillsArray: IISCOGroup[] = [];
+      await expect(async () => {
+        for await (const data of actualSkills) {
+          actualSkillsArray.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualSkills.closed).toBeTruthy();
+      expect(actualSkillsArray).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+      const streamOfSkills = repositoryRegistry.skill.findAll(getMockStringId(1));
+      for await (const _ of streamOfSkills) {
+        // iterate over the stream to hot the db and trigger the error
+        // do nothing
+      }
+      return;
     });
   });
 });

@@ -115,6 +115,7 @@ describe("test parseOccupations from", () => {
           );
         }),
         findById: jest.fn().mockResolvedValue(null),
+        findAll: jest.fn(),
       };
       // @ts-ignore
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);
