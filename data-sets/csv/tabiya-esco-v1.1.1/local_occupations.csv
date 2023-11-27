@@ -1,0 +1,31 @@
+ESCOURI,ID,UUID,ORIGINUUID,ISCOGROUPCODE,CODE,PREFERREDLABEL,ALTLABELS,DESCRIPTION,DEFINITION,SCOPENOTE,REGULATEDPROFESSIONNOTE,OCCUPATIONTYPE
+http://data.europa.eu/esco/occupation/00030d09-2b3a-4efd-87cc-c4ea39d27c001,Key_20422001,,,9997,9997.1.7_1,Milk and Dairy Management,"technical and operations director
+head of technical
+director of technical arts
+head of technical department
+technical supervisor
+technical director
+technical manager","Technical directors realise the artistic visions of the creators within technical constraints. They coordinate the operations of various production units, such as scene, wardrobe, sound and lighting, and make-up. They adapt the prototype and study the feasibility, implementation, operation and technical monitoring of the artistic project. They are also responsible for the stage equipment and technical equipment.",,,http://data.europa.eu/esco/regulated-professions/unregulated,LOCAL
+http://data.europa.eu/esco/occupation/000e93a3-d956-4e45-aacb-f12c83fedf001,Key_20423001,,,9998,9998.4_1,metal drawing machine operator,"metal drawing machine operator
+metal drawing machine technician
+metal drawing machine operative
+wire drawer
+draw machine operative
+forming machine technician
+draw machine operator
+wiredrawing setter
+wirer drawer machine operator
+forming machine operative
+draw machine technician
+wiredrawing  machine tender","Metal drawing machine operators set up and operate drawing machines for ferrous and non-ferrous metal products, designed to provide wires, bars, pipes, hollow profiles and tubes with their specific form by reducing its cross-section and by pulling the working materials through a series of drawing dies.",,,http://data.europa.eu/esco/regulated-professions/unregulated,LOCAL
+http://data.europa.eu/esco/occupation/0019b951-c699-4191-8208-9822882d15001,Key_20424001,,,9999,9999.10.3_1,precision device inspector,"inspector of precision instruments
+precision device quality control supervisor
+precision device inspector
+precision instrument QC inspector
+precision instrument quality control inspector
+precision device QC inspector
+precision device quality assurance supervisor
+precision device quality control inspector
+inspector of precision devices
+precision instrument inspector
+precision instrument supervisor","Precision device inspectors make sure precision devices, such as micrometers and gauges, operate according to design specifications. They may adjust the precision devices and their components in case of any faults.",,,http://data.europa.eu/esco/regulated-professions/unregulated,LOCAL
