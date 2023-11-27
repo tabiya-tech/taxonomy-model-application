@@ -7,14 +7,6 @@ const meta: Meta<typeof ModelDirectory> = {
   component: ModelDirectory,
   tags: ["autodocs"],
   argTypes: {},
-};
-
-export default meta;
-
-type Story = StoryObj<typeof ModelDirectory>;
-
-export const Shown: Story = {
-  args: {},
   parameters: {
     docs: { disable: false },
     mockData: [
@@ -24,14 +16,62 @@ export const Shown: Story = {
         status: 200,
         response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(10),
       },
+      {
+        url: "https://dev.tabiya.tech/api/export",
+        method: "POST",
+        status: 202,
+        response: {},
+      },
+      {
+        url: "https://dev.tabiya.tech/api/models",
+        method: "POST",
+        status: 201,
+        response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
+      },
+      {
+        url: "https://dev.tabiya.tech/api/import",
+        method: "POST",
+        status: 202,
+        response: {},
+      },
+      {
+        url: "https://dev.tabiya.tech/api/presigned",
+        method: "POST",
+        status: 204,
+        response: {},
+      },
+      {
+        url: "https://dev.tabiya.tech/api/presigned",
+        method: "GET",
+        status: 200,
+        response: {
+          url: "https://dev.tabiya.tech/api/presigned",
+          fields: [
+            {
+              name: "key",
+              value: "uploads/2021/10/14/1634226071-0.2400022152351686",
+            },
+          ],
+          folder: "uploads/2021/10/14/",
+        },
+      },
     ],
   },
+};
+
+export default meta;
+
+type Story = StoryObj<typeof ModelDirectory>;
+
+export const Shown: Story = {
+  args: {},
 };
 export const OneModel: Story = {
   args: {},
   parameters: {
     docs: { disable: false },
     mockData: [
+      ...meta.parameters!.mockData,
       {
         url: "https://dev.tabiya.tech/api/models",
         method: "GET",
@@ -46,6 +86,7 @@ export const ModelsFetchFailed: Story = {
   parameters: {
     docs: { disable: true },
     mockData: [
+      ...meta.parameters!.mockData,
       {
         url: "https://dev.tabiya.tech/api/models",
         method: "GET",
@@ -65,11 +106,86 @@ export const ModelsFetchIsSlow: Story = {
   parameters: {
     docs: { disable: true },
     mockData: [
+      ...meta.parameters!.mockData,
       {
         url: "https://dev.tabiya.tech/api/models",
         method: "GET",
         status: 200,
         response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(3),
+        delay: 5000,
+      },
+    ],
+  },
+};
+
+export const ImportNewModelWillFail: Story = {
+  args: {},
+  parameters: {
+    docs: { disable: true },
+    mockData: [
+      ...meta.parameters!.mockData,
+      {
+        url: "https://dev.tabiya.tech/api/models",
+        method: "POST",
+        status: 500,
+        response: {
+          errorCode: "Some error code",
+          message: "Some error message",
+          details: "Some error details",
+        },
+      },
+    ],
+  },
+};
+
+export const ImportNewModelWillDelay: Story = {
+  args: {},
+  parameters: {
+    docs: { disable: true },
+    mockData: [
+      ...meta.parameters!.mockData,
+      {
+        url: "https://dev.tabiya.tech/api/models",
+        method: "POST",
+        status: 201,
+        response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
+        delay: 5000,
+      },
+    ],
+  },
+};
+
+export const ExportModelWillFail: Story = {
+  args: {},
+  parameters: {
+    docs: { disable: true },
+    mockData: [
+      ...meta.parameters!.mockData,
+      {
+        url: "https://dev.tabiya.tech/api/export",
+        method: "POST",
+        status: 500,
+        response: {
+          errorCode: "Some error code",
+          message: "Some error message",
+          details: "Some error details",
+        },
+      },
+    ],
+  },
+};
+
+export const ExportModelWillDelay: Story = {
+  args: {},
+  parameters: {
+    docs: { disable: true },
+    mockData: [
+      ...meta.parameters!.mockData,
+      {
+        url: "https://dev.tabiya.tech/api/export",
+        method: "POST",
+        status: 202,
+        response: {},
         delay: 5000,
       },
     ],
