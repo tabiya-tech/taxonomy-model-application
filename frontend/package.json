@@ -107,7 +107,9 @@
       "src/**/*.{js,jsx,ts,tsx}",
       "!<rootDir>/node_modules/",
       "!src/**/*.stories.{ts,tsx}",
-      "!src/**/_test_utilities/*"
+      "!src/**/_test_utilities/*",
+      "!**/**/*.d.ts",
+      "!**/**/*.types.ts"
     ],
     "coverageReporters": [
       [

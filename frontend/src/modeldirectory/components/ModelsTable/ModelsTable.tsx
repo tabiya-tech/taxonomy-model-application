@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Button, TableCellProps, Typography } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -17,8 +17,10 @@ import { ExportStateCellContent } from "./ExportStateCellContent/ExportStateCell
 import Container from "@mui/material/Container";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Theme } from "@mui/material/styles";
-import MenuBuilder, { MenuItemConfig } from "../MenuBuilder/MenuBuilder";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import ContextMenu from "src/theme/ContextMenu/ContextMenu";
+import buildMenuItemsConfig from "./buildMenuItemsConfig";
+import { IsOnlineContext } from "src/app/providers";
+import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
@@ -118,14 +120,17 @@ const IMPORT_STATE_COLUMN_WIDTH = "40px"; // 24px for the icon + 16px for the bu
 const CELL_PADDING = (theme: Theme) => theme.tabiyaSpacing.sm;
 
 const ModelsTable = (props: Readonly<ModelsTableProps>) => {
+  const isOnline = useContext(IsOnlineContext);
   const [contextMenu, setContextMenu] = useState<{
     open: boolean;
     anchorEl: HTMLElement | null;
     model: ModelInfoTypes.ModelInfo | null;
+    menuItems: MenuItemConfig[];
   }>({
     open: false,
     anchorEl: null,
     model: null,
+    menuItems: [],
   });
 
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
@@ -145,11 +150,15 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
   const paperElevation = 2; // px
 
   const handleCloseContextMenu = () => {
-    setContextMenu({
+    setContextMenu((prevState) => ({
       open: false,
       anchorEl: null,
       model: null,
-    });
+      // Use the previous menu items so that the hide animation is smooth.
+      // Setting it to [] will cause the menu to render as a blank space.
+      // Using contextMenu.open to conditionally render the menu will cause the menu to disappear immediately.
+      menuItems: prevState.menuItems,
+    }));
   };
 
   const handleOpenContextMenu = (element: HTMLElement, model: ModelInfoTypes.ModelInfo) => {
@@ -157,18 +166,9 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
       open: true,
       anchorEl: element,
       model: model,
+      menuItems: buildMenuItemsConfig(model, props.notifyOnExport, isOnline),
     });
   };
-
-  const menuItems: MenuItemConfig[] = [
-    {
-      text: "Export",
-      onClick: props.notifyOnExport,
-      icon: <CloudDownloadIcon />,
-      disableOnNonSuccessfulImport: true,
-      disableWhenOffline: true,
-    },
-  ];
 
   return (
     <Box
@@ -308,11 +308,10 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <MenuBuilder
-        items={menuItems}
+      <ContextMenu
+        items={contextMenu.menuItems}
         open={contextMenu.open}
         anchorEl={contextMenu.anchorEl}
-        model={contextMenu.model}
         notifyOnClose={handleCloseContextMenu}
       />
     </Box>

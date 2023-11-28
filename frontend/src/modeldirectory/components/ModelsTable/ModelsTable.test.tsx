@@ -16,7 +16,9 @@ import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessS
 import ExportStateCellContent from "src/modeldirectory/components/ModelsTable/ExportStateCellContent/ExportStateCellContent";
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 import { act, fireEvent } from "@testing-library/react";
-import MenuBuilder from "src/modeldirectory/components/MenuBuilder/MenuBuilder";
+import ContextMenu from "src/theme/ContextMenu/ContextMenu";
+import buildMenuItemsConfig from "./buildMenuItemsConfig";
+import { IsOnlineContext } from "src/app/providers";
 
 function encodeHtmlAttribute(value: string) {
   const element = document.createElement("div");
@@ -39,8 +41,9 @@ jest.mock("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessSta
   };
 });
 
-jest.mock("src/modeldirectory/components/MenuBuilder/MenuBuilder", () => {
-  const actual = jest.requireActual("src/modeldirectory/components/MenuBuilder/MenuBuilder");
+// mock the ContextMenu
+jest.mock("src/theme/ContextMenu/ContextMenu", () => {
+  const actual = jest.requireActual("src/theme/ContextMenu/ContextMenu");
   const mockContextMenu = jest.fn().mockImplementation(() => {
     return <div data-testid="mock-context-menu"></div>;
   });
@@ -48,6 +51,16 @@ jest.mock("src/modeldirectory/components/MenuBuilder/MenuBuilder", () => {
     ...actual,
     __esModule: true,
     default: mockContextMenu,
+  };
+});
+
+// mock the buildMenuItemsConfig function
+jest.mock("./buildMenuItemsConfig", () => {
+  const actual = jest.requireActual("./buildMenuItemsConfig");
+  return {
+    ...actual,
+    __esModule: true,
+    default: jest.fn(),
   };
 });
 
@@ -265,7 +278,7 @@ describe("ModelsTable", () => {
 
       // WHEN the ModelsTable is rendered
       // @ts-ignore
-      render(<ModelsTable models={givenModels} />);
+      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -576,67 +589,77 @@ describe("ModelsTable", () => {
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
+      // AND the function "buildMenuItemsConfig" to have been called with the given models
 
       // AND the context menu to be called with the correct initial props
-      expect(MenuBuilder).toHaveBeenCalledWith(
+      expect(ContextMenu).toHaveBeenCalledWith(
         {
           anchorEl: null,
           open: false,
           notifyOnClose: expect.any(Function),
-          model: null,
-          items: [
-            {
-              disableOnNonSuccessfulImport: true,
-              disableWhenOffline: true,
-              icon: expect.any(Object),
-              onClick: mockNotifyOnExport,
-              text: "Export",
-            },
-          ],
+          items: [],
         },
         {}
       );
+      // AND the function "buildMenuItemsConfig" to not have been called
+      expect(buildMenuItemsConfig).not.toHaveBeenCalled();
     });
   });
 
   describe("action tests", () => {
-    test("should display the ContextMenu with the correct props when the 'more' button is clicked", async () => {
-      // GIVEN that the ModelsTable is shown with N models
-      const givenModels = getArrayOfRandomModelsMaxLength(5);
-      // AND a function notifyOnExport will be passed to the ModelsTable
-      const mockNotifyOnExport = jest.fn();
-      render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
-
-      // WHEN the more button is clicked for a model
-      for (const model of givenModels) {
-        const index = givenModels.indexOf(model);
-        const actualMoreButton = screen.getAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON)[index];
-        fireEvent.click(actualMoreButton);
-
-        // THEN expect the context menu to be shown
-        const actualContextMenu = screen.getByTestId("mock-context-menu");
-        expect(actualContextMenu).toBeInTheDocument();
-        // AND expect the context menu to have been called with the correct props
-        expect(MenuBuilder).toHaveBeenCalledWith(
+    test.each([true, false])(
+      "should display the ContextMenu with the correct props when the 'more' button is clicked when isOnline:%s",
+      async (givenIsOnline) => {
+        // GIVEN N models to be shown in the table
+        const givenModels = getArrayOfRandomModelsMaxLength(5);
+        // AND a function notifyOnExport
+        const mockNotifyOnExport = jest.fn();
+        // AND the function "buildMenuItemsConfig" will return some items
+        const givenMenuItems = [
           {
-            anchorEl: actualMoreButton,
-            open: true,
-            notifyOnClose: expect.any(Function),
-            model: model,
-            items: [
-              {
-                disableOnNonSuccessfulImport: true,
-                disableWhenOffline: true,
-                icon: expect.any(Object),
-                onClick: mockNotifyOnExport,
-                text: "Export",
-              },
-            ],
+            id: "some-id",
+            text: "some-text",
+            icon: <div />,
+            action: jest.fn(),
+            disabled: false,
           },
-          {}
-        );
+        ];
+        (buildMenuItemsConfig as jest.Mock).mockReturnValue(givenMenuItems);
+        // AND the isOnline context is set
+        jest.spyOn(React, "useContext").mockImplementation((ctx: React.Context<unknown>) => {
+          const actual = jest.requireActual("react");
+          if (ctx === IsOnlineContext) {
+            return givenIsOnline;
+          }
+          return actual.useContext(ctx);
+        });
+        // AND the ModelsTable is rendered with the given models and the notifyOnExport function
+        render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
+
+        // WHEN the more button is clicked for a model
+        for (const model of givenModels) {
+          const index = givenModels.indexOf(model);
+          const actualMoreButton = screen.getAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON)[index];
+          fireEvent.click(actualMoreButton);
+
+          // THEN expect the context menu to be shown
+          const actualContextMenu = screen.getByTestId("mock-context-menu");
+          expect(actualContextMenu).toBeInTheDocument();
+          // AND the function "buildMenuItemsConfig" to have been called with the current model, the given notifyOnExport function and isOnline context
+          expect(buildMenuItemsConfig).toHaveBeenCalledWith(model, mockNotifyOnExport, givenIsOnline);
+          // AND the contextMenu to be called with the items returned by the "buildMenuItemsConfig" function, the actualMoreButton as anchorEl and open = true
+          expect(ContextMenu).toHaveBeenCalledWith(
+            {
+              anchorEl: actualMoreButton,
+              open: true,
+              notifyOnClose: expect.any(Function),
+              items: givenMenuItems,
+            },
+            {}
+          );
+        }
       }
-    });
+    );
 
     test("should close the menu when notifyOnClose is called", () => {
       // GIVEN that the ModelsTable is shown with N models
@@ -650,26 +673,17 @@ describe("ModelsTable", () => {
 
       // WHEN the notifyOnClose is called
       act(() => {
-        const mock = (MenuBuilder as jest.Mock).mock;
-        mock.calls[0][0].notifyOnClose();
+        const mock = (ContextMenu as jest.Mock).mock;
+        mock.lastCall[0].notifyOnClose();
       });
 
       // THEN expect the context menu to be closed
-      expect(MenuBuilder).toHaveBeenCalledWith(
+      expect(ContextMenu).toHaveBeenCalledWith(
         {
           anchorEl: null,
           open: false,
           notifyOnClose: expect.any(Function),
-          model: null,
-          items: [
-            {
-              disableOnNonSuccessfulImport: true,
-              disableWhenOffline: true,
-              icon: expect.any(Object),
-              onClick: expect.any(Function),
-              text: "Export",
-            },
-          ],
+          items: [],
         },
         {}
       );
