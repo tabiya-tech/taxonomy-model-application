@@ -7,6 +7,7 @@ import ExportAPISpecs from "api-specifications/export";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { lambda_invokeAsyncExport } from "./invokeAsyncExport";
+import { AsyncExportEvent } from "./async/async.types";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -86,7 +87,7 @@ async function postTriggerExport(event: APIGatewayProxyEvent) {
     return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
   }
   const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
-  if(!model) {
+  if (!model) {
     return errorResponse(
       StatusCodes.NOT_FOUND,
       ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes.FAILED_TO_TRIGGER_EXPORT,
@@ -106,9 +107,15 @@ async function postTriggerExport(event: APIGatewayProxyEvent) {
       downloadUrl: "",
       timestamp: new Date(),
     });
-    return lambda_invokeAsyncExport(payload, exportProcessState.id);
+    const asyncExportEvent: AsyncExportEvent = {
+      modelId: payload.modelId,
+      exportProcessStateId: exportProcessState.id,
+    };
+    // We do not expect the lambda_invokeAsyncExport function to throw errors.
+    // It will handle any errors internally and return the appropriate error response.
+    return lambda_invokeAsyncExport(asyncExportEvent);
   } catch (e: unknown) {
-    console.log(e);
+    console.error(e);
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,
       ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes.FAILED_TO_TRIGGER_EXPORT,

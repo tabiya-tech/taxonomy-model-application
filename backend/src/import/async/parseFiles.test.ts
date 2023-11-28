@@ -316,7 +316,7 @@ describe("Test the main async handler", () => {
         // ADD additional file types here
       }
       // AND expect the importProcessState to have been updated with a status of COMPLETED
-      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenCalledWith(givenImportProcessStateId, {
+      expect(getRepositoryRegistry().importProcessState.update).toHaveBeenLastCalledWith(givenImportProcessStateId, {
         status: ImportProcessStateAPISpec.Enums.Status.COMPLETED,
         result: {
           errored: false,

@@ -3,13 +3,14 @@ import "_test_utilities/consoleMock";
 
 import { initOnce } from "server/init";
 import * as asyncIndex from "export/async";
+import { AsyncExportEvent } from "export/async/async.types";
 import { parseModelToFile } from "export/async/parseModelToFile";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import exportLogger from "common/errorLogger/errorLogger";
-import { IExportProcessState } from "export/exportProcessState/exportProcessState.types";
-import { AsyncExportEvent } from "export/async";
+import { IExportProcessState, IUpdateExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
+import { ExportProcessStateRepository } from "export/exportProcessState/exportProcessStateRepository";
 
 // Mock the init function
 jest.mock("server/init", () => {
@@ -41,13 +42,22 @@ const getMockExportProcessState = (): IExportProcessState => ({
 });
 
 describe("Test the main async handler", () => {
-  beforeEach(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
   test("should successfully export", async () => {
     //GIVEN initOnce will successfully resolve
     (initOnce as jest.Mock).mockResolvedValue(Promise.resolve());
+    // AND the exportProcessStateRepository that will successfully find the exportProcessState
+    const mockRepository: ExportProcessStateRepository = {
+      Model: undefined as any,
+      create: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValue({}),
+      findById: jest.fn().mockResolvedValue(getMockExportProcessState()),
+    };
+    jest.spyOn(getRepositoryRegistry(), "exportProcessState", "get").mockReturnValue(mockRepository);
+
     // AND a valid Export event
     const givenEvent = getMockExportEvent();
 
@@ -62,36 +72,56 @@ describe("Test the main async handler", () => {
     expect(exportLogger.clear).toBeCalledTimes(1);
 
     // AND expect the parseFiles function to be called
-    expect(parseModelToFile).toHaveBeenNthCalledWith(1, givenEvent.exportProcessStateId);
+    expect(parseModelToFile).toHaveBeenCalledTimes(1);
+    expect(parseModelToFile).toHaveBeenCalledWith(givenEvent);
   });
 
   describe("should fail to export", () => {
     beforeAll(() => {
-      // GIVEN the exportProcessStatRepository that will successfully create or update the exportProcessState
+      // GIVEN initOnce will successfully resolve
+      (initOnce as jest.Mock).mockResolvedValue(Promise.resolve());
+      // AND the exportProcessStatRepository that will successfully create, update or find the exportProcessState
       const givenExportProcessStateRepositoryMock = {
         Model: undefined as any,
-        create: jest.fn().mockResolvedValue(null),
-        update: jest.fn().mockResolvedValue(null),
+        create: jest.fn().mockResolvedValue({}),
+        update: jest
+          .fn()
+          .mockImplementation(
+            (id: string, updateSpecs: IUpdateExportProcessStateSpec): Promise<IExportProcessState> => {
+              console.log("update called", id, updateSpecs);
+              return Promise.resolve(getMockExportProcessState());
+            }
+          ),
+        findById: jest.fn().mockResolvedValue(getMockExportProcessState()),
       };
       jest
         .spyOn(getRepositoryRegistry(), "exportProcessState", "get")
-        .mockReturnValue(givenExportProcessStateRepositoryMock);
+        .mockReturnValueOnce(givenExportProcessStateRepositoryMock);
     });
+    test.each([
+      ["modelId is missing", { exportProcessStateId: "foo" } as AsyncExportEvent],
+      ["exportProcessStateId missing", { modelId: "foo" } as AsyncExportEvent],
+      ["both are missing", { foo: "bar" } as unknown as AsyncExportEvent],
+    ])(
+      "should not throw error and not call parseModelToFile and InitOnce when %s",
+      async (description: string, givenBadEvent: AsyncExportEvent) => {
+        // GIVEN an event that does not conform to the expected export event
+        // WHEN the main handler is invoked with the given bad event
+        const actualPromiseHandler = () => asyncIndex.handler(givenBadEvent);
 
-    test("should not throw error and not call parseModelToFile and InitOnce when event does not conform to schema", async () => {
-      // GIVEN an event that does not conform to the Export schema
-      //@ts-ignore
-      const givenBadEvent: Export = { foo: "foo" } as Export;
-      // WHEN the main handler is invoked with the given bad event
-      const actualPromiseHandler = () => asyncIndex.handler(givenBadEvent);
+        // THEN expect it to return without throwing an error
+        expect(actualPromiseHandler).not.toThrowError();
 
-      // THEN expect it to return without throwing an error
-      expect(actualPromiseHandler).not.toThrowError();
-      // AND exportProcessStateRepository.create should not have been called
-      expect(getRepositoryRegistry().exportProcessState.create).not.toHaveBeenCalled();
-      // AND exportProcessStateRepository.update should not have been called
-      expect(getRepositoryRegistry().exportProcessState.update).not.toHaveBeenCalled();
-    });
+        // AND expect parseModelToFile not to have been called
+        expect(parseModelToFile).not.toHaveBeenCalled();
+        // AND expect initOnce not to have been called
+        expect(initOnce).not.toHaveBeenCalled();
+        // AND exportProcessStateRepository.create should not have been called
+        expect(getRepositoryRegistry().exportProcessState.create).not.toHaveBeenCalled();
+        // AND exportProcessStateRepository.update should not have been called
+        expect(getRepositoryRegistry().exportProcessState.update).not.toHaveBeenCalled();
+      }
+    );
 
     test("should throw error and not call parseModelToFiles when initOnce fails", async () => {
       // GIVEN initOnce will fail
@@ -111,20 +141,58 @@ describe("Test the main async handler", () => {
       expect(getRepositoryRegistry().exportProcessState.update).not.toHaveBeenCalled();
     });
 
-    test("should not throw error when parseFiles fails", async () => {
-      // GIVEN a valid event
+    test("should not throw error and not call parseModelToFile when exportProcessStateRepository.findById fails", async () => {
+      //GIVEN exportProcessStateRepository.find will fail
+      const givenExportError = new Error("foo");
+      (getRepositoryRegistry().exportProcessState.findById as jest.Mock).mockRejectedValueOnce(givenExportError);
+
+      // WHEN the handler is invoked with a valid event
       const givenExportEvent = getMockExportEvent();
 
-      // AND parseFiles will fail
+      // THEN expect the handler to not throw an error
+      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+    });
+
+    test("should not throw error and not call parseModelToFile when there is no exportProcessState for the given id", async () => {
+      //GIVEN exportProcessStateRepository.find will return null
+      (getRepositoryRegistry().exportProcessState.findById as jest.Mock).mockResolvedValueOnce(null);
+
+      // WHEN the handler is invoked with a valid event
+      const givenExportEvent = getMockExportEvent();
+
+      // THEN expect the handler to not throw an error
+      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+    });
+
+    test.each([
+      ["Running", ExportProcessStateAPISpecs.Enums.Status.RUNNING],
+      ["Completed", ExportProcessStateAPISpecs.Enums.Status.COMPLETED],
+    ])(
+      "should not throw error and not call parseModelToFile when exportProcessState status is not PENDING (%s)",
+      async (description: string, givenStatus: ExportProcessStateAPISpecs.Enums.Status) => {
+        // GIVEN exportProcessStateRepository.find will return a not PENDING status
+        const givenExportProcessState = getMockExportProcessState();
+        givenExportProcessState.status = givenStatus;
+
+        // WHEN the handler is invoked with a valid event
+        const givenExportEvent = getMockExportEvent();
+
+        // THEN expect the handler not to throw an error
+        await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+      }
+    );
+
+    test("should not throw error when parseFiles fails", async () => {
+      // GIVEN parseModelToFile will fail
       (parseModelToFile as jest.Mock).mockRejectedValueOnce(new Error("foo"));
 
-      // WHEN the handler is invoked
-      const actualHandler = () => asyncIndex.handler(givenExportEvent);
-      await actualHandler();
+      // WHEN the handler is invoked with a valid event
+      const givenExportEvent = getMockExportEvent();
 
-      // THEN expect the handler not to throw an error
-      expect(actualHandler).not.toThrow();
-      // AND expect the exportProcessState to have been updated with a status of COMPLETED and a results object with errored true
+      // THEN expect the handler to not throw an error
+      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+
+      // AND expect the update method to have been called with specific arguments
       expect(getRepositoryRegistry().exportProcessState.update).toHaveBeenCalledWith(
         givenExportEvent.exportProcessStateId,
         {

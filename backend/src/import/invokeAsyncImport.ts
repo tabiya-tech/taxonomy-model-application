@@ -15,10 +15,7 @@ export async function lambda_invokeAsyncImport(request: ImportAPISpecs.Types.POS
     await client.send(new InvokeCommand(input));
 
     return response(StatusCodes.ACCEPTED, {});
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    //
+  } catch (error: unknown) {
     console.error(error);
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(

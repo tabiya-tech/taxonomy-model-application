@@ -241,4 +241,33 @@ describe("Test ExportProcessState Repository with an in-memory mongodb", () => {
       });
     });
   });
+
+  describe("Test findById() ExportProcessState", () => {
+    test("should successfully find an ExportProcessState by id", async () => {
+      // GIVEN an ExportProcessState in the database
+      const givenNewExportProcessStateSpec = getNewExportProcessStateSpec();
+      const createdExportProcessState = await repository.create(givenNewExportProcessStateSpec);
+
+      // WHEN finding the ExportProcessState by id
+      const foundExportProcessState = await repository.findById(createdExportProcessState.id);
+
+      // THEN expect the found ExportProcessState to match the created ExportProcessState
+      expect(foundExportProcessState).toEqual(createdExportProcessState);
+    });
+
+    test("should return null when finding an ExportProcessState by id that does not exist", async () => {
+      // GIVEN an id of an ExportProcessState that does not exist
+      const givenId = getMockStringId(1);
+
+      // WHEN finding the ExportProcessState by id
+      const foundExportProcessState = await repository.findById(givenId);
+
+      // THEN expect the found ExportProcessState to be null
+      expect(foundExportProcessState).toBeNull();
+    });
+
+    TestDBConnectionFailureNoSetup((repositoryRegistry) => {
+      return repositoryRegistry.exportProcessState.findById(getMockStringId(1));
+    });
+  });
 });

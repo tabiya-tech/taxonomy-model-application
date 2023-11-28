@@ -1,30 +1,36 @@
-import ExportApiSpecs from "api-specifications/export";
-import { ajvInstance, ParseValidationError } from "validator";
-import { ValidateFunction } from "ajv";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import errorLogger from "common/errorLogger/errorLogger";
 import { parseModelToFile } from "./parseModelToFile";
 import { initOnce } from "server/init";
+import { AsyncExportEvent } from "./async.types";
 
-export type AsyncExportEvent = ExportApiSpecs.Types.POST.Request.Payload & {
-  exportProcessStateId: string;
-};
+/**
+ * Lambda function handler for asynchronous export.
+ *
+ * @param {AsyncExportEvent} event - The event object containing export details.
+ * @throws Will cause AWS Lambda to retry the function if an error is thrown.
+ * @returns {Promise<void>}
+ *
+ * This function is responsible for exporting model data from the database into a series of CSV files, compressing it into a zip file
+ * and then uploading it to an s3 bucket. AWS lambda instances are restarted when you throw an error. This is useful for cases when we want to restart,
+ * for example when initializing the db,  but not for parsing errors, where a restart is unlikely to resolve the problem.
+ */
 
 export const handler = async (event: AsyncExportEvent): Promise<void> => {
   console.info("Export started", event);
   // Clear the errorLogger from previous runs
   errorLogger.clear();
 
-  // Validate the modelId
-  const validateFunction = ajvInstance.getSchema(
-    ExportApiSpecs.Schemas.POST.Request.Payload.$id as string
-  ) as ValidateFunction;
-  const isModelIdValid = validateFunction({ modelId: event.modelId });
-
-  if (!isModelIdValid) {
-    const errorDetail = ParseValidationError(validateFunction.errors);
-    console.error("Export failed, the modelId does not conform to the expected schema:", errorDetail);
+  // If the event is not valid, log and return
+  // Validate and check the export process state
+  if (!event.modelId) {
+    console.error("Export failed, the modelId is missing");
+    return;
+  }
+  // Validate and check the export process state
+  if (!event.exportProcessStateId) {
+    console.error("Export failed, the exportProcessStateId is missing");
     return;
   }
 
@@ -38,15 +44,37 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
   }
 
   try {
-    await parseModelToFile(event.exportProcessStateId);
+    /* We check the exportProcessStateId to make sure it is valid and the status is PENDING
+     * If the status is not PENDING, we assume that there is an inconsistency in the triggering of the export process
+     * (for example a re-trigger that happened on a previous run) and we do not want to proceed with the export
+     * This will help us avoid an endless lambda invocation loop
+     */
+    const exportProcessState = await getRepositoryRegistry().exportProcessState.findById(event.exportProcessStateId);
+    if (!exportProcessState) {
+      console.error("Export failed, the exportProcessState does not exist");
+      return;
+    }
+
+    if (exportProcessState.status !== ExportProcessStateAPISpecs.Enums.Status.PENDING) {
+      console.error(
+        "Export failed, the exportProcessState does not status pending, current status is: ",
+        exportProcessState.status
+      );
+      return;
+    }
+
+    // We expect the parseModelToFile function to throw errors and set the export process status to FAILED in the catch block.
+    await parseModelToFile(event);
   } catch (e: unknown) {
     console.error("Error updating ExportProcessState:", e);
     // Set the export process status to FAILED
-    await exportErrored(event.modelId, event.exportProcessStateId);
+    await exportErrored(event.exportProcessStateId);
   }
 };
 
-const exportErrored = async (modelId: string, exportProcessStateId: string) => {
+// The exportErrored function does not throw errors.
+// This is because we don't want to retry the lambda function in case of errors during the export process.
+const exportErrored = async (exportProcessStateId: string) => {
   try {
     const exportFailedState = {
       status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,

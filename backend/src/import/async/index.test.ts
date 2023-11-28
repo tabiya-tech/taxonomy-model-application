@@ -60,7 +60,8 @@ describe("Test the main async handler", () => {
     expect(errorLogger.clear).toBeCalledTimes(1);
 
     // AND expect the parseFiles function to be called
-    expect(parseFiles).toHaveBeenNthCalledWith(1, givenEvent);
+    expect(parseFiles).toHaveBeenCalledTimes(1);
+    expect(parseFiles).toHaveBeenCalledWith(givenEvent);
   });
 
   describe("should fail to import", () => {

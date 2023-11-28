@@ -27,6 +27,15 @@ export interface IExportProcessStateRepository {
    * Rejects with an error if the ExportProcessState entry cannot be updated.
    */
   update(id: string, updateSpecs: IUpdateExportProcessStateSpec): Promise<IExportProcessState>;
+
+  /**
+   * Finds an ExportProcessState entry by its ID.
+   *
+   * @param {string} id - The unique ID of the ExportProcessState entry.
+   * @return {Promise<IExportProcessState|null>} - A Promise that resolves to the found ExportProcessState entry or null if not found.
+   * Rejects with an error if the operation fails.
+   */
+  findById(id: string): Promise<IExportProcessState | null>;
 }
 
 export class ExportProcessStateRepository implements IExportProcessStateRepository {
@@ -59,6 +68,16 @@ export class ExportProcessStateRepository implements IExportProcessStateReposito
       return exportProcessState.toObject();
     } catch (e: unknown) {
       console.error("update failed", e);
+      throw e;
+    }
+  }
+
+  async findById(id: string): Promise<IExportProcessState | null> {
+    try {
+      const exportProcessState = (await this.Model.findById(id)) as mongoose.Document<IExportProcessStateDoc>;
+      return exportProcessState !== null ? exportProcessState.toObject() : null;
+    } catch (e: unknown) {
+      console.error("findById failed", e);
       throw e;
     }
   }
