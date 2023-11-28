@@ -1,0 +1,115 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ContextMenu render tests renders correctly the menu open 1`] = `
+<div
+  class="MuiPopover-root MuiMenu-root MuiModal-root css-10nakn3-MuiModal-root-MuiPopover-root-MuiMenu-root"
+  data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu"
+  role="presentation"
+>
+  <div
+    aria-hidden="true"
+    class="MuiBackdrop-root MuiBackdrop-invisible MuiModal-backdrop css-g3hgs1-MuiBackdrop-root-MuiModal-backdrop"
+    style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+  />
+  <div
+    data-testid="sentinelStart"
+    tabindex="0"
+  />
+  <div
+    class="MuiPaper-root MuiMenu-paper MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 MuiPopover-paper css-xem7h2-MuiPaper-root-MuiMenu-paper-MuiPopover-paper"
+    style="opacity: 1; transform: scale(1, 1); transition: opacity 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; top: 16px; left: 16px; transform-origin: -16px -16px;"
+    tabindex="-1"
+  >
+    <ul
+      class="MuiList-root MuiList-padding MuiMenu-list css-6hp17o-MuiList-root-MuiMenu-list"
+      role="menu"
+      tabindex="-1"
+    >
+      <li
+        class="MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters Mui-focusVisible MuiMenuItem-root MuiMenuItem-gutters css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root"
+        data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item"
+        role="menuitem"
+        tabindex="0"
+      >
+        <div
+          class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+          data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item-icon"
+        >
+          <span
+            aria-hidden="true"
+            class="material-icons notranslate MuiIcon-root MuiIcon-colorPrimary MuiIcon-fontSizeMedium css-shoean-MuiIcon-root"
+          >
+            <div />
+          </span>
+        </div>
+        <div
+          class="MuiListItemText-root css-tlelie-MuiListItemText-root"
+          data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item-text"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1d9s20a-MuiTypography-root"
+          >
+            foo
+          </span>
+        </div>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </li>
+      <li
+        class="MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters MuiMenuItem-root MuiMenuItem-gutters css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root"
+        data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item"
+        role="menuitem"
+        tabindex="-1"
+      >
+        <div
+          class="MuiListItemText-root css-tlelie-MuiListItemText-root"
+          data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item-text"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1d9s20a-MuiTypography-root"
+          >
+            bar
+          </span>
+        </div>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </li>
+      <li
+        aria-disabled="true"
+        class="MuiButtonBase-root MuiMenuItem-root Mui-disabled MuiMenuItem-gutters Mui-disabled MuiMenuItem-root Mui-disabled MuiMenuItem-gutters css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root"
+        data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item"
+        role="menuitem"
+        tabindex="-1"
+      >
+        <div
+          class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+          data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item-icon"
+        >
+          <span
+            aria-hidden="true"
+            class="material-icons notranslate MuiIcon-root MuiIcon-colorPrimary MuiIcon-fontSizeMedium css-shoean-MuiIcon-root"
+          >
+            <div />
+          </span>
+        </div>
+        <div
+          class="MuiListItemText-root css-tlelie-MuiListItemText-root"
+          data-testid="b7499b01-8082-4209-8667-c7d559a70caf-menu-item-text"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1d9s20a-MuiTypography-root"
+          >
+            baz
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div
+    data-testid="sentinelEnd"
+    tabindex="0"
+  />
+</div>
+`;

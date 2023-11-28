@@ -81,7 +81,7 @@ jest.mock("src/theme/Backdrop/Backdrop", () => {
 
 // mock the ImportModelDialog
 jest.mock("src/import/ImportModelDialog", () => {
-  const actual = jest.requireActual("../import/ImportModelDialog");
+  const actual = jest.requireActual("src/import/ImportModelDialog");
   const mockImportDialog = jest.fn().mockImplementation(() => {
     return <div data-testid={actual.DATA_TEST_ID.IMPORT_MODEL_DIALOG}> My Import Dialog Mock</div>;
   });
