@@ -25,6 +25,20 @@ const getPresignedUrls = async (
   return Object.assign({}, ...(await Promise.all(promises)));
 };
 
+/**
+ * Handles the file parsing for the import process and updates the import process state.
+ *
+ * @param {ImportAPISpecs.Types.POST.Request.Payload} event - The event object containing details for the import process.
+ * @throws Errors from this function are expected to be caught in the calling async import handler.
+ * @returns {Promise<void>}
+ *
+ * This function is responsible for directing the parsing of csv files into database entities.
+ * It retrieves modelId of the model to import to and the filepaths of csv files in S3, gets presigned URLs for the files, and then parses the files.
+ * It also handles the updating of the import process state.
+ * The function is designed to throw errors for explicit error handling in the higher-level async import logic.
+ * These errors should be caught and processed by the calling function to manage retries, cleanup operations, or state updates as necessary.
+ */
+
 export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payload) => {
   const modelId = event.modelId;
   // Get the model to import into

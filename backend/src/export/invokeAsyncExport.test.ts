@@ -6,8 +6,8 @@ import ExportAPISpecs from "api-specifications/export";
 import { StatusCodes } from "server/httpUtils";
 import * as config from "server/config/config";
 import ErrorAPISpecs from "api-specifications/error";
-
-import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import { AsyncExportEvent } from "./async/async.types";
 
 jest.mock("@aws-sdk/client-lambda", () => {
   return {
@@ -21,14 +21,16 @@ jest.mock("@aws-sdk/client-lambda", () => {
 });
 
 describe("Test lambda_invokeAsyncExport()  ", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   test("should return the ACCEPTED status", async () => {
-    // GIVEN an Export
-    const givenExport: ExportAPISpecs.Types.POST.Request.Payload = {
+    // GIVEN an async export event
+    const givenAsyncExportEvent: AsyncExportEvent = {
       modelId: "foo",
+      exportProcessStateId: "bar",
     };
-    // AND an export process State id
-    const givenExportProcessStateId = "bar";
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
     jest.spyOn(config, "getAsyncExportLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
@@ -36,8 +38,8 @@ describe("Test lambda_invokeAsyncExport()  ", () => {
     const givenConfigAsyncLambdaFunctionRegion = "foo";
     jest.spyOn(config, "getAsyncLambdaFunctionRegion").mockReturnValue(givenConfigAsyncLambdaFunctionRegion);
 
-    // WHEN calling the lambda_invokeAsyncExport() function with the given Export
-    const actualResponse = await lambda_invokeAsyncExport(givenExport, givenExportProcessStateId);
+    // WHEN calling the lambda_invokeAsyncExport() function with the given AsyncExportEvent
+    const actualResponse = await lambda_invokeAsyncExport(givenAsyncExportEvent);
 
     // THEN expect the function to return a response
     expect(actualResponse).toBeDefined();
@@ -48,27 +50,21 @@ describe("Test lambda_invokeAsyncExport()  ", () => {
       region: givenConfigAsyncLambdaFunctionRegion,
     });
     // AND InvokeCommand to have been called with the expected object
-    const expectedInvokeCommandProps = {
-      ...givenExport,
-      exportProcessStateId: givenExportProcessStateId,
-    };
+
     expect(InvokeCommand).toHaveBeenCalledWith({
       // The Lambda function arn from the configuration
-      FunctionName: givenConfigAsyncLambdaFunctionArn,
-      // The invocation type to be event for asynchronous execution
-      InvocationType: "Event",
-      // The payload is a Uint8Array of the string representation of the givenExport
-      Payload: new TextEncoder().encode(JSON.stringify(expectedInvokeCommandProps)),
+      FunctionName: givenConfigAsyncLambdaFunctionArn, // The invocation type to be event for asynchronous execution
+      InvocationType: "Event", // The payload is a Uint8Array of the string representation of the givenExport
+      Payload: new TextEncoder().encode(JSON.stringify(givenAsyncExportEvent)),
     });
   });
 
   test("should return the INTERNAL_SERVER_ERROR status if InvokeCommand throws an error", async () => {
-    // GIVEN an Export
-    const givenExport: ExportAPISpecs.Types.POST.Request.Payload = {
+    // GIVEN an async export event
+    const givenAsyncExportEvent: AsyncExportEvent = {
       modelId: "foo",
+      exportProcessStateId: "bar",
     };
-    // AND an export process State id
-    const givenExportProcessStateId = "bar";
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
     jest.spyOn(config, "getAsyncExportLambdaFunctionArn").mockReturnValue(givenConfigAsyncLambdaFunctionArn);
@@ -82,7 +78,7 @@ describe("Test lambda_invokeAsyncExport()  ", () => {
     });
 
     // WHEN calling the lambda_invokeAsyncExport() function with the given Export
-    const actualResponse = await lambda_invokeAsyncExport(givenExport, givenExportProcessStateId);
+    const actualResponse = await lambda_invokeAsyncExport(givenAsyncExportEvent);
 
     // THEN expect the function to return a response
     expect(actualResponse).toBeDefined();

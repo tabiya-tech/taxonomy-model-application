@@ -17,24 +17,32 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import * as InvokeAsyncExport from "./invokeAsyncExport";
-import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import {getModelInfoMockDataArray} from "../modelInfo/testDataHelper";
+import { getModelInfoMockDataArray } from "modelInfo/testDataHelper";
+import { AsyncExportEvent } from "./async/async.types";
+import { IExportProcessState, INewExportProcessStateSpec } from "./exportProcessState/exportProcessState.types";
+
+const getMockExportProcessState = (id: string): IExportProcessState => ({
+  createdAt: new Date(),
+  downloadUrl: "",
+  id: id,
+  modelId: "",
+  result: { errored: false, exportErrors: false, exportWarnings: false },
+  status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
+  timestamp: new Date(),
+  updatedAt: new Date(),
+});
 
 describe("test for trigger ExportHandler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test.each([
-    ["Throws an error", new Error("Something went wrong during model export")],
-    ["Resolves with a statusCode of accepted", response(StatusCodes.ACCEPTED, "")],
-    ["returns null", null],
-    ["returns undefined", undefined],
-  ])("should respond with the response of the invokeAsyncExport when it %s", async (description, expectedResult) => {
-    // GIVEN a correct payload & event with 'Content-Type: application/json; charset=utf-8'
+  test("should respond with the response of the invokeAsyncExport", async () => {
+    // GIVEN a correct payload
     const givenPayload: ExportAPISpecs.Types.POST.Request.Payload = {
       modelId: getMockStringId(2),
     };
+    // AND the event with the given payload with 'Content-Type: application/json; charset=utf-8'
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
@@ -42,36 +50,42 @@ describe("test for trigger ExportHandler", () => {
         "Content-Type": "application/json; charset=utf-8",
       },
     } as any;
-    // AND the model exists in the db
-    const givenModelInfoRepositoryMock = {
-      Model: undefined as any,
-      create: jest.fn(),
-      getModelById: jest.fn().mockResolvedValueOnce(getModelInfoMockDataArray(1)),
-      getModelByUUID: jest.fn(),
-      getModels: jest.fn()
-    };
-    jest
-      .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-      .mockReturnValue(givenModelInfoRepositoryMock);
 
-    // AND the repository will successfully create a new export process state
-    const givenMockExportProcessStateId = getMockStringId(1);
+    // AND the exportProcessStatRepository that will successfully create the exportProcessState
+    const givenExportProcessStateId = getMockStringId(1);
     const givenExportProcessStateRepositoryMock = {
       Model: undefined as any,
-      create: jest.fn().mockResolvedValue({ id: givenMockExportProcessStateId }),
-      update: jest.fn(),
+      create: jest.fn().mockImplementation((newSpecs: INewExportProcessStateSpec): Promise<IExportProcessState> => {
+        console.log("create called", newSpecs);
+        return Promise.resolve(getMockExportProcessState(givenExportProcessStateId));
+      }),
+      update: jest.fn().mockResolvedValue({}),
+      findById: jest.fn().mockResolvedValue({}),
     };
     jest
       .spyOn(getRepositoryRegistry(), "exportProcessState", "get")
       .mockReturnValue(givenExportProcessStateRepositoryMock);
 
-    // WHEN the handler is invoked with the given event
+    // AND the modelInfo repository that will successfully find the model
+    const givenModelInfoRepositoryMock = {
+      Model: undefined as any,
+      create: jest.fn(),
+      getModelById: jest.fn().mockResolvedValueOnce(getModelInfoMockDataArray(1)[0]),
+      getModelByUUID: jest.fn(),
+      getModels: jest.fn(),
+    };
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+    // AND the lambda_invokeAsyncExport function will successfully handle the event and return a response
+    const givenLambdaInvokeAsyncExportResponse = response(StatusCodes.ACCEPTED, {});
     const givenLambdaInvokeAsyncExportSpy = jest
       .spyOn(InvokeAsyncExport, "lambda_invokeAsyncExport")
-      .mockImplementationOnce(async () => expectedResult as unknown as APIGatewayProxyResult);
+      .mockResolvedValueOnce(givenLambdaInvokeAsyncExportResponse);
+
+    // WHEN the handler is invoked with the given event
     const actualResponse = await ExportHandler.handler(givenEvent);
 
-    // THEN expect the handler to call the repository with the appropriate initial value
+    // THEN expect the handler to create the exportProcessState with status PENDING
     expect(getRepositoryRegistry().exportProcessState.create).toHaveBeenCalledWith({
       modelId: givenPayload.modelId,
       status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
@@ -83,10 +97,15 @@ describe("test for trigger ExportHandler", () => {
       downloadUrl: "",
       timestamp: expect.any(Date),
     });
-    // AND expect the handler to call the lambda_invokeAsyncExport with the given payload
-    expect(givenLambdaInvokeAsyncExportSpy).toBeCalledWith(givenPayload, givenMockExportProcessStateId);
-    // AND respond with the expected return value
-    expect(actualResponse).toEqual(expectedResult);
+    // AND expect the handler to call the lambda_invokeAsyncExport with the given modelId and the exportProcessStateId
+    const expectedAsyncExportEvent: AsyncExportEvent = {
+      modelId: givenPayload.modelId,
+      exportProcessStateId: givenExportProcessStateId,
+    };
+    expect(givenLambdaInvokeAsyncExportSpy).toBeCalledWith(expectedAsyncExportEvent);
+
+    // AND export the handler to respond with the response from the lambda_invokeAsyncExport function
+    expect(actualResponse).toEqual(givenLambdaInvokeAsyncExportResponse);
   });
 
   test("should respond with NOT_FOUND status code if the model does not exist", async () => {
@@ -107,11 +126,10 @@ describe("test for trigger ExportHandler", () => {
       create: jest.fn(),
       getModelById: jest.fn().mockResolvedValueOnce(null),
       getModelByUUID: jest.fn(),
-      getModels: jest.fn()
+      getModels: jest.fn(),
     };
-    jest
-      .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-      .mockReturnValue(givenModelInfoRepositoryMock);
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
     // WHEN the handler is invoked with the given event
     const actualResponse = await ExportHandler.handler(givenEvent);
 
@@ -146,17 +164,16 @@ describe("test for trigger ExportHandler", () => {
       create: jest.fn(),
       getModelById: jest.fn().mockResolvedValueOnce(getModelInfoMockDataArray(1)),
       getModelByUUID: jest.fn(),
-      getModels: jest.fn()
+      getModels: jest.fn(),
     };
-    jest
-      .spyOn(getRepositoryRegistry(), "modelInfo", "get")
-      .mockReturnValue(givenModelInfoRepositoryMock);
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the exportProcessState repository will throw an error
     const givenError = new Error("Failed to create the export process state");
     const givenExportProcessStateRepositoryMock = {
       Model: undefined as any,
       create: jest.fn().mockRejectedValue(givenError),
       update: jest.fn(),
+      findById: jest.fn(),
     };
     jest
       .spyOn(getRepositoryRegistry(), "exportProcessState", "get")
@@ -165,18 +182,8 @@ describe("test for trigger ExportHandler", () => {
     // WHEN the handler is invoked with the given event
     const actualResponse = await ExportHandler.handler(givenEvent);
 
-    // THEN expect the handler to call the repository with the given payload
-    expect(getRepositoryRegistry().exportProcessState.create).toHaveBeenCalledWith({
-      modelId: givenPayload.modelId,
-      status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
-      result: {
-        errored: false,
-        exportErrors: false,
-        exportWarnings: false,
-      },
-      downloadUrl: "",
-      timestamp: expect.any(Date),
-    });
+    // THEN expect the handler to call the repository
+    expect(getRepositoryRegistry().exportProcessState.create).toHaveBeenCalled();
     // AND to respond with the INTERNAL_SERVER_ERROR status
     expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
     // AND the response body contains the error information
@@ -186,8 +193,8 @@ describe("test for trigger ExportHandler", () => {
       details: "Could not create the exportProcess State in the database",
     };
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-    // AND the error to be logged to the console
-    expect(console.log).toHaveBeenCalledWith(givenError);
+    // AND the error to be logged
+    expect(console.error).toHaveBeenCalledWith(givenError);
   });
 
   testMethodsNotAllowed(

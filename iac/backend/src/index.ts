@@ -66,6 +66,8 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
   upload_bucket_region: currentRegion,
+  download_bucket_name: downloadBucketName,
+  download_bucket_region: currentRegion,
   async_import_lambda_function_arn: asyncImportLambdaFunction.arn,
   async_export_lambda_function_arn: asyncExportLambdaFunction.arn,
   async_lambda_function_region: currentRegion

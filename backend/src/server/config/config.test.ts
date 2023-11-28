@@ -10,6 +10,7 @@ import {
   getAsyncExportLambdaFunctionArn,
   getAsyncImportLambdaFunctionArn,
   getAsyncLambdaFunctionRegion,
+  getDownloadBucketRegion,
 } from "./config";
 import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import * as process from "process";
@@ -38,6 +39,8 @@ describe("Test read Configuration()", () => {
     process.env.RESOURCES_BASE_URL = getRandomString(10);
     process.env.UPLOAD_BUCKET_NAME = getRandomString(10);
     process.env.UPLOAD_BUCKET_REGION = getRandomString(10);
+    process.env.DOWNLOAD_BUCKET_NAME = getRandomString(10);
+    process.env.DOWNLOAD_BUCKET_REGION = getRandomString(10);
     process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
     process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
     process.env.ASYNC_LAMBDA_FUNCTION_REGION = getRandomString(10);
@@ -51,6 +54,8 @@ describe("Test read Configuration()", () => {
       resourcesBaseUrl: process.env.RESOURCES_BASE_URL,
       uploadBucketName: process.env.UPLOAD_BUCKET_NAME,
       uploadBucketRegion: process.env.UPLOAD_BUCKET_REGION,
+      downloadBucketName: process.env.DOWNLOAD_BUCKET_NAME,
+      downloadBucketRegion: process.env.DOWNLOAD_BUCKET_REGION,
       asyncImportLambdaFunctionArn: process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN,
       asyncExportLambdaFunctionArn: process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN,
       asyncLambdaFunctionRegion: process.env.ASYNC_LAMBDA_FUNCTION_REGION,
@@ -63,6 +68,8 @@ describe("Test read Configuration()", () => {
     delete process.env.RESOURCES_BASE_URL;
     delete process.env.UPLOAD_BUCKET_NAME;
     delete process.env.UPLOAD_BUCKET_REGION;
+    delete process.env.DOWNLOAD_BUCKET_NAME;
+    delete process.env.DOWNLOAD_BUCKET_REGION;
     delete process.env.ASYNC_LAMBDA_FUNCTION_ARN;
     delete process.env.ASYNC_LAMBDA_FUNCTION_REGION;
 
@@ -75,6 +82,8 @@ describe("Test read Configuration()", () => {
       resourcesBaseUrl: "",
       uploadBucketName: "",
       uploadBucketRegion: "",
+      downloadBucketRegion: "",
+      downloadBucketName: "",
       asyncImportLambdaFunctionArn: "",
       asyncExportLambdaFunctionArn: "",
       asyncLambdaFunctionRegion: "",
@@ -101,14 +110,18 @@ describe("Test current configuration", () => {
 
   stdConfigurationValuesTest("getUploadBucketRegion", getUploadBucketRegion, "uploadBucketRegion");
 
+  stdConfigurationValuesTest("getDownloadBucketName", getUploadBucketName, "downloadBucketName");
+
+  stdConfigurationValuesTest("geDownloadBucketRegion", getDownloadBucketRegion, "downloadBucketRegion");
+
   stdConfigurationValuesTest(
-    "getAsyncLambdaFunctionArn",
+    "getImportAsyncLambdaFunctionArn",
     getAsyncImportLambdaFunctionArn,
     "asyncImportLambdaFunctionArn"
   );
 
   stdConfigurationValuesTest(
-    "getAsyncLambdaFunctionArn",
+    "getExportAsyncLambdaFunctionArn",
     getAsyncExportLambdaFunctionArn,
     "asyncExportLambdaFunctionArn"
   );
@@ -175,6 +188,8 @@ function getMockConfig(): IConfiguration {
     resourcesBaseUrl: getTestString(10),
     uploadBucketName: getTestString(10),
     uploadBucketRegion: getTestString(10),
+    downloadBucketRegion: getTestString(10),
+    downloadBucketName: getTestString(10),
     asyncImportLambdaFunctionArn: getTestString(10),
     asyncExportLambdaFunctionArn: getTestString(10),
     asyncLambdaFunctionRegion: getTestString(10),

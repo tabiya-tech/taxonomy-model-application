@@ -88,5 +88,7 @@ async function postTriggerImport(event: APIGatewayProxyEvent) {
     const errorDetail = ParseValidationError(validateFunction.errors);
     return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
   }
+  // We do not expect the lambda_invokeAsyncExport function to throw errors.
+  // It will handle any errors internally and return the appropriate error response.
   return lambda_invokeAsyncImport(payload);
 }

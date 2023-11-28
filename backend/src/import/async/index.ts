@@ -8,7 +8,17 @@ import { IModelInfo } from "modelInfo/modelInfo.types";
 import { parseFiles } from "./parseFiles";
 import errorLogger from "common/errorLogger/errorLogger";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/**
+ * Lambda function handler for asynchronous import.
+ *
+ * @param {ImportAPISpecs.Types.POST.Request.Payload} event - The event object containing import details.
+ * @throws Causes AWS Lambda to retry if an error occurs in initial stages.
+ * @returns {Promise<unknown>}
+ *
+ * This function handles the import process based on the given event payload. In AWS Lambda, throwing an error  will trigger a retry of the function.
+ * This can be useful for cases where we would like to retry (for example during db initialization), however we avoid retrying in cases
+ * where a restart is unlikely to resolve the problem.
+ */
 export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<unknown> => {
   console.info("Import started", event);
   // Clear the errorLogger from previous runs
@@ -37,7 +47,8 @@ export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload):
     throw e;
   }
 
-  // From here onwards we don't want to throw an error as the lambda function should not be retried
+  // We expect the parseModelToFile function to throw errors internally, since we want to handle them here.
+  // This is because we don't want to retry the lambda function in case of errors during the import process.
   try {
     await parseFiles(event);
   } catch (e: unknown) {
@@ -48,13 +59,14 @@ export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload):
   }
 };
 
+// The importErrored function does not throw errors.
+// This is because we don't want to retry the lambda function in case of errors during the import process.
 const importErrored = async (modelId: string) => {
   try {
     const state = {
       status: ImportProcessStateApiSpecs.Enums.Status.COMPLETED,
       result: {
-        errored: true,
-        // checking parsing errors and warning is an upcoming feature
+        errored: true, // checking parsing errors and warning is an upcoming feature
         parsingErrors: false,
         parsingWarnings: false,
       },
