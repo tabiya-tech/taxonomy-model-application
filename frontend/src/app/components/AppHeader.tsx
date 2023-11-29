@@ -15,8 +15,6 @@ export const DATA_TEST_ID = {
 };
 const AppHeader = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const auth = React.useContext(AuthContext);
-  const setUserRole = auth?.setUserRole;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -27,7 +25,7 @@ const AppHeader = () => {
   };
 
   const handleUser = () => {
-    setUserRole!((prevRole) => ({ ...prevRole, isReadOnlyUser: true }));
+    // set cookie to user
     setAnchorEl(null);
   };
 
