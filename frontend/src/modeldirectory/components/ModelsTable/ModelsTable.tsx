@@ -21,6 +21,7 @@ import ContextMenu from "src/theme/ContextMenu/ContextMenu";
 import buildMenuItemsConfig from "./buildMenuItemsConfig";
 import { IsOnlineContext } from "src/app/providers";
 import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
+import { AuthContext, UserRole, UserRoleContextValue } from "src/app/providers";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
@@ -133,6 +134,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
     model: null,
     menuItems: [],
   });
+  const { userRole } = React.useContext(AuthContext) as UserRoleContextValue;
 
   const sortModels = (models: ModelInfoTypes.ModelInfo[]): ModelInfoTypes.ModelInfo[] => {
     // sorts the incoming in descending order of createdAt
@@ -210,7 +212,9 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
         >
           <TableHead>
             <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
-              <StyledHeaderCell width={IMPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_IMPORT_STATE} />
+              {userRole === UserRole.Admin && (
+                <StyledHeaderCell width={IMPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_IMPORT_STATE} />
+              )}
               <StyledHeaderCell cellSx={{ width: "calc(35%)" }}>{TEXT.TABLE_HEADER_LABEL_NAME}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_LOCALE}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_VERSION}</StyledHeaderCell>
@@ -224,91 +228,97 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
             {props.isLoading ? ( // Number of cols is 8 because we have 8 columns in the table
               <TableLoadingRows numberOfCols={8} numberOfRows={10} />
             ) : (
-              sortedModels.map((model) => (
-                <TableRow
-                  tabIndex={0}
-                  data-modelid={model.id}
-                  key={model.id}
-                  sx={{
-                    verticalAlign: "top",
-                  }}
-                  data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
-                >
-                  <TableCell
-                    align={"center"}
+              sortedModels.map((model) => {
+                if (userRole === UserRole.ReadOnlyUser && !model.released) return null;
+                return (
+                  <TableRow
+                    tabIndex={0}
+                    data-modelid={model.id}
+                    key={model.id}
                     sx={{
-                      padding: CELL_PADDING,
+                      verticalAlign: "top",
                     }}
-                    data-testid={DATA_TEST_ID.MODEL_CELL}
+                    data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
                   >
-                    <Container
-                      style={{ display: "contents", padding: 0, margin: 0 }}
-                      data-testid={DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER}
-                    >
-                      <ImportProcessStateIcon importProcessState={model.importProcessState} />
-                    </Container>
-                  </TableCell>
-                  <StyledBodyCell component="th" scope="row">
-                    {model.name}
-                  </StyledBodyCell>
-                  <StyledBodyCell>
-                    {model.locale.name} ({model.locale.shortCode})
-                  </StyledBodyCell>
-                  <StyledBodyCell>{model.version}</StyledBodyCell>
-                  <StyledBodyCell align="center">
-                    {
-                      model.released ? (
-                        <PublishedWithChangesIcon
-                          data-testid={DATA_TEST_ID.MODEL_CELL_RELEASED_ICON}
-                          color="disabled"
-                          titleAccess="Released"
-                        />
-                      ) : (
-                        ""
-                      ) /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/
-                    }
-                  </StyledBodyCell>
-                  <StyledBodyCell>
-                    {model.description.length > CELL_MAX_LENGTH
-                      ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
-                      : model.description}
-                  </StyledBodyCell>
-                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
-                    <Container
-                      style={{
-                        display: "contents",
-                        padding: 0,
-                        margin: 0,
-                      }}
-                      data-testid={DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER}
-                    >
-                      <ExportStateCellContent model={model} />
-                    </Container>
-                  </TableCell>
-                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
-                    <Button
-                      sx={{
-                        minWidth: MORE_BUTTON_WIDTH,
-                        width: "100%",
-                        margin: 0,
-                        padding: 0,
-                      }}
-                      color={"primary"}
-                      onClick={(event) => handleOpenContextMenu(event.currentTarget, model)}
-                      data-testid={DATA_TEST_ID.MODEL_CELL_MORE_BUTTON}
-                    >
-                      <MoreVertIcon
-                        titleAccess={TEXT.TABLE_HEADER_LABEL_MODEL_ACTIONS}
+                    {userRole === UserRole.Admin && (
+                      <TableCell
+                        align={"center"}
                         sx={{
-                          cursor: "pointer",
+                          padding: CELL_PADDING,
+                        }}
+                        data-testid={DATA_TEST_ID.MODEL_CELL}
+                      >
+                        <Container
+                          style={{ display: "contents", padding: 0, margin: 0 }}
+                          data-testid={DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER}
+                        >
+                          <ImportProcessStateIcon importProcessState={model.importProcessState} />
+                        </Container>
+                      </TableCell>
+                    )}
+                    <StyledBodyCell component="th" scope="row">
+                      {model.name}
+                    </StyledBodyCell>
+                    <StyledBodyCell>
+                      {model.locale.name} ({model.locale.shortCode})
+                    </StyledBodyCell>
+                    <StyledBodyCell>{model.version}</StyledBodyCell>
+                    <StyledBodyCell align="center">
+                      {
+                        model.released ? (
+                          <PublishedWithChangesIcon
+                            data-testid={DATA_TEST_ID.MODEL_CELL_RELEASED_ICON}
+                            color="disabled"
+                            titleAccess="Released"
+                          />
+                        ) : (
+                          ""
+                        ) /*<IconButton> <PublishIcon color="primary"/> </IconButton>*/
+                      }
+                    </StyledBodyCell>
+                    <StyledBodyCell>
+                      {model.description.length > CELL_MAX_LENGTH
+                        ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
+                        : model.description}
+                    </StyledBodyCell>
+                    <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
+                      <Container
+                        style={{
+                          display: "contents",
+                          padding: 0,
+                          margin: 0,
+                        }}
+                        data-testid={DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER}
+                      >
+                        <ExportStateCellContent model={model} />
+                      </Container>
+                    </TableCell>
+                    <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
+                      <Button
+                        sx={{
+                          minWidth: MORE_BUTTON_WIDTH,
+                          width: "100%",
                           margin: 0,
                           padding: 0,
                         }}
-                      />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+                        color={"primary"}
+                        onClick={(event) => handleOpenContextMenu(event.currentTarget, model)}
+                        data-testid={DATA_TEST_ID.MODEL_CELL_MORE_BUTTON}
+                        disabled={![UserRole.Admin, UserRole.ModelManager].includes(userRole)}
+                      >
+                        <MoreVertIcon
+                          titleAccess={TEXT.TABLE_HEADER_LABEL_MODEL_ACTIONS}
+                          sx={{
+                            cursor: "pointer",
+                            margin: 0,
+                            padding: 0,
+                          }}
+                        />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

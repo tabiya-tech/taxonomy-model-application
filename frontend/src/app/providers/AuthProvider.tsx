@@ -1,44 +1,53 @@
-import React, {createContext, useEffect, useState} from "react";
-import {useCookies} from "react-cookie";
+import React, { createContext, useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 
-interface ILocale {
-  UUID: string;
-  name: string;
-  shortCode: string;
+// interface ILocale {
+//   UUID: string;
+//   name: string;
+//   shortCode: string;
+// }
+
+// export type UserRole = {
+//   isAdmin: boolean;
+//   isModelManager: boolean;
+//   modelManagerOf: ILocale[];
+//   isReadOnlyUser: boolean;
+//   isRegisteredUser: boolean; // this is the opposite of "isAnonymousUser", and it is the same as isAdmin || isModelManager || isReadOnlyUser
+//   isAnonymousUser: boolean; // this is synonymous with NOT(isRegisteredUser)
+// };
+
+export enum UserRole {
+  Admin = "ADMIN",
+  ModelManager = "MODEL_MANAGER",
+  ReadOnlyUser = "READ_ONLY_USER",
+  RegisteredUser = "REGISTERED_USER",
+  AnonymousUser = "ANONYMOUS_USER",
 }
-
-type UserRole = {
-  isAdmin: boolean;
-  isModelManager: boolean;
-  modelManagerOf: ILocale[];
-  isReadOnlyUser: boolean;
-  isRegisteredUser: boolean; // this is the opposite of "isAnonymousUser", and it is the same as isAdmin || isModelManager || isReadOnlyUser
-  isAnonymousUser: boolean; // this is synonymous with NOT(isRegisteredUser)
-};
 
 type AuthProviderProps = {
   children: React.ReactNode;
 };
 
-type UserRoleContextValue = {
+export type UserRoleContextValue = {
   userRole: UserRole;
+  setCookie: (name: "authCookie", value: string, options?: any) => void;
 };
 
 export const AuthContext = createContext<UserRoleContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [cookies, setCookie, removeCookie] = useCookies(['authCookie']);
-  const [userRole, setUserRole] = useState<UserRole>({
-    isAdmin: false,
-    isModelManager: false,
-    modelManagerOf: [],
-    isRegisteredUser: false,
-    isReadOnlyUser: false,
-    isAnonymousUser: false,
-  });
+  const [cookies, setCookie, removeCookie] = useCookies(["authCookie"]);
+  const [userRole, setUserRole] = useState<UserRole>(UserRole.AnonymousUser);
+
   useEffect(() => {
-    // read the cookie and set the setUserRole
+    const authCookie = cookies.authCookie;
+    setUserRole(authCookie);
   }, [cookies.authCookie]);
 
-  return <AuthContext.Provider value={{ userRole }}>{children}</AuthContext.Provider>;
+  const authContextValue: UserRoleContextValue = {
+    userRole,
+    setCookie,
+  };
+
+  return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;
 };
