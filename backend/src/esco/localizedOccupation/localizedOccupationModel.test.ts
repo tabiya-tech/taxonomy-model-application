@@ -37,6 +37,10 @@ describe("Test the definition of the Localized Occupation Model", () => {
     }
   });
 
+  beforeEach(async () => {
+    await LocalizedOccupationModel.deleteMany({}).exec();
+  });
+
   test.each([
     [
       "mandatory fields",
@@ -222,5 +226,22 @@ describe("Test the definition of the Localized Occupation Model", () => {
         }
       );
     });
+  });
+
+  test("should have correct indexes", async () => {
+    // GIVEN that the indexes exist
+    await LocalizedOccupationModel.createIndexes();
+
+    // WHEN getting the indexes
+    const indexes = (await LocalizedOccupationModel.listIndexes()).map((index) => {
+      return { key: index.key, unique: index.unique };
+    });
+
+    // THEN the indexes to be correct
+    expect(indexes).toEqual([
+      { key: { _id: 1 }, unique: undefined },
+      { key: { UUID: 1 }, unique: true },
+      { key: { modelId: 1, localizesOccupationId: 1 }, unique: true },
+    ]);
   });
 });

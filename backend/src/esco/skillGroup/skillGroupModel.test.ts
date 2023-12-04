@@ -288,4 +288,21 @@ describe("Test the definition of the skillGroup Model", () => {
       testImportId<ISkillGroupDoc>(() => skillGroupModel);
     });
   });
+
+  test("should have correct indexes", async () => {
+    // GIVEN that the indexes exist
+    await skillGroupModel.createIndexes();
+
+    // WHEN getting the indexes
+    const indexes = (await skillGroupModel.listIndexes()).map((index) => {
+      return { key: index.key, unique: index.unique };
+    });
+
+    // THEN expect the indexes to be correct
+    expect(indexes).toEqual([
+      { key: { _id: 1 }, unique: undefined },
+      { key: { UUID: 1 }, unique: true },
+      { key: { modelId: 1 }, unique: undefined },
+    ]);
+  });
 });
