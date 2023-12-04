@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import routerConfig from "./routerConfig";
 import { AppLayout } from "./components";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
-import { IsOnlineContext } from "./providers";
+import { AuthProvider, IsOnlineContext } from "./providers";
 
 const uniqueId = "8490f1cc-0786-476f-821e-34b6b712d63f";
 
@@ -51,13 +51,15 @@ export const TaxonomyModelApp = () => {
 
   return (
     <HashRouter>
-      <AppLayout>
-        <Routes>
-          {routerConfig.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} errorElement={route.errorElement} />
-          ))}
-        </Routes>
-      </AppLayout>
+      <AuthProvider>
+        <AppLayout>
+          <Routes>
+            {routerConfig.map((route) => (
+              <Route key={route.path} path={route.path} element={route.element} errorElement={route.errorElement} />
+            ))}
+          </Routes>
+        </AppLayout>
+      </AuthProvider>
     </HashRouter>
   );
 };

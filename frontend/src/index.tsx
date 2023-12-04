@@ -17,13 +17,12 @@ root.render(
   <React.StrictMode>
     <CssBaseline />
     <IsOnlineProvider>
-      <AuthProvider>
+
         <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
           <SnackbarProvider>
             <App />
           </SnackbarProvider>
         </ThemeProvider>
-      </AuthProvider>
     </IsOnlineProvider>
   </React.StrictMode>
 );

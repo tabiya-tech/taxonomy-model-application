@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import { routerPaths } from "src/app/routerConfig";
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthContext, UserRole, UserRoleContextValue } from "../providers";
 
 const uniqueId = "65b0785e-14d9-43a3-b260-869983312406";
@@ -39,6 +39,12 @@ const AppHeader = () => {
     setCookie("authCookie", UserRole.Admin);
     setAnchorEl(null);
   };
+  const handleLogin = () => {
+    window.open(
+      "https://auth.dev.tabiya.tech/login?client_id=77lkf19od35ss9r6kk4nn23kq7&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=http%3A%2F%2Flocalhost%3A3000/",
+      "_self"
+    );
+  };
 
   return (
     <Box
@@ -56,6 +62,7 @@ const AppHeader = () => {
           <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} />
         </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+          <MenuItem onClick={handleLogin}>Login</MenuItem>
           <MenuItem onClick={handleUser}>User</MenuItem>
           <MenuItem onClick={handleModelManager}>Model Manager</MenuItem>
           <MenuItem onClick={handleAdmin}>Admin</MenuItem>
