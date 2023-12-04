@@ -48,7 +48,12 @@ export const handler: (
  *               schema:
  *                 $ref: '#/components/schemas/ErrorSchema'
  *         '404':
- *            description: Model could not be found.
+ *            description: |
+ *              Model could not be found.
+ *            content:
+ *              application/json:
+ *                schema:
+ *                  $ref: '#/components/schemas/ErrorSchema'
  *         '415':
  *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
  *         '500':
