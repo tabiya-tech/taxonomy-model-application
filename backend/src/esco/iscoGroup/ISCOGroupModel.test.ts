@@ -267,4 +267,30 @@ describe("Test the definition of the ISCOGroup Model", () => {
       testImportId<IISCOGroupDoc>(() => ISCOGroupModel);
     });
   });
+
+  describe("Test the indexes of the ISCOGroup Model", () => {
+    test("should have correct indexes", async () => {
+      // GIVEN that the indexes exist
+      await ISCOGroupModel.createIndexes();
+
+      // WHEN getting the indexes
+      const indexes = (await ISCOGroupModel.listIndexes()).map((index) => {
+        return { key: index.key, unique: index.unique };
+      });
+
+      // THEN expect the indexes to be correct
+      expect(indexes).toEqual([
+        { key: { _id: 1 }, unique: undefined },
+        { key: { UUID: 1 }, unique: true },
+        { key: { modelId: 1 }, unique: undefined },
+        {
+          key: {
+            code: 1,
+            modelId: 1,
+          },
+          unique: true,
+        },
+      ]);
+    });
+  });
 });

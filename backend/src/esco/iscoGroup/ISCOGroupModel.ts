@@ -60,8 +60,6 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 
   // Two isco groups cannot have the same isco code in the same model
   ISCOGroupSchema.index({ code: 1, modelId: 1 }, { unique: true });
-  // Preferred label must be unique in the same model
-  // ISCOGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
 
   return dbConnection.model<IISCOGroupDoc>(MongooseModelName.ISCOGroup, ISCOGroupSchema);
 }

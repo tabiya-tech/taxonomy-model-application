@@ -350,4 +350,21 @@ describe("Test the definition of the skill Model", () => {
       testImportId<ISkillDoc>(() => skillModel);
     });
   });
+
+  test("should have correct indexes", async () => {
+    // GIVEN that the indexes exist
+    await skillModel.createIndexes();
+
+    // WHEN getting the indexes
+    const indexes = (await skillModel.listIndexes()).map((index) => {
+      return { key: index.key, unique: index.unique };
+    });
+
+    // THEN expect the indexes to be correct
+    expect(indexes).toEqual([
+      { key: { _id: 1 }, unique: undefined },
+      { key: { UUID: 1 }, unique: true },
+      { key: { modelId: 1 }, unique: undefined },
+    ]);
+  });
 });
