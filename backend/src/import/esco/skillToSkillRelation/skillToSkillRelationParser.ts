@@ -13,10 +13,10 @@ import {
   ISkillToSkillRelationPair,
 } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { RelationType } from "esco/common/objectTypes";
-import { ISkillToSkillsRelationRow, skillRelationHeaders } from "esco/common/entityToCSV.types";
+import { ISkillToSkillsRelationRow, skillToSkillRelationHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, skillRelationHeaders);
+  return getStdHeadersValidator(validatorName, skillToSkillRelationHeaders);
 }
 
 function getBatchProcessor(modelId: string) {

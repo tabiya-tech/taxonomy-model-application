@@ -36,6 +36,9 @@ export const populateLocalizedOccupationLocalizesOccupationOptions = {
   transform: (doc: ModelConstructed & OccupationDocument) => {
     //@ts-ignore
     delete doc.modelId;
+
+    // @ts-ignore
+    delete doc.localizesOccupationId; //removing the id from the final response since it is in the localizesOccupation Virtual
     return doc;
   },
 };

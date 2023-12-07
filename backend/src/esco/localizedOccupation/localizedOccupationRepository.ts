@@ -187,7 +187,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         // use $eq to prevent NoSQL injection
         this.Model.find({ modelId: { $eq: modelId } }).cursor(),
         // in the current version we do not populate the parent, children, requiresSkills or localizesOccupation
-        new DocumentToObjectTransformer<ILocalizedOccupation>(),
+        new DocumentToObjectTransformer<IExtendedLocalizedOccupation>(),
         () => undefined
       );
     } catch (e: unknown) {

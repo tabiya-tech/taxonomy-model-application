@@ -80,11 +80,10 @@ describe("Test the definition of the Localized Occupation Model", () => {
       ...givenObject,
       modelId: givenObject.modelId.toString(),
       id: givenLocalizedOccupationDocument._id.toString(),
+      localizesOccupationId: givenObject.localizesOccupationId.toString(),
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     };
-    //@ts-ignore
-    delete expectedLocalizedOccupationDocument.localizesOccupationId;
     expect(givenLocalizedOccupationDocument.toObject()).toEqual(expectedLocalizedOccupationDocument);
   });
 

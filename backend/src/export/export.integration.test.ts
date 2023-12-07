@@ -27,15 +27,26 @@ import * as ESCOOccupationsToCSVTransformModule from "./esco/occupation/ESCOOccu
 import * as LocalOccupationsToCSVTransform from "./esco/occupation/LocalOccupationsToCSVTransform";
 import * as SkillsToCSVTransformModule from "./esco/skill/SkillsToCSVTransform";
 import * as SkillGroupsToCSVTransformModule from "./esco/skillGroup/SkillGroupsToCSVTransform";
+import * as LocalizedOccupationsToCSVTransformModule from "./esco/localizedOccupation/LocalizedOccupationsToCSVTransform";
+import * as OccupationHierarchyToCSVTransformModule from "./esco/occupationHierarchy/occupationHierarchyToCSVTransform";
+import * as SkillHierarchyToCSVTransformModule from "./esco/skillHierarchy/skillHierarchyToCSVTransform";
+import * as OccupationToSkillRelationToCSVTransformModule from "./esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
+import * as SkillToSkillRelationToCSVTransformModule from "./esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
+import * as ModelInfoToCSVTransformModule from "./modelInfo/modelInfoToCSVTransform";
 import * as CSVtoZipPipelineModule from "./async/CSVtoZipPipeline";
 import * as UploadZipToS3Module from "./async/uploadZipToS3";
 import archiver from "archiver";
 import { getConnectionManager } from "server/connection/connectionManager";
 import {
   getSampleISCOGroupSpecs,
+  getSampleLocalizedOccupationSpecs,
+  getSampleOccupationHierarchy,
   getSampleOccupationSpecs,
+  getSampleOccupationToSkillRelations,
   getSampleSkillGroupsSpecs,
+  getSampleSkillsHierarchy,
   getSampleSkillsSpecs,
+  getSampleSkillToSkillRelations,
 } from "./_test_utilities/getSampleEntitiesArray";
 import CSVtoZipPipeline from "./async/CSVtoZipPipeline";
 import uploadZipToS3 from "./async/uploadZipToS3";
@@ -118,11 +129,33 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
 
     // AND occupations exist for that model
     await getRepositoryRegistry().ISCOGroup.createMany(getSampleISCOGroupSpecs(givenModel.id));
-    await getRepositoryRegistry().occupation.createMany(getSampleOccupationSpecs(givenModel.id)); // ESCO Occupations
+    const actualESCOOccupations = await getRepositoryRegistry().occupation.createMany(
+      getSampleOccupationSpecs(givenModel.id)
+    ); // ESCO Occupations
     await getRepositoryRegistry().occupation.createMany(getSampleOccupationSpecs(givenModel.id, true)); // Local Occupations
-    await getRepositoryRegistry().skill.createMany(getSampleSkillsSpecs(givenModel.id));
-    await getRepositoryRegistry().skillGroup.createMany(getSampleSkillGroupsSpecs(givenModel.id));
-    // TODO: add more data here for each of the entities
+    await getRepositoryRegistry().localizedOccupation.createMany(
+      getSampleLocalizedOccupationSpecs(actualESCOOccupations)
+    ); // Localized Occupations
+    const actualSkills = await getRepositoryRegistry().skill.createMany(getSampleSkillsSpecs(givenModel.id));
+    const actualSkillGroups = await getRepositoryRegistry().skillGroup.createMany(
+      getSampleSkillGroupsSpecs(givenModel.id)
+    );
+    await getRepositoryRegistry().occupationHierarchy.createMany(
+      givenModel.id,
+      getSampleOccupationHierarchy(givenModel.id)
+    );
+    await getRepositoryRegistry().skillHierarchy.createMany(
+      givenModel.id,
+      getSampleSkillsHierarchy(actualSkills, actualSkillGroups)
+    );
+    await getRepositoryRegistry().occupationToSkillRelation.createMany(
+      givenModel.id,
+      getSampleOccupationToSkillRelations(actualESCOOccupations, actualSkills)
+    );
+    await getRepositoryRegistry().skillToSkillRelation.createMany(
+      givenModel.id,
+      getSampleSkillToSkillRelations(actualSkills)
+    );
 
     return { modelId: givenModel.id, exportProcessStateId: givenExportProcessState.id };
   }
@@ -134,10 +167,14 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     jest.spyOn(ISCOGroupsToCSVTransformModule, "default");
     jest.spyOn(ESCOOccupationsToCSVTransformModule, "default");
     jest.spyOn(LocalOccupationsToCSVTransform, "default");
+    jest.spyOn(LocalizedOccupationsToCSVTransformModule, "default");
     jest.spyOn(SkillsToCSVTransformModule, "default");
     jest.spyOn(SkillGroupsToCSVTransformModule, "default");
-    // TODO: add more here
-    // -----
+    jest.spyOn(OccupationHierarchyToCSVTransformModule, "default");
+    jest.spyOn(SkillHierarchyToCSVTransformModule, "default");
+    jest.spyOn(OccupationToSkillRelationToCSVTransformModule, "default");
+    jest.spyOn(SkillToSkillRelationToCSVTransformModule, "default");
+    jest.spyOn(ModelInfoToCSVTransformModule, "default");
     jest.spyOn(CSVtoZipPipelineModule, "default");
     jest.spyOn(archiver, "create");
 
@@ -254,6 +291,34 @@ async function assertThanAllResourcesAreReleased() {
     .value as Readable;
   await assertStreamIsClosedAndDestroyed(SkillGroupsToCSVTransformStream);
 
-  // TODO: add more streams here
-  //----
+  // Assert LocalizedOccupationsToCSV stream resources are released
+  const LocalizedOccupationsToCSVTransformStream = (LocalizedOccupationsToCSVTransformModule.default as jest.Mock).mock
+    .results[0].value as Readable;
+  await assertStreamIsClosedAndDestroyed(LocalizedOccupationsToCSVTransformStream);
+
+  // Assert OccupationHierarchyToCSV stream resources are released
+  const OccupationHierarchyToCSVTransformStream = (OccupationHierarchyToCSVTransformModule.default as jest.Mock).mock
+    .results[0].value as Readable;
+  await assertStreamIsClosedAndDestroyed(OccupationHierarchyToCSVTransformStream);
+
+  // Assert SkillHierarchyToCSV stream resources are released
+  const SkillHierarchyToCSVTransformStream = (SkillHierarchyToCSVTransformModule.default as jest.Mock).mock.results[0]
+    .value as Readable;
+  await assertStreamIsClosedAndDestroyed(SkillHierarchyToCSVTransformStream);
+
+  // Assert OccupationToSkillRelationToCSV stream resources are released
+  const OccupationToSkillRelationToCSVTransformStream = (
+    OccupationToSkillRelationToCSVTransformModule.default as jest.Mock
+  ).mock.results[0].value as Readable;
+  await assertStreamIsClosedAndDestroyed(OccupationToSkillRelationToCSVTransformStream);
+
+  // Assert SkillToSkillRelationToCSV stream resources are released
+  const SkillToSkillRelationToCSVTransformStream = (SkillToSkillRelationToCSVTransformModule.default as jest.Mock).mock
+    .results[0].value as Readable;
+  await assertStreamIsClosedAndDestroyed(SkillToSkillRelationToCSVTransformStream);
+
+  // Assert ModelInfoToCSV stream resources are released
+  const ModelInfoToCSVTransformStream = (await (ModelInfoToCSVTransformModule.default as jest.Mock).mock.results[0]
+    .value) as Readable;
+  await assertStreamIsClosedAndDestroyed(ModelInfoToCSVTransformStream);
 }
