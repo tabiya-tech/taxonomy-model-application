@@ -41,7 +41,7 @@ describe("Test S3PresignerService", () => {
     const givenFileKey = "baz";
 
     // WHEN getPresignedGet function of the given S3PresignerService is called with the file key
-    const actualPromise = givenS3PresignerService.getPresignedGet(givenFileKey);
+    const actualPresigned = await givenS3PresignerService.getPresignedGet(givenFileKey);
 
     // THEN expect the S3Client to have been called with the correct region
     expect(S3Client).toHaveBeenCalledWith({ region: givenRegion });
@@ -50,7 +50,8 @@ describe("Test S3PresignerService", () => {
       Bucket: givenBucket,
       Key: givenFileKey,
     });
-    // AND expect the getSignedUrl to return whatever the getSignedUrl returns
-    expect(actualPromise).toEqual((getSignedUrl as jest.Mock).mock.results[0].value);
+    // AND expect the getSignedUrl to return whatever the getSignedUrl returned
+    const expectedPresignedURL  = await (getSignedUrl as jest.Mock).mock.results[0].value
+    expect(actualPresigned).toEqual(expectedPresignedURL);
   });
 });
