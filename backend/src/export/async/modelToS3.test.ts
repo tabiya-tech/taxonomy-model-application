@@ -36,8 +36,48 @@ jest.mock("export/esco/skillGroup/SkillGroupsToCSVTransform", () => {
   });
 });
 
-// TODO: add more transform mocks here
-// ---
+jest.mock("export/esco/localizedOccupation/LocalizedOccupationsToCSVTransform", () => {
+  // std mock should return a transform stream with some data
+  return jest.fn().mockImplementation(() => {
+    return Readable.from(["foo", "bar", "baz"], { objectMode: true });
+  });
+});
+
+jest.mock("export/esco/occupationHierarchy/occupationHierarchyToCSVTransform", () => {
+  // std mock should return a transform stream with some data
+  return jest.fn().mockImplementation(() => {
+    return Readable.from(["foo", "bar", "baz"], { objectMode: true });
+  });
+});
+
+jest.mock("export/esco/skillHierarchy/skillHierarchyToCSVTransform", () => {
+  // std mock should return a transform stream with some data
+  return jest.fn().mockImplementation(() => {
+    return Readable.from(["foo", "bar", "baz"], { objectMode: true });
+  });
+});
+
+jest.mock("export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform", () => {
+  // std mock should return a transform stream with some data
+  return jest.fn().mockImplementation(() => {
+    return Readable.from(["foo", "bar", "baz"], { objectMode: true });
+  });
+});
+
+jest.mock("export/esco/skillToSkillRelation/skillToSkillRelationToCSVTransform", () => {
+  // std mock should return a transform stream with some data
+  return jest.fn().mockImplementation(() => {
+    return Readable.from(["foo", "bar", "baz"], { objectMode: true });
+  });
+});
+
+jest.mock("export/modelInfo/modelInfoToCSVTransform", () => {
+  // std mock should return a transform stream with some data
+  return jest.fn().mockImplementation(() => {
+    return Readable.from(["foo", "bar", "baz"], { objectMode: true });
+  });
+});
+
 jest.mock("export/async/CSVtoZipPipeline", () => {
   // std mock should return the actual
   const actualModule = jest.requireActual("export/async/CSVtoZipPipeline");
@@ -131,6 +171,12 @@ import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTrans
 import LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
+import LocalizedOccupationsToCSVTransform from "export/esco/localizedOccupation/LocalizedOccupationsToCSVTransform";
+import OccupationHierarchyToCSVTransform from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
+import SkillHierarchyToCSVTransform from "export/esco/skillHierarchy/skillHierarchyToCSVTransform";
+import OccupationToSkillRelationToCSVTransform from "export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
+import SkillToSkillRelationToCSVTransform from "export/esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
+import ModelInfoToCSVTransform from "export/modelInfo/modelInfoToCSVTransform";
 
 jest.spyOn(errorLogger, "logError");
 jest.spyOn(errorLogger, "logWarning");
@@ -223,9 +269,14 @@ describe("modelToS3", () => {
       ["ISCOGroupsToCSVTransformStream", ISCOGroupsToCSVTransform],
       ["ESCOOccupationsToCSVTransformStream", ESCOOccupationsToCSVTransform],
       ["LocalOccupationsToCSVTransformStream", LocalOccupationsToCSVTransform],
+      ["LocalizedOccupationsToCSVTransformStream", LocalizedOccupationsToCSVTransform],
       ["SkillGroupsToCSVTransformStream", SkillGroupsToCSVTransform],
       ["SkillsToCSVTransformStream", SkillsToCSVTransform],
-      // TODO: add more streams here
+      ["OccupationHierarchyToCSVTransformStream", OccupationHierarchyToCSVTransform],
+      ["SkillHierarchyToCSVTransformStream", SkillHierarchyToCSVTransform],
+      ["OccupationToSkillRelationToCSVTransformStream", OccupationToSkillRelationToCSVTransform],
+      ["SkillToSkillRelationToCSVTransformStream", SkillToSkillRelationToCSVTransform],
+      ["ModelInfoToCSVTransformStream", ModelInfoToCSVTransform],
     ])("should reject and release resources when the %s", async (_caseDescription, givenFailingStream) => {
       const failureCallback = () =>
         (givenFailingStream as jest.Mock).mockImplementationOnce(() => {
@@ -290,6 +341,14 @@ describe("modelToS3", () => {
         },
       ],
       [
+        "LocalizedOccupationsToCSVTransform throws an error",
+        () => {
+          (LocalizedOccupationsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
+            throw new Error("foo");
+          });
+        },
+      ],
+      [
         "SkillToCSVTransform throws an error",
         () => {
           (SkillsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
@@ -304,7 +363,47 @@ describe("modelToS3", () => {
             throw new Error("foo");
           });
         },
-      ], // TODO: Add other entity transform streams here
+      ],
+      [
+        "OccupationHierarchyToCSVTransform throws an error",
+        () => {
+          (OccupationHierarchyToCSVTransform as jest.Mock).mockImplementationOnce(() => {
+            throw new Error("foo");
+          });
+        },
+      ],
+      [
+        "SkillHierarchyToCSVTransform throws an error",
+        () => {
+          (SkillHierarchyToCSVTransform as jest.Mock).mockImplementationOnce(() => {
+            throw new Error("foo");
+          });
+        },
+      ],
+      [
+        "OccupationToSkillRelationToCSVTransform throws an error",
+        () => {
+          (OccupationToSkillRelationToCSVTransform as jest.Mock).mockImplementationOnce(() => {
+            throw new Error("foo");
+          });
+        },
+      ],
+      [
+        "SkillToSkillRelationToCSVTransform throws an error",
+        () => {
+          (SkillToSkillRelationToCSVTransform as jest.Mock).mockImplementationOnce(() => {
+            throw new Error("foo");
+          });
+        },
+      ],
+      [
+        "ModelInfoToCSVTransform throws an error",
+        () => {
+          (ModelInfoToCSVTransform as jest.Mock).mockImplementationOnce(() => {
+            throw new Error("foo");
+          });
+        },
+      ],
       [
         "the csvToZipPipeline throws an error",
         () => {
@@ -430,7 +529,12 @@ async function assertThatAllCreatedResourcesAreReleased(assertCreated: boolean) 
     LocalOccupationsToCSVTransform,
     SkillGroupsToCSVTransform,
     SkillsToCSVTransform,
-    // TODO: add more streams here
+    LocalizedOccupationsToCSVTransform,
+    OccupationHierarchyToCSVTransform,
+    SkillHierarchyToCSVTransform,
+    OccupationToSkillRelationToCSVTransform,
+    SkillToSkillRelationToCSVTransform,
+    ModelInfoToCSVTransform,
   ];
   for (const mock of collectionToCSVTransformMocks) {
     const results = (mock as jest.Mock).mock.results;

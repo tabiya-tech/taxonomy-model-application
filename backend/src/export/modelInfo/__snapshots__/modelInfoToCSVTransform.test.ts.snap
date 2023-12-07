@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV 1`] = `
+[
+  {
+    "Description": "description_2_^°!"§$%&/(",
+    "Locale": "shortCode_2",
+    "Name": "name_2_^°!"§$%&/(",
+    "OriginURI": "",
+    "Previous": "previousUUID_2",
+    "ReleaseNotes": "releaseNotes_2_^°!"§$%&/(",
+    "Released": "TRUE",
+    "UUID": "uuid_2",
+    "Version": "version_2",
+  },
+]
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV 2`] = `
+"UUID,Name,Locale,Description,Version,Released,Previous,ReleaseNotes,OriginURI
+uuid_2,"name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,previousUUID_2,"releaseNotes_2_^°!""§$%&/(",
+"
+`;

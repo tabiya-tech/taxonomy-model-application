@@ -5,7 +5,10 @@ import { ILocalizedOccupation } from "esco/localizedOccupation/localizedOccupati
 import { ILocalizedOccupationRow, localizedOccupationHeaders } from "esco/common/entityToCSV.types";
 import { Readable } from "node:stream";
 
-export type IUnpopulatedLocalizedOccupation = Omit<ILocalizedOccupation, "parent" | "children" | "requiresSkills">;
+export type IUnpopulatedLocalizedOccupation = Omit<
+  ILocalizedOccupation,
+  "parent" | "children" | "requiresSkills" | "localizesOccupation"
+> & { localizesOccupationId: string };
 
 export const transformLocalizedOccupationSpecToCSVRow = (
   localizedOccupation: IUnpopulatedLocalizedOccupation
@@ -15,7 +18,7 @@ export const transformLocalizedOccupationSpecToCSVRow = (
     ALTLABELS: localizedOccupation.altLabels.length ? localizedOccupation.altLabels.join("\n") : "",
     DESCRIPTION: localizedOccupation.description,
     OCCUPATIONTYPE: localizedOccupation.occupationType,
-    LOCALIZESOCCUPATIONID: localizedOccupation.localizesOccupation.id,
+    LOCALIZESOCCUPATIONID: localizedOccupation.localizesOccupationId,
   };
 };
 

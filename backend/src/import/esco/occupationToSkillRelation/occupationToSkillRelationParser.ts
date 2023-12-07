@@ -12,19 +12,12 @@ import {
   INewOccupationToSkillPairSpec,
   IOccupationToSkillRelationPair,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { OccupationType, RelationType } from "esco/common/objectTypes";
+import { RelationType } from "esco/common/objectTypes";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
-
-// Expect all columns to be in upper case
-export interface OccupationToSkillsRelationRow {
-  OCCUPATIONID: string;
-  SKILLID: string;
-  RELATIONTYPE: RelationType;
-  OCCUPATIONTYPE: OccupationType;
-}
+import { IOccupationToSkillRelationRow, occupationToSkillRelationHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, ["OCCUPATIONTYPE", "OCCUPATIONID", "SKILLID", "RELATIONTYPE"]);
+  return getStdHeadersValidator(validatorName, occupationToSkillRelationHeaders);
 }
 
 function getBatchProcessor(modelId: string) {
@@ -39,8 +32,8 @@ function getBatchProcessor(modelId: string) {
 
 function getRowToSpecificationTransformFn(
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<OccupationToSkillsRelationRow, INewOccupationToSkillPairSpec> {
-  return (row: OccupationToSkillsRelationRow) => {
+): TransformRowToSpecificationFunction<IOccupationToSkillRelationRow, INewOccupationToSkillPairSpec> {
+  return (row: IOccupationToSkillRelationRow) => {
     // Check if relation type is valid
     if (!Object.values(RelationType).includes(row.RELATIONTYPE)) {
       errorLogger.logWarning(
@@ -101,7 +94,7 @@ export async function parseOccupationToSkillRelationFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<OccupationToSkillsRelationRow>(
+  return await processStream<IOccupationToSkillRelationRow>(
     "OccupationToSkillRelation",
     skillsRelationCSVFileStream,
     batchRowProcessor

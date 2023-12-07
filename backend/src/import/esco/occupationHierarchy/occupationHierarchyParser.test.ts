@@ -71,6 +71,7 @@ describe("test parseOccupationHierarchy from", () => {
         iscoGroupModel: undefined as any,
         occupationModel: undefined as any,
         hierarchyModel: undefined as any,
+        findAll: jest.fn(),
         createMany: jest
           .fn()
           .mockImplementation(

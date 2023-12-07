@@ -1,4 +1,4 @@
-import { RelationType } from "./objectTypes";
+import { ObjectTypes, OccupationType, RelationType } from "./objectTypes";
 
 /*
  * ----------------------------- *
@@ -145,7 +145,7 @@ export interface ILocalizedOccupationRow {
  * Headers for the for skill-to-skill relation CSV file
  */
 
-export const skillRelationHeaders = ["REQUIRINGID", "RELATIONTYPE", "REQUIREDID"];
+export const skillToSkillRelationHeaders = ["REQUIRINGID", "RELATIONTYPE", "REQUIREDID"];
 
 /*
  * Interface for the skill-to-skill row in the CSV file
@@ -155,6 +155,57 @@ export interface ISkillToSkillsRelationRow {
   REQUIRINGID: string;
   RELATIONTYPE: RelationType;
   REQUIREDID: string;
+}
+
+/*
+ * Headers for the for occupation-to-skill relation CSV file
+ */
+
+export const occupationToSkillRelationHeaders = ["OCCUPATIONTYPE", "OCCUPATIONID", "RELATIONTYPE", "SKILLID"];
+
+/*
+ * Interface for the occupation-to-skill row in the CSV file
+ */
+
+export interface IOccupationToSkillRelationRow {
+  OCCUPATIONTYPE: OccupationType;
+  OCCUPATIONID: string;
+  RELATIONTYPE: RelationType;
+  SKILLID: string;
+}
+
+/*
+ * Headers for the for occupationHierarchy CSV file
+ */
+
+export const occupationHierarchyHeaders = ["PARENTOBJECTTYPE", "PARENTID", "CHILDID", "CHILDOBJECTTYPE"];
+
+/*
+ * Interface for the occupationHierarchy row in the CSV file
+ */
+
+export interface IOccupationHierarchyRow {
+  PARENTOBJECTTYPE: ObjectTypes.Occupation | ObjectTypes.ISCOGroup;
+  PARENTID: string;
+  CHILDID: string;
+  CHILDOBJECTTYPE: ObjectTypes.Occupation | ObjectTypes.ISCOGroup;
+}
+
+/*
+ * Headers for the for skillHierarchy CSV file
+ */
+
+export const skillHierarchyHeaders = ["PARENTOBJECTTYPE", "PARENTID", "CHILDID", "CHILDOBJECTTYPE"];
+
+/*
+ * Interface for the skillHierarchy row in the CSV file
+ */
+
+export interface ISkillHierarchyRow {
+  PARENTOBJECTTYPE: ObjectTypes.Skill | ObjectTypes.SkillGroup;
+  PARENTID: string;
+  CHILDID: string;
+  CHILDOBJECTTYPE: ObjectTypes.Skill | ObjectTypes.SkillGroup;
 }
 
 /*

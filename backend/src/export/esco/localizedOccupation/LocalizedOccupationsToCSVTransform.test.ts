@@ -22,10 +22,8 @@ const getMockLocalizedOccupations = (): IUnpopulatedLocalizedOccupation[] => {
     description: `description_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     occupationType: OccupationType.LOCALIZED,
-    // @ts-ignore
-    localizesOccupation: {
-      id: getMockStringId(i * 4),
-    },
+    localizesOccupationId: getMockStringId(2),
+    localizedOccupationType: OccupationType.LOCALIZED,
     createdAt: new Date(),
     updatedAt: new Date(),
   }));

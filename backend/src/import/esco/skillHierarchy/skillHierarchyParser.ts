@@ -10,14 +10,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
-
-// expect all columns to be in upper case
-export interface SkillHierarchyRow {
-  PARENTOBJECTTYPE: string;
-  PARENTID: string;
-  CHILDID: string;
-  CHILDOBJECTTYPE: string;
-}
+import { ISkillHierarchyRow, skillHierarchyHeaders } from "esco/common/entityToCSV.types";
 
 const enum CSV_OBJECT_TYPES {
   Skill = "SKILL",
@@ -25,7 +18,7 @@ const enum CSV_OBJECT_TYPES {
 }
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, ["PARENTOBJECTTYPE", "PARENTID", "CHILDID", "CHILDOBJECTTYPE"]);
+  return getStdHeadersValidator(validatorName, skillHierarchyHeaders);
 }
 
 function getBatchProcessor(modelId: string) {
@@ -41,7 +34,7 @@ function getBatchProcessor(modelId: string) {
 function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<SkillHierarchyRow, INewSkillHierarchyPairSpec> {
+): TransformRowToSpecificationFunction<ISkillHierarchyRow, INewSkillHierarchyPairSpec> {
   const csv2EscoObjectType = (type: string): ObjectTypes.Skill | ObjectTypes.SkillGroup | null => {
     switch (type.toUpperCase()) {
       case CSV_OBJECT_TYPES.Skill:
@@ -53,7 +46,7 @@ function getRowToSpecificationTransformFn(
     }
   };
 
-  return (row: SkillHierarchyRow) => {
+  return (row: ISkillHierarchyRow) => {
     const parentType = csv2EscoObjectType(row.PARENTOBJECTTYPE);
     const childType = csv2EscoObjectType(row.CHILDOBJECTTYPE);
     if (!parentType || !childType) {
@@ -102,5 +95,5 @@ export async function parseSkillHierarchyFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<SkillHierarchyRow>("SkillHierarchy", skillsHierarchyCSVFileStream, batchRowProcessor);
+  return await processStream<ISkillHierarchyRow>("SkillHierarchy", skillsHierarchyCSVFileStream, batchRowProcessor);
 }
