@@ -40,14 +40,14 @@ import { response, STD_ERRORS_RESPONSES } from "./server/httpUtils";
 import { initOnce } from "./server/init";
 import { APIGatewayEventDefaultAuthorizerContext } from "aws-lambda";
 
-describe("test the main handler function", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-  afterAll(() => {
-    jest.resetAllMocks();
-  });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
+describe("test the main handler function", () => {
+  afterAll(() => {
+    (MainHandler.handleRouteEvent as jest.Mock).mockRestore();
+  });
   test("should return the response from the handleRouteEvent function", async () => {
     // GIVEN some event
     const givenEvent = {
@@ -115,6 +115,9 @@ describe("test the main handler function", () => {
 });
 
 describe("test the handleRouteEvent function", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test.each([
     ["/info", InfoHandler],
     ["/presigned", PresignedHandler],
