@@ -9,7 +9,7 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
+import { OccupationType, RelationType } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getSimpleNewISCOGroupSpec,
@@ -17,7 +17,7 @@ import {
   getSimpleNewOccupationSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
+import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import {
   expectedRelatedOccupationReference,
   expectedRelatedSkillReference,
@@ -25,6 +25,7 @@ import {
 import { IOccupationToSkillRelationRepository } from "./occupationToSkillRelationRepository";
 import { INewOccupationToSkillPairSpec, IOccupationToSkillRelationPair } from "./occupationToSkillRelation.types";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
+import { Readable } from "node:stream";
 
 describe("Test the OccupationToSkillRelation Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -46,6 +47,37 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  afterEach(async () => {
+    await cleanupDBCollections();
+  });
+
+  async function cleanupDBCollections() {
+    if (repository) await repository.relationModel.deleteMany({}).exec();
+    if (repositoryRegistry) {
+      await repositoryRegistry.skill.Model.deleteMany({}).exec();
+      await repositoryRegistry.occupation.Model.deleteMany({}).exec();
+    }
+  }
+
+  /** Helper function to create n simple OccupationToSkillRelation in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createOccupationToSkillRelationsInDB(modelId: string, batchSize: number = 3) {
+    const newOccupationToSkillPairSpecs: INewOccupationToSkillPairSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      const occupation = await repositoryRegistry.occupation.create(getSimpleNewOccupationSpec(modelId, "skill_1"));
+      const skill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
+      newOccupationToSkillPairSpecs.push({
+        requiringOccupationId: occupation.id,
+        relationType: RelationType.OPTIONAL,
+        requiredSkillId: skill.id,
+        requiringOccupationType: OccupationType.ESCO,
+      });
+    }
+    return await repository.createMany(modelId, newOccupationToSkillPairSpecs);
+  }
 
   test("should return the model", async () => {
     expect(repository.relationModel).toBeDefined();
@@ -445,5 +477,96 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         );
       }
     );
+  });
+
+  describe("Test findAll()", () => {
+    test("should find all occupationToSkills relations in the given model", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of occupationToSkill relations exist in the database
+      const givenNewOccupationToSkillRelations = await createOccupationToSkillRelationsInDB(givenModelId);
+      // AND some others exist for a different model
+      await createOccupationToSkillRelationsInDB(getMockStringId(2));
+
+      // WHEN finding all occupationToSkill relations for the given modelId
+      const actualOccupationToSkillRelations = repository.findAll(givenModelId);
+
+      // THEN expect all the occupationToSkill relations to be returned as a consumable stream
+      const actualOccupationToSkillRelationsArray: IOccupationToSkillRelationPair[] = [];
+      for await (const data of actualOccupationToSkillRelations) {
+        actualOccupationToSkillRelationsArray.push(data);
+      }
+      expect(actualOccupationToSkillRelationsArray).toEqual(givenNewOccupationToSkillRelations);
+    });
+
+    test("should not return any entry when the given model does not have any occupationToSkill relations but other models does", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND some occupationToSkill relations exist in the database for a different model
+      await createOccupationToSkillRelationsInDB(getMockStringId(2));
+
+      // WHEN finding all occupationToSkill relations for the given modelId
+      const actualOccupationToSkillRelations = repository.findAll(givenModelId);
+
+      // THEN expect no occupationToSkill relations to be returned
+      const actualOccupationToSkillRelationsArray: IOccupationToSkillRelationPair[] = [];
+      for await (const data of actualOccupationToSkillRelations) {
+        actualOccupationToSkillRelationsArray.push(data);
+      }
+      expect(actualOccupationToSkillRelationsArray).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving data
+      const givenError = new Error("foo");
+      jest.spyOn(repository.relationModel, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding all occupationToSkill relations for some modelId
+      const actualOccupationToSkillRelations = () => repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to fail with the given error
+      expect(actualOccupationToSkillRelations).toThrowError(givenError);
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN that an error will occur during the streaming of data
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.relationModel, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockReturnValueOnce(mockStream),
+      });
+
+      // WHEN finding all occupationToSkill relations for some modelId
+      const actualStream = repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to return a stream that emits an error
+      const actualOccupationToSkillRelations: IOccupationToSkillRelationPair[] = [];
+      await expect(async () => {
+        for await (const data of actualStream) {
+          actualOccupationToSkillRelations.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualStream.closed).toBeTruthy();
+      expect(actualOccupationToSkillRelations).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+      const streamOfOccupationToSkillRelations = repositoryRegistry.occupationToSkillRelation.findAll(
+        getMockStringId(1)
+      );
+      for await (const _ of streamOfOccupationToSkillRelations) {
+        // iterate over the stream to hot the db and trigger the error
+        // do nothing
+      }
+      return;
+    });
   });
 });

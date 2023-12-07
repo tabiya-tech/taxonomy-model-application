@@ -1,4 +1,4 @@
-import { RelationType } from "./objectTypes";
+import { OccupationType, RelationType } from "./objectTypes";
 
 /*
  * ----------------------------- *
@@ -145,7 +145,7 @@ export interface ILocalizedOccupationRow {
  * Headers for the for skill-to-skill relation CSV file
  */
 
-export const skillRelationHeaders = ["REQUIRINGID", "RELATIONTYPE", "REQUIREDID"];
+export const skillToSkillRelationHeaders = ["REQUIRINGID", "RELATIONTYPE", "REQUIREDID"];
 
 /*
  * Interface for the skill-to-skill row in the CSV file
@@ -155,6 +155,23 @@ export interface ISkillToSkillsRelationRow {
   REQUIRINGID: string;
   RELATIONTYPE: RelationType;
   REQUIREDID: string;
+}
+
+/*
+ * Headers for the for occupation-to-skill relation CSV file
+ */
+
+export const occupationToSkillRelationHeaders = ["OCCUPATIONTYPE", "OCCUPATIONID", "RELATIONTYPE", "SKILLID"];
+
+/*
+ * Interface for the occupation-to-skill row in the CSV file
+ */
+
+export interface IOccupationToSkillRelationRow {
+  OCCUPATIONTYPE: OccupationType;
+  OCCUPATIONID: string;
+  RELATIONTYPE: RelationType;
+  SKILLID: string;
 }
 
 /*

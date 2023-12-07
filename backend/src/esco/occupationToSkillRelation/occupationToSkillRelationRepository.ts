@@ -12,6 +12,9 @@ import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { IOccupationDoc } from "esco/occupation/occupation.types";
 import { getModelName } from "esco/common/mongooseModelNames";
 import { ILocalizedOccupationDoc } from "esco/localizedOccupation/localizedOccupation.types";
+import { Readable } from "node:stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import stream from "stream";
 
 export interface IOccupationToSkillRelationRepository {
   readonly relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>;
@@ -32,6 +35,14 @@ export interface IOccupationToSkillRelationRepository {
     modelId: string,
     newOccupationToSkillRelationPairSpecs: INewOccupationToSkillPairSpec[]
   ): Promise<IOccupationToSkillRelationPair[]>;
+
+  /**
+   * Returns all OccupationToSkillRelation entries as a stream. The entries are transformed to objects (via the .toObject()).
+   * @param {string} modelId - The modelId of the occupations.
+   * @return {Readable} - A Readable stream of IOccupationToSkillRelationPairs
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string): Readable;
 }
 
 export class OccupationToSkillRelationRepository implements IOccupationToSkillRelationRepository {
@@ -121,6 +132,20 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
         "OccupationToSKillRelationRepository.createMany",
         newOccupationToSkillRelationPairSpecs.length
       );
+    }
+  }
+
+  findAll(modelId: string): Readable {
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.relationModel.find({ modelId: { $eq: modelId } }).cursor(),
+        new DocumentToObjectTransformer<IOccupationToSkillRelationPair>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
+      throw e;
     }
   }
 }
