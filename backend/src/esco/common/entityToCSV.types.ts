@@ -192,5 +192,22 @@ export interface IOccupationHierarchyRow {
 }
 
 /*
+ * Headers for the for skillHierarchy CSV file
+ */
+
+export const skillHierarchyHeaders = ["PARENTOBJECTTYPE", "PARENTID", "CHILDID", "CHILDOBJECTTYPE"];
+
+/*
+ * Interface for the skillHierarchy row in the CSV file
+ */
+
+export interface ISkillHierarchyRow {
+  PARENTOBJECTTYPE: ObjectTypes.Skill | ObjectTypes.SkillGroup;
+  PARENTID: string;
+  CHILDID: string;
+  CHILDOBJECTTYPE: ObjectTypes.Skill | ObjectTypes.SkillGroup;
+  }
+
+/*
  * ----------------------------- *
  */

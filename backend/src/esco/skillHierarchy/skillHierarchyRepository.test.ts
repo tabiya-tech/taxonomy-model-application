@@ -21,9 +21,10 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
+import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
+import { Readable } from "node:stream";
 
 describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -45,6 +46,41 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  afterEach(async () => {
+    await cleanupDBCollections();
+  });
+
+  async function cleanupDBCollections() {
+    if (repository) {
+      await Promise.all([
+        repository.hierarchyModel.deleteMany({}).exec(),
+        repository.skillModel.deleteMany({}).exec(),
+        repository.skillGroupModel.deleteMany({}).exec(),
+      ]);
+    }
+  }
+
+  /** Helper function to create n simple SkillHierarchy in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createSkillHierarchiesInDB(modelId: string, batchSize: number = 3) {
+    const newSkillHierarchyPairSpecs: INewSkillHierarchyPairSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      const skillGroup = await repositoryRegistry.skillGroup.create(
+        getSimpleNewSkillGroupSpec(modelId, `skillGroup_${i}`)
+      );
+      const skill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, `skill_${i + 1}`));
+      newSkillHierarchyPairSpecs.push({
+        parentId: skillGroup.id,
+        parentType: ObjectTypes.SkillGroup,
+        childId: skill.id,
+        childType: ObjectTypes.Skill,
+      });
+    }
+    return await repository.createMany(modelId, newSkillHierarchyPairSpecs);
+  }
 
   test("should return the model", async () => {
     expect(repository.hierarchyModel).toBeDefined();
@@ -718,5 +754,94 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         );
       }
     );
+  });
+
+  describe("Test findAll()", () => {
+    test("should find all skillHierarchies in the given model", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of skillHierarchies exist in the database
+      const givenNewSkillHierarchies = await createSkillHierarchiesInDB(givenModelId);
+      // AND some others exist for a different model
+      await createSkillHierarchiesInDB(getMockStringId(2));
+
+      // WHEN finding all skillHierarchies for the given modelId
+      const actualSkillHierarchies = repository.findAll(givenModelId);
+
+      // THEN expect all the skillHierarchies to be returned as a consumable stream
+      const actualSkillHierarchiesArray: ISkillHierarchyPair[] = [];
+      for await (const data of actualSkillHierarchies) {
+        actualSkillHierarchiesArray.push(data);
+      }
+      expect(actualSkillHierarchiesArray).toEqual(givenNewSkillHierarchies);
+    });
+
+    test("should not return any entry when the given model does not have any skillHierarchy but other models do", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND some skillHierarchies exist in the database for a different model
+      await createSkillHierarchiesInDB(getMockStringId(2));
+
+      // WHEN finding all skillHierarchies for the given modelId
+      const actualSkillHierarchies = repository.findAll(givenModelId);
+
+      // THEN expect no skillHierarchies to be returned
+      const actualSkillHierarchiesArray: ISkillHierarchyPair[] = [];
+      for await (const data of actualSkillHierarchies) {
+        actualSkillHierarchiesArray.push(data);
+      }
+      expect(actualSkillHierarchiesArray).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving data
+      const givenError = new Error("foo");
+      jest.spyOn(repository.hierarchyModel, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding all skillHierarchies for some modelId
+      const actualSkillHierarchies = () => repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to fail with the given error
+      expect(actualSkillHierarchies).toThrowError(givenError);
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN that an error will occur during the streaming of data
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.hierarchyModel, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockReturnValueOnce(mockStream),
+      });
+
+      // WHEN finding all skillHierarchies for some modelId
+      const actualStream = repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to return a stream that emits an error
+      const actualSkillHierarchies: ISkillHierarchyPair[] = [];
+      await expect(async () => {
+        for await (const data of actualStream) {
+          actualSkillHierarchies.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualStream.closed).toBeTruthy();
+      expect(actualSkillHierarchies).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+      const streamOfSkillHierarchies = repositoryRegistry.skillHierarchy.findAll(getMockStringId(1));
+      for await (const _ of streamOfSkillHierarchies) {
+        // iterate over the stream to hot the db and trigger the error
+        // do nothing
+      }
+      return;
+    });
   });
 });

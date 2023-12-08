@@ -6,6 +6,9 @@ import { ISkillGroupDoc } from "esco/skillGroup/skillGroup.types";
 import { isNewSkillHierarchyPairSpecValid } from "./skillHierarchyValidation";
 import { getModelName } from "esco/common/mongooseModelNames";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { Readable } from "node:stream";
+import stream from "stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 
 export interface ISkillHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
@@ -22,6 +25,14 @@ export interface ISkillHierarchyRepository {
    * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(modelId: string, newSkillHierarchyPairSpecs: INewSkillHierarchyPairSpec[]): Promise<ISkillHierarchyPair[]>;
+
+  /**
+   * Returns all SkillHierarchyPair entries as a stream. The entries are transformed to objects (via the .toObject()).
+   * @param {string} modelId - The modelId of the skills.
+   * @return {Readable} - A Readable stream of ISkillHierarchyPair
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string): Readable;
 }
 
 export class SkillHierarchyRepository implements ISkillHierarchyRepository {
@@ -95,6 +106,20 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
         "SkillHierarchyRepository.createMany",
         newSkillHierarchyPairSpecs.length
       );
+    }
+  }
+
+  findAll(modelId: string): Readable {
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.hierarchyModel.find({ modelId: { $eq: modelId } }).cursor(),
+        new DocumentToObjectTransformer<ISkillHierarchyPair>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
+      throw e;
     }
   }
 }
