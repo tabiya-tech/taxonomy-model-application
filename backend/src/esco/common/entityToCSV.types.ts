@@ -1,4 +1,4 @@
-import { OccupationType, RelationType } from "./objectTypes";
+import { ObjectTypes, OccupationType, RelationType } from "./objectTypes";
 
 /*
  * ----------------------------- *
@@ -172,6 +172,23 @@ export interface IOccupationToSkillRelationRow {
   OCCUPATIONID: string;
   RELATIONTYPE: RelationType;
   SKILLID: string;
+}
+
+/*
+ * Headers for the for occupationHierarchy CSV file
+ */
+
+export const occupationHierarchyHeaders = ["PARENTOBJECTTYPE", "PARENTID", "CHILDID", "CHILDOBJECTTYPE"];
+
+/*
+ * Interface for the occupationHierarchy row in the CSV file
+ */
+
+export interface IOccupationHierarchyRow {
+  PARENTOBJECTTYPE: ObjectTypes.Occupation | ObjectTypes.ISCOGroup;
+  PARENTID: string;
+  CHILDID: string;
+  CHILDOBJECTTYPE: ObjectTypes.Occupation | ObjectTypes.ISCOGroup;
 }
 
 /*

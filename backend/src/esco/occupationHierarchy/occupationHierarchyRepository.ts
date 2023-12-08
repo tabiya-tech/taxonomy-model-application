@@ -11,6 +11,9 @@ import {
 import { isNewOccupationHierarchyPairSpecValid } from "./occupationHierarchyValidation";
 import { getModelName } from "esco/common/mongooseModelNames";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { Readable } from "node:stream";
+import stream from "stream";
+import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 
 export interface IOccupationHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
@@ -30,6 +33,14 @@ export interface IOccupationHierarchyRepository {
     modelId: string,
     newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[]
   ): Promise<IOccupationHierarchyPair[]>;
+
+  /**
+   * Returns all OccupationHierarchyPair entries as a stream. The entries are transformed to objects (via the .toObject()).
+   * @param {string} modelId - The modelId of the occupations.
+   * @return {Readable} - A Readable stream of IOccupationHierarchyPair
+   * Rejects with an error if the operation fails.
+   */
+  findAll(modelId: string): Readable;
 }
 
 export class OccupationHierarchyRepository implements IOccupationHierarchyRepository {
@@ -104,6 +115,20 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
         "OccupationHierarchyRepository.createMany",
         newOccupationHierarchyPairSpecs.length
       );
+    }
+  }
+
+  findAll(modelId: string): Readable {
+    try {
+      return stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.hierarchyModel.find({ modelId: { $eq: modelId } }).cursor(),
+        new DocumentToObjectTransformer<IOccupationHierarchyPair>(),
+        () => undefined
+      );
+    } catch (e: unknown) {
+      console.error("findAll failed", e);
+      throw e;
     }
   }
 }

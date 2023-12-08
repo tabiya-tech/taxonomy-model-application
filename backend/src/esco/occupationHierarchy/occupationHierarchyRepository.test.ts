@@ -21,9 +21,10 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure } from "_test_utilities/testDBConnectionFaillure";
+import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
+import { Readable } from "node:stream";
 
 describe("Test the OccupationHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -45,6 +46,43 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
     }
   });
+
+  afterEach(async () => {
+    await cleanupDBCollections();
+  });
+
+  async function cleanupDBCollections() {
+    if (repository) {
+      await Promise.all([
+        repository.hierarchyModel.deleteMany({}).exec(),
+        repository.iscoGroupModel.deleteMany({}).exec(),
+        repository.occupationModel.deleteMany({}).exec(),
+      ]);
+    }
+  }
+
+  /** Helper function to create n simple OccupationHierarchy in the db,
+   * @param modelId
+   * @param batchSize
+   */
+  async function createOccupationHierarchiesInDB(modelId: string, batchSize: number = 3) {
+    const newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      const occupation1 = await repositoryRegistry.occupation.create(
+        getSimpleNewOccupationSpec(modelId, `occupation_${i}`)
+      );
+      const occupation2 = await repositoryRegistry.occupation.create(
+        getSimpleNewOccupationSpec(modelId, `occupation_${i + 1}`)
+      );
+      newOccupationHierarchyPairSpecs.push({
+        parentId: occupation1.id,
+        parentType: ObjectTypes.Occupation,
+        childId: occupation2.id,
+        childType: ObjectTypes.Occupation,
+      });
+    }
+    return await repository.createMany(modelId, newOccupationHierarchyPairSpecs);
+  }
 
   test("should return the model", async () => {
     expect(repository.hierarchyModel).toBeDefined();
@@ -612,5 +650,94 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         );
       }
     );
+  });
+
+  describe("Test findAll()", () => {
+    test("should find all occupationHierarchies in the given model", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of occupationHierarchies exist in the database
+      const givenNewOccupationHierarchies = await createOccupationHierarchiesInDB(givenModelId);
+      // AND some others exist for a different model
+      await createOccupationHierarchiesInDB(getMockStringId(2));
+
+      // WHEN finding all occupationHierarchies for the given modelId
+      const actualOccupationHierarchies = repository.findAll(givenModelId);
+
+      // THEN expect all the occupationHierarchies to be returned as a consumable stream
+      const actualOccupationHierarchiesArray: IOccupationHierarchyPair[] = [];
+      for await (const data of actualOccupationHierarchies) {
+        actualOccupationHierarchiesArray.push(data);
+      }
+      expect(actualOccupationHierarchiesArray).toEqual(givenNewOccupationHierarchies);
+    });
+
+    test("should not return any entry when the given model does not have any occupationHierarchies but other models does", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+      // AND some occupationHierarchies exist in the database for a different model
+      await createOccupationHierarchiesInDB(getMockStringId(2));
+
+      // WHEN finding all occupationHierarchies for the given modelId
+      const actualOccupationHierarchies = repository.findAll(givenModelId);
+
+      // THEN expect no occupationHierarchies to be returned
+      const actualOccupationHierarchiesArray: IOccupationHierarchyPair[] = [];
+      for await (const data of actualOccupationHierarchies) {
+        actualOccupationHierarchiesArray.push(data);
+      }
+      expect(actualOccupationHierarchiesArray).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving data
+      const givenError = new Error("foo");
+      jest.spyOn(repository.hierarchyModel, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding all occupationHierarchies for some modelId
+      const actualOccupationHierarchies = () => repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to fail with the given error
+      expect(actualOccupationHierarchies).toThrowError(givenError);
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN that an error will occur during the streaming of data
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.hierarchyModel, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockReturnValueOnce(mockStream),
+      });
+
+      // WHEN finding all occupationHierarchies for some modelId
+      const actualStream = repository.findAll(getMockStringId(1));
+
+      // THEN expect the operation to return a stream that emits an error
+      const actualOccupationHierarchies: IOccupationHierarchyPair[] = [];
+      await expect(async () => {
+        for await (const data of actualStream) {
+          actualOccupationHierarchies.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualStream.closed).toBeTruthy();
+      expect(actualOccupationHierarchies).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
+      const streamOfOccupationHierarchies = repositoryRegistry.occupationHierarchy.findAll(getMockStringId(1));
+      for await (const _ of streamOfOccupationHierarchies) {
+        // iterate over the stream to hot the db and trigger the error
+        // do nothing
+      }
+      return;
+    });
   });
 });
