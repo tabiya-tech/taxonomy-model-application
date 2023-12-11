@@ -566,7 +566,6 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         // iterate over the stream to hot the db and trigger the error
         // do nothing
       }
-      return;
     });
   });
 });

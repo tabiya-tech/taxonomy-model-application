@@ -206,7 +206,7 @@ export interface ISkillHierarchyRow {
   PARENTID: string;
   CHILDID: string;
   CHILDOBJECTTYPE: ObjectTypes.Skill | ObjectTypes.SkillGroup;
-  }
+}
 
 /*
  * ----------------------------- *
