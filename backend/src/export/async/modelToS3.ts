@@ -12,6 +12,11 @@ import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTrans
 import LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
+import LocalizedOccupationsToCSVTransform from "export/esco/localizedOccupation/LocalizedOccupationsToCSVTransform";
+import OccupationHierarchyToCSVTransform from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
+import SkillHierarchyToCSVTransform from "export/esco/skillHierarchy/skillHierarchyToCSVTransform";
+import OccupationToSkillRelationToCSVTransform from "export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
+import SkillToSkillRelationToCSVTransform from "export/esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
 
 /**
  * Exports a model into a zip file containing all the entities in the database pertaining to that model,
@@ -63,8 +68,29 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
         fileName: "local_occupations.csv",
         csvStream: LocalOccupationsToCSVTransform,
       },
+      {
+        collectionName: "Localized Occupations",
+        fileName: "localized_occupations.csv",
+        csvStream: LocalizedOccupationsToCSVTransform,
+      },
       { collectionName: "Skill Groups", fileName: "skill_groups.csv", csvStream: SkillGroupsToCSVTransform },
       { collectionName: "Skills", fileName: "skills.csv", csvStream: SkillsToCSVTransform },
+      {
+        collectionName: "Occupation Hierarchy",
+        fileName: "occupation_hierarchy.csv",
+        csvStream: OccupationHierarchyToCSVTransform,
+      },
+      { collectionName: "Skill Hierarchy", fileName: "skill_hierarchy.csv", csvStream: SkillHierarchyToCSVTransform },
+      {
+        collectionName: "Occupation to Skill Relation",
+        fileName: "occupation_to_skill_relation.csv",
+        csvStream: OccupationToSkillRelationToCSVTransform,
+      },
+      {
+        collectionName: "Skill to Skill Relation",
+        fileName: "skill_to_skill_relation.csv",
+        csvStream: SkillToSkillRelationToCSVTransform,
+      },
       // TODO: add more streams here
     ].forEach((item) => {
       const stream = item.csvStream(event.modelId);

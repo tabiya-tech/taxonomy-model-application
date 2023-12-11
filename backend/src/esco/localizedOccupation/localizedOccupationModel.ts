@@ -70,8 +70,5 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _TransformFn = (doc: any, ret: any) => {
   ret.localizesOccupationId = ret.localizesOccupationId.toString(); // Convert localizesOccupationId to string
-
-  // @ts-ignore
-  delete ret.localizesOccupationId; //removing the id from the final response since it is in the localizesOccupation Virtual
   return ret;
 };
