@@ -23,5 +23,28 @@ describe("documentToObjectTransformer", () => {
     //  assert that the document was transformed as a guard in case the for await loop is not entered
     expect(givenDocument.toObject).toHaveBeenCalled();
   });
-  test.todo("should call callback with error toObject method throws an error");
+
+  test("should call callback with error toObject method throws an error", async () => {
+    // GIVEN a document with a toObject method that throws an error
+    const givenDocument = {
+      toObject: jest.fn().mockImplementation(() => {
+        throw new Error("Mocked toObject error");
+      }),
+    };
+    // AND a stream containing the document
+    const givenDocumentsStream = Readable.from([givenDocument]);
+
+    // WHEN the stream is piped to the transformer
+    const actualStream = givenDocumentsStream.pipe(new DocumentToObjectTransformer());
+
+    // THEN expect the stream to throw an error
+    await expect(async () => {
+      // AND iterate over the stream to consume it
+      for await (const _actualObject of actualStream) {
+        // do nothing
+      }
+    }).rejects.toThrowError("Mocked toObject error");
+    // AND ensure that the toObject method was called
+    expect(givenDocument.toObject).toHaveBeenCalled();
+  });
 });
