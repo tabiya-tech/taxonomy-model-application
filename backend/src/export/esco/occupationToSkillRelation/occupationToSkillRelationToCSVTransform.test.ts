@@ -15,12 +15,24 @@ import { parse } from "csv-parse/sync";
 const OccupationToSkillRelationRepositorySpy = jest.spyOn(getRepositoryRegistry(), "occupationToSkillRelation", "get");
 
 const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelation[] => {
+  function getOccupationType(i: number) {
+    switch(i % 3) {
+      case 0:
+        return OccupationType.ESCO;
+      case 1:
+        return OccupationType.LOCAL;
+      case 2:
+        return OccupationType.LOCALIZED;
+      default:
+        throw new Error('Invalid number');
+    }
+  }
   return Array.from({ length: 6 }, (_, i) => ({
     id: getMockStringId(i * 3),
     modelId: getMockStringId(1),
     requiringOccupationId: getMockStringId(i * 3 + 1),
     requiredSkillId: getMockStringId(i * 3 + 2),
-    requiringOccupationType: i % 3 ? OccupationType.ESCO : i % 2 ? OccupationType.LOCAL : OccupationType.LOCALIZED,
+    requiringOccupationType: getOccupationType(i),
     relationType: i % 2 ? RelationType.ESSENTIAL : RelationType.OPTIONAL,
     createdAt: new Date(),
     updatedAt: new Date(),
