@@ -88,7 +88,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
     //@ts-ignore
     if (newLocalizedOccupationSpec.UUID !== undefined) {
       const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
 
@@ -96,7 +96,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
 
     if (!localizingOccupation) {
       const e = new Error("localizingOccupation not found");
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
 
@@ -109,7 +109,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
       populateEmptyRequiresSkills(newLocalizedOccupationModel);
       return occupationFromLocalizedOccupationTransform(newLocalizedOccupationModel.toObject());
     } catch (e: unknown) {
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
   }
@@ -179,7 +179,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         ? occupationFromLocalizedOccupationTransform(localizedOccupation.toObject())
         : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
+      console.error(new Error("findById failed", { cause: e }));
       throw e;
     }
   }
@@ -194,7 +194,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
   }

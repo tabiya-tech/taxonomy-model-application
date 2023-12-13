@@ -78,7 +78,7 @@ export class OccupationRepository implements IOccupationRepository {
     //@ts-ignore
     if (newOccupationSpec.UUID !== undefined) {
       const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
 
@@ -89,7 +89,7 @@ export class OccupationRepository implements IOccupationRepository {
       populateEmptyRequiresSkills(newOccupationModel);
       return newOccupationModel.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
   }
@@ -142,7 +142,7 @@ export class OccupationRepository implements IOccupationRepository {
         .exec();
       return occupation !== null ? occupation.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
+      console.error(new Error("findById failed", { cause: e }));
       throw e;
     }
   }
@@ -151,7 +151,7 @@ export class OccupationRepository implements IOccupationRepository {
     // Allow only ESCO or local occupations
     if (occupationType !== OccupationType.ESCO && occupationType !== OccupationType.LOCAL) {
       const e = new Error("OccupationType must be either ESCO or LOCAL");
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
     try {
@@ -166,7 +166,7 @@ export class OccupationRepository implements IOccupationRepository {
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
   }

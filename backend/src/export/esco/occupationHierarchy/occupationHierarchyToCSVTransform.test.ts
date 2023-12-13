@@ -37,6 +37,10 @@ function setupOccupationHierarchyRepositoryMock(findAllImpl: () => Readable) {
 }
 
 describe("occupationHierarchyToCSVTransform", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test("should correctly transform occupationHierarchy data to CSV", async () => {
     // GIVEN findAll returns a stream of occupationHierarchies
     const givenHierarchies = getMockOccupationHierarchies();
@@ -83,7 +87,11 @@ describe("occupationHierarchyToCSVTransform", () => {
         }
       }).rejects.toThrowError(givenError);
       // AND the error should be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        "Transforming OccupationHierarchy to CSV failed",
+        givenError
+      );
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });
@@ -94,7 +102,7 @@ describe("occupationHierarchyToCSVTransform", () => {
 
       // AND  the transformOccupationHierarchySpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
+      const transformFunctionSpy = jest
         .spyOn(occupationHierarchyToCSVTransformModule, "transformOccupationHierarchySpecToCSVRow")
         .mockImplementationOnce(() => {
           throw givenError;
@@ -111,8 +119,18 @@ describe("occupationHierarchyToCSVTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform OccupationHierarchy to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        `Failed to transform OccupationHierarchy to CSV row: ${expectedLoggedItem}`,
+        givenError
+      );
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        2,
+        "Transforming OccupationHierarchy to CSV failed",
+        new Error(`Failed to transform OccupationHierarchy to CSV row: ${expectedLoggedItem}`, { cause: givenError })
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

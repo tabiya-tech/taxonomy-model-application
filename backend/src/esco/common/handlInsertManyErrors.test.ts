@@ -49,7 +49,7 @@ describe("handleInsertManyError", () => {
     // THEN it should throw the error
     expect(callHandleInsertManyError).toThrow(givenError);
     // AND it should have logged a warning
-    expect(console.error).toHaveBeenCalledWith(
+    expect(console.error).toHaveLoggedErrorWithCause(
       `${givenCallerInfo}: none of the ${givenExpectedCount} documents were inserted.`,
       givenError
     );

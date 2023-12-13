@@ -98,9 +98,10 @@ describe("Test for model handler", () => {
       } as never;
 
       // AND the repository fails to create a model
+      const givenError = new Error("Failed to create the model in the DB");
       const givenModelInfoRepositoryMock = {
         Model: undefined,
-        create: jest.fn().mockRejectedValue(new Error("foo")),
+        create: jest.fn().mockRejectedValue(givenError),
         getModelById: jest.fn().mockResolvedValue(null),
         getModelByUUID: jest.fn().mockResolvedValue(null),
       } as never;
@@ -121,6 +122,8 @@ describe("Test for model handler", () => {
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+      // AND expect an error to have been logged
+      expect(console.error).toHaveLoggedErrorWithCause("Failed to create the model in the DB", givenError);
     });
 
     testUnsupportedMediaType(modelHandler);
@@ -186,12 +189,13 @@ describe("Test for model handler", () => {
 
     test("GET should respond with the INTERNAL_SERVER_ERROR status code if the repository fails to get the models", async () => {
       // AND GIVEN the repository fails to get the models
+      const givenError = new Error("Failed to retrieve models from the DB");
       const givenModelInfoRepositoryMock = {
         Model: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         getModelById: jest.fn().mockResolvedValue(null),
         getModelByUUID: jest.fn().mockResolvedValue(null),
-        getModels: jest.fn().mockResolvedValue(new Error("foo")),
+        getModels: jest.fn().mockRejectedValue(givenError),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -208,6 +212,8 @@ describe("Test for model handler", () => {
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+      // AND expect the error to have been logged
+      expect(console.error).toHaveLoggedErrorWithCause("Failed to retrieve models from the DB", givenError);
     });
 
     testMethodsNotAllowed([HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH], modelHandler);

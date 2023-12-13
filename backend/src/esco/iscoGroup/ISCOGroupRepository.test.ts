@@ -542,7 +542,9 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup!.parent).toEqual(null);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not an ISCOGroup: ${givenInconsistentPair.parentDocModel}`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Parent is not an ISCOGroup: ${givenInconsistentPair.parentDocModel}`)
+        );
       });
 
       test("should ignore children that are not ISCO Groups | Occupations", async () => {
@@ -579,7 +581,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Child is not an ISCOGroup or Occupation: ${givenInconsistentPair.childDocModel}`
+          new Error(`Child is not an ISCOGroup or Occupation: ${givenInconsistentPair.childDocModel}`)
         );
       });
 
@@ -665,7 +667,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
+        expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
       });
 
       test("should not find child if it is not is the same model as the parent", async () => {
@@ -705,7 +707,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+        expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {

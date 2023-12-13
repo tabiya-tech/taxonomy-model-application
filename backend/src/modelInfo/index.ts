@@ -101,8 +101,8 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
     newModelInfo = await getRepositoryRegistry().modelInfo.create(newModelInfoSpec);
     return responseJSON(StatusCodes.CREATED, transform(newModelInfo, getResourcesBaseUrl()));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    //
+  } catch (error: unknown) {
+    console.error(new Error("Failed to create the model in the DB", { cause: error }));
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,
@@ -149,7 +149,7 @@ async function getModelInfo(event: APIGatewayProxyEvent) {
       models.map((model) => transform(model, getResourcesBaseUrl()))
     );
   } catch (error: unknown) {
-    //
+    console.error(new Error("Failed to retrieve models from the DB", { cause: error }));
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,

@@ -120,7 +120,7 @@ async function postTriggerExport(event: APIGatewayProxyEvent) {
     // It will handle any errors internally and return the appropriate error response.
     return lambda_invokeAsyncExport(asyncExportEvent);
   } catch (e: unknown) {
-    console.error(e);
+    console.error(new Error("Failed to create the export process state", { cause: e }));
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,
       ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes.FAILED_TO_TRIGGER_EXPORT,

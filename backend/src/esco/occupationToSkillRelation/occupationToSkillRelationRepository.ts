@@ -69,7 +69,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
   ): Promise<IOccupationToSkillRelationPair[]> {
     if (!mongoose.Types.ObjectId.isValid(modelId)) {
       const err = new Error(`Invalid modelId: ${modelId}`);
-      console.error("batch create failed", err);
+      console.error(new Error("batch create failed", { cause: err }));
       throw err;
     }
     const newRelationsDocs: mongoose.Document<unknown, unknown, IOccupationToSkillRelationPairDoc>[] = [];
@@ -148,7 +148,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
   }

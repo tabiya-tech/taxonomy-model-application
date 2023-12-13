@@ -61,10 +61,6 @@ export function processStream<T>(
         // Handling error here is not necessary as it is handled by the catch() in the async loop bellow
         // In fact, as the promise is already rejected in the catch() bellow, whoever is waiting for the promise has already been notified
         // and calling reject again here would result in unexpected side effects
-        // parser.on('error', (error: Error) => {
-        //  console.error(`Error from the csv parser:`, error);
-        //  reject(error);
-        // });
 
         let count = 0;
         for await (const record of parser) {

@@ -17,7 +17,7 @@ export const populateSkillRequiredByOccupationOptions = {
       if (modelName === MongooseModelName.Occupation) {
         return getOccupationDocReference(doc);
       }
-      console.error(`Object is not an Occupation: ${modelName}`);
+      console.error(new Error(`Object is not an Occupation: ${modelName}`));
       return null;
     },
   },

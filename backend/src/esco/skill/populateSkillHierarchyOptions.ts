@@ -27,7 +27,7 @@ export const populateSkillParentsOptions = {
       if (modelName === MongooseModelName.SkillGroup) {
         return getSkillGroupDocReference(doc as SkillGroupDocument); // NOSONAR
       }
-      console.error(`Parent is not a Skill or SkillGroup: ${modelName}`);
+      console.error(new Error(`Parent is not a Skill or SkillGroup: ${modelName}`));
       return null;
     },
   },
@@ -43,7 +43,7 @@ export const populateSkillChildrenOptions = {
       if (modelName === MongooseModelName.Skill) {
         return getSkillDocReference(doc);
       }
-      console.error(`Child is not a Skill: ${modelName}`);
+      console.error(new Error(`Child is not a Skill: ${modelName}`));
       return null;
     },
   },

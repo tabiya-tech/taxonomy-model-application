@@ -45,7 +45,7 @@ export class ImportProcessStateRepository implements IImportProcessStateReposito
       await newDoc.save();
       return newDoc.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
   }
@@ -66,7 +66,7 @@ export class ImportProcessStateRepository implements IImportProcessStateReposito
       await doc.save();
       return doc.toObject();
     } catch (e: unknown) {
-      console.error("update failed", e);
+      console.error(new Error("update failed", { cause: e }));
       throw e;
     }
   }

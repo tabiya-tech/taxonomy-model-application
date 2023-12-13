@@ -25,7 +25,7 @@ export const populateLocalizedOccupationRequiresSkillsOptions = {
       if (modelName === MongooseModelName.Skill) {
         return getSkillDocReference(doc);
       }
-      console.error(`Object is not a Skill: ${modelName}`);
+      console.error(new Error(`Object is not a Skill: ${modelName}`));
       return null;
     },
   },

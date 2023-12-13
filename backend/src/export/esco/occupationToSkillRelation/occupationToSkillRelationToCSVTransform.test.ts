@@ -53,6 +53,10 @@ function setupOccupationToSkillRelationRepositoryMock(findAllImpl: () => Readabl
 }
 
 describe("occupationToSkillRelationToCSVTransform", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test("should correctly transform occupationToSkillRelation data to CSV", async () => {
     // GIVEN findAll returns a stream of occupationToSkillRelations
     const givenRelations = getMockOccupationToSkillRelations();
@@ -99,7 +103,11 @@ describe("occupationToSkillRelationToCSVTransform", () => {
         }
       }).rejects.toThrowError(givenError);
       // AND the error should be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        "Transforming occupationToSkillRelation to CSV failed",
+        givenError
+      );
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });
@@ -110,7 +118,7 @@ describe("occupationToSkillRelationToCSVTransform", () => {
 
       // AND  the transformOccupationToSkillRelationSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
+      const transformFunctionSpy = jest
         .spyOn(occupationToSkillRelationToCSVTransformModule, "transformOccupationToSkillRelationSpecToCSVRow")
         .mockImplementationOnce(() => {
           throw givenError;
@@ -127,8 +135,20 @@ describe("occupationToSkillRelationToCSVTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform occupationToSkillRelation to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        `Failed to transform occupationToSkillRelation to CSV row: ${expectedLoggedItem}`,
+        givenError
+      );
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        2,
+        "Transforming occupationToSkillRelation to CSV failed",
+        new Error(`Failed to transform occupationToSkillRelation to CSV row: ${expectedLoggedItem}`, {
+          cause: givenError,
+        })
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

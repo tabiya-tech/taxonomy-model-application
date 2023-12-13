@@ -750,7 +750,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup!.children).toEqual([]);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not an Occupation: ${givenInconsistentPair.childDocModel}`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Child is not an Occupation: ${givenInconsistentPair.childDocModel}`)
+        );
       });
 
       test("should ignore parents that are not ISCO Group | Occupations", async () => {
@@ -784,7 +786,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`
+          new Error(`Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`)
         );
       });
 
@@ -870,7 +872,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
+        expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
       });
 
       test("should not find child if it is not is the same model as the parent", async () => {
@@ -909,7 +911,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+        expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
@@ -1116,7 +1118,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(actualFoundOccupation!.requiresSkills).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Object is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Object is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`)
+        );
       });
 
       test("should not find requiresSkills if the relation is in a different model", async () => {
@@ -1184,7 +1188,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenFoundOccupation!.requiresSkills).toEqual([]); // <-- The inconsistent occupation is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Required Skill is not in the same model as the Requiring Occupation`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Required Skill is not in the same model as the Requiring Occupation`)
+        );
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating requiresSkills", async () => {

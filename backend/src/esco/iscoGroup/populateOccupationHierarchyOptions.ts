@@ -24,7 +24,7 @@ export const populateISCOGroupParentOptions = {
       if (modelName === MongooseModelName.ISCOGroup) {
         return getISCOGroupDocReference(doc);
       }
-      console.error(`Parent is not an ISCOGroup: ${modelName}`);
+      console.error(new Error(`Parent is not an ISCOGroup: ${modelName}`));
       return null;
     },
   },
@@ -48,7 +48,7 @@ export const populateISCOGroupChildrenOptions = {
       if (modelName === MongooseModelName.ISCOGroup) {
         return getISCOGroupDocReference(doc as ISCOGroupDocument); // NOSONAR
       }
-      console.error(`Child is not an ISCOGroup or Occupation: ${modelName}`);
+      console.error(new Error(`Child is not an ISCOGroup or Occupation: ${modelName}`));
       return null;
     },
   },

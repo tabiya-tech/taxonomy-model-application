@@ -109,7 +109,7 @@ describe("SkillsDocToCsvTransform", () => {
         }
       }).rejects.toThrow(givenError);
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      expect(console.error).toHaveNthLoggedErrorWithCause(1, "Transforming Skills to CSV failed", givenError);
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });
@@ -119,7 +119,7 @@ describe("SkillsDocToCsvTransform", () => {
       setupSkillRepositoryMock(() => Readable.from(getMockSkills()));
       // AND  the transformISCOSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
+      const transformFunctionSpy = jest
         .spyOn(SKillsToCSVTransformModule, "transformSkillSpecToCSVRow")
         .mockImplementationOnce((_: IUnpopulatedSkill) => {
           throw givenError;
@@ -136,8 +136,18 @@ describe("SkillsDocToCsvTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform Skill to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        `Failed to transform Skill to CSV row: ${expectedLoggedItem}`,
+        givenError
+      );
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        2,
+        "Transforming Skills to CSV failed",
+        new Error(`Failed to transform Skill to CSV row: ${expectedLoggedItem}`, { cause: givenError })
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

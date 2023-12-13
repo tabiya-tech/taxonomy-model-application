@@ -44,14 +44,16 @@ class OccupationToCSVRowTransformer extends Transform {
       const transformedRow = transformOccupationSpecToCSVRow(occupation);
       this.push(transformedRow);
       callback();
-    } catch (cause: unknown) {
+    } catch (e: unknown) {
       // Make sure stringification doesn't fail, otherwise throwing an error will cause the stream to hang
       let json: string = "";
       try {
         json = JSON.stringify(occupation, null, 2);
       } finally {
-        const error = new Error(`Failed to transform ${this.occupationType} occupation to CSV row: ${json}`);
-        console.error(error, cause);
+        const error = new Error(`Failed to transform ${this.occupationType} occupation to CSV row: ${json}`, {
+          cause: e,
+        });
+        console.error(error);
         callback(error);
       }
     }
@@ -72,9 +74,9 @@ const BaseOccupationsToCSVTransform = (
     getRepositoryRegistry().occupation.findAll(modelId, occupationType),
     new OccupationToCSVRowTransformer(occupationType),
     occupationStringifier,
-    (cause) => {
-      if (cause) {
-        console.error(new Error(`Transforming ${occupationType} occupations to CSV failed`), cause);
+    (error) => {
+      if (error) {
+        console.error(new Error(`Transforming ${occupationType} occupations to CSV failed`, { cause: error }));
       }
     }
   );

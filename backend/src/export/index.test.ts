@@ -194,7 +194,7 @@ describe("test for trigger ExportHandler", () => {
     };
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     // AND the error to be logged
-    expect(console.error).toHaveBeenCalledWith(givenError);
+    expect(console.error).toHaveLoggedErrorWithCause("Failed to create the export process state", givenError);
   });
 
   testMethodsNotAllowed(

@@ -16,7 +16,7 @@ export async function lambda_invokeAsyncImport(request: ImportAPISpecs.Types.POS
 
     return response(StatusCodes.ACCEPTED, {});
   } catch (error: unknown) {
-    console.error(error);
+    console.error(new Error("Failed to trigger import lambda", { cause: error }));
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,

@@ -94,7 +94,7 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       }).rejects.toThrow(givenError);
 
       // THEN the error should be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      expect(console.error).toHaveNthLoggedErrorWithCause(1, "Transforming ISCOGroups to CSV failed", givenError);
 
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
@@ -106,9 +106,11 @@ describe("ISCOGroupsDoc2csvTransform", () => {
 
       // AND  the transformISCOGroupSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest.spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow").mockImplementationOnce(() => {
-        throw givenError;
-      });
+      const transformFunctionSpy = jest
+        .spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow")
+        .mockImplementationOnce((_: IUnpopulatedISCOGroup) => {
+          throw givenError;
+        });
 
       // WHEN the transformation stream is consumed
       const transformedStream = ISCOGroupsToCSVTransform("foo");
@@ -122,9 +124,18 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       }).rejects.toThrowError("Failed to transform ISCOGroup to CSV row");
 
       // THEN the error should be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
 
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        `Failed to transform ISCOGroup to CSV row: ${expectedLoggedItem}`,
+        givenError
+      );
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        2,
+        "Transforming ISCOGroups to CSV failed",
+        new Error(`Failed to transform ISCOGroup to CSV row: ${expectedLoggedItem}`, { cause: givenError })
+      );
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });

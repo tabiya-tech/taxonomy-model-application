@@ -98,7 +98,8 @@ describe("test the main handler function", () => {
 
     test("should return INTERNAL_SERVER_ERROR if initialisation fails", async () => {
       // GIVEN that initOnce will fail
-      (initOnce as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+      const givenError = new Error("Failed to initialize.");
+      (initOnce as jest.Mock).mockRejectedValueOnce(givenError);
       // AND the handleRouteEvent will successfully handle the event and return a response
       const givenResponse = response(200, { foo: "bar" });
       jest.spyOn(MainHandler, "handleRouteEvent").mockResolvedValue(givenResponse);
@@ -111,6 +112,8 @@ describe("test the main handler function", () => {
       expect(initOnce).toBeCalled();
       // AND an internal server error response
       expect(actualResponse).toEqual(STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR);
+      // AND expect to have been logged
+      expect(console.error).toHaveLoggedErrorWithCause("An Error occurred while routing.", givenError);
     });
   });
 });

@@ -94,7 +94,11 @@ describe("LocalizedOccupationToCsvTransform", () => {
         }
       }).rejects.toThrow(givenError);
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        "Transforming LocalizedOccupations to CSV failed",
+        givenError
+      );
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });
@@ -104,7 +108,7 @@ describe("LocalizedOccupationToCsvTransform", () => {
       setupLocalizedOccupationRepositoryMock(() => Readable.from(getMockLocalizedOccupations()));
       // AND  the transformLocalizedOccupationSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
+      const transformFunctionSpy = jest
         .spyOn(LocalizedOccupationsToCSVTransformModule, "transformLocalizedOccupationSpecToCSVRow")
         .mockImplementationOnce(() => {
           throw givenError;
@@ -121,8 +125,17 @@ describe("LocalizedOccupationToCsvTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform LocalizedOccupation to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        `Failed to transform LocalizedOccupation to CSV row: ${expectedLoggedItem}`,
+        givenError
+      );
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        2,
+        "Transforming LocalizedOccupations to CSV failed",
+        new Error(`Failed to transform LocalizedOccupation to CSV row: ${expectedLoggedItem}`, { cause: givenError })
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

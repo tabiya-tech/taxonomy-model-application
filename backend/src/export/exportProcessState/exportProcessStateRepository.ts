@@ -53,7 +53,7 @@ export class ExportProcessStateRepository implements IExportProcessStateReposito
       await newDoc.save();
       return newDoc.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
   }
@@ -67,7 +67,7 @@ export class ExportProcessStateRepository implements IExportProcessStateReposito
       const exportProcessState = (await this.Model.findById(id)) as mongoose.Document<IExportProcessStateDoc>;
       return exportProcessState.toObject();
     } catch (e: unknown) {
-      console.error("update failed", e);
+      console.error(new Error("update failed", { cause: e }));
       throw e;
     }
   }
@@ -77,7 +77,7 @@ export class ExportProcessStateRepository implements IExportProcessStateReposito
       const exportProcessState = (await this.Model.findById(id)) as mongoose.Document<IExportProcessStateDoc>;
       return exportProcessState !== null ? exportProcessState.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
+      console.error(new Error("findById failed", { cause: e }));
       throw e;
     }
   }

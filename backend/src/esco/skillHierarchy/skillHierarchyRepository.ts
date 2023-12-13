@@ -129,7 +129,7 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
   }

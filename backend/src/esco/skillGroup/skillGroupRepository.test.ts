@@ -497,7 +497,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup!.parents).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not a SkillGroup: ${givenInconsistentPair.parentDocModel}`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Parent is not a SkillGroup: ${givenInconsistentPair.parentDocModel}`)
+        );
       });
 
       test("should ignore children that are not SkillGroups | Skills", async () => {
@@ -536,7 +538,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Child is not a SkillGroup or Skill: ${givenInconsistentPair.childDocModel}`
+          new Error(`Child is not a SkillGroup or Skill: ${givenInconsistentPair.childDocModel}`)
         );
       });
 
@@ -620,7 +622,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
+        expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
       });
 
       test("should not find child if it is not is the same model as the parent", async () => {
@@ -660,7 +662,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup_2!.parents).toEqual([]); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+        expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {

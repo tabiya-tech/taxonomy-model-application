@@ -34,8 +34,7 @@ export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload):
   // Don't throw an error as the lambda function should not be retried
   if (!isValid) {
     const errorDetail = ParseValidationError(validateFunction.errors);
-    const e = new Error("Import failed, the event does not conform to the expected schema: " + errorDetail);
-    console.error(e);
+    console.error(new Error("Import failed, the event does not conform to the expected schema: " + errorDetail));
     return;
   }
   // Initialize the connection to the database
@@ -43,7 +42,7 @@ export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload):
   try {
     await initOnce();
   } catch (e: unknown) {
-    console.error(e);
+    console.error(new Error("Failed to initialize database connection", { cause: e }));
     throw e;
   }
 
@@ -52,7 +51,7 @@ export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload):
   try {
     await parseFiles(event);
   } catch (e: unknown) {
-    console.error(e);
+    console.error(new Error("Failed to parse files", { cause: e }));
     // Set the import process status to FAILED
     await importErrored(event.modelId);
     return;
@@ -76,6 +75,6 @@ const importErrored = async (modelId: string) => {
       .importProcessState.id;
     await getRepositoryRegistry().importProcessState.update(importProcessStateId, state);
   } catch (e: unknown) {
-    console.error(e);
+    console.error(new Error("Something went wrong", { cause: e }));
   }
 };

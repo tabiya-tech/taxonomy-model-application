@@ -29,7 +29,7 @@ export const populateOccupationParentOptions = {
       if (modelName === MongooseModelName.Occupation) {
         return getOccupationDocReference(doc as OccupationDocument); // NOSONAR
       }
-      console.error(`Parent is not an ISCOGroup or an Occupation: ${modelName}`);
+      console.error(new Error(`Parent is not an ISCOGroup or an Occupation: ${modelName}`));
       return null;
     },
   },
@@ -48,7 +48,7 @@ export const populateOccupationChildrenOptions = {
       if (modelName === MongooseModelName.Occupation) {
         return getOccupationDocReference(doc);
       }
-      console.error(`Child is not an Occupation: ${modelName}`);
+      console.error(new Error(`Child is not an Occupation: ${modelName}`));
       return null;
     },
   },

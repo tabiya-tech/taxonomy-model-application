@@ -71,7 +71,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     //@ts-ignore
     if (newISCOGroupSpec.UUID !== undefined) {
       const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
 
@@ -81,7 +81,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       populateEmptyOccupationHierarchy(newISCOGroupModel);
       return newISCOGroupModel.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
   }
@@ -129,7 +129,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         .exec();
       return iscoGroup ? iscoGroup.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
+      console.error(new Error("findById failed", { cause: e }));
       throw e;
     }
   }
@@ -144,7 +144,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
   }

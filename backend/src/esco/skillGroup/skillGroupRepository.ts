@@ -72,7 +72,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     //@ts-ignore
     if (newSkillGroupSpec.UUID !== undefined) {
       const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
 
@@ -82,7 +82,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       populateEmptySkillHierarchy(newSkillGroupModel);
       return newSkillGroupModel.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
   }
@@ -133,7 +133,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         .exec();
       return skillGroup != null ? skillGroup.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
+      console.error(new Error("findById failed", { cause: e }));
       throw e;
     }
   }
@@ -148,7 +148,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
   }

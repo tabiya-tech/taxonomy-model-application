@@ -94,7 +94,7 @@ describe("SkillGroupsDocToCsvTransform", () => {
         }
       }).rejects.toThrow(givenError);
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      expect(console.error).toHaveNthLoggedErrorWithCause(1, "Transforming SkillGroups to CSV failed", givenError);
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });
@@ -104,9 +104,11 @@ describe("SkillGroupsDocToCsvTransform", () => {
       setupSkillGroupRepositoryMock(() => Readable.from(getMockSkillGroups()));
       // AND  the transformISCOGroupSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest.spyOn(SKillGroupsToCSVTransformModule, "transformSkillGroupSpecToCSVRow").mockImplementationOnce(() => {
-        throw givenError;
-      });
+      const transformFunctionSpy = jest
+        .spyOn(SKillGroupsToCSVTransformModule, "transformSkillGroupSpecToCSVRow")
+        .mockImplementationOnce((_: IUnpopulatedSkillGroup) => {
+          throw givenError;
+        });
 
       // WHEN the transformation stream is consumed
       const transformedStream = SkillGroupsToCSVTransform("foo");
@@ -119,8 +121,18 @@ describe("SkillGroupsDocToCsvTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform SkillGroup to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        `Failed to transform SkillGroup to CSV row: ${expectedLoggedItem}`,
+        givenError
+      );
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        2,
+        "Transforming SkillGroups to CSV failed",
+        new Error(`Failed to transform SkillGroup to CSV row: ${expectedLoggedItem}`, { cause: givenError })
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

@@ -8,7 +8,7 @@ import ModelInfoToCSVTransform, * as SKillsToCSVTransformModule from "./modelInf
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { parse } from "csv-parse/sync";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
-import { IModelInfo } from "../../modelInfo/modelInfo.types";
+import { IModelInfo } from "modelInfo/modelInfo.types";
 
 const ModelInfoRepository = jest.spyOn(getRepositoryRegistry(), "modelInfo", "get");
 
@@ -97,9 +97,11 @@ describe("ModelInfosDocToCsvTransform", () => {
       setupModelInfoRepositoryMock(() => givenModelInfo);
       // AND the transformModelInfoToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest.spyOn(SKillsToCSVTransformModule, "transformModelInfoSpecToCSVRow").mockImplementationOnce(() => {
-        throw givenError;
-      });
+      const transformFunctionSpy = jest
+        .spyOn(SKillsToCSVTransformModule, "transformModelInfoSpecToCSVRow")
+        .mockImplementationOnce((_: IModelInfo) => {
+          throw givenError;
+        });
 
       // WHEN the transformation stream is consumed
       const transformedStream = await ModelInfoToCSVTransform(givenModelInfo.id);
@@ -112,8 +114,18 @@ describe("ModelInfosDocToCsvTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform ModelInfo to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        1,
+        `Failed to transform ModelInfo to CSV row: ${expectedLoggedItem}`,
+        givenError
+      );
+      expect(console.error).toHaveNthLoggedErrorWithCause(
+        2,
+        "Transforming ModelInfo to CSV failed",
+        new Error(`Failed to transform ModelInfo to CSV row: ${expectedLoggedItem}`, { cause: givenError })
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

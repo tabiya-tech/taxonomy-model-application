@@ -17,7 +17,7 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = asy
     // Handle routes
     return await handleRouteEvent(event);
   } catch (e: unknown) {
-    console.error(e);
+    console.error(new Error("An Error occurred while routing.", { cause: e }));
     return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;
   }
 };

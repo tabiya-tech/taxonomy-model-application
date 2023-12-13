@@ -8,7 +8,7 @@ export function getSkillHierarchyParentsReference(
 ): ISkillReferenceDoc | ISkillGroupReferenceDoc | null {
   if (!doc.parentId) return null;
   if (!doc.parentId.modelId?.equals(doc.modelId)) {
-    console.error(`Parent is not in the same model as the child`);
+    console.error(new Error(`Parent is not in the same model as the child`));
     return null;
   }
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReferenceDoc | ISkillGroupReferenceDoc interface
@@ -21,7 +21,7 @@ export function getSkillHierarchyChildrenReference(
 ): ISkillReferenceDoc | ISkillGroupReferenceDoc | null {
   if (!doc.childId) return null;
   if (!doc.childId.modelId?.equals(doc.modelId)) {
-    console.error(`Child is not in the same model as the parent`);
+    console.error(new Error(`Child is not in the same model as the parent`));
     return null;
   }
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReferenceDoc | ISkillGroupReferenceDoc interface

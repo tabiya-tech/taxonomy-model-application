@@ -94,18 +94,21 @@ describe("Test the main async handler", () => {
 
     test("should throw error and not call parseFiles when initOnce fails", async () => {
       // GIVEN initOnce will fail
-      (initOnce as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+      const givenError = new Error("Failed to initialize database connection");
+      (initOnce as jest.Mock).mockRejectedValueOnce(givenError);
 
       // WHEN the handler is invoked with a valid event
       const actualPromiseHandler = () => asyncIndex.handler(getMockImportEvent());
 
       // THEN expect the handler to throw an error
-      await expect(actualPromiseHandler).rejects.toThrow("foo");
+      await expect(actualPromiseHandler).rejects.toThrow("Failed to initialize database connection");
       // AND parseFiles not to have been called
       expect(parseFiles).not.toHaveBeenCalled();
       // AND expect the status to not have been updated or created
       expect(getRepositoryRegistry().importProcessState.create).not.toHaveBeenCalled();
       expect(getRepositoryRegistry().importProcessState.update).not.toHaveBeenCalled();
+      // AND expect error to have been logged
+      expect(console.error).toHaveLoggedErrorWithCause("Failed to initialize database connection", givenError);
     });
 
     test("should not throw error when parseFiles fails", async () => {
@@ -131,7 +134,8 @@ describe("Test the main async handler", () => {
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
       // AND parseFiles will fail
-      (parseFiles as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+      const givenError = new Error("Failed to parse files");
+      (parseFiles as jest.Mock).mockRejectedValueOnce(givenError);
 
       // WHEN the handler is invoked
       await asyncIndex.handler(getMockImportEvent());
@@ -147,6 +151,8 @@ describe("Test the main async handler", () => {
           parsingWarnings: false,
         },
       });
+      // AND expect the error to have been logged
+      expect(console.error).toHaveLoggedErrorWithCause("Failed to parse files", givenError);
     });
   });
 });

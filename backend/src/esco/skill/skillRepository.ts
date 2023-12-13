@@ -78,7 +78,7 @@ export class SkillRepository implements ISkillRepository {
     //@ts-ignore
     if (newSkillSpec.UUID !== undefined) {
       const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
 
@@ -90,7 +90,7 @@ export class SkillRepository implements ISkillRepository {
       populateEmptyRequiredByOccupations(newSkillModel);
       return newSkillModel.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
+      console.error(new Error("create failed", { cause: e }));
       throw e;
     }
   }
@@ -144,7 +144,7 @@ export class SkillRepository implements ISkillRepository {
 
       return skill !== null ? skill.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
+      console.error(new Error("findById failed", { cause: e }));
       throw e;
     }
   }
@@ -159,7 +159,7 @@ export class SkillRepository implements ISkillRepository {
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      console.error(new Error("findAll failed", { cause: e }));
       throw e;
     }
   }

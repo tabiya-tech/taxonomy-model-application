@@ -37,7 +37,7 @@ export class BatchProcessor<T> {
         this.stats.rowsSuccess += batchStats.rowsSuccess;
         this.stats.rowsFailed += batchStats.rowsFailed;
       } catch (e: unknown) {
-        console.error("BatchProcessor.flush() failed", e);
+        console.error(new Error("BatchProcessor.flush() failed", { cause: e }));
       } finally {
         this.array = [];
       }

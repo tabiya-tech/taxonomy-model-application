@@ -35,14 +35,14 @@ class SkillToSkillRelationToCSVRowTransformer extends Transform {
       const transformedRow = transformSkillRelationSpecToCSVRow(skillRelation);
       this.push(transformedRow);
       callback();
-    } catch (cause: unknown) {
+    } catch (e: unknown) {
       // Make sure stringification doesn't fail, otherwise throwing an error will cause the stream to hang
       let json: string = "";
       try {
         json = JSON.stringify(skillRelation, null, 2);
       } finally {
-        const error = new Error(`Failed to transform SkillToSkillRelation to CSV row: ${json}`);
-        console.error(error, cause);
+        const error = new Error(`Failed to transform SkillToSkillRelation to CSV row: ${json}`, { cause: e });
+        console.error(error);
         callback(error);
       }
     }
@@ -60,9 +60,9 @@ const SkillToSkillRelationToCSVTransform = (modelId: string): Transform => {
     getRepositoryRegistry().skillToSkillRelation.findAll(modelId),
     new SkillToSkillRelationToCSVRowTransformer(),
     skillToSkillRelationStringifier,
-    (cause) => {
-      if (cause) {
-        console.error(new Error("Transforming SkillToSkillRelation to CSV failed"), cause);
+    (error) => {
+      if (error) {
+        console.error(new Error("Transforming SkillToSkillRelation to CSV failed", { cause: error }));
       }
     }
   );
