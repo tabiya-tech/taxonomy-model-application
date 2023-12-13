@@ -10,7 +10,6 @@ import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import exportLogger from "common/errorLogger/errorLogger";
 import { IExportProcessState, IUpdateExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
-import { ExportProcessStateRepository } from "export/exportProcessState/exportProcessStateRepository";
 
 // Mock the init function
 jest.mock("server/init", () => {
@@ -23,6 +22,29 @@ jest.mock("./modelToS3", () => ({
   modelToS3: jest.fn(),
 }));
 
+// Mock the exportProcessStateRepository
+jest.mock("server/repositoryRegistry/repositoryRegistry", () => {
+  return {
+    getRepositoryRegistry: jest.fn().mockReturnValue({
+      exportProcessState: {
+        Model: undefined as any,
+        create: jest.fn(),
+        update: jest
+          .fn()
+          .mockImplementation(
+            (id: string, updateSpecs: IUpdateExportProcessStateSpec): Promise<IExportProcessState> => {
+              console.log("update called", id, updateSpecs);
+              return Promise.resolve(getMockExportProcessState());
+            }
+          ),
+        findById: jest.fn().mockImplementation(() => {
+          return Promise.resolve(getMockExportProcessState());
+        }),
+      },
+    }),
+  };
+});
+
 const getMockExportEvent = (): AsyncExportEvent => {
   return {
     modelId: getMockStringId(1),
@@ -33,7 +55,7 @@ const getMockExportEvent = (): AsyncExportEvent => {
 const getMockExportProcessState = (): IExportProcessState => ({
   createdAt: new Date(),
   downloadUrl: "",
-  id: "",
+  id: getMockStringId(1),
   modelId: "",
   result: { errored: false, exportErrors: false, exportWarnings: false },
   status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
@@ -50,13 +72,9 @@ describe("Test the main async handler", () => {
     //GIVEN initOnce will successfully resolve
     (initOnce as jest.Mock).mockResolvedValue(Promise.resolve());
     // AND the exportProcessStateRepository that will successfully find the exportProcessState
-    const mockRepository: ExportProcessStateRepository = {
-      Model: undefined as any,
-      create: jest.fn().mockResolvedValue({}),
-      update: jest.fn().mockResolvedValue({}),
-      findById: jest.fn().mockResolvedValue(getMockExportProcessState()),
-    };
-    jest.spyOn(getRepositoryRegistry(), "exportProcessState", "get").mockReturnValue(mockRepository);
+    jest
+      .spyOn(getRepositoryRegistry().exportProcessState, "findById")
+      .mockResolvedValueOnce(getMockExportProcessState());
 
     // AND a valid Export event
     const givenEvent = getMockExportEvent();
@@ -80,24 +98,8 @@ describe("Test the main async handler", () => {
     beforeAll(() => {
       // GIVEN initOnce will successfully resolve
       (initOnce as jest.Mock).mockResolvedValue(Promise.resolve());
-      // AND the exportProcessStatRepository that will successfully create, update or find the exportProcessState
-      const givenExportProcessStateRepositoryMock = {
-        Model: undefined as any,
-        create: jest.fn().mockResolvedValue({}),
-        update: jest
-          .fn()
-          .mockImplementation(
-            (id: string, updateSpecs: IUpdateExportProcessStateSpec): Promise<IExportProcessState> => {
-              console.log("update called", id, updateSpecs);
-              return Promise.resolve(getMockExportProcessState());
-            }
-          ),
-        findById: jest.fn().mockResolvedValue(getMockExportProcessState()),
-      };
-      jest
-        .spyOn(getRepositoryRegistry(), "exportProcessState", "get")
-        .mockReturnValueOnce(givenExportProcessStateRepositoryMock);
     });
+
     test.each([
       ["modelId is missing", { exportProcessStateId: "foo" } as AsyncExportEvent],
       ["exportProcessStateId missing", { modelId: "foo" } as AsyncExportEvent],
@@ -169,16 +171,23 @@ describe("Test the main async handler", () => {
       ["Completed", ExportProcessStateAPISpecs.Enums.Status.COMPLETED],
     ])(
       "should not throw error and not call parseModelToFile when exportProcessState status is not PENDING (%s)",
-      async (description: string, givenStatus: ExportProcessStateAPISpecs.Enums.Status) => {
+      async (_description: string, givenStatus: ExportProcessStateAPISpecs.Enums.Status) => {
         // GIVEN exportProcessStateRepository.find will return a not PENDING status
         const givenExportProcessState = getMockExportProcessState();
         givenExportProcessState.status = givenStatus;
+        jest
+          .spyOn(getRepositoryRegistry().exportProcessState, "findById")
+          .mockResolvedValueOnce(givenExportProcessState);
 
         // WHEN the handler is invoked with a valid event
         const givenExportEvent = getMockExportEvent();
 
         // THEN expect the handler not to throw an error
         await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+        // AND the error to be logged
+        expect(console.error).toHaveBeenCalledWith(
+          `Export failed. The exportProcessState status is not PENDING, it is ${givenStatus}`
+        );
       }
     );
 
@@ -201,6 +210,61 @@ describe("Test the main async handler", () => {
             errored: true,
             exportErrors: false,
             exportWarnings: false,
+          },
+        }
+      );
+    });
+
+    test("should set exportErrors to true when errorLogger has errors ", async () => {
+      // GIVEN parseModelToFile will fail and log an export error
+      (modelToS3 as jest.Mock).mockImplementationOnce(() => {
+        exportLogger.logError(new Error("foo"));
+        throw new Error("bar");
+      });
+      // WHEN the handler is invoked with a valid event
+      const givenExportEvent = getMockExportEvent();
+
+      // THEN expect the handler to not throw an error
+      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+
+      // AND expect the update method to have been called with export errors
+      expect(getRepositoryRegistry().exportProcessState.update).toHaveBeenCalledWith(
+        givenExportEvent.exportProcessStateId,
+        {
+          status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
+          result: {
+            errored: true,
+            exportErrors: true,
+            exportWarnings: false,
+          },
+        }
+      );
+      // reset the export errors
+      exportLogger.clear();
+    });
+
+    test("should set exportWarnings to true when errorLogger has warnings ", async () => {
+      // GIVEN parseModelToFile will fail and log an export warning
+      (modelToS3 as jest.Mock).mockImplementationOnce(() => {
+        exportLogger.logWarning(new Error("foo"));
+        throw new Error("bar");
+      });
+
+      // WHEN the handler is invoked with a valid event
+      const givenExportEvent = getMockExportEvent();
+
+      // THEN expect the handler to not throw an error
+      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+
+      // AND expect the update method to have been called with specific arguments
+      expect(getRepositoryRegistry().exportProcessState.update).toHaveBeenCalledWith(
+        givenExportEvent.exportProcessStateId,
+        {
+          status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
+          result: {
+            errored: true,
+            exportErrors: false,
+            exportWarnings: true,
           },
         }
       );

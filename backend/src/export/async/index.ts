@@ -56,10 +56,7 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
     }
 
     if (exportProcessState.status !== ExportProcessStateAPISpecs.Enums.Status.PENDING) {
-      console.error(
-        "Export failed, the exportProcessState does not status pending, current status is: ",
-        exportProcessState.status
-      );
+      console.error(`Export failed. The exportProcessState status is not PENDING, it is ${exportProcessState.status}`);
       return;
     }
 
