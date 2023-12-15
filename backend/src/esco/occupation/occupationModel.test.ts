@@ -22,7 +22,12 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { IOccupationDoc } from "./occupation.types";
-import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import {
+  testImportId,
+  testObjectIdField,
+  testUUIDField,
+  testUUIDHistoryField,
+} from "esco/_test_utilities/modelSchemaTestFunctions";
 import { OccupationType } from "esco/common/objectTypes";
 
 describe("Test the definition of the Occupation Model", () => {
@@ -51,7 +56,7 @@ describe("Test the definition of the Occupation Model", () => {
         code: getMockRandomOccupationCode(false),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         ESCOUri: generateRandomUrl(),
         altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -70,7 +75,7 @@ describe("Test the definition of the Occupation Model", () => {
         code: getMockRandomOccupationCode(false),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: "",
+        UUIDHistory: [randomUUID()],
         ESCOUri: "",
         altLabels: [],
         description: "",
@@ -89,7 +94,7 @@ describe("Test the definition of the Occupation Model", () => {
         code: getMockRandomOccupationCode(true),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         ESCOUri: generateRandomUrl(),
         altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -108,7 +113,7 @@ describe("Test the definition of the Occupation Model", () => {
         code: getMockRandomOccupationCode(true),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: "",
+        UUIDHistory: [randomUUID()],
         ESCOUri: "",
         altLabels: [],
         description: "",
@@ -146,44 +151,9 @@ describe("Test the definition of the Occupation Model", () => {
   describe("Validate Occupation fields", () => {
     testObjectIdField<IOccupationDoc>(() => OccupationModel, "modelId");
 
-    describe("Test validation of 'UUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupationDoc>(OccupationModel, "UUID", caseType, value, expectedFailureMessage);
-      });
-    });
+    testUUIDField<IOccupationDoc>(() => OccupationModel);
 
-    describe("Test validation of 'originUUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Empty originUUID", "", undefined],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(
-        `(%s) Validate 'originUUID' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(OccupationModel, "originUUID", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testUUIDHistoryField<IOccupationDoc>(() => OccupationModel);
 
     describe("Test validation of 'ISCOGroupCode'", () => {
       test.each([
@@ -564,8 +534,15 @@ describe("Test the definition of the Occupation Model", () => {
     expect(indexes).toEqual([
       { key: { _id: 1 }, unique: undefined },
       { key: { UUID: 1 }, unique: true },
-      { key: { code: 1, modelId: 1 }, unique: true },
+      {
+        key: {
+          code: 1,
+          modelId: 1,
+        },
+        unique: true,
+      },
       { key: { modelId: 1 }, unique: undefined },
+      { key: { UUIDHistory: 1 }, unique: undefined },
     ]);
   });
 });

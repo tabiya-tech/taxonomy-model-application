@@ -38,14 +38,16 @@ jest.mock("crypto", () => {
  * Helper function to create an expected ISCOGroup from a given INewISCOGroupSpec,
  * that can be used for assertions
  * @param givenSpec
+ * @param newUUID
  */
-function expectedFromGivenSpec(givenSpec: INewISCOGroupSpec): IISCOGroup {
+function expectedFromGivenSpec(givenSpec: INewISCOGroupSpec, newUUID: string): IISCOGroup {
   return {
     ...givenSpec,
     id: expect.any(String),
     parent: null,
     children: [],
-    UUID: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
   };
@@ -129,10 +131,23 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
 
       // WHEN Creating a new ISCOGroup with given specifications
-      const actualNewISCOGroup: INewISCOGroupSpec = await repository.create(givenNewISCOGroupSpec);
+      const actualNewISCOGroup: IISCOGroup = await repository.create(givenNewISCOGroupSpec);
 
       // THEN expect the new ISCOGroup to be created with the specific attributes
-      const expectedNewISCO: IISCOGroup = expectedFromGivenSpec(givenNewISCOGroupSpec);
+      const expectedNewISCO: IISCOGroup = expectedFromGivenSpec(givenNewISCOGroupSpec, actualNewISCOGroup.UUID);
+      expect(actualNewISCOGroup).toEqual(expectedNewISCO);
+    });
+
+    test("should successfully create a new ISCOGroup when the given specifications have an empty UUIDHistory", async () => {
+      // GIVEN a valid ISCOGroupSpec
+      const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+      givenNewISCOGroupSpec.UUIDHistory = [];
+
+      // WHEN Creating a new ISCOGroup with given specifications
+      const actualNewISCOGroup: IISCOGroup = await repository.create(givenNewISCOGroupSpec);
+
+      // THEN expect the new ISCOGroup to be created with the specific attributes
+      const expectedNewISCO: IISCOGroup = expectedFromGivenSpec(givenNewISCOGroupSpec, actualNewISCOGroup.UUID);
       expect(actualNewISCOGroup).toEqual(expectedNewISCO);
     });
 
@@ -158,9 +173,8 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         const givenNewISCOGroup = await repository.create(givenNewISCOGroupSpec);
 
         // WHEN Creating a new ISCOGroup with the same UUID as the one the existing ISCOGroup
-        // @ts-ignore
-        randomUUID.mockReturnValueOnce(givenNewISCOGroup.UUID);
         const actualSecondNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+        (randomUUID as jest.Mock).mockReturnValueOnce(givenNewISCOGroup.UUID);
         const actualSecondNewISCOGroupPromise = repository.create(actualSecondNewISCOGroupSpec);
 
         // Then expect the promise to reject with an error
@@ -216,13 +230,13 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of ISCOGroups with the given specifications
-      const actualNewISCOGroups: INewISCOGroupSpec[] = await repository.createMany(givenNewISCOGroupSpecs);
+      const actualNewISCOGroups: IISCOGroup[] = await repository.createMany(givenNewISCOGroupSpecs);
 
       // THEN expect all the ISCOGroups to be created with the specific attributes
       expect(actualNewISCOGroups).toEqual(
         expect.arrayContaining(
-          givenNewISCOGroupSpecs.map((givenNewISCOGroupSpec) => {
-            return expectedFromGivenSpec(givenNewISCOGroupSpec);
+          givenNewISCOGroupSpecs.map((givenNewISCOGroupSpec, index) => {
+            return expectedFromGivenSpec(givenNewISCOGroupSpec, actualNewISCOGroups[index].UUID);
           })
         )
       );
@@ -238,7 +252,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       givenInvalidISCOGroupSpec[1].foo = "invalid"; // will not validate and will throw an error
 
       // WHEN creating the batch of ISCOGroups with the given specifications
-      const actualNewISCOGroups: INewISCOGroupSpec[] = await repository.createMany([
+      const actualNewISCOGroups: IISCOGroup[] = await repository.createMany([
         givenValidISCOGroupSpecs[0],
         ...givenInvalidISCOGroupSpec,
         givenValidISCOGroupSpecs[1],
@@ -248,8 +262,30 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       expect(actualNewISCOGroups).toHaveLength(givenValidISCOGroupSpecs.length);
       expect(actualNewISCOGroups).toEqual(
         expect.arrayContaining(
-          givenValidISCOGroupSpecs.map((givenNewISCOGroupSpec) => {
-            return expectedFromGivenSpec(givenNewISCOGroupSpec);
+          givenValidISCOGroupSpecs.map((givenNewISCOGroupSpec, index) => {
+            return expectedFromGivenSpec(givenNewISCOGroupSpec, actualNewISCOGroups[index].UUID);
+          })
+        )
+      );
+    });
+
+    test("should successfully create a batch of new ISCOGroups when they have an empty UUIDHistory", async () => {
+      // GIVEN some valid ISCOGroupSpec
+      const givenBatchSize = 3;
+      const givenNewISCOGroupSpecs: INewISCOGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenNewISCOGroupSpecs[i] = getNewISCOGroupSpec();
+        givenNewISCOGroupSpecs[i].UUIDHistory = []; // empty UUIDHistory
+      }
+
+      // WHEN creating the batch of ISCOGroups with the given specifications
+      const actualNewISCOGroups: IISCOGroup[] = await repository.createMany(givenNewISCOGroupSpecs);
+
+      // THEN expect all the ISCOGroups to be created with the specific attributes
+      expect(actualNewISCOGroups).toEqual(
+        expect.arrayContaining(
+          givenNewISCOGroupSpecs.map((givenNewISCOGroupSpec, index) => {
+            return expectedFromGivenSpec(givenNewISCOGroupSpec, actualNewISCOGroups[index].UUID);
           })
         )
       );
@@ -283,15 +319,15 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // WHEN creating the batch of ISCOGroups with the given specifications (the second ISCOGroupSpec having the same UUID as the first one)
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
-        const actualNewISCOGroups: INewISCOGroupSpec[] = await repository.createMany(givenNewISCOGroupSpecs);
+        const actualNewISCOGroups: IISCOGroup[] = await repository.createMany(givenNewISCOGroupSpecs);
 
         // THEN expect only the first and the third the ISCOGroups to be created with the specific attributes
         expect(actualNewISCOGroups).toEqual(
           expect.arrayContaining(
             givenNewISCOGroupSpecs
               .filter((spec, index) => index !== 1)
-              .map((givenNewISCOGroupSpec) => {
-                return expectedFromGivenSpec(givenNewISCOGroupSpec);
+              .map((givenNewISCOGroupSpec, index) => {
+                return expectedFromGivenSpec(givenNewISCOGroupSpec, actualNewISCOGroups[index].UUID);
               })
           )
         );
@@ -307,15 +343,15 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // WHEN creating the batch of ISCOGroups with the given specifications (the second ISCOGroupSpec having the same UUID as the first one)
         givenNewISCOGroupSpecs[1].code = givenNewISCOGroupSpecs[0].code;
-        const actualNewISCOGroups: INewISCOGroupSpec[] = await repository.createMany(givenNewISCOGroupSpecs);
+        const actualNewISCOGroups: IISCOGroup[] = await repository.createMany(givenNewISCOGroupSpecs);
 
         // THEN expect only the first and the third the ISCOGroups to be created with the specific attributes
         expect(actualNewISCOGroups).toEqual(
           expect.arrayContaining(
             givenNewISCOGroupSpecs
               .filter((spec, index) => index !== 1)
-              .map((givenNewISCOGroupSpec) => {
-                return expectedFromGivenSpec(givenNewISCOGroupSpec);
+              .map((givenNewISCOGroupSpec, index) => {
+                return expectedFromGivenSpec(givenNewISCOGroupSpec, actualNewISCOGroups[index].UUID);
               })
           )
         );

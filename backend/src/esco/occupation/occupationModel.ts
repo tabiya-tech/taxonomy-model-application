@@ -9,7 +9,7 @@ import {
   ISCOCodeProperty,
   OccupationCodeProperty,
   OccupationTypeProperty,
-  OriginUUIDProperty,
+  UUIDHistoryProperty,
   PreferredLabelProperty,
   RegulatedProfessionNoteProperty,
   ScopeNoteProperty,
@@ -27,7 +27,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
-      originUUID: OriginUUIDProperty,
+      UUIDHistory: UUIDHistoryProperty,
       ESCOUri: ESCOUriProperty,
       code: OccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
       ISCOGroupCode: ISCOCodeProperty,
@@ -69,6 +69,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   OccupationSchema.index({ UUID: 1 }, { unique: true });
   OccupationSchema.index({ code: 1, modelId: 1 }, { unique: true });
   OccupationSchema.index({ modelId: 1 });
+  OccupationSchema.index({ UUIDHistory: 1 });
 
   // Model
   return dbConnection.model<IOccupationDoc>(MongooseModelName.Occupation, OccupationSchema);

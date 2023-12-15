@@ -9,6 +9,7 @@ import { IOccupation, IOccupationReference } from "esco/occupation/occupation.ty
  */
 export interface ILocalizedOccupationDoc extends ImportIdentifiable {
   UUID: string;
+  UUIDHistory: string[];
   modelId: mongoose.Types.ObjectId;
   altLabels: string[];
   description: string;
@@ -21,7 +22,6 @@ export interface ILocalizedOccupationDoc extends ImportIdentifiable {
  */
 
 export interface ILocalizedOccupation extends Omit<ILocalizedOccupationDoc, "localizesOccupationId" | "modelId"> {
-  UUID: string;
   id: string;
   modelId: string;
   parent: IISCOGroupReference | IOccupationReference | null;
@@ -37,7 +37,6 @@ export interface ILocalizedOccupation extends Omit<ILocalizedOccupationDoc, "loc
  * Describes how localized occupations are finally return from the API
  */
 export interface IExtendedLocalizedOccupation extends Omit<ILocalizedOccupation, "localizesOccupation">, IOccupation {
-  UUID: string;
   id: string;
   modelId: string;
   parent: IISCOGroupReference | IOccupationReference | null;

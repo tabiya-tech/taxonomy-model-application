@@ -17,6 +17,7 @@ const getMockOccupations = (occupationType: OccupationType.LOCAL | OccupationTyp
   return Array.from<never, IUnpopulatedOccupation>({ length: 6 }, (_, i) => ({
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
+    UUIDHistory: i % 2 ? [`uuid_${i}_${getTestString(80)}`] : [],
     ISCOGroupCode: `ISCOGroupCode_${i}`,
     definition: `definition_${i}_${getTestString(80)}`,
     regulatedProfessionNote: `regulatedProfessionNote_${i}_${getTestString(80)}`,

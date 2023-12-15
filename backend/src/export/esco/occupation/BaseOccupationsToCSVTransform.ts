@@ -12,11 +12,11 @@ export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupati
   return {
     ESCOURI: occupation.ESCOUri,
     ID: occupation.id,
-    ORIGINUUID: occupation.originUUID,
+    UUIDHISTORY: occupation.UUIDHistory.join("\n"),
     ISCOGROUPCODE: occupation.ISCOGroupCode,
     CODE: occupation.code,
     PREFERREDLABEL: occupation.preferredLabel,
-    ALTLABELS: occupation.altLabels.length ? occupation.altLabels.join("\n") : "",
+    ALTLABELS: occupation.altLabels.join("\n"),
     DESCRIPTION: occupation.description,
     DEFINITION: occupation.definition,
     SCOPENOTE: occupation.scopeNote,

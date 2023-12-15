@@ -140,7 +140,7 @@ describe("test parseOccupations from", () => {
         rowsFailed: 0,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(2);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(4);
       expectedResults
         .filter((res: Omit<INewOccupationSpec, "modelId">) => isSpecified(res.importId))
         .forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">, index: number) => {

@@ -23,7 +23,6 @@ import { parseSkillToSkillRelationFromFile } from "./esco/skillToSkillRelation/s
 import { parseOccupationToSkillRelationFromFile } from "./esco/occupationToSkillRelation/occupationToSkillRelationParser";
 import { OccupationType } from "esco/common/objectTypes";
 import { parseLocalizedOccupationsFromFile } from "./esco/localizedOccupations/localizedOccupationsParser";
-import { toBeOdd } from "jest-extended";
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -65,7 +64,7 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
       try {
         await connection.dropDatabase();
         await connection.close(true);
-      } catch (e) {
+      } catch (e: unknown) {
         console.error("Error dropping database: " + e);
       }
     }
@@ -74,8 +73,8 @@ describe("Test Import sample CSV files with an in-memory mongodb", () => {
   // The actual tests
   test("should import the sample CSV files", async () => {
     // GIVEN some sample csv files
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+    const consoleErrorSpy = jest.spyOn(console, "error");
+    const consoleWarnSpy = jest.spyOn(console, "warn");
     // AND a model to import into
     const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
       name: "CSVImport",

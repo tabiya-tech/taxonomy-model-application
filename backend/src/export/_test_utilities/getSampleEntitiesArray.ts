@@ -12,6 +12,7 @@ import { INewOccupationHierarchyPairSpec } from "esco/occupationHierarchy/occupa
 import { INewSkillHierarchyPairSpec } from "esco/skillHierarchy/skillHierarchy.types";
 import { INewOccupationToSkillPairSpec } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { INewSkillToSkillPairSpec } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { randomUUID } from "crypto";
 
 export const getSampleOccupationSpecs = (givenModelId: string, isLocal: boolean = false): INewOccupationSpec[] => {
   return Array.from<never, INewOccupationSpec>({ length: 100 }, (_, i) => ({
@@ -23,7 +24,7 @@ export const getSampleOccupationSpecs = (givenModelId: string, isLocal: boolean 
     code: getMockRandomOccupationCode(isLocal),
     preferredLabel: `Occupation_${i}`,
     modelId: givenModelId,
-    originUUID: ``,
+    UUIDHistory: [randomUUID()],
     ESCOUri: `ESCOUri_${i}`,
     description: `description_${i}`,
     importId: `importId_${i}`,
@@ -40,6 +41,7 @@ export const getSampleLocalizedOccupationSpecs = (
     description: `description_${i}`,
     importId: `importId_${i}`,
     occupationType: OccupationType.LOCALIZED,
+    UUIDHistory: [randomUUID()],
   }));
 };
 
@@ -48,7 +50,7 @@ export const getSampleISCOGroupSpecs = (givenModelId: string): INewISCOGroupSpec
     code: getMockRandomISCOGroupCode(),
     preferredLabel: `ISCOGroup_${i}`,
     modelId: givenModelId,
-    originUUID: ``,
+    UUIDHistory: [randomUUID()],
     altLabels: i % 2 ? [`altLabel_1`, `altLabel_2`] : [],
     ESCOUri: `ESCOUri_${i}`,
     description: `description_${i}`,
@@ -60,7 +62,7 @@ export const getSampleSkillsSpecs = (givenModelId: string): INewSkillSpec[] => {
   return Array.from<never, INewSkillSpec>({ length: 100 }, (_, i) => ({
     preferredLabel: `Skill_${i}`,
     modelId: givenModelId,
-    originUUID: ``,
+    UUIDHistory: [randomUUID()],
     ESCOUri: `ESCOUri_${i}`,
     definition: `definition_${i}`,
     description: `description_${i}`,
@@ -77,7 +79,7 @@ export const getSampleSkillGroupsSpecs = (givenModelId: string): INewSkillGroupS
     code: getMockRandomSkillCode(),
     preferredLabel: `SkillGroup_${i}`,
     modelId: givenModelId,
-    originUUID: ``,
+    UUIDHistory: [randomUUID()],
     ESCOUri: `ESCOUri_${i}`,
     description: `description_${i}`,
     scopeNote: `scopeNote_${i}`,

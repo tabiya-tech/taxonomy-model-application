@@ -11,7 +11,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { IOccupationRepository } from "./occupationRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationReference } from "./occupation.types";
-import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { INewSkillSpec } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -45,15 +45,17 @@ jest.mock("crypto", () => {
  * Helper function to create an expected Occupation from a given INewOccupationSpec,
  * that can ebe used for assertions
  * @param givenSpec
+ * @param newUUID
  */
-function expectedFromGivenSpec(givenSpec: INewOccupationSpec): IOccupation {
+function expectedFromGivenSpec(givenSpec: INewOccupationSpec, newUUID: string): IOccupation {
   return {
     ...givenSpec,
     parent: null,
     children: [],
     requiresSkills: [],
     id: expect.any(String),
-    UUID: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
   };
@@ -116,6 +118,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
   beforeEach(async () => {
     await cleanupDBCollections();
   });
+
   test("should return the model", async () => {
     expect(repository.Model).toBeDefined();
   });
@@ -135,29 +138,39 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() Occupation ", () => {
-    test("should successfully create a new Occupation", async () => {
+    test.each([
+      ["ESCO", false],
+      ["Local", true],
+    ])("should successfully create a new %s Occupation", async (_description: string, isLocal: boolean) => {
       // GIVEN a valid OccupationSpec
-      const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+      const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec(isLocal);
 
       // WHEN Creating a new occupation with given specifications
-      const actualNewOccupation: INewOccupationSpec = await repository.create(givenNewOccupationSpec);
+      const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
 
       // THEN expect the new occupation to be created with the specific attributes
-      const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec);
+      const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
       expect(actualNewOccupation).toEqual(expectedNewISCO);
     });
 
-    test("should successfully create a new LocalOccupation", async () => {
-      // GIVEN a valid OccupationSpec
-      const givenNewLocalOccupationSpec: INewOccupationSpec = getNewOccupationSpec(true);
+    test.each([
+      ["ESCO", false],
+      ["Local", true],
+    ])(
+      "should successfully create a new %s occupation when the given specifications have an empty UUIDHistory",
+      async (_description: string, isLocal: boolean) => {
+        // GIVEN a valid OccupationSpec that has an empty UUIDHistory
+        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec(isLocal);
+        givenNewOccupationSpec.UUIDHistory = [];
 
-      // WHEN Creating a new occupation with given specifications
-      const actualNewLocalOccupation: INewOccupationSpec = await repository.create(givenNewLocalOccupationSpec);
+        // WHEN Creating a new occupation with given specifications
+        const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
 
-      // THEN expect the new occupation to be created with the specific attributes
-      const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewLocalOccupationSpec);
-      expect(actualNewLocalOccupation).toEqual(expectedNewISCO);
-    });
+        // THEN expect the new occupation to be created with the specific attributes
+        const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
+        expect(actualNewOccupation).toEqual(expectedNewISCO);
+      }
+    );
 
     test("should reject with an error when creating a model and providing a UUID", async () => {
       // GIVEN a OccupationSpec that is otherwise valid but has a UUID
@@ -180,9 +193,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenNewOccupation = await repository.create(givenNewOccupationSpec);
 
         // WHEN Creating a new Occupation with the same UUID as the one the existing Occupation
-        // @ts-ignore
-        randomUUID.mockReturnValueOnce(givenNewOccupation.UUID);
         const actualSecondNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+
+        (randomUUID as jest.Mock).mockReturnValueOnce(givenNewOccupation.UUID);
         const actualSecondNewOccupationPromise = repository.create(actualSecondNewOccupationSpec);
 
         // THEN expect it to throw an error
@@ -229,53 +242,96 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
   });
 
   describe("Test createMany() Occupation ", () => {
-    test("should successfully create a batch of new Occupations", async () => {
+    test.each([
+      ["ESCO", false],
+      ["Local", true],
+    ])("should successfully create a batch of new %s Occupations", async (_description: string, isLocal: boolean) => {
       // GIVEN some valid OccupationSpec
       const givenBatchSize = 3;
       const givenNewOccupationSpecs: INewOccupationSpec[] = [];
       for (let i = 0; i < givenBatchSize; i++) {
-        givenNewOccupationSpecs[i] = getNewOccupationSpec();
+        givenNewOccupationSpecs[i] = getNewOccupationSpec(isLocal);
       }
 
-      // WHEN creating the batch of ISCOGroups with the given specifications
-      const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
+      // WHEN creating the batch of occupations with the given specifications
+      const actualNewOccupations: IOccupation[] = await repository.createMany(givenNewOccupationSpecs);
 
-      // THEN expect all the ISCOGroups to be created with the specific attributes
+      // THEN expect all the occupations to be created with the specific attributes
       expect(actualNewOccupations).toEqual(
         expect.arrayContaining(
-          givenNewOccupationSpecs.map((givenNewOccupationSpec) => {
-            return expectedFromGivenSpec(givenNewOccupationSpec);
+          givenNewOccupationSpecs.map((givenNewOccupationSpec, index) => {
+            return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
           })
         )
       );
     });
 
-    test("should successfully create a batch of new Occupations even if some don't validate", async () => {
-      // GIVEN two valid OccupationSpec
-      const givenValidOccupationSpecs: INewOccupationSpec[] = [getNewOccupationSpec(), getNewOccupationSpec()];
-      // AND two OccupationSpec that is invalid
-      const givenInvalidOccupationSpec: INewOccupationSpec[] = [getNewOccupationSpec(), getNewOccupationSpec()];
-      givenInvalidOccupationSpec[0].code = "invalid code"; // will not validate but will not throw an error
-      // @ts-ignore
-      givenInvalidOccupationSpec[1].foo = "invalid"; // will not validate and will throw an error
+    test.each([
+      ["ESCO", false],
+      ["Local", true],
+    ])(
+      "should successfully create a batch of new %s Occupations even if some don't validate",
+      async (_description: string, isLocal: boolean) => {
+        // GIVEN two valid OccupationSpec
+        const givenValidOccupationSpecs: INewOccupationSpec[] = [
+          getNewOccupationSpec(isLocal),
+          getNewOccupationSpec(isLocal),
+        ];
+        // AND two OccupationSpec that is invalid
+        const givenInvalidOccupationSpec: INewOccupationSpec[] = [
+          getNewOccupationSpec(isLocal),
+          getNewOccupationSpec(isLocal),
+        ];
+        givenInvalidOccupationSpec[0].code = "invalid code"; // will not validate but will not throw an error
+        // @ts-ignore
+        givenInvalidOccupationSpec[1].foo = "invalid"; // will not validate and will throw an error
 
-      // WHEN creating the batch of ISCOGroups with the given specifications
-      const actualNewOccupations: INewOccupationSpec[] = await repository.createMany([
-        givenValidOccupationSpecs[0],
-        ...givenInvalidOccupationSpec,
-        givenValidOccupationSpecs[1],
-      ]);
+        // WHEN creating the batch of occupations with the given specifications
+        const actualNewOccupations: IOccupation[] = await repository.createMany([
+          givenValidOccupationSpecs[0],
+          ...givenInvalidOccupationSpec,
+          givenValidOccupationSpecs[1],
+        ]);
 
-      // THEN expect only the valid ISCOGroup to be created
-      expect(actualNewOccupations).toHaveLength(givenValidOccupationSpecs.length);
-      expect(actualNewOccupations).toEqual(
-        expect.arrayContaining(
-          givenValidOccupationSpecs.map((givenNewOccupationSpec) => {
-            return expectedFromGivenSpec(givenNewOccupationSpec);
-          })
-        )
-      );
-    });
+        // THEN expect only the valid occupations to be created
+        expect(actualNewOccupations).toHaveLength(givenValidOccupationSpecs.length);
+        expect(actualNewOccupations).toEqual(
+          expect.arrayContaining(
+            givenValidOccupationSpecs.map((givenNewOccupationSpec, index) => {
+              return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
+            })
+          )
+        );
+      }
+    );
+
+    test.each([
+      ["ESCO", false],
+      ["Local", true],
+    ])(
+      "should successfully create a batch of new %s occupations when they have an empty UUIDHistory",
+      async (_description: string, isLocal: boolean) => {
+        // GIVEN some valid OccupationSpec that have an empty UUIDHistory
+        const givenBatchSize = 3;
+        const givenNewOccupationSpecs: INewOccupationSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewOccupationSpecs[i] = getNewOccupationSpec(isLocal);
+          givenNewOccupationSpecs[i].UUIDHistory = [];
+        }
+
+        // WHEN creating the batch of occupations with the given specifications
+        const actualNewOccupations: IOccupation[] = await repository.createMany(givenNewOccupationSpecs);
+
+        // THEN expect all the occupations to be created with the specific attributes
+        expect(actualNewOccupations).toEqual(
+          expect.arrayContaining(
+            givenNewOccupationSpecs.map((givenNewOccupationSpec, index) => {
+              return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
+            })
+          )
+        );
+      }
+    );
 
     test("should resolve to an empty array if none of the elements could be validated", async () => {
       // GIVEN only invalid OccupationSpec
@@ -286,7 +342,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         givenValidOccupationSpecs[i].code = "invalid code";
       }
 
-      // WHEN creating the batch of ISCOGroups with the given specifications
+      // WHEN creating the batch of occupations with the given specifications
       const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenValidOccupationSpecs);
 
       // THEN expect an empty array to be created
@@ -302,18 +358,18 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           givenNewOccupationSpecs[i] = getNewOccupationSpec();
         }
 
-        // WHEN creating the batch of skills Groups with the given specifications (the second SkillGroupSpec having the same UUID as the first one)
+        // WHEN creating the batch of occupations with the given specifications (the second occupation having the same UUID as the first one)
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
-        const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
+        const actualNewOccupations: IOccupation[] = await repository.createMany(givenNewOccupationSpecs);
 
-        // THEN expect only the first and the third the ISCOGroups to be created with the specific attributes
+        // THEN expect only the first and the third the occupations to be created with the specific attributes
         expect(actualNewOccupations).toEqual(
           expect.arrayContaining(
             givenNewOccupationSpecs
               .filter((_, index) => index !== 1)
-              .map((givenNewOccupationSpec) => {
-                return expectedFromGivenSpec(givenNewOccupationSpec);
+              .map((givenNewOccupationSpec, index) => {
+                return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
               })
           )
         );
@@ -327,17 +383,17 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           givenNewOccupationSpecs[i] = getNewOccupationSpec();
         }
 
-        // WHEN creating the batch of skills Groups with the given specifications (the second SkillGroupSpec having the same UUID as the first one)
+        // WHEN creating the batch of occupations with the given specifications (the second occupations having the same UUID as the first one)
         givenNewOccupationSpecs[1].code = givenNewOccupationSpecs[0].code;
-        const actualNewOccupations: INewOccupationSpec[] = await repository.createMany(givenNewOccupationSpecs);
+        const actualNewOccupations: IOccupation[] = await repository.createMany(givenNewOccupationSpecs);
 
-        // THEN expect only the first and the third the ISCOGroups to be created with the specific attributes
+        // THEN expect only the first and the third the occupations to be created with the specific attributes
         expect(actualNewOccupations).toEqual(
           expect.arrayContaining(
             givenNewOccupationSpecs
               .filter((_, index) => index !== 1)
-              .map((givenNewOccupationSpec) => {
-                return expectedFromGivenSpec(givenNewOccupationSpec);
+              .map((givenNewOccupationSpec, index) => {
+                return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
               })
           )
         );
@@ -521,19 +577,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockStringId(1), "occupation_1");
         const givenOccupation = await repository.create(givenOccupationSpecs);
         // The non-Occupation in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = {
-          preferredLabel: "skill_1",
-          modelId: givenOccupation.modelId,
-          originUUID: "",
-          ESCOUri: "",
-          definition: "",
-          description: "",
-          scopeNote: "",
-          skillType: SkillType.Knowledge,
-          reuseLevel: ReuseLevel.CrossSector,
-          altLabels: [],
-          importId: "",
-        };
+        const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
@@ -568,19 +612,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenOccupationSpecs = getSimpleNewOccupationSpec(getMockStringId(1), "group_1");
         const givenOccupation = await repository.create(givenOccupationSpecs);
         // The non-Occupation in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = {
-          preferredLabel: "skill_1",
-          modelId: givenOccupation.modelId,
-          originUUID: "",
-          ESCOUri: "",
-          definition: "",
-          description: "",
-          scopeNote: "",
-          skillType: SkillType.Knowledge,
-          reuseLevel: ReuseLevel.CrossSector,
-          altLabels: [],
-          importId: "",
-        };
+        const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {

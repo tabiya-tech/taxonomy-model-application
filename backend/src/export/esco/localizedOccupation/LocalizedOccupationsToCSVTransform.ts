@@ -15,10 +15,11 @@ export const transformLocalizedOccupationSpecToCSVRow = (
 ): ILocalizedOccupationRow => {
   return {
     ID: localizedOccupation.id,
-    ALTLABELS: localizedOccupation.altLabels.length ? localizedOccupation.altLabels.join("\n") : "",
+    ALTLABELS: localizedOccupation.altLabels.join("\n"),
     DESCRIPTION: localizedOccupation.description,
     OCCUPATIONTYPE: localizedOccupation.occupationType,
     LOCALIZESOCCUPATIONID: localizedOccupation.localizesOccupationId,
+    UUIDHISTORY: localizedOccupation.UUIDHistory.join("\n"),
   };
 };
 

@@ -5,7 +5,7 @@ import {
   DescriptionProperty,
   ESCOUriProperty,
   ImportIDProperty,
-  OriginUUIDProperty,
+  UUIDHistoryProperty,
   PreferredLabelProperty,
   ScopeNoteProperty,
 } from "esco/common/modelSchema";
@@ -37,7 +37,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       },
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
-      originUUID: OriginUUIDProperty,
+      UUIDHistory: UUIDHistoryProperty,
       ESCOUri: ESCOUriProperty,
       altLabels: AltLabelsProperty,
       description: DescriptionProperty,
@@ -67,8 +67,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   });
 
   SkillGroupSchema.index({ UUID: 1 }, { unique: true });
-
   SkillGroupSchema.index({ modelId: 1 });
+  SkillGroupSchema.index({ UUIDHistory: 1 });
 
   return dbConnection.model<ISkillGroupDoc>(MongooseModelName.SkillGroup, SkillGroupSchema);
 }

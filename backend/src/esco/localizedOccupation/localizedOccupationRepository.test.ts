@@ -46,10 +46,12 @@ jest.mock("crypto", () => {
  * that can ebe used for assertions
  * @param givenSpec
  * @param localizingOccupation
+ * @param newUUID
  */
 function expectedFromGivenSpec(
   givenSpec: INewLocalizedOccupationSpec,
-  localizingOccupation: IOccupation
+  localizingOccupation: IOccupation,
+  newUUID: string
 ): IExtendedLocalizedOccupation {
   return {
     ...givenSpec,
@@ -57,7 +59,8 @@ function expectedFromGivenSpec(
     children: [],
     requiresSkills: [],
     id: expect.any(String),
-    UUID: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
     modelId: localizingOccupation.modelId,
@@ -68,7 +71,6 @@ function expectedFromGivenSpec(
     preferredLabel: localizingOccupation.preferredLabel,
     occupationType: OccupationType.LOCALIZED,
     localizedOccupationType: localizingOccupation.occupationType,
-    originUUID: localizingOccupation.originUUID,
     ESCOUri: localizingOccupation.ESCOUri,
     definition: localizingOccupation.definition,
     scopeNote: localizingOccupation.scopeNote,
@@ -169,7 +171,33 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // THEN expect the new localized occupation to be created with the specific attributes
       const expectedNewLocalizedOccupation: IExtendedLocalizedOccupation = expectedFromGivenSpec(
         givenNewLocalizedOccupationSpec,
-        givenOccupation
+        givenOccupation,
+        actualNewLocalizedOccupation.UUID
+      );
+      expect(actualNewLocalizedOccupation).toEqual(expectedNewLocalizedOccupation);
+    });
+
+    test("should successfully create a new localized occupation when the given specifications have an empty UUIDHistory", async () => {
+      // GIVEN a localizing OccupationSpec
+      const givenOccupationSpec = getNewOccupationSpec(false);
+      const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
+
+      // AND a valid localized occupation spec
+      const givenNewLocalizedOccupationSpec: INewLocalizedOccupationSpec = getNewLocalizedOccupationSpec(
+        givenOccupation.id
+      );
+      givenNewLocalizedOccupationSpec.UUIDHistory = [];
+
+      // WHEN Creating a new localized occupation with given specifications
+      const actualNewLocalizedOccupation: IExtendedLocalizedOccupation = await repository.create(
+        givenNewLocalizedOccupationSpec
+      );
+
+      // THEN expect the new localized occupation to be created with the specific attributes
+      const expectedNewLocalizedOccupation: IExtendedLocalizedOccupation = expectedFromGivenSpec(
+        givenNewLocalizedOccupationSpec,
+        givenOccupation,
+        actualNewLocalizedOccupation.UUID
       );
       expect(actualNewLocalizedOccupation).toEqual(expectedNewLocalizedOccupation);
     });
@@ -185,8 +213,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // WHEN Creating a new Localized Occupation with a provided UUID
       const actualNewOccupationPromise = repository.create({
-        ...givenNewLocalizedOccupationSpec,
-        //@ts-ignore
+        ...givenNewLocalizedOccupationSpec, //@ts-ignore
         UUID: randomUUID(),
       });
 
@@ -222,11 +249,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenNewOccupation = await repository.create(givenNewLocalizedOccupationSpec);
 
         // WHEN Creating a new Localized Occupation with the same UUID as the existing Localized Occupation
-        // @ts-ignore
-        randomUUID.mockReturnValueOnce(givenNewOccupation.UUID);
+        const givenSecondOccupationSpec = getNewOccupationSpec(false);
+        const givenSecondOccupation = await repositoryRegistry.occupation.create(givenSecondOccupationSpec);
         const actualSecondNewLocalizedOccupationSpec: INewLocalizedOccupationSpec = getNewLocalizedOccupationSpec(
-          givenOccupation.id
+          givenSecondOccupation.id
         );
+        (randomUUID as jest.Mock).mockReturnValueOnce(givenNewOccupation.UUID);
         const actualSecondNewOccupationPromise = repository.create(actualSecondNewLocalizedOccupationSpec);
 
         // THEN expect it to throw an error
@@ -311,7 +339,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualNewLocalizedOccupations).toEqual(
         expect.arrayContaining(
           givenNewLocalizedOccupationSpecs.map((givenNewOccupationSpec, index) => {
-            return expectedFromGivenSpec(givenNewOccupationSpec, givenOccupations[index]);
+            return expectedFromGivenSpec(
+              givenNewOccupationSpec,
+              givenOccupations[index],
+              actualNewLocalizedOccupations[index].UUID
+            );
           })
         )
       );
@@ -352,7 +384,43 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualNewLocalizedOccupations).toEqual(
         expect.arrayContaining(
           givenValidNewLocalizedOccupationSpecs.map((givenNewOccupationSpec, index) => {
-            return expectedFromGivenSpec(givenNewOccupationSpec, givenValidOccupations[index]);
+            return expectedFromGivenSpec(
+              givenNewOccupationSpec,
+              givenValidOccupations[index],
+              actualNewLocalizedOccupations[index].UUID
+            );
+          })
+        )
+      );
+    });
+
+    test("should successfully create a batch of new localized occupations when they have an empty UUIDHistory", async () => {
+      // GIVEN some valid LocalizedOccupationSpecs
+      const givenBatchSize = 3;
+      const givenNewLocalizedOccupationSpecs: INewLocalizedOccupationSpec[] = [];
+      const givenOccupations: IOccupation[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        const givenOccupationSpec = getNewOccupationSpec(false);
+        const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
+        givenNewLocalizedOccupationSpecs[i] = getNewLocalizedOccupationSpec(givenOccupation.id);
+        givenNewLocalizedOccupationSpecs[i].UUIDHistory = [];
+        givenOccupations.push(givenOccupation);
+      }
+
+      // WHEN creating the batch of LocalizedOccupations with the given specifications
+      const actualNewLocalizedOccupations: IExtendedLocalizedOccupation[] = await repository.createMany(
+        givenNewLocalizedOccupationSpecs
+      );
+
+      // THEN expect all the LocalizedOccupations to be created with the specific attributes
+      expect(actualNewLocalizedOccupations).toEqual(
+        expect.arrayContaining(
+          givenNewLocalizedOccupationSpecs.map((givenNewOccupationSpec, index) => {
+            return expectedFromGivenSpec(
+              givenNewOccupationSpec,
+              givenOccupations[index],
+              actualNewLocalizedOccupations[index].UUID
+            );
           })
         )
       );
@@ -424,18 +492,20 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           givenNewLocalizedOccupationSpecs
         );
 
-        // THEN expect only the first and the third the LocalOccupations to be created with the specific attributes
+        // THEN expect only the first and the third the occupations to be created with the specific attributes
         expect(actualNewLocalizedOccupations).toEqual(
-          expect.arrayContaining(
-            givenNewLocalizedOccupationSpecs
-              .filter((_spec, index) => index !== 1)
-              .map((givenNewLocalizedOccupationSpec, index) => {
-                return expectedFromGivenSpec(
-                  givenNewLocalizedOccupationSpec,
-                  givenOccupations[index === 1 ? 2 : index]
-                );
-              })
-          )
+          expect.arrayContaining([
+            expectedFromGivenSpec(
+              givenNewLocalizedOccupationSpecs[0],
+              givenOccupations[0],
+              actualNewLocalizedOccupations[0].UUID
+            ),
+            expectedFromGivenSpec(
+              givenNewLocalizedOccupationSpecs[2],
+              givenOccupations[2],
+              actualNewLocalizedOccupations[1].UUID
+            ),
+          ])
         );
       });
 
@@ -466,7 +536,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
               .map((givenNewLocalizedOccupationSpec, index) => {
                 return expectedFromGivenSpec(
                   givenNewLocalizedOccupationSpec,
-                  givenOccupations[index === 1 ? 2 : index]
+                  givenOccupations[index === 1 ? 2 : index],
+                  actualNewOccupations[index].UUID
                 );
               })
           )

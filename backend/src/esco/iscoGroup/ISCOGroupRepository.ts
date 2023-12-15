@@ -56,6 +56,17 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     this.Model = model;
   }
 
+  private newSpecToModel(newSpec: INewISCOGroupSpec): mongoose.HydratedDocument<IISCOGroupDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({
+      ...newSpec,
+      UUID: newUUID,
+    });
+    // add the new UUID as the first element of the UUIDHistory
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
   async create(newISCOGroupSpec: INewISCOGroupSpec): Promise<IISCOGroup> {
     //@ts-ignore
     if (newISCOGroupSpec.UUID !== undefined) {
@@ -65,10 +76,7 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     }
 
     try {
-      const newISCOGroupModel = new this.Model({
-        ...newISCOGroupSpec,
-        UUID: randomUUID(),
-      });
+      const newISCOGroupModel = this.newSpecToModel(newISCOGroupSpec);
       await newISCOGroupModel.save();
       await newISCOGroupModel.populate([{ path: ISCOGroupModelPaths.parent }, { path: ISCOGroupModelPaths.children }]);
       return newISCOGroupModel.toObject();
@@ -77,16 +85,12 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       throw e;
     }
   }
-
   async createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> {
     try {
       const newISCOGroupModels = newISCOGroupSpecs
         .map((spec) => {
           try {
-            return new this.Model({
-              ...spec,
-              UUID: randomUUID(), // override UUID silently
-            });
+            return this.newSpecToModel(spec);
           } catch (e: unknown) {
             return null;
           }

@@ -11,10 +11,10 @@ export const transformSkillGroupSpecToCSVRow = (skillGroup: IUnpopulatedSkillGro
   return {
     ESCOURI: skillGroup.ESCOUri,
     ID: skillGroup.id,
-    ORIGINUUID: skillGroup.originUUID,
+    UUIDHISTORY: skillGroup.UUIDHistory.join("\n"),
     CODE: skillGroup.code,
     PREFERREDLABEL: skillGroup.preferredLabel,
-    ALTLABELS: skillGroup.altLabels.length ? skillGroup.altLabels.join("\n") : "",
+    ALTLABELS: skillGroup.altLabels.join("\n"),
     DESCRIPTION: skillGroup.description,
     SCOPENOTE: skillGroup.scopeNote,
   };

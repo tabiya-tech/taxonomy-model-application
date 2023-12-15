@@ -72,6 +72,17 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
     this.OccupationModel = occupationModel;
   }
 
+  private newSpecToModel(newSpec: INewLocalizedOccupationSpec): mongoose.HydratedDocument<ILocalizedOccupationDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({
+      ...newSpec,
+      UUID: newUUID,
+    });
+    // add the new UUID as the first element of the UUIDHistory
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
   async create(newLocalizedOccupationSpec: INewLocalizedOccupationSpec): Promise<IExtendedLocalizedOccupation> {
     //@ts-ignore
     if (newLocalizedOccupationSpec.UUID !== undefined) {
@@ -89,21 +100,15 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
     }
 
     try {
-      const newLocalizedOccupationModel = new this.Model({
-        ...newLocalizedOccupationSpec,
-        UUID: randomUUID(),
-      });
-
+      const newLocalizedOccupationModel = this.newSpecToModel(newLocalizedOccupationSpec);
       await newLocalizedOccupationModel.save();
       // populating the parent, children, requiresSkills and localizesOccupation fields
-
       await newLocalizedOccupationModel.populate([
         populateOccupationParentOptions,
         populateOccupationChildrenOptions,
         populateLocalizedOccupationRequiresSkillsOptions,
         populateLocalizedOccupationLocalizesOccupationOptions,
       ]);
-
       return occupationFromLocalizedOccupationTransform(newLocalizedOccupationModel.toObject());
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -123,10 +128,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         )
         .map((spec) => {
           try {
-            return new this.Model({
-              ...spec,
-              UUID: randomUUID(), // override UUID silently
-            });
+            return this.newSpecToModel(spec);
           } catch (e: unknown) {
             return null;
           }

@@ -1,17 +1,25 @@
-ID,ALTLABELS,DESCRIPTION,OCCUPATIONTYPE,LOCALIZESOCCUPATIONID
-key_1,"Label1
+UUIDHISTORY,ID,ALTLABELS,DESCRIPTION,OCCUPATIONTYPE,LOCALIZESOCCUPATIONID
+"b69710e0-7e7d-43ea-a645-26dab12faf8d
+b69710e0-7e7d-43ea-a645-26dab12faf83",key_1,"Label1
 Label2",description,LOCALIZED,key_201
-,key_3 Label4,description,LOCALIZED,key_202
-key_3,,,LOCALIZED,key_203
-key_4,"Label7
+"b69710e0-7e7d-43ea-a645-26dab12faf8d",,key_3 Label4,description,LOCALIZED,key_202
+"b69710e0-7e7d-43ea-a645-26dab12faf8d
+b69710e0-7e7d-43ea-a645-26dab12faf83",key_3,,,LOCALIZED,key_203
+"b69710e0-7e7d-43ea-a645-26dab12faf83",key_4,"Label7
 Label8",description,,key_204
-key_5,"Label9
+"b69710e0-7e7d-43ea-a645-26dab12faf8d
+b69710e0-7e7d-43ea-a645-26dab12faf83",key_5,"Label9
 Label10",description,invalid_should_not_validate,key_205
-key_6,"Label11
+"b69710e0-7e7d-43ea-a645-26dab12faf83",key_6,"Label11
 Label12",description,LOCALIZED,
-key_7,"Label13
+"b69710e0-7e7d-43ea-a645-26dab12faf83
+b69710e0-7e7d-43ea-a645-26dab12faf8d",key_7,"Label13
 Label14",,LOCALIZED,key_207
-key_8,"Label15
+"b69710e0-7e7d-43ea-a645-26dab12faf8d",key_8,"Label15
 Label16","description
 with
 linebreak",LOCALIZED,key_208
+,key_9,"Label17
+Label18","",LOCALIZED,key_209
+"",key_10,"Label19
+Label20","",LOCALIZED,key_210

@@ -104,12 +104,12 @@ describe("test parseSkills from", () => {
       });
       // AND all the expected rows to have been processed successfully
       expect(actualStats).toEqual({
-        rowsProcessed: 5,
+        rowsProcessed: 7,
         rowsSuccess: expectedResults.length,
-        rowsFailed: 5 - expectedResults.length,
+        rowsFailed: 7 - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(3);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(5);
       expectedResults
         .filter((res: Omit<INewSkillSpec, "modelId">) => isSpecified(res.importId))
         .forEach((expectedSpec: Omit<INewSkillSpec, "modelId">, index: number) => {

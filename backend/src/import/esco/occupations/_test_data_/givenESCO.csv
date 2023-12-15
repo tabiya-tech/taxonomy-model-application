@@ -1,15 +1,14 @@
-"ESCOURI",ID,"ORIGINUUID","ISCOGROUPCODE","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SCOPENOTE","REGULATEDPROFESSIONNOTE","OCCUPATIONTYPE"
+"ESCOURI",ID,"UUIDHISTORY","ISCOGROUPCODE","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SCOPENOTE","REGULATEDPROFESSIONNOTE","OCCUPATIONTYPE"
 ,,,,,,,,,,,
 ,,,,,,,,,,,
-"esco uri",key_1,origin uuid,01,0001.1.2.3,"preferred label","label1
+"esco uri",key_1,"b69710e0-7e7d-43ea-a645-26dab12faf83
+b69710e0-7e7d-43ea-a645-26dab12faf8d",01,0001.1.2.3,"preferred label","label1
 label2","description","definition","scope note","regulated profession note",ESCO
 "esco
 uri
 with
-linebreak",key_2,"origin
-uuid
-with
-linebreak",0101,0101.01.02.03,"preferred
+linebreak",key_2,"b69710e0-7e7d-43ea-a645-26dab12faf83
+b69710e0-7e7d-43ea-a645-26dab12faf8d",0101,0101.01.02.03,"preferred
 label
 with
 linebreak","label1
@@ -26,9 +25,16 @@ note
 with
 linebreak",ESCO
 ,key_3,,,,,,,,,,ESCO
-esco uri,key_4,origin uuid,011,0011.1.2.3,preferred label,"label1
+esco uri,key_4,"b69710e0-7e7d-43ea-a645-26dab12faf83
+b69710e0-7e7d-43ea-a645-26dab12faf8d",011,0011.1.2.3,preferred label,"label1
 label2",description,definition,scope note,regulated profession note,invallid_should_not_validate
-esco uri,key_5,origin uuid,01,100.1.2.3,preferred label,"label1
+esco uri,key_5,"b69710e0-7e7d-43ea-a645-26dab12faf83
+b69710e0-7e7d-43ea-a645-26dab12faf8d",01,100.1.2.3,preferred label,"label1
 label2",description,definition,scope note,regulated profession note,ESCO
-esco uri,key_6,origin uuid,011,0111.1.2.3,preferred label,"label1
+esco uri,key_6,"b69710e0-7e7d-43ea-a645-26dab12faf83
+b69710e0-7e7d-43ea-a645-26dab12faf8d",011,0111.1.2.3,preferred label,"label1
 label2",description,definition,scope note,regulated profession note,LOCAL
+esco uri,key_7,,01,0001.1.2.3.4,preferred label,"label1
+label2",description,definition,scope note,regulated profession note,ESCO
+esco uri,key_8,"",01,0101.01.02.04,preferred label,"label1
+label2",description,definition,scope note,regulated profession note,ESCO

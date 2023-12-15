@@ -38,14 +38,16 @@ jest.mock("crypto", () => {
  * Helper function to create an expected ISkillGroup from a given ,
  * that can ebe used for assertions
  * @param givenSpec
+ * @param newUUID
  */
-function expectedFromGivenSpec(givenSpec: INewSkillGroupSpec): ISkillGroup {
+function expectedFromGivenSpec(givenSpec: INewSkillGroupSpec, newUUID: string): ISkillGroup {
   return {
     children: [],
     parents: [],
     ...givenSpec,
     id: expect.any(String),
-    UUID: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
   };
@@ -135,7 +137,20 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const actualNewModel = await repository.create(givenNewSkillGroupSpec);
 
       // THEN expect the new skillGroup to be created with the specific attributes
-      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec);
+      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewModel.UUID);
+      expect(actualNewModel).toEqual(expectedNewSkillGroup);
+    });
+
+    test("should successfully create a new skill group when the given specifications have an empty UUIDHistory", async () => {
+      // GIVEN a valid SkillGroupSpec
+      const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+      givenNewSkillGroupSpec.UUIDHistory = [];
+
+      // WHEN Creating a new skillGroup with given specifications
+      const actualNewModel = await repository.create(givenNewSkillGroupSpec);
+
+      // THEN expect the new skillGroup to be created with the specific attributes
+      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewModel.UUID);
       expect(actualNewModel).toEqual(expectedNewSkillGroup);
     });
 
@@ -160,8 +175,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const givenNewModel = await repository.create(givenNewSkillGroupSpecSpec);
 
         // WHEN Creating a new SkillGroup with the UUID of the existing SkillGroup
-        // @ts-ignore
-        randomUUID.mockReturnValueOnce(givenNewModel.UUID);
+        (randomUUID as jest.Mock).mockReturnValueOnce(givenNewModel.UUID);
         const actualPromise = repository.create(givenNewSkillGroupSpecSpec);
 
         // THEN expect the actual promise to reject
@@ -192,13 +206,13 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of skills Groups with the given specifications
-      const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
+      const actualNewSkillGroups: ISkillGroup[] = await repository.createMany(givenNewSkillGroupSpecs);
 
       // THEN expect all the Skill Groups to be created with the specific attributes
       expect(actualNewSkillGroups).toEqual(
         expect.arrayContaining(
-          givenNewSkillGroupSpecs.map((givenNewSkillGroupSpec) => {
-            return expectedFromGivenSpec(givenNewSkillGroupSpec);
+          givenNewSkillGroupSpecs.map((givenNewSkillGroupSpec, index) => {
+            return expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewSkillGroups[index].UUID);
           })
         )
       );
@@ -214,7 +228,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       givenInvalidSkillGroupSpec[1].foo = "invalid"; // will not validate and will throw an error
 
       // WHEN creating the batch of skills Groups with the given specifications
-      const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany([
+      const actualNewSkillGroups: ISkillGroup[] = await repository.createMany([
         givenValidSkillGroupSpecs[0],
         ...givenInvalidSkillGroupSpec,
         givenValidSkillGroupSpecs[1],
@@ -225,8 +239,30 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
       expect(actualNewSkillGroups).toEqual(
         expect.arrayContaining(
-          givenValidSkillGroupSpecs.map((givenNewSkillGroupSpec) => {
-            return expectedFromGivenSpec(givenNewSkillGroupSpec);
+          givenValidSkillGroupSpecs.map((givenNewSkillGroupSpec, index) => {
+            return expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewSkillGroups[index].UUID);
+          })
+        )
+      );
+    });
+
+    test("should successfully create a batch of new skill groups when they have an empty UUIDHistory", async () => {
+      // GIVEN some valid SkillGroupSpec
+      const givenBatchSize = 3;
+      const givenNewSkillGroupSpecs: INewSkillGroupSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenNewSkillGroupSpecs[i] = getNewSkillGroupSpec();
+        givenNewSkillGroupSpecs[i].UUIDHistory = [];
+      }
+
+      // WHEN creating the batch of skills Groups with the given specifications
+      const actualNewSkillGroups: ISkillGroup[] = await repository.createMany(givenNewSkillGroupSpecs);
+
+      // THEN expect all the Skill Groups to be created with the specific attributes
+      expect(actualNewSkillGroups).toEqual(
+        expect.arrayContaining(
+          givenNewSkillGroupSpecs.map((givenNewSkillGroupSpec, index) => {
+            return expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewSkillGroups[index].UUID);
           })
         )
       );
@@ -260,15 +296,15 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // WHEN creating the batch of skills Groups with the given specifications (the second SkillGroupSpec having the same UUID as the first one)
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
-        const actualNewSkillGroups: INewSkillGroupSpec[] = await repository.createMany(givenNewSkillGroupSpecs);
+        const actualNewSkillGroups: ISkillGroup[] = await repository.createMany(givenNewSkillGroupSpecs);
 
         // THEN expect only the first and the third the Skill Groups to be created with the specific attributes
         expect(actualNewSkillGroups).toEqual(
           expect.arrayContaining(
             givenNewSkillGroupSpecs
               .filter((spec, index) => index !== 1)
-              .map((givenNewSkillGroupSpec) => {
-                return expectedFromGivenSpec(givenNewSkillGroupSpec);
+              .map((givenNewSkillGroupSpec, index) => {
+                return expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewSkillGroups[index].UUID);
               })
           )
         );

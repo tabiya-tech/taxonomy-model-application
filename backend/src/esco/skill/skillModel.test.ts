@@ -19,7 +19,12 @@ import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
-import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import {
+  testImportId,
+  testObjectIdField,
+  testUUIDField,
+  testUUIDHistoryField,
+} from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the skill Model", () => {
   let dbConnection: Connection;
@@ -46,7 +51,7 @@ describe("Test the definition of the skill Model", () => {
         UUID: randomUUID(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         ESCOUri: generateRandomUrl(),
         altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
         definition: getTestString(DEFINITION_MAX_LENGTH),
@@ -63,7 +68,7 @@ describe("Test the definition of the skill Model", () => {
         UUID: randomUUID(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: "",
+        UUIDHistory: [randomUUID()],
         altLabels: [],
         skillType: SkillType.None,
         reuseLevel: ReuseLevel.None,
@@ -100,44 +105,9 @@ describe("Test the definition of the skill Model", () => {
   describe("Validate skillGroup fields", () => {
     testObjectIdField<ISkillDoc>(() => skillModel, "modelId");
 
-    describe("Test validation of 'UUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillDoc>(skillModel, "UUID", caseType, value, expectedFailureMessage);
-      });
-    });
+    testUUIDField<ISkillDoc>(() => skillModel);
 
-    describe("Test validation of 'originUUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Empty originUUID", "", undefined],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(
-        `(%s) Validate 'originUUID' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "originUUID", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testUUIDHistoryField<ISkillDoc>(() => skillModel);
 
     describe("Test validation of 'ESCOUri'", () => {
       test.each([
@@ -365,6 +335,7 @@ describe("Test the definition of the skill Model", () => {
       { key: { _id: 1 }, unique: undefined },
       { key: { UUID: 1 }, unique: true },
       { key: { modelId: 1 }, unique: undefined },
+      { key: { UUIDHistory: 1 }, unique: undefined },
     ]);
   });
 });

@@ -4,7 +4,7 @@ import { OccupationType } from "esco/common/objectTypes";
 export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     ESCOUri: "esco uri",
-    originUUID: "origin uuid",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     ISCOGroupCode: "01",
     code: "0001.1.2.3",
     preferredLabel: "preferred label",
@@ -18,7 +18,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
-    originUUID: "origin\nuuid\nwith\nlinebreak",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     ISCOGroupCode: "0101",
     code: "0101.01.02.03", //NOSONAR
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
@@ -28,6 +28,35 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope\nnote\nwith\nlinebreak",
     regulatedProfessionNote: "regulated\nprofession\nnote\nwith\nlinebreak",
     importId: "key_2",
+    occupationType: OccupationType.ESCO,
+  },
+  {
+    ESCOUri: "esco uri",
+    UUIDHistory: [],
+    ISCOGroupCode: "01",
+    code: "0001.1.2.3.4",
+    preferredLabel: "preferred label",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    definition: "definition",
+    scopeNote: "scope note",
+    regulatedProfessionNote: "regulated profession note",
+    importId: "key_7",
+    occupationType: OccupationType.ESCO,
+  },
+
+  {
+    ESCOUri: "esco uri",
+    UUIDHistory: [],
+    ISCOGroupCode: "01",
+    code: "0101.01.02.04",
+    preferredLabel: "preferred label",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    definition: "definition",
+    scopeNote: "scope note",
+    regulatedProfessionNote: "regulated profession note",
+    importId: "key_8",
     occupationType: OccupationType.ESCO,
   },
 ];

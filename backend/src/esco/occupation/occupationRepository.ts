@@ -63,6 +63,17 @@ export class OccupationRepository implements IOccupationRepository {
     this.Model = model;
   }
 
+  private newSpecToModel(newSpec: INewOccupationSpec): mongoose.HydratedDocument<IOccupationDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({
+      ...newSpec,
+      UUID: newUUID,
+    });
+    // add the new UUID as the first element of the UUIDHistory
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
   async create(newOccupationSpec: INewOccupationSpec): Promise<IOccupation> {
     //@ts-ignore
     if (newOccupationSpec.UUID !== undefined) {
@@ -72,10 +83,7 @@ export class OccupationRepository implements IOccupationRepository {
     }
 
     try {
-      const newOccupationModel = new this.Model({
-        ...newOccupationSpec,
-        UUID: randomUUID(),
-      });
+      const newOccupationModel = this.newSpecToModel(newOccupationSpec);
       await newOccupationModel.save();
       await newOccupationModel.populate([
         { path: OccupationModelPaths.parent },
@@ -94,10 +102,7 @@ export class OccupationRepository implements IOccupationRepository {
       const newOccupationModels = newOccupationSpecs
         .map((spec) => {
           try {
-            return new this.Model({
-              ...spec,
-              UUID: randomUUID(), // override UUID silently
-            });
+            return this.newSpecToModel(spec);
           } catch (e: unknown) {
             return null;
           }

@@ -8,7 +8,7 @@ import { ISkillReference } from "esco/skill/skills.types";
 export interface ISkillGroupDoc extends ImportIdentifiable {
   modelId: mongoose.Types.ObjectId;
   UUID: string;
-  originUUID: string;
+  UUIDHistory: string[];
   code: string;
   ESCOUri: string;
   preferredLabel: string;

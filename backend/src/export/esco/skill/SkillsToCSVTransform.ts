@@ -14,9 +14,9 @@ export const transformSkillSpecToCSVRow = (skill: IUnpopulatedSkill): ISkillRow 
   return {
     ESCOURI: skill.ESCOUri,
     ID: skill.id,
-    ORIGINUUID: skill.originUUID,
+    UUIDHISTORY: skill.UUIDHistory.join("\n"),
     PREFERREDLABEL: skill.preferredLabel,
-    ALTLABELS: skill.altLabels.length ? skill.altLabels.join("\n") : "",
+    ALTLABELS: skill.altLabels.join("\n"),
     DESCRIPTION: skill.description,
     SCOPENOTE: skill.scopeNote,
     DEFINITION: skill.definition,

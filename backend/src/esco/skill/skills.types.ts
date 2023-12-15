@@ -32,7 +32,7 @@ export interface ISkillDoc extends ImportIdentifiable {
   UUID: string;
   modelId: mongoose.Types.ObjectId;
   preferredLabel: string;
-  originUUID: string;
+  UUIDHistory: string[];
   ESCOUri: string;
   altLabels: string[];
   description: string;

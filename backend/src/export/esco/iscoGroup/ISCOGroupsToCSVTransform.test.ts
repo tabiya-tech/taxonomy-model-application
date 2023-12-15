@@ -16,12 +16,12 @@ const getMockISCOGroups = (): IUnpopulatedISCOGroup[] => {
   return Array.from<never, IUnpopulatedISCOGroup>({ length: 6 }, (_, i) => ({
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
+    UUIDHistory: i % 2 ? [`uuid_${i}_${getTestString(80)}`, `uuid_${i + 1}_${getTestString(80)}`] : [],
     code: `code_${i}`,
     preferredLabel: `ISCOGroup_${i}_${getTestString(80)}`,
     altLabels: i % 2 ? [`altLabel_1_${getTestString(80)}`, `altLabel_2_${getTestString(80)}`] : [],
     description: `description_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
-    originUUID: `originUUID_${i}`,
     ESCOUri: `ESCOUri_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     createdAt: new Date(),

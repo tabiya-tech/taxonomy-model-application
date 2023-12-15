@@ -48,12 +48,14 @@ jest.mock("crypto", () => {
  * Helper function to create an expected INewSkillSpec from a given INewSkillSpec,
  * that can ebe used for assertions
  * @param givenSpec
+ * @param newUUID
  */
-function expectedFromGivenSpec(givenSpec: INewSkillSpec): ISkill {
+function expectedFromGivenSpec(givenSpec: INewSkillSpec, newUUID: string): ISkill {
   return {
     ...givenSpec,
     id: expect.any(String),
-    UUID: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
     parents: [],
@@ -150,7 +152,20 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const actualNewSkill = await repository.create(givenNewSkillSpec);
 
       // THEN expect the new skill to be created with the specific attributes
-      const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec);
+      const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
+      expect(actualNewSkill).toEqual(expectedNewSkill);
+    });
+
+    test("should successfully create a new skill when the given specifications have an empty UUIDHistory", async () => {
+      // GIVEN a valid newSkillSpec
+      const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
+      givenNewSkillSpec.UUIDHistory = [];
+
+      // WHEN Creating a new skill with the given specifications
+      const actualNewSkill = await repository.create(givenNewSkillSpec);
+
+      // THEN expect the new skill to be created with the specific attributes
+      const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
       expect(actualNewSkill).toEqual(expectedNewSkill);
     });
 
@@ -175,8 +190,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenNewModel = await repository.create(givenNewSkillSpecSpec);
 
       // WHEN Creating a new Skill with the UUID of the existing Skill
-      // @ts-ignore
-      randomUUID.mockReturnValueOnce(givenNewModel.UUID);
+      (randomUUID as jest.Mock).mockReturnValueOnce(givenNewModel.UUID);
       const actualPromise = repository.create(givenNewSkillSpecSpec);
 
       // THEN expect the actual promise to reject
@@ -206,13 +220,13 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of skills with the given specifications
-      const actualNewSkills: INewSkillSpec[] = await repository.createMany(givenNewSkillSpecs);
+      const actualNewSkills: ISkill[] = await repository.createMany(givenNewSkillSpecs);
 
       // THEN expect all the Skills to be created with the specific attributes
       expect(actualNewSkills).toEqual(
         expect.arrayContaining(
-          givenNewSkillSpecs.map((givenNewSkillSpec) => {
-            return expectedFromGivenSpec(givenNewSkillSpec);
+          givenNewSkillSpecs.map((givenNewSkillSpec, index) => {
+            return expectedFromGivenSpec(givenNewSkillSpec, actualNewSkills[index].UUID);
           })
         )
       );
@@ -228,7 +242,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       givenInvalidSkillSpec[1].foo = "invalid"; // will not validate and will throw an error
 
       // WHEN creating the batch of skills with the given specifications
-      const actualNewSkills: INewSkillSpec[] = await repository.createMany([
+      const actualNewSkills: ISkill[] = await repository.createMany([
         givenValidSkillSpecs[0],
         ...givenInvalidSkillSpec,
         givenValidSkillSpecs[1],
@@ -238,8 +252,30 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(actualNewSkills).toHaveLength(givenValidSkillSpecs.length);
       expect(actualNewSkills).toEqual(
         expect.arrayContaining(
-          givenValidSkillSpecs.map((givenNewSkillSpec) => {
-            return expectedFromGivenSpec(givenNewSkillSpec);
+          givenValidSkillSpecs.map((givenNewSkillSpec, index) => {
+            return expectedFromGivenSpec(givenNewSkillSpec, actualNewSkills[index].UUID);
+          })
+        )
+      );
+    });
+
+    test("should successfully create a batch of new skills when they have an empty UUIDHistory", async () => {
+      // GIVEN some valid SkillSpec
+      const givenBatchSize = 3;
+      const givenNewSkillSpecs: INewSkillSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenNewSkillSpecs[i] = getNewSkillSpec();
+        givenNewSkillSpecs[i].UUIDHistory = [];
+      }
+
+      // WHEN creating the batch of skills with the given specifications
+      const actualNewSkills: ISkill[] = await repository.createMany(givenNewSkillSpecs);
+
+      // THEN expect all the Skills to be created with the specific attributes
+      expect(actualNewSkills).toEqual(
+        expect.arrayContaining(
+          givenNewSkillSpecs.map((givenNewSkillSpec, index) => {
+            return expectedFromGivenSpec(givenNewSkillSpec, actualNewSkills[index].UUID);
           })
         )
       );
@@ -273,15 +309,15 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // WHEN creating the batch of skills with the given specifications (the second SkillSpec having the same UUID as the first one)
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
         (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
-        const actualNewSkills: INewSkillSpec[] = await repository.createMany(givenNewSkillSpecs);
+        const actualNewSkills: ISkill[] = await repository.createMany(givenNewSkillSpecs);
 
         // THEN expect only the first and the third Skill to be created with the specific attributes
         expect(actualNewSkills).toEqual(
           expect.arrayContaining(
             givenNewSkillSpecs
               .filter((_spec, index) => index !== 1)
-              .map((givenNewSkillSpec) => {
-                return expectedFromGivenSpec(givenNewSkillSpec);
+              .map((givenNewSkillSpec, index) => {
+                return expectedFromGivenSpec(givenNewSkillSpec, actualNewSkills[index].UUID);
               })
           )
         );
