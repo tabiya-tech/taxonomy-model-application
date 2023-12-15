@@ -18,7 +18,12 @@ import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { IISCOGroupDoc } from "./ISCOGroup.types";
-import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import {
+  testImportId,
+  testObjectIdField,
+  testUUIDField,
+  testUUIDHistoryField,
+} from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the ISCOGroup Model", () => {
   let dbConnection: Connection;
@@ -43,10 +48,10 @@ describe("Test the definition of the ISCOGroup Model", () => {
       "mandatory fields",
       {
         UUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: randomUUID(),
         ESCOUri: generateRandomUrl(),
         altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -57,10 +62,10 @@ describe("Test the definition of the ISCOGroup Model", () => {
       "optional fields",
       {
         UUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: "",
         ESCOUri: "",
         altLabels: [],
         description: "",
@@ -93,44 +98,9 @@ describe("Test the definition of the ISCOGroup Model", () => {
   describe("Validate ISCOGroup fields", () => {
     testObjectIdField<IISCOGroupDoc>(() => ISCOGroupModel, "modelId");
 
-    describe("Test validation of 'UUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "UUID", caseType, value, expectedFailureMessage);
-      });
-    });
+    testUUIDField<IISCOGroupDoc>(() => ISCOGroupModel);
 
-    describe("Test validation of 'originUUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Empty originUUID", "", undefined],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(
-        `(%s) Validate 'originUUID' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "originUUID", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testUUIDHistoryField<IISCOGroupDoc>(() => ISCOGroupModel);
 
     describe("Test validation of 'code'", () => {
       test.each([
@@ -281,15 +251,9 @@ describe("Test the definition of the ISCOGroup Model", () => {
       // THEN expect the indexes to be correct
       expect(indexes).toEqual([
         { key: { _id: 1 }, unique: undefined },
+        { key: { modelId: 1, code: 1 }, unique: true },
         { key: { UUID: 1 }, unique: true },
-        { key: { modelId: 1 }, unique: undefined },
-        {
-          key: {
-            code: 1,
-            modelId: 1,
-          },
-          unique: true,
-        },
+        { key: { UUIDHistory: 1 }, unique: undefined },
       ]);
     });
   });

@@ -47,6 +47,7 @@ export const occupationFromLocalizedOccupationTransform = (doc: ILocalizedOccupa
   return {
     // Original fields from ILocalizedOccupation
     UUID: doc.UUID,
+    UUIDHistory: doc.UUIDHistory,
     modelId: doc.modelId,
     altLabels: doc.altLabels,
     description: doc.description,
@@ -62,7 +63,6 @@ export const occupationFromLocalizedOccupationTransform = (doc: ILocalizedOccupa
     // Fields from localizesOccupation
     localizesOccupationId: doc.localizesOccupation.id,
     preferredLabel: doc.localizesOccupation.preferredLabel,
-    originUUID: doc.localizesOccupation.originUUID,
     ESCOUri: doc.localizesOccupation.ESCOUri,
     ISCOGroupCode: doc.localizesOccupation.ISCOGroupCode,
     code: doc.localizesOccupation.code,

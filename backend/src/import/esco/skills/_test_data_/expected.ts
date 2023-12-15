@@ -3,7 +3,7 @@ import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 export const expected: Omit<INewSkillSpec, "modelId">[] = [
   {
     ESCOUri: "esco uri",
-    originUUID: "origin uuid",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d", "b69710e0-7e7d-43ea-a645-26dab12faf83"],
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description",
@@ -15,7 +15,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
-    originUUID: "origin\nuuid\nwith\nlinebreak",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
     description: "description\nwith\nlinebreak",
@@ -27,7 +27,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
   },
   {
     ESCOUri: "",
-    originUUID: "",
+    UUIDHistory: [],
     preferredLabel: "",
     altLabels: [],
     description: "",
@@ -36,5 +36,29 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.None,
     reuseLevel: ReuseLevel.None,
     importId: "key_3",
+  },
+  {
+    ESCOUri: "esco uri",
+    UUIDHistory: [],
+    preferredLabel: "preferred label",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    scopeNote: "scopeNote",
+    definition: "definition",
+    skillType: SkillType.SkillCompetence,
+    reuseLevel: ReuseLevel.SectorSpecific,
+    importId: "key_4",
+  },
+  {
+    ESCOUri: "esco uri",
+    UUIDHistory: [],
+    preferredLabel: "preferred label",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    scopeNote: "scopeNote",
+    definition: "definition",
+    skillType: SkillType.SkillCompetence,
+    reuseLevel: ReuseLevel.SectorSpecific,
+    importId: "key_5",
   },
 ];

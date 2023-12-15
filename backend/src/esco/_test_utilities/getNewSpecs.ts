@@ -29,7 +29,7 @@ export function getNewISCOGroupSpec(): INewISCOGroupSpec {
     code: getMockRandomISCOGroupCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
-    originUUID: "",
+    UUIDHistory: [randomUUID()],
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
@@ -46,7 +46,7 @@ export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: strin
     code: getMockRandomISCOGroupCode(),
     preferredLabel: preferredLabel,
     modelId: modelId,
-    originUUID: "",
+    UUIDHistory: [randomUUID()],
     ESCOUri: "",
     description: "",
     importId: "",
@@ -67,7 +67,7 @@ export function getNewOccupationSpec(isLocal: boolean = false): INewOccupationSp
     code: getMockRandomOccupationCode(isLocal),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
-    originUUID: "",
+    UUIDHistory: [randomUUID()],
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
@@ -93,7 +93,7 @@ export function getSimpleNewOccupationSpec(
     code: getMockRandomOccupationCode(isLocal),
     preferredLabel: preferredLabel,
     modelId: modelId,
-    originUUID: "",
+    UUIDHistory: [randomUUID()],
     ESCOUri: "",
     description: "",
     importId: "",
@@ -115,6 +115,7 @@ export function getNewLocalizedOccupationSpec(
     occupationType: OccupationType.LOCALIZED,
     localizesOccupationId: localizedFromId,
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
+    UUIDHistory: [randomUUID()],
   };
 }
 
@@ -133,6 +134,7 @@ export function getSimpleNewLocalizedOccupationSpec(
     occupationType: OccupationType.LOCALIZED,
     localizesOccupationId: localizedFromId,
     importId: "",
+    UUIDHistory: [randomUUID()],
   };
 }
 
@@ -145,7 +147,7 @@ export function getNewSkillGroupSpec(): INewSkillGroupSpec {
     code: getMockRandomSkillCode(),
     preferredLabel: getTestString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
-    originUUID: randomUUID(),
+    UUIDHistory: [randomUUID()],
     ESCOUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
@@ -163,7 +165,7 @@ export function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: stri
     code: getMockRandomSkillCode(),
     preferredLabel: preferredLabel,
     modelId: modelId,
-    originUUID: "",
+    UUIDHistory: [randomUUID()],
     ESCOUri: "",
     description: "",
     scopeNote: "",
@@ -180,7 +182,7 @@ export function getNewSkillSpec(): INewSkillSpec {
   return {
     preferredLabel: getTestString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
-    originUUID: randomUUID(),
+    UUIDHistory: [randomUUID()],
     ESCOUri: generateRandomUrl(),
     definition: getTestString(DEFINITION_MAX_LENGTH),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -200,7 +202,7 @@ export function getSimpleNewSkillSpec(modelId: string, preferredLabel: string): 
   return {
     preferredLabel: preferredLabel,
     modelId: modelId,
-    originUUID: "",
+    UUIDHistory: [randomUUID()],
     ESCOUri: "",
     definition: "",
     description: "",

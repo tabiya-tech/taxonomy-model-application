@@ -84,7 +84,7 @@ describe("test parseLocalizedOccupations from", () => {
                   children: [],
                   modelId: "",
                   preferredLabel: "",
-                  originUUID: "",
+                  UUIDHistory: [],
                   ESCOUri: "",
                   ISCOGroupCode: "",
                   code: "",
@@ -128,9 +128,9 @@ describe("test parseLocalizedOccupations from", () => {
       });
       // AND all the expected rows to have been processed successfully
       expect(actualStats).toEqual({
-        rowsProcessed: 5,
+        rowsProcessed: 7,
         rowsSuccess: expectedResults.length,
-        rowsFailed: 5 - expectedResults.length,
+        rowsFailed: 7 - expectedResults.length,
       });
 
       expectedResults

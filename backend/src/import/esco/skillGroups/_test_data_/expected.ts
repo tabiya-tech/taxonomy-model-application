@@ -3,7 +3,7 @@ import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
   {
     ESCOUri: "esco uri",
-    originUUID: "origin uuid",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d", "b69710e0-7e7d-43ea-a645-26dab12faf83"],
     code: "L",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
@@ -13,7 +13,7 @@ export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
   },
   {
     ESCOUri: "esco\nuri\nwith\nlinebreak",
-    originUUID: "origin\nuuid\nwith\nlinebreak",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     code: "L6.6.6",
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
@@ -23,12 +23,32 @@ export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
   },
   {
     ESCOUri: "",
-    originUUID: "",
+    UUIDHistory: [],
     code: "",
     preferredLabel: "",
     altLabels: [],
     description: "",
     scopeNote: "",
     importId: "key_3",
+  },
+  {
+    ESCOUri: "esco uri",
+    UUIDHistory: [],
+    code: "L",
+    preferredLabel: "preferred label",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    scopeNote: "scopeNote",
+    importId: "key_4",
+  },
+  {
+    ESCOUri: "esco uri",
+    UUIDHistory: [],
+    code: "L",
+    preferredLabel: "preferred label",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    scopeNote: "scopeNote",
+    importId: "key_5",
   },
 ];

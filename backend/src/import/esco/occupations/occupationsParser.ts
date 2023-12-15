@@ -68,7 +68,7 @@ function getRowToSpecificationTransformFn(
     return {
       ESCOUri: row.ESCOURI,
       modelId: modelId,
-      originUUID: row.ORIGINUUID,
+      UUIDHistory: row.UUIDHISTORY ? row.UUIDHISTORY.split("\n") : [],
       ISCOGroupCode: row.ISCOGROUPCODE,
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,

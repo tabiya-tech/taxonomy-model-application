@@ -10,7 +10,7 @@ import { ObjectTypes, OccupationType, RelationType } from "./objectTypes";
  * Headers for the iscoGroup CSV file
  */
 
-export const ISCOGroupHeaders = ["ID", "ESCOURI", "ORIGINUUID", "CODE", "PREFERREDLABEL", "ALTLABELS", "DESCRIPTION"];
+export const ISCOGroupHeaders = ["ID", "ESCOURI", "UUIDHISTORY", "CODE", "PREFERREDLABEL", "ALTLABELS", "DESCRIPTION"];
 
 /*
  * Interface for the iscoGroup row in the CSV file
@@ -18,7 +18,7 @@ export const ISCOGroupHeaders = ["ID", "ESCOURI", "ORIGINUUID", "CODE", "PREFERR
 export interface IISCOGroupRow {
   ID: string;
   ESCOURI: string;
-  ORIGINUUID: string;
+  UUIDHISTORY: string;
   CODE: string;
   PREFERREDLABEL: string;
   ALTLABELS: string;
@@ -31,7 +31,7 @@ export interface IISCOGroupRow {
 export const skillHeaders = [
   "ESCOURI",
   "ID",
-  "ORIGINUUID",
+  "UUIDHISTORY",
   "PREFERREDLABEL",
   "ALTLABELS",
   "DESCRIPTION",
@@ -46,7 +46,7 @@ export const skillHeaders = [
  */
 export interface ISkillRow {
   ESCOURI: string;
-  ORIGINUUID: string;
+  UUIDHISTORY: string;
   PREFERREDLABEL: string;
   ALTLABELS: string;
   DESCRIPTION: string;
@@ -63,7 +63,7 @@ export interface ISkillRow {
 export const skillGroupHeaders = [
   "ID",
   "ESCOURI",
-  "ORIGINUUID",
+  "UUIDHISTORY",
   "CODE",
   "PREFERREDLABEL",
   "ALTLABELS",
@@ -78,7 +78,7 @@ export const skillGroupHeaders = [
 export interface ISkillGroupRow {
   ID: string;
   ESCOURI: string;
-  ORIGINUUID: string;
+  UUIDHISTORY: string;
   CODE: string;
   PREFERREDLABEL: string;
   ALTLABELS: string;
@@ -93,7 +93,7 @@ export interface ISkillGroupRow {
 export const occupationHeaders = [
   "ID",
   "ESCOURI",
-  "ORIGINUUID",
+  "UUIDHISTORY",
   "ISCOGROUPCODE",
   "CODE",
   "PREFERREDLABEL",
@@ -112,7 +112,7 @@ export const occupationHeaders = [
 export interface IOccupationRow {
   ID: string;
   ESCOURI: string;
-  ORIGINUUID: string;
+  UUIDHISTORY: string;
   ISCOGROUPCODE: string;
   CODE: string;
   PREFERREDLABEL: string;
@@ -128,13 +128,21 @@ export interface IOccupationRow {
  * Headers for the LocalizedOccupation CSV file
  */
 
-export const localizedOccupationHeaders = ["ID", "ALTLABELS", "DESCRIPTION", "OCCUPATIONTYPE", "LOCALIZESOCCUPATIONID"];
+export const localizedOccupationHeaders = [
+  "ID",
+  "UUIDHISTORY",
+  "ALTLABELS",
+  "DESCRIPTION",
+  "OCCUPATIONTYPE",
+  "LOCALIZESOCCUPATIONID",
+];
 
 /*
  * Interface for the LocalizedOccupation row in the CSV file
  */
 export interface ILocalizedOccupationRow {
   ID: string;
+  UUIDHISTORY: string;
   ALTLABELS: string;
   DESCRIPTION: string;
   OCCUPATIONTYPE: string;

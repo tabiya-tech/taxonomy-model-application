@@ -5,6 +5,7 @@ import {
   DescriptionProperty,
   ImportIDProperty,
   OccupationTypeProperty,
+  UUIDHistoryProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
@@ -19,6 +20,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   const LocalizedOccupationSchema = new mongoose.Schema<ILocalizedOccupationDoc>(
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
+      UUIDHistory: UUIDHistoryProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       altLabels: AltLabelsProperty,
       description: DescriptionProperty,
@@ -62,6 +64,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 
   LocalizedOccupationSchema.index({ UUID: 1 }, { unique: true });
   LocalizedOccupationSchema.index({ modelId: 1, localizesOccupationId: 1 }, { unique: true });
+  LocalizedOccupationSchema.index({ UUIDHistory: 1 });
 
   // Model
   return dbConnection.model<ILocalizedOccupationDoc>(MongooseModelName.LocalizedOccupation, LocalizedOccupationSchema);

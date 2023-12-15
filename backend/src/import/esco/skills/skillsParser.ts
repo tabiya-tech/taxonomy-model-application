@@ -28,11 +28,10 @@ function getRowToSpecificationTransformFn(
   modelId: string
 ): TransformRowToSpecificationFunction<ISkillRow, INewSkillSpec> {
   return (row: ISkillRow) => {
-    // @ts-ignore
     return {
       ESCOUri: row.ESCOURI,
       modelId: modelId,
-      originUUID: row.ORIGINUUID,
+      UUIDHistory: row.UUIDHISTORY.length ? row.UUIDHISTORY.split("\n") : [],
       preferredLabel: row.PREFERREDLABEL,
       altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
       description: row.DESCRIPTION,

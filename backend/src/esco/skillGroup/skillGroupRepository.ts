@@ -57,6 +57,17 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     this.Model = model;
   }
 
+  private newSpecToModel(newSpec: INewSkillGroupSpec): mongoose.HydratedDocument<ISkillGroupDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({
+      ...newSpec,
+      UUID: newUUID,
+    });
+    // add the new UUID as the first element of the UUIDHistory
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
   async create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup> {
     //@ts-ignore
     if (newSkillGroupSpec.UUID !== undefined) {
@@ -66,10 +77,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
 
     try {
-      const newSkillGroupModel = new this.Model({
-        ...newSkillGroupSpec,
-        UUID: randomUUID(),
-      });
+      const newSkillGroupModel = this.newSpecToModel(newSkillGroupSpec);
       await newSkillGroupModel.save();
       await newSkillGroupModel.populate([
         { path: SkillGroupModelPaths.parents },
@@ -87,10 +95,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       const newSkillGroupModels = newSkillGroupSpecs
         .map((spec) => {
           try {
-            return new this.Model({
-              ...spec,
-              UUID: randomUUID(), // override UUID silently
-            });
+            return this.newSpecToModel(spec);
           } catch (e: unknown) {
             return null;
           }

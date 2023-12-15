@@ -29,6 +29,7 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
   return Array.from<never, IUnpopulatedSkill>({ length: 6 }, (_, i) => ({
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
+    UUIDHistory: i % 2 ? [`uuidHistory_${i}_${getTestString(80)}`, `uuidHistory_${i + 1}_${getTestString(80)}`] : [],
     preferredLabel: `Skill_${i}_${getTestString(80)}`,
     altLabels: i % 2 ? [`altLabel_1_${getTestString(80)}`, `altLabel_2_${getTestString(80)}`] : [],
     description: `description_${i}_${getTestString(80)}`,

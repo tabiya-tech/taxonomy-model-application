@@ -14,7 +14,12 @@ import {
 } from "esco/common/modelSchema";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import {
+  testImportId,
+  testObjectIdField,
+  testUUIDField,
+  testUUIDHistoryField,
+} from "esco/_test_utilities/modelSchemaTestFunctions";
 import { OccupationType } from "esco/common/objectTypes";
 import { ILocalizedOccupationDoc } from "./localizedOccupation.types";
 import { initializeSchemaAndModel } from "./localizedOccupationModel";
@@ -46,6 +51,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
       "mandatory fields",
       {
         UUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         modelId: getMockObjectId(2),
         altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -58,6 +64,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
       "optional fields",
       {
         UUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         modelId: getMockObjectId(2),
         altLabels: [],
         description: "",
@@ -96,29 +103,9 @@ describe("Test the definition of the Localized Occupation Model", () => {
 
     testObjectIdField<ILocalizedOccupationDoc>(() => LocalizedOccupationModel, "localizesOccupationId");
 
-    describe("Test validation of 'UUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ILocalizedOccupationDoc>(
-          LocalizedOccupationModel,
-          "UUID",
-          caseType,
-          value,
-          expectedFailureMessage
-        );
-      });
-    });
+    testUUIDField<ILocalizedOccupationDoc>(() => LocalizedOccupationModel);
+
+    testUUIDHistoryField<ILocalizedOccupationDoc>(() => LocalizedOccupationModel);
 
     describe("Test validation of 'altLabels'", () => {
       test.each([
@@ -241,7 +228,14 @@ describe("Test the definition of the Localized Occupation Model", () => {
     expect(indexes).toEqual([
       { key: { _id: 1 }, unique: undefined },
       { key: { UUID: 1 }, unique: true },
-      { key: { modelId: 1, localizesOccupationId: 1 }, unique: true },
+      {
+        key: {
+          modelId: 1,
+          localizesOccupationId: 1,
+        },
+        unique: true,
+      },
+      { key: { UUIDHistory: 1 }, unique: undefined },
     ]);
   });
 });

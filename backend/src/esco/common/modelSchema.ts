@@ -66,21 +66,23 @@ export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
   maxlength: [LABEL_MAX_LENGTH, `AltLabel must be at most ${LABEL_MAX_LENGTH} chars long`],
   default: undefined,
   validate: (value: string[]) => {
-    if (
-      !Array.isArray(value) ||
-      (value.length > 0 &&
-        value.every((item: string) => {
-          const trimmed = item.trim();
-          return trimmed.length === 0 || trimmed.length > LABEL_MAX_LENGTH;
-        }))
-    ) {
-      throw new Error("AltLabels must be an array of non empty strings");
-    }
-
     if (value.length > ATL_LABELS_MAX_ITEMS) {
       throw new Error(`AltLabels must be at most ${ATL_LABELS_MAX_ITEMS} items`);
     }
 
+    if (!Array.isArray(value)) {
+      throw new Error("AltLabels must be an array");
+    }
+
+    if (
+      value.length > 0 &&
+      value.every((item: string) => {
+        const trimmed = item.trim();
+        return trimmed.length === 0 || trimmed.length > LABEL_MAX_LENGTH;
+      })
+    ) {
+      throw new Error("AltLabels must be an array of valid strings");
+    }
     if (!hasUniqueValues(value)) {
       throw new Error("Duplicate altLabel found");
     }
@@ -88,12 +90,32 @@ export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
   },
 };
 
-// Origin UUID
-export const OriginUUIDProperty: mongoose.SchemaDefinitionProperty<string> = {
-  type: String,
-  required: stringRequired("originUUID"),
-  validate: function (value: string): boolean {
-    return value.length === 0 || RegExp_UUIDv4.test(value);
+// UUIDHistory
+export const UUID_HISTORY_MAX_ITEMS = 10000;
+export const UUIDHistoryProperty: mongoose.SchemaDefinitionProperty<string[]> = {
+  type: [String],
+  required: true,
+  default: undefined,
+  validate: (value: string[]) => {
+    if (!Array.isArray(value)) {
+      throw new Error("UUIDHistory must be an array");
+    }
+    if (value.length > UUID_HISTORY_MAX_ITEMS) {
+      throw new Error(`UUIDHistory can be no larger than ${UUID_HISTORY_MAX_ITEMS} items`);
+    }
+
+    if (value.length <= 0) {
+      throw new Error("UUIDHistory must be a non empty array");
+    }
+
+    if (!value.every((uuid: string) => RegExp_UUIDv4.test(uuid))) {
+      throw new Error("UUIDHistory must be an array of valid UUIDs");
+    }
+
+    if (!hasUniqueValues(value)) {
+      throw new Error("Duplicate UUID found");
+    }
+    return true;
   },
 };
 

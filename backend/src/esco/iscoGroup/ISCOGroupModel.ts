@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
-import { RegExp_UUIDv4 } from "server/regex";
 import {
   AltLabelsProperty,
   DescriptionProperty,
   ESCOUriProperty,
   ImportIDProperty,
   ISCOCodeProperty,
-  OriginUUIDProperty,
+  UUIDHistoryProperty,
   PreferredLabelProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IISCOGroupDoc } from "./ISCOGroup.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
+import { RegExp_UUIDv4 } from "server/regex";
 
 export const ISCOGroupModelPaths = {
   parent: "parent",
@@ -24,10 +24,10 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   const ISCOGroupSchema = new mongoose.Schema<IISCOGroupDoc>(
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
+      UUIDHistory: UUIDHistoryProperty,
       code: ISCOCodeProperty,
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
-      originUUID: OriginUUIDProperty,
       ESCOUri: ESCOUriProperty,
       altLabels: AltLabelsProperty,
       description: DescriptionProperty,
@@ -54,12 +54,14 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     match: (iscoGroup: IISCOGroupDoc) => ({ modelId: iscoGroup.modelId }),
   });
 
-  ISCOGroupSchema.index({ UUID: 1 }, { unique: true });
-
-  ISCOGroupSchema.index({ modelId: 1 });
-
   // Two isco groups cannot have the same isco code in the same model
-  ISCOGroupSchema.index({ code: 1, modelId: 1 }, { unique: true });
+  // Comound index allows to search for the model
+  ISCOGroupSchema.index({ modelId: 1, code: 1 }, { unique: true });
+
+  ISCOGroupSchema.index({ UUID: 1 }, { unique: true });
+  ISCOGroupSchema.index({ UUIDHistory: 1 });
+  // Preferred label must be unique in the same model
+  // ISCOGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
 
   return dbConnection.model<IISCOGroupDoc>(MongooseModelName.ISCOGroup, ISCOGroupSchema);
 }

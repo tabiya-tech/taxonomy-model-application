@@ -19,7 +19,12 @@ import {
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillGroupDoc } from "./skillGroup.types";
-import { testImportId, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import {
+  testImportId,
+  testObjectIdField,
+  testUUIDField,
+  testUUIDHistoryField,
+} from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the skillGroup Model", () => {
   let dbConnection: Connection;
@@ -47,7 +52,7 @@ describe("Test the definition of the skillGroup Model", () => {
         code: getMockRandomSkillCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         ESCOUri: generateRandomUrl(),
         altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
@@ -62,7 +67,7 @@ describe("Test the definition of the skillGroup Model", () => {
         code: getMockRandomSkillCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        originUUID: "",
+        UUIDHistory: [randomUUID()],
         altLabels: [],
         ESCOUri: "",
         description: "",
@@ -96,44 +101,9 @@ describe("Test the definition of the skillGroup Model", () => {
   describe("Validate skillGroup fields", () => {
     testObjectIdField<ISkillGroupDoc>(() => skillGroupModel, "modelId");
 
-    describe("Test validation of 'UUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "UUID", caseType, value, expectedFailureMessage);
-      });
-    });
+    testUUIDField<ISkillGroupDoc>(() => skillGroupModel);
 
-    describe("Test validation of 'originUUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Empty originUUID", "", undefined],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])(
-        `(%s) Validate 'originUUID' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillGroupDoc>(skillGroupModel, "originUUID", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testUUIDHistoryField<ISkillGroupDoc>(() => skillGroupModel);
 
     describe("Test validation of 'code'", () => {
       test.each([
@@ -303,6 +273,7 @@ describe("Test the definition of the skillGroup Model", () => {
       { key: { _id: 1 }, unique: undefined },
       { key: { UUID: 1 }, unique: true },
       { key: { modelId: 1 }, unique: undefined },
+      { key: { UUIDHistory: 1 }, unique: undefined },
     ]);
   });
 });

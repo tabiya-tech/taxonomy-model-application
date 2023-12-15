@@ -1,15 +1,13 @@
-"ESCOURI",ID,"ORIGINUUID","PREFERREDLABEL","ALTLABELS","DESCRIPTION",DEFINITION,SKILLTYPE,REUSELEVEL,SCOPENOTE
+"ESCOURI",ID,"UUIDHISTORY","PREFERREDLABEL","ALTLABELS","DESCRIPTION",DEFINITION,SKILLTYPE,REUSELEVEL,SCOPENOTE
 ,,,,,,,,,
 ,,,,,,,,,
-"esco uri",key_1,"origin uuid","preferred label","label1
+"esco uri",key_1,"b69710e0-7e7d-43ea-a645-26dab12faf8d
+b69710e0-7e7d-43ea-a645-26dab12faf83","preferred label","label1
 label2","description",definition,skill/competence,sector-specific,scopeNote
 "esco
 uri
 with
-linebreak",key_2,"origin
-uuid
-with
-linebreak","preferred
+linebreak",key_2,"b69710e0-7e7d-43ea-a645-26dab12faf8d","preferred
 label
 with
 linebreak","label1
@@ -21,3 +19,7 @@ linebreak",knowledge,cross-sector,"scopeNote
 with
 linebreak"
 ,key_3,,,,,,,,
+"esco uri","key_4",,"preferred label","label1
+label2","description",definition,skill/competence,sector-specific,scopeNote
+"esco uri","key_5","","preferred label","label1
+label2","description",definition,skill/competence,sector-specific,scopeNote

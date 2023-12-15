@@ -10,10 +10,10 @@ export const transformISCOGroupSpecToCSVRow = (iscoGroup: IUnpopulatedISCOGroup)
   return {
     ESCOURI: iscoGroup.ESCOUri,
     ID: iscoGroup.id,
-    ORIGINUUID: iscoGroup.originUUID,
+    UUIDHISTORY: iscoGroup.UUIDHistory.join("\n"),
     CODE: iscoGroup.code,
     PREFERREDLABEL: iscoGroup.preferredLabel,
-    ALTLABELS: iscoGroup.altLabels.length ? iscoGroup.altLabels.join("\n") : "",
+    ALTLABELS: iscoGroup.altLabels.join("\n"),
     DESCRIPTION: iscoGroup.description,
   };
 };

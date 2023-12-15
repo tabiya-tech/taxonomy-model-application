@@ -16,6 +16,7 @@ const getMockSkillGroups = (): IUnpopulatedSkillGroup[] => {
   return Array.from<never, IUnpopulatedSkillGroup>({ length: 6 }, (_, i) => ({
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
+    UUIDHistory: i % 2 ? [`uuidHistory_1_${getTestString(80)}`, `uuidHistory_2_${getTestString(80)}`] : [],
     code: `code_${i}`,
     preferredLabel: `SkillGroup_${i}_${getTestString(80)}`,
     altLabels: i % 2 ? [`altLabel_1_${getTestString(80)}`, `altLabel_2_${getTestString(80)}`] : [],

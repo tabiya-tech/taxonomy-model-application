@@ -58,6 +58,7 @@ function getRowToSpecificationTransformFn(
       occupationType,
       localizesOccupationId,
       importId: row.ID,
+      UUIDHistory: row.UUIDHISTORY ? row.UUIDHISTORY.split("\n") : [],
     };
   };
 }

@@ -5,6 +5,7 @@ import { IMPORT_ID_MAX_LENGTH } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
+import { randomUUID } from "crypto";
 
 export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   test.each([
@@ -133,6 +134,65 @@ export function testObjectIdField<T>(getModel: () => mongoose.Model<T>, fieldNam
       `(%s) Validate '${fieldName}' when it is %s`,
       (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<T>(getModel(), fieldName, caseType, value, expectedFailureMessage);
+      }
+    );
+  });
+}
+
+export function testUUIDField<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'UUID'", () => {
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+      [
+        CaseType.Failure,
+        "only whitespace characters",
+        WHITESPACE,
+        `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+      ],
+      [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+      [CaseType.Success, "Valid UUID", randomUUID(), undefined],
+    ])(`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+      assertCaseForProperty<T>(getModel(), "UUID", caseType, value, expectedFailureMessage);
+    });
+  });
+}
+
+export function testUUIDHistoryField<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'UUIDHistory'", () => {
+    const randomValidUUID = randomUUID();
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `UUIDHistory` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [CaseType.Failure, "empty string", "", "Validator failed for path `UUIDHistory` with value ``"],
+      [
+        CaseType.Failure,
+        "only whitespace characters",
+        WHITESPACE,
+        `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+      ],
+      [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `UUIDHistory` with value `foo`"],
+      [
+        CaseType.Failure,
+        "an array of non UUID strings",
+        ["foo", "bar"],
+        "Validator failed for path `UUIDHistory` with value `foo,bar`",
+      ],
+      [
+        CaseType.Failure,
+        "mixed array of strings and UUIDs",
+        [randomValidUUID, "foo"],
+        "Validator failed for path `UUIDHistory` with value `" + randomValidUUID + ",foo`",
+      ],
+      [CaseType.Failure, "empty array", [], "Validator failed for path `UUIDHistory` with value ``"],
+      [CaseType.Success, "Valid UUID", randomValidUUID, undefined],
+      [CaseType.Success, "an array with a single valid UUID", [randomValidUUID], undefined],
+      [CaseType.Success, "an array with many valid UUIDs", [randomUUID(), randomUUID(), randomUUID()], undefined],
+    ])(
+      `(%s) Validate 'UUIDHistory' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>(getModel(), "UUIDHistory", caseType, value, expectedFailureMessage);
       }
     );
   });
