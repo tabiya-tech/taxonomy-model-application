@@ -35,8 +35,8 @@ const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelat
     requiredSkillId: getMockStringId(i * 3 + 2),
     requiringOccupationType: getOccupationType(i),
     relationType: i % 2 ? RelationType.ESSENTIAL : RelationType.OPTIONAL,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 

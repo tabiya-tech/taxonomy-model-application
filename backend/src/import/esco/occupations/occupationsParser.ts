@@ -12,10 +12,10 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { RegExESCOOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
 import { OccupationType } from "esco/common/objectTypes";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
-import { IOccupationRow, occupationHeaders } from "esco/common/entityToCSV.types";
+import { IOccupationImportRow, occupationImportHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, occupationHeaders);
+  return getStdHeadersValidator(validatorName, occupationImportHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
@@ -31,8 +31,8 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 function getRowToSpecificationTransformFn(
   modelId: string,
   isLocalImport: boolean
-): TransformRowToSpecificationFunction<IOccupationRow, INewOccupationSpec> {
-  return (row: IOccupationRow) => {
+): TransformRowToSpecificationFunction<IOccupationImportRow, INewOccupationSpec> {
+  return (row: IOccupationImportRow) => {
     const occupationType = getOccupationTypeFromRow(row);
 
     if (!occupationType) {
@@ -108,5 +108,5 @@ export async function parseOccupationsFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, isLocalImport);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<IOccupationRow>("Occupation", OccupationsCSVFileStream, batchRowProcessor);
+  return await processStream<IOccupationImportRow>("Occupation", OccupationsCSVFileStream, batchRowProcessor);
 }

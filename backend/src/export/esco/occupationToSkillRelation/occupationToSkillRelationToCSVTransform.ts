@@ -1,5 +1,8 @@
 import { IOccupationToSkillRelationPair } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { IOccupationToSkillRelationRow, occupationToSkillRelationHeaders } from "esco/common/entityToCSV.types";
+import {
+  IOccupationToSkillRelationExportRow,
+  occupationToSkillRelationExportHeaders,
+} from "esco/common/entityToCSV.types";
 import { pipeline, Transform } from "stream";
 import { stringify } from "csv-stringify";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
@@ -12,12 +15,14 @@ export type IUnpopulatedOccupationToSkillRelation = Omit<
 
 export const transformOccupationToSkillRelationSpecToCSVRow = (
   occupationToSkillRelation: IUnpopulatedOccupationToSkillRelation
-): IOccupationToSkillRelationRow => {
+): IOccupationToSkillRelationExportRow => {
   return {
     OCCUPATIONTYPE: occupationToSkillRelation.requiringOccupationType,
     OCCUPATIONID: occupationToSkillRelation.requiringOccupationId,
     RELATIONTYPE: occupationToSkillRelation.relationType,
     SKILLID: occupationToSkillRelation.requiredSkillId,
+    CREATEDAT: occupationToSkillRelation.createdAt.toISOString(),
+    UPDATEDAT: occupationToSkillRelation.updatedAt.toISOString(),
   };
 };
 
@@ -53,7 +58,7 @@ const OccupationToSkillRelationToCSVTransform = (modelId: string): Readable => {
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const occupationToSkillRelationStringifier = stringify({
     header: true,
-    columns: occupationToSkillRelationHeaders,
+    columns: occupationToSkillRelationExportHeaders,
   });
 
   return pipeline(

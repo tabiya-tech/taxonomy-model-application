@@ -1,12 +1,12 @@
 import { IISCOGroup } from "esco/iscoGroup/ISCOGroup.types";
-import { IISCOGroupRow, ISCOGroupHeaders } from "esco/common/entityToCSV.types";
+import { IISCOGroupExportRow, ISCOGroupExportHeaders } from "esco/common/entityToCSV.types";
 import { pipeline, Readable, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { stringify } from "csv-stringify";
 
 export type IUnpopulatedISCOGroup = Omit<IISCOGroup, "parent" | "children">;
 
-export const transformISCOGroupSpecToCSVRow = (iscoGroup: IUnpopulatedISCOGroup): IISCOGroupRow => {
+export const transformISCOGroupSpecToCSVRow = (iscoGroup: IUnpopulatedISCOGroup): IISCOGroupExportRow => {
   return {
     ESCOURI: iscoGroup.ESCOUri,
     ID: iscoGroup.id,
@@ -15,6 +15,8 @@ export const transformISCOGroupSpecToCSVRow = (iscoGroup: IUnpopulatedISCOGroup)
     PREFERREDLABEL: iscoGroup.preferredLabel,
     ALTLABELS: iscoGroup.altLabels.join("\n"),
     DESCRIPTION: iscoGroup.description,
+    CREATEDAT: iscoGroup.createdAt.toISOString(),
+    UPDATEDAT: iscoGroup.updatedAt.toISOString(),
   };
 };
 
@@ -50,7 +52,7 @@ const ISCOGroupsToCSVTransform = (modelId: string): Readable => {
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const iscoGroupStringifier = stringify({
     header: true,
-    columns: ISCOGroupHeaders,
+    columns: ISCOGroupExportHeaders,
   });
 
   return pipeline(

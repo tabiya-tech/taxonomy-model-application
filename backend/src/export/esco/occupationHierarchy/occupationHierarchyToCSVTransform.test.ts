@@ -20,8 +20,8 @@ const getMockOccupationHierarchies = (): IUnpopulatedOccupationHierarchy[] => {
     childId: getMockStringId(i * 3 + 2),
     parentType: i % 2 ? ObjectTypes.Occupation : ObjectTypes.ISCOGroup,
     childType: i % 2 ? ObjectTypes.ISCOGroup : ObjectTypes.Occupation,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 

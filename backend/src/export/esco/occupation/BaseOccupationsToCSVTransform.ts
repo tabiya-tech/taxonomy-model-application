@@ -1,14 +1,14 @@
 import { stringify } from "csv-stringify";
 import { pipeline, Transform } from "stream";
 import { IOccupation } from "esco/occupation/occupation.types";
-import { IOccupationRow, occupationHeaders } from "esco/common/entityToCSV.types";
+import { IOccupationExportRow, occupationExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { OccupationType } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 
 export type IUnpopulatedOccupation = Omit<IOccupation, "parent" | "children" | "requiresSkills">;
 
-export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IOccupationRow => {
+export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IOccupationExportRow => {
   return {
     ESCOURI: occupation.ESCOUri,
     ID: occupation.id,
@@ -22,6 +22,8 @@ export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupati
     SCOPENOTE: occupation.scopeNote,
     REGULATEDPROFESSIONNOTE: occupation.regulatedProfessionNote,
     OCCUPATIONTYPE: occupation.occupationType,
+    CREATEDAT: occupation.createdAt.toISOString(),
+    UPDATEDAT: occupation.updatedAt.toISOString(),
   };
 };
 
@@ -63,7 +65,7 @@ const BaseOccupationsToCSVTransform = (
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const occupationStringifier = stringify({
     header: true,
-    columns: occupationHeaders,
+    columns: occupationExportHeaders,
   });
 
   return pipeline(

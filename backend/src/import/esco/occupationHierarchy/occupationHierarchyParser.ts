@@ -13,7 +13,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
-import { IOccupationHierarchyRow, occupationHierarchyHeaders } from "esco/common/entityToCSV.types";
+import { IOccupationHierarchyImportRow, occupationHierarchyImportHeaders } from "esco/common/entityToCSV.types";
 
 const enum CSV_OBJECT_TYPES {
   ISCOGroup = "ISCOGROUP",
@@ -21,7 +21,7 @@ const enum CSV_OBJECT_TYPES {
 }
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, occupationHierarchyHeaders);
+  return getStdHeadersValidator(validatorName, occupationHierarchyImportHeaders);
 }
 
 function getBatchProcessor(modelId: string) {
@@ -37,7 +37,7 @@ function getBatchProcessor(modelId: string) {
 function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<IOccupationHierarchyRow, INewOccupationHierarchyPairSpec> {
+): TransformRowToSpecificationFunction<IOccupationHierarchyImportRow, INewOccupationHierarchyPairSpec> {
   const csv2EscoObjectType = (type: string): ObjectTypes.ISCOGroup | ObjectTypes.Occupation | null => {
     switch (type.toUpperCase()) {
       case CSV_OBJECT_TYPES.ISCOGroup:
@@ -49,7 +49,7 @@ function getRowToSpecificationTransformFn(
     }
   };
 
-  return (row: IOccupationHierarchyRow) => {
+  return (row: IOccupationHierarchyImportRow) => {
     const parentType = csv2EscoObjectType(row.PARENTOBJECTTYPE);
     const childType = csv2EscoObjectType(row.CHILDOBJECTTYPE);
     if (!parentType || !childType) {
@@ -98,7 +98,7 @@ export async function parseOccupationHierarchyFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<IOccupationHierarchyRow>(
+  return await processStream<IOccupationHierarchyImportRow>(
     "OccupationHierarchy",
     iscoGroupsCSVFileStream,
     batchRowProcessor

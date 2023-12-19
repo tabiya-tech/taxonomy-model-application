@@ -1,18 +1,22 @@
 import { stringify } from "csv-stringify";
 import { pipeline, Transform } from "stream";
-import { ISkillHierarchyRow, skillHierarchyHeaders } from "esco/common/entityToCSV.types";
+import { ISkillHierarchyExportRow, skillHierarchyExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import { Readable } from "node:stream";
 
 export type IUnpopulatedSkillHierarchy = Omit<ISkillHierarchyPair, "parentDocModel" | "childDocModel">;
 
-export const transformSkillHierarchySpecToCSVRow = (skillHierarchy: IUnpopulatedSkillHierarchy): ISkillHierarchyRow => {
+export const transformSkillHierarchySpecToCSVRow = (
+  skillHierarchy: IUnpopulatedSkillHierarchy
+): ISkillHierarchyExportRow => {
   return {
     PARENTOBJECTTYPE: skillHierarchy.parentType,
     PARENTID: skillHierarchy.parentId,
     CHILDID: skillHierarchy.childId,
     CHILDOBJECTTYPE: skillHierarchy.childType,
+    CREATEDAT: skillHierarchy.createdAt.toISOString(),
+    UPDATEDAT: skillHierarchy.updatedAt.toISOString(),
   };
 };
 
@@ -48,7 +52,7 @@ const SkillHierarchyToCSVTransform = (modelId: string): Readable => {
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const skillHierarchyStringifier = stringify({
     header: true,
-    columns: skillHierarchyHeaders,
+    columns: skillHierarchyExportHeaders,
   });
 
   return pipeline(

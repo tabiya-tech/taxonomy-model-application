@@ -20,8 +20,8 @@ const getMockSkillHierarchies = (): IUnpopulatedSkillHierarchy[] => {
     childId: getMockStringId(i * 3 + 2),
     parentType: i % 2 ? ObjectTypes.Skill : ObjectTypes.SkillGroup,
     childType: i % 2 ? ObjectTypes.SkillGroup : ObjectTypes.Skill,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 

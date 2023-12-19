@@ -1,6 +1,6 @@
 import { getOccupationTypeFromRow } from "./getOccupationTypeFromRow";
 import { OccupationType } from "esco/common/objectTypes";
-import { IOccupationRow, ILocalizedOccupationRow } from "esco/common/entityToCSV.types";
+import { IOccupationImportRow, ILocalizedOccupationImportRow } from "esco/common/entityToCSV.types";
 
 describe("getOccupationTypeFromRow", () => {
   test("should return ESCO for occupation type ESCO", () => {
@@ -8,7 +8,7 @@ describe("getOccupationTypeFromRow", () => {
     const row = { OCCUPATIONTYPE: "ESCO" };
 
     // WHEN getting the occupation type from the row
-    const result = getOccupationTypeFromRow(row as IOccupationRow);
+    const result = getOccupationTypeFromRow<IOccupationImportRow>(row as IOccupationImportRow);
 
     // THEN the result should be OccupationType.ESCO
     expect(result).toBe(OccupationType.ESCO);
@@ -19,7 +19,7 @@ describe("getOccupationTypeFromRow", () => {
     const row = { OCCUPATIONTYPE: "LOCAL" };
 
     // WHEN getting the occupation type from the row
-    const result = getOccupationTypeFromRow(row as ILocalizedOccupationRow);
+    const result = getOccupationTypeFromRow<IOccupationImportRow>(row as IOccupationImportRow);
 
     // THEN the result should be OccupationType.LOCAL
     expect(result).toBe(OccupationType.LOCAL);
@@ -30,7 +30,7 @@ describe("getOccupationTypeFromRow", () => {
     const row = { OCCUPATIONTYPE: "LOCALIZED" };
 
     // WHEN getting the occupation type from the row
-    const result = getOccupationTypeFromRow(row as IOccupationRow);
+    const result = getOccupationTypeFromRow<ILocalizedOccupationImportRow>(row as ILocalizedOccupationImportRow);
 
     // THEN the result should be OccupationType.LOCALIZED
     expect(result).toBe(OccupationType.LOCALIZED);
@@ -41,7 +41,7 @@ describe("getOccupationTypeFromRow", () => {
     const row = { OCCUPATIONTYPE: "FOO" };
 
     // WHEN getting the occupation type from the row
-    const result = getOccupationTypeFromRow(row as ILocalizedOccupationRow);
+    const result = getOccupationTypeFromRow(row as ILocalizedOccupationImportRow);
 
     // THEN the result should be null
     expect(result).toBeNull();

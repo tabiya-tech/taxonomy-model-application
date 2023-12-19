@@ -8,11 +8,11 @@ import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { ISkillGroupRow, skillGroupHeaders } from "esco/common/entityToCSV.types";
+import { ISkillGroupImportRow, skillGroupImportHeaders } from "esco/common/entityToCSV.types";
 
 // expect all columns to be in upper case
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, skillGroupHeaders);
+  return getStdHeadersValidator(validatorName, skillGroupImportHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
@@ -27,8 +27,8 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 
 function getRowToSpecificationTransformFn(
   modelId: string
-): TransformRowToSpecificationFunction<ISkillGroupRow, INewSkillGroupSpec> {
-  return (row: ISkillGroupRow) => {
+): TransformRowToSpecificationFunction<ISkillGroupImportRow, INewSkillGroupSpec> {
+  return (row: ISkillGroupImportRow) => {
     return {
       ESCOUri: row.ESCOURI,
       modelId: modelId,
@@ -66,5 +66,5 @@ export async function parseSkillGroupsFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<ISkillGroupRow>("SkillGroup", skillGroupsCSVFileStream, batchRowProcessor);
+  return await processStream<ISkillGroupImportRow>("SkillGroup", skillGroupsCSVFileStream, batchRowProcessor);
 }

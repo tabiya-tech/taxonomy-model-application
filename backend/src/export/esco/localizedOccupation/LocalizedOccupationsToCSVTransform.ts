@@ -2,7 +2,7 @@ import { pipeline, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { stringify } from "csv-stringify";
 import { ILocalizedOccupation } from "esco/localizedOccupation/localizedOccupation.types";
-import { ILocalizedOccupationRow, localizedOccupationHeaders } from "esco/common/entityToCSV.types";
+import { ILocalizedOccupationExportRow, localizedOccupationExportHeaders } from "esco/common/entityToCSV.types";
 import { Readable } from "node:stream";
 
 export type IUnpopulatedLocalizedOccupation = Omit<
@@ -12,14 +12,16 @@ export type IUnpopulatedLocalizedOccupation = Omit<
 
 export const transformLocalizedOccupationSpecToCSVRow = (
   localizedOccupation: IUnpopulatedLocalizedOccupation
-): ILocalizedOccupationRow => {
+): ILocalizedOccupationExportRow => {
   return {
     ID: localizedOccupation.id,
+    UUIDHISTORY: localizedOccupation.UUIDHistory.join("\n"),
     ALTLABELS: localizedOccupation.altLabels.join("\n"),
     DESCRIPTION: localizedOccupation.description,
     OCCUPATIONTYPE: localizedOccupation.occupationType,
     LOCALIZESOCCUPATIONID: localizedOccupation.localizesOccupationId,
-    UUIDHISTORY: localizedOccupation.UUIDHistory.join("\n"),
+    CREATEDAT: localizedOccupation.createdAt.toISOString(),
+    UPDATEDAT: localizedOccupation.updatedAt.toISOString(),
   };
 };
 
@@ -55,7 +57,7 @@ const LocalizedOccupationsToCSVTransform = (modelId: string): Readable => {
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const localizedOccupationStringifier = stringify({
     header: true,
-    columns: localizedOccupationHeaders,
+    columns: localizedOccupationExportHeaders,
   });
 
   return pipeline(
