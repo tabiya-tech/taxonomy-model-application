@@ -8,10 +8,10 @@ import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { IISCOGroupRow, ISCOGroupHeaders } from "esco/common/entityToCSV.types";
+import { IISCOGroupImportRow, ISCOGroupImportHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, ISCOGroupHeaders);
+  return getStdHeadersValidator(validatorName, ISCOGroupImportHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
@@ -26,8 +26,8 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 
 function getRowToSpecificationTransformFn(
   modelId: string
-): TransformRowToSpecificationFunction<IISCOGroupRow, INewISCOGroupSpec> {
-  return (row: IISCOGroupRow): INewISCOGroupSpec => {
+): TransformRowToSpecificationFunction<IISCOGroupImportRow, INewISCOGroupSpec> {
+  return (row: IISCOGroupImportRow): INewISCOGroupSpec => {
     return {
       ESCOUri: row.ESCOURI,
       modelId: modelId,
@@ -64,5 +64,5 @@ export async function parseISCOGroupsFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<IISCOGroupRow>("ISCOGroup", iscoGroupsCSVFileStream, batchRowProcessor);
+  return await processStream<IISCOGroupImportRow>("ISCOGroup", iscoGroupsCSVFileStream, batchRowProcessor);
 }

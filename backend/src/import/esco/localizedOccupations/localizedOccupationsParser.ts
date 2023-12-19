@@ -13,10 +13,10 @@ import {
 } from "esco/localizedOccupation/localizedOccupation.types";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
 import errorLogger from "common/errorLogger/errorLogger";
-import { ILocalizedOccupationRow, localizedOccupationHeaders } from "esco/common/entityToCSV.types";
+import { ILocalizedOccupationImportRow, localizedOccupationImportHeaders } from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, localizedOccupationHeaders);
+  return getStdHeadersValidator(validatorName, localizedOccupationImportHeaders);
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
@@ -32,8 +32,8 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<ILocalizedOccupationRow, INewLocalizedOccupationSpec> {
-  return (row: ILocalizedOccupationRow) => {
+): TransformRowToSpecificationFunction<ILocalizedOccupationImportRow, INewLocalizedOccupationSpec> {
+  return (row: ILocalizedOccupationImportRow) => {
     const occupationType = getOccupationTypeFromRow(row);
     if (!occupationType) {
       //check that the occupationType exists
@@ -87,7 +87,7 @@ export async function parseLocalizedOccupationsFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<ILocalizedOccupationRow>(
+  return await processStream<ILocalizedOccupationImportRow>(
     "LocalizedOccupation",
     LocalizedOccupationsCSVFileStream,
     batchRowProcessor

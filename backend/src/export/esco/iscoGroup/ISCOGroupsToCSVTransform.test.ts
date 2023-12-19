@@ -24,8 +24,8 @@ const getMockISCOGroups = (): IUnpopulatedISCOGroup[] => {
     modelId: getMockStringId(1),
     ESCOUri: `ESCOUri_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 

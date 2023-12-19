@@ -25,8 +25,8 @@ const getMockLocalizedOccupations = (): IUnpopulatedLocalizedOccupation[] => {
     occupationType: OccupationType.LOCALIZED,
     localizesOccupationId: getMockStringId(2),
     localizedOccupationType: OccupationType.LOCALIZED,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 

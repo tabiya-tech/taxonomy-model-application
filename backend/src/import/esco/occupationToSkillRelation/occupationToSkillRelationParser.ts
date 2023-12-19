@@ -14,10 +14,13 @@ import {
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { RelationType } from "esco/common/objectTypes";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
-import { IOccupationToSkillRelationRow, occupationToSkillRelationHeaders } from "esco/common/entityToCSV.types";
+import {
+  IOccupationToSkillRelationImportRow,
+  occupationToSkillRelationImportHeaders,
+} from "esco/common/entityToCSV.types";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, occupationToSkillRelationHeaders);
+  return getStdHeadersValidator(validatorName, occupationToSkillRelationImportHeaders);
 }
 
 function getBatchProcessor(modelId: string) {
@@ -32,8 +35,8 @@ function getBatchProcessor(modelId: string) {
 
 function getRowToSpecificationTransformFn(
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<IOccupationToSkillRelationRow, INewOccupationToSkillPairSpec> {
-  return (row: IOccupationToSkillRelationRow) => {
+): TransformRowToSpecificationFunction<IOccupationToSkillRelationImportRow, INewOccupationToSkillPairSpec> {
+  return (row: IOccupationToSkillRelationImportRow) => {
     // Check if relation type is valid
     if (!Object.values(RelationType).includes(row.RELATIONTYPE)) {
       errorLogger.logWarning(
@@ -94,7 +97,7 @@ export async function parseOccupationToSkillRelationFromFile(
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
-  return await processStream<IOccupationToSkillRelationRow>(
+  return await processStream<IOccupationToSkillRelationImportRow>(
     "OccupationToSkillRelation",
     skillsRelationCSVFileStream,
     batchRowProcessor

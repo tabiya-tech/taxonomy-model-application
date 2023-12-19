@@ -1,6 +1,6 @@
 import { stringify } from "csv-stringify";
 import { pipeline, Transform } from "stream";
-import { IOccupationHierarchyRow, occupationHierarchyHeaders } from "esco/common/entityToCSV.types";
+import { IOccupationHierarchyExportRow, occupationHierarchyExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { IOccupationHierarchyPair } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { Readable } from "node:stream";
@@ -9,12 +9,14 @@ export type IUnpopulatedOccupationHierarchy = Omit<IOccupationHierarchyPair, "pa
 
 export const transformOccupationHierarchySpecToCSVRow = (
   occupationHierarchy: IUnpopulatedOccupationHierarchy
-): IOccupationHierarchyRow => {
+): IOccupationHierarchyExportRow => {
   return {
     PARENTOBJECTTYPE: occupationHierarchy.parentType,
     PARENTID: occupationHierarchy.parentId,
     CHILDID: occupationHierarchy.childId,
     CHILDOBJECTTYPE: occupationHierarchy.childType,
+    CREATEDAT: occupationHierarchy.createdAt.toISOString(),
+    UPDATEDAT: occupationHierarchy.updatedAt.toISOString(),
   };
 };
 
@@ -50,7 +52,7 @@ const OccupationHierarchyToCSVTransform = (modelId: string): Readable => {
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const occupationHierarchyStringifier = stringify({
     header: true,
-    columns: occupationHierarchyHeaders,
+    columns: occupationHierarchyExportHeaders,
   });
 
   return pipeline(

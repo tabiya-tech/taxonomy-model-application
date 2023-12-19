@@ -26,13 +26,12 @@ const getMockOccupations = (occupationType: OccupationType.LOCAL | OccupationTyp
     code: `code_${i}`,
     preferredLabel: `Occupation_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
-    originUUID: `originUUID_${i}`,
     ESCOUri: `ESCOUri_${i}_${getTestString(80)}`,
     description: `description_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     occupationType: occupationType,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 

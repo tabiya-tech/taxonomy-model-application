@@ -22,8 +22,8 @@ const getMockSkillToSkillRelations = (): IUnpopulatedSkillToSkillRelation[] => {
     requiringSkillId: getMockStringId(i * 3 + 1),
     requiredSkillId: getMockStringId(i * 3 + 2),
     relationType: i % 2 ? RelationType.ESSENTIAL : RelationType.OPTIONAL,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 

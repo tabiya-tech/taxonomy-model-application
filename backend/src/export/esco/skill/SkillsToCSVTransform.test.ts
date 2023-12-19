@@ -35,14 +35,13 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
     description: `description_${i}_${getTestString(80)}`,
     definition: `definition_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
-    originUUID: `originUUID_${i}`,
     ESCOUri: `ESCOUri_${i}_${getTestString(80)}`,
     scopeNote: `scopeNote_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     skillType: i % 2 ? SkillType.SkillCompetence : SkillType.Knowledge,
     reuseLevel: getReuseLevel(i),
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(i), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
 };
 
