@@ -25,7 +25,7 @@ export const getSampleOccupationSpecs = (givenModelId: string, isLocal: boolean 
     preferredLabel: `Occupation_${i}`,
     modelId: givenModelId,
     UUIDHistory: [randomUUID()],
-    ESCOUri: `ESCOUri_${i}`,
+    originUri: `originUri_${i}`,
     description: `description_${i}`,
     importId: `importId_${i}`,
     occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,

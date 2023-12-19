@@ -130,6 +130,17 @@ export const ESCOUriProperty: mongoose.SchemaDefinitionProperty<string> = {
   },
 };
 
+// Origin Uri
+export const ORIGIN_URI_MAX_LENGTH = 4096;
+export const OriginUriProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: stringRequired("originUri"),
+  maxlength: [ORIGIN_URI_MAX_LENGTH, `originUri must be at most ${ORIGIN_URI_MAX_LENGTH} chars long`],
+  validate: function (value: string): boolean {
+    return value.length === 0 || (value.length > 0 && value.trim().length > 0);
+  },
+};
+
 // ISCO Code
 export const RegExISCOCode = RegExp(/^\d{1,4}$/);
 

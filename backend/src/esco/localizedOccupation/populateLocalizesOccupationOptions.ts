@@ -63,7 +63,7 @@ export const occupationFromLocalizedOccupationTransform = (doc: ILocalizedOccupa
     // Fields from localizesOccupation
     localizesOccupationId: doc.localizesOccupation.id,
     preferredLabel: doc.localizesOccupation.preferredLabel,
-    ESCOUri: doc.localizesOccupation.ESCOUri,
+    originUri: doc.localizesOccupation.originUri,
     ISCOGroupCode: doc.localizesOccupation.ISCOGroupCode,
     code: doc.localizesOccupation.code,
     definition: doc.localizesOccupation.definition,

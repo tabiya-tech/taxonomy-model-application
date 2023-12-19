@@ -11,7 +11,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   modelId: mongoose.Types.ObjectId;
   preferredLabel: string;
   UUIDHistory: string[];
-  ESCOUri: string;
+  originUri: string;
   ISCOGroupCode: string;
   code: string;
   altLabels: string[];

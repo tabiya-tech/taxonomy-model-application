@@ -126,10 +126,58 @@ export interface ISkillGroupExportRow extends ISkillGroupImportRow {
 }
 
 /*
- * Headers for the occupations CSV file
+ * Headers for the LocalOccupations CSV file
  */
 
-export const occupationImportHeaders = [
+export const localOccupationImportHeaders = [
+  HEADER_NAMES.ID,
+  "ORIGINURI",
+  HEADER_NAMES.UUIDHISTORY,
+  "ISCOGROUPCODE",
+  "CODE",
+  "DEFINITION",
+  "SCOPENOTE",
+  "REGULATEDPROFESSIONNOTE",
+  HEADER_NAMES.PREFERREDLABEL,
+  HEADER_NAMES.ALTLABELS,
+  HEADER_NAMES.DESCRIPTION,
+];
+
+export const localOccupationExportHeaders = [
+  ...localOccupationImportHeaders,
+  HEADER_NAMES.CREATED_AT,
+  HEADER_NAMES.UPDATED_AT,
+];
+
+/*
+ * Interface for the LocalOccupations row in the CSV file
+ */
+
+export interface ILocalOccupationImportRow {
+  ID: string;
+  ORIGINURI: string;
+  UUIDHISTORY: string;
+  ISCOGROUPCODE: string;
+  CODE: string;
+  PREFERREDLABEL: string;
+  ALTLABELS: string;
+  DESCRIPTION: string;
+  DEFINITION: string;
+  SCOPENOTE: string;
+  REGULATEDPROFESSIONNOTE: string;
+  OCCUPATIONTYPE: OccupationType;
+}
+
+export interface ILocalOccupationExportRow extends ILocalOccupationImportRow {
+  CREATEDAT: string;
+  UPDATEDAT: string;
+}
+
+/*
+ * Headers for the esco occupations CSV file
+ */
+
+export const ESCOOccupationImportHeaders = [
   HEADER_NAMES.ID,
   HEADER_NAMES.ESCO_URI,
   HEADER_NAMES.UUIDHISTORY,
@@ -143,31 +191,17 @@ export const occupationImportHeaders = [
   HEADER_NAMES.DESCRIPTION,
 ];
 
-export const occupationExportHeaders = [...occupationImportHeaders, HEADER_NAMES.CREATED_AT, HEADER_NAMES.UPDATED_AT];
+export const occupationExportHeaders = [...localOccupationExportHeaders];
 
 /*
- * Interface for the occupations row in the CSV file
+ * Interface for the esco occupations row in the CSV file
  */
 
-export interface IOccupationImportRow {
-  ID: string;
+export interface IESCOOccupationImportRow extends ILocalOccupationImportRow {
   ESCOURI: string;
-  UUIDHISTORY: string;
-  ISCOGROUPCODE: string;
-  CODE: string;
-  PREFERREDLABEL: string;
-  ALTLABELS: string;
-  DESCRIPTION: string;
-  DEFINITION: string;
-  SCOPENOTE: string;
-  REGULATEDPROFESSIONNOTE: string;
-  OCCUPATIONTYPE: string;
 }
 
-export interface IOccupationExportRow extends IOccupationImportRow {
-  CREATEDAT: string;
-  UPDATEDAT: string;
-}
+export interface IESCOOccupationExportRow extends ILocalOccupationExportRow {}
 
 /*
  * Headers for the LocalizedOccupation CSV file
@@ -239,7 +273,7 @@ export interface ISkillToSkillsRelationExportRow extends ISkillToSkillsRelationI
 export const occupationToSkillRelationImportHeaders = ["OCCUPATIONTYPE", "OCCUPATIONID", "RELATIONTYPE", "SKILLID"];
 
 export const occupationToSkillRelationExportHeaders = [
-  ...occupationImportHeaders,
+  ...ESCOOccupationImportHeaders,
   HEADER_NAMES.CREATED_AT,
   HEADER_NAMES.UPDATED_AT,
 ];

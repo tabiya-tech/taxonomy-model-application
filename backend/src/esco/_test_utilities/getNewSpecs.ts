@@ -37,7 +37,7 @@ export function getNewISCOGroupSpec(): INewISCOGroupSpec {
 }
 
 /**
- * Helper function to create an INewISCOGroupSpec with simplest possible values,
+ * Helper function to create an INewISCOGroupSpec with the simplest possible values,
  * that can be used for creating a new ISCOGroup
  */
 export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
@@ -68,7 +68,7 @@ export function getNewOccupationSpec(isLocal: boolean = false): INewOccupationSp
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
-    ESCOUri: generateRandomUrl(),
+    originUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
     occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
@@ -94,7 +94,7 @@ export function getSimpleNewOccupationSpec(
     preferredLabel: preferredLabel,
     modelId: modelId,
     UUIDHistory: [randomUUID()],
-    ESCOUri: "",
+    originUri: "",
     description: "",
     importId: "",
     occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,

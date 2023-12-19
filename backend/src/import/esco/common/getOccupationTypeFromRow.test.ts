@@ -1,6 +1,10 @@
 import { getOccupationTypeFromRow } from "./getOccupationTypeFromRow";
 import { OccupationType } from "esco/common/objectTypes";
-import { IOccupationImportRow, ILocalizedOccupationImportRow } from "esco/common/entityToCSV.types";
+import {
+  IESCOOccupationImportRow,
+  ILocalizedOccupationImportRow,
+  ILocalOccupationImportRow,
+} from "esco/common/entityToCSV.types";
 
 describe("getOccupationTypeFromRow", () => {
   test("should return ESCO for occupation type ESCO", () => {
@@ -8,7 +12,7 @@ describe("getOccupationTypeFromRow", () => {
     const row = { OCCUPATIONTYPE: "ESCO" };
 
     // WHEN getting the occupation type from the row
-    const result = getOccupationTypeFromRow<IOccupationImportRow>(row as IOccupationImportRow);
+    const result = getOccupationTypeFromRow<IESCOOccupationImportRow>(row as IESCOOccupationImportRow);
 
     // THEN the result should be OccupationType.ESCO
     expect(result).toBe(OccupationType.ESCO);
@@ -19,7 +23,7 @@ describe("getOccupationTypeFromRow", () => {
     const row = { OCCUPATIONTYPE: "LOCAL" };
 
     // WHEN getting the occupation type from the row
-    const result = getOccupationTypeFromRow<IOccupationImportRow>(row as IOccupationImportRow);
+    const result = getOccupationTypeFromRow<ILocalOccupationImportRow>(row as ILocalOccupationImportRow);
 
     // THEN the result should be OccupationType.LOCAL
     expect(result).toBe(OccupationType.LOCAL);

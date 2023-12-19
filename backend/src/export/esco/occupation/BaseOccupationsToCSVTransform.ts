@@ -1,16 +1,16 @@
 import { stringify } from "csv-stringify";
 import { pipeline, Transform } from "stream";
 import { IOccupation } from "esco/occupation/occupation.types";
-import { IOccupationExportRow, occupationExportHeaders } from "esco/common/entityToCSV.types";
+import { IESCOOccupationExportRow, occupationExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { OccupationType } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 
 export type IUnpopulatedOccupation = Omit<IOccupation, "parent" | "children" | "requiresSkills">;
 
-export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IOccupationExportRow => {
+export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IESCOOccupationExportRow => {
   return {
-    ESCOURI: occupation.ESCOUri,
+    ORIGINURI: occupation.originUri,
     ID: occupation.id,
     UUIDHISTORY: occupation.UUIDHistory.join("\n"),
     ISCOGROUPCODE: occupation.ISCOGroupCode,

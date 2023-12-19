@@ -3,7 +3,7 @@ import { OccupationType } from "esco/common/objectTypes";
 
 export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
-    ESCOUri: "esco uri",
+    originUri: "",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     ISCOGroupCode: "01",
     code: "0001.1.2.3_01",
@@ -17,7 +17,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     occupationType: OccupationType.LOCAL,
   },
   {
-    ESCOUri: "esco\nuri\nwith\nlinebreak",
+    originUri: "",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     ISCOGroupCode: "0101",
     code: "0101.01.02.03_01",
@@ -31,7 +31,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     occupationType: OccupationType.LOCAL,
   },
   {
-    ESCOUri: "esco uri",
+    originUri: "",
     UUIDHistory: [],
     ISCOGroupCode: "01",
     code: "0001.1.2.3_01",
@@ -46,7 +46,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   },
 
   {
-    ESCOUri: "esco uri",
+    originUri: "",
     UUIDHistory: [],
     ISCOGroupCode: "01",
     code: "0101.01.02.04_01",

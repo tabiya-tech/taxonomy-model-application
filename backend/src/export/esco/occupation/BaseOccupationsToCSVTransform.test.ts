@@ -26,7 +26,7 @@ const getMockOccupations = (occupationType: OccupationType.LOCAL | OccupationTyp
     code: `code_${i}`,
     preferredLabel: `Occupation_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
-    ESCOUri: `ESCOUri_${i}_${getTestString(80)}`,
+    originUri: `originUri_${i}_${getTestString(80)}`,
     description: `description_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     occupationType: occupationType,

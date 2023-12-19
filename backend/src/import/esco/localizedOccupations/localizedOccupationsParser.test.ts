@@ -85,7 +85,7 @@ describe("test parseLocalizedOccupations from", () => {
                   modelId: "",
                   preferredLabel: "",
                   UUIDHistory: [],
-                  ESCOUri: "",
+                  originUri: "",
                   ISCOGroupCode: "",
                   code: "",
                   altLabels: [],
