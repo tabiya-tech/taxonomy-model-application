@@ -7,6 +7,9 @@ import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { getAllExportProcessStatePermutations } from "src/modeldirectory/components/ExportProcessStateIcon/_test_utilities/exportProcesStateTestData";
 import ExportProcessStateIcon from "src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon";
+import { randomUUID } from "crypto";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import ExportProcessState = ModelInfoTypes.ExportProcessState;
 
 // mock the ExportProcessStateIcon component
 jest.mock("src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon", () => {
@@ -31,16 +34,26 @@ jest.mock("src/modeldirectory/components/DownloadModelButton/DownloadModelButton
   };
 });
 
+function getAllNotSuccessfulExportProcessStates() {
+  return getAllExportProcessStatePermutations().filter((exportProcessState) => {
+    return (
+      exportProcessState.status !== ExportProcessStateAPISpecs.Enums.Status.COMPLETED ||
+      exportProcessState.result.errored ||
+      exportProcessState.result.exportErrors ||
+      exportProcessState.result.exportWarnings
+    );
+  });
+}
+
 describe("ExportStateCellContent", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
     (console.warn as jest.Mock).mockClear();
   });
-
   // when there is no export process state
   // THEN expect nothing to be rendered
   test("should render nothing when there is no export process state", () => {
-    // GIVEN a model with no export process state
+    // GIVEN some model with no export process state
     const givenModel = getOneFakeModel(1);
     givenModel.exportProcessState = [];
 
@@ -58,67 +71,85 @@ describe("ExportStateCellContent", () => {
     expect(actualElement).toBeEmptyDOMElement();
   });
 
-  test("should render the download button when the last export was successful and there were no errors or warnings", () => {
-    // GIVEN a model with no export process state
-    const givenModel = getOneFakeModel(1);
-    givenModel.exportProcessState = [
-      {
-        id: "foo",
+  describe("should render the download button when the last export was successful", () => {
+    function getSuccessfulExportProcessState(timestamp: number) {
+      return {
+        id: randomUUID(),
         status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
         result: {
           errored: false,
           exportErrors: false,
           exportWarnings: false,
         },
-        downloadUrl: "https://foo/bar",
-        timestamp: new Date(),
-      },
-    ];
+        downloadUrl: randomUUID(),
+        timestamp: new Date(timestamp),
+      };
+    }
 
-    // WHEN the component is rendered
-    render(<ExportStateCellContent model={givenModel} />);
+    const NumberOfNotSuccessfulExportProcessStates = getAllNotSuccessfulExportProcessStates().length;
 
-    // THEN expect no errors or warning to have occurred
-    expect(console.error).not.toHaveBeenCalled();
-    expect(console.warn).not.toHaveBeenCalled();
+    function getTestExportProcessStates(indexOfSuccessFull: number): ExportProcessState[] {
+      const allStates = getAllNotSuccessfulExportProcessStates();
+      // put the successful one in the middle of the list
+      const l = allStates.slice(0, indexOfSuccessFull);
+      const r = allStates.slice(indexOfSuccessFull);
+      return l.concat([getSuccessfulExportProcessState(allStates.length)]).concat(r);
+    }
 
-    // AND expect the download button to be rendered
-    const actualElement = screen.getByTestId("mock-DownLoadButton-icon");
-    expect(actualElement).toBeInTheDocument();
+    test.each([
+      [
+        "is the last in the export process state list",
+        NumberOfNotSuccessfulExportProcessStates,
+        getTestExportProcessStates(NumberOfNotSuccessfulExportProcessStates),
+      ],
+      ["is the first in the export process state list", 0, getTestExportProcessStates(0)],
+      [
+        "is in the middle of the export process state list",
+        Math.round(NumberOfNotSuccessfulExportProcessStates / 2),
+        getTestExportProcessStates(Math.round(NumberOfNotSuccessfulExportProcessStates / 2)),
+      ],
+      ["is the only one in the export process state list", 0, [getSuccessfulExportProcessState(0)]],
+    ])(
+      "should render the download button when the latest successful %s",
+      (description, givenIndexOfSuccessFull, givenExportProcessStates) => {
+        // GIVEN some model with the given export process states
+        const givenModel = getOneFakeModel(1);
+        givenModel.exportProcessState = givenExportProcessStates;
 
-    // AND to match the snapshot
-    expect(actualElement).toMatchSnapshot();
+        // WHEN the component is rendered
+        render(<ExportStateCellContent model={givenModel} />);
 
-    // AND to have been called with the correct props
-    expect(DownloadModelButton as jest.Mock).toHaveBeenCalledWith(
-      {
-        downloadUrl: givenModel.exportProcessState[0].downloadUrl,
-      },
-      {}
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
+
+        // AND expect the download button to be rendered
+        const actualElement = screen.getByTestId("mock-DownLoadButton-icon");
+        expect(actualElement).toBeInTheDocument();
+
+        // AND to match the snapshot
+        expect(actualElement).toMatchSnapshot();
+
+        // AND to have been called with the correct props
+        expect(DownloadModelButton as jest.Mock).toHaveBeenCalledWith(
+          {
+            downloadUrl: givenModel.exportProcessState[givenIndexOfSuccessFull].downloadUrl,
+          },
+          {}
+        );
+      }
     );
   });
 
-  // when the last export was not successful ( pending, running, failed )
-  // THEN expect the export process state icon to be rendered
-
   describe.each(
-    getAllExportProcessStatePermutations()
-      .filter((exportProcessState) => {
-        return (
-          exportProcessState.status !== ExportProcessStateAPISpecs.Enums.Status.COMPLETED ||
-          exportProcessState.result.errored ||
-          exportProcessState.result.exportErrors ||
-          exportProcessState.result.exportWarnings
-        );
-      })
-      .map((exportProcessState, index) => {
-        return [index, exportProcessState];
-      })
+    getAllNotSuccessfulExportProcessStates().map((exportProcessState, index) => {
+      return [index, exportProcessState];
+    })
   )(
     `should render the export process state icon when the last export was not successful`,
     (index, givenExportStatus) => {
       test(`${index} - ${givenExportStatus.status} - ${JSON.stringify(givenExportStatus.result)}`, () => {
-        // GIVEN a model with no export process state
+        // GIVEN some model with no export process state
         const givenModel = getOneFakeModel(1);
         givenModel.exportProcessState = [givenExportStatus];
 

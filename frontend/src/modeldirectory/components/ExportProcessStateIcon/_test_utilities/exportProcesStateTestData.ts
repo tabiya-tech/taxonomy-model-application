@@ -21,7 +21,7 @@ export const getAllExportProcessStatePermutations = (): ModelInfoTypes.ExportPro
               exportWarnings: exportWarnings,
             },
             downloadUrl: "https://example.com",
-            timestamp: new Date(),
+            timestamp: new Date(allPermutations.length),
           });
         });
       });

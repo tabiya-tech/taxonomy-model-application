@@ -4,19 +4,14 @@ import ExportProcessStateIcon from "src/modeldirectory/components/ExportProcessS
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import * as React from "react";
 
-function canDownload(model: ModelInfoTypes.ModelInfo): boolean {
-  // Can download only if the last export was successful and there were no errors or warnings
+function isSuccessfulExport(exportProcessState: ModelInfoTypes.ExportProcessState): boolean {
   return (
-    model.exportProcessState.length > 0 &&
-    model.exportProcessState[0].status === ExportProcessStateAPISpecs.Enums.Status.COMPLETED &&
-    !model.exportProcessState[0].result.errored &&
-    !model.exportProcessState[0].result.exportErrors &&
-    !model.exportProcessState[0].result.exportWarnings
+    exportProcessState &&
+    exportProcessState.status === ExportProcessStateAPISpecs.Enums.Status.COMPLETED &&
+    !exportProcessState.result.errored &&
+    !exportProcessState.result.exportErrors &&
+    !exportProcessState.result.exportWarnings
   );
-}
-
-function hasExportProcessState(model: ModelInfoTypes.ModelInfo): boolean {
-  return model.exportProcessState.length > 0;
 }
 
 interface ExportStateCellProps {
@@ -29,13 +24,21 @@ export const DATA_TEST_ID = {
 };
 
 export function ExportStateCellContent(props: Readonly<ExportStateCellProps>) {
-  if (canDownload(props.model)) {
-    return <DownloadModelButton downloadUrl={props.model.exportProcessState[0].downloadUrl} />;
+  // Can download only if the last export was successful and there were no errors or warnings
+  const sortedExportProcessStates = props.model.exportProcessState.toSorted(
+    (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+  );
+
+  if (sortedExportProcessStates.length === 0) {
+    return <div data-testid={DATA_TEST_ID.EMPTY_DIV} />;
   }
-  if (hasExportProcessState(props.model)) {
-    return <ExportProcessStateIcon exportProcessState={props.model.exportProcessState[0]} />;
+
+  const latestExportProcessState = sortedExportProcessStates[sortedExportProcessStates.length - 1];
+
+  if (isSuccessfulExport(latestExportProcessState)) {
+    return <DownloadModelButton downloadUrl={latestExportProcessState.downloadUrl} />;
   }
-  return <div data-testid={DATA_TEST_ID.EMPTY_DIV} />;
+  return <ExportProcessStateIcon exportProcessState={latestExportProcessState} />;
 }
 
 export default ExportStateCellContent;
