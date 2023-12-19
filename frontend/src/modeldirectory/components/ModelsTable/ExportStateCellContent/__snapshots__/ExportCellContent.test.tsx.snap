@@ -1,6 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ExportStateCellContent should render the download button when the last export was successful and there were no errors or warnings 1`] = `
+exports[`ExportStateCellContent should render the download button when the last export was successful should render the download button when the latest successful is in the middle of the export process state list 1`] = `
+<div
+  data-testid="mock-DownLoadButton-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the download button when the last export was successful should render the download button when the latest successful is the first in the export process state list 1`] = `
+<div
+  data-testid="mock-DownLoadButton-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the download button when the last export was successful should render the download button when the latest successful is the last in the export process state list 1`] = `
+<div
+  data-testid="mock-DownLoadButton-icon"
+/>
+`;
+
+exports[`ExportStateCellContent should render the download button when the last export was successful should render the download button when the latest successful is the only one in the export process state list 1`] = `
 <div
   data-testid="mock-DownLoadButton-icon"
 />
