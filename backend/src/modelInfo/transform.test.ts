@@ -2,6 +2,7 @@ import { transform } from "./transform";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import { getIModelInfoMockData } from "./testDataHelper";
 import { IModelInfo } from "./modelInfo.types";
+import { ModelName as modelInfoModelName } from "./modelInfoModel";
 
 describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () => {
   test("should transform the IModelInfo to IModelInfoResponse", () => {
@@ -23,7 +24,7 @@ describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () 
         timestamp: exportProcessState.timestamp.toISOString(),
       })),
       // AND the path and tabiya path as based on the given base path
-      path: `${givenBasePath}/${givenObject.id}`,
+      path: `${givenBasePath}/${modelInfoModelName.toLowerCase()}/${givenObject.id}`,
       tabiyaPath: `${givenBasePath}/${givenObject.UUID}`,
       // AND the createdAt and updatedAt as string representation of date
       createdAt: givenObject.createdAt.toISOString(),

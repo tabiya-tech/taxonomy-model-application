@@ -1,15 +1,16 @@
 // mute the console output
 import "_test_utilities/consoleMock";
 
-import { handler as infoHandler } from "./index";
+import { handler as infoHandler } from "applicationInfo/index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import version from "./version.json";
+import version from "applicationInfo/version.json";
 import * as config from "server/config/config";
 import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
 import { Connection } from "mongoose";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
+import { Routes } from "routes.constant";
 
 describe("Test for info handler", () => {
   beforeEach(() => {
@@ -24,7 +25,7 @@ describe("Test for info handler", () => {
       // AND GET event
       const givenEvent = {
         httpMethod: HTTP_VERBS.GET,
-        path: "/info",
+        path: Routes.APPLICATION_INFO_ROUTE,
       };
       // WHEN the info handler is invoked with event param
       // @ts-ignore
@@ -65,7 +66,7 @@ describe("Test for info handler", () => {
       // AND GET event
       const givenEvent = {
         httpMethod: HTTP_VERBS.GET,
-        path: "/info",
+        path: Routes.APPLICATION_INFO_ROUTE,
       };
       // AND the DB is connected
 
