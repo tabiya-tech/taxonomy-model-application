@@ -29,16 +29,17 @@ jest.mock("./server/init", () => {
 });
 // ##############
 
-import * as MainHandler from "./index";
-import * as InfoHandler from "./applicationInfo";
-import * as ModelHandler from "./modelInfo/index";
-import * as PresignedHandler from "./presigned/index";
-import * as ImportHandler from "./import/index";
-import * as ExportHandler from "./export/index";
+import * as MainHandler from "index";
+import * as InfoHandler from "applicationInfo";
+import * as ModelHandler from "modelInfo/index";
+import * as PresignedHandler from "presigned/index";
+import * as ImportHandler from "import/index";
+import * as ExportHandler from "export/index";
 import { APIGatewayProxyEventBase, APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { response, STD_ERRORS_RESPONSES } from "./server/httpUtils";
-import { initOnce } from "./server/init";
+import { response, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { APIGatewayEventDefaultAuthorizerContext } from "aws-lambda";
+import { initOnce } from "server/init";
+import { Routes } from "routes.constant";
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -119,11 +120,11 @@ describe("test the handleRouteEvent function", () => {
     jest.clearAllMocks();
   });
   test.each([
-    ["/info", InfoHandler],
-    ["/presigned", PresignedHandler],
-    ["/import", ImportHandler],
-    ["/models", ModelHandler],
-    ["/export", ExportHandler],
+    [Routes.APPLICATION_INFO_ROUTE, InfoHandler],
+    [Routes.PRESIGNED_ROUTE, PresignedHandler],
+    [Routes.IMPORT_ROUTE, ImportHandler],
+    [Routes.MODELS_ROUTE, ModelHandler],
+    [Routes.EXPORT_ROUTE, ExportHandler],
   ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
     // GIVEN an event with the given path & any HTTP method
     const givenEvent = {
