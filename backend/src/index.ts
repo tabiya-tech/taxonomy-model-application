@@ -1,12 +1,13 @@
 import { Handler, APIGatewayProxyEvent } from "aws-lambda";
-import { handler as InfoHandler } from "./applicationInfo";
-import { handler as ModelHandler } from "./modelInfo";
-import { handler as ImportHandler } from "./import";
-import { STD_ERRORS_RESPONSES } from "./server/httpUtils";
-import { handler as presignedHandler } from "./presigned";
-import { handler as ExportHandler } from "./export";
+import { handler as InfoHandler } from "applicationInfo";
+import { handler as ModelHandler } from "modelInfo";
+import { handler as ImportHandler } from "import";
+import { STD_ERRORS_RESPONSES } from "server/httpUtils";
+import { handler as presignedHandler } from "presigned";
+import { handler as ExportHandler } from "export";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { initOnce } from "server/init";
+import { Routes } from "routes.constant";
 
 export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = async (event: APIGatewayProxyEvent) => {
   try {
@@ -22,15 +23,15 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = asy
 };
 
 export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
-  if (event.path === "/info") {
+  if (event.path === Routes.APPLICATION_INFO_ROUTE) {
     return InfoHandler(event);
-  } else if (event.path === "/models") {
+  } else if (event.path === Routes.MODELS_ROUTE) {
     return ModelHandler(event);
-  } else if (event.path === "/presigned") {
+  } else if (event.path === Routes.PRESIGNED_ROUTE) {
     return presignedHandler(event);
-  } else if (event.path === "/import") {
+  } else if (event.path === Routes.IMPORT_ROUTE) {
     return ImportHandler(event);
-  } else if (event.path === "/export") {
+  } else if (event.path === Routes.EXPORT_ROUTE) {
     return ExportHandler(event);
   }
   return STD_ERRORS_RESPONSES.NOT_FOUND;
