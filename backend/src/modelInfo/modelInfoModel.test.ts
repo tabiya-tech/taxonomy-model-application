@@ -2,7 +2,7 @@
 import "_test_utilities/consoleMock";
 
 import mongoose, { Connection } from "mongoose";
-import { initializeSchemaAndModel } from "./modelInfoModel";
+import { INDEX_FOR_UUID, initializeSchemaAndModel } from "./modelInfoModel";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { randomUUID } from "crypto";
@@ -364,7 +364,7 @@ describe("Test the definition of the ModelInfo Model", () => {
     // THEN expect the indexes to be correct
     expect(indexes).toEqual([
       { key: { _id: 1 }, unique: undefined },
-      { key: { UUID: 1 }, unique: true },
+      { key: INDEX_FOR_UUID, unique: true },
     ]);
   });
 });

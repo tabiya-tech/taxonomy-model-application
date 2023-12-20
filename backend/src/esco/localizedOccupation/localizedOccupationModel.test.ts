@@ -22,7 +22,12 @@ import {
 } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { OccupationType } from "esco/common/objectTypes";
 import { ILocalizedOccupationDoc } from "./localizedOccupation.types";
-import { initializeSchemaAndModel } from "./localizedOccupationModel";
+import {
+  INDEX_FOR_LOCALIZES_OCCUPATION_ID,
+  INDEX_FOR_UUID,
+  INDEX_FOR_UUIDHistory,
+  initializeSchemaAndModel,
+} from "./localizedOccupationModel";
 
 describe("Test the definition of the Localized Occupation Model", () => {
   let dbConnection: Connection;
@@ -227,15 +232,12 @@ describe("Test the definition of the Localized Occupation Model", () => {
     // THEN the indexes to be correct
     expect(indexes).toIncludeSameMembers([
       { key: { _id: 1 }, unique: undefined },
-      { key: { UUID: 1 }, unique: true },
+      { key: INDEX_FOR_UUID, unique: true },
       {
-        key: {
-          modelId: 1,
-          localizesOccupationId: 1,
-        },
+        key: INDEX_FOR_LOCALIZES_OCCUPATION_ID,
         unique: true,
       },
-      { key: { UUIDHistory: 1 }, unique: undefined },
+      { key: INDEX_FOR_UUIDHistory, unique: undefined },
     ]);
   });
 });

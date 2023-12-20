@@ -62,6 +62,7 @@ export function initializeSchemaAndModel(
   // An entity (occupation, iscoGroup) cannot have multiple parents.
   // Additionally, it is needed from the virtual parent field matcher, that is populated via the populateOccupationParentOptions
   OccupationHierarchySchema.index(INDEX_FOR_PARENT, { unique: true });
+
   // Model
   return dbConnection.model<IOccupationHierarchyPairDoc>(
     MongooseModelName.OccupationHierarchy,

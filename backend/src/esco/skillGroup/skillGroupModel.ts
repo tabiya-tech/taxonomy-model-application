@@ -73,9 +73,16 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     }),
   });
 
-  SkillGroupSchema.index({ UUID: 1 }, { unique: true });
-  SkillGroupSchema.index({ modelId: 1 });
-  SkillGroupSchema.index({ UUIDHistory: 1 });
+  // Two instances cannot have the same UUID
+  SkillGroupSchema.index(INDEX_FOR_UUID, { unique: true });
+
+  // Index used to improve queries performance
+  SkillGroupSchema.index(INDEX_FOR_MODEL_ID);
+  SkillGroupSchema.index(INDEX_FOR_UUIDHistory);
 
   return dbConnection.model<ISkillGroupDoc>(MongooseModelName.SkillGroup, SkillGroupSchema);
 }
+
+export const INDEX_FOR_MODEL_ID: mongoose.IndexDefinition = { modelId: 1 };
+export const INDEX_FOR_UUID: mongoose.IndexDefinition = { UUID: 1 };
+export const INDEX_FOR_UUIDHistory: mongoose.IndexDefinition = { UUIDHistory: 1 };

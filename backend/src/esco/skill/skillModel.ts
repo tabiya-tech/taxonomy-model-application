@@ -89,9 +89,17 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     foreignField: OccupationToSkillRelationModelPaths.requiredSkillId,
     match: (skill: ISkillDoc) => ({ modelId: { $eq: skill.modelId } }),
   });
-  SkillSchema.index({ UUID: 1 }, { unique: true });
-  SkillSchema.index({ modelId: 1 });
-  SkillSchema.index({ UUIDHistory: 1 });
+
+  // Two instances cannot have the same UUID
+  SkillSchema.index(INDEX_FOR_UUID, { unique: true });
+
+  // Index used to improve queries performance
+  SkillSchema.index(INDEX_FOR_MODEL_ID);
+  SkillSchema.index(INDEX_FOR_UUIDHistory);
   // Model
   return dbConnection.model<ISkillDoc>(MongooseModelName.Skill, SkillSchema);
 }
+
+export const INDEX_FOR_MODEL_ID: mongoose.IndexDefinition = { modelId: 1 };
+export const INDEX_FOR_UUID: mongoose.IndexDefinition = { UUID: 1 };
+export const INDEX_FOR_UUIDHistory: mongoose.IndexDefinition = { UUIDHistory: 1 };

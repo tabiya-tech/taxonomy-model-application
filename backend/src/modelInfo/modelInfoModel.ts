@@ -114,7 +114,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     justOne: false,
   });
 
-  modelInfoSchema.index({ UUID: 1 }, { unique: true });
+  // Two instances cannot have the same UUID
+  modelInfoSchema.index(INDEX_FOR_UUID, { unique: true });
   // Model
   return dbConnection.model<IModelInfoDoc>(ModelName, modelInfoSchema);
 }
@@ -126,3 +127,5 @@ const _TransformFn = (doc: any, ret: any) => {
   }
   return ret;
 };
+
+export const INDEX_FOR_UUID: mongoose.IndexDefinition = { UUID: 1 };

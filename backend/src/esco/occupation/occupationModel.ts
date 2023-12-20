@@ -79,11 +79,21 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       requiringOccupationType: { $eq: occupation.occupationType },
     }),
   });
-  OccupationSchema.index({ UUID: 1 }, { unique: true });
-  OccupationSchema.index({ code: 1, modelId: 1 }, { unique: true });
-  OccupationSchema.index({ modelId: 1 });
-  OccupationSchema.index({ UUIDHistory: 1 });
+
+  // Two instances cannot have the same UUID
+  OccupationSchema.index(INDEX_FOR_UUID, { unique: true });
+
+  // Index used to ensure that two instances cannot have the same code in the same model and
+  // to improve queries performance on the instances with the same modelId
+  OccupationSchema.index(INDEX_FOR_CODE, { unique: true });
+
+  // Index used to improve queries performance
+  OccupationSchema.index(INDEX_FOR_UUIDHistory);
 
   // Model
   return dbConnection.model<IOccupationDoc>(MongooseModelName.Occupation, OccupationSchema);
 }
+
+export const INDEX_FOR_CODE: mongoose.IndexDefinition = { modelId: 1, code: 1 };
+export const INDEX_FOR_UUID: mongoose.IndexDefinition = { UUID: 1 };
+export const INDEX_FOR_UUIDHistory: mongoose.IndexDefinition = { UUIDHistory: 1 };

@@ -76,9 +76,15 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     justOne: true,
   });
 
-  LocalizedOccupationSchema.index({ UUID: 1 }, { unique: true });
-  LocalizedOccupationSchema.index({ modelId: 1, localizesOccupationId: 1 }, { unique: true });
-  LocalizedOccupationSchema.index({ UUIDHistory: 1 });
+  // Two instances cannot have the same UUID
+  LocalizedOccupationSchema.index(INDEX_FOR_UUID, { unique: true });
+
+  // Two instances cannot have the same localizesOccupationId in the same model
+  // Compound index allows to search for the model
+  LocalizedOccupationSchema.index(INDEX_FOR_LOCALIZES_OCCUPATION_ID, { unique: true });
+
+  // Index used to improve queries performance
+  LocalizedOccupationSchema.index(INDEX_FOR_UUIDHistory);
 
   // Model
   return dbConnection.model<ILocalizedOccupationDoc>(MongooseModelName.LocalizedOccupation, LocalizedOccupationSchema);
@@ -89,3 +95,7 @@ const _TransformFn = (doc: any, ret: any) => {
   ret.localizesOccupationId = ret.localizesOccupationId.toString(); // Convert localizesOccupationId to string
   return ret;
 };
+
+export const INDEX_FOR_UUID: mongoose.IndexDefinition = { UUID: 1 };
+export const INDEX_FOR_LOCALIZES_OCCUPATION_ID: mongoose.IndexDefinition = { modelId: 1, localizesOccupationId: 1 };
+export const INDEX_FOR_UUIDHistory: mongoose.IndexDefinition = { UUIDHistory: 1 };

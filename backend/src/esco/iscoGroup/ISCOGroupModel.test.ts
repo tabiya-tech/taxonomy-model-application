@@ -4,7 +4,7 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
-import { initializeSchemaAndModel } from "./ISCOGroupModel";
+import { INDEX_FOR_CODE, INDEX_FOR_UUID, INDEX_FOR_UUIDHistory, initializeSchemaAndModel } from "./ISCOGroupModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import {
@@ -251,9 +251,9 @@ describe("Test the definition of the ISCOGroup Model", () => {
       // THEN expect the indexes to be correct
       expect(indexes).toIncludeSameMembers([
         { key: { _id: 1 }, unique: undefined },
-        { key: { modelId: 1, code: 1 }, unique: true },
-        { key: { UUID: 1 }, unique: true },
-        { key: { UUIDHistory: 1 }, unique: undefined },
+        { key: INDEX_FOR_CODE, unique: true },
+        { key: INDEX_FOR_UUID, unique: true },
+        { key: INDEX_FOR_UUIDHistory, unique: undefined },
       ]);
     });
   });

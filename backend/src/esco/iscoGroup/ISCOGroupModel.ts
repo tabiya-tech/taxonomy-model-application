@@ -64,12 +64,16 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 
   // Two isco groups cannot have the same isco code in the same model
   // Compound index allows to search for the model
-  ISCOGroupSchema.index({ modelId: 1, code: 1 }, { unique: true });
+  ISCOGroupSchema.index(INDEX_FOR_CODE, { unique: true });
 
-  ISCOGroupSchema.index({ UUID: 1 }, { unique: true });
-  ISCOGroupSchema.index({ UUIDHistory: 1 });
-  // Preferred label must be unique in the same model
-  // ISCOGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
+  // Two isco groups cannot have the same UUID
+  ISCOGroupSchema.index(INDEX_FOR_UUID, { unique: true });
+  // Index used to improve queries performance
+  ISCOGroupSchema.index(INDEX_FOR_UUIDHistory);
 
   return dbConnection.model<IISCOGroupDoc>(MongooseModelName.ISCOGroup, ISCOGroupSchema);
 }
+
+export const INDEX_FOR_CODE: mongoose.IndexDefinition = { modelId: 1, code: 1 };
+export const INDEX_FOR_UUID: mongoose.IndexDefinition = { UUID: 1 };
+export const INDEX_FOR_UUIDHistory: mongoose.IndexDefinition = { UUIDHistory: 1 };
