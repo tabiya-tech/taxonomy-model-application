@@ -37,15 +37,26 @@ export function initializeSchemaAndModel(
         toJSON: getGlobalTransformOptions(_TransformFn),
       }
     );
-  SkillToSkillRelationSchema.index({ modelId: 1, requiringSkillId: 1, requiredSkillId: 1 }, { unique: true });
-  SkillToSkillRelationSchema.index({ modelId: 1, requiredSkillId: 1 }); // Needed for the virtual requiredBySkills field that is populated via the populateSkillRequiresSkillsOptions
-  SkillToSkillRelationSchema.index({ modelId: 1, requiringSkillId: 1 }); // Needed for the virtual requiresSkills field that is populated via the populateSkillRequiredBySkillsOptions
+
+  // A requiring skill -> required skill relation cannot show up twice in a model
+  // Additionally, it is needed from the virtual requiresSkill field matcher, that is populated via the populateSkillToSkillRelationOptions
+  SkillToSkillRelationSchema.index(INDEX_FOR_REQUIRES_SKILLS, { unique: true });
+
+  // This is needed from the virtual required by occupation field matcher, that is populated via the populateSkillToSkillRelationOptions
+  SkillToSkillRelationSchema.index(INDEX_FOR_REQUIRED_BY_SKILLS);
 
   return dbConnection.model<ISkillToSkillRelationPairDoc>(
     MongooseModelName.SkillToSkillRelation,
     SkillToSkillRelationSchema
   );
 }
+
+export const INDEX_FOR_REQUIRES_SKILLS: mongoose.IndexDefinition = {
+  modelId: 1,
+  requiringSkillId: 1,
+  requiredSkillId: 1,
+};
+export const INDEX_FOR_REQUIRED_BY_SKILLS: mongoose.IndexDefinition = { modelId: 1, requiredSkillId: 1 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _TransformFn = (doc: any, ret: any) => {

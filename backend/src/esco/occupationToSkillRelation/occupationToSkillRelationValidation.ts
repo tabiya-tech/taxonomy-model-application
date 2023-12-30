@@ -12,7 +12,7 @@ function toRelationPairSpecFromOccupationToSkillPairSpec(spec: INewOccupationToS
 
 export function isNewOccupationToSkillRelationPairSpecValid(
   spec: INewOccupationToSkillPairSpec,
-  existingIds: Map<string, ObjectTypes>
+  existingIds: Map<string, [ObjectTypes]>
 ): boolean {
   const commonRelationSpec = toRelationPairSpecFromOccupationToSkillPairSpec(spec);
   const validPairsForOccupationToSkill = [

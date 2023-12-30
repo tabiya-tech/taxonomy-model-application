@@ -10,7 +10,7 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { IISCOGroupRepository } from "./ISCOGroupRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { IISCOGroup, IISCOGroupReference, INewISCOGroupSpec } from "./ISCOGroup.types";
+import { IISCOGroup, IISCOGroupDoc, IISCOGroupReference, INewISCOGroupSpec } from "./ISCOGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -56,6 +56,19 @@ function expectedFromGivenSpec(givenSpec: INewISCOGroupSpec, newUUID: string): I
 describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
+    jest.spyOn(mongoose.Model, "populate").mockRestore();
+    jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    //---
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
+
+    // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
+    jest.spyOn(mongoose.Model, "populate").mockRestore();
+    jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    //---
   });
 
   let dbConnection: Connection;
@@ -94,6 +107,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
   async function cleanupDBCollections() {
     if (repository) await repository.Model.deleteMany({}).exec();
     if (repositoryRegistry) {
+      await repositoryRegistry.occupation.Model.deleteMany({}).exec();
       await repositoryRegistry.skill.Model.deleteMany({}).exec();
       await repositoryRegistry.occupationHierarchy.hierarchyModel.deleteMany({}).exec();
     }
@@ -660,6 +674,126 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+      });
+
+      test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
+        // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
+        // modelId, parentId, parentType, childId, childType,
+        // 1,        2,        ISCOGroup,  3,        Occupation
+        // 1,        2,        Occupation,  4,       Occupation
+
+        // GIVEN a modelId
+        const givenModelId = getMockStringId(1);
+        // AND a subject ISCO group with the givenId
+        const givenID = new mongoose.Types.ObjectId(2);
+        const givenSubjectSpecs = getSimpleNewISCOGroupSpec(givenModelId, "subject");
+        // @ts-ignore
+        givenSubjectSpecs.id = givenID.toHexString();
+        const givenSubject = await repository.create(givenSubjectSpecs);
+        // guard to ensure the id is the given one
+        expect(givenSubject.id).toEqual(givenID.toHexString());
+
+        // AND an Occupation givenOccupation_1 with a given ID in the given model
+        const givenOccupation1Specs = getSimpleNewOccupationSpec(givenModelId, "Occupation_1");
+        // @ts-ignore
+        givenOccupation1Specs.id = givenID.toHexString();
+        const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
+        // guard to ensure the id is the given one
+        expect(givenOccupation_1.id).toEqual(givenID.toHexString());
+
+        // AND a second occupation_2 with some ID  in the given model
+        const givenOccupationSpecs_2 = getSimpleNewOccupationSpec(givenModelId, "occupation_2");
+        const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
+
+        // AND a third occupation_3 with some ID in the given model
+        const givenOccupationSpecs_3 = getSimpleNewOccupationSpec(givenModelId, "occupation_3");
+        const givenOccupation_3 = await repositoryRegistry.occupation.create(givenOccupationSpecs_3);
+
+        // AND the occupation occupation_1  is the parent of occupation_2
+        // AND the subject ISCOGroup  is the parent of Occupation_3
+        const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+          {
+            parentType: ObjectTypes.ISCOGroup,
+            parentId: givenSubject.id,
+            childType: ObjectTypes.Occupation,
+            childId: givenOccupation_3.id,
+          },
+          {
+            parentType: ObjectTypes.Occupation,
+            parentId: givenOccupation_1.id,
+            childType: ObjectTypes.Occupation,
+            childId: givenOccupation_2.id,
+          },
+        ]);
+        // Guard assertion
+        expect(actualHierarchy).toHaveLength(2);
+
+        // WHEN we retrieve the subject by its id
+        const actualFoundSubject = await repository.findById(givenSubject.id);
+
+        // THEN we expect to find only occupation 2 as a child
+        expect(actualFoundSubject).not.toBeNull();
+        expect(actualFoundSubject!.children).toEqual([expectedOccupationReference(givenOccupation_3)]);
+      });
+
+      test("should not match entities that have the same ID but are of different types (collections) when populating parent", async () => {
+        // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
+        // modelId, parentId, parentType, childId, childType,
+        // 1,        2,        ISCOGroup,  4,        Occupation
+        // 1,        3,        ISCOGroup,  4,       ISCOGroup
+
+        // GIVEN a modelId
+        const givenModelId = getMockStringId(1);
+        // AND a subject ISCO group with the givenId
+        const givenID = new mongoose.Types.ObjectId(2);
+        const givenSubjectSpecs = getSimpleNewISCOGroupSpec(givenModelId, "subject");
+        // @ts-ignore
+        givenSubjectSpecs.id = givenID.toHexString();
+        const givenSubject = await repository.create(givenSubjectSpecs);
+        // guard to ensure the id is the given one
+        expect(givenSubject.id).toEqual(givenID.toHexString());
+
+        // AND an Occupation givenOccupation_1 with a given ID in the given model
+        const givenOccupation1Specs = getSimpleNewOccupationSpec(givenModelId, "Occupation_1");
+        // @ts-ignore
+        givenOccupation1Specs.id = givenID.toHexString();
+        const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
+        // guard to ensure the id is the given one
+        expect(givenOccupation_1.id).toEqual(givenID.toHexString());
+
+        // AND a second iscoGroup with some ID in the given model
+        const givenISCOGroupSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId, "isco_1");
+        const givenISCOGroup_1 = await repositoryRegistry.ISCOGroup.create(givenISCOGroupSpecs_1);
+
+        // AND a third iscoGroup with some ID  in the given model
+        const givenISCOGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId, "isco_2");
+        const givenISCOGroup_2 = await repositoryRegistry.ISCOGroup.create(givenISCOGroupSpecs_2);
+
+        // AND the occupation occupation_1  is the child of iscoGroup_2
+        // AND the subject ISCOGroup  is the child of Occupation_3
+        const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+          {
+            parentType: ObjectTypes.ISCOGroup,
+            parentId: givenISCOGroup_1.id,
+            childType: ObjectTypes.Occupation,
+            childId: givenOccupation_1.id,
+          },
+          {
+            parentType: ObjectTypes.ISCOGroup,
+            parentId: givenISCOGroup_2.id,
+            childType: ObjectTypes.ISCOGroup,
+            childId: givenSubject.id,
+          },
+        ]);
+        // Guard assertion
+        expect(actualHierarchy).toHaveLength(2);
+
+        // WHEN we retrieve the subject by its id
+        const actualFoundSubject = await repository.findById(givenSubject.id);
+
+        // THEN we expect to find only occupation 2 as a parent
+        expect(actualFoundSubject).not.toBeNull();
+        expect(actualFoundSubject!.parent).toEqual(expectedISCOGroupReference(givenISCOGroup_2));
       });
     });
 

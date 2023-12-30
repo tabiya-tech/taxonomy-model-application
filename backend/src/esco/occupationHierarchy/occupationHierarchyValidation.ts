@@ -5,7 +5,7 @@ import { INewOccupationHierarchyPairSpec } from "./occupationHierarchy.types";
 
 export function isNewOccupationHierarchyPairSpecValid(
   spec: INewOccupationHierarchyPairSpec,
-  existingIds: Map<string, ObjectTypes>,
+  existingIds: Map<string, ObjectTypes[]>,
   occupationTypes: Map<string, OccupationType>
 ): boolean {
   // filter out all hierarchy specs where the parent is a local occupation and the child is an esco or a localized occupation

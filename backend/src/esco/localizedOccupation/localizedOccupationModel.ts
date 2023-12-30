@@ -14,6 +14,7 @@ import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelat
 import { ILocalizedOccupationDoc } from "./localizedOccupation.types";
 
 import { LocalizedOccupationModelPaths } from "esco/common/modelPopulationPaths";
+import { ObjectTypes, OccupationType } from "esco/common/objectTypes";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ILocalizedOccupationDoc> {
   // Main Schema
@@ -35,30 +36,43 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
+
   LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.parent, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "localizesOccupationId",
     foreignField: OccupationHierarchyModelPaths.childId,
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({ modelId: localizedOccupation.modelId }),
+    match: (localizedOccupation: ILocalizedOccupationDoc) => ({
+      modelId: { $eq: localizedOccupation.modelId },
+      childType: { $eq: ObjectTypes.Occupation },
+    }),
     justOne: true,
   });
+
   LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.children, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "localizesOccupationId",
     foreignField: OccupationHierarchyModelPaths.parentId,
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({ modelId: localizedOccupation.modelId }),
+    match: (localizedOccupation: ILocalizedOccupationDoc) => ({
+      modelId: { $eq: localizedOccupation.modelId },
+      parentType: { $eq: ObjectTypes.Occupation },
+    }),
   });
+
   LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.requiresSkills, {
     ref: MongooseModelName.OccupationToSkillRelation,
     localField: "_id",
     foreignField: OccupationToSkillRelationModelPaths.requiringOccupationId,
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({ modelId: localizedOccupation.modelId }),
+    match: (localizedOccupation: ILocalizedOccupationDoc) => ({
+      modelId: { $eq: localizedOccupation.modelId },
+      requiringOccupationType: { $eq: OccupationType.LOCALIZED },
+    }),
   });
+
   LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.localizesOccupation, {
     ref: MongooseModelName.Occupation,
     localField: "localizesOccupationId",
     foreignField: "_id",
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({ modelId: localizedOccupation.modelId }),
+    match: (localizedOccupation: ILocalizedOccupationDoc) => ({ modelId: { $eq: localizedOccupation.modelId } }),
     justOne: true,
   });
 

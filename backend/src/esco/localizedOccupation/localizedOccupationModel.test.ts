@@ -225,7 +225,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
     });
 
     // THEN the indexes to be correct
-    expect(indexes).toEqual([
+    expect(indexes).toIncludeSameMembers([
       { key: { _id: 1 }, unique: undefined },
       { key: { UUID: 1 }, unique: true },
       {

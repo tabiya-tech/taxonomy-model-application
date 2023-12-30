@@ -22,7 +22,7 @@ export interface IRelationshipSpec {
 
 export function isRelationPairValid(
   spec: IRelationshipSpec,
-  existingIds: Map<string, ObjectTypes>,
+  existingIds: Map<string, ObjectTypes[]>,
   validPairTypes: { firstPartnerType: ObjectTypes; secondPartnerType: ObjectTypes }[]
 ): boolean {
   // Return false if first and second partner IDs are the same (self-referencing)
@@ -37,17 +37,18 @@ export function isRelationPairValid(
   );
   if (!isIncluded) return false;
 
+  // Verify that the first partner ID exists and has the expected type
   // Return false if first partner ID doesn't exist
   const existingFirstPartnerType = existingIds.get(spec.firstPartnerId);
   if (!existingFirstPartnerType) return false;
   // or if its type doesn't match
-  if (existingFirstPartnerType !== spec.firstPartnerType) return false;
+  if (!existingFirstPartnerType.includes(spec.firstPartnerType)) return false;
 
   // Return false if second partner ID doesn't exist
   const existingSecondPartnerType = existingIds.get(spec.secondPartnerId);
   if (!existingSecondPartnerType) return false;
   // or if its type doesn't match
-  if (existingSecondPartnerType !== spec.secondPartnerType) return false;
+  if (!existingSecondPartnerType.includes(spec.secondPartnerType)) return false;
 
   //  If everything passes return true
   return true;
