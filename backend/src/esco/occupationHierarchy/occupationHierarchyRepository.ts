@@ -63,6 +63,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[]
   ): Promise<IOccupationHierarchyPair[]> {
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
+    const newHierarchyDocs: mongoose.Document<unknown, unknown, IOccupationHierarchyPairDoc>[] = [];
     try {
       const existingIds = new Map<string, ObjectTypes>();
 
@@ -105,17 +106,27 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
         })
         .filter(Boolean);
 
-      const newHierarchy = await this.hierarchyModel.insertMany(newOccupationHierarchyPairModels, {
+      const docs = await this.hierarchyModel.insertMany(newOccupationHierarchyPairModels, {
         ordered: false,
       });
-      return newHierarchy.map((pair) => pair.toObject());
+      newHierarchyDocs.push(...docs);
     } catch (e: unknown) {
-      return handleInsertManyError<IOccupationHierarchyPair>(
+      const docs = handleInsertManyError<IOccupationHierarchyPairDoc>(
         e,
         "OccupationHierarchyRepository.createMany",
         newOccupationHierarchyPairSpecs.length
       );
+      newHierarchyDocs.push(...docs);
     }
+
+    if (newOccupationHierarchyPairSpecs.length !== newHierarchyDocs.length) {
+      console.warn(
+        `OccupationHierarchyRepository.createMany: ${
+          newOccupationHierarchyPairSpecs.length - newHierarchyDocs.length
+        } invalid entries were not created`
+      );
+    }
+    return newHierarchyDocs.map((pair) => pair.toObject());
   }
 
   findAll(modelId: string): Readable {

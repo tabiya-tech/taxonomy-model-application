@@ -8,10 +8,12 @@ import {
 } from "./populateSkillToSkillRelationOptions";
 import { populateSkillRequiredByOccupationOptions } from "./populateOccupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { SkillModelPaths } from "./skillModel";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
+import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
+import { populateEmptyRequiredByOccupations } from "esco/occupationToSkillRelation/populateFunctions";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -83,13 +85,9 @@ export class SkillRepository implements ISkillRepository {
     try {
       const newSkillModel = this.newSpecToModel(newSkillSpec);
       await newSkillModel.save();
-      await newSkillModel.populate([
-        { path: SkillModelPaths.parents },
-        { path: SkillModelPaths.children },
-        { path: SkillModelPaths.requiresSkills },
-        { path: SkillModelPaths.requiredBySkills },
-        { path: SkillModelPaths.requiredByOccupations },
-      ]);
+      populateEmptySkillHierarchy(newSkillModel);
+      populateEmptySkillToSkillRelation(newSkillModel);
+      populateEmptyRequiredByOccupations(newSkillModel);
       return newSkillModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -98,6 +96,7 @@ export class SkillRepository implements ISkillRepository {
   }
 
   async createMany(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]> {
+    const newSkillsDocuments: mongoose.Document<unknown, unknown, ISkillDoc>[] = [];
     try {
       const newSkillModels = newSkillSpecs
         .map((spec) => {
@@ -108,26 +107,27 @@ export class SkillRepository implements ISkillRepository {
           }
         })
         .filter(Boolean);
-      const newSkills = await this.Model.insertMany(newSkillModels, {
+      const docs = await this.Model.insertMany(newSkillModels, {
         ordered: false,
-        populate: ["parents", "children", "requiresSkills", "requiredBySkills", "requiredByOccupations"], // Populate parents and children fields
       });
-      if (newSkillSpecs.length !== newSkills.length) {
-        console.warn(
-          `SkillRepository.createMany: ${newSkillSpecs.length - newSkills.length} invalid entries were not created`
-        );
-      }
-      return newSkills.map((skill) => skill.toObject());
+      newSkillsDocuments.push(...docs);
     } catch (e: unknown) {
-      const populationOptions = [
-        { path: SkillModelPaths.parents },
-        { path: SkillModelPaths.children },
-        { path: SkillModelPaths.requiresSkills },
-        { path: SkillModelPaths.requiredBySkills },
-        { path: SkillModelPaths.requiredByOccupations },
-      ];
-      return handleInsertManyError<ISkill>(e, "SkillRepository.createMany", newSkillSpecs.length, populationOptions);
+      const docs = handleInsertManyError<ISkillDoc>(e, "SkillRepository.createMany", newSkillSpecs.length);
+      newSkillsDocuments.push(...docs);
     }
+    if (newSkillSpecs.length !== newSkillsDocuments.length) {
+      console.warn(
+        `SkillRepository.createMany: ${
+          newSkillSpecs.length - newSkillsDocuments.length
+        } invalid entries were not created`
+      );
+    }
+    return newSkillsDocuments.map((skill) => {
+      populateEmptySkillHierarchy(skill);
+      populateEmptySkillToSkillRelation(skill);
+      populateEmptyRequiredByOccupations(skill);
+      return skill.toObject();
+    });
   }
 
   async findById(id: string): Promise<ISkill | null> {

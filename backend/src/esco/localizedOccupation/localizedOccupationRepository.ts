@@ -3,7 +3,6 @@ import { randomUUID } from "crypto";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import {
   IExtendedLocalizedOccupation,
-  ILocalizedOccupation,
   ILocalizedOccupationDoc,
   INewLocalizedOccupationSpec,
 } from "./localizedOccupation.types";
@@ -21,6 +20,8 @@ import {
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
+import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 
 export interface ILocalizedOccupationRepository {
   readonly Model: mongoose.Model<ILocalizedOccupationDoc>;
@@ -103,12 +104,9 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
       const newLocalizedOccupationModel = this.newSpecToModel(newLocalizedOccupationSpec);
       await newLocalizedOccupationModel.save();
       // populating the parent, children, requiresSkills and localizesOccupation fields
-      await newLocalizedOccupationModel.populate([
-        populateOccupationParentOptions,
-        populateOccupationChildrenOptions,
-        populateLocalizedOccupationRequiresSkillsOptions,
-        populateLocalizedOccupationLocalizesOccupationOptions,
-      ]);
+      await newLocalizedOccupationModel.populate(populateLocalizedOccupationLocalizesOccupationOptions);
+      populateEmptyOccupationHierarchy(newLocalizedOccupationModel);
+      populateEmptyRequiresSkills(newLocalizedOccupationModel);
       return occupationFromLocalizedOccupationTransform(newLocalizedOccupationModel.toObject());
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -119,13 +117,16 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
   async createMany(
     newLocalizedOccupationSpecs: INewLocalizedOccupationSpec[]
   ): Promise<IExtendedLocalizedOccupation[]> {
+    const existingIds = new Map<string, string>();
     const localizingOccupationIds = await this.OccupationModel.find({});
+    localizingOccupationIds.forEach((occupation) => {
+      existingIds.set(occupation._id.toString(), occupation.modelId.toString());
+    });
 
+    const newLocalizedOccupationsDocs: mongoose.Document<unknown, unknown, ILocalizedOccupationDoc>[] = [];
     try {
       const newLocalizedOccupationModels = newLocalizedOccupationSpecs
-        .filter((spec) =>
-          localizingOccupationIds.find((occupation) => occupation._id.toString() === spec.localizesOccupationId)
-        )
+        .filter((spec) => existingIds.get(spec.localizesOccupationId))
         .map((spec) => {
           try {
             return this.newSpecToModel(spec);
@@ -134,35 +135,35 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
           }
         })
         .filter(Boolean);
-      const newLocalizedOccupations = await this.Model.insertMany(newLocalizedOccupationModels, {
+      const docs = await this.Model.insertMany(newLocalizedOccupationModels, {
         ordered: false,
-        populate: [
-          populateOccupationParentOptions,
-          populateOccupationChildrenOptions,
-          populateLocalizedOccupationRequiresSkillsOptions,
-          populateLocalizedOccupationLocalizesOccupationOptions,
-        ],
       });
-
-      return newLocalizedOccupations.map((LocalizedOccupation) =>
-        occupationFromLocalizedOccupationTransform(LocalizedOccupation.toObject())
-      );
+      newLocalizedOccupationsDocs.push(...docs);
     } catch (e: unknown) {
-      const newLocalizedOccupations = await handleInsertManyError<ILocalizedOccupation>(
+      const docs = handleInsertManyError<ILocalizedOccupationDoc>(
         e,
         "LocalizedOccupationRepository.createMany",
-        newLocalizedOccupationSpecs.length,
-        [
-          populateOccupationParentOptions,
-          populateOccupationChildrenOptions,
-          populateLocalizedOccupationRequiresSkillsOptions,
-          populateLocalizedOccupationLocalizesOccupationOptions,
-        ]
+        newLocalizedOccupationSpecs.length
       );
-      return newLocalizedOccupations.map((localizedOccupation) =>
-        occupationFromLocalizedOccupationTransform(localizedOccupation)
+      newLocalizedOccupationsDocs.push(...docs);
+    }
+
+    if (newLocalizedOccupationSpecs.length !== newLocalizedOccupationsDocs.length) {
+      console.warn(
+        `LocalizedOccupationRepository.createMany: ${
+          newLocalizedOccupationSpecs.length - newLocalizedOccupationsDocs.length
+        } invalid entries were not created`
       );
     }
+    const populatedDocs: IExtendedLocalizedOccupation[] = [];
+
+    for (const doc of newLocalizedOccupationsDocs) {
+      await doc.populate(populateLocalizedOccupationLocalizesOccupationOptions);
+      populateEmptyOccupationHierarchy(doc);
+      populateEmptyRequiresSkills(doc);
+      populatedDocs.push(occupationFromLocalizedOccupationTransform(doc.toObject()));
+    }
+    return populatedDocs;
   }
 
   async findById(id: string | mongoose.Types.ObjectId): Promise<IExtendedLocalizedOccupation | null> {

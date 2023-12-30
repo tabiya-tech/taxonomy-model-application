@@ -1,6 +1,8 @@
 import { IPopulatedOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
-import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
-import { IOccupationReference } from "esco/occupation/occupation.types";
+import { IISCOGroupDoc, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationDoc, IOccupationReference } from "esco/occupation/occupation.types";
+import mongoose from "mongoose";
+import { ILocalizedOccupationDoc } from "../localizedOccupation/localizedOccupation.types";
 
 export function getOccupationHierarchyChildReference(
   doc: IPopulatedOccupationHierarchyPairDoc
@@ -27,4 +29,13 @@ export function getOccupationHierarchyParentReference(
   // @ts-ignore - we want to remove the modelId field because  it is not part of the IOccupationReference, IISCOGroupReferenceDoc interface
   delete doc.parentId.modelId;
   return doc.parentId;
+}
+
+export function populateEmptyOccupationHierarchy(
+  target: mongoose.Document<unknown, unknown, IOccupationDoc | IISCOGroupDoc | ILocalizedOccupationDoc>
+) {
+  // @ts-ignore
+  target.parent = null;
+  // @ts-ignore
+  target.children = [];
 }

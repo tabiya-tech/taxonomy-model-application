@@ -1,9 +1,11 @@
 import { ReferenceWithRelationType } from "esco/common/objectTypes";
 import { IPopulatedOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
 import { getOccupationReferenceWithRelationType } from "esco/occupation/occupationReference";
-import { IOccupationReference } from "esco/occupation/occupation.types";
-import { ISkillReference } from "esco/skill/skills.types";
+import { IOccupationDoc, IOccupationReference } from "esco/occupation/occupation.types";
+import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
 import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
+import mongoose from "mongoose";
+import { ILocalizedOccupationDoc } from "../localizedOccupation/localizedOccupation.types";
 
 export function getSkillRequiredByOccupationReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc
@@ -29,4 +31,16 @@ export function getOccupationRequiresSkillReference(
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReference interface
   delete doc.requiredSkillId.modelId;
   return getSkillReferenceWithRelationType(doc.requiredSkillId, doc.relationType);
+}
+
+export function populateEmptyRequiresSkills(
+  target: mongoose.Document<unknown, unknown, IOccupationDoc | ILocalizedOccupationDoc>
+) {
+  // @ts-ignore
+  target.requiresSkills = [];
+}
+
+export function populateEmptyRequiredByOccupations(target: mongoose.Document<unknown, unknown, ISkillDoc>) {
+  // @ts-ignore
+  target.requiredByOccupations = [];
 }

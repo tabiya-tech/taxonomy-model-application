@@ -3,10 +3,10 @@ import { randomUUID } from "crypto";
 import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
 import { populateSkillGroupChildrenOptions, populateSkillGroupParentsOptions } from "./populateSkillHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { SkillGroupModelPaths } from "./skillGroupModel";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
+import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
@@ -79,10 +79,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     try {
       const newSkillGroupModel = this.newSpecToModel(newSkillGroupSpec);
       await newSkillGroupModel.save();
-      await newSkillGroupModel.populate([
-        { path: SkillGroupModelPaths.parents },
-        { path: SkillGroupModelPaths.children },
-      ]);
+      populateEmptySkillHierarchy(newSkillGroupModel);
       return newSkillGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -91,6 +88,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   }
 
   async createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> {
+    const newSkillGroupsDocuments: mongoose.Document<unknown, unknown, ISkillGroupDoc>[] = [];
     try {
       const newSkillGroupModels = newSkillGroupSpecs
         .map((spec) => {
@@ -101,22 +99,29 @@ export class SkillGroupRepository implements ISkillGroupRepository {
           }
         })
         .filter(Boolean);
-      const newSkillGroups = await this.Model.insertMany(newSkillGroupModels, {
+      const docs = await this.Model.insertMany(newSkillGroupModels, {
         ordered: false,
-        populate: ["parents", "children"],
       });
-      if (newSkillGroupSpecs.length !== newSkillGroups.length) {
-        console.warn(
-          `SkillGroupRepository.createMany: ${
-            newSkillGroupSpecs.length - newSkillGroups.length
-          } invalid entries were not created`
-        );
-      }
-      return newSkillGroups.map((skillGroup) => skillGroup.toObject());
+      newSkillGroupsDocuments.push(...docs);
     } catch (e: unknown) {
-      const populationOptions = [{ path: SkillGroupModelPaths.parents }, { path: SkillGroupModelPaths.children }];
-      return handleInsertManyError(e, "SkillGroupRepository.createMany", newSkillGroupSpecs.length, populationOptions);
+      const docs = handleInsertManyError<ISkillGroupDoc>(
+        e,
+        "SkillGroupRepository.createMany",
+        newSkillGroupSpecs.length
+      );
+      newSkillGroupsDocuments.push(...docs);
     }
+    if (newSkillGroupSpecs.length !== newSkillGroupsDocuments.length) {
+      console.warn(
+        `SkillGroupRepository.createMany: ${
+          newSkillGroupSpecs.length - newSkillGroupsDocuments.length
+        } invalid entries were not created`
+      );
+    }
+    return newSkillGroupsDocuments.map((skillGroup) => {
+      populateEmptySkillHierarchy(skillGroup);
+      return skillGroup.toObject();
+    });
   }
 
   async findById(id: string): Promise<ISkillGroup | null> {

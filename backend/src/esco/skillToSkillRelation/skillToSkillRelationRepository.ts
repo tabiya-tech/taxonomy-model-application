@@ -54,6 +54,7 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
     newSkillToSkillRelationPairSpecs: INewSkillToSkillPairSpec[]
   ): Promise<ISkillToSkillRelationPair[]> {
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
+    const newRelationsDocs: mongoose.Document<unknown, unknown, ISkillToSkillRelationPairDoc>[] = [];
     try {
       const existingIds = new Map<string, ObjectTypes>();
 
@@ -81,24 +82,27 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
         })
         .filter(Boolean);
 
-      const newRelations = await this.relationModel.insertMany(newSkillToSkillRelationPairModels, {
+      const docs = await this.relationModel.insertMany(newSkillToSkillRelationPairModels, {
         ordered: false,
       });
-      if (newSkillToSkillRelationPairSpecs.length !== newRelations.length) {
-        console.warn(
-          `SkillToSkillRelationRepository.createMany: ${
-            newSkillToSkillRelationPairSpecs.length - newRelations.length
-          } invalid entries were not created`
-        );
-      }
-      return newRelations.map((pair) => pair.toObject());
+      newRelationsDocs.push(...docs);
     } catch (e: unknown) {
-      return handleInsertManyError(
+      const docs = handleInsertManyError<ISkillToSkillRelationPairDoc>(
         e,
         "SkillToSkillRelationRepository.createMany",
         newSkillToSkillRelationPairSpecs.length
       );
+      newRelationsDocs.push(...docs);
     }
+
+    if (newSkillToSkillRelationPairSpecs.length !== newRelationsDocs.length) {
+      console.warn(
+        `SkillToSkillRelationRepository.createMany: ${
+          newSkillToSkillRelationPairSpecs.length - newRelationsDocs.length
+        } invalid entries were not created`
+      );
+    }
+    return newRelationsDocs.map((pair) => pair.toObject());
   }
 
   findAll(modelId: string): Readable {
