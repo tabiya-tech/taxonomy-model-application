@@ -96,6 +96,7 @@ export namespace GET {
 type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends (infer ItemType)[]
   ? ItemType
   : never;
+
 export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.Types.GET.Response.Payload> {
   const allImportStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
   const randomizedImportStatus = allImportStatuses[_id % allImportStatuses.length];
@@ -128,7 +129,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
           exportErrors: faker.datatype.boolean(),
           exportWarnings: faker.datatype.boolean(),
         },
-        downloadUrl: _id % 2 === 0? "": "https://foo/bar/baz", // errored models don't have downloadUrl
+        downloadUrl: _id % 2 === 0 ? "" : "https://foo/bar/baz", // errored models don't have downloadUrl
         timestamp: new Date().toISOString(),
       },
     ],
