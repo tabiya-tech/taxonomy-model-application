@@ -35,6 +35,13 @@ import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { Readable } from "node:stream";
+import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
+import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "esco/skillHierarchy/skillHierarchyModel";
+import {
+  INDEX_FOR_REQUIRED_BY_SKILLS,
+  INDEX_FOR_REQUIRES_SKILLS,
+} from "esco/skillToSkillRelation/skillToSkillRelationModel";
+import { INDEX_FOR_REQUIRED_BY_OCCUPATIONS } from "../occupationToSkillRelation/occupationToSkillRelationModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -421,6 +428,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(actualHierarchy).toHaveLength(4);
 
       // WHEN searching for the subject by its id
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<ISkillDoc>(repository.Model);
       const actualFoundSkill = (await repository.findById(givenSubject.id)) as ISkill;
 
       // THEN expect the ISkill to be found
@@ -441,6 +450,32 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         ])
       );
 
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(8); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references,  1 for the requiresSkills, 1 for requiredBySkills and 1 for the requiredByOccupations
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the parent hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.skillHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              childType: { $eq: ObjectTypes.Skill },
+              childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_PARENTS,
+          }),
+          // populating the child hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.skillHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              parentType: { $eq: ObjectTypes.Skill },
+              parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_CHILDREN,
+          }),
+        ])
+      );
       // AND expect no error to be logged
       expect(console.error).toBeCalledTimes(0);
     });
@@ -809,6 +844,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(actualRelations).toHaveLength(4);
 
       // WHEN searching for the subject by its id
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<ISkillDoc>(repository.Model);
       const actualFoundSkill = (await repository.findById(givenSubject.id)) as ISkill;
 
       // THEN expect the ISkill to be found
@@ -826,6 +863,31 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         expect.arrayContaining<ReferenceWithRelationType<ISkillReference>>([
           expectedRelatedSkillReference(givenRequiredSkill_1, RelationType.ESSENTIAL),
           expectedRelatedSkillReference(givenRequiredSkill_2, RelationType.OPTIONAL),
+        ])
+      );
+
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(7); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 1 for the child references,  1 for the requiresSkills, 1 for requiredBySkills and 1 for the requiredByOccupations
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the requiresSkills
+          getExpectedPlan({
+            collectionName: repositoryRegistry.skillToSkillRelation.relationModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              requiringSkillId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_REQUIRES_SKILLS,
+          }),
+          // populating the requiredBySkills
+          getExpectedPlan({
+            collectionName: repositoryRegistry.skillToSkillRelation.relationModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              requiredSkillId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_REQUIRED_BY_SKILLS,
+          }),
         ])
       );
 
@@ -1065,6 +1127,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(actualRequiredByOccupation).toHaveLength(3);
 
       // WHEN searching for the subject by its id
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<ISkillDoc>(repository.Model);
       const actualFoundSkill = (await repository.findById(givenSubject.id)) as ISkill;
 
       // THEN expect the subject to be found
@@ -1075,6 +1139,22 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         expect.arrayContaining([
           expectedRelatedOccupationReference(givenOccupation_1, RelationType.ESSENTIAL),
           expectedRelatedOccupationReference(givenOccupation_2, RelationType.ESSENTIAL),
+        ])
+      );
+
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(6); // 1 for the parent and 1 for the child hierarchies,  1 for the requiresSkills, 1 for requiredBySkills, 1 for the requiredByOccupations and 1 for the required by occupation reference
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the requiredByOccupations
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationToSkillRelation.relationModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              requiredSkillId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_REQUIRED_BY_OCCUPATIONS,
+          }),
         ])
       );
 
