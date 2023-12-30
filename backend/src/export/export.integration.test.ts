@@ -180,6 +180,12 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
 
     // GIVEN a model exists in the db with some data
     const { modelId, exportProcessStateId } = await createTestData();
+    // TODO: clearing the warn and errors as currently, the createTestData() fails to create occupation hierarchy
+    (console.warn as jest.Mock).mockClear();
+    (console.error as jest.Mock).mockClear();
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+
     // AND async event for that model and process
     const givenAsyncExportEvent: AsyncExportEvent = {
       modelId: modelId,

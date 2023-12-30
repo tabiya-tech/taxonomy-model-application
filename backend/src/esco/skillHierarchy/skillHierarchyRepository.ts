@@ -55,6 +55,7 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
     newSkillHierarchyPairSpecs: INewSkillHierarchyPairSpec[]
   ): Promise<ISkillHierarchyPair[]> {
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
+    const newHierarchyDocs: mongoose.Document<unknown, unknown, ISkillHierarchyPairDoc>[] = [];
     const existingIds = new Map<string, ObjectTypes>();
     try {
       // Get all SkillGroups
@@ -89,24 +90,27 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
         })
         .filter(Boolean);
 
-      const newHierarchy = await this.hierarchyModel.insertMany(newSkillHierarchyPairModels, {
+      const docs = await this.hierarchyModel.insertMany(newSkillHierarchyPairModels, {
         ordered: false,
       });
-      if (newSkillHierarchyPairSpecs.length !== newHierarchy.length) {
-        console.warn(
-          `SkillHierarchyRepository.createMany: ${
-            newSkillHierarchyPairSpecs.length - newHierarchy.length
-          } invalid entries were not created`
-        );
-      }
-      return newHierarchy.map((pair) => pair.toObject());
+      newHierarchyDocs.push(...docs);
     } catch (e: unknown) {
-      return handleInsertManyError<ISkillHierarchyPair>(
+      const docs = handleInsertManyError<ISkillHierarchyPairDoc>(
         e,
         "SkillHierarchyRepository.createMany",
         newSkillHierarchyPairSpecs.length
       );
+      newHierarchyDocs.push(...docs);
     }
+
+    if (newSkillHierarchyPairSpecs.length !== newHierarchyDocs.length) {
+      console.warn(
+        `SkillHierarchyRepository.createMany: ${
+          newSkillHierarchyPairSpecs.length - newHierarchyDocs.length
+        } invalid entries were not created`
+      );
+    }
+    return newHierarchyDocs.map((pair) => pair.toObject());
   }
 
   findAll(modelId: string): Readable {

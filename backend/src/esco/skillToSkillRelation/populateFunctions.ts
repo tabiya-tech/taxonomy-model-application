@@ -1,7 +1,8 @@
 import { IPopulatedSkillToSkillRelationPairDoc } from "./skillToSkillRelation.types";
 import { ReferenceWithRelationType } from "esco/common/objectTypes";
-import { ISkillReference } from "esco/skill/skills.types";
+import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
 import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
+import mongoose from "mongoose";
 
 export function getSkillRequiresSkillsReference(
   doc: IPopulatedSkillToSkillRelationPairDoc
@@ -27,4 +28,11 @@ export function getSkillRequiredBySkillsReference(
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReference interface
   delete doc.requiringSkillId.modelId;
   return getSkillReferenceWithRelationType(doc.requiringSkillId, doc.relationType);
+}
+
+export function populateEmptySkillToSkillRelation(target: mongoose.Document<unknown, unknown, ISkillDoc>) {
+  //@ts-ignore
+  target.requiresSkills = [];
+  //@ts-ignore
+  target.requiredBySkills = [];
 }

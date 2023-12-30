@@ -3,10 +3,10 @@ import { randomUUID } from "crypto";
 import { IISCOGroup, IISCOGroupDoc, INewISCOGroupSpec } from "./ISCOGroup.types";
 import { populateISCOGroupChildrenOptions, populateISCOGroupParentOptions } from "./populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { ISCOGroupModelPaths } from "./ISCOGroupModel";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
+import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 
 export interface IISCOGroupRepository {
   readonly Model: mongoose.Model<IISCOGroupDoc>;
@@ -78,14 +78,16 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
     try {
       const newISCOGroupModel = this.newSpecToModel(newISCOGroupSpec);
       await newISCOGroupModel.save();
-      await newISCOGroupModel.populate([{ path: ISCOGroupModelPaths.parent }, { path: ISCOGroupModelPaths.children }]);
+      populateEmptyOccupationHierarchy(newISCOGroupModel);
       return newISCOGroupModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
       throw e;
     }
   }
+
   async createMany(newISCOGroupSpecs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> {
+    const newISCOGroupsDocs: mongoose.Document<unknown, unknown, IISCOGroupDoc>[] = [];
     try {
       const newISCOGroupModels = newISCOGroupSpecs
         .map((spec) => {
@@ -96,27 +98,26 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
           }
         })
         .filter(Boolean);
-      const newISCOGroups = await this.Model.insertMany(newISCOGroupModels, {
+      const docs = await this.Model.insertMany(newISCOGroupModels, {
         ordered: false,
-        populate: [ISCOGroupModelPaths.parent, ISCOGroupModelPaths.children],
       });
-      if (newISCOGroupSpecs.length !== newISCOGroups.length) {
-        console.warn(
-          `ISCOGroupRepository.createMany: ${
-            newISCOGroupSpecs.length - newISCOGroups.length
-          } invalid entries were not created`
-        );
-      }
-      return newISCOGroups.map((iscoGroup) => iscoGroup.toObject());
+      newISCOGroupsDocs.push(...docs);
     } catch (e: unknown) {
-      const populationOptions = [{ path: ISCOGroupModelPaths.parent }, { path: ISCOGroupModelPaths.children }];
-      return handleInsertManyError<IISCOGroup>(
-        e,
-        "ISCOGroupRepository.createMany",
-        newISCOGroupSpecs.length,
-        populationOptions
+      const docs = handleInsertManyError<IISCOGroupDoc>(e, "ISCOGroupRepository.createMany", newISCOGroupSpecs.length);
+      newISCOGroupsDocs.push(...docs);
+    }
+
+    if (newISCOGroupSpecs.length !== newISCOGroupsDocs.length) {
+      console.warn(
+        `ISCOGroupRepository.createMany: ${
+          newISCOGroupSpecs.length - newISCOGroupsDocs.length
+        } invalid entries were not created`
       );
     }
+    return newISCOGroupsDocs.map((doc) => {
+      populateEmptyOccupationHierarchy(doc);
+      return doc.toObject();
+    });
   }
 
   async findById(id: string | mongoose.Types.ObjectId): Promise<IISCOGroup | null> {

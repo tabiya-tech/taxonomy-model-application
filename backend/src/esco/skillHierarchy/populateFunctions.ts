@@ -1,6 +1,7 @@
 import { IPopulatedSkillHierarchyPairDoc } from "./skillHierarchy.types";
-import { ISkillReferenceDoc } from "esco/skill/skills.types";
-import { ISkillGroupReferenceDoc } from "esco/skillGroup/skillGroup.types";
+import { ISkillDoc, ISkillReferenceDoc } from "esco/skill/skills.types";
+import { ISkillGroupDoc, ISkillGroupReferenceDoc } from "esco/skillGroup/skillGroup.types";
+import mongoose from "mongoose";
 
 export function getSkillHierarchyParentsReference(
   doc: IPopulatedSkillHierarchyPairDoc
@@ -26,4 +27,11 @@ export function getSkillHierarchyChildrenReference(
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReferenceDoc | ISkillGroupReferenceDoc interface
   delete doc.childId.modelId;
   return doc.childId;
+}
+
+export function populateEmptySkillHierarchy(target: mongoose.Document<unknown, unknown, ISkillDoc | ISkillGroupDoc>) {
+  //@ts-ignore
+  target.parents = [];
+  //@ts-ignore
+  target.children = [];
 }

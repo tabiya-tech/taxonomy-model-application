@@ -72,6 +72,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
       console.error("batch create failed", err);
       throw err;
     }
+    const newRelationsDocs: mongoose.Document<unknown, unknown, IOccupationToSkillRelationPairDoc>[] = [];
     try {
       const existingIds = new Map<string, ObjectTypes>();
 
@@ -115,24 +116,27 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
         })
         .filter(Boolean);
 
-      const newRelations = await this.relationModel.insertMany(newOccupationToSkillRelationPairModels, {
+      const docs = await this.relationModel.insertMany(newOccupationToSkillRelationPairModels, {
         ordered: false,
       });
-      if (newOccupationToSkillRelationPairSpecs.length !== newRelations.length) {
-        console.warn(
-          `OccupationToSkillRelationRepository.createMany: ${
-            newOccupationToSkillRelationPairSpecs.length - newRelations.length
-          } invalid entries were not created`
-        );
-      }
-      return newRelations.map((pair) => pair.toObject());
+      newRelationsDocs.push(...docs);
     } catch (e: unknown) {
-      return handleInsertManyError<IOccupationToSkillRelationPair>(
+      const docs = handleInsertManyError<IOccupationToSkillRelationPairDoc>(
         e,
         "OccupationToSKillRelationRepository.createMany",
         newOccupationToSkillRelationPairSpecs.length
       );
+      newRelationsDocs.push(...docs);
     }
+
+    if (newOccupationToSkillRelationPairSpecs.length !== newRelationsDocs.length) {
+      console.warn(
+        `OccupationToSkillRelationRepository.createMany: ${
+          newOccupationToSkillRelationPairSpecs.length - newRelationsDocs.length
+        } invalid entries were not created`
+      );
+    }
+    return newRelationsDocs.map((pair) => pair.toObject());
   }
 
   findAll(modelId: string): Readable {

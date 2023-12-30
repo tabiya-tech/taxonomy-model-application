@@ -7,12 +7,12 @@ import {
 } from "./populateOccupationHierarchyOptions";
 import { populateOccupationRequiresSkillsOptions } from "./populateOccupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-
-import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
 import { OccupationType } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
+import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
+import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -85,11 +85,8 @@ export class OccupationRepository implements IOccupationRepository {
     try {
       const newOccupationModel = this.newSpecToModel(newOccupationSpec);
       await newOccupationModel.save();
-      await newOccupationModel.populate([
-        { path: OccupationModelPaths.parent },
-        { path: OccupationModelPaths.children },
-        { path: OccupationModelPaths.requiresSkills },
-      ]);
+      populateEmptyOccupationHierarchy(newOccupationModel);
+      populateEmptyRequiresSkills(newOccupationModel);
       return newOccupationModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -98,6 +95,7 @@ export class OccupationRepository implements IOccupationRepository {
   }
 
   async createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]> {
+    const newOccupationsDocs: mongoose.Document<unknown, unknown, IOccupationDoc>[] = [];
     try {
       const newOccupationModels = newOccupationSpecs
         .map((spec) => {
@@ -108,35 +106,30 @@ export class OccupationRepository implements IOccupationRepository {
           }
         })
         .filter(Boolean);
-      const newOccupations = await this.Model.insertMany(newOccupationModels, {
+      const docs = await this.Model.insertMany(newOccupationModels, {
         ordered: false,
-        populate: [
-          { path: OccupationModelPaths.parent },
-          { path: OccupationModelPaths.children },
-          { path: OccupationModelPaths.requiresSkills },
-        ],
       });
-      if (newOccupationSpecs.length !== newOccupations.length) {
-        console.warn(
-          `OccupationRepository.createMany: ${
-            newOccupationSpecs.length - newOccupations.length
-          } invalid entries were not created`
-        );
-      }
-      return newOccupations.map((Occupation) => Occupation.toObject());
+      newOccupationsDocs.push(...docs);
     } catch (e: unknown) {
-      const populationOptions = [
-        { path: OccupationModelPaths.parent },
-        { path: OccupationModelPaths.children },
-        { path: OccupationModelPaths.requiresSkills },
-      ];
-      return handleInsertManyError<IOccupation>(
+      const docs = handleInsertManyError<IOccupationDoc>(
         e,
         "OccupationRepository.createMany",
-        newOccupationSpecs.length,
-        populationOptions
+        newOccupationSpecs.length
+      );
+      newOccupationsDocs.push(...docs);
+    }
+    if (newOccupationSpecs.length !== newOccupationsDocs.length) {
+      console.warn(
+        `OccupationRepository.createMany: ${
+          newOccupationSpecs.length - newOccupationsDocs.length
+        } invalid entries were not created`
       );
     }
+    return newOccupationsDocs.map((doc) => {
+      populateEmptyOccupationHierarchy(doc);
+      populateEmptyRequiresSkills(doc);
+      return doc.toObject();
+    });
   }
 
   async findById(id: string | mongoose.Types.ObjectId): Promise<IOccupation | null> {
@@ -164,7 +157,10 @@ export class OccupationRepository implements IOccupationRepository {
     try {
       return stream.pipeline(
         // use $eq to prevent NoSQL injection
-        this.Model.find({ modelId: { $eq: modelId }, occupationType: { $eq: occupationType } }).cursor(),
+        this.Model.find({
+          modelId: { $eq: modelId },
+          occupationType: { $eq: occupationType },
+        }).cursor(),
         // in the current version we do not populate the parent, children or requiresSkills
         new DocumentToObjectTransformer<IOccupation>(),
         () => undefined
