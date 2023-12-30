@@ -45,12 +45,25 @@ To develop this application locally, follow these steps:
    After running the above command, the `postinstall` script in the [package.json](package.json) will also run, and it will build and link the [api-specifications](/api-specifications/readme.md) dependency.
 
 ## Testing
-
-To run the test cases for the application, execute the following command:
+### Unit Tests
+To run the unit test cases for the application, execute the following command:
 
 ```
 yarn test
 ```
+
+> **Note:**    
+> Code coverage is generated based on the unit tests.
+
+### Integration Tests
+To run the integration test cases for the application, execute the following command:
+
+```
+yarn test:integration
+```
+
+> **Note:**    
+> Integration tests do not generate code coverage.
 
 ## Building
 

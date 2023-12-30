@@ -21,7 +21,12 @@ module.exports = {
     ],
   },
   testEnvironment: "node",
-  collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/_test_utilities/*", "!src/**/_test_data_/*"],
+  collectCoverageFrom: [
+    "src/**/*.{ts,tsx}",
+    "!src/_test_utilities/*",
+    "!src/**/_test_utilities/*",
+    "!src/**/_test_data_/*",
+  ],
   coverageReporters: [["lcov", { projectRoot: "../" }], "text"],
   ...mongodbPreset,
 };
