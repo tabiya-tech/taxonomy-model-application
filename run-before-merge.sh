@@ -27,7 +27,7 @@ function frontend() {
 function backend() {
   local project="backend"
     printTitle ${project}
-  (cd backend/ && yarn && yarn run lint && yarn run format:check || (printFormatError ${project}; exit 1) && yarn run compile && yarn run test && yarn run generate:openapi && yarn run generate:swagger && yarn run generate:redoc)
+  (cd backend/ && yarn && yarn run lint && yarn run format:check || (printFormatError ${project}; exit 1) && yarn run compile && yarn run test && yarn run test:integration && yarn run generate:openapi && yarn run generate:swagger && yarn run generate:redoc)
   # if the previous command fails, exit this script with a non-zero error code
   if [ $? -ne 0 ]; then
     printError ${project}

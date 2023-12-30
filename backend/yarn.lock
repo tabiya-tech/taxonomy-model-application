@@ -5092,10 +5092,10 @@ jest-mock@^29.5.0:
     "@types/node" "*"
     jest-util "^29.5.0"
 
-jest-performance-matchers@~1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/jest-performance-matchers/-/jest-performance-matchers-1.0.0.tgz#09746da87d8b0d42e06e6409a5eeabf71e37bd53"
-  integrity sha512-bgMC5J02OfVjKfQWpVoHiOTmvU8sgSqzLTWAIWrClvn3X+rIMZu1+yT2PvjcSP+iAeBoXFnbL2gbWZl7T5Mitg==
+jest-performance-matchers@~1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/jest-performance-matchers/-/jest-performance-matchers-1.0.1.tgz#42669523a39f3ea27a24477ea9a65b849c88f61a"
+  integrity sha512-rIj8N0Ul8V4dnw66vzxRLlUts5ASp2slTi7e1DVFeYs/TVwfhob3a4TiHJJEZvAzaSSJSXnktzUY9gu3daBruQ==
 
 jest-pnp-resolver@^1.2.2:
   version "1.2.3"

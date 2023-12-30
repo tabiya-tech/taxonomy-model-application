@@ -66,3 +66,20 @@ jobs:
           name: backend.lcov.info
           path: backend/coverage/lcov.info
           retention-days: 1
+  test-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'yarn'
+          cache-dependency-path: backend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: backend
+      - name: Run Integration Tests
+        run: yarn run test:integration
+        working-directory: backend

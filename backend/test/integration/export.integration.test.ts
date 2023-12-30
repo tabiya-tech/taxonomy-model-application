@@ -15,26 +15,26 @@ jest.mock("archiver", () => {
 import process from "process";
 import { ENV_VAR_NAMES } from "server/config/config";
 import { initOnce } from "server/init";
-import { handler } from "./async";
+import { handler } from "export/async";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import ExportProcessStateApiSpecs from "api-specifications/exportProcessState";
 import { randomUUID } from "crypto";
 import { pipeline, Readable } from "stream";
 import fs from "fs";
-import { AsyncExportEvent } from "./async/async.types";
-import * as ISCOGroupsToCSVTransformModule from "./esco/iscoGroup/ISCOGroupsToCSVTransform";
-import * as ESCOOccupationsToCSVTransformModule from "./esco/occupation/ESCOOccupationsToCSVTransform";
-import * as LocalOccupationsToCSVTransform from "./esco/occupation/LocalOccupationsToCSVTransform";
-import * as SkillsToCSVTransformModule from "./esco/skill/SkillsToCSVTransform";
-import * as SkillGroupsToCSVTransformModule from "./esco/skillGroup/SkillGroupsToCSVTransform";
-import * as LocalizedOccupationsToCSVTransformModule from "./esco/localizedOccupation/LocalizedOccupationsToCSVTransform";
-import * as OccupationHierarchyToCSVTransformModule from "./esco/occupationHierarchy/occupationHierarchyToCSVTransform";
-import * as SkillHierarchyToCSVTransformModule from "./esco/skillHierarchy/skillHierarchyToCSVTransform";
-import * as OccupationToSkillRelationToCSVTransformModule from "./esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
-import * as SkillToSkillRelationToCSVTransformModule from "./esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
-import * as ModelInfoToCSVTransformModule from "./modelInfo/modelInfoToCSVTransform";
-import * as CSVtoZipPipelineModule from "./async/CSVtoZipPipeline";
-import * as UploadZipToS3Module from "./async/uploadZipToS3";
+import { AsyncExportEvent } from "export/async/async.types";
+import * as ISCOGroupsToCSVTransformModule from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
+import * as ESCOOccupationsToCSVTransformModule from "export/esco/occupation/ESCOOccupationsToCSVTransform";
+import * as LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
+import * as SkillsToCSVTransformModule from "export/esco/skill/SkillsToCSVTransform";
+import * as SkillGroupsToCSVTransformModule from "export/esco/skillGroup/SkillGroupsToCSVTransform";
+import * as LocalizedOccupationsToCSVTransformModule from "export/esco/localizedOccupation/LocalizedOccupationsToCSVTransform";
+import * as OccupationHierarchyToCSVTransformModule from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
+import * as SkillHierarchyToCSVTransformModule from "export/esco/skillHierarchy/skillHierarchyToCSVTransform";
+import * as OccupationToSkillRelationToCSVTransformModule from "export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
+import * as SkillToSkillRelationToCSVTransformModule from "export/esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
+import * as ModelInfoToCSVTransformModule from "export/modelInfo/modelInfoToCSVTransform";
+import * as CSVtoZipPipelineModule from "export/async/CSVtoZipPipeline";
+import * as UploadZipToS3Module from "export/async/uploadZipToS3";
 import archiver from "archiver";
 import { getConnectionManager } from "server/connection/connectionManager";
 import {
@@ -47,11 +47,11 @@ import {
   getSampleSkillsHierarchy,
   getSampleSkillsSpecs,
   getSampleSkillToSkillRelations,
-} from "./_test_utilities/getSampleEntitiesArray";
-import CSVtoZipPipeline from "./async/CSVtoZipPipeline";
-import uploadZipToS3 from "./async/uploadZipToS3";
-import ESCOOccupationsToCSVTransform from "./esco/occupation/ESCOOccupationsToCSVTransform";
-import ISCOGroupsToCSVTransform from "./esco/iscoGroup/ISCOGroupsToCSVTransform";
+} from "export/_test_utilities/getSampleEntitiesArray";
+import CSVtoZipPipeline from "export/async/CSVtoZipPipeline";
+import uploadZipToS3 from "export/async/uploadZipToS3";
+import ESCOOccupationsToCSVTransform from "export/esco/occupation/ESCOOccupationsToCSVTransform";
+import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
 
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -101,6 +101,9 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
         console.error("Error dropping database: " + e);
       }
     }
+  });
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   async function createTestData() {
@@ -180,6 +183,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
 
     // GIVEN a model exists in the db with some data
     const { modelId, exportProcessStateId } = await createTestData();
+    // guard to ensure that no error has occurred while creating the test data
     // TODO: clearing the warn and errors as currently, the createTestData() fails to create occupation hierarchy
     (console.warn as jest.Mock).mockClear();
     (console.error as jest.Mock).mockClear();

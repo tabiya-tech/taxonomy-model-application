@@ -8,21 +8,21 @@ import { ENV_VAR_NAMES } from "server/config/config";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { randomUUID } from "crypto";
-import { parseISCOGroupsFromFile } from "./esco/ISCOGroups/ISCOGroupsParser";
-import { parseSkillGroupsFromFile } from "./esco/skillGroups/skillGroupsParser";
-import { parseSkillsFromFile } from "./esco/skills/skillsParser";
-import { parseOccupationsFromFile } from "./esco/occupations/occupationsParser";
-import { parseOccupationHierarchyFromFile } from "./esco/occupationHierarchy/occupationHierarchyParser";
-import { RowsProcessedStats } from "./rowsProcessedStats.types";
+import { parseISCOGroupsFromFile } from "import/esco/ISCOGroups/ISCOGroupsParser";
+import { parseSkillGroupsFromFile } from "import/esco/skillGroups/skillGroupsParser";
+import { parseSkillsFromFile } from "import/esco/skills/skillsParser";
+import { parseOccupationsFromFile } from "import/esco/occupations/occupationsParser";
+import { parseOccupationHierarchyFromFile } from "import/esco/occupationHierarchy/occupationHierarchyParser";
+import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { IModelInfo, INewModelInfoSpec } from "modelInfo/modelInfo.types";
 import errorLogger from "common/errorLogger/errorLogger";
-import { parseSkillHierarchyFromFile } from "./esco/skillHierarchy/skillHierarchyParser";
+import { parseSkillHierarchyFromFile } from "import/esco/skillHierarchy/skillHierarchyParser";
 import fs from "fs";
 import { parse } from "csv-parse";
-import { parseSkillToSkillRelationFromFile } from "./esco/skillToSkillRelation/skillToSkillRelationParser";
-import { parseOccupationToSkillRelationFromFile } from "./esco/occupationToSkillRelation/occupationToSkillRelationParser";
+import { parseSkillToSkillRelationFromFile } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
+import { parseOccupationToSkillRelationFromFile } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
 import { OccupationType } from "esco/common/objectTypes";
-import { parseLocalizedOccupationsFromFile } from "./esco/localizedOccupations/localizedOccupationsParser";
+import { parseLocalizedOccupationsFromFile } from "import/esco/localizedOccupations/localizedOccupationsParser";
 
 describe("Test Import sample CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
