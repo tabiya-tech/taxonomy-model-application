@@ -4,13 +4,12 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { initializeSchemaAndModel } from "./occupationHierarchyModel";
+import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT, initializeSchemaAndModel } from "./occupationHierarchyModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
 import { testDocModel, testObjectIdField, testObjectType } from "esco/_test_utilities/modelSchemaTestFunctions";
-import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
 describe("Test the definition of the OccupationHierarchy Model", () => {
   let dbConnection: Connection;
@@ -102,11 +101,10 @@ describe("Test the definition of the OccupationHierarchy Model", () => {
     });
 
     // THEN expect the indexes to be correct
-    expect(indexes).toEqual([
+    expect(indexes).toIncludeSameMembers([
       { key: { _id: 1 }, unique: undefined },
-      { key: { modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 }, unique: true },
-      { key: { modelId: 1, parentId: 1 }, unique: undefined },
-      { key: { modelId: 1, childId: 1 }, unique: undefined },
+      { key: INDEX_FOR_PARENT, unique: true },
+      { key: INDEX_FOR_CHILDREN, unique: true },
     ]);
   });
 });

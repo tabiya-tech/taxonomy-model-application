@@ -5,7 +5,7 @@ import { INewSkillHierarchyPairSpec } from "./skillHierarchy.types";
 
 export function isNewSkillHierarchyPairSpecValid(
   spec: INewSkillHierarchyPairSpec,
-  existingIds: Map<string, ObjectTypes>
+  existingIds: Map<string, ObjectTypes[]>
 ): boolean {
   const relationshipSpec = toRelationshipPairSpec(spec);
   const validPairsForSkillHierarchy = [

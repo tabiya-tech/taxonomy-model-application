@@ -17,6 +17,7 @@ import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTrans
 import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
 import { SkillToSkillRelationModelPaths } from "esco/skillToSkillRelation/skillToSkillRelationModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export const SkillModelPaths = {
   parents: "parents",
@@ -62,31 +63,31 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
     foreignField: SkillHierarchyModelPaths.childId,
-    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+    match: (skill: ISkillDoc) => ({ modelId: { $eq: skill.modelId }, childType: { $eq: ObjectTypes.Skill } }),
   });
   SkillSchema.virtual(SkillModelPaths.children, {
     ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
     foreignField: SkillHierarchyModelPaths.parentId,
-    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+    match: (skill: ISkillDoc) => ({ modelId: { $eq: skill.modelId }, parentType: { $eq: ObjectTypes.Skill } }),
   });
   SkillSchema.virtual(SkillModelPaths.requiresSkills, {
     ref: MongooseModelName.SkillToSkillRelation,
     localField: "_id",
     foreignField: SkillToSkillRelationModelPaths.requiringSkillId,
-    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+    match: (skill: ISkillDoc) => ({ modelId: { $eq: skill.modelId } }),
   });
   SkillSchema.virtual(SkillModelPaths.requiredBySkills, {
     ref: MongooseModelName.SkillToSkillRelation,
     localField: "_id",
     foreignField: SkillToSkillRelationModelPaths.requiredSkillId,
-    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+    match: (skill: ISkillDoc) => ({ modelId: { $eq: skill.modelId } }),
   });
   SkillSchema.virtual(SkillModelPaths.requiredByOccupations, {
     ref: MongooseModelName.OccupationToSkillRelation,
     localField: "_id",
     foreignField: OccupationToSkillRelationModelPaths.requiredSkillId,
-    match: (skill: ISkillDoc) => ({ modelId: skill.modelId }),
+    match: (skill: ISkillDoc) => ({ modelId: { $eq: skill.modelId } }),
   });
   SkillSchema.index({ UUID: 1 }, { unique: true });
   SkillSchema.index({ modelId: 1 });

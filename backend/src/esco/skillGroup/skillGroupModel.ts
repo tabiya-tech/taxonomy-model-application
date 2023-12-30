@@ -14,6 +14,7 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { stringRequired } from "server/stringRequired";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export const SkillGroupModelPaths = {
   parents: "parents",
@@ -56,14 +57,20 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
     foreignField: SkillHierarchyModelPaths.childId,
-    match: (skillGroup: ISkillGroupDoc) => ({ modelId: skillGroup.modelId }),
+    match: (skillGroup: ISkillGroupDoc) => ({
+      modelId: { $eq: skillGroup.modelId },
+      childType: { $eq: ObjectTypes.SkillGroup },
+    }),
   });
 
   SkillGroupSchema.virtual(SkillGroupModelPaths.children, {
     ref: MongooseModelName.SkillHierarchy,
     localField: "_id",
     foreignField: SkillHierarchyModelPaths.parentId,
-    match: (skillGroup: ISkillGroupDoc) => ({ modelId: skillGroup.modelId }),
+    match: (skillGroup: ISkillGroupDoc) => ({
+      modelId: { $eq: skillGroup.modelId },
+      parentType: { $eq: ObjectTypes.SkillGroup },
+    }),
   });
 
   SkillGroupSchema.index({ UUID: 1 }, { unique: true });

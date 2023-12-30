@@ -74,14 +74,14 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
     }
     const newRelationsDocs: mongoose.Document<unknown, unknown, IOccupationToSkillRelationPairDoc>[] = [];
     try {
-      const existingIds = new Map<string, ObjectTypes>();
+      const existingIds = new Map<string, [ObjectTypes]>();
 
       // Get all Skills
       const _existingSkillsIds = await this.skillModel
         .find({ modelId: { $eq: modelId } })
         .select("_id")
         .exec();
-      _existingSkillsIds.forEach((skill) => existingIds.set(skill._id.toString(), ObjectTypes.Skill));
+      _existingSkillsIds.forEach((skill) => existingIds.set(skill._id.toString(), [ObjectTypes.Skill]));
 
       // Get all esco occupations
       const _existingOccupationsIds = await this.occupationModel
@@ -89,7 +89,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
         .select("_id")
         .exec();
       _existingOccupationsIds.forEach((occupation) =>
-        existingIds.set(occupation._id.toString(), ObjectTypes.Occupation)
+        existingIds.set(occupation._id.toString(), [ObjectTypes.Occupation])
       );
       // get all localized occupations
       const _existingLocalizedOccupationIds = await this.localizedOccupationModel
@@ -97,7 +97,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
         .select("_id")
         .exec();
       _existingLocalizedOccupationIds.forEach((localizedOccupation) =>
-        existingIds.set(localizedOccupation._id.toString(), ObjectTypes.Occupation)
+        existingIds.set(localizedOccupation._id.toString(), [ObjectTypes.Occupation])
       );
 
       const newOccupationToSkillRelationPairModels = newOccupationToSkillRelationPairSpecs

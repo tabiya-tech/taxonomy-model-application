@@ -5,7 +5,11 @@ import mongoose, { Connection } from "mongoose";
 import { ISkillToSkillRelationPairDoc } from "./skillToSkillRelation.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getNewConnection } from "server/connection/newConnection";
-import { initializeSchemaAndModel } from "./skillToSkillRelationModel";
+import {
+  INDEX_FOR_REQUIRES_SKILLS,
+  INDEX_FOR_REQUIRED_BY_SKILLS,
+  initializeSchemaAndModel,
+} from "./skillToSkillRelationModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { testDocModel, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
@@ -105,11 +109,10 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
     });
 
     // THEN expect the indexes to be correct
-    expect(indexes).toEqual([
+    expect(indexes).toIncludeSameMembers([
       { key: { _id: 1 }, unique: undefined },
-      { key: { modelId: 1, requiringSkillId: 1, requiredSkillId: 1 }, unique: true },
-      { key: { modelId: 1, requiredSkillId: 1 }, unique: undefined },
-      { key: { modelId: 1, requiringSkillId: 1 }, unique: undefined },
+      { key: INDEX_FOR_REQUIRES_SKILLS, unique: true },
+      { key: INDEX_FOR_REQUIRED_BY_SKILLS, unique: undefined },
     ]);
   });
 });

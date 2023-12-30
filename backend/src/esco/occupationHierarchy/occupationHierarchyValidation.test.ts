@@ -16,9 +16,9 @@ describe("OccupationHierarchyValidation", () => {
       } as unknown as INewOccupationHierarchyPairSpec;
 
       // AND existingIds of the pair
-      const givenExistingIds: Map<string, ObjectTypes> = new Map<string, ObjectTypes>();
-      givenExistingIds.set(givenPair.parentId, ObjectTypes.Occupation);
-      givenExistingIds.set(givenPair.childId, ObjectTypes.Occupation);
+      const givenExistingIds: Map<string, [ObjectTypes]> = new Map<string, [ObjectTypes]>();
+      givenExistingIds.set(givenPair.parentId, [ObjectTypes.Occupation]);
+      givenExistingIds.set(givenPair.childId, [ObjectTypes.Occupation]);
 
       // AND the  parent is LOCAL occupation
       const givenOccupationTypes: Map<string, OccupationType> = new Map<string, OccupationType>();
@@ -75,9 +75,9 @@ describe("OccupationHierarchyValidation", () => {
         } as unknown as INewOccupationHierarchyPairSpec;
 
         // AND existingIds of the pair
-        const givenExistingIds: Map<string, ObjectTypes> = new Map<string, ObjectTypes>();
-        givenExistingIds.set(givenPair.parentId, givenPair.parentType);
-        givenExistingIds.set(givenPair.childId, givenPair.childType);
+        const givenExistingIds: Map<string, [ObjectTypes]> = new Map<string, [ObjectTypes]>();
+        givenExistingIds.set(givenPair.parentId, [givenPair.parentType]);
+        givenExistingIds.set(givenPair.childId, [givenPair.childType]);
 
         // AND the occupation types is LOCAL occupation
         const givenOccupationTypes: Map<string, OccupationType> = new Map<string, OccupationType>();

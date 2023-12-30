@@ -36,13 +36,26 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
-  SkillHierarchySchema.index({ modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 }, { unique: true });
-  SkillHierarchySchema.index({ modelId: 1, parentId: 1 }); // Needed from the virtual children field that is populated via the populateSkillChildrenOptions
-  SkillHierarchySchema.index({ modelId: 1, childId: 1 }); // Needed from the virtual parents field that is populated via the populateSkillParentsOptions
+
+  // A parent child relation cannot show up twice in a model
+  // Additionally, it is needed from the virtual children field matcher, that is populated via the populateSkillHierarchyOptions
+  SkillHierarchySchema.index(INDEX_FOR_CHILDREN, { unique: true });
+
+  // This is needed from the virtual parents field matcher, that is populated via the populateSkillHierarchyOptions
+  SkillHierarchySchema.index(INDEX_FOR_PARENTS);
 
   // Model
   return dbConnection.model<ISkillHierarchyPairDoc>(MongooseModelName.SkillHierarchy, SkillHierarchySchema);
 }
+
+export const INDEX_FOR_PARENTS: mongoose.IndexDefinition = { modelId: 1, childId: 1, childType: 1 };
+export const INDEX_FOR_CHILDREN: mongoose.IndexDefinition = {
+  modelId: 1,
+  parentId: 1,
+  parentType: 1,
+  childId: 1,
+  childType: 1,
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _TransformFn = (_doc: any, ret: any) => {

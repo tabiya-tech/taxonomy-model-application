@@ -13,6 +13,7 @@ import { IISCOGroupDoc } from "./ISCOGroup.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { RegExp_UUIDv4 } from "server/regex";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export const ISCOGroupModelPaths = {
   parent: "parent",
@@ -44,18 +45,25 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: OccupationHierarchyModelPaths.childId,
-    match: (iscoGroup: IISCOGroupDoc) => ({ modelId: iscoGroup.modelId }),
+    match: (iscoGroup: IISCOGroupDoc) => ({
+      modelId: { $eq: iscoGroup.modelId },
+      childType: { $eq: ObjectTypes.ISCOGroup },
+    }),
     justOne: true,
   });
+
   ISCOGroupSchema.virtual(ISCOGroupModelPaths.children, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: OccupationHierarchyModelPaths.parentId,
-    match: (iscoGroup: IISCOGroupDoc) => ({ modelId: iscoGroup.modelId }),
+    match: (iscoGroup: IISCOGroupDoc) => ({
+      modelId: { $eq: iscoGroup.modelId },
+      parentType: { $eq: ObjectTypes.ISCOGroup },
+    }),
   });
 
   // Two isco groups cannot have the same isco code in the same model
-  // Comound index allows to search for the model
+  // Compound index allows to search for the model
   ISCOGroupSchema.index({ modelId: 1, code: 1 }, { unique: true });
 
   ISCOGroupSchema.index({ UUID: 1 }, { unique: true });

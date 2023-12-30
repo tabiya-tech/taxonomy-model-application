@@ -20,6 +20,7 @@ import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTrans
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
   // Main Schema
@@ -47,24 +48,36 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(),
     }
   );
+
   OccupationSchema.virtual(OccupationModelPaths.parent, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: OccupationHierarchyModelPaths.childId,
-    match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
+    match: (occupation: IOccupationDoc) => ({
+      modelId: { $eq: occupation.modelId },
+      childType: { $eq: ObjectTypes.Occupation },
+    }),
     justOne: true,
   });
+
   OccupationSchema.virtual(OccupationModelPaths.children, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: OccupationHierarchyModelPaths.parentId,
-    match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
+    match: (occupation: IOccupationDoc) => ({
+      modelId: { $eq: occupation.modelId },
+      parentType: { $eq: ObjectTypes.Occupation },
+    }),
   });
+
   OccupationSchema.virtual(OccupationModelPaths.requiresSkills, {
     ref: MongooseModelName.OccupationToSkillRelation,
     localField: "_id",
     foreignField: OccupationToSkillRelationModelPaths.requiringOccupationId,
-    match: (occupation: IOccupationDoc) => ({ modelId: occupation.modelId }),
+    match: (occupation: IOccupationDoc) => ({
+      modelId: { $eq: occupation.modelId },
+      requiringOccupationType: { $eq: occupation.occupationType },
+    }),
   });
   OccupationSchema.index({ UUID: 1 }, { unique: true });
   OccupationSchema.index({ code: 1, modelId: 1 }, { unique: true });

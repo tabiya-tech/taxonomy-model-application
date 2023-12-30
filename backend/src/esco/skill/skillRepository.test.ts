@@ -10,7 +10,7 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { ISkillRepository } from "./skillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { INewSkillSpec, ISkill, ISkillReference } from "./skills.types";
+import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes, OccupationType, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
 import { INewOccupationSpec } from "esco/occupation/occupation.types";
@@ -69,6 +69,20 @@ function expectedFromGivenSpec(givenSpec: INewSkillSpec, newUUID: string): ISkil
 describe("Test the Skill Repository with an in-memory mongodb", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
+    jest.spyOn(mongoose.Model, "populate").mockRestore();
+    jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    //---
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+
+    // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
+    jest.spyOn(mongoose.Model, "populate").mockRestore();
+    jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    //---
   });
 
   let dbConnection: Connection;
@@ -105,7 +119,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
   async function cleanupDBCollections() {
     if (repository) await repository.Model.deleteMany({}).exec();
     if (repositoryRegistry) {
-      await repositoryRegistry.skill.Model.deleteMany({}).exec();
+      await repositoryRegistry.skillHierarchy.hierarchyModel.deleteMany({}).exec();
+      await repositoryRegistry.occupation.Model.deleteMany({}).exec();
+      await repositoryRegistry.skillGroup.Model.deleteMany({}).exec();
     }
   }
 
@@ -136,14 +152,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() skill", () => {
-    afterEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    });
-
-    beforeEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    });
-
     test("should successfully create a new skill", async () => {
       // GIVEN a valid newSkillSpec
       const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
@@ -196,6 +204,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // THEN expect the actual promise to reject
       await expect(actualPromise).rejects.toThrowError(/duplicate key/);
     });
+    //TODO: add more unique index tests i.e should should successfully create a second Identical skill in a different model (see occupationRepository_
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skill.create(getNewSkillSpec());
@@ -203,14 +212,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
   });
 
   describe("Test createMany() Skill ", () => {
-    afterEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    });
-
-    beforeEach(async () => {
-      await repository.Model.deleteMany({}).exec();
-    });
-
     test("should successfully create a batch of new Skills", async () => {
       // GIVEN some valid SkillSpec
       const givenBatchSize = 3;
@@ -630,6 +631,128 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
       });
+
+      test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
+        // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
+        // modelId, parentId, parentType, childId, childType,
+        // 1,        2,        SkillGroup,  3,        Skill
+        // 1,        2,        Skill,  4,       Skill
+        // GIVEN a modelId
+        const givenModelId = getMockStringId(1);
+        // AND a subject skill O_s with a given ID in the given model
+        const givenID = new mongoose.Types.ObjectId(2);
+        const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
+        // @ts-ignore
+        givenSubjectSpecs.id = givenID.toHexString();
+        const givenSubject = await repository.create(givenSubjectSpecs);
+        // guard to ensure the id is the given one
+        expect(givenSubject.id).toEqual(givenID.toHexString());
+
+        // AND an SkillGroup G1 with the same ID as the subject skill in the given model
+        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "SkillGroup");
+        // @ts-ignore
+        givenSkillGroupSpecs.id = givenID.toHexString();
+        const givenSkillGroup = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs);
+        // guard to ensure the id is the given one
+        expect(givenSkillGroup.id).toEqual(givenID.toHexString());
+
+        // AND a second skill O_1 with some ID  in the given model
+        const givenSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "skill_1");
+        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+
+        // AND a third skill O_2 with some ID in the given model
+        const givenSkillSpecs_2 = getSimpleNewSkillSpec(givenModelId, "skill_2");
+        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+
+        // AND the SkillGroup G1 is the parent of O_1
+        // AND the subject skill  is the parent of O_2
+        const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+          {
+            // parent of the subject
+            parentType: ObjectTypes.SkillGroup,
+            parentId: givenSkillGroup.id,
+            childType: ObjectTypes.Skill,
+            childId: givenSkill_1.id,
+          },
+          {
+            // parent of the subject
+            parentType: ObjectTypes.Skill,
+            parentId: givenSubject.id,
+            childType: ObjectTypes.Skill,
+            childId: givenSkill_2.id,
+          },
+        ]);
+        // Guard assertion
+        expect(actualHierarchy).toHaveLength(2);
+
+        // WHEN we retrieve the subject by its id
+        const actualFoundSubject = await repository.findById(givenSubject.id);
+
+        // THEN we expect to find only skill 2 as a child
+        expect(actualFoundSubject).not.toBeNull();
+        expect(actualFoundSubject!.children).toEqual([expectedSkillReference(givenSkill_2)]);
+      });
+
+      test("should not match entities that have the same ID but are of different types (collections) when populating parents", async () => {
+        // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
+        // modelId, parentId, parentType, childId, childType,
+        // 1,        2,        SkillGroup,  3,        SkillGroup
+        // 1,        2,        Skill,  4,       Skill
+        // GIVEN a modelId
+        const givenModelId = getMockStringId(1);
+        // AND a subject skill with a given ID in the given model
+        const givenID = new mongoose.Types.ObjectId(2);
+        const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
+        // @ts-ignore
+        givenSubjectSpecs.id = givenID.toHexString();
+        const givenSubject = await repository.create(givenSubjectSpecs);
+        // guard to ensure the id is the given one
+        expect(givenSubject.id).toEqual(givenID.toHexString());
+
+        // AND an SkillGroup G1 with some ID as the subject skill in the given model
+        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "SkillGroup 1");
+        const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs);
+
+        // AND a second skill group with the given ID in the given model
+        const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId, "SkillGroup 2");
+        // @ts-ignore
+        givenSkillGroupSpecs_2.id = givenID.toHexString();
+        const givenSkillGroup_2 = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs_2);
+        // guard to ensure the id is the given one
+        expect(givenSkillGroup_2.id).toEqual(givenID.toHexString());
+
+        // AND a third skill with some ID in the given model
+        const givenSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "skill 1");
+        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+
+        // AND the SkillGroup 1 is the parent of SkillGroup 2
+        // AND the Skill 1 is the parent of the subject Skill
+        const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+          {
+            // parent of the subject
+            parentType: ObjectTypes.SkillGroup,
+            parentId: givenSkillGroup_1.id,
+            childType: ObjectTypes.SkillGroup,
+            childId: givenSkillGroup_2.id,
+          },
+          {
+            // parent of the subject
+            parentType: ObjectTypes.Skill,
+            parentId: givenSkill_1.id,
+            childType: ObjectTypes.Skill,
+            childId: givenSubject.id,
+          },
+        ]);
+        // Guard assertion
+        expect(actualHierarchy).toHaveLength(2);
+
+        // WHEN we retrieve the subject by its id
+        const actualFoundSubject = await repository.findById(givenSubject.id);
+
+        // THEN we expect to find only skill 2 as a parent
+        expect(actualFoundSubject).not.toBeNull();
+        expect(actualFoundSubject!.parents).toEqual([expectedSkillReference(givenSkill_1)]);
+      });
     });
 
     test("should return the Skill with its related skills", async () => {
@@ -900,9 +1023,13 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should return the skill with its related occupations", async () => {
       // GIVEN a skill exists in the database and an occupation in the same model
       const givenModelId = getMockStringId(1);
-      // The subject (Occupation)
+      // The subject (skill)
       const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
       const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // Some other skill
+      const givenOtherSkillSpecs = getSimpleNewSkillSpec(givenModelId, "other skill");
+      const givenOtherSkill = await repository.create(givenOtherSkillSpecs);
 
       // The first requiring occupation
       const givenOccupationSpecs_1: INewOccupationSpec = getSimpleNewOccupationSpec(givenModelId, "occupation_1");
@@ -912,7 +1039,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenOccupationSpecs_2: INewOccupationSpec = getSimpleNewOccupationSpec(givenModelId, "occupation_2", true);
       const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
 
-      // AND the subject Skill is required by two occupation
+      // AND the subject Skill is required by two occupation, and the other skill is required by one occupation
       const actualRequiredByOccupation = await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
         {
           requiringOccupationId: givenOccupation_1.id,
@@ -926,10 +1053,16 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           requiredSkillId: givenSubject.id,
           relationType: RelationType.ESSENTIAL,
         },
+        {
+          requiringOccupationId: givenOccupation_2.id,
+          requiringOccupationType: OccupationType.LOCAL,
+          requiredSkillId: givenOtherSkill.id,
+          relationType: RelationType.ESSENTIAL,
+        },
       ]);
 
       // Guard assertion
-      expect(actualRequiredByOccupation).toHaveLength(2);
+      expect(actualRequiredByOccupation).toHaveLength(3);
 
       // WHEN searching for the subject by its id
       const actualFoundSkill = (await repository.findById(givenSubject.id)) as ISkill;

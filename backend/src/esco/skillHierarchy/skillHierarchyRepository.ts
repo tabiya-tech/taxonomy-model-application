@@ -56,7 +56,7 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
   ): Promise<ISkillHierarchyPair[]> {
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
     const newHierarchyDocs: mongoose.Document<unknown, unknown, ISkillHierarchyPairDoc>[] = [];
-    const existingIds = new Map<string, ObjectTypes>();
+    const existingIds = new Map<string, ObjectTypes[]>();
     try {
       // Get all SkillGroups
       const _existingSkillGroupIds = await this.skillGroupModel
@@ -64,7 +64,7 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
         .select("_id")
         .exec();
       _existingSkillGroupIds.forEach((skillGroup) =>
-        existingIds.set(skillGroup._id.toString(), ObjectTypes.SkillGroup)
+        existingIds.set(skillGroup._id.toString(), [ObjectTypes.SkillGroup])
       );
 
       // Get all Skills
@@ -72,7 +72,14 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
         .find({ modelId: { $eq: modelId } })
         .select("_id")
         .exec();
-      _existingSkillsIds.forEach((skill) => existingIds.set(skill._id.toString(), ObjectTypes.Skill));
+      _existingSkillsIds.forEach((skill) => {
+        const found = existingIds.get(skill._id.toString());
+        if (found) {
+          found.push(ObjectTypes.Skill);
+        } else {
+          existingIds.set(skill._id.toString(), [ObjectTypes.Skill]);
+        }
+      });
 
       const newSkillHierarchyPairModels = newSkillHierarchyPairSpecs
         .filter((spec) => isNewSkillHierarchyPairSpecValid(spec, existingIds))

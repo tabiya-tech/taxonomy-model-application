@@ -16,9 +16,9 @@ function getValidArguments() {
   } as IRelationshipSpec;
 
   // AND some existingIds than contains the first and second partner ids
-  const givenExistingIds = new Map<string, ObjectTypes>();
-  givenExistingIds.set(givenPair.firstPartnerId, givenPair.firstPartnerType);
-  givenExistingIds.set(givenPair.secondPartnerId, givenPair.secondPartnerType);
+  const givenExistingIds = new Map<string, [ObjectTypes]>();
+  givenExistingIds.set(givenPair.firstPartnerId, [givenPair.firstPartnerType]);
+  givenExistingIds.set(givenPair.secondPartnerId, [givenPair.secondPartnerType]);
   return { givenPair, givenExistingIds, givenValidTypePairs };
 }
 
@@ -114,7 +114,7 @@ describe("isRelationPairValid", () => {
       // GIVEN the firstPartner type does not match the type found in the existing ids
       // AND all other arguments are valid
       const { givenPair, givenExistingIds, givenValidTypePairs } = getValidArguments();
-      givenExistingIds.set(givenPair.firstPartnerId, ObjectTypes.ISCOGroup);
+      givenExistingIds.set(givenPair.firstPartnerId, [ObjectTypes.ISCOGroup]);
 
       // WHEN isRelationPairValid is called with the pair, existingIds and valid type pairs
       const actualResult = isRelationPairValid(givenPair, givenExistingIds, givenValidTypePairs);
@@ -126,7 +126,7 @@ describe("isRelationPairValid", () => {
       // GIVEN the secondPartner type does not match the type found in the existing ids
       // AND all other arguments are valid
       const { givenPair, givenExistingIds, givenValidTypePairs } = getValidArguments();
-      givenExistingIds.set(givenPair.secondPartnerId, ObjectTypes.SkillGroup);
+      givenExistingIds.set(givenPair.secondPartnerId, [ObjectTypes.SkillGroup]);
 
       // WHEN isRelationPairValid is called with the pair, existingIds and valid type pairs
       const actualResult = isRelationPairValid(givenPair, givenExistingIds, givenValidTypePairs);

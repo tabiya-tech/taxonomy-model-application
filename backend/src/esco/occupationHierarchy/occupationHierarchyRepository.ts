@@ -65,7 +65,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
     const newHierarchyDocs: mongoose.Document<unknown, unknown, IOccupationHierarchyPairDoc>[] = [];
     try {
-      const existingIds = new Map<string, ObjectTypes>();
+      const existingIds = new Map<string, [ObjectTypes]>();
 
       const occupationsTypes = new Map<string, OccupationType>();
 
@@ -74,7 +74,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
         .find({ modelId: { $eq: modelId } })
         .select("_id")
         .exec();
-      _existingIscoGroupIds.forEach((iscoGroup) => existingIds.set(iscoGroup._id.toString(), ObjectTypes.ISCOGroup));
+      _existingIscoGroupIds.forEach((iscoGroup) => existingIds.set(iscoGroup._id.toString(), [ObjectTypes.ISCOGroup]));
 
       //  get all Occupations
       const _existingOccupations = await this.occupationModel
@@ -84,7 +84,12 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
 
       // beside the id, we also need to know the occupationType
       _existingOccupations.forEach((occupation) => {
-        existingIds.set(occupation._id.toString(), ObjectTypes.Occupation);
+        const found = existingIds.get(occupation._id.toString());
+        if (found) {
+          found.push(ObjectTypes.Occupation);
+        } else {
+          existingIds.set(occupation._id.toString(), [ObjectTypes.Occupation]);
+        }
         occupationsTypes.set(occupation._id.toString(), occupation.occupationType);
       });
 

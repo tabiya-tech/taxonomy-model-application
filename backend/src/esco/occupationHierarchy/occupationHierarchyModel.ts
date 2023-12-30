@@ -54,19 +54,29 @@ export function initializeSchemaAndModel(
       toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
-  OccupationHierarchySchema.index(
-    { modelId: 1, parentType: 1, parentId: 1, childId: 1, childType: 1 },
-    { unique: true }
-  );
-  OccupationHierarchySchema.index({ modelId: 1, parentId: 1 }); // Needed from the virtual children field that is populated via the populateOccupationChildrenOptions
-  OccupationHierarchySchema.index({ modelId: 1, childId: 1 }); // Needed from the virtual parent field that is populated via the populateOccupationParentOptions
 
+  // A parent child relation cannot show up twice in a model
+  // Additionally, it is needed from the virtual children field matcher, that is populated via the populateOccupationChildrenOptions
+  OccupationHierarchySchema.index(INDEX_FOR_CHILDREN, { unique: true });
+
+  // An entity (occupation, iscoGroup) cannot have multiple parents.
+  // Additionally, it is needed from the virtual parent field matcher, that is populated via the populateOccupationParentOptions
+  OccupationHierarchySchema.index(INDEX_FOR_PARENT, { unique: true });
   // Model
   return dbConnection.model<IOccupationHierarchyPairDoc>(
     MongooseModelName.OccupationHierarchy,
     OccupationHierarchySchema
   );
 }
+
+export const INDEX_FOR_PARENT: mongoose.IndexDefinition = { modelId: 1, childId: 1, childType: 1 };
+export const INDEX_FOR_CHILDREN: mongoose.IndexDefinition = {
+  modelId: 1,
+  parentId: 1,
+  parentType: 1,
+  childId: 1,
+  childType: 1,
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _TransformFn = (doc: any, ret: any) => {
