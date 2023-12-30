@@ -25,6 +25,8 @@ import {
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 import { Readable } from "node:stream";
+import { getExpectedPlan, setUpPopulateWithExplain } from "../_test_utilities/populateWithExplainPlan";
+import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "../skillHierarchy/skillHierarchyModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -412,6 +414,8 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualHierarchy).toHaveLength(4);
 
       // WHEN searching for the subject by its id
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<ISkillGroupDoc>(repository.Model);
       const actualFoundSkillGroup = (await repository.findById(givenSubject.id)) as ISkillGroup;
 
       // THEN expect the ISkillGroup to be found
@@ -425,6 +429,35 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualFoundSkillGroup.children).toEqual(
         expect.arrayContaining([expectedSkillGroupReference(givenChild_1), expectedSkillReference(givenChild_2)])
       );
+
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the parent hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.skillHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              childType: { $eq: ObjectTypes.SkillGroup },
+              childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_PARENTS,
+          }),
+          // populating the child hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.skillHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              parentType: { $eq: ObjectTypes.SkillGroup },
+              parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_CHILDREN,
+          }),
+        ])
+      );
+      // AND expect no error to be logged
+      expect(console.error).toBeCalledTimes(0);
     });
 
     describe("Test Skill hierarchy robustness to inconsistencies", () => {

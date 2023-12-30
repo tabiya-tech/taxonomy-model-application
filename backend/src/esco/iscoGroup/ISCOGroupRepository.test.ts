@@ -25,6 +25,8 @@ import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnection
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import { IOccupationReference } from "esco/occupation/occupation.types";
 import { Readable } from "node:stream";
+import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
+import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -457,6 +459,9 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       expect(actualHierarchy).toHaveLength(3);
 
       // WHEN searching for the subject by its id
+
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<IISCOGroupDoc>(repository.Model);
       const actualFoundISCOGroup = (await repository.findById(givenSubject.id)) as IISCOGroup;
 
       // THEN expect the ISCOGroup to be found
@@ -469,6 +474,33 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect.arrayContaining<IISCOGroupReference | IOccupationReference>([
           expectedISCOGroupReference(givenChild_1),
           expectedOccupationReference(givenChild_2),
+        ])
+      );
+
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the parent hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              childType: { $eq: ObjectTypes.ISCOGroup },
+              childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_PARENT,
+          }),
+          // populating the child hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              parentType: { $eq: ObjectTypes.ISCOGroup },
+              parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_CHILDREN,
+          }),
         ])
       );
 
