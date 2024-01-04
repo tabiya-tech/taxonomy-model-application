@@ -13,6 +13,8 @@ import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransfo
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
+import {populateOccupationLocalizedOptions} from "./populateLocalizedOccupationOptions";
+import {populateEmptyLocalizedOccupation} from "../localizedOccupation/populateFunctions";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -87,6 +89,7 @@ export class OccupationRepository implements IOccupationRepository {
       await newOccupationModel.save();
       populateEmptyOccupationHierarchy(newOccupationModel);
       populateEmptyRequiresSkills(newOccupationModel);
+      populateEmptyLocalizedOccupation(newOccupationModel);
       return newOccupationModel.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -128,6 +131,7 @@ export class OccupationRepository implements IOccupationRepository {
     return newOccupationsDocs.map((doc) => {
       populateEmptyOccupationHierarchy(doc);
       populateEmptyRequiresSkills(doc);
+      populateEmptyLocalizedOccupation(doc);
       return doc.toObject();
     });
   }
@@ -139,6 +143,7 @@ export class OccupationRepository implements IOccupationRepository {
         .populate(populateOccupationParentOptions)
         .populate(populateOccupationChildrenOptions)
         .populate(populateOccupationRequiresSkillsOptions)
+        .populate(populateOccupationLocalizedOptions)
         .exec();
       return occupation !== null ? occupation.toObject() : null;
     } catch (e: unknown) {

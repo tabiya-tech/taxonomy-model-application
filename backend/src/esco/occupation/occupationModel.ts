@@ -19,7 +19,7 @@ import { IOccupationDoc } from "./occupation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
-import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
+import {LocalizedOccupationModelPaths, OccupationModelPaths} from "esco/common/modelPopulationPaths";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
@@ -79,6 +79,17 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       requiringOccupationType: { $eq: occupation.occupationType },
     }),
   });
+
+  OccupationSchema.virtual(OccupationModelPaths.localized, {
+    ref: MongooseModelName.LocalizedOccupation,
+    localField: "_id",
+    foreignField: LocalizedOccupationModelPaths.localizesOccupationId,
+    justOne: true,
+    match: (occupation: IOccupationDoc) => ({
+      modelId: { $eq: occupation.modelId },
+    }),
+  });
+
   OccupationSchema.index({ UUID: 1 }, { unique: true });
   OccupationSchema.index({ code: 1, modelId: 1 }, { unique: true });
   OccupationSchema.index({ modelId: 1 });

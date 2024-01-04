@@ -2,6 +2,7 @@ import { ImportIdentifiable, ObjectTypes, OccupationType, ReferenceWithRelationT
 import mongoose from "mongoose";
 import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
+import {ILocalizedOccupation} from "../localizedOccupation/localizedOccupation.types";
 
 /**
  * Describes how an occupation is saved in MongoDB
@@ -33,6 +34,7 @@ export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
   createdAt: Date;
   updatedAt: Date;
   requiresSkills: ReferenceWithRelationType<ISkillReference>[];
+  localized: ILocalizedOccupation | null
 }
 
 /**
@@ -40,7 +42,7 @@ export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
  */
 export type INewOccupationSpec = Omit<
   IOccupation,
-  "id" | "UUID" | "parent" | "children" | "requiresSkills" | "createdAt" | "updatedAt"
+  "id" | "UUID" | "parent" | "children" | "requiresSkills" | "localized" | "createdAt" | "updatedAt"
 >;
 
 /**

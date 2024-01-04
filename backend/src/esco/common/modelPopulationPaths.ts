@@ -2,11 +2,9 @@ export const OccupationModelPaths = {
   parent: "parent",
   children: "children",
   requiresSkills: "requiresSkills",
+  localized: "localized"
 };
 
 export const LocalizedOccupationModelPaths = {
-  parent: "parent",
-  children: "children",
-  requiresSkills: "requiresSkills",
-  localizesOccupation: "localizesOccupation",
+  localizesOccupationId: "localizesOccupationId",
 };

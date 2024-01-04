@@ -36,7 +36,7 @@ import { Readable } from "node:stream";
 import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { INDEX_FOR_REQUIRES_SKILLS } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
-import { IExtendedLocalizedOccupation } from "esco/localizedOccupation/localizedOccupation.types";
+import {INDEX_FOR_LOCALIZED} from "esco/localizedOccupation/localizedOccupationModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -58,6 +58,7 @@ function expectedFromGivenSpec(givenSpec: INewOccupationSpec, newUUID: string): 
     parent: null,
     children: [],
     requiresSkills: [],
+    localized: null,
     id: expect.any(String),
     UUID: newUUID,
     UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
@@ -519,7 +520,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         ])
       );
       // AND expect the populate query plan to use the correct indexes
-      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+      expect(actualPlans).toHaveLength(6); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references and 1 for the localized occupation
       expect(actualPlans).toEqual(
         expect.arrayContaining([
           // populating the parent hierarchy
@@ -612,7 +613,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         ])
       );
 
-      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+      expect(actualPlans).toHaveLength(6); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references and 1 for the localized occupation
       expect(actualPlans).toEqual(
         expect.arrayContaining([
           // populating the parent hierarchy
@@ -634,6 +635,46 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
               parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
             },
             usedIndex: INDEX_FOR_CHILDREN,
+          }),
+        ])
+      );
+      // AND no error to be logged
+      expect(console.error).toBeCalledTimes(0);
+    });
+
+    test("should return the Occupation with its localized occupation", async () => {
+      // GIVEN a subject occupation that has been localized
+      const givenModelId = getMockStringId(1);
+      // THE subject (Occupation)
+      const givenSubjectSpecs = getSimpleNewOccupationSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The localized occupation
+      const givenLocalizedOccupationSpecs = getSimpleNewLocalizedOccupationSpec(givenModelId, givenSubject.id);
+      const givenLocalizedOccupation = await repositoryRegistry.localizedOccupation.create(givenLocalizedOccupationSpecs);
+
+      // WHEN searching for the subject by its id
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<IOccupationDoc>(repository.Model);
+      const actualFoundOccupation = (await repository.findById(givenSubject.id)) as IOccupation;
+
+      // THEN expect the subject to be found
+      expect(actualFoundOccupation).not.toBeNull();
+
+      // AND to have the given localized occupation
+      expect(actualFoundOccupation.localized).toEqual(givenLocalizedOccupation);
+
+      expect(actualPlans).toHaveLength(4); // 1 for the parent and 1 for the child hierarchies, 1 for the required skill and 1 for the localized occupation
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the localized occupation
+          getExpectedPlan({
+            collectionName: repositoryRegistry.localizedOccupation.Model.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              localizesOccupationId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] }
+            },
+            usedIndex: INDEX_FOR_LOCALIZED,
           }),
         ])
       );
@@ -684,7 +725,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // WHEN searching for the subject by its id
       // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
       const actualPlans = setUpPopulateWithExplain<IOccupationDoc>(repository.Model);
-      const actualFoundOccupation = (await repository.findById(givenSubject.id)) as IExtendedLocalizedOccupation;
+      const actualFoundOccupation = (await repository.findById(givenSubject.id)) as IOccupation;
 
       // THEN expect the subject to be found
       expect(actualFoundOccupation).not.toBeNull();
@@ -698,7 +739,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       );
 
       // AND expect the populate query plan to use the correct indexes
-      expect(actualPlans).toHaveLength(4); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 1  for the relatedSkills and 1 for the related skills references
+      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 1  for the relatedSkills and 1 for the related skills references and 1 for the localized occupation
       expect(actualPlans).toEqual(
         expect.arrayContaining([
           // populating the requiresSkills
@@ -1288,7 +1329,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const expectedOccupations = givenOccupations
           .filter((occupation) => occupation.occupationType == givenOccupationType)
           .map((occupation) => {
-            const { parent, children, requiresSkills, ...occupationData } = occupation;
+            const { parent, children, requiresSkills, localized, ...occupationData } = occupation;
             return occupationData;
           });
         expect(actualOccupationsArray).toIncludeSameMembers(expectedOccupations);
