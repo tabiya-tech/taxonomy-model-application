@@ -24,7 +24,7 @@ import { IISCOGroup } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { ISkill } from "esco/skill/skills.types";
 import { IOccupation } from "esco/occupation/occupation.types";
-import { IExtendedLocalizedOccupation } from "esco/localizedOccupation/localizedOccupation.types";
+import { ILocalizedOccupation } from "esco/localizedOccupation/localizedOccupation.types";
 import {
   INewSkillToSkillPairSpec,
   ISkillToSkillRelationPair
@@ -121,9 +121,10 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       );
 
       // WHEN N LOCALIZED occupations are created
-      const actualNewLocalizedOccupations: IExtendedLocalizedOccupation[] = [];
+      const actualNewLocalizedOccupations: ILocalizedOccupation[] = [];
       const createLocalizedOccupationsInDBPromise = async () => {
         const docs = await repositoryRegistry.localizedOccupation.createMany(
+          givenModelId,
           Array.from({ length: N }, (_, index) =>
             getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupations[index].id)
           )
@@ -301,6 +302,7 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       );
       // AND another N localized Occupations exist in the database
       const givenLocalizedOccupations = await repositoryRegistry.localizedOccupation.createMany(
+        givenModelId,
         Array.from({ length: N }, (_, index) => getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupations[index].id))
       );
       // AND N Skills exist in the database

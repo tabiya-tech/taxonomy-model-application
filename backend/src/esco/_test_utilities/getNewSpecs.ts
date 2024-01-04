@@ -49,7 +49,7 @@ export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: strin
     UUIDHistory: [randomUUID()],
     originUri: "",
     description: "",
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
   };
 }
 
@@ -96,7 +96,7 @@ export function getSimpleNewOccupationSpec(
     UUIDHistory: [randomUUID()],
     originUri: "",
     description: "",
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
     occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
   };
 }
@@ -133,7 +133,7 @@ export function getSimpleNewLocalizedOccupationSpec(
     description: "",
     occupationType: OccupationType.LOCALIZED,
     localizesOccupationId: localizedFromId,
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
     UUIDHistory: [randomUUID()],
   };
 }
@@ -170,7 +170,7 @@ export function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: stri
     description: "",
     scopeNote: "",
     altLabels: [],
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
   };
 }
 
@@ -210,6 +210,6 @@ export function getSimpleNewSkillSpec(modelId: string, preferredLabel: string): 
     skillType: SkillType.Knowledge,
     reuseLevel: ReuseLevel.CrossSector,
     altLabels: [],
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
   };
 }

@@ -6,7 +6,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { OccupationType } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 
-export type IUnpopulatedOccupation = Omit<IOccupation, "parent" | "children" | "requiresSkills">;
+export type IUnpopulatedOccupation = Omit<IOccupation, "parent" | "children" | "requiresSkills" | "localized">;
 
 export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IOccupationExportRow => {
   return {

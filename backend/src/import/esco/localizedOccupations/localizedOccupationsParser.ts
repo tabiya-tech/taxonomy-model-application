@@ -6,24 +6,21 @@ import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/p
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import {
-  IExtendedLocalizedOccupation,
-  INewLocalizedOccupationSpec,
-} from "esco/localizedOccupation/localizedOccupation.types";
+import { INewLocalizedOccupationSpec } from "esco/localizedOccupation/localizedOccupation.types";
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
 import errorLogger from "common/errorLogger/errorLogger";
 import { ILocalizedOccupationImportRow, localizedOccupationImportHeaders } from "esco/common/entityToCSV.types";
+import { getProcessLocalizedOccupationEntityBatchFunction } from "import/esco/common/processLocalizedOccupationBatchFunction";
 import { OccupationType } from "esco/common/objectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, localizedOccupationImportHeaders);
 }
 
-function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
+function getBatchProcessor(modelId: string, importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessEntityBatchFunction<IExtendedLocalizedOccupation, INewLocalizedOccupationSpec>(
-    "LocalizedOccupation",
+  const batchProcessFn = getProcessLocalizedOccupationEntityBatchFunction(
+    modelId,
     getRepositoryRegistry().localizedOccupation,
     importIdToDBIdMap
   );
@@ -72,7 +69,7 @@ export async function parseLocalizedOccupationsFromUrl(
 ): Promise<RowsProcessedStats> {
   const headersValidator = getHeadersValidator("LocalizedOccupation");
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
-  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
+  const batchProcessor = getBatchProcessor(modelId, importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
 
   return await processDownloadStream(url, "LocalizedOccupation", batchRowProcessor);
@@ -86,7 +83,7 @@ export async function parseLocalizedOccupationsFromFile(
   const LocalizedOccupationsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator("LocalizedOccupation");
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
-  const batchProcessor = getBatchProcessor(importIdToDBIdMap);
+  const batchProcessor = getBatchProcessor(modelId, importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<ILocalizedOccupationImportRow>(
     "LocalizedOccupation",

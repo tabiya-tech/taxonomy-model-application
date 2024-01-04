@@ -108,6 +108,7 @@ describe("test parseOccupations from", () => {
                 UUID: "",
                 parent: null,
                 children: [],
+                localized: null,
                 requiresSkills: [],
                 createdAt: new Date(),
                 updatedAt: new Date(),

@@ -1,23 +1,18 @@
+import { ILocalizedOccupation, INewLocalizedOccupationSpec } from "esco/localizedOccupation/localizedOccupation.types";
+import { ProcessBatchFunction } from "import/batch/BatchProcessor";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { isSpecified } from "server/isUnspecified";
 import errorLogger from "common/errorLogger/errorLogger";
-import { ProcessBatchFunction } from "import/batch/BatchProcessor";
-import { ImportIdentifiable } from "esco/common/objectTypes";
 
-export function getProcessEntityBatchFunction<
-  EntityType extends ImportIdentifiable & {
-    id: string;
-  },
-  SpecificationType extends ImportIdentifiable,
->(
-  entityName: string,
+export function getProcessLocalizedOccupationEntityBatchFunction(
+  modelId: string,
   repository: {
-    createMany: (specs: SpecificationType[]) => Promise<EntityType[]>;
+    createMany: (modelId: string, specs: INewLocalizedOccupationSpec[]) => Promise<ILocalizedOccupation[]>;
   },
   importIdToDBIdMap: Map<string, string>
-): ProcessBatchFunction<SpecificationType> {
+): ProcessBatchFunction<INewLocalizedOccupationSpec> {
   let totalRowsProcessed = 0;
-  return async (specs: SpecificationType[]) => {
+  return async (specs: INewLocalizedOccupationSpec[]) => {
     const stats: RowsProcessedStats = {
       rowsProcessed: specs.length,
       rowsSuccess: 0,
@@ -29,7 +24,7 @@ export function getProcessEntityBatchFunction<
         return isSpecified(spec.importId);
       });
 
-      const entities = await repository.createMany(toImportSpecs);
+      const entities = await repository.createMany(modelId, toImportSpecs);
       // map the importId to the db id
       // They will be used in a later stage to build the hierarchy and associations
       entities.forEach((entity) => {
@@ -39,13 +34,13 @@ export function getProcessEntityBatchFunction<
       });
       stats.rowsSuccess = entities.length;
     } catch (e: unknown) {
-      errorLogger.logError(`Failed to process ${entityName}s batch`, e);
+      errorLogger.logError(`Failed to process Occupations batch`, e);
     }
     // iterate over the specs and look if the importId is in the map, if it is not then declare that the row has failed
     specs.forEach((spec, index) => {
       if (!importIdToDBIdMap.has(spec.importId)) {
         errorLogger.logWarning(
-          `Failed to import ${entityName} from row:${totalRowsProcessed + index + 1} with importId:${spec.importId}`
+          `Failed to import Occupation from row:${totalRowsProcessed + index + 1} with importId:${spec.importId}`
         );
       }
     });

@@ -9,10 +9,7 @@ import { StatusCodes } from "server/httpUtils";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 import { parseLocalizedOccupationsFromFile, parseLocalizedOccupationsFromUrl } from "./localizedOccupationsParser";
-import {
-  IExtendedLocalizedOccupation,
-  INewLocalizedOccupationSpec,
-} from "esco/localizedOccupation/localizedOccupation.types";
+import { ILocalizedOccupation, INewLocalizedOccupationSpec } from "esco/localizedOccupation/localizedOccupation.types";
 import { isSpecified } from "server/isUnspecified";
 import { OccupationType } from "esco/common/objectTypes";
 import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
@@ -76,35 +73,26 @@ describe("test parseLocalizedOccupations from", () => {
         create: jest.fn().mockResolvedValue({}),
         createMany: jest
           .fn()
-          .mockImplementation((specs: INewLocalizedOccupationSpec[]): Promise<IExtendedLocalizedOccupation[]> => {
-            return Promise.resolve(
-              specs.map((spec: INewLocalizedOccupationSpec): IExtendedLocalizedOccupation => {
-                return {
-                  ...spec,
-                  id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
-                  children: [],
-                  modelId: "",
-                  preferredLabel: "",
-                  UUIDHistory: [],
-                  originUri: "",
-                  ISCOGroupCode: "",
-                  code: "",
-                  altLabels: [],
-                  description: "",
-                  definition: "",
-                  scopeNote: "",
-                  regulatedProfessionNote: "",
-                  occupationType: OccupationType.LOCALIZED,
-                  localizedOccupationType: OccupationType.ESCO,
-                  parent: null,
-                  requiresSkills: [],
-                  updatedAt: new Date(),
-                  createdAt: new Date(),
-                  UUID: "",
-                };
-              })
-            );
-          }),
+          .mockImplementation(
+            (modelId: string, specs: INewLocalizedOccupationSpec[]): Promise<ILocalizedOccupation[]> => {
+              return Promise.resolve(
+                specs.map((spec: INewLocalizedOccupationSpec): ILocalizedOccupation => {
+                  return {
+                    ...spec,
+                    id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
+                    modelId: "",
+                    UUIDHistory: [],
+                    altLabels: [],
+                    description: "",
+                    occupationType: OccupationType.LOCALIZED,
+                    updatedAt: new Date(),
+                    createdAt: new Date(),
+                    UUID: "",
+                  };
+                })
+              );
+            }
+          ),
       };
       jest.spyOn(getRepositoryRegistry(), "localizedOccupation", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV file to the database ids
@@ -126,6 +114,7 @@ describe("test parseLocalizedOccupations from", () => {
       const expectedResults = expectedResultsModule.expected;
       expectedResults.forEach((expectedSpec: Omit<INewLocalizedOccupationSpec, "modelId">) => {
         expect(givenMockRepository.createMany).toHaveBeenCalledWith(
+          givenModelId,
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
         );
       });

@@ -45,11 +45,11 @@ function expectedFromGivenSpec(
     ...givenSpec,
     id: expect.any(String),
     UUID: newUUID,
+    importId: expect.any(String),
     UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
     modelId: localizingOccupation.modelId,
-    importId: localizingOccupation.importId,
     localizesOccupationId: localizingOccupation.id,
   };
 }
