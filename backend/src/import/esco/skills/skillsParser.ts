@@ -1,7 +1,7 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
-import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { INewSkillSpec, ISkill } from "esco/skill/skills.types";
 import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
@@ -9,6 +9,9 @@ import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import { ISkillImportRow, skillImportHeaders } from "esco/common/entityToCSV.types";
+import { getReuseLevelFromCSVReuseLevel, getSkillTypeFromCSVSkillType } from "../../../esco/common/csvObjectTypes";
+import { arrayFromString } from "../common/parseNewLineSeparatedArray";
+import errorLogger from "../../../common/errorLogger/errorLogger";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, skillImportHeaders);
@@ -28,18 +31,29 @@ function getRowToSpecificationTransformFn(
   modelId: string
 ): TransformRowToSpecificationFunction<ISkillImportRow, INewSkillSpec> {
   return (row: ISkillImportRow) => {
-    // @ts-ignore
+    const reuseLevel = getReuseLevelFromCSVReuseLevel(row.REUSELEVEL);
+    if (reuseLevel === null) {
+      // we should check for null as reuseLevel can be ""
+      errorLogger.logWarning(`Failed to import Skill with skillId:${row.ID}`);
+      return null;
+    }
+    const skillType = getSkillTypeFromCSVSkillType(row.SKILLTYPE);
+    if (skillType === null) {
+      // we should check for null as skillType can be ""
+      errorLogger.logWarning(`Failed to import Skill with skillId:${row.ID}`);
+      return null;
+    }
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
-      UUIDHistory: row.UUIDHISTORY.length ? row.UUIDHISTORY.split("\n") : [],
+      UUIDHistory: arrayFromString(row.UUIDHISTORY),
       preferredLabel: row.PREFERREDLABEL,
-      altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
+      altLabels: arrayFromString(row.ALTLABELS),
       description: row.DESCRIPTION,
       definition: row.DEFINITION,
       scopeNote: row.SCOPENOTE,
-      reuseLevel: row.REUSELEVEL as ReuseLevel,
-      skillType: row.SKILLTYPE as SkillType,
+      reuseLevel: reuseLevel,
+      skillType: skillType,
       importId: row.ID,
     };
   };

@@ -127,11 +127,11 @@ describe("test parseSkillHierarchy from", () => {
       expect(errorLogger.logWarning).toHaveBeenCalledTimes(4); // 4 entries are constructed in the csv to fail
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
-        `Failed to import SkillHierarchy row with parentType:'invalid should be ignored' and childType:'Skill'`
+        `Failed to import SkillHierarchy row with parentType:'invalid should be ignored' and childType:'SKILL'`
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         2,
-        `Failed to import SkillHierarchy row with parentType:'SkillGroup' and childType:'invalid should be ignored'`
+        `Failed to import SkillHierarchy row with parentType:'SKILLGROUP' and childType:'invalid should be ignored'`
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         3,

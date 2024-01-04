@@ -12,7 +12,6 @@ import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTrans
 import LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
-import LocalizedOccupationsToCSVTransform from "export/esco/localizedOccupation/LocalizedOccupationsToCSVTransform";
 import OccupationHierarchyToCSVTransform from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
 import SkillHierarchyToCSVTransform from "export/esco/skillHierarchy/skillHierarchyToCSVTransform";
 import OccupationToSkillRelationToCSVTransform from "export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
@@ -68,11 +67,6 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
         collectionName: "Local Occupations",
         fileName: "local_occupations.csv",
         csvStream: LocalOccupationsToCSVTransform,
-      },
-      {
-        collectionName: "Localized Occupations",
-        fileName: "localized_occupations.csv",
-        csvStream: LocalizedOccupationsToCSVTransform,
       },
       { collectionName: "Skill Groups", fileName: "skill_groups.csv", csvStream: SkillGroupsToCSVTransform },
       { collectionName: "Skills", fileName: "skills.csv", csvStream: SkillsToCSVTransform },

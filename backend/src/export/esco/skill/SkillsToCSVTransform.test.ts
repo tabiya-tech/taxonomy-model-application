@@ -26,6 +26,18 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
         return ReuseLevel.SectorSpecific;
     }
   };
+  const getSkillType = (i: number) => {
+    switch (i % 4) {
+      case 0:
+        return SkillType.Knowledge;
+      case 1:
+        return SkillType.Language;
+      case 2:
+        return SkillType.Attitude;
+      default:
+        return SkillType.SkillCompetence;
+    }
+  };
   return Array.from<never, IUnpopulatedSkill>({ length: 6 }, (_, i) => ({
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
@@ -38,7 +50,7 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
     originUri: `originUri_${i}_${getTestString(80)}`,
     scopeNote: `scopeNote_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
-    skillType: i % 2 ? SkillType.SkillCompetence : SkillType.Knowledge,
+    skillType: getSkillType(i),
     reuseLevel: getReuseLevel(i),
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
@@ -59,6 +71,38 @@ function setupSkillRepositoryMock(findAllImpl: () => Readable) {
 describe("SkillsDocToCsvTransform", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+  describe("test transformSkillSpecToCSVRow()", () => {
+    test("should transform a Skill to a CSV row", () => {
+      // GIVEN a valid Skill
+      const givenSill = getMockSkills()[0];
+      // WHEN the Skill is transformed
+      const actualRow = SKillsToCSVTransformModule.transformSkillSpecToCSVRow(givenSill);
+      // THEN the CSV row should be correct
+      expect(actualRow).toMatchSnapshot();
+    });
+
+    test("should throw an error when the reuseLevel is unknown", async () => {
+      // GIVEN an otherwise valid Skill
+      const givenSill = getMockSkills()[0];
+      // WITH an unknown reuseLevel
+      givenSill.reuseLevel = "foo" as ReuseLevel;
+      // WHEN the Skill is transformed
+      const transformCall = () => SKillsToCSVTransformModule.transformSkillSpecToCSVRow(givenSill);
+      // THEN the transformation should throw an error
+      expect(transformCall).toThrowError("Failed to transform Skill to CSV row: Invalid reuseLevel: foo");
+    });
+
+    test("should throw an error when the skillType is unknown", async () => {
+      // GIVEN an otherwise valid Skill
+      const givenSill = getMockSkills()[0];
+      // WITH an unknown skillType
+      givenSill.skillType = "foo" as SkillType;
+      // WHEN the Skill is transformed
+      const transformCall = () => SKillsToCSVTransformModule.transformSkillSpecToCSVRow(givenSill);
+      // THEN the transformation should throw an error
+      expect(transformCall).toThrowError("Failed to transform Skill to CSV row: Invalid skillType: foo");
+    });
   });
 
   test("should correctly transform Skill data to CSV", async () => {

@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { OccupationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 import occupationToSkillRelationToCSVTransform, {
   IUnpopulatedOccupationToSkillRelation,
@@ -16,13 +16,11 @@ const OccupationToSkillRelationRepositorySpy = jest.spyOn(getRepositoryRegistry(
 
 const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelation[] => {
   function getOccupationType(i: number) {
-    switch (i % 3) {
+    switch (i % 2) {
       case 0:
-        return OccupationType.ESCO;
+        return ObjectTypes.ESCOOccupation;
       case 1:
-        return OccupationType.LOCAL;
-      case 2:
-        return OccupationType.LOCALIZED;
+        return ObjectTypes.LocalOccupation;
       default:
         throw new Error("Invalid number");
     }
@@ -44,7 +42,6 @@ function setupOccupationToSkillRelationRepositoryMock(findAllImpl: () => Readabl
   const mockOccupationToSkillRelationRepository: IOccupationToSkillRelationRepository = {
     relationModel: undefined as never,
     occupationModel: undefined as never,
-    localizedOccupationModel: undefined as never,
     skillModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
@@ -53,10 +50,6 @@ function setupOccupationToSkillRelationRepositoryMock(findAllImpl: () => Readabl
 }
 
 describe("occupationToSkillRelationToCSVTransform", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   test("should correctly transform occupationToSkillRelation data to CSV", async () => {
     // GIVEN findAll returns a stream of occupationToSkillRelations
     const givenRelations = getMockOccupationToSkillRelations();
@@ -80,6 +73,46 @@ describe("occupationToSkillRelationToCSVTransform", () => {
   });
 
   describe("handle errors during stream processing", () => {
+    describe("test transformOccupationToSkillRelationSpecToCSVRow()", () => {
+      test("should transform a OccupationToSkillRelation to a CSV row", () => {
+        // GIVEN a valid OccupationToSkillRelation
+        const givenRelation = getMockOccupationToSkillRelations()[0];
+        // WHEN the OccupationToSkillRelation is transformed
+        const actualRow =
+          occupationToSkillRelationToCSVTransformModule.transformOccupationToSkillRelationSpecToCSVRow(givenRelation);
+        // THEN the CSV row should be correct
+        expect(actualRow).toMatchSnapshot();
+      });
+
+      test("should throw an error when the requiringOccupationType is unknown", async () => {
+        // GIVEN an otherwise valid OccupationToSkillRelation
+        const givenRelation = getMockOccupationToSkillRelations()[0];
+        // WITH an unknown requiringOccupationType
+        givenRelation.requiringOccupationType = "foo" as ObjectTypes.LocalOccupation | ObjectTypes.ESCOOccupation;
+        // WHEN the OccupationToSkillRelation is transformed
+        const transformCall = () =>
+          occupationToSkillRelationToCSVTransformModule.transformOccupationToSkillRelationSpecToCSVRow(givenRelation);
+        // THEN the transformation should throw an error
+        expect(transformCall).toThrowError(
+          `Failed to transform OccupationToSkillRelation to CSV row: Invalid requiringOccupationType: ${givenRelation.requiringOccupationType}`
+        );
+      });
+
+      test("should throw an error when the relationType is unknown", async () => {
+        // GIVEN an otherwise valid OccupationToSkillRelation
+        const givenRelation = getMockOccupationToSkillRelations()[0];
+        // WITH an unknown relationType
+        givenRelation.relationType = "foo" as RelationType;
+        // WHEN the OccupationToSkillRelation is transformed
+        const transformCall = () =>
+          occupationToSkillRelationToCSVTransformModule.transformOccupationToSkillRelationSpecToCSVRow(givenRelation);
+        // THEN the transformation should throw an error
+        expect(transformCall).toThrowError(
+          `Failed to transform OccupationToSkillRelation to CSV row: Invalid relationType: ${givenRelation.relationType}`
+        );
+      });
+    });
+
     test("should log an error and end the stream when the source repository fails", async () => {
       // GIVEN that the source occupationToSkillRelation stream will emit an error
       const givenError = new Error("Test Error");

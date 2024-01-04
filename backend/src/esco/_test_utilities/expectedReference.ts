@@ -1,6 +1,7 @@
 import { IISCOGroup, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
-import { IOccupation, IOccupationReference } from "esco/occupation/occupation.types";
+import { IOccupation } from "esco/occupations/occupation/occupation.types";
+import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
 import { ISkill, ISkillReference } from "esco/skill/skills.types";
 import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 
@@ -26,7 +27,6 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
   return {
     id: givenOccupation.id,
     UUID: givenOccupation.UUID,
-    objectType: ObjectTypes.Occupation,
     code: givenOccupation.code,
     ISCOGroupCode: givenOccupation.ISCOGroupCode,
     preferredLabel: givenOccupation.preferredLabel,

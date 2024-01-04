@@ -7,12 +7,12 @@ import { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import {ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import {
   getSimpleNewISCOGroupSpec,
-  getSimpleNewLocalizedOccupationSpec,
-  getSimpleNewOccupationSpec,
+  getSimpleNewESCOOccupationSpec,
+  getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
@@ -23,15 +23,14 @@ import {
 import { IISCOGroup } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { ISkill } from "esco/skill/skills.types";
-import { IOccupation } from "esco/occupation/occupation.types";
-import { IExtendedLocalizedOccupation } from "esco/localizedOccupation/localizedOccupation.types";
+import { IOccupation } from "esco/occupations/occupation/occupation.types";
 import {
   INewSkillToSkillPairSpec,
-  ISkillToSkillRelationPair
+  ISkillToSkillRelationPair,
 } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import {
   INewOccupationToSkillPairSpec,
-  IOccupationToSkillRelationPair
+  IOccupationToSkillRelationPair,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 describe("Test the Performance of Repositories with an in-memory mongodb", () => {
@@ -91,11 +90,11 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       const N = 500;
       const actualNewOccupations: IOccupation[] = [];
       const newOccupationSpecs = Array.from({ length: N }, (_, index) =>
-        getSimpleNewOccupationSpec(getMockStringId(1), `esco_${index}`, false)
+        getSimpleNewESCOOccupationSpec(getMockStringId(1), `esco_${index}`)
       );
       newOccupationSpecs.push(
         ...Array.from({ length: N }, (_, index) =>
-          getSimpleNewOccupationSpec(getMockStringId(1), `local_${index}`, true)
+          getSimpleNewLocalOccupationSpec(getMockStringId(1), `local_${index}`)
         )
       );
       const createOccupationInDBPromise = async () => {
@@ -108,38 +107,6 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       await expect(createOccupationInDBPromise).toResolveWithinQuantile(1500, { iterations: ITERATIONS, quantile: 95 });
       // THEN expect the groups to be created without timing out
       expect(actualNewOccupations).toHaveLength(2 * N * ITERATIONS);
-    });
-  });
-
-  describe("Test LocalizedOccupation", () => {
-    test("should successfully createMany() localized occupations with acceptable performance", async () => {
-      // GIVEN N ESCO  occupations exist in the database
-      const N = 1000;
-      const givenModelId = getMockStringId(1);
-      const givenOccupations = await repositoryRegistry.occupation.createMany(
-        Array.from({ length: N }, (_, index) => getSimpleNewOccupationSpec(givenModelId, `occupation_${index}`, false))
-      );
-
-      // WHEN N LOCALIZED occupations are created
-      const actualNewLocalizedOccupations: IExtendedLocalizedOccupation[] = [];
-      const createLocalizedOccupationsInDBPromise = async () => {
-        const docs = await repositoryRegistry.localizedOccupation.createMany(
-          Array.from({ length: N }, (_, index) =>
-            getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupations[index].id)
-          )
-        );
-        actualNewLocalizedOccupations.push(...docs);
-        // delete all the created entries to avoid unique index violations
-        await repositoryRegistry.localizedOccupation.Model.deleteMany({}).exec();
-      };
-
-      const ITERATIONS = 3;
-      await expect(createLocalizedOccupationsInDBPromise).toResolveWithinQuantile(1666, {
-        iterations: ITERATIONS,
-        quantile: 95,
-      });
-      // THEN expect the localized occupations to be created without timing out
-      expect(actualNewLocalizedOccupations).toHaveLength(N * ITERATIONS);
     });
   });
 
@@ -193,12 +160,14 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       );
       // AND N ESCO Occupations exist in the database
       const givenOccupations = await repositoryRegistry.occupation.createMany(
-        Array.from({ length: N }, (_, index) => getSimpleNewOccupationSpec(givenModelId, `occupation_${index}`, false))
+        Array.from({ length: N }, (_, index) =>
+          getSimpleNewESCOOccupationSpec(givenModelId, `esco_occupation_${index}`)
+        )
       );
       // AND N LOCAL Occupations exist in the database
       const givenLocalOccupations = await repositoryRegistry.occupation.createMany(
         Array.from({ length: N }, (_, index) =>
-          getSimpleNewOccupationSpec(givenModelId, `local_occupation_${index}`, true)
+          getSimpleNewLocalOccupationSpec(givenModelId, `local_occupation_${index}`)
         )
       );
       // AND the ISCOGroups <- ESCO Occupation <- Local Occupation  hierarchy specs
@@ -212,13 +181,13 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
             parentId: iscoGroup.id,
             parentType: ObjectTypes.ISCOGroup,
             childId: occupation.id,
-            childType: ObjectTypes.Occupation,
+            childType: occupation.occupationType,
           },
           {
             parentId: occupation.id,
-            parentType: ObjectTypes.Occupation,
+            parentType: occupation.occupationType,
             childId: localOccupation.id,
-            childType: ObjectTypes.Occupation,
+            childType: localOccupation.occupationType,
           }
         );
       }
@@ -296,13 +265,14 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       // GIVEN N Occupations exist in the database
       const N = 1000;
       const givenModelId = getMockStringId(1);
-      const givenOccupations = await repositoryRegistry.occupation.createMany(
-         Array.from({ length: N }, (_, index) => getSimpleNewOccupationSpec(givenModelId, `occ_1_${index}`))
+      const givenESCOOccupations = await repositoryRegistry.occupation.createMany(
+        Array.from({ length: N }, (_, index) => getSimpleNewESCOOccupationSpec(givenModelId, `esco_occ_1_${index}`))
       );
-      // AND another N localized Occupations exist in the database
-      const givenLocalizedOccupations = await repositoryRegistry.localizedOccupation.createMany(
-        Array.from({ length: N }, (_, index) => getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupations[index].id))
+      // AND another N Local Occupations exist in the database
+      const givenLocalOccupations = await repositoryRegistry.occupation.createMany(
+        Array.from({ length: N }, (_, index) => getSimpleNewLocalOccupationSpec(givenModelId, `local_occ_1_${index}`))
       );
+
       // AND N Skills exist in the database
       const givenSkills = await repositoryRegistry.skill.createMany(
         Array.from({ length: N }, (_, index) => getSimpleNewSkillSpec(givenModelId, `skill_${index}`))
@@ -310,19 +280,19 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       // AND the Occupation <- skill and LocalizedOccupation <- skill for the Occupation to Skill Relation specs
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [];
       for (let i = 0; i < N; i++) {
-        const group_1 = givenOccupations[i];
-        const group_2 = givenLocalizedOccupations[i];
+        const esco_occupation = givenESCOOccupations[i];
+        const local_occupation = givenLocalOccupations[i];
         const skill = givenSkills[i];
         givenNewRelationSpecs.push(
           {
-            requiringOccupationId: group_1.id,
-            requiringOccupationType: OccupationType.ESCO,
+            requiringOccupationId: esco_occupation.id,
+            requiringOccupationType: esco_occupation.occupationType,
             requiredSkillId: skill.id,
             relationType: RelationType.ESSENTIAL,
           },
           {
-            requiringOccupationId: group_2.id,
-            requiringOccupationType: OccupationType.ESCO,
+            requiringOccupationId: local_occupation.id,
+            requiringOccupationType: local_occupation.occupationType,
             requiredSkillId: skill.id,
             relationType: RelationType.OPTIONAL,
           }

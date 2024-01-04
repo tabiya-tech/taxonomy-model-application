@@ -5,7 +5,7 @@ function getValidArguments() {
   // GIVEN some valid type pairs
   const givenValidTypePairs = [
     { firstPartnerType: ObjectTypes.Skill, secondPartnerType: ObjectTypes.Skill },
-    { firstPartnerType: ObjectTypes.Occupation, secondPartnerType: ObjectTypes.ISCOGroup },
+    { firstPartnerType: ObjectTypes.ESCOOccupation, secondPartnerType: ObjectTypes.ISCOGroup },
   ] as IRelationshipSpec[];
   // AND a Valid pair
   const givenPair = {

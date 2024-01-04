@@ -1,13 +1,13 @@
 import { ReferenceWithRelationType } from "esco/common/objectTypes";
 import { IPopulatedOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
-import { getOccupationReferenceWithRelationType } from "esco/occupation/occupationReference";
-import { IOccupationDoc, IOccupationReference } from "esco/occupation/occupation.types";
+import { getOccupationReferenceWithRelationType } from "esco/occupations/common/occupationReference";
+import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
 import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
 import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
 import mongoose from "mongoose";
-import { ILocalizedOccupationDoc } from "../localizedOccupation/localizedOccupation.types";
+import { IOccupationDoc } from "esco/occupations/occupation/occupation.types";
 
-export function getSkillRequiredByOccupationReference(
+export function getRequiredByOccupationReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc
 ): ReferenceWithRelationType<IOccupationReference> | null {
   if (!doc.requiringOccupationId) return null;
@@ -20,7 +20,7 @@ export function getSkillRequiredByOccupationReference(
   return getOccupationReferenceWithRelationType(doc.requiringOccupationId, doc.relationType);
 }
 
-export function getOccupationRequiresSkillReference(
+export function getRequiresSkillReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc
 ): ReferenceWithRelationType<ISkillReference> | null {
   if (!doc.requiredSkillId) return null;
@@ -33,9 +33,7 @@ export function getOccupationRequiresSkillReference(
   return getSkillReferenceWithRelationType(doc.requiredSkillId, doc.relationType);
 }
 
-export function populateEmptyRequiresSkills(
-  target: mongoose.Document<unknown, unknown, IOccupationDoc | ILocalizedOccupationDoc>
-) {
+export function populateEmptyRequiresSkills(target: mongoose.Document<unknown, unknown, IOccupationDoc>) {
   // @ts-ignore
   target.requiresSkills = [];
 }

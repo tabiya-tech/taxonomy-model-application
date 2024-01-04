@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { isSpecified } from "server/isUnspecified";
 import { stringRequired } from "server/stringRequired";
 import { RegExp_UUIDv4 } from "server/regex";
-import { OccupationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "./objectTypes";
 
 // check for unique values in an array
 export function hasUniqueValues<T>(value: T[]) {
@@ -150,12 +150,11 @@ export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> =
   required: true,
   validate: {
     validator: function (value: string) {
-      // Use `this.isLocal` to access the value of `isLocal` for the current document
       // @ts-ignore
       switch (this.occupationType) {
-        case OccupationType.ESCO:
+        case ObjectTypes.ESCOOccupation:
           return RegExESCOOccupationCode.test(value);
-        case OccupationType.LOCAL:
+        case ObjectTypes.LocalOccupation:
           return RegExLocalOccupationCode.test(value);
         default:
           throw new Error("Value of 'occupationType' path is not supported");
@@ -171,10 +170,4 @@ export const ImportIDProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: stringRequired("importId"),
   maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
-};
-
-export const OccupationTypeProperty: mongoose.SchemaDefinitionProperty<OccupationType> = {
-  type: String,
-  required: true,
-  enum: OccupationType,
 };

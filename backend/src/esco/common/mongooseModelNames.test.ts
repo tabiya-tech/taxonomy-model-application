@@ -1,9 +1,10 @@
 import { ObjectTypes } from "./objectTypes";
 import { getModelName, MongooseModelName } from "./mongooseModelNames";
 
-describe("Mongoose Model Names", () => {
+describe("test getModelName()", () => {
   it.each([
-    [ObjectTypes.Occupation, MongooseModelName.Occupation],
+    [ObjectTypes.ESCOOccupation, MongooseModelName.Occupation],
+    [ObjectTypes.LocalOccupation, MongooseModelName.Occupation],
     [ObjectTypes.Skill, MongooseModelName.Skill],
     [ObjectTypes.SkillGroup, MongooseModelName.SkillGroup],
     [ObjectTypes.ISCOGroup, MongooseModelName.ISCOGroup],

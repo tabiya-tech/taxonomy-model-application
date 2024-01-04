@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { OccupationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
-import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
+import { IOccupationReferenceDoc } from "esco/occupations/common/occupationReference.types";
 
 /**
  * Describes how an Occupation to skill relation is saved in the database.
@@ -10,12 +10,12 @@ import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
 export interface IOccupationToSkillRelationPairDoc {
   modelId: mongoose.Types.ObjectId;
 
-  requiringOccupationType: OccupationType;
+  requiringOccupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   requiringOccupationId: mongoose.Types.ObjectId;
-  requiringOccupationDocModel: MongooseModelName;
+  requiringOccupationDocModel: MongooseModelName.Occupation;
 
   requiredSkillId: mongoose.Types.ObjectId;
-  requiredSkillDocModel: MongooseModelName;
+  requiredSkillDocModel: MongooseModelName.Skill;
 
   relationType: RelationType;
 }

@@ -10,14 +10,13 @@ import {
 } from "esco/common/modelSchema";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewOccupationSpec } from "esco/occupation/occupation.types";
+import { INewOccupationSpec } from "esco/occupations/occupation/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { randomUUID } from "crypto";
-import { OccupationType } from "esco/common/objectTypes";
-import { INewLocalizedOccupationSpec } from "esco/localizedOccupation/localizedOccupation.types";
+import { ObjectTypes } from "../common/objectTypes";
 
 /**
  * Helper function to create an INewISCOGroupSpec with random values,
@@ -49,7 +48,7 @@ export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: strin
     UUIDHistory: [randomUUID()],
     originUri: "",
     description: "",
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
   };
 }
 
@@ -57,21 +56,39 @@ export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: strin
  * Helper function to create an INewOccupationSpec with random values,
  * that can be used for creating a new Occupation
  */
-export function getNewOccupationSpec(isLocal: boolean = false): INewOccupationSpec {
+export function getNewESCOOccupationSpec(): INewOccupationSpec {
   return {
     ISCOGroupCode: getMockRandomISCOGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getMockRandomOccupationCode(isLocal),
+    code: getMockRandomOccupationCode(false),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
-    modelId: getMockStringId(2),
+    modelId: getMockStringId(Math.floor(Math.random() * 100000)),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
+    occupationType: ObjectTypes.ESCOOccupation,
+  };
+}
+
+export function getNewLocalOccupationSpec(): INewOccupationSpec {
+  return {
+    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    definition: getTestString(DESCRIPTION_MAX_LENGTH),
+    regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
+    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+    code: getMockRandomOccupationCode(true),
+    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
+    modelId: getMockStringId(Math.floor(Math.random() * 100000)),
+    UUIDHistory: [randomUUID()],
+    originUri: generateRandomUrl(),
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    importId: getTestString(IMPORT_ID_MAX_LENGTH),
+    occupationType: ObjectTypes.LocalOccupation,
   };
 }
 
@@ -79,62 +96,39 @@ export function getNewOccupationSpec(isLocal: boolean = false): INewOccupationSp
  * Helper function to create an INewOccupationSpec with simplest possible values,
  * that can be used for creating a new Occupation
  */
-export function getSimpleNewOccupationSpec(
-  modelId: string,
-  preferredLabel: string,
-  isLocal: boolean = false
-): INewOccupationSpec {
+export function getSimpleNewESCOOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
     ISCOGroupCode: getMockRandomISCOGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",
     altLabels: [],
-    code: getMockRandomOccupationCode(isLocal),
+    code: getMockRandomOccupationCode(false),
     preferredLabel: preferredLabel,
     modelId: modelId,
     UUIDHistory: [randomUUID()],
     originUri: "",
     description: "",
-    importId: "",
-    occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
-  };
-}
-
-/**
- * Helper function to create an INewLocalizedOccupationSpec with random values,
- * that can be used for creating a new Localized Occupation
- */
-export function getNewLocalizedOccupationSpec(
-  localizedFromId: string = getMockStringId(999)
-): INewLocalizedOccupationSpec {
-  return {
-    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    modelId: getMockStringId(2),
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
-    occupationType: OccupationType.LOCALIZED,
-    localizesOccupationId: localizedFromId,
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    UUIDHistory: [randomUUID()],
+    occupationType: ObjectTypes.ESCOOccupation,
   };
 }
 
-/**
- * Helper function to create an INewLocalizedOccupationSpec with the simplest possible values,
- * that can be used for creating a new Localized Occupation
- */
-export function getSimpleNewLocalizedOccupationSpec(
-  modelId: string,
-  localizedFromId: string
-): INewLocalizedOccupationSpec {
+export function getSimpleNewLocalOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
+    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    definition: "",
+    regulatedProfessionNote: "",
+    scopeNote: "",
     altLabels: [],
+    code: getMockRandomOccupationCode(true),
+    preferredLabel: preferredLabel,
     modelId: modelId,
-    description: "",
-    occupationType: OccupationType.LOCALIZED,
-    localizesOccupationId: localizedFromId,
-    importId: "",
     UUIDHistory: [randomUUID()],
+    originUri: "",
+    description: "",
+    importId: getTestString(IMPORT_ID_MAX_LENGTH),
+    occupationType: ObjectTypes.LocalOccupation,
   };
 }
 
@@ -170,7 +164,7 @@ export function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: stri
     description: "",
     scopeNote: "",
     altLabels: [],
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
   };
 }
 
@@ -210,6 +204,6 @@ export function getSimpleNewSkillSpec(modelId: string, preferredLabel: string): 
     skillType: SkillType.Knowledge,
     reuseLevel: ReuseLevel.CrossSector,
     altLabels: [],
-    importId: "",
+    importId: getMockStringId(Math.random() * 1000),
   };
 }

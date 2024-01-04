@@ -19,8 +19,7 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromFile } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromFile } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromFile } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
-import { OccupationType } from "esco/common/objectTypes";
-import { parseLocalizedOccupationsFromFile } from "import/esco/localizedOccupations/localizedOccupationsParser";
+import { ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
 
@@ -80,11 +79,17 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
     await connection?.dropDatabase();
   });
 
+  beforeEach(() => {
+    // reset the error logger and the console spies
+    errorLogger.clear();
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
   // Uncomment the first DataTestType.ESCO line in order to run the ESCO import test
   // This skip is here because the ESCO import takes a long time to run,
   // and it should not be run as part of the pipeline on GitHub
   test.each([
-    // [DataTestType.ESCO, "../data-sets/csv/tabiya-esco-v1.1.1/"],
+    [DataTestType.ESCO, "../data-sets/csv/tabiya-esco-v1.1.1/"],
     [DataTestType.SAMPLE, "../data-sets/csv/tabiya-sample/"],
   ])(
     "should import the %s CSV files",
@@ -107,97 +112,77 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
       // WHEN the CSV files are parsed and data is imported
 
       // parse the entities first
-      await Promise.all([
-        // parse the ISCOGroups.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () => parseISCOGroupsFromFile(modelInfo.id, dataFolder + "ISCOGroups.csv", importIdToDBIdMap),
-          getRepositoryRegistry().ISCOGroup.Model,
-          dataFolder + "ISCOGroups.csv"
-        ),
-        // parse the skillGroups.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () => parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skillGroups.csv", importIdToDBIdMap),
-          getRepositoryRegistry().skillGroup.Model,
-          dataFolder + "skillGroups.csv"
-        ),
-        // parse the skills.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () => parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap),
-          getRepositoryRegistry().skill.Model,
-          dataFolder + "skills.csv"
-        ),
-        // parse the occupations.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () => parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap),
-          getRepositoryRegistry().occupation.Model,
-          dataFolder + "occupations.csv"
-        ),
-      ]);
+
+      // parse the ISCOGroups.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () => parseISCOGroupsFromFile(modelInfo.id, dataFolder + "ISCOGroups.csv", importIdToDBIdMap),
+        getRepositoryRegistry().ISCOGroup.Model,
+        dataFolder + "ISCOGroups.csv"
+      );
+      // parse the skillGroups.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () => parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skillGroups.csv", importIdToDBIdMap),
+        getRepositoryRegistry().skillGroup.Model,
+        dataFolder + "skillGroups.csv"
+      );
+      // parse the skills.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () => parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap),
+        getRepositoryRegistry().skill.Model,
+        dataFolder + "skills.csv"
+      );
+      // parse the occupations.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () => parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap, false),
+        getRepositoryRegistry().occupation.Model,
+        dataFolder + "occupations.csv"
+      );
 
       // next parse the local and localized occupations in the case of sample import since they depend on the occupations being imported first
       if (dataTestType === DataTestType.SAMPLE) {
-        await Promise.all([
-          // parse the local occupations.csv file and assert that all rows were imported successfully
-          assertOccupationImportedSuccessfully(
-            () => parseOccupationsFromFile(modelInfo.id, dataFolder + "local_occupations.csv", importIdToDBIdMap, true),
-            getRepositoryRegistry().occupation.Model,
-            dataFolder + "local_occupations.csv",
-            OccupationType.LOCAL
-          ),
-          // parse the localized occupations.csv file and assert that all rows were imported successfully
-          assertOccupationImportedSuccessfully(
-            () =>
-              parseLocalizedOccupationsFromFile(
-                modelInfo.id,
-                dataFolder + "localized_occupations.csv",
-                importIdToDBIdMap
-              ),
-            getRepositoryRegistry().localizedOccupation.Model,
-            dataFolder + "localized_occupations.csv",
-            OccupationType.LOCALIZED
-          ),
-        ]);
+        // parse the local occupations.csv file and assert that all rows were imported successfully
+        await assertOccupationImportedSuccessfully(
+          () => parseOccupationsFromFile(modelInfo.id, dataFolder + "local_occupations.csv", importIdToDBIdMap, true),
+          getRepositoryRegistry().occupation.Model,
+          dataFolder + "local_occupations.csv",
+          ObjectTypes.LocalOccupation
+        );
       }
 
       // finally parse the relations between the entities and assert that all rows were imported successfully,
       // since they depend on the entities being imported first
-      await Promise.all([
-        // parse the occupations_hierarchy.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () =>
-            parseOccupationHierarchyFromFile(modelInfo.id, dataFolder + "occupations_hierarchy.csv", importIdToDBIdMap),
-          getRepositoryRegistry().occupationHierarchy.hierarchyModel,
-          dataFolder + "occupations_hierarchy.csv"
-        ),
-        // parse the skills_hierarchy.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () => parseSkillHierarchyFromFile(modelInfo.id, dataFolder + "skills_hierarchy.csv", importIdToDBIdMap),
-          getRepositoryRegistry().skillHierarchy.hierarchyModel,
-          dataFolder + "skills_hierarchy.csv"
-        ),
-        // parse the skill_skill_relations.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () =>
-            parseSkillToSkillRelationFromFile(
-              modelInfo.id,
-              dataFolder + "skill_skill_relations.csv",
-              importIdToDBIdMap
-            ),
-          getRepositoryRegistry().skillToSkillRelation.relationModel,
-          dataFolder + "skill_skill_relations.csv"
-        ),
-        // parse the occupation_skill_relations.csv file and assert that all rows were imported successfully
-        assertEntityImportedSuccessfully(
-          () =>
-            parseOccupationToSkillRelationFromFile(
-              modelInfo.id,
-              dataFolder + "occupation_skill_relations.csv",
-              importIdToDBIdMap
-            ),
-          getRepositoryRegistry().occupationToSkillRelation.relationModel,
-          dataFolder + "occupation_skill_relations.csv"
-        ),
-      ]);
+
+      // parse the occupations_hierarchy.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () =>
+          parseOccupationHierarchyFromFile(modelInfo.id, dataFolder + "occupations_hierarchy.csv", importIdToDBIdMap),
+        getRepositoryRegistry().occupationHierarchy.hierarchyModel,
+        dataFolder + "occupations_hierarchy.csv"
+      );
+      // parse the skills_hierarchy.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () => parseSkillHierarchyFromFile(modelInfo.id, dataFolder + "skills_hierarchy.csv", importIdToDBIdMap),
+        getRepositoryRegistry().skillHierarchy.hierarchyModel,
+        dataFolder + "skills_hierarchy.csv"
+      );
+      // parse the skill_skill_relations.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () =>
+          parseSkillToSkillRelationFromFile(modelInfo.id, dataFolder + "skill_skill_relations.csv", importIdToDBIdMap),
+        getRepositoryRegistry().skillToSkillRelation.relationModel,
+        dataFolder + "skill_skill_relations.csv"
+      );
+      // parse the occupation_skill_relations.csv file and assert that all rows were imported successfully
+      await assertEntityImportedSuccessfully(
+        () =>
+          parseOccupationToSkillRelationFromFile(
+            modelInfo.id,
+            dataFolder + "occupation_skill_relations.csv",
+            importIdToDBIdMap
+          ),
+        getRepositoryRegistry().occupationToSkillRelation.relationModel,
+        dataFolder + "occupation_skill_relations.csv"
+      );
     },
     60000 // Should remain at 1 min for the Sample files, but can be increased to 3 min in case of testing both Sample and full ESCO files
   );
@@ -226,7 +211,7 @@ const assertOccupationImportedSuccessfully = async (
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
   model: mongoose.Model<any>,
   fileName: string,
-  occupationType: OccupationType
+  occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
 ) => {
   const parsedStats = await parserCallback();
   const csvRowCount = countCSVRecords(fileName);

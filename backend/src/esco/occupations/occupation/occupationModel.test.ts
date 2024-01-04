@@ -30,7 +30,7 @@ import {
   testUUIDField,
   testUUIDHistoryField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
-import { OccupationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 describe("Test the definition of the Occupation Model", () => {
   let dbConnection: Connection;
@@ -67,8 +67,8 @@ describe("Test the definition of the Occupation Model", () => {
         scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
         regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
-        occupationType: OccupationType.ESCO,
-      },
+        occupationType: ObjectTypes.ESCOOccupation,
+      } as IOccupationDoc,
     ],
     [
       "optional fields ESCO occupation",
@@ -86,8 +86,8 @@ describe("Test the definition of the Occupation Model", () => {
         scopeNote: "",
         regulatedProfessionNote: "",
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
-        occupationType: OccupationType.ESCO,
-      },
+        occupationType: ObjectTypes.ESCOOccupation,
+      } as IOccupationDoc,
     ],
     [
       "mandatory fields local occupation",
@@ -105,8 +105,8 @@ describe("Test the definition of the Occupation Model", () => {
         scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
         regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
-        occupationType: OccupationType.LOCAL,
-      },
+        occupationType: ObjectTypes.LocalOccupation,
+      } as IOccupationDoc,
     ],
     [
       "optional fields Local occupation",
@@ -124,8 +124,8 @@ describe("Test the definition of the Occupation Model", () => {
         scopeNote: "",
         regulatedProfessionNote: "",
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
-        occupationType: OccupationType.LOCAL,
-      },
+        occupationType: ObjectTypes.LocalOccupation,
+      } as IOccupationDoc,
     ],
   ])("Successfully validate Occupation with %s", async (description, givenObject: IOccupationDoc) => {
     // GIVEN an Occupation document based on the given object
@@ -217,7 +217,9 @@ describe("Test the definition of the Occupation Model", () => {
               caseType,
               testValue: value,
               expectedFailureMessage,
-              dependencies: { occupationType: OccupationType.ESCO },
+              dependencies: {
+                occupationType: ObjectTypes.ESCOOccupation,
+              },
             });
           }
         );
@@ -278,7 +280,7 @@ describe("Test the definition of the Occupation Model", () => {
               caseType,
               testValue: value,
               expectedFailureMessage,
-              dependencies: { occupationType: OccupationType.LOCAL },
+              dependencies: { occupationType: ObjectTypes.LocalOccupation },
             });
           }
         );
@@ -390,28 +392,14 @@ describe("Test the definition of the Occupation Model", () => {
       );
     });
 
+
     testImportId<IOccupationDoc>(() => OccupationModel);
 
-    describe("Test validation of 'occupationType", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [CaseType.Success, "ESCO", OccupationType.ESCO, undefined],
-        [CaseType.Success, "LOCAL", OccupationType.LOCAL, undefined],
-        [CaseType.Success, "LOCALIZED", OccupationType.LOCALIZED, undefined],
-      ])(
-        `(%s) Validate 'definition' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>({
-            model: OccupationModel,
-            propertyNames: "occupationType",
-            caseType,
-            testValue: value,
-            expectedFailureMessage,
-          });
-        }
-      );
+    describe("Test validation of 'occupationType'", () => {
+      testObjectType(() => OccupationModel, "occupationType", [
+        ObjectTypes.ESCOOccupation,
+        ObjectTypes.LocalOccupation,
+      ]);
     });
   });
 

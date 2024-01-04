@@ -6,9 +6,10 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 import skillHierarchyToCSVTransform, * as skillHierarchyToCSVTransformModule from "./skillHierarchyToCSVTransform";
-import { IUnpopulatedSkillHierarchy } from "./skillHierarchyToCSVTransform";
+import { IUnpopulatedSkillHierarchy, transformSkillHierarchySpecToCSVRow } from "./skillHierarchyToCSVTransform";
 import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
 import { parse } from "csv-parse/sync";
+import { SkillHierarchyChildType, SkillHierarchyParentType } from "esco/skillHierarchy/skillHierarchy.types";
 
 const SkillHierarchyRepositorySpy = jest.spyOn(getRepositoryRegistry(), "skillHierarchy", "get");
 
@@ -39,6 +40,39 @@ function setupSkillHierarchyRepositoryMock(findAllImpl: () => Readable) {
 describe("skillHierarchyToCSVTransform", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("test transformSkillHierarchySpecToCSVRow()", () => {
+    test("should transform a SkillHierarchy to a CSV row", () => {
+      // GIVEN a valid SkillHierarchy
+      const givenSkillHierarchy = getMockSkillHierarchies()[0];
+      // WHEN the Skill is transformed
+      const actualRow = transformSkillHierarchySpecToCSVRow(givenSkillHierarchy);
+      // THEN the CSV row should be correct
+      expect(actualRow).toMatchSnapshot();
+    });
+
+    test("should throw an error when the parentType is unknown", async () => {
+      // GIVEN an otherwise valid SkillHierarchy
+      const givenSkillHierarchy = getMockSkillHierarchies()[0];
+      // WITH an unknown parentType
+      givenSkillHierarchy.parentType = "foo" as SkillHierarchyParentType;
+      // WHEN the Skill is transformed
+      const transformCall = () => transformSkillHierarchySpecToCSVRow(givenSkillHierarchy);
+      // THEN the transformation should throw an error
+      expect(transformCall).toThrowError("Failed to transform SkillHierarchy to CSV row: Invalid parentType: foo");
+    });
+
+    test("should throw an error when the childType is unknown", async () => {
+      // GIVEN an otherwise valid SkillHierarchy
+      const givenSkillHierarchy = getMockSkillHierarchies()[0];
+      // WITH an unknown childType
+      givenSkillHierarchy.childType = "foo" as SkillHierarchyChildType;
+      // WHEN the Skill is transformed
+      const transformCall = () => transformSkillHierarchySpecToCSVRow(givenSkillHierarchy);
+      // THEN the transformation should throw an error
+      expect(transformCall).toThrowError("Failed to transform SkillHierarchy to CSV row: Invalid childType: foo");
+    });
   });
 
   test("should correctly transform skillHierarchy data to CSV", async () => {

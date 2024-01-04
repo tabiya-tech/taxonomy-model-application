@@ -3,6 +3,7 @@ import { IISCOGroupExportRow, ISCOGroupExportHeaders } from "esco/common/entityT
 import { pipeline, Readable, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { stringify } from "csv-stringify";
+import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
 
 export type IUnpopulatedISCOGroup = Omit<IISCOGroup, "parent" | "children">;
 
@@ -10,10 +11,10 @@ export const transformISCOGroupSpecToCSVRow = (iscoGroup: IUnpopulatedISCOGroup)
   return {
     ORIGINURI: iscoGroup.originUri,
     ID: iscoGroup.id,
-    UUIDHISTORY: iscoGroup.UUIDHistory.join("\n"),
+    UUIDHISTORY: stringFromArray(iscoGroup.UUIDHistory),
     CODE: iscoGroup.code,
     PREFERREDLABEL: iscoGroup.preferredLabel,
-    ALTLABELS: iscoGroup.altLabels.join("\n"),
+    ALTLABELS: stringFromArray(iscoGroup.altLabels),
     DESCRIPTION: iscoGroup.description,
     CREATEDAT: iscoGroup.createdAt.toISOString(),
     UPDATEDAT: iscoGroup.updatedAt.toISOString(),

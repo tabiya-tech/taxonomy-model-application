@@ -19,12 +19,12 @@ export function initializeSchemaAndModel(
       parentType: {
         type: String,
         required: true,
-        enum: [ObjectTypes.ISCOGroup, ObjectTypes.Occupation],
+        enum: [ObjectTypes.ISCOGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
       },
       parentDocModel: {
         type: String,
         required: true,
-        enum: [MongooseModelName.Occupation, MongooseModelName.ISCOGroup],
+        enum: [MongooseModelName.ISCOGroup, MongooseModelName.Occupation],
       },
       [OccupationHierarchyModelPaths.parentId]: {
         type: mongoose.Schema.Types.ObjectId,
@@ -39,12 +39,12 @@ export function initializeSchemaAndModel(
       childType: {
         type: String,
         required: true,
-        enum: [ObjectTypes.ISCOGroup, ObjectTypes.Occupation],
+        enum: [ObjectTypes.ISCOGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
       },
       childDocModel: {
         type: String,
         required: true,
-        enum: [MongooseModelName.Occupation, MongooseModelName.ISCOGroup],
+        enum: [MongooseModelName.ISCOGroup, MongooseModelName.Occupation],
       },
     },
     {

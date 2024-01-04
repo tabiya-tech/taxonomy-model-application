@@ -7,12 +7,12 @@ import {
 } from "./populateOccupationHierarchyOptions";
 import { populateOccupationRequiresSkillsOptions } from "./populateOccupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { OccupationType } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
+import { ObjectTypes } from "../../common/objectTypes";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -53,7 +53,7 @@ export interface IOccupationRepository {
    * @return {Readable} - A Readable stream of IOccupations
    * Rejects with an error if the operation fails.
    */
-  findAll(modelId: string, occupationType: OccupationType): Readable;
+  findAll(modelId: string, occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation): Readable;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -141,7 +141,9 @@ export class OccupationRepository implements IOccupationRepository {
         .populate(populateOccupationChildrenOptions)
         .populate(populateOccupationRequiresSkillsOptions)
         .exec();
-      return occupation !== null ? occupation.toObject() : null;
+
+      if (!occupation) return null;
+      return occupation.toObject();
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.findById: findById failed.", { cause: e });
       console.error(err);
@@ -149,9 +151,9 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  findAll(modelId: string, occupationType: OccupationType): Readable {
+  findAll(modelId: string, occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation): Readable {
     // Allow only ESCO or local occupations
-    if (occupationType !== OccupationType.ESCO && occupationType !== OccupationType.LOCAL) {
+    if (occupationType !== ObjectTypes.ESCOOccupation && occupationType !== ObjectTypes.LocalOccupation) {
       const err = new Error(
         "OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL."
       );

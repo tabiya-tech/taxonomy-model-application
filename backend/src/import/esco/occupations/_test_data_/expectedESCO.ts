@@ -1,5 +1,5 @@
-import { INewOccupationSpec } from "esco/occupation/occupation.types";
-import { OccupationType } from "esco/common/objectTypes";
+import { INewOccupationSpec } from "esco/occupations/occupation/occupation.types";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
@@ -14,7 +14,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope note",
     regulatedProfessionNote: "regulated profession note",
     importId: "key_1",
-    occupationType: OccupationType.ESCO,
+    occupationType: ObjectTypes.ESCOOccupation,
   },
   {
     originUri: "origin\nuri\nwith\nlinebreak",
@@ -28,7 +28,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope\nnote\nwith\nlinebreak",
     regulatedProfessionNote: "regulated\nprofession\nnote\nwith\nlinebreak",
     importId: "key_2",
-    occupationType: OccupationType.ESCO,
+    occupationType: ObjectTypes.ESCOOccupation,
   },
   {
     originUri: "origin uri",
@@ -42,7 +42,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope note",
     regulatedProfessionNote: "regulated profession note",
     importId: "key_7",
-    occupationType: OccupationType.ESCO,
+    occupationType: ObjectTypes.ESCOOccupation,
   },
 
   {
@@ -57,6 +57,6 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope note",
     regulatedProfessionNote: "regulated profession note",
     importId: "key_8",
-    occupationType: OccupationType.ESCO,
+    occupationType: ObjectTypes.ESCOOccupation,
   },
 ];

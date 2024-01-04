@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import { getISCOGroupDocReference, ISCOGroupDocument } from "esco/iscoGroup/ISCOGroupReference";
-import { getOccupationDocReference, OccupationDocument } from "./occupationReference";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/common/occupationReference";
 import { IISCOGroupReference, IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
-import { IOccupationReference, IOccupationReferenceDoc } from "./occupation.types";
+import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/common/occupationReference.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IPopulatedOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import {
@@ -10,7 +10,8 @@ import {
   getOccupationHierarchyParentReference,
 } from "esco/occupationHierarchy/populateFunctions";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
-import { OccupationModelPaths } from "esco/common/modelPopulationPaths";
+
+import { OccupationModelPaths } from "./occupationModel";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 
@@ -29,7 +30,7 @@ export const populateOccupationParentOptions = {
       if (modelName === MongooseModelName.Occupation) {
         return getOccupationDocReference(doc as OccupationDocument); // NOSONAR
       }
-      console.error(new Error(`Parent is not an ISCOGroup or an Occupation: ${modelName}`));
+      console.error(new Error(`Parent is not an ISCOGroup or an ESCO Occupation or a Local Occupation: ${modelName}`));
       return null;
     },
   },
@@ -48,7 +49,7 @@ export const populateOccupationChildrenOptions = {
       if (modelName === MongooseModelName.Occupation) {
         return getOccupationDocReference(doc);
       }
-      console.error(new Error(`Child is not an Occupation: ${modelName}`));
+      console.error(new Error(`Child is not an ESCO Occupation or a Local Occupation: ${modelName}`));
       return null;
     },
   },

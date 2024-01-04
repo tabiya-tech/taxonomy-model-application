@@ -4,6 +4,8 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { stringify } from "csv-stringify";
 import { ISkill } from "esco/skill/skills.types";
 import { Readable } from "node:stream";
+import { getCSVTypeFromReuseLevel, getCSVTypeFromSkillType } from "../../../esco/common/csvObjectTypes";
+import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
 
 export type IUnpopulatedSkill = Omit<
   ISkill,
@@ -11,17 +13,26 @@ export type IUnpopulatedSkill = Omit<
 >;
 
 export const transformSkillSpecToCSVRow = (skill: IUnpopulatedSkill): ISkillExportRow => {
+  const REUSELEVEL = getCSVTypeFromReuseLevel(skill.reuseLevel);
+  if (!REUSELEVEL) {
+    throw new Error(`Failed to transform Skill to CSV row: Invalid reuseLevel: ${skill.reuseLevel}`);
+  }
+  const SKILLTYPE = getCSVTypeFromSkillType(skill.skillType);
+  if (!SKILLTYPE) {
+    throw new Error(`Failed to transform Skill to CSV row: Invalid skillType: ${skill.skillType}`);
+  }
+
   return {
     ORIGINURI: skill.originUri,
     ID: skill.id,
-    UUIDHISTORY: skill.UUIDHistory.join("\n"),
+    UUIDHISTORY: stringFromArray(skill.UUIDHistory),
     PREFERREDLABEL: skill.preferredLabel,
-    ALTLABELS: skill.altLabels.join("\n"),
+    ALTLABELS: stringFromArray(skill.altLabels),
     DESCRIPTION: skill.description,
     SCOPENOTE: skill.scopeNote,
     DEFINITION: skill.definition,
-    REUSELEVEL: skill.reuseLevel,
-    SKILLTYPE: skill.skillType,
+    REUSELEVEL,
+    SKILLTYPE,
     CREATEDAT: skill.createdAt.toISOString(),
     UPDATEDAT: skill.updatedAt.toISOString(),
   };

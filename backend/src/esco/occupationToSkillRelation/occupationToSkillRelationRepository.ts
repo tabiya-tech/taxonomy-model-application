@@ -9,18 +9,16 @@ import {
   IOccupationToSkillRelationPairDoc,
 } from "./occupationToSkillRelation.types";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { IOccupationDoc } from "esco/occupation/occupation.types";
-import { getModelName } from "esco/common/mongooseModelNames";
-import { ILocalizedOccupationDoc } from "esco/localizedOccupation/localizedOccupation.types";
+import { IOccupationDoc } from "esco/occupations/occupation/occupation.types";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
 
 export interface IOccupationToSkillRelationRepository {
   readonly relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>;
   readonly skillModel: mongoose.Model<ISkillDoc>;
   readonly occupationModel: mongoose.Model<IOccupationDoc>;
-  readonly localizedOccupationModel: mongoose.Model<ILocalizedOccupationDoc>;
 
   /**
    * Creates multiple new OccupationToSkillRelation entries.
@@ -49,18 +47,15 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
   public readonly relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>;
   public readonly skillModel: mongoose.Model<ISkillDoc>;
   public readonly occupationModel: mongoose.Model<IOccupationDoc>;
-  public readonly localizedOccupationModel: mongoose.Model<ILocalizedOccupationDoc>;
 
   constructor(
     relationModel: mongoose.Model<IOccupationToSkillRelationPairDoc>,
     skillModel: mongoose.Model<ISkillDoc>,
-    occupationModel: mongoose.Model<IOccupationDoc>,
-    localizedOccupationModel: mongoose.Model<ILocalizedOccupationDoc>
+    occupationModel: mongoose.Model<IOccupationDoc>
   ) {
     this.relationModel = relationModel;
     this.skillModel = skillModel;
     this.occupationModel = occupationModel;
-    this.localizedOccupationModel = localizedOccupationModel;
   }
 
   async createMany(
@@ -83,22 +78,21 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
         .exec();
       _existingSkillsIds.forEach((skill) => existingIds.set(skill._id.toString(), [ObjectTypes.Skill]));
 
-      // Get all esco occupations
+      // Get all esco and local occupations
       const _existingOccupationsIds = await this.occupationModel
         .find({ modelId: { $eq: modelId } })
-        .select("_id")
+        .select("_id occupationType")
         .exec();
-      _existingOccupationsIds.forEach((occupation) =>
-        existingIds.set(occupation._id.toString(), [ObjectTypes.Occupation])
-      );
-      // get all localized occupations
-      const _existingLocalizedOccupationIds = await this.localizedOccupationModel
-        .find({ modelId: { $eq: modelId } })
-        .select("_id")
-        .exec();
-      _existingLocalizedOccupationIds.forEach((localizedOccupation) =>
-        existingIds.set(localizedOccupation._id.toString(), [ObjectTypes.Occupation])
-      );
+      _existingOccupationsIds.forEach((occupation) => {
+        const types = existingIds.get(occupation._id.toString());
+        if (types !== undefined) {
+          // there is already a value for this key, and it should be a skill,
+          // so we add the occupation type to the array
+          types.push(occupation.occupationType);
+        } else {
+          existingIds.set(occupation._id.toString(), [occupation.occupationType]);
+        }
+      });
 
       const newOccupationToSkillRelationPairModels = newOccupationToSkillRelationPairSpecs
         .filter((spec) => isNewOccupationToSkillRelationPairSpecValid(spec, existingIds))
@@ -107,8 +101,8 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
             return new this.relationModel({
               ...spec,
               modelId: modelId,
-              requiringOccupationDocModel: getModelName(spec.requiringOccupationType),
-              requiredSkillDocModel: this.skillModel.modelName,
+              requiringOccupationDocModel: MongooseModelName.Occupation,
+              requiredSkillDocModel: MongooseModelName.Skill,
             });
           } catch (e: unknown) {
             return null;

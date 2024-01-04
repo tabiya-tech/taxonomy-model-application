@@ -4,6 +4,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { stringify } from "csv-stringify";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { Readable } from "node:stream";
+import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
 
 export type IUnpopulatedSkillGroup = Omit<ISkillGroup, "parents" | "children">;
 
@@ -11,10 +12,10 @@ export const transformSkillGroupSpecToCSVRow = (skillGroup: IUnpopulatedSkillGro
   return {
     ORIGINURI: skillGroup.originUri,
     ID: skillGroup.id,
-    UUIDHISTORY: skillGroup.UUIDHistory.join("\n"),
+    UUIDHISTORY: stringFromArray(skillGroup.UUIDHistory),
     CODE: skillGroup.code,
     PREFERREDLABEL: skillGroup.preferredLabel,
-    ALTLABELS: skillGroup.altLabels.join("\n"),
+    ALTLABELS: stringFromArray(skillGroup.altLabels),
     DESCRIPTION: skillGroup.description,
     SCOPENOTE: skillGroup.scopeNote,
     CREATEDAT: skillGroup.createdAt.toISOString(),

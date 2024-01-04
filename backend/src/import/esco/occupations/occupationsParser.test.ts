@@ -3,11 +3,11 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parseOccupationsFromFile, parseOccupationsFromUrl } from "./occupationsParser";
-import { IOccupationRepository } from "esco/occupation/occupationRepository";
+import { IOccupationRepository } from "esco/occupations/occupation/occupationRepository";
 import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
-import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation/occupation.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";

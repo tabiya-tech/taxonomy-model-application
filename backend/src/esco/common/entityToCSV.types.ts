@@ -1,4 +1,6 @@
-import { ObjectTypes, OccupationType, RelationType } from "./objectTypes";
+import { ObjectTypes, RelationType } from "./objectTypes";
+import { CSVObjectTypes, CSVRelationType, CSVReuseLevel, CSVSkillType } from "./csvObjectTypes";
+import { ReuseLevel, SkillType } from "../skill/skills.types";
 
 const HEADER_NAMES = {
   UPDATED_AT: "UPDATEDAT",
@@ -79,12 +81,22 @@ export interface ISkillImportRow {
   DESCRIPTION: string;
   DEFINITION: string;
   SCOPENOTE: string;
-  REUSELEVEL: string;
-  SKILLTYPE: string;
+  REUSELEVEL: ReuseLevel;
+  SKILLTYPE: SkillType;
   ID: string;
 }
 
-export interface ISkillExportRow extends ISkillImportRow {
+export interface ISkillExportRow {
+  ORIGINURI: string;
+  UUIDHISTORY: string;
+  PREFERREDLABEL: string;
+  ALTLABELS: string;
+  DESCRIPTION: string;
+  DEFINITION: string;
+  SCOPENOTE: string;
+  REUSELEVEL: CSVReuseLevel;
+  SKILLTYPE: CSVSkillType;
+  ID: string;
   CREATEDAT: string;
   UPDATEDAT: string;
 }
@@ -138,6 +150,7 @@ export const occupationImportHeaders = [
   "DEFINITION",
   "SCOPENOTE",
   "REGULATEDPROFESSIONNOTE",
+  "OCCUPATIONTYPE",
   HEADER_NAMES.PREFERREDLABEL,
   HEADER_NAMES.ALTLABELS,
   HEADER_NAMES.DESCRIPTION,
@@ -161,46 +174,22 @@ export interface IOccupationImportRow {
   DEFINITION: string;
   SCOPENOTE: string;
   REGULATEDPROFESSIONNOTE: string;
-  OCCUPATIONTYPE: string;
+  OCCUPATIONTYPE: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
 }
 
-export interface IOccupationExportRow extends IOccupationImportRow {
-  CREATEDAT: string;
-  UPDATEDAT: string;
-}
-
-/*
- * Headers for the LocalizedOccupation CSV file
- */
-
-export const localizedOccupationImportHeaders = [
-  HEADER_NAMES.ID,
-  HEADER_NAMES.UUIDHISTORY,
-  "OCCUPATIONTYPE",
-  "LOCALIZESOCCUPATIONID",
-  HEADER_NAMES.ALTLABELS,
-  HEADER_NAMES.DESCRIPTION,
-];
-
-export const localizedOccupationExportHeaders = [
-  ...localizedOccupationImportHeaders,
-  HEADER_NAMES.CREATED_AT,
-  HEADER_NAMES.UPDATED_AT,
-];
-
-/*
- * Interface for the LocalizedOccupation row in the CSV file
- */
-export interface ILocalizedOccupationImportRow {
+export interface IOccupationExportRow {
   ID: string;
+  ORIGINURI: string;
   UUIDHISTORY: string;
+  ISCOGROUPCODE: string;
+  CODE: string;
+  PREFERREDLABEL: string;
   ALTLABELS: string;
   DESCRIPTION: string;
-  OCCUPATIONTYPE: string;
-  LOCALIZESOCCUPATIONID: string;
-}
-
-export interface ILocalizedOccupationExportRow extends ILocalizedOccupationImportRow {
+  DEFINITION: string;
+  SCOPENOTE: string;
+  REGULATEDPROFESSIONNOTE: string;
+  OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
   CREATEDAT: string;
   UPDATEDAT: string;
 }
@@ -227,7 +216,10 @@ export interface ISkillToSkillsRelationImportRow {
   REQUIREDID: string;
 }
 
-export interface ISkillToSkillsRelationExportRow extends ISkillToSkillsRelationImportRow {
+export interface ISkillToSkillsRelationExportRow {
+  REQUIRINGID: string;
+  RELATIONTYPE: CSVRelationType;
+  REQUIREDID: string;
   CREATEDAT: string;
   UPDATEDAT: string;
 }
@@ -239,7 +231,7 @@ export interface ISkillToSkillsRelationExportRow extends ISkillToSkillsRelationI
 export const occupationToSkillRelationImportHeaders = ["OCCUPATIONTYPE", "OCCUPATIONID", "RELATIONTYPE", "SKILLID"];
 
 export const occupationToSkillRelationExportHeaders = [
-  ...occupationImportHeaders,
+  ...occupationToSkillRelationImportHeaders,
   HEADER_NAMES.CREATED_AT,
   HEADER_NAMES.UPDATED_AT,
 ];
@@ -249,13 +241,17 @@ export const occupationToSkillRelationExportHeaders = [
  */
 
 export interface IOccupationToSkillRelationImportRow {
-  OCCUPATIONTYPE: OccupationType;
+  OCCUPATIONTYPE: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   OCCUPATIONID: string;
   RELATIONTYPE: RelationType;
   SKILLID: string;
 }
 
-export interface IOccupationToSkillRelationExportRow extends IOccupationToSkillRelationImportRow {
+export interface IOccupationToSkillRelationExportRow {
+  OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  OCCUPATIONID: string;
+  RELATIONTYPE: CSVRelationType;
+  SKILLID: string;
   CREATEDAT: string;
   UPDATEDAT: string;
 }
@@ -277,13 +273,17 @@ export const occupationHierarchyExportHeaders = [
  */
 
 export interface IOccupationHierarchyImportRow {
-  PARENTOBJECTTYPE: ObjectTypes.Occupation | ObjectTypes.ISCOGroup;
+  PARENTOBJECTTYPE: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   PARENTID: string;
   CHILDID: string;
-  CHILDOBJECTTYPE: ObjectTypes.Occupation | ObjectTypes.ISCOGroup;
+  CHILDOBJECTTYPE: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
 }
 
-export interface IOccupationHierarchyExportRow extends IOccupationHierarchyImportRow {
+export interface IOccupationHierarchyExportRow {
+  PARENTOBJECTTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  PARENTID: string;
+  CHILDID: string;
+  CHILDOBJECTTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
   CREATEDAT: string;
   UPDATEDAT: string;
 }
@@ -311,7 +311,11 @@ export interface ISkillHierarchyImportRow {
   CHILDOBJECTTYPE: ObjectTypes.Skill | ObjectTypes.SkillGroup;
 }
 
-export interface ISkillHierarchyExportRow extends ISkillHierarchyImportRow {
+export interface ISkillHierarchyExportRow {
+  PARENTOBJECTTYPE: CSVObjectTypes.Skill | CSVObjectTypes.SkillGroup;
+  PARENTID: string;
+  CHILDID: string;
+  CHILDOBJECTTYPE: CSVObjectTypes.Skill | CSVObjectTypes.SkillGroup;
   CREATEDAT: string;
   UPDATEDAT: string;
 }

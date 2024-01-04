@@ -18,15 +18,16 @@ import { INewSkillSpec } from "esco/skill/skills.types";
 import {
   getNewISCOGroupSpec,
   getSimpleNewISCOGroupSpec,
-  getSimpleNewOccupationSpec,
+  getSimpleNewESCOOccupationSpec,
   getSimpleNewSkillSpec,
+  getSimpleNewLocalOccupationSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
   TestStreamDBConnectionFailureNoSetup,
 } from "_test_utilities/testDBConnectionFaillure";
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
-import { IOccupationReference } from "esco/occupation/occupation.types";
+import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
 import { Readable } from "node:stream";
 import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
@@ -423,7 +424,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       expect(actualFoundISCOGroup).toBeNull();
     });
 
-    test("should return the ISCOGroup with its parent(ISCOGroup) and children(ISCOGroup, Occupation)", async () => {
+    test("should return the ISCOGroup with its parent(ISCOGroup) and children(ISCOGroup, ESCOOccupation, LocalOccupation)", async () => {
       // GIVEN three ISCOGroups and one Occupation exists in the database in the same model
       const givenModelId = getMockStringId(1);
       // THE subject (ISCOGroup)
@@ -438,9 +439,13 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       const givenChildSpecs_1 = getSimpleNewISCOGroupSpec(givenModelId, "child_1");
       const givenChild_1 = await repository.create(givenChildSpecs_1);
 
-      // The child Occupation
-      const givenChildSpecs_2 = getSimpleNewOccupationSpec(givenModelId, "child_2");
+      // The child ESCO Occupation
+      const givenChildSpecs_2 = getSimpleNewESCOOccupationSpec(givenModelId, "child_2");
       const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+
+      // The child Local Occupation
+      const givenChildSpecs_3 = getSimpleNewLocalOccupationSpec(givenModelId, "child_2");
+      const givenChild_3 = await repositoryRegistry.occupation.create(givenChildSpecs_3);
 
       // AND the subject ISCOGroup has a parent and two children
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -462,12 +467,19 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           // child 2 of the subject
           parentType: ObjectTypes.ISCOGroup,
           parentId: givenSubject.id,
-          childType: ObjectTypes.Occupation,
+          childType: ObjectTypes.ESCOOccupation,
           childId: givenChild_2.id,
+        },
+        {
+          // child 3 of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.LocalOccupation,
+          childId: givenChild_3.id,
         },
       ]);
       // Guard assertion
-      expect(actualHierarchy).toHaveLength(3);
+      expect(actualHierarchy).toHaveLength(4);
 
       // WHEN searching for the subject by its id
 
@@ -501,7 +513,8 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
               childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
             },
             usedIndex: INDEX_FOR_PARENT,
-          }), // populating the child hierarchy
+          }),
+          // populating the child hierarchy
           getExpectedPlan({
             collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
             filter: {
@@ -549,13 +562,13 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup?.parent).toEqual(null);
+        expect(actualFoundGroup!.parent).toEqual(null);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not an ISCOGroup: ${givenInconsistentPair.parentDocModel}`);
       });
 
-      test("should ignore children that are not ISCO Groups | Occupations", async () => {
+      test("should ignore children that are not ISCO Groups | ESCO Occupations | Local Occupations", async () => {
         // GIVEN an inconsistency was introduced, and non-ISCOGroup document is a child of an ISCOGroup
         const givenModelId = getMockStringId(1);
         // The ISCOGroup
@@ -585,11 +598,11 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup?.children).toEqual([]);
+        expect(actualFoundGroup!.children).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Child is not an ISCOGroup or Occupation: ${givenInconsistentPair.childDocModel}`
+          `Child is not an ISCOGroup or ESCO Occupation or Local Occupation: ${givenInconsistentPair.childDocModel}`
         );
       });
 
@@ -627,16 +640,16 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent children
         expect(actualFoundGroup_1).not.toBeNull();
-        expect(actualFoundGroup_1?.children).toEqual([]);
-        expect(actualFoundGroup_1?.parent).toEqual(null);
+        expect(actualFoundGroup_1!.children).toEqual([]);
+        expect(actualFoundGroup_1!.parent).toEqual(null);
 
         // WHEN searching for the ISCO Group_1 by its id
         const actualFoundGroup_2 = await repository.findById(givenISCOGroup_2.id);
 
         // THEN expect the ISCOGroup to not contain the inconsistent children
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2?.children).toEqual([]);
-        expect(actualFoundGroup_2?.parent).toEqual(null);
+        expect(actualFoundGroup_2!.children).toEqual([]);
+        expect(actualFoundGroup_2!.parent).toEqual(null);
       });
 
       test("should not find parent if it is not is the same model as the child", async () => {
@@ -672,7 +685,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent children
         expect(actualFoundGroup_1).not.toBeNull();
-        expect(actualFoundGroup_1?.children).toEqual([]); // <-- The inconsistent child is removed
+        expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
@@ -712,17 +725,18 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2?.parent).toEqual(null); // <-- The inconsistent parent is removed
+        expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
-        // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
+        // The state of the database that could lead to an inconsistency,
+        // if the populate function is not doing a match based on id and parentType
         // modelId, parentId, parentType, childId, childType,
-        // 1,        2,        ISCOGroup,  3,        Occupation
-        // 1,        2,        Occupation,  4,       Occupation
+        // 1,        2,        ISCOGroup,  3,        ESCO Occupation
+        // 1,        2,        ESCO Occupation,  4,       ESCO Occupation
 
         // GIVEN a modelId
         const givenModelId = getMockStringId(1);
@@ -736,7 +750,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
         // AND an Occupation givenOccupation_1 with a given ID in the given model
-        const givenOccupation1Specs = getSimpleNewOccupationSpec(givenModelId, "Occupation_1");
+        const givenOccupation1Specs = getSimpleNewESCOOccupationSpec(givenModelId, "Occupation_1");
         // @ts-ignore
         givenOccupation1Specs.id = givenID.toHexString();
         const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
@@ -744,11 +758,11 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect(givenOccupation_1.id).toEqual(givenID.toHexString());
 
         // AND a second occupation_2 with some ID  in the given model
-        const givenOccupationSpecs_2 = getSimpleNewOccupationSpec(givenModelId, "occupation_2");
+        const givenOccupationSpecs_2 = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2");
         const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
 
         // AND a third occupation_3 with some ID in the given model
-        const givenOccupationSpecs_3 = getSimpleNewOccupationSpec(givenModelId, "occupation_3");
+        const givenOccupationSpecs_3 = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_3");
         const givenOccupation_3 = await repositoryRegistry.occupation.create(givenOccupationSpecs_3);
 
         // AND the occupation occupation_1  is the parent of occupation_2
@@ -757,13 +771,13 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           {
             parentType: ObjectTypes.ISCOGroup,
             parentId: givenSubject.id,
-            childType: ObjectTypes.Occupation,
+            childType: ObjectTypes.ESCOOccupation,
             childId: givenOccupation_3.id,
           },
           {
-            parentType: ObjectTypes.Occupation,
+            parentType: ObjectTypes.ESCOOccupation,
             parentId: givenOccupation_1.id,
-            childType: ObjectTypes.Occupation,
+            childType: ObjectTypes.ESCOOccupation,
             childId: givenOccupation_2.id,
           },
         ]);
@@ -775,13 +789,13 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only occupation 2 as a child
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject?.children).toEqual([expectedOccupationReference(givenOccupation_3)]);
+        expect(actualFoundSubject!.children).toEqual([expectedOccupationReference(givenOccupation_3)]);
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating parent", async () => {
         // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
         // modelId, parentId, parentType, childId, childType,
-        // 1,        2,        ISCOGroup,  4,        Occupation
+        // 1,        2,        ISCOGroup,  4,        ESCO Occupation
         // 1,        3,        ISCOGroup,  4,       ISCOGroup
 
         // GIVEN a modelId
@@ -796,7 +810,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
         // AND an Occupation givenOccupation_1 with a given ID in the given model
-        const givenOccupation1Specs = getSimpleNewOccupationSpec(givenModelId, "Occupation_1");
+        const givenOccupation1Specs = getSimpleNewESCOOccupationSpec(givenModelId, "Occupation_1");
         // @ts-ignore
         givenOccupation1Specs.id = givenID.toHexString();
         const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
@@ -817,7 +831,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           {
             parentType: ObjectTypes.ISCOGroup,
             parentId: givenISCOGroup_1.id,
-            childType: ObjectTypes.Occupation,
+            childType: ObjectTypes.ESCOOccupation,
             childId: givenOccupation_1.id,
           },
           {
@@ -835,7 +849,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only occupation 2 as a parent
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject?.parent).toEqual(expectedISCOGroupReference(givenISCOGroup_2));
+        expect(actualFoundSubject!.parent).toEqual(expectedISCOGroupReference(givenISCOGroup_2));
       });
     });
 

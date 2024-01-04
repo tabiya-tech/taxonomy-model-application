@@ -1,11 +1,10 @@
 OCCUPATIONTYPE,OCCUPATIONID,RELATIONTYPE,SKILLID
-esco,key_1,optional,key_2
-esco,key_3,essential,key_4
-esco,,optional,key_5
-esco,key_6,optional,
-local,key_7,essential,key_8
+ESCOOCCUPATION,key_1,optional,key_2
+ESCOOCCUPATION,key_3,essential,key_4
+ESCOOCCUPATION,,optional,key_5
+ESCOOCCUPATION,key_6,optional,
+LOCALOCCUPATION,key_7,essential,key_8
 invalid should be ignored,key_9,essential,key_10
 ,key_11,essential,key_12
-esco,key_13,invalid relation type should be ignored,key_14
-esco,key_15,,key_16
-localized,key_16,essential,key_17
+ESCOOCCUPATION,key_13,invalid relation type should be ignored,key_14
+ESCOOCCUPATION,key_15,,key_16

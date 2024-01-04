@@ -6,9 +6,16 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 import occupationHierarchyToCSVTransform, * as occupationHierarchyToCSVTransformModule from "./occupationHierarchyToCSVTransform";
-import { IUnpopulatedOccupationHierarchy } from "./occupationHierarchyToCSVTransform";
+import {
+  IUnpopulatedOccupationHierarchy,
+  transformOccupationHierarchySpecToCSVRow,
+} from "./occupationHierarchyToCSVTransform";
 import { IOccupationHierarchyRepository } from "esco/occupationHierarchy/occupationHierarchyRepository";
 import { parse } from "csv-parse/sync";
+import {
+  OccupationHierarchyChildType,
+  OccupationHierarchyParentType,
+} from "esco/occupationHierarchy/occupationHierarchy.types";
 
 const OccupationHierarchyRepositorySpy = jest.spyOn(getRepositoryRegistry(), "occupationHierarchy", "get");
 
@@ -18,8 +25,8 @@ const getMockOccupationHierarchies = (): IUnpopulatedOccupationHierarchy[] => {
     modelId: getMockStringId(1),
     parentId: getMockStringId(i * 3 + 1),
     childId: getMockStringId(i * 3 + 2),
-    parentType: i % 2 ? ObjectTypes.Occupation : ObjectTypes.ISCOGroup,
-    childType: i % 2 ? ObjectTypes.ISCOGroup : ObjectTypes.Occupation,
+    parentType: i % 2 ? ObjectTypes.ESCOOccupation : ObjectTypes.ISCOGroup,
+    childType: i % 2 ? ObjectTypes.LocalOccupation : ObjectTypes.ESCOOccupation,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
@@ -39,6 +46,38 @@ function setupOccupationHierarchyRepositoryMock(findAllImpl: () => Readable) {
 describe("occupationHierarchyToCSVTransform", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+  describe("test transformOccupationHierarchySpecToCSVRow()", () => {
+    test("should transform a OccupationHierarchy to a CSV row", () => {
+      // GIVEN a valid OccupationHierarchy
+      const givenOccupationHierarchy = getMockOccupationHierarchies()[0];
+      // WHEN the Occupation is transformed
+      const actualRow = transformOccupationHierarchySpecToCSVRow(givenOccupationHierarchy);
+      // THEN the CSV row should be correct
+      expect(actualRow).toMatchSnapshot();
+    });
+
+    test("should throw an error when the parentType is unknown", async () => {
+      // GIVEN an otherwise valid OccupationHierarchy
+      const givenOccupationHierarchy = getMockOccupationHierarchies()[0];
+      // WITH an unknown parentType
+      givenOccupationHierarchy.parentType = "foo" as OccupationHierarchyParentType;
+      // WHEN the Occupation is transformed
+      const transformCall = () => transformOccupationHierarchySpecToCSVRow(givenOccupationHierarchy);
+      // THEN the transformation should throw an error
+      expect(transformCall).toThrowError("Failed to transform OccupationHierarchy to CSV row: Invalid parentType: foo");
+    });
+
+    test("should throw an error when the childType is unknown", async () => {
+      // GIVEN an otherwise valid OccupationHierarchy
+      const givenOccupationHierarchy = getMockOccupationHierarchies()[0];
+      // WITH an unknown childType
+      givenOccupationHierarchy.childType = "foo" as OccupationHierarchyChildType;
+      // WHEN the Occupation is transformed
+      const transformCall = () => transformOccupationHierarchySpecToCSVRow(givenOccupationHierarchy);
+      // THEN the transformation should throw an error
+      expect(transformCall).toThrowError("Failed to transform OccupationHierarchy to CSV row: Invalid childType: foo");
+    });
   });
 
   test("should correctly transform occupationHierarchy data to CSV", async () => {

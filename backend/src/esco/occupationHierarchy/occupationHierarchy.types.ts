@@ -1,18 +1,24 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IOccupationReferenceDoc } from "esco/occupation/occupation.types";
+import { IOccupationReferenceDoc } from "esco/occupations/common/occupationReference.types";
 import { IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
 
 /**
  * Describes what the ObjectType of the parent of an occupation hierarchy is.
  */
-export type OccupationHierarchyParentType = ObjectTypes.ISCOGroup | ObjectTypes.Occupation;
+export type OccupationHierarchyParentType =
+  | ObjectTypes.ISCOGroup
+  | ObjectTypes.ESCOOccupation
+  | ObjectTypes.LocalOccupation;
 
 /**
  * Describes what the ObjectType of the child of an occupation hierarchy is.
  */
-export type OccupationHierarchyChildType = ObjectTypes.ISCOGroup | ObjectTypes.Occupation;
+export type OccupationHierarchyChildType =
+  | ObjectTypes.ISCOGroup
+  | ObjectTypes.ESCOOccupation
+  | ObjectTypes.LocalOccupation;
 
 /**
  * Describes the type of an occupation hierarchy pair.

@@ -9,12 +9,12 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { OccupationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
+  getSimpleNewESCOOccupationSpec,
   getSimpleNewISCOGroupSpec,
-  getSimpleNewLocalizedOccupationSpec,
-  getSimpleNewOccupationSpec,
+  getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -73,13 +73,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
   async function createOccupationToSkillRelationsInDB(modelId: string, batchSize: number = 3) {
     const newOccupationToSkillPairSpecs: INewOccupationToSkillPairSpec[] = [];
     for (let i = 0; i < batchSize; i++) {
-      const occupation = await repositoryRegistry.occupation.create(getSimpleNewOccupationSpec(modelId, "skill_1"));
+      const occupation = await repositoryRegistry.occupation.create(getSimpleNewESCOOccupationSpec(modelId, "skill_1"));
       const skill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
       newOccupationToSkillPairSpecs.push({
         requiringOccupationId: occupation.id,
         relationType: RelationType.OPTIONAL,
         requiredSkillId: skill.id,
-        requiringOccupationType: OccupationType.ESCO,
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
       });
     }
     return await repository.createMany(modelId, newOccupationToSkillPairSpecs);
@@ -120,10 +120,10 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN 2 Occupations and 2 Skillls exist in the database in the same model
       const givenModelId = getMockStringId(1);
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenOccupation_2 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_2")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2")
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
@@ -134,13 +134,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           relationType: RelationType.ESSENTIAL,
           requiredSkillId: givenSkill_2.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
       ];
 
@@ -171,12 +171,10 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
     test("should successfully create the relation for different occupation types", async () => {
       // GIVEN Occupations that are of different types exist in the same model
       const givenModelId = getMockStringId(2);
-      const escoOccupationSpecs = getSimpleNewOccupationSpec(givenModelId, "ESCO Occupation");
+      const escoOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "ESCO Occupation");
       const escoOccupation = await repositoryRegistry.occupation.create(escoOccupationSpecs);
-      const localOccupationSpecs = getSimpleNewOccupationSpec(givenModelId, "Local Occupation", true);
+      const localOccupationSpecs = getSimpleNewLocalOccupationSpec(givenModelId, "Local Occupation");
       const localOccupation = await repositoryRegistry.occupation.create(localOccupationSpecs);
-      const localizedOccupationSpecs = getSimpleNewLocalizedOccupationSpec(givenModelId, escoOccupation.id);
-      const localizedOccupation = await repositoryRegistry.localizedOccupation.create(localizedOccupationSpecs);
 
       // AND a skill in the same model which is a child of each of the occupations
       const childSkillSpecs = getSimpleNewSkillSpec(givenModelId, "childSkill");
@@ -188,19 +186,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: escoOccupation.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: childSkill.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: escoOccupation.occupationType,
         },
         {
           requiringOccupationId: localOccupation.id,
           relationType: RelationType.ESSENTIAL,
           requiredSkillId: childSkill.id,
-          requiringOccupationType: OccupationType.LOCAL,
-        },
-        {
-          requiringOccupationId: localizedOccupation.id,
-          relationType: RelationType.ESSENTIAL,
-          requiredSkillId: childSkill.id,
-          requiringOccupationType: OccupationType.LOCALIZED,
+          requiringOccupationType: localOccupation.occupationType,
         },
       ];
 
@@ -215,10 +207,10 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN 2 Occupations and 2 Skillls exist in the database in the same model
       const givenModelId = getMockStringId(1);
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenOccupation_2 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_2")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2")
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
@@ -229,13 +221,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           relationType: RelationType.ESSENTIAL,
           requiredSkillId: givenSkill_2.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_2.occupationType,
         },
         {
           //@ts-ignore
@@ -243,13 +235,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           //<----- missing field
           relationType: RelationType.ESSENTIAL,
           requiredSkillId: givenSkill_2.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
         } as INewOccupationToSkillPairSpec,
       ];
 
@@ -283,7 +275,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId = getMockStringId(1);
       // AND an occupation and a skill exist in the db
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
 
@@ -294,13 +286,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           requiringOccupationId: givenOccupation_1.id, //<----- duplicate entry
           relationType: RelationType.ESSENTIAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_1.occupationType,
         },
       ];
 
@@ -340,7 +332,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId = getMockStringId(1);
       // AND an occupation and a skill exist in the db
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
 
@@ -349,13 +341,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: getMockStringId(998), //Non existent requiringOccupationId
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
         {
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.ESSENTIAL,
           requiredSkillId: getMockStringId(999), //Non existent requiredSkillId
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_1.occupationType,
         },
       ];
 
@@ -372,7 +364,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId_2 = getMockStringId(2);
       // AND an occupation and a skill that are in different models
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId_1, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId_1, "occupation_1")
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId_2, "skill_1"));
 
@@ -381,7 +373,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_1.occupationType,
         },
       ];
 
@@ -405,7 +397,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: givenInvalidObject_1.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
       ];
 
@@ -420,7 +412,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenInvalidObject_1 = await repositoryRegistry.ISCOGroup.create(
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
@@ -431,7 +423,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
           requiredSkillId: givenInvalidObject_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation_1.occupationType,
         },
       ];
 
@@ -448,13 +440,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
 
     TestDBConnectionFailure<SetupResult, unknown>(
       async (repositoryRegistry) => {
-        // GIVEN 4 Skills exist in the database in the same model
+        // GIVEN 2 ESCO occupations and 2 Skills exist in the database in the same model
         const givenModelId = getMockStringId(1);
         const givenOccupation_1 = await repositoryRegistry.occupation.create(
-          getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+          getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
         );
         const givenOccupation_2 = await repositoryRegistry.occupation.create(
-          getSimpleNewOccupationSpec(givenModelId, "occuoation_2")
+          getSimpleNewESCOOccupationSpec(givenModelId, "occuoation_2")
         );
         const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
         const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
@@ -465,13 +457,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
             requiringOccupationId: givenOccupation_1.id,
             relationType: RelationType.OPTIONAL,
             requiredSkillId: givenSkill_1.id,
-            requiringOccupationType: OccupationType.ESCO,
+            requiringOccupationType: givenOccupation_1.occupationType,
           },
           {
             requiringOccupationId: givenOccupation_2.id,
             relationType: RelationType.ESSENTIAL,
             requiredSkillId: givenSkill_2.id,
-            requiringOccupationType: OccupationType.ESCO,
+            requiringOccupationType: givenOccupation_2.occupationType,
           },
         ];
         return { givenModelId, givenNewRelationSpecs };

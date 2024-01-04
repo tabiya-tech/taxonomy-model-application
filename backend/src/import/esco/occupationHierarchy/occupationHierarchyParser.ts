@@ -2,23 +2,19 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
 import { BatchProcessor } from "import/batch/BatchProcessor";
-import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
+import { BatchRowProcessor } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import {
   INewOccupationHierarchyPairSpec,
   IOccupationHierarchyPair,
 } from "esco/occupationHierarchy/occupationHierarchy.types";
-import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
 import { IOccupationHierarchyImportRow, occupationHierarchyImportHeaders } from "esco/common/entityToCSV.types";
-
-const enum CSV_OBJECT_TYPES {
-  ISCOGroup = "ISCOGROUP",
-  Occupation = "ESCOOCCUPATION",
-}
+import { getObjectTypeFromCSVObjectType } from "esco/common/csvObjectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, occupationHierarchyImportHeaders);
@@ -37,27 +33,32 @@ function getBatchProcessor(modelId: string) {
 function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
-): TransformRowToSpecificationFunction<IOccupationHierarchyImportRow, INewOccupationHierarchyPairSpec> {
-  const csv2EscoObjectType = (type: string): ObjectTypes.ISCOGroup | ObjectTypes.Occupation | null => {
-    switch (type.toUpperCase()) {
-      case CSV_OBJECT_TYPES.ISCOGroup:
-        return ObjectTypes.ISCOGroup;
-      case CSV_OBJECT_TYPES.Occupation:
-        return ObjectTypes.Occupation;
-      default:
-        return null;
-    }
-  };
-
+): (row: IOccupationHierarchyImportRow) => null | {
+  childType: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  childId: string;
+  parentType: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  parentId: string;
+} {
   return (row: IOccupationHierarchyImportRow) => {
-    const parentType = csv2EscoObjectType(row.PARENTOBJECTTYPE);
-    const childType = csv2EscoObjectType(row.CHILDOBJECTTYPE);
-    if (!parentType || !childType) {
+    const parentType = getObjectTypeFromCSVObjectType(row.PARENTOBJECTTYPE);
+    const childType = getObjectTypeFromCSVObjectType(row.CHILDOBJECTTYPE);
+
+    if (
+      !parentType ||
+      (parentType !== ObjectTypes.ISCOGroup &&
+        parentType !== ObjectTypes.ESCOOccupation &&
+        parentType !== ObjectTypes.LocalOccupation) ||
+      !childType ||
+      (childType !== ObjectTypes.ISCOGroup &&
+        childType !== ObjectTypes.ESCOOccupation &&
+        childType !== ObjectTypes.LocalOccupation)
+    ) {
       errorLogger.logWarning(
         `Failed to import OccupationHierarchy row with parentType:'${row.PARENTOBJECTTYPE}' and childType:'${row.CHILDOBJECTTYPE}'`
       );
       return null;
     }
+
     const parentId = importIdToDBIdMap.get(row.PARENTID);
     const childId = importIdToDBIdMap.get(row.CHILDID);
     if (!parentId || !childId) {

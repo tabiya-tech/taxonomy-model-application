@@ -10,7 +10,7 @@
     "prebuild": "npm run clean && npm run compile",
     "build": "esbuild ./src/index.ts ./src/import/async/index.ts ./src/export/async/index.ts --bundle --tsconfig=tsconfig.prod.json --sourcemap --minify --platform=node --target=node16 --outdir=build --main-fields=module,main",
     "postbuild": "cp ./package.json ./build/ && (cd ./build; npm pkg delete devDependencies; npm pkg delete dependencies; npm pkg delete scripts) && cp ./build/package.json ./build/import/async && mkdir build/rest && mv build/index.js build/index.js.map build/package.json ./build/rest/",
-    "test": "jest --coverage ",
+    "test": "jest --coverage",
     "test:integration": "jest --config jest.integration.config.js --runInBand",
     "test:smoke": "jest --config jest.smoke.config.js --runInBand test/smoke/*.test.ts",
     "postinstall:win32": "cd .. & link-api-specifications.bat & link-tabiya-prettier-config.bat",

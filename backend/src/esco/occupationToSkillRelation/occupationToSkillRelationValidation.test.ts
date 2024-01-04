@@ -1,4 +1,4 @@
-import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import * as relationValidationModule from "esco/common/relationValidation";
 import { INewOccupationToSkillPairSpec } from "./occupationToSkillRelation.types";
 import { isNewOccupationToSkillRelationPairSpecValid } from "./occupationToSkillRelationValidation";
@@ -11,7 +11,7 @@ describe("OccupationToSkillsRelationValidation", () => {
       requiringOccupationId: "foo",
       requiredSkillId: "bar",
       relationType: RelationType.ESSENTIAL,
-      requiringOccupationType: OccupationType.ESCO,
+      requiringOccupationType: ObjectTypes.ESCOOccupation,
     };
     // AND some existingIds
     const givenExistingIds: Map<string, [ObjectTypes]> = new Map<string, [ObjectTypes]>();
@@ -25,12 +25,15 @@ describe("OccupationToSkillsRelationValidation", () => {
     expect(relationValidationModule.isRelationPairValid).toHaveBeenCalledWith(
       {
         firstPartnerId: givenPair.requiringOccupationId,
-        firstPartnerType: ObjectTypes.Occupation,
+        firstPartnerType: givenPair.requiringOccupationType,
         secondPartnerId: givenPair.requiredSkillId,
         secondPartnerType: ObjectTypes.Skill,
       },
       givenExistingIds,
-      [{ firstPartnerType: ObjectTypes.Occupation, secondPartnerType: ObjectTypes.Skill }]
+      [
+        { firstPartnerType: ObjectTypes.ESCOOccupation, secondPartnerType: ObjectTypes.Skill },
+        { firstPartnerType: ObjectTypes.LocalOccupation, secondPartnerType: ObjectTypes.Skill },
+      ]
     );
     // AND it should return the result of isRelationPairValid
     expect(actualResult).toBe(givenResult);

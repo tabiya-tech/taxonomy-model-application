@@ -84,23 +84,6 @@ jest.mock("import/esco/occupations/occupationsParser.ts", () => {
   };
 });
 
-// Mock the LocalizedOccupationsParser
-jest.mock("import/esco/localizedOccupations/localizedOccupationsParser.ts", () => {
-  return {
-    parseLocalizedOccupationsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, never>()
-      .mockImplementation(
-        (_modelId: string, _url: string, _importIdToDBIdMap: Map<string, string>, _isLocalImport: boolean) => {
-          return Promise.resolve({
-            rowsProcessed: 100,
-            rowsSuccess: 100,
-            rowsFailed: 0,
-          } as RowsProcessedStats);
-        }
-      ),
-  };
-});
-
 // Mock the OccupationHierarchyParser
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
   return {
@@ -162,7 +145,6 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
-import { parseLocalizedOccupationsFromUrl } from "import/esco/localizedOccupations/localizedOccupationsParser";
 
 // ##############
 
@@ -214,7 +196,6 @@ describe("Test the main async handler", () => {
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION]: "path/to/LOCAL_OCCUPATION.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.LOCALIZED_OCCUPATION]: "path/to/LOCALIZED_OCCUPATION.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]: "path/to/ESCO_SKILL_SKILL_RELATIONS.csv",
@@ -276,13 +257,6 @@ describe("Test the main async handler", () => {
             expectedPresignedUrl,
             expect.any(Map),
             true
-          );
-          break;
-        case ImportAPISpecs.Constants.ImportFileTypes.LOCALIZED_OCCUPATION:
-          expect(parseLocalizedOccupationsFromUrl).toHaveBeenCalledWith(
-            givenEvent.modelId,
-            expectedPresignedUrl,
-            expect.any(Map)
           );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
@@ -429,7 +403,6 @@ describe("Test the main async handler", () => {
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION]: "path/to/LOCAL_OCCUPATION.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.LOCALIZED_OCCUPATION]: "path/to/LOCALIZED_OCCUPATION.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]:

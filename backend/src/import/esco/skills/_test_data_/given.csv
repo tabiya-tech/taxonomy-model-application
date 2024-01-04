@@ -23,3 +23,7 @@ linebreak"
 label2","description",definition,skill/competence,sector-specific,scopeNote
 "origin uri","key_5","","preferred label","label1
 label2","description",definition,skill/competence,sector-specific,scopeNote
+"origin uri",key_6,"","preferred label","label1
+label2","description",definition,INVALID,sector-specific,scopeNote
+origin uri,key_7,,"preferred label","label1
+label2","description",definition,skill/competence,INVALID,scopeNote

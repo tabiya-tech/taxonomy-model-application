@@ -4,17 +4,32 @@ import { IOccupationHierarchyExportRow, occupationHierarchyExportHeaders } from 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { IOccupationHierarchyPair } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { Readable } from "node:stream";
+import { getCSVTypeFromObjectObjectType } from "../../../esco/common/csvObjectTypes";
 
 export type IUnpopulatedOccupationHierarchy = Omit<IOccupationHierarchyPair, "parentDocModel" | "childDocModel">;
 
 export const transformOccupationHierarchySpecToCSVRow = (
   occupationHierarchy: IUnpopulatedOccupationHierarchy
 ): IOccupationHierarchyExportRow => {
+  const PARENTOBJECTTYPE = getCSVTypeFromObjectObjectType(occupationHierarchy.parentType);
+  if (!PARENTOBJECTTYPE) {
+    throw new Error(
+      `Failed to transform OccupationHierarchy to CSV row: Invalid parentType: ${occupationHierarchy.parentType}`
+    );
+  }
+  const CHILDOBJECTTYPE = getCSVTypeFromObjectObjectType(occupationHierarchy.childType);
+  if (!CHILDOBJECTTYPE) {
+    throw new Error(
+      `Failed to transform OccupationHierarchy to CSV row: Invalid childType: ${occupationHierarchy.childType}`
+    );
+  }
   return {
-    PARENTOBJECTTYPE: occupationHierarchy.parentType,
+    //@ts-ignore
+    PARENTOBJECTTYPE,
     PARENTID: occupationHierarchy.parentId,
     CHILDID: occupationHierarchy.childId,
-    CHILDOBJECTTYPE: occupationHierarchy.childType,
+    //@ts-ignore
+    CHILDOBJECTTYPE,
     CREATEDAT: occupationHierarchy.createdAt.toISOString(),
     UPDATEDAT: occupationHierarchy.updatedAt.toISOString(),
   };

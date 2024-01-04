@@ -5,7 +5,9 @@ import { ProcessBatchFunction } from "import/batch/BatchProcessor";
 import { ImportIdentifiable } from "esco/common/objectTypes";
 
 export function getProcessEntityBatchFunction<
-  EntityType extends ImportIdentifiable & { id: string },
+  EntityType extends ImportIdentifiable & {
+    id: string;
+  },
   SpecificationType extends ImportIdentifiable,
 >(
   entityName: string,

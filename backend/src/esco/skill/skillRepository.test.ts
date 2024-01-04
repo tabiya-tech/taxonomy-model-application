@@ -12,8 +12,8 @@ import { ISkillRepository } from "./skillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, OccupationType, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
-import { INewOccupationSpec } from "esco/occupation/occupation.types";
+import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
+import { INewOccupationSpec } from "esco/occupations/occupation/occupation.types";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ISkillToSkillRelationPairDoc } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import {
@@ -21,10 +21,11 @@ import {
   TestStreamDBConnectionFailureNoSetup,
 } from "_test_utilities/testDBConnectionFaillure";
 import {
+  getNewESCOOccupationSpec,
   getNewISCOGroupSpec,
-  getNewOccupationSpec,
   getNewSkillSpec,
-  getSimpleNewOccupationSpec,
+  getSimpleNewESCOOccupationSpec,
+  getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
@@ -492,7 +493,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill = await repository.create(givenSkillSpecs);
 
         // The non-Skill in this case an Occupation
-        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+        const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
+          givenSkillSpecs.modelId,
+          "occupation"
+        );
         const givenOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
 
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
@@ -527,7 +531,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkillSpecs = getNewSkillSpec();
         const givenSkill = await repository.create(givenSkillSpecs);
         //  The non-Skill in this case an Occupation
-        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+        const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
+          givenSkillSpecs.modelId,
+          "occupation"
+        );
         const givenOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
@@ -907,7 +914,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill = await repository.create(givenSkillSpecs);
 
         // The non-Skill in this case an Occupation
-        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+        const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
+          givenSkillSpecs.modelId,
+          "occupation"
+        );
         const givenOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
@@ -942,7 +952,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill = await repository.create(givenSkillSpecs);
 
         // The non-Skill in this case an Occupation
-        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupationSpec();
+        const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
+          givenSkillSpecs.modelId,
+          "occupation"
+        );
         const givenOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
@@ -1098,31 +1111,34 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenOtherSkillSpecs = getSimpleNewSkillSpec(givenModelId, "other skill");
       const givenOtherSkill = await repository.create(givenOtherSkillSpecs);
 
-      // The first requiring occupation
-      const givenOccupationSpecs_1: INewOccupationSpec = getSimpleNewOccupationSpec(givenModelId, "occupation_1");
+      // The first requiring ESCO occupation
+      const givenOccupationSpecs_1: INewOccupationSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1");
       const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupationSpecs_1);
 
-      // The second requiring occupation
-      const givenOccupationSpecs_2: INewOccupationSpec = getSimpleNewOccupationSpec(givenModelId, "occupation_2", true);
+      // The second requiring LOCAL occupation
+      const givenOccupationSpecs_2: INewOccupationSpec = getSimpleNewLocalOccupationSpec(
+        givenModelId,
+        "local_occupation_2"
+      );
       const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
 
       // AND the subject Skill is required by two occupation, and the other skill is required by one occupation
       const actualRequiredByOccupation = await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
         {
           requiringOccupationId: givenOccupation_1.id,
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupationSpecs_1.occupationType,
           requiredSkillId: givenSubject.id,
           relationType: RelationType.ESSENTIAL,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
-          requiringOccupationType: OccupationType.LOCAL,
+          requiringOccupationType: givenOccupation_2.occupationType,
           requiredSkillId: givenSubject.id,
           relationType: RelationType.ESSENTIAL,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
-          requiringOccupationType: OccupationType.LOCAL,
+          requiringOccupationType: givenOccupation_2.occupationType,
           requiredSkillId: givenOtherSkill.id,
           relationType: RelationType.ESSENTIAL,
         },
@@ -1183,7 +1199,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
           //@ts-ignore
           requiringOccupationDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
 
@@ -1210,7 +1226,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the requiringOccupation and requiredSkills are in a different model than the relation
         const givenSkillSpecs = getNewSkillSpec();
         const givenSkill = await repository.create(givenSkillSpecs);
-        const givenOccupationSpecs = getNewOccupationSpec();
+        const givenOccupationSpecs = getNewESCOOccupationSpec();
         const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpecs);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
@@ -1221,7 +1237,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupation.occupationType,
           requiringOccupationDocModel: MongooseModelName.Occupation,
 
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
@@ -1242,7 +1258,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         const givenSkillSpecs = getNewSkillSpec();
         const givenSkill = await repository.create(givenSkillSpecs);
-        const givenOccupationSpecs = getNewOccupationSpec();
+        const givenOccupationSpecs = getNewESCOOccupationSpec();
         givenOccupationSpecs.modelId = getMockStringId(99); // <-- this is the inconsistency
         const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpecs);
 
@@ -1253,7 +1269,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
           relationType: RelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
-          requiringOccupationType: OccupationType.ESCO,
+          requiringOccupationType: givenOccupationSpecs.occupationType,
           requiringOccupationDocModel: MongooseModelName.Occupation,
 
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),

@@ -17,7 +17,7 @@ import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "./skillHierarch
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import {
   getSimpleNewISCOGroupSpec,
-  getSimpleNewOccupationSpec,
+  getSimpleNewESCOOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
@@ -642,7 +642,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         getSimpleNewISCOGroupSpec(givenModelId, "ISCOGroup_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
         {
@@ -680,7 +680,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         getSimpleNewISCOGroupSpec(givenModelId, "ISCOGroup_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewOccupationSpec(givenModelId, "occupation_1")
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
         {

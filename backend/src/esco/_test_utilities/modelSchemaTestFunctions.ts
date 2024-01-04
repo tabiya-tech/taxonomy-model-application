@@ -44,11 +44,9 @@ export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   });
 }
 
-export function testDocModel<T>(
-  getModel: () => mongoose.Model<T>,
-  fieldName: string,
+export function getStdDocModelFailureTestCases(
   acceptedModels: MongooseModelName[]
-) {
+): [CaseType, string, string | null | undefined, string][] {
   const expectedFailingModelsCases = Object.values(MongooseModelName)
     .filter((value) => !acceptedModels.includes(value))
     .map((value) => [
@@ -57,7 +55,22 @@ export function testDocModel<T>(
       value,
       `\`${value}\` is not a valid enum value for path \`{0}\`.`,
     ]) as [CaseType, string, string, string][];
+  return [
+    [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+    [CaseType.Failure, "null", null, "Path `{0}` is required."],
+    [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
+    [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
+    [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+    ...expectedFailingModelsCases,
+  ];
+}
 
+export function testDocModel<T>(
+  getModel: () => mongoose.Model<T>,
+  fieldName: string,
+  acceptedModels: MongooseModelName[]
+) {
+  const expectedFailingModelsCases = getStdDocModelFailureTestCases(acceptedModels);
   const expectedSuccessModelsCases = acceptedModels.map((value) => [
     CaseType.Success as CaseType,
     value,
@@ -66,15 +79,7 @@ export function testDocModel<T>(
   ]) as [CaseType, string, string, undefined][];
 
   describe(`Test validation of '${fieldName}'`, () => {
-    test.each([
-      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-      [CaseType.Failure, "null", null, "Path `{0}` is required."],
-      [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
-      [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
-      [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-      ...expectedFailingModelsCases,
-      ...expectedSuccessModelsCases,
-    ])(
+    test.each([...expectedFailingModelsCases, ...expectedSuccessModelsCases])(
       `(%s) Validate ''${fieldName}' when it is %s`,
       (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<T>({

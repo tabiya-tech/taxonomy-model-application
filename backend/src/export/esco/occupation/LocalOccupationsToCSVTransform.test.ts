@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import LocalOccupationsToCSVTransform from "./LocalOccupationsToCSVTransform";
 import * as BaseOccupationsToCSVTransformModule from "./BaseOccupationsToCSVTransform";
-import { OccupationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 describe("LocalOccupationsDoc2csvTransform", () => {
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe("LocalOccupationsDoc2csvTransform", () => {
     const actualStream = LocalOccupationsToCSVTransform(givenModelId);
 
     // THEN BaseOccupationsToCSVTransform should be called with the correct parameters
-    expect(BaseOccupationsToCSVTransformModule.default).toHaveBeenCalledWith(givenModelId, OccupationType.LOCAL);
+    expect(BaseOccupationsToCSVTransformModule.default).toHaveBeenCalledWith(givenModelId, ObjectTypes.LocalOccupation);
 
     // AND to return the stream that the BaseOccupationsToCSVTransform returns
     expect(actualStream).toEqual(givenStream);

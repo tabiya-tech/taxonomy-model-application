@@ -40,6 +40,27 @@ describe("skillToSkillRelationToCSVTransform", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+  describe("test transformSkillRelationSpecToCSVRow()", () => {
+    test("should transform a SkillToSkillRelation to a CSV row", () => {
+      // GIVEN a valid SkillToSkillRelation
+      const givenSkillToSkillRelation = getMockSkillToSkillRelations()[0];
+      // WHEN the SkillToSkillRelation is transformed
+      const transformedRow =
+        skillToSkillRelationToCSVTransformModule.transformSkillRelationSpecToCSVRow(givenSkillToSkillRelation);
+      // THEN expect the transformed row to match the snapshot
+      expect(transformedRow).toMatchSnapshot();
+    });
+    test("should throw an error when the relationType is unknown", () => {
+      // GIVEN an invalid SkillToSkillRelation
+      const givenSkillToSkillRelation = getMockSkillToSkillRelations()[0];
+      givenSkillToSkillRelation.relationType = "unknown" as RelationType;
+      // WHEN the SkillToSkillRelation is transformed
+      // THEN expect the transformation to throw an error
+      expect(() => {
+        skillToSkillRelationToCSVTransformModule.transformSkillRelationSpecToCSVRow(givenSkillToSkillRelation);
+      }).toThrowErrorMatchingSnapshot();
+    });
+  });
 
   test("should correctly transform skillToSkillRelation data to CSV", async () => {
     // GIVEN findAll returns a stream of skillToSkillRelations

@@ -1,36 +1,43 @@
 import { stringify } from "csv-stringify";
 import { pipeline, Transform } from "stream";
-import { IOccupation } from "esco/occupation/occupation.types";
+import { IOccupation } from "esco/occupations/occupation/occupation.types";
 import { IOccupationExportRow, occupationExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { OccupationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
+import { getCSVTypeFromObjectObjectType } from "../../../esco/common/csvObjectTypes";
+import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
 
 export type IUnpopulatedOccupation = Omit<IOccupation, "parent" | "children" | "requiresSkills">;
 
 export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IOccupationExportRow => {
+  const OCCUPATIONTYPE = getCSVTypeFromObjectObjectType(occupation.occupationType);
+  if (!OCCUPATIONTYPE) {
+    throw new Error(`Failed to transform Occupation to CSV row: Invalid occupationType: ${occupation.occupationType}`);
+  }
   return {
     ORIGINURI: occupation.originUri,
     ID: occupation.id,
-    UUIDHISTORY: occupation.UUIDHistory.join("\n"),
+    UUIDHISTORY: stringFromArray(occupation.UUIDHistory),
     ISCOGROUPCODE: occupation.ISCOGroupCode,
     CODE: occupation.code,
     PREFERREDLABEL: occupation.preferredLabel,
-    ALTLABELS: occupation.altLabels.join("\n"),
+    ALTLABELS: stringFromArray(occupation.altLabels),
     DESCRIPTION: occupation.description,
     DEFINITION: occupation.definition,
     SCOPENOTE: occupation.scopeNote,
     REGULATEDPROFESSIONNOTE: occupation.regulatedProfessionNote,
-    OCCUPATIONTYPE: occupation.occupationType,
+    // @ts-ignore
+    OCCUPATIONTYPE,
     CREATEDAT: occupation.createdAt.toISOString(),
     UPDATEDAT: occupation.updatedAt.toISOString(),
   };
 };
 
 class OccupationToCSVRowTransformer extends Transform {
-  readonly occupationType: OccupationType.ESCO | OccupationType.LOCAL;
+  readonly occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
 
-  constructor(occupationType: OccupationType.ESCO | OccupationType.LOCAL) {
+  constructor(occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation) {
     super({ objectMode: true });
     this.occupationType = occupationType;
   }
@@ -62,7 +69,7 @@ class OccupationToCSVRowTransformer extends Transform {
 
 const BaseOccupationsToCSVTransform = (
   modelId: string,
-  occupationType: OccupationType.ESCO | OccupationType.LOCAL
+  occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
 ): Readable => {
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const occupationStringifier = stringify({

@@ -68,7 +68,6 @@ describe("test parseOccupationToSkillRelation from", () => {
         relationModel: undefined as never,
         skillModel: undefined as never,
         occupationModel: undefined as never,
-        localizedOccupationModel: undefined as never,
         findAll: jest.fn(),
         createMany: jest
           .fn()

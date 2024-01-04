@@ -1,7 +1,8 @@
-import { ImportIdentifiable, ObjectTypes, OccupationType, ReferenceWithRelationType } from "esco/common/objectTypes";
+import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
+import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
 
 /**
  * Describes how an occupation is saved in MongoDB
@@ -19,7 +20,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   definition: string;
   scopeNote: string;
   regulatedProfessionNote: string;
-  occupationType: OccupationType;
+  occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
 }
 
 /**
@@ -42,21 +43,3 @@ export type INewOccupationSpec = Omit<
   IOccupation,
   "id" | "UUID" | "parent" | "children" | "requiresSkills" | "createdAt" | "updatedAt"
 >;
-
-/**
- * Describes how a reference to an occupation is returned from the API
- */
-export interface IOccupationReference
-  extends Pick<IOccupation, "id" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel" | "occupationType"> {
-  objectType: ObjectTypes.Occupation;
-}
-
-/**
- * Describes how a reference to an occupation is populated within repository functions.
- * This is not returned from the API.
- */
-export interface IOccupationReferenceDoc
-  extends Pick<IOccupationDoc, "modelId" | "UUID" | "ISCOGroupCode" | "code" | "preferredLabel" | "occupationType"> {
-  id: string;
-  objectType: ObjectTypes.Occupation;
-}

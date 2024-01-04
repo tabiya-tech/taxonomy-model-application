@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
-import { IOccupationReference } from "esco/occupation/occupation.types";
+import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
 
 /**
  * Describes how an ISCOGroup is saved in the database.

@@ -5,14 +5,15 @@ import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
-import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation/occupation.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import errorLogger from "common/errorLogger/errorLogger";
 import { RegExESCOOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
-import { OccupationType } from "esco/common/objectTypes";
-import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationImportRow, occupationImportHeaders } from "esco/common/entityToCSV.types";
+import { getOccupationTypeFromCSVObjectType } from "import/esco/common/getOccupationTypeFromCSVObjectType";
+import { arrayFromString } from "../common/parseNewLineSeparatedArray";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, occupationImportHeaders);
@@ -33,19 +34,19 @@ function getRowToSpecificationTransformFn(
   isLocalImport: boolean
 ): TransformRowToSpecificationFunction<IOccupationImportRow, INewOccupationSpec> {
   return (row: IOccupationImportRow) => {
-    const occupationType = getOccupationTypeFromRow(row);
+    const occupationType = getOccupationTypeFromCSVObjectType(row.OCCUPATIONTYPE);
 
     if (!occupationType) {
       //check that the occupationType exists
       errorLogger.logWarning(`Failed to import Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`);
       return null;
     }
-    if (isLocalImport && occupationType !== OccupationType.LOCAL) {
+    if (isLocalImport && occupationType !== ObjectTypes.LocalOccupation) {
       // if it is a local import ensure that the occupationType is LOCAL
       errorLogger.logWarning(`Failed to import Local Occupation row with id:'${row.ID}'. Not a local occupation.`);
       return null;
     }
-    if (!isLocalImport && occupationType !== OccupationType.ESCO) {
+    if (!isLocalImport && occupationType !== ObjectTypes.ESCOOccupation) {
       // if it is not a local import ensure that the occupationType is ESCO
       errorLogger.logWarning(`Failed to import ESCO Occupation row with id:'${row.ID}'. Not an ESCO occupation.`);
       return null;
@@ -68,11 +69,11 @@ function getRowToSpecificationTransformFn(
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
-      UUIDHistory: row.UUIDHISTORY ? row.UUIDHISTORY.split("\n") : [],
+      UUIDHistory: arrayFromString(row.UUIDHISTORY),
       ISCOGroupCode: row.ISCOGROUPCODE,
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
-      altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
+      altLabels: arrayFromString(row.ALTLABELS),
       description: row.DESCRIPTION,
       definition: row.DEFINITION,
       scopeNote: row.SCOPENOTE,
@@ -101,7 +102,7 @@ export async function parseOccupationsFromFile(
   modelId: string,
   filePath: string,
   importIdToDBIdMap: Map<string, string>,
-  isLocalImport: boolean = false
+  isLocalImport: boolean
 ): Promise<RowsProcessedStats> {
   const OccupationsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator("Occupation");

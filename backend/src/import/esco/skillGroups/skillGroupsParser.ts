@@ -9,6 +9,7 @@ import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import { ISkillGroupImportRow, skillGroupImportHeaders } from "esco/common/entityToCSV.types";
+import { arrayFromString } from "../common/parseNewLineSeparatedArray";
 
 // expect all columns to be in upper case
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
@@ -32,10 +33,10 @@ function getRowToSpecificationTransformFn(
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
-      UUIDHistory: row.UUIDHISTORY ? row.UUIDHISTORY.split("\n") : [],
+      UUIDHistory: arrayFromString(row.UUIDHISTORY),
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
-      altLabels: row.ALTLABELS ? row.ALTLABELS.split("\n") : [],
+      altLabels: arrayFromString(row.ALTLABELS),
       description: row.DESCRIPTION,
       scopeNote: row.SCOPENOTE,
       importId: row.ID,

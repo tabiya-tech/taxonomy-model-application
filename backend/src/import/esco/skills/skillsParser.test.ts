@@ -126,8 +126,10 @@ describe("test parseSkills from", () => {
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(1, "Failed to import Skill from row:1 with importId:");
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(2, "Failed to import Skill from row:2 with importId:");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(1, "Failed to import Skill with skillId:key_6");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(2, "Failed to import Skill with skillId:key_7");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(3, "Failed to import Skill from row:1 with importId:");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(4, "Failed to import Skill from row:2 with importId:");
     }
   );
 });

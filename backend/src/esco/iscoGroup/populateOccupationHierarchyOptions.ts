@@ -7,8 +7,8 @@ import {
   getOccupationHierarchyChildReference,
   getOccupationHierarchyParentReference,
 } from "esco/occupationHierarchy/populateFunctions";
-import { getOccupationDocReference, OccupationDocument } from "esco/occupation/occupationReference";
-import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupation/occupation.types";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/common/occupationReference";
+import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/common/occupationReference.types";
 import { ISCOGroupModelPaths } from "./ISCOGroupModel";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 
@@ -48,7 +48,7 @@ export const populateISCOGroupChildrenOptions = {
       if (modelName === MongooseModelName.ISCOGroup) {
         return getISCOGroupDocReference(doc as ISCOGroupDocument); // NOSONAR
       }
-      console.error(`Child is not an ISCOGroup or Occupation: ${modelName}`);
+      console.error(`Child is not an ISCOGroup or ESCO Occupation or Local Occupation: ${modelName}`);
       return null;
     },
   },

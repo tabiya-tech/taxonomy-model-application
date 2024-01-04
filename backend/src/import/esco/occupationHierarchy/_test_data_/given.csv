@@ -1,8 +1,14 @@
 PARENTOBJECTTYPE,PARENTID,CHILDID,CHILDOBJECTTYPE
-ISCOGroup,key_1,key_2,ISCOGroup
-EscoOccupation,key_3,key_4,EscoOccupation
-ISCOGroup,key_5,key_6,EscoOccupation
-invalid should be ignored,key_7,key_8,EscoOccupation
-ISCOGroup,key_9,key_10,invalid should be ignored
-ISCOGroup,,key_11,EscoOccupation
-ISCOGroup,key_12,,EscoOccupation
+ISCOGROUP,key_1,key_2,ISCOGROUP
+ISCOGROUP,key_3,key_4,ESCOOCCUPATION
+ISCOGROUP,key_5,key_6,LOCALOCCUPATION
+ESCOOCCUPATION,key_7,key_8,ESCOOCCUPATION
+ESCOOCCUPATION,key_9,key_10,LOCALOCCUPATION
+ESCOOCCUPATION,key_11,key_12,ISCOGROUP
+LOCALOCCUPATION,key_13,key_14,LOCALOCCUPATION
+LOCALOCCUPATION,key_15,key_16,ESCOOCCUPATION
+LOCALOCCUPATION,key_17,key_18,ISCOOCCUPATION
+invalid should be ignored,key_19,key_20,ESCOOCCUPATION
+ISCOGROUP,key_21,key_22,invalid should be ignored
+ISCOGROUP,,key_23,ESCOOCCUPATION
+ISCOGROUP,key_24,,ESCOOCCUPATION

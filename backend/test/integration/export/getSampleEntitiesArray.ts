@@ -1,47 +1,50 @@
-import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation/occupation.types";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
-import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
-import { INewLocalizedOccupationSpec } from "esco/localizedOccupation/localizedOccupation.types";
-import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
-import { getMockStringId } from "_test_utilities/mockMongoId";
 import { INewOccupationHierarchyPairSpec } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { INewSkillHierarchyPairSpec } from "esco/skillHierarchy/skillHierarchy.types";
 import { INewOccupationToSkillPairSpec } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { INewSkillToSkillPairSpec } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { randomUUID } from "crypto";
 
-export const getSampleOccupationSpecs = (givenModelId: string, isLocal: boolean = false): INewOccupationSpec[] => {
+export const getSampleESCOOccupationSpecs = (givenModelId: string): INewOccupationSpec[] => {
   return Array.from<never, INewOccupationSpec>({ length: 100 }, (_, i) => ({
     ISCOGroupCode: getMockRandomISCOGroupCode(),
     definition: `definition_${i}`,
     regulatedProfessionNote: `regulatedProfessionNote_${i}`,
     scopeNote: `scopeNote_${i}`,
     altLabels: i % 2 ? [`altLabel_1`, `altLabel_2`] : [],
-    code: getMockRandomOccupationCode(isLocal),
+    code: getMockRandomOccupationCode(false),
     preferredLabel: `Occupation_${i}`,
     modelId: givenModelId,
     UUIDHistory: [randomUUID()],
     originUri: `originUri_${i}`,
     description: `description_${i}`,
     importId: `importId_${i}`,
-    occupationType: isLocal ? OccupationType.LOCAL : OccupationType.ESCO,
+    occupationType: ObjectTypes.ESCOOccupation,
   }));
 };
-export const getSampleLocalizedOccupationSpecs = (
-  givenEscoOccupations: IOccupation[]
-): INewLocalizedOccupationSpec[] => {
-  return givenEscoOccupations.map((occupation, i) => ({
-    localizesOccupationId: occupation.id,
-    altLabels: i % 2 ? [] : [`altLabel_1`, `altLabel_2`],
-    modelId: occupation.modelId,
+
+export const getSampleLocalOccupationSpecs = (givenModelId: string): INewOccupationSpec[] => {
+  return Array.from<never, INewOccupationSpec>({ length: 100 }, (_, i) => ({
+    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    definition: `definition_${i}`,
+    regulatedProfessionNote: `regulatedProfessionNote_${i}`,
+    scopeNote: `scopeNote_${i}`,
+    altLabels: i % 2 ? [`altLabel_1`, `altLabel_2`] : [],
+    code: getMockRandomOccupationCode(true),
+    preferredLabel: `Occupation_${i}`,
+    modelId: givenModelId,
+    UUIDHistory: [randomUUID()],
+    originUri: `originUri_${i}`,
     description: `description_${i}`,
     importId: `importId_${i}`,
-    occupationType: OccupationType.LOCALIZED,
-    UUIDHistory: [randomUUID()],
+    occupationType: ObjectTypes.LocalOccupation,
   }));
 };
 
@@ -88,15 +91,41 @@ export const getSampleSkillGroupsSpecs = (givenModelId: string): INewSkillGroupS
   }));
 };
 
-export const getSampleOccupationHierarchy = (givenModelId: string): INewOccupationHierarchyPairSpec[] => {
-  return Array.from<never, INewOccupationHierarchyPairSpec>({ length: 100 }, (_, i) => ({
-    parentId: getMockStringId(999),
-    parentType: ObjectTypes.Occupation,
-    childType: ObjectTypes.Occupation,
-    childId: getMockStringId(i),
-    modelId: givenModelId,
-    importId: `importId_${i}`,
-  }));
+export const getSampleOccupationHierarchy = (
+  isco_groups: IISCOGroup[],
+  esco_occupations: IOccupation[],
+  local_occupations: IOccupation[]
+): INewOccupationHierarchyPairSpec[] => {
+  const specs: INewOccupationHierarchyPairSpec[] = [];
+  let index = 0;
+  isco_groups.forEach((iscoGroup) => {
+    // add 1 occupation to each isco group
+    if (index < esco_occupations.length) {
+      specs.push({
+        parentId: iscoGroup.id,
+        parentType: ObjectTypes.ISCOGroup,
+        childType: esco_occupations[index].occupationType,
+        childId: esco_occupations[index].id,
+      });
+    }
+    index++;
+  });
+
+  index = 0;
+  esco_occupations.forEach((escoOccupation) => {
+    // add 1 occupation to each esco occupation
+    if (index < local_occupations.length) {
+      specs.push({
+        parentId: escoOccupation.id,
+        parentType: escoOccupation.occupationType,
+        childType: local_occupations[index].occupationType,
+        childId: local_occupations[index].id,
+      });
+    }
+    index++;
+  });
+
+  return specs;
 };
 
 export const getSampleSkillsHierarchy = (
@@ -108,7 +137,6 @@ export const getSampleSkillsHierarchy = (
     parentType: ObjectTypes.SkillGroup,
     childType: ObjectTypes.Skill,
     childId: skill.id,
-    modelId: skill.modelId,
   }));
 };
 
@@ -117,10 +145,10 @@ export const getSampleOccupationToSkillRelations = (
   givenSkills: ISkill[]
 ): INewOccupationToSkillPairSpec[] => {
   return givenSkills.map((skill, i) => ({
-    requiringOccupationType: OccupationType.LOCAL,
+    requiringOccupationType: givenOccupations[i].occupationType,
     requiredSkillId: skill.id,
     requiringOccupationId: givenOccupations[i].id,
-    relationType: RelationType.OPTIONAL,
+    relationType: i % 2 ? RelationType.OPTIONAL : RelationType.ESSENTIAL,
   }));
 };
 

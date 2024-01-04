@@ -36,13 +36,6 @@ jest.mock("export/esco/skillGroup/SkillGroupsToCSVTransform", () => {
   });
 });
 
-jest.mock("export/esco/localizedOccupation/LocalizedOccupationsToCSVTransform", () => {
-  // std mock should return a transform stream with some data
-  return jest.fn().mockImplementation(() => {
-    return Readable.from(["foo", "bar", "baz"], { objectMode: true });
-  });
-});
-
 jest.mock("export/esco/occupationHierarchy/occupationHierarchyToCSVTransform", () => {
   // std mock should return a transform stream with some data
   return jest.fn().mockImplementation(() => {
@@ -172,7 +165,6 @@ import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTrans
 import LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
-import LocalizedOccupationsToCSVTransform from "export/esco/localizedOccupation/LocalizedOccupationsToCSVTransform";
 import OccupationHierarchyToCSVTransform from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
 import SkillHierarchyToCSVTransform from "export/esco/skillHierarchy/skillHierarchyToCSVTransform";
 import OccupationToSkillRelationToCSVTransform from "export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
@@ -270,7 +262,6 @@ describe("modelToS3", () => {
       ["ISCOGroupsToCSVTransformStream", ISCOGroupsToCSVTransform],
       ["ESCOOccupationsToCSVTransformStream", ESCOOccupationsToCSVTransform],
       ["LocalOccupationsToCSVTransformStream", LocalOccupationsToCSVTransform],
-      ["LocalizedOccupationsToCSVTransformStream", LocalizedOccupationsToCSVTransform],
       ["SkillGroupsToCSVTransformStream", SkillGroupsToCSVTransform],
       ["SkillsToCSVTransformStream", SkillsToCSVTransform],
       ["OccupationHierarchyToCSVTransformStream", OccupationHierarchyToCSVTransform],
@@ -354,16 +345,6 @@ describe("modelToS3", () => {
         "foo",
         () => {
           (LocalOccupationsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
-            throw new Error("foo");
-          });
-        },
-      ],
-      [
-        "LocalizedOccupationsToCSVTransform throws an error",
-        "An error occurred while streaming data from the DB to the csv zip file on S3",
-        "foo",
-        () => {
-          (LocalizedOccupationsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
           });
         },
@@ -590,7 +571,6 @@ async function assertThatAllCreatedResourcesAreReleased(assertCreated: boolean) 
     LocalOccupationsToCSVTransform,
     SkillGroupsToCSVTransform,
     SkillsToCSVTransform,
-    LocalizedOccupationsToCSVTransform,
     OccupationHierarchyToCSVTransform,
     SkillHierarchyToCSVTransform,
     OccupationToSkillRelationToCSVTransform,

@@ -5,15 +5,15 @@ import mongoose, { Connection } from "mongoose";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getNewConnection } from "server/connection/newConnection";
 import {
-  INDEX_FOR_REQUIRES_SKILLS,
   INDEX_FOR_REQUIRED_BY_OCCUPATIONS,
+  INDEX_FOR_REQUIRES_SKILLS,
   initializeSchemaAndModel,
 } from "./occupationToSkillRelationModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { testDocModel, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { testDocModel, testObjectIdField, testObjectType } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { OccupationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import { IOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
 
 describe("Test the definition of the OccupationToSkillRelation Model", () => {
@@ -43,7 +43,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       requiringOccupationDocModel: MongooseModelName.Occupation,
       requiringOccupationId: getMockObjectId(2),
       relationType: RelationType.OPTIONAL,
-      requiringOccupationType: OccupationType.ESCO,
+      requiringOccupationType: ObjectTypes.ESCOOccupation,
     };
     const givenOccupationToSkillRelationDocument = new OccupationToSkillRelationModel(givenObject);
 
@@ -101,22 +101,11 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       });
     });
 
-    // Test the requiringOccupationType field
-    test.each([
-      [CaseType.Failure, undefined, "Path `requiringOccupationType` is required."],
-      [CaseType.Failure, null, "Path `requiringOccupationType` is required."],
-      [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `requiringOccupationType`."],
-      [CaseType.Success, OccupationType.ESCO, undefined],
-      [CaseType.Success, OccupationType.LOCALIZED, undefined],
-      [CaseType.Success, OccupationType.LOCAL, undefined],
-    ])(`(%s) Validate 'requiringOccupationType' when it is %s`, (caseType: CaseType, value, expectedFailureMessage) => {
-      assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
-        model: OccupationToSkillRelationModel,
-        propertyNames: "requiringOccupationType",
-        caseType,
-        testValue: value,
-        expectedFailureMessage,
-      });
+    describe("Test validation of 'requiringOccupationType'", () => {
+      testObjectType(() => OccupationToSkillRelationModel, "requiringOccupationType", [
+        ObjectTypes.ESCOOccupation,
+        ObjectTypes.LocalOccupation,
+      ]);
     });
   });
 

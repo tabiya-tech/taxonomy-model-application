@@ -6,16 +6,11 @@ import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/p
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
-import { ObjectTypes } from "esco/common/objectTypes";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
 import { ISkillHierarchyImportRow, skillHierarchyImportHeaders } from "esco/common/entityToCSV.types";
-
-const enum CSV_OBJECT_TYPES {
-  Skill = "SKILL",
-  SkillGroup = "SKILLGROUP",
-}
+import { getObjectTypeFromCSVObjectType } from "esco/common/csvObjectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, skillHierarchyImportHeaders);
@@ -35,21 +30,15 @@ function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
 ): TransformRowToSpecificationFunction<ISkillHierarchyImportRow, INewSkillHierarchyPairSpec> {
-  const csv2EscoObjectType = (type: string): ObjectTypes.Skill | ObjectTypes.SkillGroup | null => {
-    switch (type.toUpperCase()) {
-      case CSV_OBJECT_TYPES.Skill:
-        return ObjectTypes.Skill;
-      case CSV_OBJECT_TYPES.SkillGroup:
-        return ObjectTypes.SkillGroup;
-      default:
-        return null;
-    }
-  };
-
   return (row: ISkillHierarchyImportRow) => {
-    const parentType = csv2EscoObjectType(row.PARENTOBJECTTYPE);
-    const childType = csv2EscoObjectType(row.CHILDOBJECTTYPE);
-    if (!parentType || !childType) {
+    const parentType = getObjectTypeFromCSVObjectType(row.PARENTOBJECTTYPE);
+    const childType = getObjectTypeFromCSVObjectType(row.CHILDOBJECTTYPE);
+    if (
+      !parentType ||
+      (parentType !== "Skill" && parentType !== "SkillGroup") ||
+      !childType ||
+      (childType !== "Skill" && childType !== "SkillGroup")
+    ) {
       errorLogger.logWarning(
         `Failed to import SkillHierarchy row with parentType:'${row.PARENTOBJECTTYPE}' and childType:'${row.CHILDOBJECTTYPE}'`
       );

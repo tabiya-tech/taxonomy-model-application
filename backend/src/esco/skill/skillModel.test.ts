@@ -182,12 +182,13 @@ describe("Test the definition of the skill Model", () => {
         [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
         [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
         [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "skill/competence", "skill/competence", undefined],
-        [CaseType.Success, "knowledge", "knowledge", undefined],
-        [CaseType.Success, "language", "language", undefined],
-        [CaseType.Success, "attitude", "attitude", undefined],
+        [CaseType.Success, SkillType.Knowledge, SkillType.Knowledge, undefined],
+        [CaseType.Success, SkillType.Language, SkillType.Language, undefined],
+        [CaseType.Success, SkillType.Attitude, SkillType.Attitude, undefined],
+        [CaseType.Success, SkillType.SkillCompetence, SkillType.SkillCompetence, undefined],
+        [CaseType.Success, SkillType.None, SkillType.None, undefined],
       ])(
-        `(%s) Validate 'skillType' when it is %s`,
+        `(%s) Validate 'skillType' when it is '%s'`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ISkillDoc>({
             model: skillModel,
@@ -206,11 +207,11 @@ describe("Test the definition of the skill Model", () => {
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
         [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
-        [CaseType.Success, "sector-specific", "sector-specific", undefined],
-        [CaseType.Success, "occupation-specific", "occupation-specific", undefined],
-        [CaseType.Success, "cross-sector", "cross-sector", undefined],
-        [CaseType.Success, "transversal", "transversal", undefined],
-        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, ReuseLevel.SectorSpecific, ReuseLevel.SectorSpecific, undefined],
+        [CaseType.Success, ReuseLevel.OccupationSpecific, ReuseLevel.OccupationSpecific, undefined],
+        [CaseType.Success, ReuseLevel.CrossSector, ReuseLevel.CrossSector, undefined],
+        [CaseType.Success, ReuseLevel.Transversal, ReuseLevel.Transversal, undefined],
+        [CaseType.Success, ReuseLevel.None, ReuseLevel.None, undefined],
       ])(
         `(%s) Validate 'reuseLevel' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {

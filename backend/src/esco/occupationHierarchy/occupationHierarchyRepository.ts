@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { ObjectTypes, OccupationType } from "esco/common/objectTypes";
-import { IOccupationDoc } from "esco/occupation/occupation.types";
+import { ObjectTypes } from "esco/common/objectTypes";
+import { IOccupationDoc } from "esco/occupations/occupation/occupation.types";
 import { IISCOGroupDoc } from "esco/iscoGroup/ISCOGroup.types";
 import {
   INewOccupationHierarchyPairSpec,
@@ -67,8 +67,6 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     try {
       const existingIds = new Map<string, [ObjectTypes]>();
 
-      const occupationsTypes = new Map<string, OccupationType>();
-
       //  get all ISCO groups
       const _existingIscoGroupIds = await this.iscoGroupModel
         .find({ modelId: { $eq: modelId } })
@@ -86,16 +84,15 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       _existingOccupations.forEach((occupation) => {
         const found = existingIds.get(occupation._id.toString());
         if (found) {
-          found.push(ObjectTypes.Occupation);
+          found.push(occupation.occupationType);
         } else {
-          existingIds.set(occupation._id.toString(), [ObjectTypes.Occupation]);
+          existingIds.set(occupation._id.toString(), [occupation.occupationType]);
         }
-        occupationsTypes.set(occupation._id.toString(), occupation.occupationType);
       });
 
       const newOccupationHierarchyPairModels = newOccupationHierarchyPairSpecs
         .filter((spec) => {
-          return isNewOccupationHierarchyPairSpecValid(spec, existingIds, occupationsTypes);
+          return isNewOccupationHierarchyPairSpecValid(spec, existingIds);
         })
         .map((spec) => {
           try {

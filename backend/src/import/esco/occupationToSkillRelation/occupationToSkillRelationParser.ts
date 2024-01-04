@@ -12,12 +12,12 @@ import {
   INewOccupationToSkillPairSpec,
   IOccupationToSkillRelationPair,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { RelationType } from "esco/common/objectTypes";
-import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
 import {
   IOccupationToSkillRelationImportRow,
   occupationToSkillRelationImportHeaders,
 } from "esco/common/entityToCSV.types";
+import { getOccupationTypeFromCSVObjectType } from "import/esco/common/getOccupationTypeFromCSVObjectType";
+import { getRelationTypeFromCSVRelationType } from "../../../esco/common/csvObjectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, occupationToSkillRelationImportHeaders);
@@ -38,7 +38,8 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<IOccupationToSkillRelationImportRow, INewOccupationToSkillPairSpec> {
   return (row: IOccupationToSkillRelationImportRow) => {
     // Check if relation type is valid
-    if (!Object.values(RelationType).includes(row.RELATIONTYPE)) {
+    const relationType = getRelationTypeFromCSVRelationType(row.RELATIONTYPE);
+    if (!relationType) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );
@@ -46,7 +47,7 @@ function getRowToSpecificationTransformFn(
     }
     // Check if occupation type is valid
 
-    const occupationType = getOccupationTypeFromRow(row);
+    const occupationType = getOccupationTypeFromCSVObjectType(row.OCCUPATIONTYPE);
     if (!occupationType) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
@@ -69,7 +70,7 @@ function getRowToSpecificationTransformFn(
       requiringOccupationType: occupationType,
       requiringOccupationId: occupationId,
       requiredSkillId: skillId,
-      relationType: row.RELATIONTYPE,
+      relationType,
     };
   };
 }

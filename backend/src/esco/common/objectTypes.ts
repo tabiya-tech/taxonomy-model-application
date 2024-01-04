@@ -3,7 +3,8 @@
  */
 export enum ObjectTypes {
   ISCOGroup = "ISCOGroup",
-  Occupation = "Occupation",
+  ESCOOccupation = "EscoOccupation",
+  LocalOccupation = "LocalOccupation",
   Skill = "Skill",
   SkillGroup = "SkillGroup",
 }
@@ -14,16 +15,6 @@ export enum ObjectTypes {
 export enum RelationType {
   ESSENTIAL = "essential",
   OPTIONAL = "optional",
-}
-
-/**
- * Describes the three Types of Occupations
- */
-
-export enum OccupationType {
-  ESCO = "ESCO",
-  LOCAL = "LOCAL",
-  LOCALIZED = "LOCALIZED",
 }
 
 export type ReferenceWithRelationType<T> = T & {
