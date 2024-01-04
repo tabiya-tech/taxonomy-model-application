@@ -9,12 +9,7 @@ import {
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
-import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
-import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { ILocalizedOccupationDoc } from "./localizedOccupation.types";
-
-import { LocalizedOccupationModelPaths } from "esco/common/modelPopulationPaths";
-import { ObjectTypes, OccupationType } from "esco/common/objectTypes";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ILocalizedOccupationDoc> {
   // Main Schema
@@ -37,52 +32,18 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     }
   );
 
-  LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.parent, {
-    ref: MongooseModelName.OccupationHierarchy,
-    localField: "localizesOccupationId",
-    foreignField: OccupationHierarchyModelPaths.childId,
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({
-      modelId: { $eq: localizedOccupation.modelId },
-      childType: { $eq: ObjectTypes.Occupation },
-    }),
-    justOne: true,
-  });
-
-  LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.children, {
-    ref: MongooseModelName.OccupationHierarchy,
-    localField: "localizesOccupationId",
-    foreignField: OccupationHierarchyModelPaths.parentId,
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({
-      modelId: { $eq: localizedOccupation.modelId },
-      parentType: { $eq: ObjectTypes.Occupation },
-    }),
-  });
-
-  LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.requiresSkills, {
-    ref: MongooseModelName.OccupationToSkillRelation,
-    localField: "_id",
-    foreignField: OccupationToSkillRelationModelPaths.requiringOccupationId,
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({
-      modelId: { $eq: localizedOccupation.modelId },
-      requiringOccupationType: { $eq: OccupationType.LOCALIZED },
-    }),
-  });
-
-  LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.localizesOccupation, {
-    ref: MongooseModelName.Occupation,
-    localField: "localizesOccupationId",
-    foreignField: "_id",
-    match: (localizedOccupation: ILocalizedOccupationDoc) => ({ modelId: { $eq: localizedOccupation.modelId } }),
-    justOne: true,
-  });
-
   LocalizedOccupationSchema.index({ UUID: 1 }, { unique: true });
-  LocalizedOccupationSchema.index({ modelId: 1, localizesOccupationId: 1 }, { unique: true });
+  LocalizedOccupationSchema.index(INDEX_FOR_LOCALIZED, { unique: true });
   LocalizedOccupationSchema.index({ UUIDHistory: 1 });
 
   // Model
   return dbConnection.model<ILocalizedOccupationDoc>(MongooseModelName.LocalizedOccupation, LocalizedOccupationSchema);
 }
+
+export const INDEX_FOR_LOCALIZED: mongoose.IndexDefinition = {
+  modelId: 1,
+  localizesOccupationId: 1,
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _TransformFn = (doc: any, ret: any) => {

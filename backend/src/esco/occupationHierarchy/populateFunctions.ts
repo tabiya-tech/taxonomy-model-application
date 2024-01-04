@@ -2,7 +2,6 @@ import { IPopulatedOccupationHierarchyPairDoc } from "./occupationHierarchy.type
 import { IISCOGroupDoc, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { IOccupationDoc, IOccupationReference } from "esco/occupation/occupation.types";
 import mongoose from "mongoose";
-import { ILocalizedOccupationDoc } from "../localizedOccupation/localizedOccupation.types";
 
 export function getOccupationHierarchyChildReference(
   doc: IPopulatedOccupationHierarchyPairDoc
@@ -32,7 +31,7 @@ export function getOccupationHierarchyParentReference(
 }
 
 export function populateEmptyOccupationHierarchy(
-  target: mongoose.Document<unknown, unknown, IOccupationDoc | IISCOGroupDoc | ILocalizedOccupationDoc>
+  target: mongoose.Document<unknown, unknown, IOccupationDoc | IISCOGroupDoc >
 ) {
   // @ts-ignore
   target.parent = null;

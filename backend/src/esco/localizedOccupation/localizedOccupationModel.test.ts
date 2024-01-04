@@ -73,7 +73,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
         localizesOccupationId: getMockObjectId(3),
       },
     ],
-  ])("Successfully validate Locaized Occupation with %s", async (description, givenObject: ILocalizedOccupationDoc) => {
+  ])("Successfully validate Localized Occupation with %s", async (_description, givenObject: ILocalizedOccupationDoc) => {
     // GIVEN a Localized Occupation document based on the given object
     const givenLocalizedOccupationDocument = new LocalizedOccupationModel(givenObject);
 
@@ -134,7 +134,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
         [
           CaseType.Failure,
           "too long array",
-          new Array(ATL_LABELS_MAX_ITEMS + 1).fill(undefined).map((v, i) => "foo" + i),
+          new Array(ATL_LABELS_MAX_ITEMS + 1).fill(undefined).map((_v, i) => "foo" + i),
           `Validator failed for path \`{0}\` with value \`foo0,foo1,.*,foo${ATL_LABELS_MAX_ITEMS}\``,
         ],
         [CaseType.Success, "empty array", [], undefined],
@@ -149,7 +149,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
         ],
       ])(
         `(%s) Validate 'altLabels' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        (caseType: CaseType, _caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ILocalizedOccupationDoc>(
             LocalizedOccupationModel,
             "altLabels",
@@ -177,7 +177,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
         [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
       ])(
         `(%s) Validate 'description' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        (caseType: CaseType, _caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ILocalizedOccupationDoc>(
             LocalizedOccupationModel,
             "description",
@@ -202,7 +202,7 @@ describe("Test the definition of the Localized Occupation Model", () => {
         [CaseType.Success, "LOCALIZED", OccupationType.LOCALIZED, undefined],
       ])(
         `(%s) Validate 'definition' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        (caseType: CaseType, _caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ILocalizedOccupationDoc>(
             LocalizedOccupationModel,
             "occupationType",
