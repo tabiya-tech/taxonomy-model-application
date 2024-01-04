@@ -73,30 +73,33 @@ describe("Test the definition of the Localized Occupation Model", () => {
         localizesOccupationId: getMockObjectId(3),
       },
     ],
-  ])("Successfully validate Localized Occupation with %s", async (_description, givenObject: ILocalizedOccupationDoc) => {
-    // GIVEN a Localized Occupation document based on the given object
-    const givenLocalizedOccupationDocument = new LocalizedOccupationModel(givenObject);
+  ])(
+    "Successfully validate Localized Occupation with %s",
+    async (_description, givenObject: ILocalizedOccupationDoc) => {
+      // GIVEN a Localized Occupation document based on the given object
+      const givenLocalizedOccupationDocument = new LocalizedOccupationModel(givenObject);
 
-    // WHEN validating that given localized occupation document
-    const actualValidationErrors = givenLocalizedOccupationDocument.validateSync();
+      // WHEN validating that given localized occupation document
+      const actualValidationErrors = givenLocalizedOccupationDocument.validateSync();
 
-    // THEN expect it to validate without any error
-    expect(actualValidationErrors).toBeUndefined();
+      // THEN expect it to validate without any error
+      expect(actualValidationErrors).toBeUndefined();
 
-    // AND the document to be saved successfully
-    await givenLocalizedOccupationDocument.save();
+      // AND the document to be saved successfully
+      await givenLocalizedOccupationDocument.save();
 
-    // AND the toObject() transformation to return the correct properties
-    const expectedLocalizedOccupationDocument = {
-      ...givenObject,
-      modelId: givenObject.modelId.toString(),
-      id: givenLocalizedOccupationDocument._id.toString(),
-      localizesOccupationId: givenObject.localizesOccupationId.toString(),
-      createdAt: expect.any(Date),
-      updatedAt: expect.any(Date),
-    };
-    expect(givenLocalizedOccupationDocument.toObject()).toEqual(expectedLocalizedOccupationDocument);
-  });
+      // AND the toObject() transformation to return the correct properties
+      const expectedLocalizedOccupationDocument = {
+        ...givenObject,
+        modelId: givenObject.modelId.toString(),
+        id: givenLocalizedOccupationDocument._id.toString(),
+        localizesOccupationId: givenObject.localizesOccupationId.toString(),
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      };
+      expect(givenLocalizedOccupationDocument.toObject()).toEqual(expectedLocalizedOccupationDocument);
+    }
+  );
 
   describe("Validate Localized Occupation fields", () => {
     testObjectIdField<ILocalizedOccupationDoc>(() => LocalizedOccupationModel, "modelId");

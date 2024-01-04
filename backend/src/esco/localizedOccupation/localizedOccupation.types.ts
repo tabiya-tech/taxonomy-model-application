@@ -30,7 +30,4 @@ export interface ILocalizedOccupation extends Omit<ILocalizedOccupationDoc, "loc
 /**
  *  Describes how new localized occupations are created in the API
  */
-export type INewLocalizedOccupationSpec = Omit<
-  ILocalizedOccupation,
-  "id" | "UUID" | "createdAt" | "updatedAt"
->;
+export type INewLocalizedOccupationSpec = Omit<ILocalizedOccupation, "id" | "UUID" | "createdAt" | "updatedAt">;

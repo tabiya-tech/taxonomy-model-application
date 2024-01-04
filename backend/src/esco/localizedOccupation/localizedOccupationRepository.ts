@@ -11,7 +11,7 @@ import { IOccupationDoc } from "esco/occupation/occupation.types";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
-import {OccupationType} from "../common/objectTypes";
+import { OccupationType } from "../common/objectTypes";
 
 export interface ILocalizedOccupationRepository {
   readonly Model: mongoose.Model<ILocalizedOccupationDoc>;
@@ -34,7 +34,10 @@ export interface ILocalizedOccupationRepository {
    * Excludes entries that fail validation and returns a subset of successfully created entries.
    * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
-  createMany(modelId: string, newLocalizedOccupationSpecs: INewLocalizedOccupationSpec[]): Promise<ILocalizedOccupation[]>;
+  createMany(
+    modelId: string,
+    newLocalizedOccupationSpecs: INewLocalizedOccupationSpec[]
+  ): Promise<ILocalizedOccupation[]>;
 
   /**
    * Finds a Localized Occupation entry by its ID.
@@ -85,7 +88,9 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
 
     try {
       // We need to check if the occupation to be localized even exists
-      const localizingOccupation = await this.OccupationModel.findById(newLocalizedOccupationSpec.localizesOccupationId);
+      const localizingOccupation = await this.OccupationModel.findById(
+        newLocalizedOccupationSpec.localizesOccupationId
+      );
 
       if (!localizingOccupation) {
         throw new Error("The Occupation to be localized was not found");
@@ -108,7 +113,10 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
     const existingIds = new Map<string, string>();
     // find all the occupations in the given model to check that the localizedOccupationIds of entries in the specs correspond to an existing occupation
     // Also since only ESCO occupations can be localized, we filter only the entries with an OccupationType of ESCO
-    const localizingOccupationIds = await this.OccupationModel.find({modelId: {$eq: modelId}, occupationType: {$eq: OccupationType.ESCO}});
+    const localizingOccupationIds = await this.OccupationModel.find({
+      modelId: { $eq: modelId },
+      occupationType: { $eq: OccupationType.ESCO },
+    });
 
     // add each of the valid localizable ids to the existingIds map to search later
     localizingOccupationIds.forEach((occupation) => {
@@ -147,16 +155,14 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         } invalid entries were not created`
       );
     }
-    return newLocalizedOccupationsDocs.map(doc => doc.toObject());
+    return newLocalizedOccupationsDocs.map((doc) => doc.toObject());
   }
 
   async findById(id: string | mongoose.Types.ObjectId): Promise<ILocalizedOccupation | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const localizedOccupation = await this.Model.findById(id);
-      return localizedOccupation !== null
-        ? localizedOccupation.toObject()
-        : null;
+      return localizedOccupation !== null ? localizedOccupation.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);
       throw e;

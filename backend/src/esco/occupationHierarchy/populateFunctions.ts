@@ -31,7 +31,7 @@ export function getOccupationHierarchyParentReference(
 }
 
 export function populateEmptyOccupationHierarchy(
-  target: mongoose.Document<unknown, unknown, IOccupationDoc | IISCOGroupDoc >
+  target: mongoose.Document<unknown, unknown, IOccupationDoc | IISCOGroupDoc>
 ) {
   // @ts-ignore
   target.parent = null;

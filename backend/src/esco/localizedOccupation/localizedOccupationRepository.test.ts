@@ -13,10 +13,7 @@ import {
   getSimpleNewLocalizedOccupationSpec,
   getSimpleNewOccupationSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import {
-  ILocalizedOccupation,
-  INewLocalizedOccupationSpec,
-} from "./localizedOccupation.types";
+import { ILocalizedOccupation, INewLocalizedOccupationSpec } from "./localizedOccupation.types";
 import { ILocalizedOccupationRepository } from "./localizedOccupationRepository";
 import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
 import { randomUUID } from "crypto";
@@ -319,7 +316,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should successfully create a batch of new LocalizedOccupations", async () => {
       // GIVEN some valid LocalizedOccupationSpecs
       const givenBatchSize = 3;
-      const givenModelId =  getMockStringId(1);
+      const givenModelId = getMockStringId(1);
       const givenNewLocalizedOccupationSpecs: INewLocalizedOccupationSpec[] = [];
       const givenOccupations: IOccupation[] = [];
       for (let i = 0; i < givenBatchSize; i++) {
@@ -352,13 +349,15 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should successfully create a batch of new Localized Occupations even if some don't validate", async () => {
       // GIVEN some valid LocalizedOccupationSpecs
       const givenBatchSize = 3;
-      const givenModelId = getMockStringId(1)
+      const givenModelId = getMockStringId(1);
       const givenValidNewLocalizedOccupationSpecs: INewLocalizedOccupationSpec[] = [];
       const givenValidOccupations: IOccupation[] = [];
       for (let i = 0; i < givenBatchSize; i++) {
         const givenOccupationSpec = getSimpleNewOccupationSpec(givenModelId, `occupation_${i}`, false);
         const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
-        givenValidNewLocalizedOccupationSpecs.push(getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupation.id));
+        givenValidNewLocalizedOccupationSpecs.push(
+          getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupation.id)
+        );
         givenValidOccupations.push(givenOccupation);
       }
       // AND some invalid LocalizedOccupationSpec
@@ -398,7 +397,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should successfully create a batch of new localized occupations when they have an empty UUIDHistory", async () => {
       // GIVEN some valid LocalizedOccupationSpecs
       const givenBatchSize = 3;
-      const givenModelId = getMockStringId(1)
+      const givenModelId = getMockStringId(1);
       const givenNewLocalizedOccupationSpecs: INewLocalizedOccupationSpec[] = [];
       const givenOccupations: IOccupation[] = [];
       for (let i = 0; i < givenBatchSize; i++) {
@@ -410,7 +409,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       }
 
       // WHEN creating the batch of LocalizedOccupations with the given specifications
-      const actualNewLocalizedOccupations: ILocalizedOccupation[] = await repository.createMany(givenModelId,
+      const actualNewLocalizedOccupations: ILocalizedOccupation[] = await repository.createMany(
+        givenModelId,
         givenNewLocalizedOccupationSpecs
       );
 
@@ -431,10 +431,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should resolve to an empty array if none of the elements could be validated", async () => {
       // GIVEN only invalid OccupationSpec
       const givenBatchSize = 3;
-      const givenModelId = getMockStringId(1)
+      const givenModelId = getMockStringId(1);
       const givenInvalidNewLocalizedOccupationSpecs: INewLocalizedOccupationSpec[] = [];
       for (let i = 0; i < givenBatchSize; i++) {
-
         const givenOccupationSpec = getSimpleNewOccupationSpec(givenModelId, `occupation_${i}`, false);
         const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
         const newLocalizedOccupationSpec = getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupation.id);
@@ -455,7 +454,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should not create a localizedOccupation if the localizing occupation does not exist", async () => {
       // GIVEN a LocalizedOccupationSpec that is otherwise valid but has an invalid localizingOccupationId
-      const givenModelId =  getMockStringId(1);
+      const givenModelId = getMockStringId(1);
       const givenInvalidLocalizingOccupationId = getMockStringId(3);
       const givenNewLocalizedOccupationSpec: INewLocalizedOccupationSpec = getSimpleNewLocalizedOccupationSpec(
         givenModelId,
@@ -470,7 +469,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       );
 
       // WHEN Creating a new Localized Occupation from the spec
-      const actualNewOccupation = await repository.createMany(givenModelId,[
+      const actualNewOccupation = await repository.createMany(givenModelId, [
         givenNewLocalizedOccupationSpec,
         givenValidNewLocalizedOccupationSpec,
       ]);
@@ -506,7 +505,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // Then expect the creation to not insert the first value
       expect(actualNewOccupation.length).toEqual(1);
       expect(actualNewOccupation[0].localizesOccupationId).toEqual(givenOccupation.id);
-    })
+    });
 
     describe("Test unique indexes", () => {
       test("should return only the documents that did not violate the UUID unique index", async () => {
@@ -516,7 +515,6 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenNewLocalizedOccupationSpecs: INewLocalizedOccupationSpec[] = [];
         const givenOccupations: IOccupation[] = [];
         for (let i = 0; i < givenBatchSize; i++) {
-
           const givenOccupationSpec = getSimpleNewOccupationSpec(givenModelId, `occupation_${i}`, false);
           const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
           givenNewLocalizedOccupationSpecs.push(getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupation.id));
@@ -556,7 +554,6 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenNewLocalizedOccupationSpecs: INewLocalizedOccupationSpec[] = [];
         const givenOccupations: IOccupation[] = [];
         for (let i = 0; i < givenBatchSize; i++) {
-
           const givenOccupationSpec = getSimpleNewOccupationSpec(givenModelId, `occupation_${i}`, false);
           const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
           givenNewLocalizedOccupationSpecs.push(getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupation.id));

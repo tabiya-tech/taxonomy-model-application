@@ -19,7 +19,7 @@ import { IOccupationDoc } from "./occupation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
-import {LocalizedOccupationModelPaths, OccupationModelPaths} from "esco/common/modelPopulationPaths";
+import { LocalizedOccupationModelPaths, OccupationModelPaths } from "esco/common/modelPopulationPaths";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {

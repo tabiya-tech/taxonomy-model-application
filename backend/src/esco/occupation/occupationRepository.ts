@@ -13,8 +13,8 @@ import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransfo
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
-import {populateOccupationLocalizedOptions} from "./populateLocalizedOccupationOptions";
-import {populateEmptyLocalizedOccupation} from "../localizedOccupation/populateFunctions";
+import { populateOccupationLocalizedOptions } from "./populateLocalizedOccupationOptions";
+import { populateEmptyLocalizedOccupation } from "../localizedOccupation/populateFunctions";
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;

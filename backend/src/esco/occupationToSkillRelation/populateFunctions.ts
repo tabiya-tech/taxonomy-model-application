@@ -32,9 +32,7 @@ export function getOccupationRequiresSkillReference(
   return getSkillReferenceWithRelationType(doc.requiredSkillId, doc.relationType);
 }
 
-export function populateEmptyRequiresSkills(
-  target: mongoose.Document<unknown, unknown, IOccupationDoc>
-) {
+export function populateEmptyRequiresSkills(target: mongoose.Document<unknown, unknown, IOccupationDoc>) {
   // @ts-ignore
   target.requiresSkills = [];
 }

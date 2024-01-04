@@ -36,7 +36,7 @@ import { Readable } from "node:stream";
 import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { INDEX_FOR_REQUIRES_SKILLS } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
-import {INDEX_FOR_LOCALIZED} from "esco/localizedOccupation/localizedOccupationModel";
+import { INDEX_FOR_LOCALIZED } from "esco/localizedOccupation/localizedOccupationModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -651,7 +651,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // The localized occupation
       const givenLocalizedOccupationSpecs = getSimpleNewLocalizedOccupationSpec(givenModelId, givenSubject.id);
-      const givenLocalizedOccupation = await repositoryRegistry.localizedOccupation.create(givenLocalizedOccupationSpecs);
+      const givenLocalizedOccupation =
+        await repositoryRegistry.localizedOccupation.create(givenLocalizedOccupationSpecs);
 
       // WHEN searching for the subject by its id
       // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
@@ -672,7 +673,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
             collectionName: repositoryRegistry.localizedOccupation.Model.collection.name,
             filter: {
               modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
-              localizesOccupationId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] }
+              localizesOccupationId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
             },
             usedIndex: INDEX_FOR_LOCALIZED,
           }),
