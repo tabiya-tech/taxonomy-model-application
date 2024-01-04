@@ -133,6 +133,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     ); // ESCO Occupations
     await getRepositoryRegistry().occupation.createMany(getSampleOccupationSpecs(givenModel.id, true)); // Local Occupations
     await getRepositoryRegistry().localizedOccupation.createMany(
+      givenModel.id,
       getSampleLocalizedOccupationSpecs(actualESCOOccupations)
     ); // Localized Occupations
     const actualSkills = await getRepositoryRegistry().skill.createMany(getSampleSkillsSpecs(givenModel.id));
