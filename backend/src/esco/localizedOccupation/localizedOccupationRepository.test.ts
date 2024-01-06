@@ -8,18 +8,27 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import {
+  getNewISCOGroupSpec,
   getNewLocalizedOccupationSpec,
-  getNewOccupationSpec,
+  getNewOccupationSpec, getNewSkillSpec,
   getSimpleNewLocalizedOccupationSpec,
-  getSimpleNewOccupationSpec,
+  getSimpleNewOccupationSpec, getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { ILocalizedOccupation, INewLocalizedOccupationSpec } from "./localizedOccupation.types";
+import {ILocalizedOccupation, ILocalizedOccupationDoc, INewLocalizedOccupationSpec} from "./localizedOccupation.types";
 import { ILocalizedOccupationRepository } from "./localizedOccupationRepository";
-import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
+import {INewOccupationSpec, IOccupation} from "esco/occupation/occupation.types";
 import { randomUUID } from "crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { Readable } from "node:stream";
+import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
+import {IOccupationToSkillRelationPairDoc} from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import {OccupationType, ReferenceWithRelationType, RelationType} from "esco/common/objectTypes";
+import {MongooseModelName} from "esco/common/mongooseModelNames";
+import {getExpectedPlan, setUpPopulateWithExplain} from "esco/_test_utilities/populateWithExplainPlan";
+import {ISkillReference} from "esco/skill/skills.types";
+import {expectedRelatedSkillReference} from "esco/_test_utilities/expectedReference";
+import {INDEX_FOR_REQUIRES_SKILLS} from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -51,6 +60,7 @@ function expectedFromGivenSpec(
     updatedAt: expect.any(Date),
     modelId: localizingOccupation.modelId,
     localizesOccupationId: localizingOccupation.id,
+    requiresSkills: []
   };
 }
 
@@ -606,6 +616,87 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualFoundOccupation).toEqual(givenLocalizedOccupation);
     });
 
+    test("should return the Localized Occupation with its required Skills", async () => {
+      // GIVEN an Occupation to be localized
+      const givenModelId = getMockStringId(1);
+      const givenOccupationToBeLocalizedSpecs = getSimpleNewOccupationSpec(givenModelId, "Occupation");
+      const givenOccupationToBeLocalized = await repositoryRegistry.occupation.create(givenOccupationToBeLocalizedSpecs);
+      // AND a localized occupation with two required Skills in the database
+      const givenSubjectSpecs = getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupationToBeLocalized.id);
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // AND Some other localized occupation
+      const givenOtherOccupationSpecs = getSimpleNewOccupationSpec(givenModelId, "Other Occupation");
+      const givenOtherOccupation = await repositoryRegistry.occupation.create(givenOtherOccupationSpecs);
+      const givenOtherLocalizedOccupationSpecs = getSimpleNewLocalizedOccupationSpec(givenModelId, givenOtherOccupation.id);
+      const givenOtherLocalizedOccupation = await repository.create(givenOtherLocalizedOccupationSpecs);
+
+      // The requiredSkill 1
+      const givenRequiredSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "Required Skill 1");
+      const givenRequiredSkill_1 = await repositoryRegistry.skill.create(givenRequiredSkillSpecs_1);
+      // The requiredSkill 2
+      const givenRequiredSkillSpecs_2 = getSimpleNewSkillSpec(givenModelId, "Required Skill 2");
+      const givenRequiredSkill_2 = await repositoryRegistry.skill.create(givenRequiredSkillSpecs_2);
+
+      // AND the subject has two requiredSkills, and the other localized occupation has one
+      const actualRelation = await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
+        {
+          requiringOccupationId: givenSubject.id,
+          requiringOccupationType: OccupationType.LOCALIZED,
+          requiredSkillId: givenRequiredSkill_1.id,
+          relationType: RelationType.ESSENTIAL,
+        },
+        {
+          requiringOccupationId: givenSubject.id,
+          requiringOccupationType: OccupationType.LOCALIZED,
+          requiredSkillId: givenRequiredSkill_2.id,
+          relationType: RelationType.OPTIONAL,
+        },
+        {
+          requiringOccupationId: givenOtherLocalizedOccupation.id,
+          requiringOccupationType: OccupationType.LOCALIZED,
+          requiredSkillId: givenRequiredSkill_1.id,
+          relationType: RelationType.ESSENTIAL,
+        },
+      ]);
+      // Guard assertion
+      expect(actualRelation).toHaveLength(3);
+      // WHEN searching for the subject by its id
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<ILocalizedOccupationDoc>(repository.Model);
+      const actualFoundLocalizedOccupation = (await repository.findById(givenSubject.id)) as ILocalizedOccupation;
+
+      // THEN expect the subject to be found
+      expect(actualFoundLocalizedOccupation).not.toBeNull();
+
+      // AND to have the given requiredSkill
+      expect(actualFoundLocalizedOccupation.requiresSkills).toEqual(
+        expect.arrayContaining<ReferenceWithRelationType<ISkillReference>>([
+          expectedRelatedSkillReference(givenRequiredSkill_1, RelationType.ESSENTIAL),
+          expectedRelatedSkillReference(givenRequiredSkill_2, RelationType.OPTIONAL),
+        ])
+      );
+
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(2); // 1 for the requiredSkills and 1 for the skills reference
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the requiresSkills
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationToSkillRelation.relationModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              requiringOccupationType: { $eq: OccupationType.LOCALIZED },
+              requiringOccupationId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_REQUIRES_SKILLS,
+          }),
+        ])
+      );
+      // AND no error to be logged
+      expect(console.error).toBeCalledTimes(0);
+    });
+
     test("should return null if no LocalizedOccupation with the given id exists", async () => {
       // GIVEN no Occupation exists in the database
 
@@ -624,6 +715,122 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // THEN expect no Occupation to be found
       expect(actualFoundOccupation).toBeNull();
+    });
+
+    describe("test Occupation to Skill relations robustness to inconsistencies", () => {
+      test("should ignore requiresSkills that are not Skills", async () => {
+        // GIVEN a localizing OccupationSpec
+        const givenOccupationSpec = getNewOccupationSpec(false);
+        const givenLocalizingOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
+
+        // AND an inconsistency was introduced, and non-Skill document has a requiresSkill relation with an occupation
+        const givenLocalizedOccupationSpecs = getNewLocalizedOccupationSpec(givenLocalizingOccupation.id);
+        const givenLocalizedOccupation = await repository.create(givenLocalizedOccupationSpecs);
+
+        // The non-Skill in this case an ISCOGroup
+        const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
+        const givenISCOGroup = await repositoryRegistry.ISCOGroup.create(givenNewISCOGroupSpec);
+
+        // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
+        const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenLocalizedOccupation.modelId),
+
+          relationType: RelationType.ESSENTIAL,
+          requiringOccupationId: new mongoose.Types.ObjectId(givenLocalizedOccupation.id),
+          requiringOccupationType: OccupationType.LOCALIZED,
+          requiringOccupationDocModel: MongooseModelName.Occupation,
+
+          requiredSkillId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
+          //@ts-ignore
+          requiredSkillDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
+        };
+        await repositoryRegistry.occupationToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the Occupation by its id
+        jest.spyOn(console, "error");
+        const actualFoundOccupation = await repository.findById(givenLocalizedOccupation.id);
+
+        // THEN expect the Occupation to not contain the inconsistent requiresSkill
+        expect(actualFoundOccupation).not.toBeNull();
+        expect(actualFoundOccupation!.requiresSkills).toEqual([]);
+        // AND expect an error to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Object is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`);
+      });
+
+      test("should not find requiresSkills if the relation is in a different model", async () => {
+        // GIVEN a localizing OccupationSpec
+        const givenOccupationSpec = getNewOccupationSpec(false);
+        const givenLocalizingOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
+
+        // AND an inconsistency was introduced, and the requiringOccupation and requiredSkills are in a different model than the relation
+        const givenLocalizedOccupationSpecs = getNewLocalizedOccupationSpec(givenLocalizingOccupation.id);
+        const givenOccupation = await repository.create(givenLocalizedOccupationSpecs);
+        const givenSkillSpecs = getNewSkillSpec();
+        const givenSkill = await repositoryRegistry.skill.create(givenSkillSpecs);
+
+        // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
+        const givenModelId_3 = getMockStringId(3);
+
+        const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenModelId_3), // <- This is the inconsistency
+
+          relationType: RelationType.ESSENTIAL,
+          requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
+          requiringOccupationType: OccupationType.LOCALIZED,
+          requiringOccupationDocModel: MongooseModelName.Occupation,
+
+          requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
+          requiredSkillDocModel: MongooseModelName.Skill,
+        };
+        await repositoryRegistry.occupationToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for givenOccupation by its id
+        const actualFoundOccupation = await repository.findById(givenOccupation.id);
+
+        // THEN expect the Occupation to not contain the inconsistent required Skill
+        expect(actualFoundOccupation).not.toBeNull();
+        expect(actualFoundOccupation!.requiresSkills).toEqual([]);
+      });
+
+      test("should not find requiresSkill if it is not is the same model as the requiringOccupation", async () => {
+        // GIVEN a localizing OccupationSpec
+        const givenOccupationSpec = getNewOccupationSpec(false);
+        const givenLocalizingOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
+
+        // AND an inconsistency was introduced, and the requiredSkill and the requiringOccupation are in different models
+        const givenLocalizedOccupationSpecs = getNewLocalizedOccupationSpec(givenLocalizingOccupation.id);
+        const givenOccupation = await repository.create(givenLocalizedOccupationSpecs);
+        const givenSkillSpecs = getNewSkillSpec();
+        givenSkillSpecs.modelId = getMockStringId(99); // <-- this is the inconsistency
+        const givenSkill = await repositoryRegistry.skill.create(givenSkillSpecs);
+
+        // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
+        //@ts-ignore
+        const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
+          modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
+
+          relationType: RelationType.ESSENTIAL,
+          requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
+          requiringOccupationType: OccupationType.LOCALIZED,
+          requiringOccupationDocModel: MongooseModelName.Occupation,
+
+          requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
+          requiredSkillDocModel: MongooseModelName.Skill,
+        };
+        await repositoryRegistry.occupationToSkillRelation.relationModel.collection.insertOne(givenInconsistentPair);
+
+        // WHEN searching for the skill by its id
+        jest.spyOn(console, "error");
+        const givenFoundOccupation = await repository.findById(givenOccupation.id);
+
+        // THEN expect the occupation to not contain the inconsistent requiredSkill
+        expect(givenFoundOccupation).not.toBeNull();
+        expect(givenFoundOccupation!.requiresSkills).toEqual([]); // <-- The inconsistent occupation is removed
+        // AND expect an error to be logged
+        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toBeCalledWith(`Required Skill is not in the same model as the Requiring Occupation`);
+      });
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
@@ -649,8 +856,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       for await (const data of actualLocalizedOccupations) {
         actualLocalizedOccupationsArray.push(data);
       }
-
-      expect(actualLocalizedOccupationsArray).toEqual(givenLocalizedOccupations);
+      const expectedLocalizedOccupations = givenLocalizedOccupations.map((LocalizedOccupation) => {
+        const { requiresSkills, ...LocalizedOccupationData } = LocalizedOccupation;
+        return LocalizedOccupationData;
+      });
+      expect(actualLocalizedOccupationsArray).toEqual(expectedLocalizedOccupations);
     });
 
     test("should not return any LocalizedOccupations when the model does not have any and other models have", async () => {

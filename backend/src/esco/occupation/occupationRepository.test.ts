@@ -665,7 +665,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // AND to have the given localized occupation
       expect(actualFoundOccupation.localized).toEqual(givenLocalizedOccupation);
 
-      expect(actualPlans).toHaveLength(4); // 1 for the parent and 1 for the child hierarchies, 1 for the required skill and 1 for the localized occupation
+      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the required skill and 1 for the localized occupation and 1 for the localizedOccupation requiresSkills
       expect(actualPlans).toEqual(
         expect.arrayContaining([
           // populating the localized occupation

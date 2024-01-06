@@ -11,7 +11,9 @@ import { IOccupationDoc } from "esco/occupation/occupation.types";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
-import { OccupationType } from "../common/objectTypes";
+import { OccupationType } from "esco/common/objectTypes";
+import {populateEmptyRequiresSkills} from "esco/occupationToSkillRelation/populateFunctions";
+import {populateLocalizedOccupationRequiresSkillsOptions} from "./populateLocalizedOccupationToSkillRelationOptions";
 
 export interface ILocalizedOccupationRepository {
   readonly Model: mongoose.Model<ILocalizedOccupationDoc>;
@@ -99,6 +101,7 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
       const newLocalizedOccupationModel = this.newSpecToModel(newLocalizedOccupationSpec);
       const newLocalizedOccupation = await newLocalizedOccupationModel.save();
 
+      populateEmptyRequiresSkills(newLocalizedOccupation);
       return newLocalizedOccupation.toObject();
     } catch (e: unknown) {
       console.error("create failed", e);
@@ -116,7 +119,9 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
     const localizingOccupationIds = await this.OccupationModel.find({
       modelId: { $eq: modelId },
       occupationType: { $eq: OccupationType.ESCO },
-    });
+    })
+      .select("_id occupationType")
+      .exec();
 
     // add each of the valid localizable ids to the existingIds map to search later
     localizingOccupationIds.forEach((occupation) => {
@@ -155,13 +160,21 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         } invalid entries were not created`
       );
     }
-    return newLocalizedOccupationsDocs.map((doc) => doc.toObject());
+    const populatedDocs: ILocalizedOccupation[] = [];
+
+    for (const doc of newLocalizedOccupationsDocs) {
+      populateEmptyRequiresSkills(doc);
+      populatedDocs.push(doc.toObject());
+    }
+    return populatedDocs;
   }
 
   async findById(id: string | mongoose.Types.ObjectId): Promise<ILocalizedOccupation | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
-      const localizedOccupation = await this.Model.findById(id);
+      const localizedOccupation = await this.Model.findById(id).populate([
+        populateLocalizedOccupationRequiresSkillsOptions,
+      ]);
       return localizedOccupation !== null ? localizedOccupation.toObject() : null;
     } catch (e: unknown) {
       console.error("findById failed", e);

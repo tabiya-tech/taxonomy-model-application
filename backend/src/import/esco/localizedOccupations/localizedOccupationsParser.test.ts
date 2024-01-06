@@ -81,13 +81,14 @@ describe("test parseLocalizedOccupations from", () => {
                     ...spec,
                     id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
                     modelId: "",
+                    UUID: "",
                     UUIDHistory: [],
                     altLabels: [],
                     description: "",
                     occupationType: OccupationType.LOCALIZED,
+                    requiresSkills: [],
                     updatedAt: new Date(),
                     createdAt: new Date(),
-                    UUID: "",
                   };
                 })
               );

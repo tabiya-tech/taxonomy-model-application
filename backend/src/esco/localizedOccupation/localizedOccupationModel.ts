@@ -10,6 +10,8 @@ import {
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { ILocalizedOccupationDoc } from "./localizedOccupation.types";
+import {LocalizedOccupationModelPaths} from "esco/common/modelPopulationPaths";
+import {OccupationToSkillRelationModelPaths} from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ILocalizedOccupationDoc> {
   // Main Schema
@@ -31,6 +33,16 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
+
+  LocalizedOccupationSchema.virtual(LocalizedOccupationModelPaths.requiresSkills, {
+    ref: MongooseModelName.OccupationToSkillRelation,
+    localField: "_id",
+    foreignField: OccupationToSkillRelationModelPaths.requiringOccupationId,
+    match: (localizedOccupation: ILocalizedOccupationDoc) => ({
+      modelId: { $eq: localizedOccupation.modelId },
+      requiringOccupationType: { $eq: localizedOccupation.occupationType },
+    }),
+  });
 
   LocalizedOccupationSchema.index({ UUID: 1 }, { unique: true });
   LocalizedOccupationSchema.index(INDEX_FOR_LOCALIZED, { unique: true });

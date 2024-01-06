@@ -34,6 +34,7 @@ describe("test getProcessEntityBatchFunction", () => {
               specs.map((spec: INewLocalizedOccupationSpec): ILocalizedOccupation => {
                 return {
                   ...spec,
+                  requiresSkills: [],
                   UUID: randomUUID(),
                   updatedAt: new Date(),
                   createdAt: new Date(),
@@ -96,6 +97,7 @@ describe("test getProcessEntityBatchFunction", () => {
               specs.map((spec: INewLocalizedOccupationSpec): ILocalizedOccupation => {
                 return {
                   ...spec,
+                  requiresSkills: [],
                   UUID: randomUUID(),
                   updatedAt: new Date(),
                   createdAt: new Date(),
@@ -179,6 +181,7 @@ describe("test getProcessEntityBatchFunction", () => {
               specs.map((spec: INewLocalizedOccupationSpec): ILocalizedOccupation => {
                 return {
                   ...spec,
+                  requiresSkills: [],
                   UUID: randomUUID(),
                   updatedAt: new Date(),
                   createdAt: new Date(),
@@ -301,6 +304,7 @@ describe("test getProcessEntityBatchFunction", () => {
                   return {
                     ...spec,
                     UUID: randomUUID(),
+                    requiresSkills: [],
                     updatedAt: new Date(),
                     createdAt: new Date(),
                     id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
