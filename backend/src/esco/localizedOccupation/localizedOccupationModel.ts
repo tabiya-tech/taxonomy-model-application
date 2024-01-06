@@ -10,8 +10,8 @@ import {
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { ILocalizedOccupationDoc } from "./localizedOccupation.types";
-import {LocalizedOccupationModelPaths} from "esco/common/modelPopulationPaths";
-import {OccupationToSkillRelationModelPaths} from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
+import { LocalizedOccupationModelPaths } from "esco/common/modelPopulationPaths";
+import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ILocalizedOccupationDoc> {
   // Main Schema

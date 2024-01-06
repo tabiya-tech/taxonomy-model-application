@@ -2,7 +2,7 @@ import { ImportIdentifiable, ObjectTypes, OccupationType, ReferenceWithRelationT
 import mongoose from "mongoose";
 import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
-import { ILocalizedOccupation } from "../localizedOccupation/localizedOccupation.types";
+import { ILocalizedOccupation } from "esco/localizedOccupation/localizedOccupation.types";
 
 /**
  * Describes how an occupation is saved in MongoDB

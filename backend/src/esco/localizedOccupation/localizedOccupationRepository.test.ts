@@ -10,25 +10,31 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import {
   getNewISCOGroupSpec,
   getNewLocalizedOccupationSpec,
-  getNewOccupationSpec, getNewSkillSpec,
+  getNewOccupationSpec,
+  getNewSkillSpec,
   getSimpleNewLocalizedOccupationSpec,
-  getSimpleNewOccupationSpec, getSimpleNewSkillSpec,
+  getSimpleNewOccupationSpec,
+  getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import {ILocalizedOccupation, ILocalizedOccupationDoc, INewLocalizedOccupationSpec} from "./localizedOccupation.types";
+import {
+  ILocalizedOccupation,
+  ILocalizedOccupationDoc,
+  INewLocalizedOccupationSpec,
+} from "./localizedOccupation.types";
 import { ILocalizedOccupationRepository } from "./localizedOccupationRepository";
-import {INewOccupationSpec, IOccupation} from "esco/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.types";
 import { randomUUID } from "crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { Readable } from "node:stream";
-import {INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
-import {IOccupationToSkillRelationPairDoc} from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import {OccupationType, ReferenceWithRelationType, RelationType} from "esco/common/objectTypes";
-import {MongooseModelName} from "esco/common/mongooseModelNames";
-import {getExpectedPlan, setUpPopulateWithExplain} from "esco/_test_utilities/populateWithExplainPlan";
-import {ISkillReference} from "esco/skill/skills.types";
-import {expectedRelatedSkillReference} from "esco/_test_utilities/expectedReference";
-import {INDEX_FOR_REQUIRES_SKILLS} from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
+import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { OccupationType, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
+import { ISkillReference } from "esco/skill/skills.types";
+import { expectedRelatedSkillReference } from "esco/_test_utilities/expectedReference";
+import { INDEX_FOR_REQUIRES_SKILLS } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -60,7 +66,7 @@ function expectedFromGivenSpec(
     updatedAt: expect.any(Date),
     modelId: localizingOccupation.modelId,
     localizesOccupationId: localizingOccupation.id,
-    requiresSkills: []
+    requiresSkills: [],
   };
 }
 
@@ -620,7 +626,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an Occupation to be localized
       const givenModelId = getMockStringId(1);
       const givenOccupationToBeLocalizedSpecs = getSimpleNewOccupationSpec(givenModelId, "Occupation");
-      const givenOccupationToBeLocalized = await repositoryRegistry.occupation.create(givenOccupationToBeLocalizedSpecs);
+      const givenOccupationToBeLocalized = await repositoryRegistry.occupation.create(
+        givenOccupationToBeLocalizedSpecs
+      );
       // AND a localized occupation with two required Skills in the database
       const givenSubjectSpecs = getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupationToBeLocalized.id);
       const givenSubject = await repository.create(givenSubjectSpecs);
@@ -628,7 +636,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // AND Some other localized occupation
       const givenOtherOccupationSpecs = getSimpleNewOccupationSpec(givenModelId, "Other Occupation");
       const givenOtherOccupation = await repositoryRegistry.occupation.create(givenOtherOccupationSpecs);
-      const givenOtherLocalizedOccupationSpecs = getSimpleNewLocalizedOccupationSpec(givenModelId, givenOtherOccupation.id);
+      const givenOtherLocalizedOccupationSpecs = getSimpleNewLocalizedOccupationSpec(
+        givenModelId,
+        givenOtherOccupation.id
+      );
       const givenOtherLocalizedOccupation = await repository.create(givenOtherLocalizedOccupationSpecs);
 
       // The requiredSkill 1

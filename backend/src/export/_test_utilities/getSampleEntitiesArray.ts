@@ -2,8 +2,8 @@ import { INewOccupationSpec, IOccupation } from "esco/occupation/occupation.type
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { ObjectTypes, OccupationType, RelationType } from "esco/common/objectTypes";
-import {ILocalizedOccupation, INewLocalizedOccupationSpec} from "esco/localizedOccupation/localizedOccupation.types";
-import {IISCOGroup, INewISCOGroupSpec} from "esco/iscoGroup/ISCOGroup.types";
+import { ILocalizedOccupation, INewLocalizedOccupationSpec } from "esco/localizedOccupation/localizedOccupation.types";
+import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
@@ -26,7 +26,11 @@ export const getSampleISCOGroupSpecs = (givenModelId: string, batchSize: number 
   }));
 };
 
-export const getSampleOccupationSpecs = (givenModelId: string, isLocal: boolean = false, batchSize: number = 100): INewOccupationSpec[] => {
+export const getSampleOccupationSpecs = (
+  givenModelId: string,
+  isLocal: boolean = false,
+  batchSize: number = 100
+): INewOccupationSpec[] => {
   return Array.from<never, INewOccupationSpec>({ length: batchSize }, (_, i) => ({
     modelId: givenModelId,
     UUIDHistory: [randomUUID()],
@@ -124,21 +128,20 @@ export const getSampleOccupationHierarchy = (
   ESCOOccupations: IOccupation[],
   localOccupations: IOccupation[]
 ) => {
-  const hierarchySpecs : INewOccupationHierarchyPairSpec[] = [];
+  const hierarchySpecs: INewOccupationHierarchyPairSpec[] = [];
   const createPairs = (
     parent: IOccupation | IISCOGroup,
     children: IOccupation[] | IISCOGroup[],
     parentType: ObjectTypes.Occupation | ObjectTypes.ISCOGroup,
-    childType: ObjectTypes.Occupation | ObjectTypes.ISCOGroup,
+    childType: ObjectTypes.Occupation | ObjectTypes.ISCOGroup
   ) => {
-
     for (const child of children) {
       if (parent.id !== child.id) {
         hierarchySpecs.push({
           parentId: parent.id,
           parentType: parentType,
           childType: childType,
-          childId: child.id
+          childId: child.id,
         });
       }
     }
@@ -147,21 +150,41 @@ export const getSampleOccupationHierarchy = (
   // Create hierarchy pairs based on the rules
   // since we have a unique key constraint that says that no child can have more than one parent, we have to be sure to slice off different segments for each of the relation pair types
   createPairs(ISCOGroups[ISCOGroups.length - 1], ISCOGroups.slice(0, 10), ObjectTypes.ISCOGroup, ObjectTypes.ISCOGroup);
-  createPairs(ISCOGroups[ISCOGroups.length - 1], ESCOOccupations.slice(0, 10), ObjectTypes.ISCOGroup, ObjectTypes.Occupation);
-  createPairs(ISCOGroups[ISCOGroups.length - 1], localOccupations.slice(0, 10), ObjectTypes.ISCOGroup, ObjectTypes.Occupation);
-  createPairs(ESCOOccupations[ESCOOccupations.length - 1], ESCOOccupations.slice(10, 20), ObjectTypes.Occupation, ObjectTypes.Occupation);
-  createPairs(ESCOOccupations[ESCOOccupations.length - 1], localOccupations.slice(10, 20), ObjectTypes.Occupation, ObjectTypes.Occupation);
-  createPairs(localOccupations[localOccupations.length - 1], localOccupations.slice(20, 30), ObjectTypes.Occupation, ObjectTypes.Occupation);
+  createPairs(
+    ISCOGroups[ISCOGroups.length - 1],
+    ESCOOccupations.slice(0, 10),
+    ObjectTypes.ISCOGroup,
+    ObjectTypes.Occupation
+  );
+  createPairs(
+    ISCOGroups[ISCOGroups.length - 1],
+    localOccupations.slice(0, 10),
+    ObjectTypes.ISCOGroup,
+    ObjectTypes.Occupation
+  );
+  createPairs(
+    ESCOOccupations[ESCOOccupations.length - 1],
+    ESCOOccupations.slice(10, 20),
+    ObjectTypes.Occupation,
+    ObjectTypes.Occupation
+  );
+  createPairs(
+    ESCOOccupations[ESCOOccupations.length - 1],
+    localOccupations.slice(10, 20),
+    ObjectTypes.Occupation,
+    ObjectTypes.Occupation
+  );
+  createPairs(
+    localOccupations[localOccupations.length - 1],
+    localOccupations.slice(20, 30),
+    ObjectTypes.Occupation,
+    ObjectTypes.Occupation
+  );
   return hierarchySpecs;
 };
 
-
-
-export const getSampleSkillsHierarchy = (
-  givenSkills: ISkill[],
-  givenSkillGroups: ISkillGroup[]
-) => {
-  const hierarchy : INewSkillHierarchyPairSpec[] = [];
+export const getSampleSkillsHierarchy = (givenSkills: ISkill[], givenSkillGroups: ISkillGroup[]) => {
+  const hierarchy: INewSkillHierarchyPairSpec[] = [];
 
   // Helper function to create hierarchy pairs
   const createPairs = (
@@ -170,22 +193,32 @@ export const getSampleSkillsHierarchy = (
     parentType: ObjectTypes.Skill | ObjectTypes.SkillGroup,
     childType: ObjectTypes.Skill | ObjectTypes.SkillGroup
   ) => {
-      for (const child of children) {
-        if (parent.id !== child.id) {
-          hierarchy.push({
-            parentId: parent.id,
-            parentType: parentType,
-            childType: childType,
-            childId: child.id,
-          });
-        }
+    for (const child of children) {
+      if (parent.id !== child.id) {
+        hierarchy.push({
+          parentId: parent.id,
+          parentType: parentType,
+          childType: childType,
+          childId: child.id,
+        });
       }
+    }
   };
 
   // Create hierarchy pairs based on the rules
-  createPairs(givenSkillGroups[givenSkillGroups.length -1 ], givenSkillGroups.slice(0, 10), ObjectTypes.SkillGroup, ObjectTypes.SkillGroup);
+  createPairs(
+    givenSkillGroups[givenSkillGroups.length - 1],
+    givenSkillGroups.slice(0, 10),
+    ObjectTypes.SkillGroup,
+    ObjectTypes.SkillGroup
+  );
   createPairs(givenSkills[givenSkills.length - 1], givenSkills.slice(0, 10), ObjectTypes.Skill, ObjectTypes.Skill);
-  createPairs(givenSkillGroups[givenSkillGroups.length - 1], givenSkills.slice(10, 20), ObjectTypes.SkillGroup, ObjectTypes.Skill);
+  createPairs(
+    givenSkillGroups[givenSkillGroups.length - 1],
+    givenSkills.slice(10, 20),
+    ObjectTypes.SkillGroup,
+    ObjectTypes.Skill
+  );
 
   return hierarchy;
 };
@@ -198,21 +231,33 @@ export const getSampleOccupationToSkillRelations = (
 ) => {
   const occupationToSkillRelations: INewOccupationToSkillPairSpec[] = [];
 
-  const createRelations = (requiringOccupation: IOccupation | ILocalizedOccupation, givenSkills: ISkill[],  occupationType: OccupationType) => {
-      for (const skill of givenSkills) {
-        occupationToSkillRelations.push({
-          requiringOccupationType: occupationType,
-          requiredSkillId: skill.id,
-          requiringOccupationId: requiringOccupation.id,
-          relationType: RelationType.OPTIONAL,
-        });
+  const createRelations = (
+    requiringOccupation: IOccupation | ILocalizedOccupation,
+    givenSkills: ISkill[],
+    occupationType: OccupationType
+  ) => {
+    for (const skill of givenSkills) {
+      occupationToSkillRelations.push({
+        requiringOccupationType: occupationType,
+        requiredSkillId: skill.id,
+        requiringOccupationId: requiringOccupation.id,
+        relationType: RelationType.OPTIONAL,
+      });
     }
   };
 
   // Create relations for each type of occupation
   createRelations(givenESCOOccupations[givenESCOOccupations.length - 1], givenSkills.slice(0, 10), OccupationType.ESCO);
-  createRelations(givenLocalOccupations[givenLocalOccupations.length - 1],  givenSkills.slice(10, 20), OccupationType.LOCAL);
-  createRelations(givenLocalizedOccupations[givenLocalizedOccupations.length - 1], givenSkills.slice(20, 30), OccupationType.LOCALIZED);
+  createRelations(
+    givenLocalOccupations[givenLocalOccupations.length - 1],
+    givenSkills.slice(10, 20),
+    OccupationType.LOCAL
+  );
+  createRelations(
+    givenLocalizedOccupations[givenLocalizedOccupations.length - 1],
+    givenSkills.slice(20, 30),
+    OccupationType.LOCALIZED
+  );
 
   return occupationToSkillRelations;
 };
@@ -227,7 +272,7 @@ export const getSampleSkillToSkillRelations = (givenSkills: ISkill[]) => {
     skillToSkillRelations.push({
       requiringSkillId,
       requiredSkillId,
-      relationType: RelationType.OPTIONAL
+      relationType: RelationType.OPTIONAL,
     });
   }
 

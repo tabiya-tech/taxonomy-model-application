@@ -7,5 +7,5 @@ export const OccupationModelPaths = {
 
 export const LocalizedOccupationModelPaths = {
   localizesOccupationId: "localizesOccupationId",
-  requiresSkills: "requiresSkills"
+  requiresSkills: "requiresSkills",
 };

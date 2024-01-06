@@ -1,6 +1,6 @@
 import { ImportIdentifiable, OccupationType } from "esco/common/objectTypes";
 import mongoose from "mongoose";
-import {ISkillReference} from "esco/skill/skills.types";
+import { ISkillReference } from "esco/skill/skills.types";
 
 /**
  * Describes how a Localized occupation is saved in MongoDB
@@ -32,4 +32,7 @@ export interface ILocalizedOccupation extends Omit<ILocalizedOccupationDoc, "loc
 /**
  *  Describes how new localized occupations are created in the API
  */
-export type INewLocalizedOccupationSpec = Omit<ILocalizedOccupation, "id" | "UUID" | "requiresSkills" | "createdAt" | "updatedAt">;
+export type INewLocalizedOccupationSpec = Omit<
+  ILocalizedOccupation,
+  "id" | "UUID" | "requiresSkills" | "createdAt" | "updatedAt"
+>;

@@ -5,7 +5,7 @@ import { IOccupationDoc, IOccupationReference } from "esco/occupation/occupation
 import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
 import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
 import mongoose from "mongoose";
-import {ILocalizedOccupationDoc} from "esco/localizedOccupation/localizedOccupation.types";
+import { ILocalizedOccupationDoc } from "esco/localizedOccupation/localizedOccupation.types";
 
 export function getSkillRequiredByOccupationReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc
@@ -33,7 +33,9 @@ export function getOccupationRequiresSkillReference(
   return getSkillReferenceWithRelationType(doc.requiredSkillId, doc.relationType);
 }
 
-export function populateEmptyRequiresSkills(target: mongoose.Document<unknown, unknown, IOccupationDoc | ILocalizedOccupationDoc>) {
+export function populateEmptyRequiresSkills(
+  target: mongoose.Document<unknown, unknown, IOccupationDoc | ILocalizedOccupationDoc>
+) {
   // @ts-ignore
   target.requiresSkills = [];
 }

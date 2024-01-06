@@ -12,8 +12,8 @@ import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import { OccupationType } from "esco/common/objectTypes";
-import {populateEmptyRequiresSkills} from "esco/occupationToSkillRelation/populateFunctions";
-import {populateLocalizedOccupationRequiresSkillsOptions} from "./populateLocalizedOccupationToSkillRelationOptions";
+import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
+import { populateLocalizedOccupationRequiresSkillsOptions } from "./populateLocalizedOccupationToSkillRelationOptions";
 
 export interface ILocalizedOccupationRepository {
   readonly Model: mongoose.Model<ILocalizedOccupationDoc>;

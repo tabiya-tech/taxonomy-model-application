@@ -1,5 +1,5 @@
-import {LocalizedOccupationModelPaths, OccupationModelPaths} from "esco/common/modelPopulationPaths";
-import {OccupationDocument} from "esco/occupation/occupationReference";
+import { LocalizedOccupationModelPaths, OccupationModelPaths } from "esco/common/modelPopulationPaths";
+import { OccupationDocument } from "esco/occupation/occupationReference";
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
