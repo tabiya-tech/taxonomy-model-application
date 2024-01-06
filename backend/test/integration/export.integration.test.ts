@@ -48,9 +48,25 @@ import {
   getSampleSkillsSpecs,
   getSampleSkillToSkillRelations,
 } from "export/_test_utilities/getSampleEntitiesArray";
+import CSVtoZipPipeline from "export/async/CSVtoZipPipeline";
+import uploadZipToS3 from "export/async/uploadZipToS3";
+import ESCOOccupationsToCSVTransform from "export/esco/occupation/ESCOOccupationsToCSVTransform";
+import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
+import {parse} from "csv-parse";
+import unzipper from "unzipper";
+import {IISCOGroup} from "esco/iscoGroup/ISCOGroup.types";
+import {IOccupation} from "esco/occupation/occupation.types";
+import {ISkill} from "esco/skill/skills.types";
+import {ISkillGroup} from "esco/skillGroup/skillGroup.types";
+import {ILocalizedOccupation} from "esco/localizedOccupation/localizedOccupation.types";
+import {IOccupationHierarchyPair} from "esco/occupationHierarchy/occupationHierarchy.types";
+import {ISkillHierarchyPair} from "esco/skillHierarchy/skillHierarchy.types";
+import {IOccupationToSkillRelationPair} from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import {ISkillToSkillRelationPair} from "esco/skillToSkillRelation/skillToSkillRelation.types";
 
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
+  const DIR_PATH = "./tmp"
   // Backup and restore the original env variables
   beforeAll(() => {
     Object.keys(process.env).forEach((key) => {
@@ -66,6 +82,12 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     Object.keys(originalEnv).forEach((key) => {
       process.env[key] = originalEnv[key];
     });
+    // Cleanup files created for test
+    // CAREFUL ------
+    if (fs.existsSync(DIR_PATH)) {
+      fs.rmSync(DIR_PATH, {  recursive: true, force: true } );
+    }
+    // --------
   });
 
   // Initialize the server with an in-memory mongodb
@@ -102,8 +124,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     jest.clearAllMocks();
   });
 
-  async function createTestData() {
-    // GIVEN a model exists with data (occupations)
+  async function createTestData(){
     const givenModel = await getRepositoryRegistry().modelInfo.create({
       name: "foo",
       locale: {
@@ -113,7 +134,6 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       },
       description: "",
     });
-    // AND an export process is pending for that model
     const givenExportProcessState = await getRepositoryRegistry().exportProcessState.create({
       modelId: givenModel.id,
       status: ExportProcessStateApiSpecs.Enums.Status.PENDING,
@@ -125,39 +145,50 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       downloadUrl: "https://example.com/" + randomUUID(),
       timestamp: new Date(),
     });
+    // First create the base entities
+    const [
+      actualISCOGroups,
+      actualESCOOccupations,
+      actualLocalOccupations,
+      actualSkills,
+      actualSkillGroups
+    ] = await Promise.all(
+      [
+        getRepositoryRegistry().ISCOGroup.createMany(getSampleISCOGroupSpecs(givenModel.id)),// ISCO Groups
+        getRepositoryRegistry().occupation.createMany(getSampleOccupationSpecs(givenModel.id)), // ESCO Occupations
+        getRepositoryRegistry().occupation.createMany(getSampleOccupationSpecs(givenModel.id, true)), // Local Occupations
+        getRepositoryRegistry().skill.createMany(getSampleSkillsSpecs(givenModel.id)), // Skills
+        getRepositoryRegistry().skillGroup.createMany(getSampleSkillGroupsSpecs(givenModel.id)), // SKillGroups
+      ]
+    );
+    // Then create the localized occupation
+    const actualLocalizedOccupation = await getRepositoryRegistry().localizedOccupation.createMany(givenModel.id,getSampleLocalizedOccupationSpecs(actualESCOOccupations)) // Localized Occupations
 
-    // AND occupations exist for that model
-    await getRepositoryRegistry().ISCOGroup.createMany(getSampleISCOGroupSpecs(givenModel.id));
-    const actualESCOOccupations = await getRepositoryRegistry().occupation.createMany(
-      getSampleOccupationSpecs(givenModel.id)
-    ); // ESCO Occupations
-    await getRepositoryRegistry().occupation.createMany(getSampleOccupationSpecs(givenModel.id, true)); // Local Occupations
-    await getRepositoryRegistry().localizedOccupation.createMany(
-      givenModel.id,
-      getSampleLocalizedOccupationSpecs(actualESCOOccupations)
-    ); // Localized Occupations
-    const actualSkills = await getRepositoryRegistry().skill.createMany(getSampleSkillsSpecs(givenModel.id));
-    const actualSkillGroups = await getRepositoryRegistry().skillGroup.createMany(
-      getSampleSkillGroupsSpecs(givenModel.id)
-    );
-    await getRepositoryRegistry().occupationHierarchy.createMany(
-      givenModel.id,
-      getSampleOccupationHierarchy(givenModel.id)
-    );
-    await getRepositoryRegistry().skillHierarchy.createMany(
-      givenModel.id,
-      getSampleSkillsHierarchy(actualSkills, actualSkillGroups)
-    );
-    await getRepositoryRegistry().occupationToSkillRelation.createMany(
-      givenModel.id,
-      getSampleOccupationToSkillRelations(actualESCOOccupations, actualSkills)
-    );
-    await getRepositoryRegistry().skillToSkillRelation.createMany(
-      givenModel.id,
-      getSampleSkillToSkillRelations(actualSkills)
-    );
+    // Then create the relations since they are created based on the base entities
+    const [
+      actualOccupationHierarchy,
+      actualSkillHierarchy,
+      actualOccupationToSkillRelation,
+      actualSkillToSkillRelation
+    ] = await Promise.all([
+      getRepositoryRegistry().occupationHierarchy.createMany(givenModel.id, getSampleOccupationHierarchy(actualISCOGroups, actualESCOOccupations, actualLocalOccupations)),
+      getRepositoryRegistry().skillHierarchy.createMany(givenModel.id,getSampleSkillsHierarchy(actualSkills, actualSkillGroups)),
+      getRepositoryRegistry().occupationToSkillRelation.createMany(givenModel.id, getSampleOccupationToSkillRelations(actualESCOOccupations, actualLocalOccupations, actualLocalizedOccupation, actualSkills)),
+      getRepositoryRegistry().skillToSkillRelation.createMany(givenModel.id,getSampleSkillToSkillRelations(actualSkills))
+    ]);
 
-    return { modelId: givenModel.id, exportProcessStateId: givenExportProcessState.id };
+    return { modelId: givenModel.id, exportProcessStateId: givenExportProcessState.id, actualObjects: {
+        ISCOGroup: actualISCOGroups,
+        ESCOOccupations: actualESCOOccupations,
+        LocalOccupations: actualLocalOccupations,
+        Skills: actualSkills,
+        SkillGroups: actualSkillGroups,
+        LocalizedOccupations : actualLocalizedOccupation,
+        OccupationHierarchy: actualOccupationHierarchy,
+        SkillHierarchy: actualSkillHierarchy,
+        OccupationToSkillRelation: actualOccupationToSkillRelation,
+        SkillToSkillRelation: actualSkillToSkillRelation,
+    }};
   }
 
   test("export to file", async () => {
@@ -179,9 +210,8 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     jest.spyOn(archiver, "create");
 
     // GIVEN a model exists in the db with some data
-    const { modelId, exportProcessStateId } = await createTestData();
+    const { modelId, exportProcessStateId, actualObjects} = await createTestData();
     // guard to ensure that no error has occurred while creating the test data
-    // TODO: clearing the warn and errors as currently, the createTestData() fails to create occupation hierarchy
     (console.warn as jest.Mock).mockClear();
     (console.error as jest.Mock).mockClear();
     expect(console.error).not.toHaveBeenCalled();
@@ -198,8 +228,8 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       .mockImplementation((uploadStream: Readable, fileName: string, _region: string, _bucketName: string) => {
         return new Promise((resolve, reject) => {
           try {
-            fs.mkdirSync("./tmp", { recursive: true });
-            const writeStream = fs.createWriteStream("./tmp/" + fileName);
+            fs.mkdirSync(DIR_PATH, { recursive: true });
+            const writeStream = fs.createWriteStream("./tmp/exportIntegrationTestFile.zip");
             pipeline(uploadStream, writeStream, (err) => {
               if (err) {
                 console.log("UploadErrored");
@@ -243,10 +273,95 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
 
+    // AND expect the correct number of exported items for each entity by counting the items in the csv
+    await assertAllItemsAreExported(actualObjects);
     // AND All resources have been released
     await assertThanAllResourcesAreReleased();
   });
 });
+
+async function assertAllItemsAreExported(
+  actualObjects: {
+    ISCOGroup: IISCOGroup[];
+    ESCOOccupations: IOccupation[];
+    LocalOccupations: IOccupation[];
+    Skills: ISkill[];
+    SkillGroups: ISkillGroup[];
+    LocalizedOccupations : ILocalizedOccupation[];
+    OccupationHierarchy: IOccupationHierarchyPair[];
+    SkillHierarchy: ISkillHierarchyPair[];
+    OccupationToSkillRelation: IOccupationToSkillRelationPair[];
+    SkillToSkillRelation: ISkillToSkillRelationPair[];
+  }) {
+  async function countRowsInFile(filePath: fs.PathLike) {
+    return new Promise((resolve, reject) => {
+      let rowCount = 0;
+      fs.createReadStream(filePath)
+        .pipe(parse())
+        .on("data", () => {
+          rowCount++;
+        })
+        .on("end", () => {
+          resolve(rowCount);
+        })
+        .on("error", reject);
+    });
+  }
+
+  async function extractAndCountRows(zipFilePath: string, outputDir: string) {
+    const counts = new Map();
+
+    try {
+      // CAREFUL ------
+      if (fs.existsSync(outputDir)) {
+        fs.rmSync(outputDir, {  recursive: true, force: true } );
+      }
+      // --------
+      fs.mkdirSync(outputDir, { recursive: true });
+      const directory = await unzipper.Open.file(zipFilePath);
+      for (const file of directory.files) {
+        if (file.type === "File" && file.path.endsWith(".csv")) {
+          await new Promise((resolve, reject) => {
+            file
+              .stream()
+              .pipe(fs.createWriteStream(`${outputDir}/${file.path}`))
+              .on("error", reject)
+              .on("finish", resolve);
+          });
+          const rowCount = await countRowsInFile(`${outputDir}/${file.path}`);
+          counts.set(file.path, rowCount);
+        }
+      }
+    } catch (err) {
+      console.error("Error processing zip file:", err);
+    }
+
+    return counts;
+  }
+
+  const zipFilePath = "./tmp/exportIntegrationTestFile.zip";
+  const outputDir = "./tmp/exportIntegrationTestFile";
+
+  const counts = await extractAndCountRows(zipFilePath, outputDir);
+
+  expect(counts.size).toBe(11)
+
+  // The expected counts are the same as the number of entries + 1 for the header row
+  const expectedCounts = new Map<string, number>([
+    ["isco_groups.csv", actualObjects.ISCOGroup.length + 1],
+    ["esco_occupations.csv", actualObjects.ESCOOccupations.length + 1],
+    ["local_occupations.csv", actualObjects.LocalOccupations.length + 1],
+    ["localized_occupations.csv", actualObjects.LocalizedOccupations.length + 1],
+    ["skills.csv", actualObjects.Skills.length + 1],
+    ["skill_groups.csv", actualObjects.SkillGroups.length + 1],
+    ["occupation_hierarchy.csv", actualObjects.OccupationHierarchy.length + 1],
+    ["skill_hierarchy.csv", actualObjects.SkillHierarchy.length + 1],
+    ["occupation_to_skill_relation.csv", actualObjects.OccupationToSkillRelation.length + 1],
+    ["skill_to_skill_relation.csv", actualObjects.SkillToSkillRelation.length + 1],
+    ["model_info.csv", 2]]);
+
+  expect(counts).toEqual(expectedCounts);
+}
 
 async function assertStreamIsClosedAndDestroyed(stream: Readable) {
   await new Promise((resolve) =>

@@ -239,7 +239,7 @@ export interface ISkillToSkillsRelationExportRow extends ISkillToSkillsRelationI
 export const occupationToSkillRelationImportHeaders = ["OCCUPATIONTYPE", "OCCUPATIONID", "RELATIONTYPE", "SKILLID"];
 
 export const occupationToSkillRelationExportHeaders = [
-  ...occupationImportHeaders,
+  ...occupationToSkillRelationImportHeaders,
   HEADER_NAMES.CREATED_AT,
   HEADER_NAMES.UPDATED_AT,
 ];
