@@ -59,8 +59,8 @@ describe("test parseSkillToSkillRelation from", () => {
 
     // AND a SkillToSkillRelation repository
     const givenMockRepository: SkillToSkillRelationRepository = {
-      relationModel: undefined as any,
-      skillModel: undefined as any,
+      relationModel: undefined as never,
+      skillModel: undefined as never,
       findAll: jest.fn(),
       createMany: jest
         .fn()
@@ -97,7 +97,9 @@ describe("test parseSkillToSkillRelation from", () => {
     const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
     // THEN expect the repository to have been called with the expected spec
-    const expectedResults: ISkillToSkillRelationPair[] = require("./_test_data_/expected.ts").expected;
+    const path = "./_test_data_/expected.ts";
+    const expectedResultsModule = await import(path);
+    const expectedResults: ISkillToSkillRelationPair[] = expectedResultsModule.expected;
     expectedResults.forEach((expectedResult: ISkillToSkillRelationPair) => {
       expect(givenMockRepository.createMany).toHaveBeenCalledWith(
         givenModelId,

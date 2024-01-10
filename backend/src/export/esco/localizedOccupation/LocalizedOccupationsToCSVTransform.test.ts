@@ -32,7 +32,7 @@ const getMockLocalizedOccupations = (): IUnpopulatedLocalizedOccupation[] => {
 
 function setupLocalizedOccupationRepositoryMock(findAllImpl: () => Readable) {
   const mockLocalizedOccupationRepository: ILocalizedOccupationRepository = {
-    Model: undefined as any,
+    Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
@@ -106,7 +106,7 @@ describe("LocalizedOccupationToCsvTransform", () => {
       const givenError = new Error("Mocked Transformation Error");
       jest
         .spyOn(LocalizedOccupationsToCSVTransformModule, "transformLocalizedOccupationSpecToCSVRow")
-        .mockImplementationOnce((_: IUnpopulatedLocalizedOccupation) => {
+        .mockImplementationOnce(() => {
           throw givenError;
         });
 

@@ -4,7 +4,7 @@
   "license": "MIT",
   "prettier": "@tabiya/prettier-config",
   "scripts": {
-    "lint": "eslint src --ext .ts --max-warnings 0",
+    "lint": "eslint src test --ext .ts --max-warnings 0",
     "clean": "rimraf -I build coverage deploy",
     "compile": "tsc --build tsconfig.prod.json",
     "prebuild": "npm run clean && npm run compile",

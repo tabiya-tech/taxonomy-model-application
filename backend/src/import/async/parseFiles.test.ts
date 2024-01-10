@@ -37,7 +37,7 @@ jest.mock("./S3PresignerService", () => {
 // Mock the ISCOGroupsParser
 jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
   return {
-    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
       rowsProcessed: 100,
       rowsSuccess: 100,
       rowsFailed: 0,
@@ -47,7 +47,7 @@ jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
 // Mock the ESCOSkillGroupsParser
 jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
   return {
-    parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+    parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
       rowsProcessed: 200,
       rowsSuccess: 200,
       rowsFailed: 0,
@@ -58,7 +58,7 @@ jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
 // Mock the ESCOSkillParser
 jest.mock("import/esco/skills/skillsParser.ts", () => {
   return {
-    parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+    parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
       rowsProcessed: 300,
       rowsSuccess: 300,
       rowsFailed: 0,
@@ -70,9 +70,9 @@ jest.mock("import/esco/skills/skillsParser.ts", () => {
 jest.mock("import/esco/occupations/occupationsParser.ts", () => {
   return {
     parseOccupationsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, any>()
+      .fn<Promise<RowsProcessedStats>, never>()
       .mockImplementation(
-        (modelId: string, url: string, importIdToDBIdMap: Map<string, string>, isLocalImport: boolean) => {
+        (_modelId: string, _url: string, _importIdToDBIdMap: Map<string, string>, isLocalImport: boolean) => {
           const rows = isLocalImport ? 200 : 300;
           return Promise.resolve({
             rowsProcessed: rows,
@@ -88,9 +88,9 @@ jest.mock("import/esco/occupations/occupationsParser.ts", () => {
 jest.mock("import/esco/localizedOccupations/localizedOccupationsParser.ts", () => {
   return {
     parseLocalizedOccupationsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, any>()
+      .fn<Promise<RowsProcessedStats>, never>()
       .mockImplementation(
-        (modelId: string, url: string, importIdToDBIdMap: Map<string, string>, isLocalImport: boolean) => {
+        (_modelId: string, _url: string, _importIdToDBIdMap: Map<string, string>, _isLocalImport: boolean) => {
           return Promise.resolve({
             rowsProcessed: 100,
             rowsSuccess: 100,
@@ -104,7 +104,7 @@ jest.mock("import/esco/localizedOccupations/localizedOccupationsParser.ts", () =
 // Mock the OccupationHierarchyParser
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
   return {
-    parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+    parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
       // countISCOGroups + countOccupations(Local and ESCO) - 10
       rowsProcessed: 100 + 200 + 300 - 10,
       rowsSuccess: 100 + 200 + 300 - 10,
@@ -116,7 +116,7 @@ jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => 
 // Mock the SkillHierarchyParser
 jest.mock("import/esco/skillHierarchy/skillHierarchyParser.ts", () => {
   return {
-    parseSkillHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+    parseSkillHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
       rowsProcessed: 600,
       rowsSuccess: 600,
       rowsFailed: 0,
@@ -127,7 +127,7 @@ jest.mock("import/esco/skillHierarchy/skillHierarchyParser.ts", () => {
 // Mock the SkillToSkillRelationParser
 jest.mock("import/esco/skillToSkillRelation/skillToSkillRelationParser.ts", () => {
   return {
-    parseSkillToSkillRelationFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+    parseSkillToSkillRelationFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
       rowsProcessed: 500,
       rowsSuccess: 500,
       rowsFailed: 0,
@@ -137,7 +137,7 @@ jest.mock("import/esco/skillToSkillRelation/skillToSkillRelationParser.ts", () =
 // Mock the OccupationToSkillRelationParser
 jest.mock("import/esco/occupationToSkillRelation/occupationToSkillRelationParser.ts", () => {
   return {
-    parseOccupationToSkillRelationFromUrl: jest.fn<Promise<RowsProcessedStats>, any>().mockResolvedValue({
+    parseOccupationToSkillRelationFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
       rowsProcessed: 10000,
       rowsSuccess: 10000,
       rowsFailed: 0,
@@ -183,7 +183,7 @@ describe("Test the main async handler", () => {
     const givenModelId = getMockStringId(1);
     const givenImportProcessStateId = getMockStringId(2);
     const givenModelInfoRepositoryMock = {
-      Model: undefined as any,
+      Model: undefined as never,
       create: jest.fn().mockResolvedValue(null),
       getModelById: jest.fn().mockResolvedValue({
         id: givenModelId,
@@ -198,7 +198,7 @@ describe("Test the main async handler", () => {
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
     // AND the importProcessState will be successfully updated
     const givenImportProcessStateRepositoryMock = {
-      Model: undefined as any,
+      Model: undefined as never,
       create: jest.fn().mockResolvedValue(null),
       update: jest.fn().mockResolvedValue(null),
       upsert: jest.fn().mockResolvedValue(null),
@@ -398,7 +398,7 @@ describe("Test the main async handler", () => {
       const givenModelId = getMockStringId(1);
       const givenImportProcessStateId = getMockStringId(2);
       const givenModelInfoRepositoryMock = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         getModelById: jest.fn().mockResolvedValue({
           id: givenModelId,
@@ -413,7 +413,7 @@ describe("Test the main async handler", () => {
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
       // AND the importProcessState will be successfully updated
       const givenImportProcessStateRepositoryMock = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         update: jest.fn().mockResolvedValue(null),
         upsert: jest.fn().mockResolvedValue(null),

@@ -45,7 +45,7 @@ describe("test for trigger ImportHandler", () => {
         headers: {
           "Content-Type": "application/json; charset=utf-8",
         },
-      } as any;
+      } as never;
       // AND the lambda_invokeAsyncImport function will successfully handle the event and return a response
       const givenResponse = response(StatusCodes.ACCEPTED, {});
       const givenLambdaInvokeAsyncImportSpy = jest

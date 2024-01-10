@@ -41,7 +41,7 @@ const getMockModelInfo = (i: number): IModelInfo => {
 
 function setupModelInfoRepositoryMock(findByIdFn: () => IModelInfo | null) {
   const mockModelInfoRepository: IModelRepository = {
-    Model: undefined as any,
+    Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     getModelById: jest.fn().mockImplementationOnce(findByIdFn),
     getModels: jest.fn(),
@@ -99,7 +99,7 @@ describe("ModelInfosDocToCsvTransform", () => {
       const givenError = new Error("Mocked Transformation Error");
       jest
         .spyOn(SKillsToCSVTransformModule, "transformModelInfoSpecToCSVRow")
-        .mockImplementationOnce((_: IModelInfo) => {
+        .mockImplementationOnce(() => {
           throw givenError;
         });
 

@@ -62,10 +62,10 @@ describe("test parseOccupationToSkillRelation from", () => {
 
     // AND a OccupationToSkillRelation repository
     const givenMockRepository: OccupationToSkillRelationRepository = {
-      relationModel: undefined as any,
-      skillModel: undefined as any,
-      occupationModel: undefined as any,
-      localizedOccupationModel: undefined as any,
+      relationModel: undefined as never,
+      skillModel: undefined as never,
+      occupationModel: undefined as never,
+      localizedOccupationModel: undefined as never,
       findAll: jest.fn(),
       createMany: jest
         .fn()
@@ -102,7 +102,9 @@ describe("test parseOccupationToSkillRelation from", () => {
     const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
     // THEN expect the repository to have been called with the expected spec
-    const expectedResults: IOccupationToSkillRelationPair[] = require("./_test_data_/expected.ts").expected;
+    const path = "./_test_data_/expected.ts";
+    const expectedResultsModule = await import(path);
+    const expectedResults: IOccupationToSkillRelationPair[] = expectedResultsModule.expected;
     expectedResults.forEach((expectedResult: IOccupationToSkillRelationPair) => {
       expect(givenMockRepository.createMany).toHaveBeenCalledWith(
         givenModelId,

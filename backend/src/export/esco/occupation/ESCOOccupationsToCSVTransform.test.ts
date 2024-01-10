@@ -15,7 +15,7 @@ describe("ESCOOccupationsDoc2csvTransform", () => {
 
     // AND BaseOccupationsToCSVTransform will return some stream
     const givenStream = { foo: "foo" };
-    jest.spyOn(BaseOccupationsToCSVTransformModule, "default").mockReturnValue(givenStream as any);
+    jest.spyOn(BaseOccupationsToCSVTransformModule, "default").mockReturnValue(givenStream as never);
 
     // WHEN the transformation is applied
     const actualStream = ESCOOccupationsToCSVTransform(givenModelId);

@@ -40,7 +40,7 @@ describe("documentToObjectTransformer", () => {
     // THEN expect the stream to throw an error
     await expect(async () => {
       // AND iterate over the stream to consume it
-      for await (const _actualObject of actualStream) {
+      for await (const _ of actualStream) {
         // do nothing
       }
     }).rejects.toThrowError("Mocked toObject error");

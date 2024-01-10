@@ -44,7 +44,7 @@ describe("Test for model handler", () => {
         headers: {
           "Content-Type": "application/json;charset=UTF-8",
         },
-      } as any;
+      } as never;
 
       // AND a configured base path for resources
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -53,7 +53,7 @@ describe("Test for model handler", () => {
       // AND a repository that will successfully create a model
       const givenModelInfo: IModelInfo = getIModelInfoMockData();
       const givenModelInfoRepositoryMock = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue(givenModelInfo),
         getModelById: jest.fn().mockResolvedValue(null),
         getModelByUUID: jest.fn().mockResolvedValue(null),
@@ -95,7 +95,7 @@ describe("Test for model handler", () => {
         headers: {
           "Content-Type": "application/json",
         },
-      } as any;
+      } as never;
 
       // AND the repository fails to create a model
       const givenModelInfoRepositoryMock = {
@@ -103,7 +103,7 @@ describe("Test for model handler", () => {
         create: jest.fn().mockRejectedValue(new Error("foo")),
         getModelById: jest.fn().mockResolvedValue(null),
         getModelByUUID: jest.fn().mockResolvedValue(null),
-      } as any;
+      } as never;
 
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -137,7 +137,7 @@ describe("Test for model handler", () => {
     const givenEvent = {
       httpMethod: HTTP_VERBS.GET,
       headers: {},
-    } as any;
+    } as never;
 
     // AND a configured base path for resources
     const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -147,7 +147,7 @@ describe("Test for model handler", () => {
       // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
       const givenModels: Array<IModelInfo> = getModelInfoMockDataArray(5);
       const givenModelInfoRepositoryMock = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         getModelById: jest.fn().mockResolvedValue(null),
         getModelByUUID: jest.fn().mockResolvedValue(null),
@@ -187,7 +187,7 @@ describe("Test for model handler", () => {
     test("GET should respond with the INTERNAL_SERVER_ERROR status code if the repository fails to get the models", async () => {
       // AND GIVEN the repository fails to get the models
       const givenModelInfoRepositoryMock = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         getModelById: jest.fn().mockResolvedValue(null),
         getModelByUUID: jest.fn().mockResolvedValue(null),

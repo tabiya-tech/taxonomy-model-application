@@ -31,7 +31,7 @@ const getMockISCOGroups = (): IUnpopulatedISCOGroup[] => {
 
 function setupISCOGroupRepositoryMock(findAllImpl: () => Readable) {
   const mockISCOGroupRepository: IISCOGroupRepository = {
-    Model: undefined as any,
+    Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
@@ -108,7 +108,7 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       const givenError = new Error("Mocked Transformation Error");
       jest
         .spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow")
-        .mockImplementationOnce((_: IUnpopulatedISCOGroup) => {
+        .mockImplementationOnce(() => {
           throw givenError;
         });
 

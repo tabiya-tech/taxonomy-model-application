@@ -96,7 +96,7 @@ describe("test parseOccupations from", () => {
       const givenModelId = "foo-model-id";
       // AND an Occupation repository
       const mockRepository: IOccupationRepository = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue({}),
         createMany: jest.fn().mockImplementation((specs: INewOccupationSpec[]): Promise<IOccupation[]> => {
           return Promise.resolve(
@@ -127,7 +127,8 @@ describe("test parseOccupations from", () => {
       const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap, isLocalImport);
 
       // THEN expect the repository to have been called with the expected spec
-      const expectedResults = require(expectedFile).expected;
+      const expectedFileModule = await import(expectedFile);
+      const expectedResults = expectedFileModule.expected;
       expectedResults.forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">) => {
         expect(mockRepository.createMany).toHaveBeenLastCalledWith(
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
