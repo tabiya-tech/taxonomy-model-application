@@ -42,10 +42,10 @@ const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelat
 
 function setupOccupationToSkillRelationRepositoryMock(findAllImpl: () => Readable) {
   const mockOccupationToSkillRelationRepository: IOccupationToSkillRelationRepository = {
-    relationModel: undefined as any,
-    occupationModel: undefined as any,
-    localizedOccupationModel: undefined as any,
-    skillModel: undefined as any,
+    relationModel: undefined as never,
+    occupationModel: undefined as never,
+    localizedOccupationModel: undefined as never,
+    skillModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };

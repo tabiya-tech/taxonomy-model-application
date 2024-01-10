@@ -49,12 +49,12 @@ describe("test for trigger ExportHandler", () => {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
-    } as any;
+    } as never;
 
     // AND the exportProcessStatRepository that will successfully create the exportProcessState
     const givenExportProcessStateId = getMockStringId(1);
     const givenExportProcessStateRepositoryMock = {
-      Model: undefined as any,
+      Model: undefined as never,
       create: jest.fn().mockImplementation((newSpecs: INewExportProcessStateSpec): Promise<IExportProcessState> => {
         console.log("create called", newSpecs);
         return Promise.resolve(getMockExportProcessState(givenExportProcessStateId));
@@ -68,7 +68,7 @@ describe("test for trigger ExportHandler", () => {
 
     // AND the modelInfo repository that will successfully find the model
     const givenModelInfoRepositoryMock = {
-      Model: undefined as any,
+      Model: undefined as never,
       create: jest.fn(),
       getModelById: jest.fn().mockResolvedValueOnce(getModelInfoMockDataArray(1)[0]),
       getModelByUUID: jest.fn(),
@@ -119,10 +119,10 @@ describe("test for trigger ExportHandler", () => {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
-    } as any;
+    } as never;
     // AND the modelInfo repository will resolve with null
     const givenModelInfoRepositoryMock = {
-      Model: undefined as any,
+      Model: undefined as never,
       create: jest.fn(),
       getModelById: jest.fn().mockResolvedValueOnce(null),
       getModelByUUID: jest.fn(),
@@ -157,10 +157,10 @@ describe("test for trigger ExportHandler", () => {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
-    } as any;
+    } as never;
     // AND the model exists in the db
     const givenModelInfoRepositoryMock = {
-      Model: undefined as any,
+      Model: undefined as never,
       create: jest.fn(),
       getModelById: jest.fn().mockResolvedValueOnce(getModelInfoMockDataArray(1)),
       getModelByUUID: jest.fn(),
@@ -170,7 +170,7 @@ describe("test for trigger ExportHandler", () => {
     // AND the exportProcessState repository will throw an error
     const givenError = new Error("Failed to create the export process state");
     const givenExportProcessStateRepositoryMock = {
-      Model: undefined as any,
+      Model: undefined as never,
       create: jest.fn().mockRejectedValue(givenError),
       update: jest.fn(),
       findById: jest.fn(),

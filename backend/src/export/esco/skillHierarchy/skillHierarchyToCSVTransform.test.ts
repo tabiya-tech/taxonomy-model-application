@@ -27,9 +27,9 @@ const getMockSkillHierarchies = (): IUnpopulatedSkillHierarchy[] => {
 
 function setupSkillHierarchyRepositoryMock(findAllImpl: () => Readable) {
   const mockSkillHierarchyRepository: ISkillHierarchyRepository = {
-    hierarchyModel: undefined as any,
-    skillModel: undefined as any,
-    skillGroupModel: undefined as any,
+    hierarchyModel: undefined as never,
+    skillModel: undefined as never,
+    skillGroupModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };

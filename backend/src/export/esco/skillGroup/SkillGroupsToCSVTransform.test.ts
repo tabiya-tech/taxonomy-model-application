@@ -32,7 +32,7 @@ const getMockSkillGroups = (): IUnpopulatedSkillGroup[] => {
 
 function setupSkillGroupRepositoryMock(findAllImpl: () => Readable) {
   const mockSkillGroupRepository: ISkillGroupRepository = {
-    Model: undefined as any,
+    Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),

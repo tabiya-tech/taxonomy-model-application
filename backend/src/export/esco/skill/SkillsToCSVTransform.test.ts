@@ -47,7 +47,7 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
 
 function setupSkillRepositoryMock(findAllImpl: () => Readable) {
   const mockSkillRepository: ISkillRepository = {
-    Model: undefined as any,
+    Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),

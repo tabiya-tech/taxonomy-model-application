@@ -37,7 +37,7 @@ const getMockOccupations = (occupationType: OccupationType.LOCAL | OccupationTyp
 
 function setupOccupationRepositoryMock(findAllImpl: () => Readable) {
   const mockOccupationRepository: IOccupationRepository = {
-    Model: undefined as any,
+    Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),

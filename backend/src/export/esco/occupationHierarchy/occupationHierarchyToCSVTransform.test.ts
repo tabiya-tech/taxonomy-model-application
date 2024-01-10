@@ -27,9 +27,9 @@ const getMockOccupationHierarchies = (): IUnpopulatedOccupationHierarchy[] => {
 
 function setupOccupationHierarchyRepositoryMock(findAllImpl: () => Readable) {
   const mockOccupationHierarchyRepository: IOccupationHierarchyRepository = {
-    hierarchyModel: undefined as any,
-    occupationModel: undefined as any,
-    iscoGroupModel: undefined as any,
+    hierarchyModel: undefined as never,
+    occupationModel: undefined as never,
+    iscoGroupModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };
