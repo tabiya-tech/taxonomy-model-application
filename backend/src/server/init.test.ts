@@ -60,7 +60,7 @@ describe("Test initialization", () => {
   test("should initialize once", async () => {
     jest.isolateModules(async () => {
       // GIVEN the server is not initialized
-      const initModule = require("./init");
+      const initModule = await import("./init");
 
       expect(initModule.isInitialized()).toBeFalsy();
 
@@ -93,11 +93,8 @@ describe("Test initialization", () => {
       getConnectionManager().initialize = jest.fn().mockImplementation(() => {
         return Promise.reject(new Error("DB connection failed"));
       });
-
-      let initModule: typeof import("./init");
-
       // AND the server is not initialized
-      initModule = require("./init");
+      const initModule = await require("./init");
       expect(initModule.isInitialized()).toBeFalsy();
 
       // WHEN trying to initialize the server

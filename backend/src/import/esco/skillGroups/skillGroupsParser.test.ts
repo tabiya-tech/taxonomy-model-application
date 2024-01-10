@@ -95,7 +95,9 @@ describe("test parseSkillGroups from", () => {
       const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
-      const expectedResults = require("./_test_data_/expected.ts").expected;
+      const path = "./_test_data_/expected.ts";
+      const expectedResultsModule = await import(path);
+      const expectedResults = expectedResultsModule.expected;
       expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">) => {
         expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])

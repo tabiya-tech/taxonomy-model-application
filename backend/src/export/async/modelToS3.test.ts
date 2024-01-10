@@ -106,6 +106,7 @@ jest.mock("./uploadZipToS3", () => {
 
 //mock the archiver
 // a call back used to add additional spies to the newly instantiated Archiver mock before it is returned
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let callbackArchiverCreated: ((archiver: any) => void) | undefined = undefined;
 jest.mock("archiver", () => {
   // std mock should return the actual zipper with spies to simplify testing
@@ -133,7 +134,7 @@ jest.mock("archiver", () => {
 jest.mock("server/repositoryRegistry/repositoryRegistry", () => {
   // mock the exportProcessState repository
   const _mockExportProcessStateRepositoryInstance = {
-    Model: undefined as any,
+    Model: undefined as never,
     create: jest.fn(),
     update: jest.fn(),
     findById: jest.fn(),

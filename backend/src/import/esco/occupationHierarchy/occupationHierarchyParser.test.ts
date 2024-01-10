@@ -68,9 +68,9 @@ describe("test parseOccupationHierarchy from", () => {
       const givenModelId = "foo-model-id";
       // AND an OccupationHierarchy repository
       const givenMockRepository: OccupationHierarchyRepository = {
-        iscoGroupModel: undefined as any,
-        occupationModel: undefined as any,
-        hierarchyModel: undefined as any,
+        iscoGroupModel: undefined as never,
+        occupationModel: undefined as never,
+        hierarchyModel: undefined as never,
         findAll: jest.fn(),
         createMany: jest
           .fn()
@@ -107,7 +107,9 @@ describe("test parseOccupationHierarchy from", () => {
       const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
-      const expectedResults = require("./_test_data_/expected.ts").expected;
+      const path = "./_test_data_/expected.ts";
+      const expectedResultsModule = await import(path);
+      const expectedResults = expectedResultsModule.expected;
       expectedResults.forEach((expectedSpec: Omit<INewOccupationHierarchyPairSpec, "modelId">) => {
         expect(givenMockRepository.createMany).toHaveBeenCalledWith(
           givenModelId,

@@ -3,19 +3,19 @@ import { HeadersValidatorFunction } from "./RowProcessor.types";
 import { BatchProcessor, ProcessBatchFunction } from "import/batch/BatchProcessor";
 
 function getTestBatchProcessor() {
-  const mockProcessFn: ProcessBatchFunction<any> = jest.fn().mockImplementation((batch: any[]) => {
+  const mockProcessFn: ProcessBatchFunction<never> = jest.fn().mockImplementation((batch: never[]) => {
     return Promise.resolve({
       rowsProcessed: batch.length,
       rowsSuccess: batch.length,
       rowsFailed: 0,
     });
   });
-  return new BatchProcessor<any>(1000, mockProcessFn);
+  return new BatchProcessor<never>(1000, mockProcessFn);
 }
 
 describe("test the BatchRowProcesses", () => {
   test("should construct a new instance", () => {
-    const batchRowProcessor = new BatchRowProcessor<any, any>(jest.fn(), jest.fn(), {} as BatchProcessor<any>);
+    const batchRowProcessor = new BatchRowProcessor<never, never>(jest.fn(), jest.fn(), {} as BatchProcessor<never>);
     expect(batchRowProcessor).toBeDefined();
   });
 
@@ -23,7 +23,7 @@ describe("test the BatchRowProcesses", () => {
     // GIVEN a header validator function
     const givenValidatorFn: HeadersValidatorFunction = jest.fn().mockResolvedValue(true);
     // AND a batch row processor with the validator
-    const givenBatchRowProcessor = new BatchRowProcessor<any, any>(
+    const givenBatchRowProcessor = new BatchRowProcessor<never, never>(
       givenValidatorFn,
       jest.fn(),
       getTestBatchProcessor()
@@ -43,17 +43,21 @@ describe("test the BatchRowProcesses", () => {
     const givenRow = { foo: "foo" };
     // AND a transform function
     const givenTransformedRow = { bar: "bar" };
-    const givenTransformFn: TransformRowToSpecificationFunction<any, any> = jest
+    const givenTransformFn: TransformRowToSpecificationFunction<never, never> = jest
       .fn()
       .mockReturnValue(givenTransformedRow);
     // AND a batch processor
     const givenBatchProcessor = getTestBatchProcessor();
     jest.spyOn(givenBatchProcessor, "add");
     // AND a batch row processor
-    const givenBatchRowProcessor = new BatchRowProcessor<any, any>(jest.fn(), givenTransformFn, givenBatchProcessor);
+    const givenBatchRowProcessor = new BatchRowProcessor<never, never>(
+      jest.fn(),
+      givenTransformFn,
+      givenBatchProcessor
+    );
 
     // WHEN processing the given row
-    await givenBatchRowProcessor.processRow(givenRow);
+    await givenBatchRowProcessor.processRow(givenRow as never);
 
     // THEN expect the transform function to be called with the row
     expect(givenTransformFn).toBeCalledWith(givenRow);
@@ -65,15 +69,21 @@ describe("test the BatchRowProcesses", () => {
     // GIVEN a row
     const givenRow = { foo: "foo" };
     // AND a transform function that will return the transformed row
-    const givenTransformFn: TransformRowToSpecificationFunction<any, any> = jest.fn().mockReturnValue(transformedRow);
+    const givenTransformFn: TransformRowToSpecificationFunction<never, never> = jest
+      .fn()
+      .mockReturnValue(transformedRow);
     // AND a batch processor
     const givenBatchProcessor = getTestBatchProcessor();
     jest.spyOn(givenBatchProcessor, "add");
     // AND a batch row processor
-    const givenBatchRowProcessor = new BatchRowProcessor<any, any>(jest.fn(), givenTransformFn, givenBatchProcessor);
+    const givenBatchRowProcessor = new BatchRowProcessor<never, never>(
+      jest.fn(),
+      givenTransformFn,
+      givenBatchProcessor
+    );
 
     // WHEN processing the given row
-    await givenBatchRowProcessor.processRow(givenRow);
+    await givenBatchRowProcessor.processRow(givenRow as never);
 
     // THEN expect the transform function to be called with the given row
     expect(givenTransformFn).toBeCalledWith(givenRow);
@@ -93,11 +103,11 @@ describe("test the BatchRowProcesses", () => {
     };
     jest.spyOn(givenBatchProcessor, "getStats").mockReturnValue(givenStats);
     // AND a batch row processor
-    const givenBatchRowProcessor = new BatchRowProcessor<any, any>(jest.fn(), jest.fn(), givenBatchProcessor);
+    const givenBatchRowProcessor = new BatchRowProcessor<never, never>(jest.fn(), jest.fn(), givenBatchProcessor);
     // AND the rows are processed
     const givenRows = [{ foo: "foo" }, { bar: "bar" }];
     for (const row of givenRows) {
-      await givenBatchRowProcessor.processRow(row);
+      await givenBatchRowProcessor.processRow(row as never);
     }
 
     // WHEN the batch row processor is completed

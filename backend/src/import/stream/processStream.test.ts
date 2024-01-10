@@ -31,7 +31,7 @@ describe("test processStream", () => {
       rowsFailed: 0,
     };
     // AND a row processor that completes with the given stats
-    const givenRowProcessor: RowProcessor<any> = {
+    const givenRowProcessor: RowProcessor<object> = {
       processRow: jest.fn().mockResolvedValue(undefined),
       completed: jest.fn().mockResolvedValue(givenStats),
       validateHeaders: jest.fn().mockResolvedValue(true),
@@ -69,7 +69,7 @@ describe("test processStream", () => {
       const givenStreamName = "some stream";
       // AND a row processor that will throw an error when processing a row
       const givenError = new Error("some error");
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockRejectedValue(givenError),
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true),
@@ -99,7 +99,7 @@ describe("test processStream", () => {
       givenStream.on("data", () => {
         givenStream.destroy(givenError);
       });
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockResolvedValue(undefined),
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true),
@@ -125,7 +125,7 @@ describe("test processStream", () => {
       // AND a given stream name
       const givenStreamName = "some stream";
       // AND a row processor that will throw an error when processing a row
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockResolvedValue(undefined),
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true),
@@ -152,7 +152,7 @@ describe("test processStream", () => {
       // AND a given stream name
       const givenStreamName = "some stream";
       // AND a row processor that will throw an error when processing a row
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockResolvedValue(undefined),
         completed: jest.fn().mockResolvedValue(undefined),
         // AND a headers validator that will return false
@@ -206,7 +206,7 @@ describe("test processDownloadStream", () => {
       rowsFailed: 0,
     };
     // AND a row processor that complete with the given stats
-    const givenRowProcessor: RowProcessor<any> = {
+    const givenRowProcessor: RowProcessor<object> = {
       processRow: jest.fn().mockResolvedValue(undefined),
       completed: jest.fn().mockResolvedValue(givenStats),
       validateHeaders: jest.fn().mockResolvedValue(true),
@@ -244,7 +244,7 @@ describe("test processDownloadStream", () => {
         };
       });
       // AND a row processor that will throw an error when processing a row
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockResolvedValue(undefined),
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true),
@@ -281,7 +281,7 @@ describe("test processDownloadStream", () => {
         };
       });
       // AND a row processor that will throw an error when processing a row
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockResolvedValue(undefined),
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true),
@@ -322,7 +322,7 @@ describe("test processDownloadStream", () => {
         };
       });
       // AND a row processor that will throw an error when processing a row
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockResolvedValue(undefined),
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true),
@@ -360,7 +360,7 @@ describe("test processDownloadStream", () => {
       });
       // AND a row processor that will throw an error when processing a row
       const givenError = new Error("some error");
-      const givenRowProcessor: RowProcessor<any> = {
+      const givenRowProcessor: RowProcessor<object> = {
         processRow: jest.fn().mockRejectedValue(givenError),
         completed: jest.fn().mockResolvedValue(undefined),
         validateHeaders: jest.fn().mockResolvedValue(true),

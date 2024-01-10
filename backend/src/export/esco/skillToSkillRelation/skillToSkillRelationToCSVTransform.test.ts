@@ -29,8 +29,8 @@ const getMockSkillToSkillRelations = (): IUnpopulatedSkillToSkillRelation[] => {
 
 function setupSkillToSkillRelationRepositoryMock(findAllImpl: () => Readable) {
   const mockSkillToSkillRelationRepository: ISkillToSkillRelationRepository = {
-    relationModel: undefined as any,
-    skillModel: undefined as any,
+    relationModel: undefined as never,
+    skillModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };
@@ -97,7 +97,7 @@ describe("skillToSkillRelationToCSVTransform", () => {
       const givenError = new Error("Mocked Transformation Error");
       jest
         .spyOn(skillToSkillRelationToCSVTransformModule, "transformSkillRelationSpecToCSVRow")
-        .mockImplementationOnce((_: skillToSkillRelationToCSVTransformModule.IUnpopulatedSkillToSkillRelation) => {
+        .mockImplementationOnce(() => {
           throw givenError;
         });
 

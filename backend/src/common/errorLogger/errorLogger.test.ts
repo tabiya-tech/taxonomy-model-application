@@ -4,13 +4,14 @@ import "_test_utilities/consoleMock";
 describe("Test importLogger", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.resetModules();
   });
   test("when module is imported it should return a logger singleton instance", () => {
-    jest.isolateModules(() => {
+    jest.isolateModules(async () => {
       // WHEN the module is imported twice
 
-      const errorLogger1 = require("./errorLogger");
-      const errorLogger2 = require("./errorLogger");
+      const errorLogger1 = await import("./errorLogger");
+      const errorLogger2 = await import("./errorLogger");
 
       // THEN the module should return the same instance
       expect(errorLogger1.default).toBeDefined();
@@ -21,9 +22,9 @@ describe("Test importLogger", () => {
   });
 
   test("when no errors or warnings are logged, the errorCount and warningCount should be 0", () => {
-    jest.isolateModules(() => {
+    jest.isolateModules(async () => {
       // GIVEN the logger is imported
-      const errorLogger = require("./errorLogger");
+      const errorLogger = await import("./errorLogger");
       // WHEN no errors or warnings are logged
       // THEN the errorCount and warningCount should be 0
       expect(errorLogger.default.errorCount).toBe(0);
@@ -32,9 +33,9 @@ describe("Test importLogger", () => {
   });
 
   test("should count logged errors", () => {
-    jest.isolateModules(() => {
+    jest.isolateModules(async () => {
       // GIVEN the logger is imported
-      const errorLogger = require("./errorLogger");
+      const errorLogger = await import("./errorLogger");
       // WHEN N errors are logged
       const N = 3;
       for (let i = 0; i < N; i++) {
@@ -48,9 +49,9 @@ describe("Test importLogger", () => {
   });
 
   test("should count logged warnings", () => {
-    jest.isolateModules(() => {
+    jest.isolateModules(async () => {
       // GIVEN the logger is imported
-      const errorLogger = require("./errorLogger");
+      const errorLogger = await import("./errorLogger");
       // WHEN N warnings are logged
       const N = 3;
       for (let i = 0; i < N; i++) {
@@ -64,9 +65,9 @@ describe("Test importLogger", () => {
   });
 
   test("should log error to the console", () => {
-    jest.isolateModules(() => {
+    jest.isolateModules(async () => {
       // GIVEN the logger is imported
-      const errorLogger = require("./errorLogger");
+      const errorLogger = await import("./errorLogger");
       // AND an error
       const givenError = new Error("error");
       // AND a message
@@ -84,9 +85,9 @@ describe("Test importLogger", () => {
   });
 
   test("should log warning to the console", () => {
-    jest.isolateModules(() => {
+    jest.isolateModules(async () => {
       // GIVEN the logger is imported
-      const errorLogger = require("./errorLogger");
+      const errorLogger = await import("./errorLogger");
       // AND an error
       const givenError = new Error("error");
       // AND a message
@@ -104,9 +105,9 @@ describe("Test importLogger", () => {
   });
 
   test("should clear the errorCount and warningCount", () => {
-    jest.isolateModules(() => {
+    jest.isolateModules(async () => {
       // GIVEN the logger is imported
-      const errorLogger = require("./errorLogger");
+      const errorLogger = await import("./errorLogger");
       // AND an error
       const givenError = new Error("error");
 

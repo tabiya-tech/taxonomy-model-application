@@ -3,6 +3,8 @@ import "_test_utilities/consoleMock";
 
 import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "./processRelationBatchFunction";
+import { getMockStringId } from "_test_utilities/mockMongoId";
+
 describe("test getProcessRelationBatchFunction", () => {
   beforeAll(() => {
     jest.spyOn(errorLogger, "logError");
@@ -15,7 +17,7 @@ describe("test getProcessRelationBatchFunction", () => {
   // GIVEN and entity type that has an id property
   type GivenRelationEntity = { id: string };
   // AND a new specification type
-  type GivenNewRelationEntitySpec = any;
+  type GivenNewRelationEntitySpec = object;
   // AND a name for the entity
   const givenRelationEntityName = "foo-Relation-entity";
 
@@ -28,10 +30,11 @@ describe("test getProcessRelationBatchFunction", () => {
       // @ts-ignore
       createMany: jest
         .fn()
-        .mockImplementation((modelId: string, specs: GivenNewRelationEntitySpec[]): Promise<GivenRelationEntity[]> => {
+        .mockImplementation((_modelId: string, specs: GivenNewRelationEntitySpec[]): Promise<GivenRelationEntity[]> => {
           return Promise.resolve(
-            specs.map((spec: GivenNewRelationEntitySpec): GivenRelationEntity => {
+            specs.map((spec: GivenNewRelationEntitySpec, index): GivenRelationEntity => {
               return {
+                id: getMockStringId(index),
                 ...spec,
               };
             })
@@ -115,12 +118,13 @@ describe("test getProcessRelationBatchFunction", () => {
       // @ts-ignore
       createMany: jest
         .fn()
-        .mockImplementation((modelId: string, specs: GivenNewRelationEntitySpec[]): Promise<GivenRelationEntity[]> => {
+        .mockImplementation((_modelId: string, specs: GivenNewRelationEntitySpec[]): Promise<GivenRelationEntity[]> => {
           return Promise.resolve(
             specs
-              .filter((v, i) => i % 2 === 1)
-              .map((spec: GivenNewRelationEntitySpec): GivenRelationEntity => {
+              .filter((_v, i) => i % 2 === 1)
+              .map((spec: GivenNewRelationEntitySpec, index): GivenRelationEntity => {
                 return {
+                  id: getMockStringId(index),
                   ...spec,
                 };
               })

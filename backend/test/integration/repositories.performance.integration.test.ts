@@ -69,7 +69,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
     test("should successfully create many ISCO groups with acceptable performance", async () => {
       // WHEN N ISCOGroups are created
       const N = 1000;
-      let actualNewISCOGroups: IISCOGroup[] = [];
+      const actualNewISCOGroups: IISCOGroup[] = [];
       const createISCOGroupsInDBPromise = async () => {
         const docs = await repositoryRegistry.ISCOGroup.createMany(
           Array.from({ length: N }, (_, index) => getSimpleNewISCOGroupSpec(getMockStringId(1), `group_${index}`))
@@ -89,7 +89,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
     test("should successfully createMany() ESCO & Local Occupations with acceptable performance", async () => {
       // WHEN N ESCO and Local occupations are created
       const N = 500;
-      let actualNewOccupations: IOccupation[] = [];
+      const actualNewOccupations: IOccupation[] = [];
       const newOccupationSpecs = Array.from({ length: N }, (_, index) =>
         getSimpleNewOccupationSpec(getMockStringId(1), `esco_${index}`, false)
       );
@@ -121,8 +121,8 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
       );
 
       // WHEN N LOCALIZED occupations are created
-      let actualNewLocalizedOccupations: IExtendedLocalizedOccupation[] = [];
-      let createLocalizedOccupationsInDBPromise = async () => {
+      const actualNewLocalizedOccupations: IExtendedLocalizedOccupation[] = [];
+      const createLocalizedOccupationsInDBPromise = async () => {
         const docs = await repositoryRegistry.localizedOccupation.createMany(
           Array.from({ length: N }, (_, index) =>
             getSimpleNewLocalizedOccupationSpec(givenModelId, givenOccupations[index].id)
@@ -147,7 +147,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
     test("should successfully createMany() SkillGroup with acceptable performance", async () => {
       // WHEN N SkillGroup are created
       const N = 1000;
-      let actualNewSkillGroup: ISkillGroup[] = [];
+      const actualNewSkillGroup: ISkillGroup[] = [];
       const createSkillGroupInDBPromise = async () => {
         const docs = await repositoryRegistry.skillGroup.createMany(
           Array.from({ length: N }, (_, index) => getSimpleNewSkillGroupSpec(getMockStringId(1), `group_${index}`))
@@ -167,7 +167,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
     test("should successfully createMany() Skills with acceptable performance", async () => {
       // WHEN N Skill are created
       const N = 1000;
-      let actualNewSkills: ISkill[] = [];
+      const actualNewSkills: ISkill[] = [];
       const createSkillInDBPromise = async () => {
         const docs = await repositoryRegistry.skill.createMany(
           Array.from({ length: N }, (_, index) => getSimpleNewSkillSpec(getMockStringId(1), `skill_${index}`))
@@ -224,7 +224,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
       }
 
       // WHEN the hierarchy are created
-      let actualHierarchy: IOccupationHierarchyPair[] = [];
+      const actualHierarchy: IOccupationHierarchyPair[] = [];
       const createHierarchyInDBPromise = async () => {
         const docs = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, givenNewHierarchySpecs);
         actualHierarchy.push(...docs);
@@ -277,7 +277,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
       }
 
       // WHEN the hierarchy are created
-      let actualHierarchy: ISkillHierarchyPair[] = [];
+      const actualHierarchy: ISkillHierarchyPair[] = [];
       const createHierarchyInDBPromise = async () => {
         const docs = await repositoryRegistry.skillHierarchy.createMany(givenModelId, givenNewHierarchySpecs);
         actualHierarchy.push(...docs);
@@ -330,7 +330,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
       }
 
       // WHEN the relations are created
-      let actualRelation: IOccupationToSkillRelationPair[] = [];
+      const actualRelation: IOccupationToSkillRelationPair[] = [];
       const createRelationInDBPromise = async () => {
         const docs = await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, givenNewRelationSpecs);
         actualRelation.push(...docs);
@@ -381,7 +381,7 @@ describe("Test the Performance of  Repositories with an in-memory mongodb", () =
       }
 
       // WHEN the relations are created
-      let actualRelation: ISkillToSkillRelationPair[] = [];
+      const actualRelation: ISkillToSkillRelationPair[] = [];
       const createRelationInDBPromise = async () => {
         const docs = await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, givenNewRelationSpecs);
         actualRelation.push(...docs);

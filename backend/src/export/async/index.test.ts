@@ -27,7 +27,7 @@ jest.mock("server/repositoryRegistry/repositoryRegistry", () => {
   return {
     getRepositoryRegistry: jest.fn().mockReturnValue({
       exportProcessState: {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn(),
         update: jest
           .fn()
