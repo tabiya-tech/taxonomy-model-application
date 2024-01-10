@@ -23,7 +23,6 @@
     "semi": [2, "always"]
   },
   "ignorePatterns": [
-    "/**/**.test.ts",
     "**/*.js",
     "generateJsonSchemaFiles.ts"
   ]
