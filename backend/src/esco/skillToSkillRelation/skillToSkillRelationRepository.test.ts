@@ -121,7 +121,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       expect(actualNewSkillToSkillRelation).toHaveLength(givenNewRelationSpecs.length);
 
       // AND to have the expected relation
-      for (let spec of givenNewRelationSpecs) {
+      for (const spec of givenNewRelationSpecs) {
         const actualRequiringSkill = await repositoryRegistry.skill.findById(spec.requiringSkillId);
         const actualRequiredSkill = await repositoryRegistry.skill.findById(spec.requiredSkillId);
 
