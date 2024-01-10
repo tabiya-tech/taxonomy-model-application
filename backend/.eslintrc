@@ -22,8 +22,18 @@
     "@typescript-eslint/ban-ts-comment": "off",
     "semi": [2, "always"]
   },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          { "ignoreRestSiblings": true, "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+        ]
+      }
+    }
+  ],
   "ignorePatterns": [
-    "/**/**.test.ts",
     "**/*.js"
   ]
 }
