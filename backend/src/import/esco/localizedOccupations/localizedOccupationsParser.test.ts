@@ -69,7 +69,7 @@ describe("test parseLocalizedOccupations from", () => {
       const givenModelId = "foo-model-id";
       // AND a Localized Occupation repository
       const givenMockRepository: ILocalizedOccupationRepository = {
-        Model: undefined as any,
+        Model: undefined as never,
         findById: jest.fn().mockResolvedValue(null),
         findAll: jest.fn(),
         create: jest.fn().mockResolvedValue({}),
@@ -120,7 +120,9 @@ describe("test parseLocalizedOccupations from", () => {
       const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
-      const expectedResults = require("./_test_data_/expected.ts").expected;
+      const path = "./_test_data_/expected.ts";
+      const module = await import(path);
+      const expectedResults = module.expected;
       expectedResults.forEach((expectedSpec: Omit<INewLocalizedOccupationSpec, "modelId">) => {
         expect(givenMockRepository.createMany).toHaveBeenCalledWith(
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])

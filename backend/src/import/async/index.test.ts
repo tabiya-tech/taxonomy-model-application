@@ -68,7 +68,7 @@ describe("Test the main async handler", () => {
     beforeAll(() => {
       // GIVEN the importProcessStatRepository that will successfully create or update the importProcessState
       const givenImportProcessStateRepositoryMock = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         update: jest.fn().mockResolvedValue(null),
       };
@@ -116,7 +116,7 @@ describe("Test the main async handler", () => {
       const givenImportProcessStateId = getMockStringId(2);
 
       const givenModelInfoRepositoryMock = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         getModelById: jest.fn().mockResolvedValue({
           id: givenEvent.modelId,

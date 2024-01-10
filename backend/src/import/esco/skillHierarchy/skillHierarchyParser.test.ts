@@ -65,9 +65,9 @@ describe("test parseSkillHierarchy from", () => {
       const givenModelId = "foo-model-id";
       // AND an SkillHierarchy repository
       const givenMockRepository: SkillHierarchyRepository = {
-        skillModel: undefined as any,
-        hierarchyModel: undefined as any,
-        skillGroupModel: undefined as any,
+        skillModel: undefined as never,
+        hierarchyModel: undefined as never,
+        skillGroupModel: undefined as never,
         findAll: jest.fn(),
         createMany: jest
           .fn()
@@ -104,7 +104,9 @@ describe("test parseSkillHierarchy from", () => {
       const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
-      const expectedResults = require("./_test_data_/expected.ts").expected;
+      const path = "./_test_data_/expected.ts";
+      const module = await import(path);
+      const expectedResults = module.expected;
       expectedResults.forEach((expectedSpec: Omit<INewSkillHierarchyPairSpec, "modelId">) => {
         expect(givenMockRepository.createMany).toHaveBeenCalledWith(
           givenModelId,

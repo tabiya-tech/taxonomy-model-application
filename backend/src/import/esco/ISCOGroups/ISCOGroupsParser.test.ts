@@ -66,7 +66,7 @@ describe("test parseISCOGroups from", () => {
       const givenModelId = "foo-model-id";
       // AND an ISCOGroup repository
       const givenMockRepository: IISCOGroupRepository = {
-        Model: undefined as any,
+        Model: undefined as never,
         create: jest.fn().mockResolvedValue({}),
         createMany: jest.fn().mockImplementation((specs: INewISCOGroupSpec[]): Promise<IISCOGroup[]> => {
           return Promise.resolve(
@@ -95,7 +95,9 @@ describe("test parseISCOGroups from", () => {
       const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
-      const expectedResults = require("./_test_data_/expected.ts").expected;
+      const path = "./_test_data_/expected.ts";
+      const module = await import(path);
+      const expectedResults = module.expected;
       expectedResults.forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">) => {
         expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])

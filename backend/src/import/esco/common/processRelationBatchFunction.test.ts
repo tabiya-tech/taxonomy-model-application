@@ -15,7 +15,7 @@ describe("test getProcessRelationBatchFunction", () => {
   // GIVEN and entity type that has an id property
   type GivenRelationEntity = { id: string };
   // AND a new specification type
-  type GivenNewRelationEntitySpec = any;
+  type GivenNewRelationEntitySpec = object;
   // AND a name for the entity
   const givenRelationEntityName = "foo-Relation-entity";
 
@@ -32,6 +32,7 @@ describe("test getProcessRelationBatchFunction", () => {
           return Promise.resolve(
             specs.map((spec: GivenNewRelationEntitySpec): GivenRelationEntity => {
               return {
+                id: modelId,
                 ...spec,
               };
             })
@@ -121,6 +122,7 @@ describe("test getProcessRelationBatchFunction", () => {
               .filter((v, i) => i % 2 === 1)
               .map((spec: GivenNewRelationEntitySpec): GivenRelationEntity => {
                 return {
+                  id: modelId,
                   ...spec,
                 };
               })
