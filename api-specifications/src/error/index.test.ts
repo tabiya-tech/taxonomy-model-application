@@ -1,31 +1,28 @@
 describe("Test the error module", () => {
-  test("The error module can be required via the index", () => {
+  test("The error module can be required via the index", async () => {
     //GIVEN the module
     //WHEN the module is required via the index
-    expect(() => {
-      // THEN Check if the module can be required without error
-      expect(() => {
-        require("./");
-      }).not.toThrowError();
-      let apiErrorModule = require("./").default;
+    expect(async () => await import("./")).not.toThrow(); // We check that it doesn't throw an error instead of simply letting it fail on import because we want an easier error message
+    const apiErrorModule = await import("./");
 
-      // AND check if Schema is defined in it
-      expect(apiErrorModule.Schemas.Payload).toBeDefined();
+    // THEN Check if Schema is defined in it
+    expect(apiErrorModule.default.Schemas.Payload).toBeDefined();
 
-      // AND check if all the Constants are defined
-      const Constants = apiErrorModule.Constants;
-      expect(Constants.ErrorCodes).toBeDefined();
-      expect(Constants.ReasonPhrases).toBeDefined();
-    }).not.toThrowError();
+    // AND check if all the constants are defined
+    const constants = apiErrorModule.default.Constants;
+    expect(constants).toBeDefined();
+    expect(constants.ErrorCodes).toBeDefined();
+    expect(constants.ReasonPhrases).toBeDefined();
   });
 
   test("The export module matches the snapshot", () => {
     // GIVEN the module
     // WHEN the module is required via the index
-    expect(() => {
+    expect(async () => {
       // THEN Check if the module can be required without error
-      expect(require("./").default).toMatchSnapshot();
-    }).not.toThrowError();
+      const apiErrorModule = await import("./");
+      expect(apiErrorModule.default).toMatchSnapshot();
+    }).not.toThrow();
   });
 });
 
