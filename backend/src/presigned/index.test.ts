@@ -28,9 +28,9 @@ describe("test main handler", () => {
     // GIVEN a GET event
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.GET,
-    } as any;
+    } as never;
     // AND the getPresigned() function returns some response
-    const givenResponse = { foo: "foo" } as any;
+    const givenResponse = { foo: "foo" } as never;
     jest.spyOn(handlerModule, "getPreSigned").mockReturnValueOnce(givenResponse);
 
     // WHEN the main handler is called with the given event
@@ -57,10 +57,10 @@ describe("test getPreSigned()", () => {
     const givenRandomKey = "baz";
     (randomUUID as jest.Mock).mockReturnValue(givenRandomKey);
     // AND the awsSDKServiceModule will return some pre-signed post data
-    const givenPreSignedPost = { foo: "foo" } as any;
+    const givenPreSignedPost = { foo: "foo" } as never;
     jest.spyOn(awsSDKServiceModule, "s3_getPresignedPost").mockResolvedValue(givenPreSignedPost);
     // AND the transform() function will transform the post data
-    const givenPresignedResponse = { bar: "bar" } as any;
+    const givenPresignedResponse = { bar: "bar" } as never;
     const transformSpy = jest
       .spyOn(transformModule, "transformPresignedPostDataToResponse")
       .mockReturnValue(givenPresignedResponse);
@@ -98,7 +98,7 @@ describe("test getPreSigned()", () => {
     // GIVEN a GET event
     const mockEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.GET,
-    } as any;
+    } as never;
     // AND awsSDKServiceModule.s3_getPresignedPost() will throw an error
     jest.spyOn(awsSDKServiceModule, "s3_getPresignedPost").mockRejectedValue(new Error("foo"));
 
