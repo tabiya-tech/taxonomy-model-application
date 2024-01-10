@@ -47,7 +47,8 @@ describe("Test for info handler", () => {
     beforeAll(async () => {
       // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
       const config = getTestConfiguration("ApplicationInfoHandlerTestDB");
-      jest.spyOn(require("server/config/config"), "readEnvironmentConfiguration").mockReturnValue(config);
+      const configPath  = await import("server/config/config");
+      jest.spyOn(configPath, "readEnvironmentConfiguration").mockReturnValue(config);
       await initOnce();
       dbConnection = getConnectionManager().getCurrentDBConnection();
     });
