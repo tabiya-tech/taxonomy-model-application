@@ -310,7 +310,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const givenExistingModels = await setupFn();
       // AND some exportProcessState entries related to the model exist in the database
 
-      let givenExportProcessStates: IExportProcessState[] = [];
+      const givenExportProcessStates: IExportProcessState[] = [];
       for (const givenExistingModel of givenExistingModels) {
         const givenExportProcessStateSpec1 = getNewExportProcessStateSpec(givenExistingModel.id);
         const givenExportProcessStateSpec2 = getNewExportProcessStateSpec(givenExistingModel.id);
@@ -332,7 +332,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
           (exportProcessState) => exportProcessState.modelId === actualModel.id
         );
         expect(actualExportProcessStates.length).toEqual(2);
-        actualExportProcessStates.forEach((givenExportProcessState, index) => {
+        actualExportProcessStates.forEach((givenExportProcessState, _index) => {
           expect(actualModel.exportProcessState).toContainEqual({
             id: givenExportProcessState.id,
             downloadUrl: givenExportProcessState.downloadUrl,
