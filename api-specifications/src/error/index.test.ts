@@ -2,18 +2,17 @@ describe("Test the error module", () => {
   test("The error module can be required via the index", () => {
     //GIVEN the module
     //WHEN the module is required via the index
-    expect(() => {
+    expect(async () => {
       // THEN Check if the module can be required without error
       expect(() => {
         require("./");
       }).not.toThrowError();
-      let apiErrorModule = require("./").default;
-
+      const apiErrorModule = await import("./");
       // AND check if Schema is defined in it
-      expect(apiErrorModule.Schemas.Payload).toBeDefined();
+      expect(apiErrorModule.default.Schemas.Payload).toBeDefined();
 
       // AND check if all the Constants are defined
-      const Constants = apiErrorModule.Constants;
+      const Constants = apiErrorModule.default.Constants;
       expect(Constants.ErrorCodes).toBeDefined();
       expect(Constants.ReasonPhrases).toBeDefined();
     }).not.toThrowError();
@@ -22,9 +21,10 @@ describe("Test the error module", () => {
   test("The export module matches the snapshot", () => {
     // GIVEN the module
     // WHEN the module is required via the index
-    expect(() => {
+    expect(async () => {
       // THEN Check if the module can be required without error
-      expect(require("./").default).toMatchSnapshot();
+      const apiErrorModule = await import("./");
+      expect(apiErrorModule.default).toMatchSnapshot();
     }).not.toThrowError();
   });
 });
