@@ -73,6 +73,16 @@ To build the backend application, execute the following command:
 yarn build
 ```
 
+> **Note:**
+> We are using [esbuild](https://esbuild.github.io/) to build the backend code. 
+>
+>It generates multiple bundles for the application, which can then be deployed to separate AWS Lambdas, see [creating a .zip deployment package with no dependencies](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-package.html#nodejs-package-create-no-dependencies).
+> 
+> It uses tree-shaking, and bundles ESM and CJS modules, and the produced bundles contain all runtime dependencies, independently of where they are declared (e.g. in the `dependencies` or `devDependencies` section of the [package.json](package.json) file). However, we do declare the dependencies is the correct section for the shake of clarity and to avoid confusion.
+>
+> Additionally, even though the [AWS Lambda environment includes the AWS SDK](https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html), we still include it in the bundles to ensure that the correct version is used.
+> By doing so, under the [AWS shared responsibility model](https://docs.aws.amazon.com/whitepapers/latest/aws-risk-and-compliance/shared-responsibility-model.html), we are responsible for the management of the  dependency in our functions.
+> 
 ## Linting
 
 To run the linter, execute the following command:
