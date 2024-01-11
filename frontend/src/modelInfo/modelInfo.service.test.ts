@@ -23,6 +23,7 @@ function getNewModelSpecMockData(): INewModelSpecification {
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       UUID: randomUUID(),
     },
+    UUIDHistory: [randomUUID()],
   };
 }
 

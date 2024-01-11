@@ -1,4 +1,4 @@
-import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_UUIDv4_Or_Empty } from "../regex";
+import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4 } from "../regex";
 import ModelInfoConstants from "./constants";
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
@@ -26,6 +26,15 @@ export const _baseProperties: any = {
   locale: {
     $ref: `${Locale.Schemas.Payload.$id}`,
   },
+  UUIDHistory: {
+    description: "The UUIDs history of the model.",
+    type: "array",
+    minItems: 0,
+    items: {
+      type: "string",
+      pattern: RegExp_Str_UUIDv4,
+    },
+  },
 };
 
 export const _baseResponseSchema = {
@@ -41,16 +50,6 @@ export const _baseResponseSchema = {
       description: "The UUID of the model. It can be used to identify the model across systems.",
       type: "string",
       pattern: RegExp_Str_UUIDv4,
-    },
-    originUUID: {
-      description: "The UUID of the model this model originated from.",
-      type: "string",
-      pattern: RegExp_Str_UUIDv4_Or_Empty,
-    },
-    previousUUID: {
-      description: "The UUID of the previous version this model.",
-      type: "string",
-      pattern: RegExp_Str_UUIDv4_Or_Empty,
     },
     path: {
       description: "The path to the model resource using the resource id",
@@ -173,6 +172,10 @@ export const _baseResponseSchema = {
     createdAt: { type: "string", format: "date-time" },
     updatedAt: { type: "string", format: "date-time" },
     ...JSON.parse(JSON.stringify(_baseProperties)), // deep copy the base properties
+    UUIDHistory: {
+      ..._baseProperties.UUIDHistory,
+      minItems: 1,
+    },
   },
   required: [
     "name",
@@ -189,5 +192,6 @@ export const _baseResponseSchema = {
     "importProcessState",
     "createdAt",
     "updatedAt",
+    "UUIDHistory",
   ],
 };

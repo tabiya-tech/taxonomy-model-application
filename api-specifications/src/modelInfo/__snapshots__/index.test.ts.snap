@@ -39,6 +39,15 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                 "type": "string",
               },
+              "UUIDHistory": {
+                "description": "The UUIDs history of the model.",
+                "items": {
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string",
+                },
+                "minItems": 1,
+                "type": "array",
+              },
               "createdAt": {
                 "format": "date-time",
                 "type": "string",
@@ -178,19 +187,9 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 "pattern": "\\S",
                 "type": "string",
               },
-              "originUUID": {
-                "description": "The UUID of the model this model originated from.",
-                "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
-                "type": "string",
-              },
               "path": {
                 "description": "The path to the model resource using the resource id",
                 "pattern": "\\S",
-                "type": "string",
-              },
-              "previousUUID": {
-                "description": "The UUID of the previous version this model.",
-                "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
                 "type": "string",
               },
               "releaseNotes": {
@@ -232,6 +231,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "importProcessState",
               "createdAt",
               "updatedAt",
+              "UUIDHistory",
             ],
             "type": "object",
           },
@@ -245,6 +245,15 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
           "$id": "/components/schemas/ModelInfoRequestSchemaPOST",
           "additionalProperties": false,
           "properties": {
+            "UUIDHistory": {
+              "description": "The UUIDs history of the model.",
+              "items": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
             "description": {
               "description": "The description of the model",
               "maxLength": 4000,
@@ -264,6 +273,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "name",
             "description",
             "locale",
+            "UUIDHistory",
           ],
           "type": "object",
         },
@@ -277,6 +287,15 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "description": "The UUID of the model. It can be used to identify the model across systems.",
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
               "type": "string",
+            },
+            "UUIDHistory": {
+              "description": "The UUIDs history of the model.",
+              "items": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "minItems": 1,
+              "type": "array",
             },
             "createdAt": {
               "format": "date-time",
@@ -417,19 +436,9 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "pattern": "\\S",
               "type": "string",
             },
-            "originUUID": {
-              "description": "The UUID of the model this model originated from.",
-              "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
-              "type": "string",
-            },
             "path": {
               "description": "The path to the model resource using the resource id",
               "pattern": "\\S",
-              "type": "string",
-            },
-            "previousUUID": {
-              "description": "The UUID of the previous version this model.",
-              "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
               "type": "string",
             },
             "releaseNotes": {
@@ -471,6 +480,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "importProcessState",
             "createdAt",
             "updatedAt",
+            "UUIDHistory",
           ],
           "type": "object",
         },

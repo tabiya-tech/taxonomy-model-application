@@ -56,16 +56,16 @@ export class ModelRepository implements IModelRepository {
       if (newModelSpec.UUID !== undefined) {
         throw new Error("UUID should not be provided");
       }
+      const newUUID = randomUUID();
       const newModelInfo = new this.Model({
         ...newModelSpec,
-        UUID: randomUUID(),
-        originUUID: "",
-        previousUUID: "",
+        UUID: newUUID,
         version: "",
         releaseNotes: "",
         released: false,
         importProcessState: new mongoose.Types.ObjectId(), // models are created empty and are populated asynchronously with data via an import process
       });
+      newModelInfo.UUIDHistory.unshift(newUUID);
       await newModelInfo.save();
       await newModelInfo.populate([populateImportProcessStateOptions, populateExportProcessStateOptions]);
       return newModelInfo.toObject();

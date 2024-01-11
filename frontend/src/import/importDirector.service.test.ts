@@ -101,6 +101,7 @@ describe("Test the import director service", () => {
       name: givenName,
       description: givenDescription,
       locale: givenLocale,
+      UUIDHistory: [],
     });
 
     // #### PRESIGNED SERVICE ####

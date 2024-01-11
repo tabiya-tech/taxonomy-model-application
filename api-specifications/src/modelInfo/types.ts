@@ -6,8 +6,7 @@ import ExportProcessState from "../exportProcessState";
 interface IModelInfoResponse extends IModelInfoRequest {
   id: string;
   UUID: string;
-  originUUID: string;
-  previousUUID: string;
+  UUIDHistory: string[];
   path: string;
   tabiyaPath: string;
   released: boolean;
@@ -41,6 +40,7 @@ interface IModelInfoRequest {
   name: string;
   description: string;
   locale: Locale.Types.Payload;
+  UUIDHistory: string[];
 }
 
 namespace ModelInfoTypes {

@@ -19,8 +19,7 @@ export interface IModelInfoDoc {
   locale: ILocale;
   description: string;
   UUID: string;
-  previousUUID: string;
-  originUUID: string;
+  UUIDHistory: string[];
   released: boolean;
   releaseNotes: string;
   version: string;
@@ -60,8 +59,4 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProce
 /**
  * Describe how a new model info is created with the API
  */
-export interface INewModelInfoSpec {
-  name: string;
-  locale: ILocale;
-  description: string;
-}
+export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "description" | "UUIDHistory">;

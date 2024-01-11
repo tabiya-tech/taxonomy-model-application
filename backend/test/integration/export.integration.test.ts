@@ -112,6 +112,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
         shortCode: "et",
       },
       description: "",
+      UUIDHistory: [randomUUID()],
     });
     // AND an export process is pending for that model
     const givenExportProcessState = await getRepositoryRegistry().exportProcessState.create({

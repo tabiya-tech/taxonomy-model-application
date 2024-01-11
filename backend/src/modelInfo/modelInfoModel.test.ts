@@ -12,7 +12,7 @@ import { getNewConnection } from "server/connection/newConnection";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { IModelInfoDoc } from "./modelInfo.types";
-import { testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { testObjectIdField, testUUIDHistoryField } from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the ModelInfo Model", () => {
   let dbConnection: Connection;
@@ -37,8 +37,7 @@ describe("Test the definition of the ModelInfo Model", () => {
       "mandatory fields",
       {
         UUID: randomUUID(),
-        previousUUID: randomUUID(),
-        originUUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
         name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
         locale: {
           UUID: randomUUID(),
@@ -56,8 +55,7 @@ describe("Test the definition of the ModelInfo Model", () => {
       "optional fields",
       {
         UUID: randomUUID(),
-        previousUUID: "",
-        originUUID: "",
+        UUIDHistory: [randomUUID()],
         name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
         locale: {
           UUID: randomUUID(),
@@ -190,47 +188,7 @@ describe("Test the definition of the ModelInfo Model", () => {
       });
     });
 
-    describe("Test validation of 'previousUUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Empty previousUUID", "", undefined],
-        [CaseType.Success, "Valid previousUUID", randomUUID(), undefined],
-      ])(
-        "(%s) Validate 'previousUUID' when it is %s",
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "previousUUID", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
-
-    describe("Test validation of 'originUUID", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Empty originUUID", "", undefined],
-        [CaseType.Success, "Valid originUUID", randomUUID(), undefined],
-      ])(
-        "(%s) Validate 'originUUID' when it is %s",
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "originUUID", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testUUIDHistoryField<IModelInfoDoc>(() => ModelInfoModel);
 
     describe("Test validation of 'UUID", () => {
       test.each([

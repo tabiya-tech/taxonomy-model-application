@@ -37,6 +37,7 @@ describe("Test for model handler", () => {
           shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
         },
         description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        UUIDHistory: [randomUUID()],
       };
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST,
@@ -88,6 +89,7 @@ describe("Test for model handler", () => {
           shortCode: "SA",
         },
         description: "some text",
+        UUIDHistory: [randomUUID()],
       };
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST,

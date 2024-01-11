@@ -24,8 +24,7 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
-      previousUUID: uuidv4(),
-      originUUID: uuidv4(),
+      UUIDHistory: [uuidv4()],
       name: `${i + 1}/${count} - ${getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH)}`.substring(
         0,
         ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
@@ -70,8 +69,7 @@ export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.Mod
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
-      previousUUID: uuidv4(),
-      originUUID: uuidv4(),
+      UUIDHistory: [uuidv4()],
       name: `${i + 1}/${count} - ${getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH)}`.substring(
         0,
         ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
@@ -115,8 +113,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
-      previousUUID: uuidv4(),
-      originUUID: uuidv4(),
+      UUIDHistory: [uuidv4()],
       name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       locale: {
         UUID: uuidv4(),
@@ -149,6 +146,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
 
 export const fakeModel: ModelInfoTypes.ModelInfo = {
   UUID: "8d914eab-6f7d-4183-accc-a09f99887b39",
+  UUIDHistory: ["8d914eab-6f7d-4183-accc-a09f99887b39"],
   createdAt: new Date("2023-10-18T17:35:10.571Z"),
   description: "aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm",
   id: "000000000000000000000001",
@@ -180,9 +178,7 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
     shortCode: "ETH",
   },
   name: "1/1 - fysmros tcgcnjbbrrev",
-  originUUID: "fed55cd7-2a8b-4e24-8ee6-4e1aa8f8b0ab",
   path: "https://unwelcome-editorial.net/",
-  previousUUID: "b7095a47-f5dd-4142-a7d7-a7eb3e207d3a",
   releaseNotes: "Perferendis modi impedit necessitatibus a",
   released: true,
   tabiyaPath: "https://silver-vulture.biz",

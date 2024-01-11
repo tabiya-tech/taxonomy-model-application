@@ -44,8 +44,7 @@ export namespace GET {
       return {
         id: getMockId(i),
         UUID: uuidv4(),
-        previousUUID: uuidv4(),
-        originUUID: uuidv4(),
+        UUIDHistory: [uuidv4()],
         name: `${i + 1}/${count} - ${getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH)}`.slice(
           0,
           ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
@@ -106,8 +105,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
   return {
     id: getMockId(_id),
     UUID: uuidv4(),
-    previousUUID: uuidv4(),
-    originUUID: uuidv4(),
+    UUIDHistory: [uuidv4()],
     name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: uuidv4(),
