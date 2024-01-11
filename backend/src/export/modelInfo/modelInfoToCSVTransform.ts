@@ -4,41 +4,27 @@ import { stringify } from "csv-stringify";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { Readable } from "node:stream";
 
-const modelInfoHeaders = [
-  "UUID",
-  "Name",
-  "Locale",
-  "Description",
-  "Version",
-  "Released",
-  "Previous",
-  "ReleaseNotes",
-  "OriginURI",
-];
+const modelInfoHeaders = ["UUIDHistory", "NAME", "LOCALE", "DESCRIPTION", "VERSION", "RELEASED", "RELEASENOTES"];
 
 interface IModelInfoRow {
-  UUID: string;
-  Name: string;
-  Locale: string;
-  Description: string;
-  Version: string;
-  Released: "TRUE" | "FALSE";
-  Previous: string;
-  ReleaseNotes: string;
-  OriginUUID: string;
+  UUIDHistory: string;
+  NAME: string;
+  LOCALE: string;
+  DESCRIPTION: string;
+  VERSION: string;
+  RELEASED: "TRUE" | "FALSE";
+  RELEASENOTES: string;
 }
 
 export const transformModelInfoSpecToCSVRow = (modelInfo: IModelInfo): IModelInfoRow => {
   return {
-    UUID: modelInfo.UUID,
-    Name: modelInfo.name,
-    Locale: modelInfo.locale.shortCode,
-    Description: modelInfo.description,
-    Version: modelInfo.version,
-    Released: modelInfo.released ? "TRUE" : "FALSE",
-    Previous: modelInfo.previousUUID,
-    ReleaseNotes: modelInfo.releaseNotes,
-    OriginUUID: modelInfo.originUUID,
+    UUIDHistory: modelInfo.UUIDHistory.join("\n"),
+    NAME: modelInfo.name,
+    LOCALE: modelInfo.locale.shortCode,
+    DESCRIPTION: modelInfo.description,
+    VERSION: modelInfo.version,
+    RELEASED: modelInfo.released ? "TRUE" : "FALSE",
+    RELEASENOTES: modelInfo.releaseNotes,
   };
 };
 

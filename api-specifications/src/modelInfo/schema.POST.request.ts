@@ -8,7 +8,7 @@ const SchemaPOSTRequest: SchemaObject = {
   properties: {
     ...JSON.parse(JSON.stringify(_baseProperties)), // deep copy the base properties
   },
-  required: ["name", "description", "locale"],
+  required: ["name", "description", "locale", "UUIDHistory"],
 };
 
 export default SchemaPOSTRequest;

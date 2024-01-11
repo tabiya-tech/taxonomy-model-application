@@ -1,23 +1,107 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV 1`] = `
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory has multiple items 1`] = `
 [
   {
-    "Description": "description_2_^°!"§$%&/(",
-    "Locale": "shortCode_2",
-    "Name": "name_2_^°!"§$%&/(",
-    "OriginURI": "",
-    "Previous": "previousUUID_2",
-    "ReleaseNotes": "releaseNotes_2_^°!"§$%&/(",
-    "Released": "TRUE",
-    "UUID": "uuid_2",
-    "Version": "version_2",
+    "DESCRIPTION": "description_2_^°!"§$%&/(",
+    "LOCALE": "shortCode_2",
+    "NAME": "name_2_^°!"§$%&/(",
+    "RELEASED": "TRUE",
+    "RELEASENOTES": "releaseNotes_2_^°!"§$%&/(",
+    "UUIDHistory": "uuid_1
+uuid_2",
+    "VERSION": "version_2",
   },
 ]
 `;
 
-exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV 2`] = `
-"UUID,Name,Locale,Description,Version,Released,Previous,ReleaseNotes,OriginURI
-uuid_2,"name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,previousUUID_2,"releaseNotes_2_^°!""§$%&/(",
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory has multiple items 2`] = `
+"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES
+"uuid_1
+uuid_2","name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/("
+"
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory has one item 1`] = `
+[
+  {
+    "DESCRIPTION": "description_2_^°!"§$%&/(",
+    "LOCALE": "shortCode_2",
+    "NAME": "name_2_^°!"§$%&/(",
+    "RELEASED": "TRUE",
+    "RELEASENOTES": "releaseNotes_2_^°!"§$%&/(",
+    "UUIDHistory": "uuid_1",
+    "VERSION": "version_2",
+  },
+]
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory has one item 2`] = `
+"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES
+uuid_1,"name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/("
+"
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory is empty 1`] = `
+[
+  {
+    "DESCRIPTION": "description_2_^°!"§$%&/(",
+    "LOCALE": "shortCode_2",
+    "NAME": "name_2_^°!"§$%&/(",
+    "RELEASED": "TRUE",
+    "RELEASENOTES": "releaseNotes_2_^°!"§$%&/(",
+    "UUIDHistory": "",
+    "VERSION": "version_2",
+  },
+]
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory is empty 2`] = `
+"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES
+,"name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/("
+"
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when model is released 1`] = `
+[
+  {
+    "DESCRIPTION": "description_2_^°!"§$%&/(",
+    "LOCALE": "shortCode_2",
+    "NAME": "name_2_^°!"§$%&/(",
+    "RELEASED": "TRUE",
+    "RELEASENOTES": "releaseNotes_2_^°!"§$%&/(",
+    "UUIDHistory": "uuid_1
+uuid_2",
+    "VERSION": "version_2",
+  },
+]
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when model is released 2`] = `
+"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES
+"uuid_1
+uuid_2","name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/("
+"
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when model is unreleased 1`] = `
+[
+  {
+    "DESCRIPTION": "description_2_^°!"§$%&/(",
+    "LOCALE": "shortCode_2",
+    "NAME": "name_2_^°!"§$%&/(",
+    "RELEASED": "FALSE",
+    "RELEASENOTES": "releaseNotes_2_^°!"§$%&/(",
+    "UUIDHistory": "uuid_1
+uuid_2",
+    "VERSION": "version_2",
+  },
+]
+`;
+
+exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when model is unreleased 2`] = `
+"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES
+"uuid_1
+uuid_2","name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,FALSE,"releaseNotes_2_^°!""§$%&/("
 "
 `;

@@ -33,8 +33,7 @@ export namespace ModelInfoTypes {
   export type ModelInfo = {
     id: string;
     UUID: string;
-    previousUUID: string;
-    originUUID: string;
+    UUIDHistory: string[];
     released: boolean;
     releaseNotes: string;
     version: string;

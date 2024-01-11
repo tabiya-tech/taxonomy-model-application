@@ -22,6 +22,7 @@ const getMockModelInfo = (i: number): IModelInfo => {
     },
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
+    UUIDHistory: [`uuid_1`, `uuid_2`],
     name: `name_${i}_${getTestString(10)}`,
     locale: {
       UUID: `localeUUID_${i}`,
@@ -30,10 +31,8 @@ const getMockModelInfo = (i: number): IModelInfo => {
     },
     description: `description_${i}_${getTestString(10)}`,
     version: `version_${i}`,
-    released: i % 2 === 0,
-    previousUUID: `previousUUID_${i}`,
+    released: true,
     releaseNotes: `releaseNotes_${i}_${getTestString(10)}`,
-    originUUID: `originUUID_${i}`,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -55,30 +54,70 @@ describe("ModelInfosDocToCsvTransform", () => {
     jest.clearAllMocks();
   });
 
-  test("should correctly transform ModelInfo data to CSV", async () => {
-    // GIVEN findAll returns a stream of ModelInfos
-    const givenModelInfo = getMockModelInfo(2);
-    setupModelInfoRepositoryMock(() => givenModelInfo);
+  test.each([
+    ["released", true],
+    ["unreleased", false],
+  ])(
+    "should correctly transform ModelInfo data to CSV when model is %s",
+    async (_description: string, givenReleased: boolean) => {
+      // GIVEN findAll returns a stream of ModelInfos
+      const givenModelInfo = getMockModelInfo(2);
+      givenModelInfo.released = givenReleased;
+      setupModelInfoRepositoryMock(() => givenModelInfo);
 
-    // WHEN the transformation is applied
-    const transformedStream = await ModelInfoToCSVTransform(givenModelInfo.id);
+      // WHEN the transformation is applied
+      const transformedStream = await ModelInfoToCSVTransform(givenModelInfo.id);
 
-    // THEN the output should be a stream
-    const chunks = [];
-    for await (const chunk of transformedStream) {
-      chunks.push(chunk);
+      // THEN the output should be a stream
+      const chunks = [];
+      for await (const chunk of transformedStream) {
+        chunks.push(chunk);
+      }
+      const actualCSVOutput = chunks.join("");
+
+      // AND be a valid CSV
+      const parsedObjects = parse(actualCSVOutput, { columns: true });
+      // AND contain the occupation data
+      expect(parsedObjects).toMatchSnapshot();
+      expect(actualCSVOutput).toMatchSnapshot();
+
+      // AND the stream should end
+      expect(transformedStream.closed).toBe(true);
     }
-    const actualCSVOutput = chunks.join("");
+  );
 
-    // AND be a valid CSV
-    const parsedObjects = parse(actualCSVOutput, { columns: true });
-    // AND contain the occupation data
-    expect(parsedObjects).toMatchSnapshot();
-    expect(actualCSVOutput).toMatchSnapshot();
+  test.each([
+    ["is empty", []],
+    ["has one item", [`uuid_1`]],
+    ["has multiple items", [`uuid_1`, `uuid_2`]],
+  ])(
+    `should correctly transform ModelInfo data to CSV when UUIDHistory %s`,
+    async (_description: string, givenUUIDHistory: string[]) => {
+      // GIVEN findAll returns a stream of ModelInfos
+      const givenModelInfo = getMockModelInfo(2);
+      givenModelInfo.UUIDHistory = givenUUIDHistory;
+      setupModelInfoRepositoryMock(() => givenModelInfo);
 
-    // AND the stream should end
-    expect(transformedStream.closed).toBe(true);
-  });
+      // WHEN the transformation is applied
+      const transformedStream = await ModelInfoToCSVTransform(givenModelInfo.id);
+
+      // THEN the output should be a stream
+      const chunks = [];
+      for await (const chunk of transformedStream) {
+        chunks.push(chunk);
+      }
+      const actualCSVOutput = chunks.join("");
+
+      // AND be a valid CSV
+      const parsedObjects = parse(actualCSVOutput, { columns: true });
+      // AND contain the occupation data
+      expect(parsedObjects).toMatchSnapshot();
+      expect(actualCSVOutput).toMatchSnapshot();
+
+      // AND the stream should end
+      expect(transformedStream.closed).toBe(true);
+    }
+  );
 
   describe("should handle errors during stream processing", () => {
     test("should throw an error if no model by that id exists in the db", () => {

@@ -53,8 +53,7 @@ describe("Validate JSON against the Schema", () => {
   const givenValidModelInfoPOSTResponse = {
     id: getMockId(1),
     UUID: randomUUID(),
-    previousUUID: "", //randomUUID(),
-    originUUID: randomUUID(),
+    UUIDHistory: [randomUUID()],
     path: "path/to/tabiya",
     tabiyaPath: "/path/to/tabiya",
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -83,6 +82,7 @@ describe("Validate JSON against the Schema", () => {
   const givenValidModelInfoPOSTRequest = {
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     description: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    UUIDHistory: [randomUUID()],
     locale: {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
@@ -137,6 +137,18 @@ describe("Validate JSON against the Schema", () => {
       "ModelInfoAPISpecs.Schemas.POST.Request.Payload",
       ModelInfoAPISpecs.Schemas.POST.Request.Payload,
       givenValidModelInfoPOSTRequest,
+      [LocaleAPISpecs.Schemas.Payload]
+    );
+
+    // GIVEN the object has an empty UUIDHistory
+    const givenModelInfoPOSTRequestWithEmptyUUIDHistory = { ...givenValidModelInfoPOSTRequest };
+    givenModelInfoPOSTRequestWithEmptyUUIDHistory.UUIDHistory = [];
+    // WHEN the object is validated
+    // THEN expect the object to validate successfully
+    testSchemaWithValidObject(
+      "ModelInfoAPISpecs.Schemas.POST.Request.Payload",
+      ModelInfoAPISpecs.Schemas.POST.Request.Payload,
+      givenModelInfoPOSTRequestWithEmptyUUIDHistory,
       [LocaleAPISpecs.Schemas.Payload]
     );
 

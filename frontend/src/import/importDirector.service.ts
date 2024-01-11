@@ -23,7 +23,7 @@ export default class ImportDirectorService {
     const modelService = new ModelInfoService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
     const [newModel, presigned] = await Promise.all([
-      modelService.createModel({ name, description, locale }),
+      modelService.createModel({ name, description, locale, UUIDHistory: [] }),
       presignedService.getPresignedPost(),
     ]);
 

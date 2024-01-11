@@ -14,7 +14,7 @@ import { parseSkillsFromFile } from "import/esco/skills/skillsParser";
 import { parseOccupationsFromFile } from "import/esco/occupations/occupationsParser";
 import { parseOccupationHierarchyFromFile } from "import/esco/occupationHierarchy/occupationHierarchyParser";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import { IModelInfo, INewModelInfoSpec } from "modelInfo/modelInfo.types";
+import { IModelInfo } from "modelInfo/modelInfo.types";
 import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromFile } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromFile } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
@@ -94,12 +94,13 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
       const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
         name: "CSVImport",
         description: "CSVImport",
+        UUIDHistory: [randomUUID()],
         locale: {
           name: "en",
           UUID: randomUUID(),
           shortCode: "en",
         },
-      } as INewModelInfoSpec);
+      });
 
       const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
 

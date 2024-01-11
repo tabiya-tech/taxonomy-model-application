@@ -33,6 +33,7 @@ jest.mock("crypto", () => {
 function getNewModelInfoSpec(): INewModelInfoSpec {
   return {
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    UUIDHistory: [randomUUID()],
     locale: {
       UUID: randomUUID(),
       name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -111,8 +112,41 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
         ...givenNewModelInfoSpec,
         id: expect.any(String),
         UUID: expect.any(String),
-        originUUID: "",
-        previousUUID: "",
+        UUIDHistory: [actualNewModel.UUID, ...givenNewModelInfoSpec.UUIDHistory],
+        version: "",
+        releaseNotes: "",
+        released: false,
+        // AND the importProcessState to be set to pending as there is no import process yet
+        importProcessState: {
+          id: expect.any(String),
+          status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+          result: {
+            errored: false,
+            parsingErrors: false,
+            parsingWarnings: false,
+          },
+        },
+        exportProcessState: [],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      };
+      expect(actualNewModel).toEqual(expectedNewModelInfo);
+    });
+
+    test("should create a new model when the given specs have an empty UUIDHistory", async () => {
+      // GIVEN a valid INewModelInfoSpec with an empty UUIDHistory
+      const givenNewModelInfoSpec: INewModelInfoSpec = getNewModelInfoSpec();
+      givenNewModelInfoSpec.UUIDHistory = [];
+
+      // WHEN creating a new modelInfo with the given specifications
+      const actualNewModel = await repository.create(givenNewModelInfoSpec);
+
+      // THEN expect the new modelInfo to be created with the specific attributes
+      const expectedNewModelInfo: IModelInfo = {
+        ...givenNewModelInfoSpec,
+        id: expect.any(String),
+        UUID: expect.any(String),
+        UUIDHistory: [actualNewModel.UUID],
         version: "",
         releaseNotes: "",
         released: false,

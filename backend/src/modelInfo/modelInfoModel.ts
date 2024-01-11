@@ -10,6 +10,7 @@ import {
   ExportProcessStateModelPaths,
   ModelName as ExportProcessStateModelName,
 } from "export/exportProcessState/exportProcessStateModel";
+import { UUIDHistoryProperty } from "esco/common/modelSchema";
 
 export const ModelName = "ModelInfo";
 export const ModelInfoModelPaths = {
@@ -42,20 +43,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   const modelInfoSchema = new mongoose.Schema<IModelInfoDoc>(
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
-      previousUUID: {
-        type: String,
-        required: stringRequired("previousUUID"),
-        validate: function (value: string): boolean {
-          return value.length === 0 || RegExp_UUIDv4.test(value);
-        },
-      },
-      originUUID: {
-        type: String,
-        required: stringRequired("originUUID"),
-        validate: function (value: string): boolean {
-          return value.length === 0 || RegExp_UUIDv4.test(value);
-        },
-      },
+      UUIDHistory: UUIDHistoryProperty,
       name: {
         type: String,
         required: true,

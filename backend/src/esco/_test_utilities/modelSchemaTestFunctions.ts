@@ -186,6 +186,12 @@ export function testUUIDHistoryField<T>(getModel: () => mongoose.Model<T>) {
         "Validator failed for path `UUIDHistory` with value `" + randomValidUUID + ",foo`",
       ],
       [CaseType.Failure, "empty array", [], "Validator failed for path `UUIDHistory` with value ``"],
+      [
+        CaseType.Failure,
+        "not unique UUIDs",
+        [randomValidUUID, randomValidUUID],
+        `Validator failed for path \`UUIDHistory\` with value \`${randomValidUUID},${randomValidUUID}\``,
+      ],
       [CaseType.Success, "Valid UUID", randomValidUUID, undefined],
       [CaseType.Success, "an array with a single valid UUID", [randomValidUUID], undefined],
       [CaseType.Success, "an array with many valid UUIDs", [randomUUID(), randomUUID(), randomUUID()], undefined],
