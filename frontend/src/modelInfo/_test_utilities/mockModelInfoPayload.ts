@@ -35,8 +35,13 @@ export namespace GET {
    * @param count
    */
   export function getPayloadWithArrayOfFakeModelInfo(count: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
-    const allImportStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
-    const allExportStatuses = Object.values(ExportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+    const allImportStatuses: ImportProcessStateAPISpecs.Enums.Status[] = Object.values(
+      ImportProcessStateAPISpecs.Enums.Status
+    ).reverse(); // Assuming it's an enum with string values PENDING, RUNNING, COMPLETED
+
+    const allExportStatuses: ExportProcessStateAPISpecs.Enums.Status[] = Object.values(
+      ExportProcessStateAPISpecs.Enums.Status
+    ).reverse(); // Assuming it's an enum with string values PENDING, RUNNING, COMPLETED
 
     return Array.from({ length: count }, (_, i) => {
       const randomizedImportStatus = allImportStatuses[i % allImportStatuses.length];
