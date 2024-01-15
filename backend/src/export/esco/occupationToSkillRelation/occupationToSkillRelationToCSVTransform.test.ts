@@ -112,11 +112,9 @@ describe("occupationToSkillRelationToCSVTransform", () => {
       const givenError = new Error("Mocked Transformation Error");
       jest
         .spyOn(occupationToSkillRelationToCSVTransformModule, "transformOccupationToSkillRelationSpecToCSVRow")
-        .mockImplementationOnce(
-          () => {
-            throw givenError;
-          }
-        );
+        .mockImplementationOnce(() => {
+          throw givenError;
+        });
 
       // WHEN the transformation stream is consumed
       const transformedStream = occupationToSkillRelationToCSVTransform("foo");

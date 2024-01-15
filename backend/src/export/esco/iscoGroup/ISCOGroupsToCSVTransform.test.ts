@@ -106,11 +106,9 @@ describe("ISCOGroupsDoc2csvTransform", () => {
 
       // AND  the transformISCOGroupSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
-        .spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow")
-        .mockImplementationOnce(() => {
-          throw givenError;
-        });
+      jest.spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow").mockImplementationOnce(() => {
+        throw givenError;
+      });
 
       // WHEN the transformation stream is consumed
       const transformedStream = ISCOGroupsToCSVTransform("foo");
