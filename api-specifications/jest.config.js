@@ -1,12 +1,11 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 const {compilerOptions} = require('./tsconfig.json')
 module.exports = {
-
   testPathIgnorePatterns: [
     "<rootDir>/dist",
     "<rootDir>/coverage",
   ],
-  modulePathIgnorePatterns: ["<rootDir>/build"],
+  modulePathIgnorePatterns: ["<rootDir>/build", "<rootDir>/dist"],
   moduleDirectories: ["node_modules", "<rootDir>/src"],
   transform: { // override default transform to use a custom inline tsconfig
     // process js/ts with `ts-jest`
