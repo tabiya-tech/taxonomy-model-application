@@ -104,11 +104,9 @@ describe("SkillGroupsDocToCsvTransform", () => {
       setupSkillGroupRepositoryMock(() => Readable.from(getMockSkillGroups()));
       // AND  the transformISCOGroupSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
-        .spyOn(SKillGroupsToCSVTransformModule, "transformSkillGroupSpecToCSVRow")
-        .mockImplementationOnce(() => {
-          throw givenError;
-        });
+      jest.spyOn(SKillGroupsToCSVTransformModule, "transformSkillGroupSpecToCSVRow").mockImplementationOnce(() => {
+        throw givenError;
+      });
 
       // WHEN the transformation stream is consumed
       const transformedStream = SkillGroupsToCSVTransform("foo");

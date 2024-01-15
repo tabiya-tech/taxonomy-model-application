@@ -97,11 +97,9 @@ describe("ModelInfosDocToCsvTransform", () => {
       setupModelInfoRepositoryMock(() => givenModelInfo);
       // AND the transformModelInfoToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
-        .spyOn(SKillsToCSVTransformModule, "transformModelInfoSpecToCSVRow")
-        .mockImplementationOnce(() => {
-          throw givenError;
-        });
+      jest.spyOn(SKillsToCSVTransformModule, "transformModelInfoSpecToCSVRow").mockImplementationOnce(() => {
+        throw givenError;
+      });
 
       // WHEN the transformation stream is consumed
       const transformedStream = await ModelInfoToCSVTransform(givenModelInfo.id);
