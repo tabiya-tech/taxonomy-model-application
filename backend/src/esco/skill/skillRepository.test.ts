@@ -1365,7 +1365,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // iterate over the stream to hot the db and trigger the error
         // do nothing
       }
-      return;
     });
   });
 });

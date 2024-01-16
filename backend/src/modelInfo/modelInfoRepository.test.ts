@@ -281,7 +281,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
         return givenExistingModels;
       },
       async () => {
-        return (await repository.getModels()) as IModelInfo[];
+        return await repository.getModels();
       }
     );
 

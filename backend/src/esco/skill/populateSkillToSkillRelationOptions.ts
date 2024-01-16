@@ -18,7 +18,7 @@ export const populateSkillRequiresSkillsOptions = {
     transform: function (doc: ModelConstructed & SkillDocument): ISkillReferenceDoc | null {
       const modelName = (doc as ModelConstructed).constructor.modelName;
       if (modelName === MongooseModelName.Skill) {
-        return getSkillDocReference(doc as SkillDocument);
+        return getSkillDocReference(doc);
       }
       console.error(`Object is not a Skill: ${modelName}`);
       return null;
@@ -34,7 +34,7 @@ export const populateSkillRequiredBySkillsOptions = {
     transform: function (doc: ModelConstructed & SkillDocument): ISkillReferenceDoc | null {
       const modelName = (doc as ModelConstructed).constructor.modelName;
       if (modelName === MongooseModelName.Skill) {
-        return getSkillDocReference(doc as SkillDocument);
+        return getSkillDocReference(doc);
       }
       console.error(`Object is not a Skill: ${modelName}`);
       return null;

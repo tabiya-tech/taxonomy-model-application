@@ -1,6 +1,6 @@
 export function setupFetchSpy(
   expectedStatus: number,
-  expectedResponseBody: any | string,
+  expectedResponseBody: string | object | undefined,
   contentType: "" | "application/json;charset=UTF-8"
 ): jest.SpyInstance {
   const responseBody =

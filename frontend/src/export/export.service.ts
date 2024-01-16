@@ -1,4 +1,4 @@
-import { getServiceErrorFactory } from "src/error/error";
+import { getServiceErrorFactory, ServiceErrorDetails } from "src/error/error";
 import { StatusCodes } from "http-status-codes";
 import { ErrorCodes } from "src/error/errorCodes";
 
@@ -23,8 +23,13 @@ export default class ExportService {
         },
         body: JSON.stringify({ modelId }),
       });
-    } catch (e) {
-      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, `Failed to export model with ID ${modelId}`, e);
+    } catch (e: unknown) {
+      throw errorFactory(
+        0,
+        ErrorCodes.FAILED_TO_FETCH,
+        `Failed to export model with ID ${modelId}`,
+        e as ServiceErrorDetails
+      );
     }
 
     if (response.status !== StatusCodes.ACCEPTED) {

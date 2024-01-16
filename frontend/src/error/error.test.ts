@@ -1,3 +1,4 @@
+import ErrorAPISpecs from "api-specifications/error";
 import { ErrorCodes } from "./errorCodes";
 import {
   getServiceErrorFactory,
@@ -10,8 +11,15 @@ import { StatusCodes } from "http-status-codes/";
 describe("Test the ServiceError class", () => {
   it.each([
     ["string", "some string"],
-    ["IErrorResponse", { errorCode: ErrorCodes.API_ERROR, message: "message", details: "details" }],
-    ["any object", { foo: "bar" }],
+    [
+      "ErrorAPISpecs.Types.Payload",
+      {
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INTERNAL_SERVER_ERROR,
+        message: "message",
+        details: "details",
+      } as ErrorAPISpecs.Types.Payload,
+    ],
+    ["object", { foo: "bar" } as object],
     ["undefined", undefined],
     ["null", null],
   ])("should create a ServiceError object with %s details", (description, detailsValue) => {
