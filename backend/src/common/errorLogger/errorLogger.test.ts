@@ -6,8 +6,8 @@ describe("Test importLogger", () => {
     jest.clearAllMocks();
     jest.resetModules();
   });
-  test("when module is imported it should return a logger singleton instance", () => {
-    jest.isolateModules(async () => {
+  test("when module is imported it should return a logger singleton instance", async () => {
+    await jest.isolateModulesAsync(async () => {
       // WHEN the module is imported twice
 
       const errorLogger1 = await import("./errorLogger");
@@ -21,8 +21,8 @@ describe("Test importLogger", () => {
     });
   });
 
-  test("when no errors or warnings are logged, the errorCount and warningCount should be 0", () => {
-    jest.isolateModules(async () => {
+  test("when no errors or warnings are logged, the errorCount and warningCount should be 0", async () => {
+    await jest.isolateModulesAsync(async () => {
       // GIVEN the logger is imported
       const errorLogger = await import("./errorLogger");
       // WHEN no errors or warnings are logged
@@ -32,8 +32,8 @@ describe("Test importLogger", () => {
     });
   });
 
-  test("should count logged errors", () => {
-    jest.isolateModules(async () => {
+  test("should count logged errors", async () => {
+    await jest.isolateModulesAsync(async () => {
       // GIVEN the logger is imported
       const errorLogger = await import("./errorLogger");
       // WHEN N errors are logged
@@ -48,8 +48,8 @@ describe("Test importLogger", () => {
     });
   });
 
-  test("should count logged warnings", () => {
-    jest.isolateModules(async () => {
+  test("should count logged warnings", async () => {
+    await jest.isolateModulesAsync(async () => {
       // GIVEN the logger is imported
       const errorLogger = await import("./errorLogger");
       // WHEN N warnings are logged
@@ -64,8 +64,8 @@ describe("Test importLogger", () => {
     });
   });
 
-  test("should log error to the console", () => {
-    jest.isolateModules(async () => {
+  test("should log error to the console", async () => {
+    await jest.isolateModulesAsync(async () => {
       // GIVEN the logger is imported
       const errorLogger = await import("./errorLogger");
       // AND an error
@@ -84,8 +84,8 @@ describe("Test importLogger", () => {
     });
   });
 
-  test("should log warning to the console", () => {
-    jest.isolateModules(async () => {
+  test("should log warning to the console", async () => {
+    await jest.isolateModulesAsync(async () => {
       // GIVEN the logger is imported
       const errorLogger = await import("./errorLogger");
       // AND an error
@@ -104,8 +104,8 @@ describe("Test importLogger", () => {
     });
   });
 
-  test("should clear the errorCount and warningCount", () => {
-    jest.isolateModules(async () => {
+  test("should clear the errorCount and warningCount", async () => {
+    await jest.isolateModulesAsync(async () => {
       // GIVEN the logger is imported
       const errorLogger = await import("./errorLogger");
       // AND an error

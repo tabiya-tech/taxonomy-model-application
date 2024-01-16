@@ -1,4 +1,4 @@
-import { getServiceErrorFactory } from "src/error/error";
+import { getServiceErrorFactory, ServiceErrorDetails } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import ImportAPISpecs from "api-specifications/import";
 import { StatusCodes } from "http-status-codes";
@@ -29,8 +29,8 @@ export default class ImportService {
         body: JSON.stringify(importRequest),
       });
       responseStatus = response.status;
-    } catch (e) {
-      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to import files", e);
+    } catch (e: unknown) {
+      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to import files", e as ServiceErrorDetails);
     }
     if (responseStatus !== StatusCodes.ACCEPTED) {
       throw errorFactory(responseStatus, ErrorCodes.FAILED_TO_FETCH, "Failed to import files", {});

@@ -34,7 +34,7 @@ import {
   IOccupationToSkillRelationPair
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
-describe("Test the Performance of  Repositories with an in-memory mongodb", () => {
+describe("Test the Performance of Repositories with an in-memory mongodb", () => {
   let dbConnection: Connection;
   let repositoryRegistry: RepositoryRegistry;
   beforeAll(async () => {

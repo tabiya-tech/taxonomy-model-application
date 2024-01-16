@@ -22,8 +22,8 @@ import { randomUUID } from "crypto";
 import { pipeline, Readable } from "stream";
 import fs from "fs";
 import { AsyncExportEvent } from "export/async/async.types";
-import * as ISCOGroupsToCSVTransformModule from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
-import * as ESCOOccupationsToCSVTransformModule from "export/esco/occupation/ESCOOccupationsToCSVTransform";
+import ISCOGroupsToCSVTransform, * as ISCOGroupsToCSVTransformModule from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
+import ESCOOccupationsToCSVTransform, * as ESCOOccupationsToCSVTransformModule from "export/esco/occupation/ESCOOccupationsToCSVTransform";
 import * as LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
 import * as SkillsToCSVTransformModule from "export/esco/skill/SkillsToCSVTransform";
 import * as SkillGroupsToCSVTransformModule from "export/esco/skillGroup/SkillGroupsToCSVTransform";
@@ -33,8 +33,8 @@ import * as SkillHierarchyToCSVTransformModule from "export/esco/skillHierarchy/
 import * as OccupationToSkillRelationToCSVTransformModule from "export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
 import * as SkillToSkillRelationToCSVTransformModule from "export/esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
 import * as ModelInfoToCSVTransformModule from "export/modelInfo/modelInfoToCSVTransform";
-import * as CSVtoZipPipelineModule from "export/async/CSVtoZipPipeline";
-import * as UploadZipToS3Module from "export/async/uploadZipToS3";
+import CSVtoZipPipeline, * as CSVtoZipPipelineModule from "export/async/CSVtoZipPipeline";
+import uploadZipToS3, * as UploadZipToS3Module from "export/async/uploadZipToS3";
 import archiver from "archiver";
 import { getConnectionManager } from "server/connection/connectionManager";
 import {
@@ -48,10 +48,6 @@ import {
   getSampleSkillsSpecs,
   getSampleSkillToSkillRelations,
 } from "export/_test_utilities/getSampleEntitiesArray";
-import CSVtoZipPipeline from "export/async/CSVtoZipPipeline";
-import uploadZipToS3 from "export/async/uploadZipToS3";
-import ESCOOccupationsToCSVTransform from "export/esco/occupation/ESCOOccupationsToCSVTransform";
-import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
 
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -208,11 +204,10 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
                 console.log("UploadErrored");
                 reject(err);
                 return;
-              } else {
-                console.log("UploadSucceeded");
-                console.log("bytes witten:" + writeStream.bytesWritten);
-                resolve();
               }
+              console.log("UploadSucceeded");
+              console.log("bytes witten:" + writeStream.bytesWritten);
+              resolve();
             });
           } catch (e) {
             reject(e);

@@ -1,5 +1,5 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import { getServiceErrorFactory, ServiceError } from "src/error/error";
+import { getServiceErrorFactory, ServiceError, ServiceErrorDetails } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { StatusCodes } from "http-status-codes/";
 import LocaleAPISpecs from "api-specifications/locale";
@@ -117,8 +117,8 @@ export default class ModelInfoService {
         headers: {},
       });
       responseBody = await response.text();
-    } catch (e) {
-      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to fetch models", e);
+    } catch (e: unknown) {
+      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to fetch models", e as ServiceErrorDetails);
     }
 
     if (response.status !== StatusCodes.OK) {
