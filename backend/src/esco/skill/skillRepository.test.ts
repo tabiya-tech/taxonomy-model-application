@@ -155,7 +155,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     expect(getRepositoryRegistry().skill).toBeDefined();
 
     // Clean up
-    await getConnectionManager().getCurrentDBConnection()!.close(false); // do not force close as there might be pending mongo operations
+    await getConnectionManager().getCurrentDBConnection()?.close(false); // do not force close as there might be pending mongo operations
   });
 
   describe("Test create() skill", () => {
@@ -511,7 +511,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent parent
         expect(actualFoundSkill).not.toBeNull();
-        expect(actualFoundSkill!.children).toEqual([]);
+        expect(actualFoundSkill?.children).toEqual([]);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Child is not a Skill: ${givenInconsistentPair.childDocModel}`);
@@ -544,7 +544,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent parent
         expect(actualFoundSkill).not.toBeNull();
-        expect(actualFoundSkill!.parents).toEqual([]);
+        expect(actualFoundSkill?.parents).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
@@ -581,16 +581,16 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent children
         expect(actualFoundSkill_1).not.toBeNull();
-        expect(actualFoundSkill_1!.children).toEqual([]);
-        expect(actualFoundSkill_1!.parents).toEqual([]);
+        expect(actualFoundSkill_1?.children).toEqual([]);
+        expect(actualFoundSkill_1?.parents).toEqual([]);
 
         // WHEN searching for the skill_2 by its id
         const actualFoundGroup_2 = await repository.findById(givenSkill_2.id);
 
         // THEN expect the Skill to not contain the inconsistent children
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.children).toEqual([]);
-        expect(actualFoundGroup_2!.parents).toEqual([]);
+        expect(actualFoundGroup_2?.children).toEqual([]);
+        expect(actualFoundGroup_2?.parents).toEqual([]);
       });
 
       test("should not find parent if it is not is the same model as the child", async () => {
@@ -624,7 +624,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the skill to not contain the inconsistent children
         expect(givenFoundSkill_1).not.toBeNull();
-        expect(givenFoundSkill_1!.children).toEqual([]); // <-- The inconsistent child is removed
+        expect(givenFoundSkill_1?.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
@@ -661,7 +661,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent parent
         expect(actualFoundSkill_2).not.toBeNull();
-        expect(actualFoundSkill_2!.parents).toEqual([]); // <-- The inconsistent parent is removed
+        expect(actualFoundSkill_2?.parents).toEqual([]); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
@@ -725,7 +725,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only skill 2 as a child
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.children).toEqual([expectedSkillReference(givenSkill_2)]);
+        expect(actualFoundSubject?.children).toEqual([expectedSkillReference(givenSkill_2)]);
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating parents", async () => {
@@ -786,7 +786,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only skill 2 as a parent
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.parents).toEqual([expectedSkillReference(givenSkill_1)]);
+        expect(actualFoundSubject?.parents).toEqual([expectedSkillReference(givenSkill_1)]);
       });
     });
 
@@ -925,7 +925,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent requiredSkill
         expect(actualFoundSkill).not.toBeNull();
-        expect(actualFoundSkill!.requiresSkills).toEqual([]);
+        expect(actualFoundSkill?.requiresSkills).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Object is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`);
@@ -960,7 +960,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent requiringSkill
         expect(actualFoundSkill).not.toBeNull();
-        expect(actualFoundSkill!.requiresSkills).toEqual([]);
+        expect(actualFoundSkill?.requiresSkills).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Object is not a Skill: ${givenInconsistentPair.requiringSkillDocModel}`);
@@ -995,16 +995,16 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent children
         expect(actualFoundSkill_1).not.toBeNull();
-        expect(actualFoundSkill_1!.requiresSkills).toEqual([]);
-        expect(actualFoundSkill_1!.requiredBySkills).toEqual([]);
+        expect(actualFoundSkill_1?.requiresSkills).toEqual([]);
+        expect(actualFoundSkill_1?.requiredBySkills).toEqual([]);
 
         // WHEN searching for the skill_2 by its id
         const actualFoundGroup_2 = await repository.findById(givenSkill_2.id);
 
         // THEN expect the Skill to not contain the inconsistent children
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.requiresSkills).toEqual([]);
-        expect(actualFoundGroup_2!.requiredBySkills).toEqual([]);
+        expect(actualFoundGroup_2?.requiresSkills).toEqual([]);
+        expect(actualFoundGroup_2?.requiredBySkills).toEqual([]);
       });
 
       test("should not find requiringSkill if it is not is the same model as the requiredSkill", async () => {
@@ -1038,7 +1038,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the skill to not contain the inconsistent requiredSkills
         expect(givenFoundSkill_1).not.toBeNull();
-        expect(givenFoundSkill_1!.requiredBySkills).toEqual([]); // <-- The inconsistent requiredSkill is removed
+        expect(givenFoundSkill_1?.requiredBySkills).toEqual([]); // <-- The inconsistent requiredSkill is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Required skill is not in the same model as the Requiring skill`);
@@ -1075,7 +1075,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the skill to not contain the inconsistent requiredSkills
         expect(givenFoundSkill_2).not.toBeNull();
-        expect(givenFoundSkill_2!.requiresSkills).toEqual([]); // <-- The inconsistent requiredSkill is removed
+        expect(givenFoundSkill_2?.requiresSkills).toEqual([]); // <-- The inconsistent requiredSkill is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Requiring skill is not in the same model as the Required skill`);
@@ -1193,7 +1193,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent requiredSkill
         expect(actualFoundSkill).not.toBeNull();
-        expect(actualFoundSkill!.requiredByOccupations).toEqual([]);
+        expect(actualFoundSkill?.requiredByOccupations).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
@@ -1229,7 +1229,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the Skill to not contain the inconsistent requiring occupation
         expect(actualFoundSkill).not.toBeNull();
-        expect(actualFoundSkill!.requiredByOccupations).toEqual([]);
+        expect(actualFoundSkill?.requiredByOccupations).toEqual([]);
       });
 
       test("should not find requiredByOccupation if it is not is the same model as the requiredSkill", async () => {
@@ -1262,7 +1262,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // THEN expect the skill to not contain the inconsistent requiredByOccupations
         expect(givenFoundSkill).not.toBeNull();
-        expect(givenFoundSkill!.requiredByOccupations).toEqual([]); // <-- The inconsistent occupation is removed
+        expect(givenFoundSkill?.requiredByOccupations).toEqual([]); // <-- The inconsistent occupation is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`RequiredBy occupation is not in the same model as the Required skill`);
@@ -1365,7 +1365,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // iterate over the stream to hot the db and trigger the error
         // do nothing
       }
-      return;
     });
   });
 });

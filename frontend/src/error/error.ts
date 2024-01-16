@@ -2,7 +2,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { ErrorCodes } from "./errorCodes";
 import { StatusCodes } from "http-status-codes/";
 
-type ServiceErrorDetails = string | ErrorAPISpecs.Types.Payload | any;
+type ServiceErrorDetails = string | ErrorAPISpecs.Types.Payload | any; // NOSONAR
 
 export const USER_FRIENDLY_ERROR_MESSAGES = {
   REQUEST_TOO_LONG:
@@ -67,9 +67,12 @@ export class ServiceError extends Error {
 }
 
 //factory function
-export interface ServiceErrorFactory {
-  (statusCode: number, errorCode: ErrorCodes, message: string, details?: ServiceErrorDetails): ServiceError;
-}
+export type ServiceErrorFactory = (
+  statusCode: number,
+  errorCode: ErrorCodes,
+  message: string,
+  details?: ServiceErrorDetails
+) => ServiceError;
 
 export function getServiceErrorFactory(
   serviceName: string,

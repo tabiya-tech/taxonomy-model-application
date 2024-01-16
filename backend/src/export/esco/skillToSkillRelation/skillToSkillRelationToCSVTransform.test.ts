@@ -11,7 +11,6 @@ import { ISkillToSkillRelationRepository } from "esco/skillToSkillRelation/skill
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parse } from "csv-parse/sync";
 import * as skillToSkillRelationToCSVTransformModule from "./skillToSkillRelationToCSVTransform";
-import skillToSkillRelationToCSVTransform from "./skillToSkillRelationToCSVTransform";
 
 const SkillToSkillRelationRepositorySpy = jest.spyOn(getRepositoryRegistry(), "skillToSkillRelation", "get");
 
@@ -102,7 +101,7 @@ describe("skillToSkillRelationToCSVTransform", () => {
         });
 
       // WHEN the transformation stream is consumed
-      const transformedStream = skillToSkillRelationToCSVTransform("foo");
+      const transformedStream = SkillToSkillRelationToCSVTransform("foo");
 
       // THEN expect the given error to be thrown
       await expect(async () => {
