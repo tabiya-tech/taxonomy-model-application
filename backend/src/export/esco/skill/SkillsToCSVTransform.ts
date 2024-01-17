@@ -12,7 +12,7 @@ export type IUnpopulatedSkill = Omit<
 
 export const transformSkillSpecToCSVRow = (skill: IUnpopulatedSkill): ISkillExportRow => {
   return {
-    ESCOURI: skill.ESCOUri,
+    ORIGINURI: skill.originUri,
     ID: skill.id,
     UUIDHISTORY: skill.UUIDHistory.join("\n"),
     PREFERREDLABEL: skill.preferredLabel,

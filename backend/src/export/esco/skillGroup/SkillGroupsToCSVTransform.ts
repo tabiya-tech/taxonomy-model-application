@@ -9,7 +9,7 @@ export type IUnpopulatedSkillGroup = Omit<ISkillGroup, "parents" | "children">;
 
 export const transformSkillGroupSpecToCSVRow = (skillGroup: IUnpopulatedSkillGroup): ISkillGroupExportRow => {
   return {
-    ESCOURI: skillGroup.ESCOUri,
+    ORIGINURI: skillGroup.originUri,
     ID: skillGroup.id,
     UUIDHISTORY: skillGroup.UUIDHistory.join("\n"),
     CODE: skillGroup.code,

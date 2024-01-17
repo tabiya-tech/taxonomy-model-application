@@ -1,7 +1,7 @@
-"ESCOURI",ID,"UUIDHISTORY","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
+"ORIGINURI",ID,"UUIDHISTORY","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
 ,,,,,,
 ,,,,,,
-"esco uri",key_1,"",01,"preferred label","label1
+"origin uri",key_1,"",01,"preferred label","label1
 label2","description"
 "esco
 uri

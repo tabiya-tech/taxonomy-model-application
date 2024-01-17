@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import {
   AltLabelsProperty,
   DescriptionProperty,
-  ESCOUriProperty,
+  OriginUriProperty,
   ImportIDProperty,
   ISCOCodeProperty,
   UUIDHistoryProperty,
@@ -29,7 +29,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       code: ISCOCodeProperty,
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
-      ESCOUri: ESCOUriProperty,
+      originUri: OriginUriProperty,
       altLabels: AltLabelsProperty,
       description: DescriptionProperty,
       importId: ImportIDProperty,

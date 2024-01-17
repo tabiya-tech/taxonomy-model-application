@@ -22,7 +22,7 @@ const getMockISCOGroups = (): IUnpopulatedISCOGroup[] => {
     altLabels: i % 2 ? [`altLabel_1_${getTestString(80)}`, `altLabel_2_${getTestString(80)}`] : [],
     description: `description_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
-    ESCOUri: `ESCOUri_${i}_${getTestString(80)}`,
+    originUri: `originUri_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable

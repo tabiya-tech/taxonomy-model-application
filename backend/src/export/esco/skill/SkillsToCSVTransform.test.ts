@@ -35,7 +35,7 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
     description: `description_${i}_${getTestString(80)}`,
     definition: `definition_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
-    ESCOUri: `ESCOUri_${i}_${getTestString(80)}`,
+    originUri: `originUri_${i}_${getTestString(80)}`,
     scopeNote: `scopeNote_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     skillType: i % 2 ? SkillType.SkillCompetence : SkillType.Knowledge,

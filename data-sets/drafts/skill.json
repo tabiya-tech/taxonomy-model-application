@@ -3,7 +3,7 @@
   "ID": "0123456789abcdef01234567",
   "UUID": "eff4f9ae-b4d9-4ae0-bffe-37c04bb88d17",
   "OriginUUID": "eff4f9ae-b4d9-4ae0-bffe-37c04bb88d17",
-  "ESCOUri": "https://data .../{foo}",
+  "originUri": "https://data .../{foo}",
   "SkillType": "skill|knowledge|language|attitude|...",
   "reuseLevel": "cross-sector|...",
   "ScopeNote": "scope",

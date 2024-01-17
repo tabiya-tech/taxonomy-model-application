@@ -30,7 +30,7 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<ISkillGroupImportRow, INewSkillGroupSpec> {
   return (row: ISkillGroupImportRow) => {
     return {
-      ESCOUri: row.ESCOURI,
+      originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: row.UUIDHISTORY ? row.UUIDHISTORY.split("\n") : [],
       code: row.CODE,

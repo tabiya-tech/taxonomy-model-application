@@ -10,7 +10,7 @@ export type IUnpopulatedOccupation = Omit<IOccupation, "parent" | "children" | "
 
 export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IOccupationExportRow => {
   return {
-    ESCOURI: occupation.ESCOUri,
+    ORIGINURI: occupation.originUri,
     ID: occupation.id,
     UUIDHISTORY: occupation.UUIDHistory.join("\n"),
     ISCOGROUPCODE: occupation.ISCOGroupCode,

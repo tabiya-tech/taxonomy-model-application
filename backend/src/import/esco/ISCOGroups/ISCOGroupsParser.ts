@@ -29,7 +29,7 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<IISCOGroupImportRow, INewISCOGroupSpec> {
   return (row: IISCOGroupImportRow): INewISCOGroupSpec => {
     return {
-      ESCOUri: row.ESCOURI,
+      originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: row.UUIDHISTORY ? row.UUIDHISTORY.split("\n") : [],
       code: row.CODE,
