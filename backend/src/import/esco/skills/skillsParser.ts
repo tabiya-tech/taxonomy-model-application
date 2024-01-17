@@ -30,7 +30,7 @@ function getRowToSpecificationTransformFn(
   return (row: ISkillImportRow) => {
     // @ts-ignore
     return {
-      ESCOUri: row.ESCOURI,
+      originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: row.UUIDHISTORY.length ? row.UUIDHISTORY.split("\n") : [],
       preferredLabel: row.PREFERREDLABEL,

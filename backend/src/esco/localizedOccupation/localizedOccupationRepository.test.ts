@@ -82,7 +82,7 @@ function expectedFromGivenSpec(
     preferredLabel: localizingOccupation.preferredLabel,
     occupationType: OccupationType.LOCALIZED,
     localizedOccupationType: OccupationType.ESCO,
-    ESCOUri: localizingOccupation.ESCOUri,
+    originUri: localizingOccupation.originUri,
     definition: localizingOccupation.definition,
     scopeNote: localizingOccupation.scopeNote,
     regulatedProfessionNote: localizingOccupation.regulatedProfessionNote,
@@ -1522,7 +1522,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           definition,
           code,
           ISCOGroupCode,
-          ESCOUri,
+          originUri,
           ...LocalizedOccupationData
         } = LocalizedOccupation;
         return LocalizedOccupationData;

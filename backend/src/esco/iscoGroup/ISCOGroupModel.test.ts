@@ -10,7 +10,7 @@ import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_
 import {
   ATL_LABELS_MAX_ITEMS,
   DESCRIPTION_MAX_LENGTH,
-  ESCO_URI_MAX_LENGTH,
+  ORIGIN_URI_MAX_LENGTH,
   IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH,
 } from "esco/common/modelSchema";
@@ -52,7 +52,7 @@ describe("Test the definition of the ISCOGroup Model", () => {
         code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        ESCOUri: generateRandomUrl(),
+        originUri: generateRandomUrl(),
         altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
@@ -66,7 +66,7 @@ describe("Test the definition of the ISCOGroup Model", () => {
         code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        ESCOUri: "",
+        originUri: "",
         altLabels: [],
         description: "",
         importId: "",
@@ -125,7 +125,7 @@ describe("Test the definition of the ISCOGroup Model", () => {
       });
     });
 
-    describe("Test validation of 'ESCOUri'", () => {
+    describe("Test validation of 'originUri'", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
         [CaseType.Failure, "null", null, "Path `{0}` is required."],
@@ -137,17 +137,17 @@ describe("Test the definition of the ISCOGroup Model", () => {
         ],
         [
           CaseType.Failure,
-          "Too long Esco uri",
-          getTestString(ESCO_URI_MAX_LENGTH + 1),
-          `{0} must be at most ${ESCO_URI_MAX_LENGTH} chars long`,
+          "Too long Origin uri",
+          getTestString(ORIGIN_URI_MAX_LENGTH + 1),
+          `{0} must be at most ${ORIGIN_URI_MAX_LENGTH} chars long`,
         ],
         [CaseType.Success, "empty", "", undefined],
         [CaseType.Success, "one letter", "a", undefined],
-        [CaseType.Success, "The longest ESCOUri", getTestString(ESCO_URI_MAX_LENGTH), undefined],
+        [CaseType.Success, "The longest originUri", getTestString(ORIGIN_URI_MAX_LENGTH), undefined],
       ])(
-        `(%s) Validate 'ESCOUri' when it is %s`,
+        `(%s) Validate 'originUri' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "ESCOUri", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "originUri", caseType, value, expectedFailureMessage);
         }
       );
     });

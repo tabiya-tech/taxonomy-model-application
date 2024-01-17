@@ -8,7 +8,7 @@ export type IUnpopulatedISCOGroup = Omit<IISCOGroup, "parent" | "children">;
 
 export const transformISCOGroupSpecToCSVRow = (iscoGroup: IUnpopulatedISCOGroup): IISCOGroupExportRow => {
   return {
-    ESCOURI: iscoGroup.ESCOUri,
+    ORIGINURI: iscoGroup.originUri,
     ID: iscoGroup.id,
     UUIDHISTORY: iscoGroup.UUIDHistory.join("\n"),
     CODE: iscoGroup.code,

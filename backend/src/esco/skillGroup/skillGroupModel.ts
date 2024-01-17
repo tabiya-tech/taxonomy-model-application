@@ -3,7 +3,7 @@ import { RegEx_Skill_Group_Code, RegExp_UUIDv4 } from "server/regex";
 import {
   AltLabelsProperty,
   DescriptionProperty,
-  ESCOUriProperty,
+  OriginUriProperty,
   ImportIDProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
@@ -39,7 +39,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       UUIDHistory: UUIDHistoryProperty,
-      ESCOUri: ESCOUriProperty,
+      originUri: OriginUriProperty,
       altLabels: AltLabelsProperty,
       description: DescriptionProperty,
       scopeNote: ScopeNoteProperty,

@@ -8,9 +8,9 @@ exports[`occupationToSkillRelationToCSVTransform should correctly transform occu
     "CREATEDAT": "1970-01-01T00:00:00.000Z",
     "DEFINITION": "",
     "DESCRIPTION": "",
-    "ESCOURI": "",
     "ID": "",
     "ISCOGROUPCODE": "",
+    "ORIGINURI": "",
     "PREFERREDLABEL": "",
     "REGULATEDPROFESSIONNOTE": "",
     "SCOPENOTE": "",
@@ -23,9 +23,9 @@ exports[`occupationToSkillRelationToCSVTransform should correctly transform occu
     "CREATEDAT": "1970-01-01T00:00:00.001Z",
     "DEFINITION": "",
     "DESCRIPTION": "",
-    "ESCOURI": "",
     "ID": "",
     "ISCOGROUPCODE": "",
+    "ORIGINURI": "",
     "PREFERREDLABEL": "",
     "REGULATEDPROFESSIONNOTE": "",
     "SCOPENOTE": "",
@@ -38,9 +38,9 @@ exports[`occupationToSkillRelationToCSVTransform should correctly transform occu
     "CREATEDAT": "1970-01-01T00:00:00.002Z",
     "DEFINITION": "",
     "DESCRIPTION": "",
-    "ESCOURI": "",
     "ID": "",
     "ISCOGROUPCODE": "",
+    "ORIGINURI": "",
     "PREFERREDLABEL": "",
     "REGULATEDPROFESSIONNOTE": "",
     "SCOPENOTE": "",
@@ -53,9 +53,9 @@ exports[`occupationToSkillRelationToCSVTransform should correctly transform occu
     "CREATEDAT": "1970-01-01T00:00:00.003Z",
     "DEFINITION": "",
     "DESCRIPTION": "",
-    "ESCOURI": "",
     "ID": "",
     "ISCOGROUPCODE": "",
+    "ORIGINURI": "",
     "PREFERREDLABEL": "",
     "REGULATEDPROFESSIONNOTE": "",
     "SCOPENOTE": "",
@@ -68,9 +68,9 @@ exports[`occupationToSkillRelationToCSVTransform should correctly transform occu
     "CREATEDAT": "1970-01-01T00:00:00.004Z",
     "DEFINITION": "",
     "DESCRIPTION": "",
-    "ESCOURI": "",
     "ID": "",
     "ISCOGROUPCODE": "",
+    "ORIGINURI": "",
     "PREFERREDLABEL": "",
     "REGULATEDPROFESSIONNOTE": "",
     "SCOPENOTE": "",
@@ -83,9 +83,9 @@ exports[`occupationToSkillRelationToCSVTransform should correctly transform occu
     "CREATEDAT": "1970-01-01T00:00:00.005Z",
     "DEFINITION": "",
     "DESCRIPTION": "",
-    "ESCOURI": "",
     "ID": "",
     "ISCOGROUPCODE": "",
+    "ORIGINURI": "",
     "PREFERREDLABEL": "",
     "REGULATEDPROFESSIONNOTE": "",
     "SCOPENOTE": "",
@@ -96,7 +96,7 @@ exports[`occupationToSkillRelationToCSVTransform should correctly transform occu
 `;
 
 exports[`occupationToSkillRelationToCSVTransform should correctly transform occupationToSkillRelation data to CSV 2`] = `
-"ID,ESCOURI,UUIDHISTORY,ISCOGROUPCODE,CODE,DEFINITION,SCOPENOTE,REGULATEDPROFESSIONNOTE,PREFERREDLABEL,ALTLABELS,DESCRIPTION,CREATEDAT,UPDATEDAT
+"ID,ORIGINURI,UUIDHISTORY,ISCOGROUPCODE,CODE,DEFINITION,SCOPENOTE,REGULATEDPROFESSIONNOTE,PREFERREDLABEL,ALTLABELS,DESCRIPTION,CREATEDAT,UPDATEDAT
 ,,,,,,,,,,,1970-01-01T00:00:00.000Z,1970-01-01T00:00:00.000Z
 ,,,,,,,,,,,1970-01-01T00:00:00.001Z,1970-01-01T00:00:00.001Z
 ,,,,,,,,,,,1970-01-01T00:00:00.002Z,1970-01-01T00:00:00.002Z

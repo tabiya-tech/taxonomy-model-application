@@ -2,7 +2,7 @@ import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 
 export const expected: Omit<INewSkillSpec, "modelId">[] = [
   {
-    ESCOUri: "esco uri",
+    originUri: "origin uri",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d", "b69710e0-7e7d-43ea-a645-26dab12faf83"],
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
@@ -14,7 +14,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     importId: "key_1",
   },
   {
-    ESCOUri: "esco\nuri\nwith\nlinebreak",
+    originUri: "origin\nuri\nwith\nlinebreak",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
@@ -26,7 +26,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     importId: "key_2",
   },
   {
-    ESCOUri: "",
+    originUri: "",
     UUIDHistory: [],
     preferredLabel: "",
     altLabels: [],
@@ -38,7 +38,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     importId: "key_3",
   },
   {
-    ESCOUri: "esco uri",
+    originUri: "origin uri",
     UUIDHistory: [],
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
@@ -50,7 +50,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     importId: "key_4",
   },
   {
-    ESCOUri: "esco uri",
+    originUri: "origin uri",
     UUIDHistory: [],
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],

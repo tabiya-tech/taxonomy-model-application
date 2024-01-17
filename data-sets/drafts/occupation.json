@@ -5,7 +5,7 @@
     "OriginUUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
     "ObjectType": "ESCO | Localized | Local", 
     "ESCO_UUID": "ess", // only has value when  ObjectType is Localized
-    "ESCOUri": "https://data .../{foo}",
+    "originUri": "https://data .../{foo}",
     "ISCOCode": "123",
     "PreferredLabel": "name",
     "AltLabels": ["labelOne", "label2"],

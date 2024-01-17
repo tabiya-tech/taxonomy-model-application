@@ -10,7 +10,7 @@ export interface ISkillGroupDoc extends ImportIdentifiable {
   UUID: string;
   UUIDHistory: string[];
   code: string;
-  ESCOUri: string;
+  originUri: string;
   preferredLabel: string;
   altLabels: string[];
   description: string;

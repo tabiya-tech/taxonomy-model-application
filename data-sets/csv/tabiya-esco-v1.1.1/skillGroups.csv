@@ -1,4 +1,4 @@
-ESCOURI,ID,UUIDHISTORY,CODE,PREFERREDLABEL,ALTLABELS,DESCRIPTION,SCOPENOTE
+ORIGINURI,ID,UUIDHISTORY,CODE,PREFERREDLABEL,ALTLABELS,DESCRIPTION,SCOPENOTE
 http://data.europa.eu/esco/isced-f/00,key_620,d4d4e095-b603-4be6-b3b8-4f1330a3f19e,,generic programmes and qualifications,,"Generic programmes and qualifications are those providing fundamental and personal skills education which cover a broad range of subjects and do not emphasise or specialise in a particular broad or narrow field.
 This broad field should not be used as a residual category. Programmes and qualifications with a specific subject emphasis should be classified in broad fields 01 to 10. In particular, education at the tertiary level should only by way of exception be classified here.",
 http://data.europa.eu/esco/isced-f/000,key_621,ed5520dc-1721-49e4-a8de-fbae36ba7e5e,,generic programmes and qualifications not further defined,,,

@@ -1,4 +1,4 @@
-ESCOUri,TabiyaUri,ISCOGroup,UUID,OriginUUID,preferredLabel,ScopeNote,altLabels,definition,description,code
+originUri,TabiyaUri,ISCOGroup,UUID,OriginUUID,preferredLabel,ScopeNote,altLabels,definition,description,code
 http://data.europa.eu/esco/occupation/00030d09-2b3a-4efd-87cc-c4ea39d27c34,https://tabiya.tech/ef,2654,,,technical director,,"technical and operations director
 head of technical
 director of technical arts

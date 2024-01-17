@@ -5,7 +5,7 @@ const HEADER_NAMES = {
   CREATED_AT: "CREATEDAT",
   ID: "ID",
   UUIDHISTORY: "UUIDHISTORY",
-  ESCO_URI: "ESCOURI",
+  ORIGINURI: "ORIGINURI",
   PREFERREDLABEL: "PREFERREDLABEL",
   ALTLABELS: "ALTLABELS",
   DESCRIPTION: "DESCRIPTION",
@@ -22,7 +22,7 @@ const HEADER_NAMES = {
 
 export const ISCOGroupImportHeaders = [
   HEADER_NAMES.ID,
-  HEADER_NAMES.ESCO_URI,
+  HEADER_NAMES.ORIGINURI,
   HEADER_NAMES.UUIDHISTORY,
   "CODE",
   HEADER_NAMES.PREFERREDLABEL,
@@ -37,7 +37,7 @@ export const ISCOGroupExportHeaders = [...ISCOGroupImportHeaders, HEADER_NAMES.C
  */
 export interface IISCOGroupImportRow {
   ID: string;
-  ESCOURI: string;
+  ORIGINURI: string;
   UUIDHISTORY: string;
   CODE: string;
   PREFERREDLABEL: string;
@@ -55,7 +55,7 @@ export interface IISCOGroupExportRow extends IISCOGroupImportRow {
  */
 export const skillImportHeaders = [
   HEADER_NAMES.ID,
-  HEADER_NAMES.ESCO_URI,
+  HEADER_NAMES.ORIGINURI,
   HEADER_NAMES.UUIDHISTORY,
   "DEFINITION",
   "SCOPENOTE",
@@ -72,7 +72,7 @@ export const skillExportHeaders = [...skillImportHeaders, HEADER_NAMES.CREATED_A
  * Interface for the skill row in the CSV file
  */
 export interface ISkillImportRow {
-  ESCOURI: string;
+  ORIGINURI: string;
   UUIDHISTORY: string;
   PREFERREDLABEL: string;
   ALTLABELS: string;
@@ -94,7 +94,7 @@ export interface ISkillExportRow extends ISkillImportRow {
  */
 export const skillGroupImportHeaders = [
   HEADER_NAMES.ID,
-  HEADER_NAMES.ESCO_URI,
+  HEADER_NAMES.ORIGINURI,
   HEADER_NAMES.UUIDHISTORY,
   "CODE",
   "SCOPENOTE",
@@ -111,7 +111,7 @@ export const skillGroupExportHeaders = [...skillGroupImportHeaders, HEADER_NAMES
 
 export interface ISkillGroupImportRow {
   ID: string;
-  ESCOURI: string;
+  ORIGINURI: string;
   UUIDHISTORY: string;
   CODE: string;
   PREFERREDLABEL: string;
@@ -131,7 +131,7 @@ export interface ISkillGroupExportRow extends ISkillGroupImportRow {
 
 export const occupationImportHeaders = [
   HEADER_NAMES.ID,
-  HEADER_NAMES.ESCO_URI,
+  HEADER_NAMES.ORIGINURI,
   HEADER_NAMES.UUIDHISTORY,
   "ISCOGROUPCODE",
   "CODE",
@@ -151,7 +151,7 @@ export const occupationExportHeaders = [...occupationImportHeaders, HEADER_NAMES
 
 export interface IOccupationImportRow {
   ID: string;
-  ESCOURI: string;
+  ORIGINURI: string;
   UUIDHISTORY: string;
   ISCOGROUPCODE: string;
   CODE: string;
