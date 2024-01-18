@@ -10,6 +10,8 @@ Label8",description,,key_204
 "b69710e0-7e7d-43ea-a645-26dab12faf8d
 b69710e0-7e7d-43ea-a645-26dab12faf83",key_5,"Label9
 Label10",description,invalid_should_not_validate,key_205
+"97fdd6f1-0777-435a-b3c9-923066f25a33",key_5_1,"label1",description,ESCO,key_205_1
+"97fdd6f1-0777-435a-b3c9-923066f25a34",key_5_2,"label1",description,LOCAL,key_205_2
 "b69710e0-7e7d-43ea-a645-26dab12faf83",key_6,"Label11
 Label12",description,LOCALIZED,
 "b69710e0-7e7d-43ea-a645-26dab12faf83
