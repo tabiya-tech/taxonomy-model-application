@@ -14,6 +14,7 @@ import {
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import errorLogger from "common/errorLogger/errorLogger";
+import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
 
 jest.mock("https");
 
@@ -57,7 +58,7 @@ describe("test parseOccupationHierarchy from", () => {
     "should create Occupation Hierarchy from %s for valid rows",
     async (
       description,
-      file,
+      givenCSVFile,
       parseCallBack: (
         file: string,
         givenModelId: string,
@@ -104,7 +105,7 @@ describe("test parseOccupationHierarchy from", () => {
       });
 
       // WHEN the data are parsed
-      const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
+      const actualStats = await parseCallBack(givenCSVFile, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
       const path = "./_test_data_/expected.ts";
@@ -117,10 +118,11 @@ describe("test parseOccupationHierarchy from", () => {
         );
       });
       // AND expect only the hierarchy entries that have passed the transformation to have been processed successfully
+      const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
       expect(actualStats).toEqual({
-        rowsProcessed: expectedResults.length,
+        rowsProcessed: expectedCSVFileRowCount,
         rowsSuccess: expectedResults.length,
-        rowsFailed: 0,
+        rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();

@@ -95,13 +95,7 @@ describe("test the BatchRowProcesses", () => {
     // GIVEN a batch processor
     const givenBatchProcessor = getTestBatchProcessor();
     jest.spyOn(givenBatchProcessor, "flush");
-    // AND it returns the given stats
-    const givenStats = {
-      rowsProcessed: 10,
-      rowsSuccess: 9,
-      rowsFailed: 1,
-    };
-    jest.spyOn(givenBatchProcessor, "getStats").mockReturnValue(givenStats);
+
     // AND a batch row processor
     const givenBatchRowProcessor = new BatchRowProcessor<never, never>(jest.fn(), jest.fn(), givenBatchProcessor);
     // AND the rows are processed
@@ -111,11 +105,52 @@ describe("test the BatchRowProcesses", () => {
     }
 
     // WHEN the batch row processor is completed
-    const actualStats = await givenBatchRowProcessor.completed();
+    await givenBatchRowProcessor.completed();
 
     // THEN expect the batch processor to be flushed
     expect(givenBatchProcessor.flush).toBeCalled();
-    // AND the stats to be returned from the batch processor
-    expect(actualStats).toEqual(givenBatchProcessor.getStats());
+  });
+
+  test("should return the correct stats", async () => {
+    // GIVEN X+Y rows
+    const givenX = 2;
+    const givenY = 3;
+    const givenRows = [];
+    for (let i = 0; i < givenX + givenY; i++) {
+      givenRows.push({ foo: "foo" + i });
+    }
+    // AND a TransformFn that will return X non-null rows
+    // AND Y rows that are null
+    let count = 0;
+    const givenTransformFn: TransformRowToSpecificationFunction<never, never> = jest.fn().mockImplementation(() => {
+      if (count++ < givenX) {
+        return { bar: "bar" + count };
+      }
+      return null;
+    });
+
+    // AND a batch processor that will process all the rows that it is given
+    const givenBatchProcessor = getTestBatchProcessor();
+    // AND a batch row processor
+    const givenBatchRowProcessor = new BatchRowProcessor<never, never>(
+      jest.fn(),
+      givenTransformFn,
+      givenBatchProcessor
+    );
+
+    // WHEN all the rows are processed
+    for (const row of givenRows) {
+      await givenBatchRowProcessor.processRow(row as never);
+    }
+
+    // AND  the batch row processor is completed
+    const actualStats = await givenBatchRowProcessor.completed();
+
+    // THEN expect the stats to be correct
+    expect(actualStats).toEqual({
+      rowsProcessed: givenX + givenY,
+      rowsSuccess: givenX,
+      rowsFailed: givenY,
+    });
   });
 });

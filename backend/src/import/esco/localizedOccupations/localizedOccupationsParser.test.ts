@@ -15,6 +15,7 @@ import {
 } from "esco/localizedOccupation/localizedOccupation.types";
 import { isSpecified } from "server/isUnspecified";
 import { OccupationType } from "esco/common/objectTypes";
+import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
 
 jest.mock("https");
 
@@ -58,7 +59,7 @@ describe("test parseLocalizedOccupations from", () => {
     "should create localizedOccupations from %s for rows with importId",
     async (
       description,
-      file,
+      givenCSVFile,
       parseCallBack: (
         file: string,
         givenModelId: string,
@@ -117,7 +118,7 @@ describe("test parseLocalizedOccupations from", () => {
       jest.spyOn(givenImportIdToDBIdMap, "set");
 
       // WHEN the data are parsed
-      const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
+      const actualStats = await parseCallBack(givenCSVFile, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
       const path = "./_test_data_/expected.ts";
@@ -129,10 +130,11 @@ describe("test parseLocalizedOccupations from", () => {
         );
       });
       // AND all the expected rows to have been processed successfully
+      const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
       expect(actualStats).toEqual({
-        rowsProcessed: 7,
+        rowsProcessed: expectedCSVFileRowCount,
         rowsSuccess: expectedResults.length,
-        rowsFailed: 7 - expectedResults.length,
+        rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
 
       expectedResults

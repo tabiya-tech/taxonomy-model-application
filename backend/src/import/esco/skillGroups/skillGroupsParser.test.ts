@@ -11,6 +11,7 @@ import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.type
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
+import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
 
 jest.mock("https");
 
@@ -56,7 +57,7 @@ describe("test parseSkillGroups from", () => {
     "should create SkillGroups from %s",
     async (
       description,
-      file,
+      givenCSVFile,
       parseCallBack: (
         file: string,
         givenModelId: string,
@@ -87,12 +88,12 @@ describe("test parseSkillGroups from", () => {
         }),
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenMockRepository);
-      // AND a map to map the ids of the CSV file to the database ids
+      // AND a map to map the ids of the CSV givenCSVFile to the database ids
       const givenImportIdToDBIdMap = new Map<string, string>();
       jest.spyOn(givenImportIdToDBIdMap, "set");
 
       // WHEN the data are parsed
-      const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
+      const actualStats = await parseCallBack(givenCSVFile, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
       const path = "./_test_data_/expected.ts";
@@ -104,10 +105,11 @@ describe("test parseSkillGroups from", () => {
         );
       });
       // AND all the expected rows to have been processed successfully
+      const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
       expect(actualStats).toEqual({
-        rowsProcessed: 7,
+        rowsProcessed: expectedCSVFileRowCount,
         rowsSuccess: expectedResults.length,
-        rowsFailed: 7 - expectedResults.length,
+        rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
       expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(5);

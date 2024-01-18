@@ -11,6 +11,7 @@ import { INewSkillSpec, ISkill } from "esco/skill/skills.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
+import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
 
 jest.mock("https");
 
@@ -54,9 +55,9 @@ describe("test parseSkills from", () => {
     "should create Skills from %s for rows with importId",
     async (
       description,
-      file,
+      givenCSVFile,
       parseCallBack: (
-        file: string,
+        givenCSVFile: string,
         givenModelId: string,
         importIdToDBIdMap: Map<string, string>
       ) => Promise<RowsProcessedStats>
@@ -93,7 +94,7 @@ describe("test parseSkills from", () => {
       jest.spyOn(givenImportIdToDBIdMap, "set");
 
       // WHEN the data are parsed
-      const actualStats = await parseCallBack(file, givenModelId, givenImportIdToDBIdMap);
+      const actualStats = await parseCallBack(givenCSVFile, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
       const path = "./_test_data_/expected.ts";
@@ -105,10 +106,11 @@ describe("test parseSkills from", () => {
         );
       });
       // AND all the expected rows to have been processed successfully
+      const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
       expect(actualStats).toEqual({
-        rowsProcessed: 7,
+        rowsProcessed: expectedCSVFileRowCount,
         rowsSuccess: expectedResults.length,
-        rowsFailed: 7 - expectedResults.length,
+        rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
       expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(5);

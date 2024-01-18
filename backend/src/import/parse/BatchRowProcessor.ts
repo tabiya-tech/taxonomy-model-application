@@ -10,6 +10,7 @@ export class BatchRowProcessor<RowType, SpecificationType> implements RowProcess
   private readonly batchProcessor: BatchProcessor<SpecificationType>;
   private readonly transformRowToSpecificationFn: TransformRowToSpecificationFunction<RowType, SpecificationType>;
   private readonly validateHeadersFn: HeadersValidatorFunction;
+  private nullRowsCounted: number = 0;
 
   constructor(
     validateHeadersFn: HeadersValidatorFunction,
@@ -23,14 +24,20 @@ export class BatchRowProcessor<RowType, SpecificationType> implements RowProcess
 
   async completed(): Promise<RowsProcessedStats> {
     await this.batchProcessor.flush();
-    return this.batchProcessor.getStats();
+    const stats = this.batchProcessor.getStats();
+    // if the row was null, it was not processed, so it should be counted as failed
+    stats.rowsProcessed += this.nullRowsCounted;
+    stats.rowsFailed += this.nullRowsCounted;
+    return stats;
   }
 
   async processRow(row: RowType /*index: number*/): Promise<void> {
     const spec = this.transformRowToSpecificationFn(row);
-    if (spec !== undefined && spec !== null) {
-      return await this.batchProcessor.add(spec);
+    if (!spec) {
+      this.nullRowsCounted++;
+      return;
     }
+    return await this.batchProcessor.add(spec);
   }
 
   validateHeaders(actualHeaders: string[]): Promise<boolean> {
