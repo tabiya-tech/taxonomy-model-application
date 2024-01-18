@@ -28,7 +28,7 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 - **[License](#license)**: The project is licensed under MIT License.
 - **[@tabiya/prettier-config](%40tabiya%2Fprettier-config)**: The configuration for [prettier](#code-formatting).
 ## Architecture Overview
-The image below shows a high level oveeview of the solution architecture of the Taxonomy Model App.
+The image below shows a high level overview of the solution architecture of the Taxonomy Model App.
 
 ![Tabiya Architecture Overview](https://lucid.app/publicSegments/view/7dc82517-6cc1-4920-9eb0-b1c8f8f8b807/image.png)
 
