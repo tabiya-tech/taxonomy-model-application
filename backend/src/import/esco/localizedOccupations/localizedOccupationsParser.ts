@@ -14,6 +14,7 @@ import {
 import { getOccupationTypeFromRow } from "import/esco/common/getOccupationTypeFromRow";
 import errorLogger from "common/errorLogger/errorLogger";
 import { ILocalizedOccupationImportRow, localizedOccupationImportHeaders } from "esco/common/entityToCSV.types";
+import { OccupationType } from "esco/common/objectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, localizedOccupationImportHeaders);
@@ -35,7 +36,7 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<ILocalizedOccupationImportRow, INewLocalizedOccupationSpec> {
   return (row: ILocalizedOccupationImportRow) => {
     const occupationType = getOccupationTypeFromRow(row);
-    if (!occupationType) {
+    if (occupationType !== OccupationType.LOCALIZED) {
       //check that the occupationType exists
       errorLogger.logWarning(
         `Failed to import Localized Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`
