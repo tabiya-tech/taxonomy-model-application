@@ -1,13 +1,13 @@
 import ModelInfoAPISpecs from "./index";
 import ImportProcessState from "../importProcessState";
 import { randomUUID } from "crypto";
-import { getTestString } from "../_test_utilities/specialCharacters";
-import { getMockId } from "../_test_utilities/mockMongoId";
+import { getTestString } from "_test_utilities/specialCharacters";
+import { getMockId } from "_test_utilities/mockMongoId";
 import {
-  testSchemaWithInvalidObject,
+  testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
-} from "../_test_utilities/stdSchemaTests";
+} from "_test_utilities/stdSchemaTests";
 import LocaleAPISpecs from "../locale";
 import { ExportProcessState } from "exportProcessState/enums";
 
@@ -102,7 +102,7 @@ describe("Validate JSON against the Schema", () => {
 
     // AND WHEN the object has additional properties
     // THEN expect the object to not validate
-    testSchemaWithInvalidObject(
+    testSchemaWithAdditionalProperties(
       "ModelInfoAPISpecs.Schemas.GET.Response.Payload",
       ModelInfoAPISpecs.Schemas.GET.Response.Payload,
       [givenValidModelInfoPOSTResponse],
@@ -122,7 +122,7 @@ describe("Validate JSON against the Schema", () => {
 
     // AND WHEN the object has additional properties
     // THEN expect the object to not validate
-    testSchemaWithInvalidObject(
+    testSchemaWithAdditionalProperties(
       "ModelInfoAPISpecs.Schemas.POST.Response.Payload",
       ModelInfoAPISpecs.Schemas.POST.Response.Payload,
       givenValidModelInfoPOSTResponse,
@@ -142,7 +142,7 @@ describe("Validate JSON against the Schema", () => {
 
     // AND WHEN the object has additional properties
     // THEN expect the object to not validate
-    testSchemaWithInvalidObject(
+    testSchemaWithAdditionalProperties(
       "ModelInfoAPISpecs.Schemas.POST.Request.Payload",
       ModelInfoAPISpecs.Schemas.POST.Request.Payload,
       givenValidModelInfoPOSTRequest,

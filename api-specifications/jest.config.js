@@ -1,6 +1,7 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 const {compilerOptions} = require('./tsconfig.json')
 module.exports = {
+  setupFilesAfterEnv: ["jest-extended/all"],
   testPathIgnorePatterns: [
     "<rootDir>/dist",
     "<rootDir>/coverage",

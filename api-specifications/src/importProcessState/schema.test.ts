@@ -1,10 +1,10 @@
 import ImportProcessStateAPISpecs from "./index";
-import { getMockId } from "../_test_utilities/mockMongoId";
+import { getMockId } from "_test_utilities/mockMongoId";
 import {
-  testSchemaWithInvalidObject,
+  testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
-} from "../_test_utilities/stdSchemaTests";
+} from "_test_utilities/stdSchemaTests";
 
 describe("Test the ImportProcessStateAPISpecs Schema", () => {
   // GIVEN the ImportProcessStateAPISpecs.Schemas.GET.Response.Payload schema
@@ -43,7 +43,7 @@ describe("Validate JSON against the ImportProcessStateAPISpecs Schema", () => {
 
   // AND WHEN the object has additional properties
   // THEN expect the object to not validate
-  testSchemaWithInvalidObject(
+  testSchemaWithAdditionalProperties(
     "ImportProcessStateAPISpecs.Schemas.GET.Response.Payload",
     ImportProcessStateAPISpecs.Schemas.GET.Response.Payload,
     givenValidImportProcessState

@@ -1,10 +1,10 @@
 import PresignedAPISpecs from "./index";
-import { getTestString } from "../_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/specialCharacters";
 import {
-  testSchemaWithInvalidObject,
+  testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
-} from "../_test_utilities/stdSchemaTests";
+} from "_test_utilities/stdSchemaTests";
 
 describe("Test the Presigned Schema", () => {
   // GIVEN the Locale.Schemas.Payload schema
@@ -34,7 +34,7 @@ describe("Validate JSON against the Presigned Schema", () => {
 
   // AND WHEN the object has additional properties
   // THEN expect the object to not validate
-  testSchemaWithInvalidObject(
+  testSchemaWithAdditionalProperties(
     "PresignedAPISpecs.Schemas.GET.Response.Payload",
     PresignedAPISpecs.Schemas.GET.Response.Payload,
     givenValidPresignedResponse
