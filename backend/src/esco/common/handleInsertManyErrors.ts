@@ -9,8 +9,9 @@ export function handleInsertManyError<T>(
     const bulkWriteError = error as mongoose.mongo.MongoBulkWriteError;
     return bulkWriteError.insertedDocs;
   }
-  console.error(`${callerInfo}: none of the ${expectedCount} documents were inserted.`, error);
-  throw error;
+  const err = new Error(`${callerInfo}: none of the ${expectedCount} documents were inserted.`, { cause: error });
+  console.error(err);
+  throw err;
 }
 
 import mongoose from "mongoose";

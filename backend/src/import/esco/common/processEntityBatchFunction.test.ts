@@ -256,8 +256,7 @@ describe("test getProcessEntityBatchFunction", () => {
     });
     // AND an error should be logged for the failed repository call
     expect(errorLogger.logError).toHaveBeenCalledWith(
-      expect.stringContaining(`Failed to process ${givenEntityName}s batch`),
-      givenError
+      expect.toMatchErrorWithCause(`Failed to process ${givenEntityName}s batch`, givenError.message)
     );
     // AND a warning should be logged for each row
     for (let i = 1; i <= givenBatch.length; i++) {

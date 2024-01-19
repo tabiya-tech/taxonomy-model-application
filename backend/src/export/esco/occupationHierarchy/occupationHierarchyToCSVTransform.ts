@@ -40,9 +40,9 @@ class OccupationHierarchyToCSVRowTransformer extends Transform {
       try {
         json = JSON.stringify(skillHierarchy, null, 2);
       } finally {
-        const error = new Error(`Failed to transform OccupationHierarchy to CSV row: ${json}`);
-        console.error(error, cause);
-        callback(error);
+        const err = new Error(`Failed to transform OccupationHierarchy to CSV row: ${json}`, { cause: cause });
+        console.error(err);
+        callback(err);
       }
     }
   }
@@ -61,7 +61,7 @@ const OccupationHierarchyToCSVTransform = (modelId: string): Readable => {
     occupationHierarchyStringifier,
     (cause) => {
       if (cause) {
-        console.error(new Error("Transforming OccupationHierarchy to CSV failed"), cause);
+        console.error(new Error("Transforming OccupationHierarchy to CSV failed", { cause: cause }));
       }
     }
   );

@@ -127,8 +127,9 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
     await Promise.all([finalizePromise, uploadPromise]);
   } catch (e: unknown) {
     zipper.abort();
-    console.error("An error occurred while streaming data from the DB to the csv zip file on S3", e);
-    throw e;
+    const err = new Error("An error occurred while streaming data from the DB to the csv zip file on S3", { cause: e });
+    console.error(err);
+    throw err;
   } finally {
     // The zipper should be destroyed in either case, since the archiver doesn't autoDestroy its stream
     streamResources.forEach((resource) => resource.destroy());

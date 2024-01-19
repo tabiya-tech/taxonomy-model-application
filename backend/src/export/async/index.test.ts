@@ -127,7 +127,8 @@ describe("Test the main async handler", () => {
 
     test("should throw error and not call parseModelToFiles when initOnce fails", async () => {
       // GIVEN initOnce will fail
-      (initOnce as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+      const givenError = new Error("foo");
+      (initOnce as jest.Mock).mockRejectedValueOnce(givenError);
 
       const givenExportEvent = getMockExportEvent();
 
@@ -135,7 +136,10 @@ describe("Test the main async handler", () => {
       const actualPromiseHandler = () => asyncIndex.handler(givenExportEvent);
 
       // THEN expect the handler to throw an error
-      await expect(actualPromiseHandler).rejects.toThrow("foo");
+      const expectedErrorMessage = "Failed to initialize database connection";
+      await expect(actualPromiseHandler).rejects.toThrow(
+        expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+      );
       // AND parseFiles not to have been called
       expect(modelToS3).not.toHaveBeenCalled();
       // AND expect the status to not have been updated or created
@@ -185,9 +189,10 @@ describe("Test the main async handler", () => {
         // THEN expect the handler not to throw an error
         await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
         // AND the error to be logged
-        expect(console.error).toHaveBeenCalledWith(
+        const expectedError = new Error(
           `Export failed. The exportProcessState status is not PENDING, it is ${givenStatus}`
         );
+        expect(console.error).toHaveBeenCalledWith(expectedError);
       }
     );
 

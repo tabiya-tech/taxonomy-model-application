@@ -47,9 +47,9 @@ class SkillToCSVRowTransformer extends Transform {
       try {
         json = JSON.stringify(skill, null, 2);
       } finally {
-        const error = new Error(`Failed to transform Skill to CSV row: ${json}`);
-        console.error(error, cause);
-        callback(error);
+        const err = new Error(`Failed to transform Skill to CSV row: ${json}`, { cause: cause });
+        console.error(err);
+        callback(err);
       }
     }
   }
@@ -68,7 +68,7 @@ const SkillsToCSVTransform = (modelId: string): Readable => {
     skillStringifier,
     (cause) => {
       if (cause) {
-        console.error(new Error("Transforming Skills to CSV failed"), cause);
+        console.error(new Error("Transforming Skills to CSV failed", { cause: cause }));
       }
     }
   );

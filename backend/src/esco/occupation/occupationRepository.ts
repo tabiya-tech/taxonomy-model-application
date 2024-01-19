@@ -77,9 +77,9 @@ export class OccupationRepository implements IOccupationRepository {
   async create(newOccupationSpec: INewOccupationSpec): Promise<IOccupation> {
     //@ts-ignore
     if (newOccupationSpec.UUID !== undefined) {
-      const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("OccupationRepository.create: create failed. UUID should not be provided.");
+      console.error(err);
+      throw err;
     }
 
     try {
@@ -89,8 +89,9 @@ export class OccupationRepository implements IOccupationRepository {
       populateEmptyRequiresSkills(newOccupationModel);
       return newOccupationModel.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("OccupationRepository.create: create failed.", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
@@ -142,32 +143,40 @@ export class OccupationRepository implements IOccupationRepository {
         .exec();
       return occupation !== null ? occupation.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
-      throw e;
+      const err = new Error("OccupationRepository.findById: findById failed.", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
   findAll(modelId: string, occupationType: OccupationType): Readable {
     // Allow only ESCO or local occupations
     if (occupationType !== OccupationType.ESCO && occupationType !== OccupationType.LOCAL) {
-      const e = new Error("OccupationType must be either ESCO or LOCAL");
-      console.error("findAll failed", e);
-      throw e;
+      const err = new Error(
+        "OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL."
+      );
+      console.error(err);
+      throw err;
     }
     try {
-      return stream.pipeline(
+      const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.Model.find({
           modelId: { $eq: modelId },
           occupationType: { $eq: occupationType },
-        }).cursor(),
-        // in the current version we do not populate the parent, children or requiresSkills
+        }).cursor(), // in the current version we do not populate the parent, children or requiresSkills
         new DocumentToObjectTransformer<IOccupation>(),
         () => undefined
       );
+      pipeline.on("error", (e) => {
+        console.error(new Error("OccupationRepository.findAll: stream failed", { cause: e }));
+      });
+
+      return pipeline;
     } catch (e: unknown) {
-      console.error("findAll failed", e);
-      throw e;
+      const err = new Error("OccupationRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

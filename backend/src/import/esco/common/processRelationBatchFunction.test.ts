@@ -98,8 +98,7 @@ describe("test getProcessRelationBatchFunction", () => {
     });
     // AND an error should be logged for the failed repository call
     expect(errorLogger.logError).toHaveBeenCalledWith(
-      expect.stringContaining(`Failed to process ${givenRelationEntityName}s batch`),
-      givenError
+      expect.toMatchErrorWithCause(`Failed to process ${givenRelationEntityName}s batch`, givenError.message)
     );
     // AND a warning should be logged
     expect(errorLogger.logWarning).toHaveBeenCalledTimes(1);

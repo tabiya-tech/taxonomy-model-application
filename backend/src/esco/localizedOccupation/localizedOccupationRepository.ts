@@ -87,20 +87,22 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
   async create(newLocalizedOccupationSpec: INewLocalizedOccupationSpec): Promise<IExtendedLocalizedOccupation> {
     //@ts-ignore
     if (newLocalizedOccupationSpec.UUID !== undefined) {
-      const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
-      throw e;
-    }
-
-    const localizingOccupation = await this.OccupationModel.findById(newLocalizedOccupationSpec.localizesOccupationId);
-
-    if (!localizingOccupation) {
-      const e = new Error("localizingOccupation not found");
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("LocalizedOccupationRepository.create: create failed. UUID should not be provided.");
+      console.error(err);
+      throw err;
     }
 
     try {
+      const localizingOccupation = await this.OccupationModel.findById(
+        newLocalizedOccupationSpec.localizesOccupationId
+      );
+
+      if (!localizingOccupation) {
+        const err = new Error("LocalizedOccupationRepository.create: localizingOccupation not found");
+        console.error(err);
+        throw err;
+      }
+
       const newLocalizedOccupationModel = this.newSpecToModel(newLocalizedOccupationSpec);
       await newLocalizedOccupationModel.save();
       // populating the parent, children, requiresSkills and localizesOccupation fields
@@ -109,22 +111,22 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
       populateEmptyRequiresSkills(newLocalizedOccupationModel);
       return occupationFromLocalizedOccupationTransform(newLocalizedOccupationModel.toObject());
     } catch (e: unknown) {
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("LocalizedOccupationRepository.create: create failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
   async createMany(
     newLocalizedOccupationSpecs: INewLocalizedOccupationSpec[]
   ): Promise<IExtendedLocalizedOccupation[]> {
-    const existingIds = new Map<string, string>();
-    const localizingOccupationIds = await this.OccupationModel.find({});
-    localizingOccupationIds.forEach((occupation) => {
-      existingIds.set(occupation._id.toString(), occupation.modelId.toString());
-    });
-
     const newLocalizedOccupationsDocs: mongoose.Document<unknown, unknown, ILocalizedOccupationDoc>[] = [];
     try {
+      const existingIds = new Map<string, string>();
+      const localizingOccupationIds = await this.OccupationModel.find({});
+      localizingOccupationIds.forEach((occupation) => {
+        existingIds.set(occupation._id.toString(), occupation.modelId.toString());
+      });
       const newLocalizedOccupationModels = newLocalizedOccupationSpecs
         .filter((spec) => existingIds.get(spec.localizesOccupationId))
         .map((spec) => {
@@ -179,8 +181,9 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         ? occupationFromLocalizedOccupationTransform(localizedOccupation.toObject())
         : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
-      throw e;
+      const err = new Error("LocalizedOccupationRepository.findById: findById failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
@@ -194,8 +197,9 @@ export class LocalizedOccupationRepository implements ILocalizedOccupationReposi
         () => undefined
       );
     } catch (e: unknown) {
-      console.error("findAll failed", e);
-      throw e;
+      const err = new Error("LocalizedOccupationRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

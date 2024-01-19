@@ -12,7 +12,7 @@ export function getSkillRequiredByOccupationReference(
 ): ReferenceWithRelationType<IOccupationReference> | null {
   if (!doc.requiringOccupationId) return null;
   if (!doc.requiringOccupationId.modelId?.equals(doc.modelId)) {
-    console.error(`RequiredBy occupation is not in the same model as the Required skill`);
+    console.error(new Error(`RequiredBy occupation is not in the same model as the Required skill`));
     return null;
   }
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReference interface
@@ -25,7 +25,7 @@ export function getOccupationRequiresSkillReference(
 ): ReferenceWithRelationType<ISkillReference> | null {
   if (!doc.requiredSkillId) return null;
   if (!doc.requiredSkillId.modelId?.equals(doc.modelId)) {
-    console.error(`Required Skill is not in the same model as the Requiring Occupation`);
+    console.error(new Error(`Required Skill is not in the same model as the Requiring Occupation`));
     return null;
   }
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReference interface

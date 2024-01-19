@@ -147,7 +147,9 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       });
 
       // THEN expect the promise to reject with an error
-      await expect(actualPromise).rejects.toThrowError(/UUID should not be provided/);
+      await expect(actualPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause("ModelInfoRepository.create: create failed", /UUID should not be provided/)
+      );
     });
 
     test("Should reject with an error when creating a model with a UUID that is not unique", async () => {
@@ -161,7 +163,9 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const actualPromise = repository.create(givenNewModelInfoSpec);
 
       // THEN expect the promise to reject with an error
-      await expect(actualPromise).rejects.toThrowError(/duplicate key/);
+      await expect(actualPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause("ModelInfoRepository.create: create failed", /duplicate key/)
+      );
     });
 
     TestDBConnectionFailureNoSetup((repository) => {

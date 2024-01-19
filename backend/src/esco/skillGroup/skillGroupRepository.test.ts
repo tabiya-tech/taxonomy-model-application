@@ -22,7 +22,10 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailureNoSetup,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 import { Readable } from "node:stream";
 import { getExpectedPlan, setUpPopulateWithExplain } from "../_test_utilities/populateWithExplainPlan";
@@ -192,7 +195,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const actualPromise = repository.create(givenNewSkillGroupSpecSpec);
 
         // THEN expect the actual promise to reject
-        await expect(actualPromise).rejects.toThrowError(/duplicate key/);
+        await expect(actualPromise).rejects.toThrow(
+          expect.toMatchErrorWithCause("SkillGroupRepository.create: create failed", /duplicate key .* dup key: { UUID/)
+        );
       });
     });
 
@@ -841,7 +846,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       });
 
       // THEN the findAll method should throw an error for skillGroups
-      expect(() => repository.findAll(givenModelId)).toThrowError(givenError);
+      expect(() => repository.findAll(givenModelId)).toThrow(
+        expect.toMatchErrorWithCause("SkillGroupRepository.findAll: findAll failed", givenError.message)
+      );
     });
 
     test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -869,17 +876,16 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           actualSkillGroupsArray.push(data);
         }
       }).rejects.toThrowError(givenError);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("SkillGroupRepository.findAll: stream failed", givenError.message)
+      );
       expect(actualSkillGroups.closed).toBeTruthy();
       expect(actualSkillGroupsArray).toHaveLength(0);
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfSkillGroups = repositoryRegistry.skillGroup.findAll(getMockStringId(1));
-      for await (const _ of streamOfSkillGroups) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.skillGroup.findAll(getMockStringId(1))
+    );
   });
 });

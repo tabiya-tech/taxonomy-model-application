@@ -222,17 +222,17 @@ describe("Test ExportProcessState Repository with an in-memory mongodb", () => {
           exportWarnings: false,
         },
       };
-      // WHEN updating the ExportProcessState with an id that does not exist
-      let actualError: Error | null = null;
-      try {
-        await repository.update(givenId, givenUpdateSpecs);
-      } catch (e: unknown) {
-        actualError = e as Error;
-      }
 
-      // THEN expect the update to fail
-      expect(actualError).not.toBeNull();
-      expect(actualError!.message).toEqual("Update failed to find export process with id: " + givenId);
+      // WHEN updating the ExportProcessState with an id that does not exist
+      const actualUpdatedExportProcessStatePromise = repository.update(givenId, givenUpdateSpecs);
+
+      // THEN expect to reject with an error
+      await expect(actualUpdatedExportProcessStatePromise).rejects.toThrow(
+        expect.toMatchErrorWithCause(
+          "ExportProcessStateRepository.update: update failed",
+          `Update failed to find export process with id: ${givenId}`
+        )
+      );
     });
 
     TestDBConnectionFailureNoSetup((repositoryRegistry) => {

@@ -45,15 +45,15 @@ export class ImportProcessStateRepository implements IImportProcessStateReposito
       await newDoc.save();
       return newDoc.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("ImportProcessStateRepository.create: failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
   async update(id: string, updateSpecs: IUpdateImportProcessStateSpec): Promise<IImportProcessState> {
     try {
-      let doc = null;
-      doc = await this.Model.findById(id).exec();
+      const doc = await this.Model.findById(id).exec();
       if (doc === null) {
         throw new Error("Update failed to find import process with id: " + id);
       }
@@ -66,8 +66,9 @@ export class ImportProcessStateRepository implements IImportProcessStateReposito
       await doc.save();
       return doc.toObject();
     } catch (e: unknown) {
-      console.error("update failed", e);
-      throw e;
+      const err = new Error("ImportProcessStateRepository.update: failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

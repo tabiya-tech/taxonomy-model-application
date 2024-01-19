@@ -77,9 +77,9 @@ export class SkillRepository implements ISkillRepository {
   async create(newSkillSpec: INewSkillSpec): Promise<ISkill> {
     //@ts-ignore
     if (newSkillSpec.UUID !== undefined) {
-      const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("SkillRepository.createMany: create failed. UUID should not be provided");
+      console.error(err);
+      throw err;
     }
 
     try {
@@ -90,8 +90,9 @@ export class SkillRepository implements ISkillRepository {
       populateEmptyRequiredByOccupations(newSkillModel);
       return newSkillModel.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("SkillRepository.createMany: create failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
@@ -144,22 +145,30 @@ export class SkillRepository implements ISkillRepository {
 
       return skill !== null ? skill.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
-      throw e;
+      const err = new Error("SkillRepository.findById: findById failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
   findAll(modelId: string): Readable {
     try {
-      return stream.pipeline(
+      const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.Model.find({ modelId: { $eq: modelId } }).cursor(),
         // in the current version we do not populate the parents, children
         new DocumentToObjectTransformer<ISkill>(),
         () => undefined
       );
+
+      pipeline.on("error", (e) => {
+        console.error(new Error("SkillRepository.findAll: stream failed", { cause: e }));
+      });
+
+      return pipeline;
     } catch (e: unknown) {
-      console.error("findAll failed", e);
+      const err = new Error("SkillRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
       throw e;
     }
   }

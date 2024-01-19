@@ -25,12 +25,12 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
   // If the event is not valid, log and return
   // Validate and check the export process state
   if (!event.modelId) {
-    console.error("Export failed, the modelId is missing");
+    console.error(new Error("Export failed, the modelId is missing"));
     return;
   }
   // Validate and check the export process state
   if (!event.exportProcessStateId) {
-    console.error("Export failed, the exportProcessStateId is missing");
+    console.error(new Error("Export failed, the exportProcessStateId is missing"));
     return;
   }
 
@@ -39,8 +39,9 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
   try {
     await initOnce();
   } catch (e: unknown) {
-    console.error(e);
-    throw e;
+    const err = new Error("Failed to initialize database connection", { cause: e });
+    console.error(err);
+    throw err;
   }
 
   try {
@@ -51,19 +52,21 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
      */
     const exportProcessState = await getRepositoryRegistry().exportProcessState.findById(event.exportProcessStateId);
     if (!exportProcessState) {
-      console.error("Export failed, the exportProcessState does not exist");
+      console.error(new Error("Export failed, the exportProcessState does not exist"));
       return;
     }
 
     if (exportProcessState.status !== ExportProcessStateAPISpecs.Enums.Status.PENDING) {
-      console.error(`Export failed. The exportProcessState status is not PENDING, it is ${exportProcessState.status}`);
+      console.error(
+        new Error(`Export failed. The exportProcessState status is not PENDING, it is ${exportProcessState.status}`)
+      );
       return;
     }
 
     // We expect the parseModelToFile function to throw errors and set the export process status to FAILED in the catch block.
     await modelToS3(event);
   } catch (e: unknown) {
-    console.error("Error updating ExportProcessState:", e);
+    console.error(new Error("Error updating ExportProcessState:", { cause: e }));
     // Set the export process status to FAILED
     await exportErrored(event.exportProcessStateId);
   }
@@ -84,6 +87,6 @@ const exportErrored = async (exportProcessStateId: string) => {
     console.info("Export failed", exportFailedState);
     await getRepositoryRegistry().exportProcessState.update(exportProcessStateId, exportFailedState);
   } catch (e: unknown) {
-    console.error(e);
+    console.error(new Error("Something went wrong", { cause: e }));
   }
 };

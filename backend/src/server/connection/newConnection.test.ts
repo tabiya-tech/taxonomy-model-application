@@ -56,9 +56,14 @@ describe("Test new connection", () => {
 
     // THEN the connection should fail
     // AND contains the redacted username password uri
+    // AND does not contain have any cause because it might leak the password
     await expect(connectionPromise).rejects.toThrowError(
-      `Failed to connect to the database ${redactCredentialsFromURI(givenDbUri)}`
+      expect.toMatchErrorWithCause(
+        `Failed to connect to the database ${redactCredentialsFromURI(givenDbUri)}`,
+        undefined
+      )
     );
+
     await expect(connectionPromise).rejects.not.toThrowError(givenDbUri);
   });
 });

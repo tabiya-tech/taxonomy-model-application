@@ -26,14 +26,16 @@ export function processDownloadStream<T>(
           const stats = await processStream<T>(streamName, response, rowProcessor);
           resolve(stats);
         } catch (e: unknown) {
-          errorLogger.logError(`Error while processing ${url} for ${streamName}`, e);
-          reject(e);
+          const err = new Error(`Error while processing ${url} for ${streamName}`, { cause: e });
+          errorLogger.logError(err);
+          reject(err);
         }
       })();
     });
-    request.on("error", (error: Error) => {
-      errorLogger.logError(`Failed to download file ${url} for ${streamName}`, error);
-      reject(error);
+    request.on("error", (e: Error) => {
+      const err = new Error(`Failed to download file ${url} for ${streamName}`, { cause: e });
+      errorLogger.logError(err);
+      reject(err);
     });
   });
 }
@@ -48,7 +50,8 @@ export function processStream<T>(
     (async () => {
       try {
         stream.on("error", (error: Error) => {
-          errorLogger.logError(`Error from the reading the stream:${streamName}`, error);
+          const err = new Error(`Error from the reading the stream: ${streamName}`, { cause: error });
+          errorLogger.logError(err);
           reject(error);
         });
         const parser: Parser = stream.pipe(
@@ -83,8 +86,9 @@ export function processStream<T>(
         const stats = await rowProcessor.completed();
         resolve(stats);
       } catch (e: unknown) {
-        errorLogger.logError(`Error while processing the stream:${streamName}`, e);
-        reject(e);
+        const error = new Error(`Error while processing the stream: ${streamName}`, { cause: e });
+        errorLogger.logError(error);
+        reject(error);
       }
     })();
   });

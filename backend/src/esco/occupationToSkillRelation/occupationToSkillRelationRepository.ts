@@ -141,15 +141,21 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
 
   findAll(modelId: string): Readable {
     try {
-      return stream.pipeline(
+      const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.relationModel.find({ modelId: { $eq: modelId } }).cursor(),
         new DocumentToObjectTransformer<IOccupationToSkillRelationPair>(),
         () => undefined
       );
+      pipeline.on("error", (e) => {
+        console.error(new Error("OccupationToSkillRelationRepository.findAll: stream failed", { cause: e }));
+      });
+
+      return pipeline;
     } catch (e: unknown) {
-      console.error("findAll failed", e);
-      throw e;
+      const err = new Error("OccupationToSkillRelationRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

@@ -28,7 +28,10 @@ import { ILocalizedOccupationRepository } from "./localizedOccupationRepository"
 import { INewOccupationSpec, IOccupation, IOccupationReference } from "esco/occupation/occupation.types";
 import { randomUUID } from "crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailureNoSetup,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -89,7 +92,7 @@ function expectedFromGivenSpec(
   };
 }
 
-describe("Test the Occupation Repository with an in-memory mongodb", () => {
+describe("Test the Localized Occupation Repository with an in-memory mongodb", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -264,7 +267,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       });
 
       // Then expect the promise to reject with an error
-      await expect(actualNewOccupationPromise).rejects.toThrowError(/localizingOccupation not found/);
+      await expect(actualNewOccupationPromise).rejects.toThrowError(
+        expect.toMatchErrorWithCause(
+          "LocalizedOccupationRepository.create: create failed",
+          "LocalizedOccupationRepository.create: localizingOccupation not found"
+        )
+      );
     });
 
     describe("Test unique indexes", () => {
@@ -288,7 +296,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const actualSecondNewOccupationPromise = repository.create(actualSecondNewLocalizedOccupationSpec);
 
         // THEN expect it to throw an error
-        await expect(actualSecondNewOccupationPromise).rejects.toThrowError(/duplicate key .* dup key: { UUID/);
+        await expect(actualSecondNewOccupationPromise).rejects.toThrowError(
+          expect.toMatchErrorWithCause(
+            "LocalizedOccupationRepository.create: create failed",
+            /duplicate key .* dup key: { UUID/
+          )
+        );
       });
 
       test("should successfully create a second Identical Occupation in a different model", async () => {
@@ -964,7 +977,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(actualFoundGroup!.children).toEqual([]);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not an Occupation: ${givenInconsistentPair.childDocModel}`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Child is not an Occupation: ${givenInconsistentPair.childDocModel}`)
+        );
       });
 
       test("should ignore parents that are not ISCO Group | Occupations", async () => {
@@ -1004,7 +1019,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`
+          new Error(`Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`)
         );
       });
 
@@ -1110,7 +1125,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenFoundLocalizedOccupation_1!.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
+        expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
       });
 
       test("should not find child if it is not is the same model as the parent", async () => {
@@ -1155,7 +1170,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(actualFoundLocalizedOccupation_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+        expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
@@ -1411,7 +1426,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenFoundOccupation!.requiresSkills).toEqual([]); // <-- The inconsistent occupation is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Required Skill is not in the same model as the Requiring Occupation`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Required Skill is not in the same model as the Requiring Occupation`)
+        );
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating requiresSkills", async () => {
@@ -1557,7 +1574,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       });
 
       // THEN the findAll method should throw an error for LocalizedOccupations
-      expect(() => repository.findAll(givenModelId)).toThrowError(givenError);
+      expect(() => repository.findAll(givenModelId)).toThrowError(
+        expect.toMatchErrorWithCause("LocalizedOccupationRepository.findAll: findAll failed", givenError.message)
+      );
     });
 
     test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -1590,12 +1609,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfLocalizedOccupations = repositoryRegistry.localizedOccupation.findAll(getMockStringId(1));
-      for await (const _ of streamOfLocalizedOccupations) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.localizedOccupation.findAll(getMockStringId(1))
+    );
   });
 });

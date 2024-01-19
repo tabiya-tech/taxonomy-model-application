@@ -47,11 +47,18 @@ describe("handleInsertManyError", () => {
     const callHandleInsertManyError = () => handleInsertManyError(givenError, givenCallerInfo, givenExpectedCount);
 
     // THEN it should throw the error
-    expect(callHandleInsertManyError).toThrow(givenError);
+    expect(callHandleInsertManyError).toThrow(
+      expect.toMatchErrorWithCause(
+        `${givenCallerInfo}: none of the ${givenExpectedCount} documents were inserted.`,
+        givenError.message
+      )
+    );
     // AND it should have logged a warning
     expect(console.error).toHaveBeenCalledWith(
-      `${givenCallerInfo}: none of the ${givenExpectedCount} documents were inserted.`,
-      givenError
+      expect.toMatchErrorWithCause(
+        `${givenCallerInfo}: none of the ${givenExpectedCount} documents were inserted.`,
+        givenError.message
+      )
     );
   });
 });

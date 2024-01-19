@@ -24,7 +24,10 @@ import {
   getSimpleNewOccupationSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailureNoSetup,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import {
   expectedISCOGroupReference,
   expectedOccupationReference,
@@ -151,7 +154,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     expect(getRepositoryRegistry().occupation).toBeDefined();
 
     // Clean up
-    await getConnectionManager().getCurrentDBConnection()!.close(false); // do not force close as there might be pending mongo operations
+    await getConnectionManager().getCurrentDBConnection()?.close(false); // do not force close as there might be pending mongo operations
   });
 
   describe("Test create() Occupation ", () => {
@@ -200,7 +203,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       });
 
       // Then expect the promise to reject with an error
-      await expect(actualNewOccupationPromise).rejects.toThrowError(/UUID should not be provided/);
+      await expect(actualNewOccupationPromise).rejects.toThrowError(
+        "OccupationRepository.create: create failed. UUID should not be provided."
+      );
     });
 
     describe("Test unique indexes", () => {
@@ -216,7 +221,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const actualSecondNewOccupationPromise = repository.create(actualSecondNewOccupationSpec);
 
         // THEN expect it to throw an error
-        await expect(actualSecondNewOccupationPromise).rejects.toThrowError(/duplicate key .* dup key: { UUID/);
+        await expect(actualSecondNewOccupationPromise).rejects.toThrow(
+          expect.toMatchErrorWithCause(
+            "OccupationRepository.create: create failed.",
+            /duplicate key .* dup key: { UUID/
+          )
+        );
       });
 
       test("should successfully create a second Identical Occupation in a different model", async () => {
@@ -249,7 +259,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const actualSecondNewModelPromise = repository.create(actualSecondNewOccupationSpec);
 
         // THEN expect it to throw an error
-        await expect(actualSecondNewModelPromise).rejects.toThrowError(/duplicate key error collection/);
+        await expect(actualSecondNewModelPromise).rejects.toThrow(
+          expect.toMatchErrorWithCause(
+            "OccupationRepository.create: create failed.",
+            /duplicate key .* dup key: { code/
+          )
+        );
       });
     });
 
@@ -747,10 +762,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup!.children).toEqual([]);
+        expect(actualFoundGroup?.children).toEqual([]);
         // AND expect a warning to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not an Occupation: ${givenInconsistentPair.childDocModel}`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Child is not an Occupation: ${givenInconsistentPair.childDocModel}`)
+        );
       });
 
       test("should ignore parents that are not ISCO Group | Occupations", async () => {
@@ -780,11 +797,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup!.parent).toEqual(null);
+        expect(actualFoundGroup?.parent).toEqual(null);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
-          `Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`
+          new Error(`Parent is not an ISCOGroup or an Occupation: ${givenInconsistentPair.parentDocModel}`)
         );
       });
 
@@ -822,16 +839,16 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent children
         expect(actualFoundGroup_1).not.toBeNull();
-        expect(actualFoundGroup_1!.children).toEqual([]);
-        expect(actualFoundGroup_1!.parent).toEqual(null);
+        expect(actualFoundGroup_1?.children).toEqual([]);
+        expect(actualFoundGroup_1?.parent).toEqual(null);
 
         // WHEN searching for the Occupation_1 by its id
         const actualFoundGroup_2 = await repository.findById(givenOccupation_2.id);
 
         // THEN expect the Occupation to not contain the inconsistent children
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.children).toEqual([]);
-        expect(actualFoundGroup_2!.parent).toEqual(null);
+        expect(actualFoundGroup_2?.children).toEqual([]);
+        expect(actualFoundGroup_2?.parent).toEqual(null);
       });
 
       test("should not find parent if it is not is the same model as the child", async () => {
@@ -867,10 +884,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent children
         expect(givenFoundGroup_1).not.toBeNull();
-        expect(givenFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
+        expect(givenFoundGroup_1?.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
+        expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
       });
 
       test("should not find child if it is not is the same model as the parent", async () => {
@@ -906,10 +923,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent parent
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
+        expect(actualFoundGroup_2?.parent).toEqual(null); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+        expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
@@ -968,7 +985,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only occupation 2 as a child
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.children).toEqual([expectedOccupationReference(givenOccupation_2)]);
+        expect(actualFoundSubject?.children).toEqual([expectedOccupationReference(givenOccupation_2)]);
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating parent", async () => {
@@ -1027,7 +1044,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only occupation 2 as a child
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.parent).toEqual(expectedOccupationReference(givenOccupation_1));
+        expect(actualFoundSubject?.parent).toEqual(expectedOccupationReference(givenOccupation_1));
       });
     });
 
@@ -1113,10 +1130,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent requiresSkill
         expect(actualFoundOccupation).not.toBeNull();
-        expect(actualFoundOccupation!.requiresSkills).toEqual([]);
+        expect(actualFoundOccupation?.requiresSkills).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Object is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Object is not a Skill: ${givenInconsistentPair.requiredSkillDocModel}`)
+        );
       });
 
       test("should not find requiresSkills if the relation is in a different model", async () => {
@@ -1148,7 +1167,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the Occupation to not contain the inconsistent required Skill
         expect(actualFoundOccupation).not.toBeNull();
-        expect(actualFoundOccupation!.requiresSkills).toEqual([]);
+        expect(actualFoundOccupation?.requiresSkills).toEqual([]);
       });
 
       test("should not find requiresSkill if it is not is the same model as the requiringOccupation", async () => {
@@ -1181,10 +1200,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the occupation to not contain the inconsistent requiredSkill
         expect(givenFoundOccupation).not.toBeNull();
-        expect(givenFoundOccupation!.requiresSkills).toEqual([]); // <-- The inconsistent occupation is removed
+        expect(givenFoundOccupation?.requiresSkills).toEqual([]); // <-- The inconsistent occupation is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Required Skill is not in the same model as the Requiring Occupation`);
+        expect(console.error).toBeCalledWith(
+          new Error(`Required Skill is not in the same model as the Requiring Occupation`)
+        );
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating requiresSkills", async () => {
@@ -1252,7 +1273,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only occupation 2 as a child
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.requiresSkills).toEqual([
+        expect(actualFoundSubject?.requiresSkills).toEqual([
           expectedRelatedSkillReference(givenSkill_2, RelationType.OPTIONAL),
         ]);
       });
@@ -1321,7 +1342,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         });
 
         // THEN the findAll method should throw an error for occupations
-        expect(() => repository.findAll(givenModelId, givenOccupationType)).toThrowError(givenError);
+        expect(() => repository.findAll(givenModelId, givenOccupationType)).toThrow(
+          expect.toMatchErrorWithCause("OccupationRepository.findAll: findAll failed", givenError.message)
+        );
       });
 
       test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -1349,18 +1372,17 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
             actualOccupationsArray.push(data);
           }
         }).rejects.toThrowError(givenError);
+        expect(console.error).toHaveBeenCalledWith(
+          expect.toMatchErrorWithCause("OccupationRepository.findAll: stream failed", givenError.message)
+        );
         expect(actualOccupations.closed).toBeTruthy();
         expect(actualOccupationsArray).toHaveLength(0);
         mockFind.mockRestore();
       });
 
-      TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-        const streamOfOccupations = repositoryRegistry.occupation.findAll(getMockStringId(1), givenOccupationType);
-        for await (const _ of streamOfOccupations) {
-          // iterate over the stream to hot the db and trigger the error
-          // do nothing
-        }
-      });
+      TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+        repositoryRegistry.occupation.findAll(getMockStringId(1), givenOccupationType)
+      );
     });
 
     // should throw an error if occupationType is not ESCO or LOCAL
@@ -1370,7 +1392,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // WHEN the findAll method is called for occupations
       expect(() => repository.findAll(givenModelId, OccupationType.LOCALIZED)).toThrowError(
-        "OccupationType must be either ESCO or LOCAL"
+        "OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL."
       );
     });
   });

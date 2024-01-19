@@ -70,8 +70,9 @@ export class ModelRepository implements IModelRepository {
       await newModelInfo.populate([populateImportProcessStateOptions, populateExportProcessStateOptions]);
       return newModelInfo.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("ModelInfoRepository.create: create failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
@@ -82,8 +83,9 @@ export class ModelRepository implements IModelRepository {
         .exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
-      console.error("getModelById failed", e);
-      throw e;
+      const err = new Error("ModelInfoRepository.getModelById: getModelById failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
@@ -98,8 +100,9 @@ export class ModelRepository implements IModelRepository {
         .exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
-      console.error("getModelByUUID failed", e);
-      throw e;
+      const err = new Error("ModelInfoRepository.getModelByUUID: getModelByUUID failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
@@ -110,8 +113,9 @@ export class ModelRepository implements IModelRepository {
         .exec();
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {
-      console.error("getModels failed", e);
-      throw e;
+      const err = new Error("ModelInfoRepository.getModels: getModels failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

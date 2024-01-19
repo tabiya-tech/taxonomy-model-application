@@ -17,7 +17,7 @@ export async function lambda_invokeAsyncExport(payload: AsyncExportEvent) {
 
     return response(StatusCodes.ACCEPTED, {});
   } catch (error: unknown) {
-    console.error(error);
+    console.error(new Error("Failed to trigger export", { cause: error }));
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
       StatusCodes.INTERNAL_SERVER_ERROR,

@@ -122,15 +122,21 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
 
   findAll(modelId: string): Readable {
     try {
-      return stream.pipeline(
+      const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.hierarchyModel.find({ modelId: { $eq: modelId } }).cursor(),
         new DocumentToObjectTransformer<ISkillHierarchyPair>(),
         () => undefined
       );
+      pipeline.on("error", (e) => {
+        console.error(new Error("SkillHierarchyRepository.findAll: stream failed", { cause: e }));
+      });
+
+      return pipeline;
     } catch (e: unknown) {
-      console.error("findAll failed", e);
-      throw e;
+      const err = new Error("SkillHierarchyRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

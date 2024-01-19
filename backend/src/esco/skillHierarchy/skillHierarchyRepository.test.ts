@@ -21,7 +21,10 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailure,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
@@ -30,6 +33,9 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
   let repository: ISkillHierarchyRepository;
   let repositoryRegistry: RepositoryRegistry;
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   beforeAll(async () => {
     // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("SkillHierarchyRepositoryTestDB");
@@ -804,7 +810,9 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const actualSkillHierarchies = () => repository.findAll(getMockStringId(1));
 
       // THEN expect the operation to fail with the given error
-      expect(actualSkillHierarchies).toThrowError(givenError);
+      expect(actualSkillHierarchies).toThrow(
+        expect.toMatchErrorWithCause("SkillHierarchyRepository.findAll: findAll failed", givenError.message)
+      );
     });
 
     test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -830,17 +838,16 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
           actualSkillHierarchies.push(data);
         }
       }).rejects.toThrowError(givenError);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("SkillHierarchyRepository.findAll: stream failed", givenError.message)
+      );
       expect(actualStream.closed).toBeTruthy();
       expect(actualSkillHierarchies).toHaveLength(0);
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfSkillHierarchies = repositoryRegistry.skillHierarchy.findAll(getMockStringId(1));
-      for await (const _ of streamOfSkillHierarchies) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.skillHierarchy.findAll(getMockStringId(1))
+    );
   });
 });
