@@ -62,9 +62,9 @@ class ModelInfoToCSVRowTransformer extends Transform {
       try {
         json = JSON.stringify(modelInfo, null, 2);
       } finally {
-        const error = new Error(`Failed to transform ModelInfo to CSV row: ${json}`);
-        console.error(error, cause);
-        callback(error);
+        const err = new Error(`Failed to transform ModelInfo to CSV row: ${json}`, { cause: cause });
+        console.error(err);
+        callback(err);
       }
     }
   }
@@ -83,7 +83,7 @@ const ModelInfoToCSVTransform = async (modelId: string): Promise<Readable> => {
   }
   return pipeline(Readable.from([modelInfo]), new ModelInfoToCSVRowTransformer(), modelInfoStringifier, (cause) => {
     if (cause) {
-      console.error(new Error("Transforming ModelInfo to CSV failed"), cause);
+      console.error(new Error("Transforming ModelInfo to CSV failed", { cause: cause }));
     }
   });
 };

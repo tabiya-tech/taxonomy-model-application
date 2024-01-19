@@ -37,6 +37,10 @@ function setupSkillToSkillRelationRepositoryMock(findAllImpl: () => Readable) {
 }
 
 describe("skillToSkillRelationToCSVTransform", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test("should correctly transform skillToSkillRelation data to CSV", async () => {
     // GIVEN findAll returns a stream of skillToSkillRelations
     const givenRelations = getMockSkillToSkillRelations();
@@ -83,7 +87,10 @@ describe("skillToSkillRelationToCSVTransform", () => {
         }
       }).rejects.toThrowError(givenError);
       // AND the error should be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      const expectedErrorMessage = "Transforming SkillToSkillRelation to CSV failed";
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+      );
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });
@@ -94,7 +101,7 @@ describe("skillToSkillRelationToCSVTransform", () => {
 
       // AND  the transformSkillRelationSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest
+      const transformFunctionSpy = jest
         .spyOn(skillToSkillRelationToCSVTransformModule, "transformSkillRelationSpecToCSVRow")
         .mockImplementationOnce(() => {
           throw givenError;
@@ -111,8 +118,16 @@ describe("skillToSkillRelationToCSVTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform SkillToSkillRelation to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+      const expectedErrorMessage = `Failed to transform SkillToSkillRelation to CSV row: ${expectedLoggedItem}`;
+      const expectedError = new Error(expectedErrorMessage, { cause: givenError });
+
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+      );
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("Transforming SkillToSkillRelation to CSV failed", expectedError.message)
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

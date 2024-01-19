@@ -37,7 +37,7 @@ export function getProcessEntityBatchFunction<
       });
       stats.rowsSuccess = entities.length;
     } catch (e: unknown) {
-      errorLogger.logError(`Failed to process ${entityName}s batch`, e);
+      errorLogger.logError(new Error(`Failed to process ${entityName}s batch`, { cause: e }));
     }
     // iterate over the specs and look if the importId is in the map, if it is not then declare that the row has failed
     specs.forEach((spec, index) => {

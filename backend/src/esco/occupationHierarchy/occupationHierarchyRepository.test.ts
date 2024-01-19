@@ -20,7 +20,10 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailure,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
@@ -29,6 +32,9 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
   let dbConnection: Connection;
   let repository: IOccupationHierarchyRepository;
   let repositoryRegistry: RepositoryRegistry;
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   beforeAll(async () => {
     // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("OccupationHierarchyRepositoryTestDB");
@@ -699,7 +705,9 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const actualOccupationHierarchies = () => repository.findAll(getMockStringId(1));
 
       // THEN expect the operation to fail with the given error
-      expect(actualOccupationHierarchies).toThrowError(givenError);
+      expect(actualOccupationHierarchies).toThrow(
+        expect.toMatchErrorWithCause("OccupationHierarchyRepository.findAll: findAll failed", givenError.message)
+      );
     });
 
     test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -725,17 +733,16 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
           actualOccupationHierarchies.push(data);
         }
       }).rejects.toThrowError(givenError);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("OccupationHierarchyRepository.findAll: stream failed", givenError.message)
+      );
       expect(actualStream.closed).toBeTruthy();
       expect(actualOccupationHierarchies).toHaveLength(0);
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfOccupationHierarchies = repositoryRegistry.occupationHierarchy.findAll(getMockStringId(1));
-      for await (const _ of streamOfOccupationHierarchies) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.occupationHierarchy.findAll(getMockStringId(1))
+    );
   });
 });

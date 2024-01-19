@@ -14,7 +14,10 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillToSkillRelationRepository } from "./skillToSkillRelationRepository";
 import { INewSkillToSkillPairSpec, ISkillToSkillRelationPair } from "./skillToSkillRelation.types";
 import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailure,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import { expectedRelatedSkillReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
@@ -23,6 +26,9 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
   let dbConnection: Connection;
   let repository: ISkillToSkillRelationRepository;
   let repositoryRegistry: RepositoryRegistry;
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   beforeAll(async () => {
     // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("SkillToSkillRelationRepositoryTestDB");
@@ -424,7 +430,9 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       const actualSkillToSkillRelations = () => repository.findAll(getMockStringId(1));
 
       // THEN expect the operation to fail with the given error
-      expect(actualSkillToSkillRelations).toThrowError(givenError);
+      expect(actualSkillToSkillRelations).toThrow(
+        expect.toMatchErrorWithCause("SkillToSkillRelationRepository.findAll: findAll failed", givenError.message)
+      );
     });
 
     test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -450,17 +458,16 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
           actualSkillToSkillRelationsArray.push(data);
         }
       }).rejects.toThrowError(givenError);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("SkillToSkillRelationRepository.findAll: stream failed", givenError.message)
+      );
       expect(actualStream.closed).toBeTruthy();
       expect(actualSkillToSkillRelationsArray).toHaveLength(0);
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfOccupations = repositoryRegistry.skillToSkillRelation.findAll(getMockStringId(1));
-      for await (const _ of streamOfOccupations) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.skillToSkillRelation.findAll(getMockStringId(1))
+    );
   });
 });

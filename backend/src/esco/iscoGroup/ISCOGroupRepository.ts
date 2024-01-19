@@ -70,9 +70,9 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
   async create(newISCOGroupSpec: INewISCOGroupSpec): Promise<IISCOGroup> {
     //@ts-ignore
     if (newISCOGroupSpec.UUID !== undefined) {
-      const e = new Error("UUID should not be provided");
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("ISCOGroupRepository.create: create failed. UUID should not be provided.");
+      console.error(err);
+      throw err;
     }
 
     try {
@@ -81,8 +81,9 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
       populateEmptyOccupationHierarchy(newISCOGroupModel);
       return newISCOGroupModel.toObject();
     } catch (e: unknown) {
-      console.error("create failed", e);
-      throw e;
+      const err = new Error("ISCOGroupRepository.create: create failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
@@ -129,23 +130,32 @@ export class ISCOGroupRepository implements IISCOGroupRepository {
         .exec();
       return iscoGroup ? iscoGroup.toObject() : null;
     } catch (e: unknown) {
-      console.error("findById failed", e);
-      throw e;
+      const err = new Error("ISCOGroupRepository.findById: findById failed.", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 
   findAll(modelId: string): Readable {
     try {
-      return stream.pipeline(
+      const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.Model.find({ modelId: { $eq: modelId } }).cursor(),
         // in the current version we do not populate the parent, children
         new DocumentToObjectTransformer<IISCOGroup>(),
         () => undefined
       );
+
+      pipeline.on("error", (e) => {
+        const err = new Error("ISCOGroupRepository.findAll: stream failed", { cause: e });
+        console.error(err);
+      });
+
+      return pipeline;
     } catch (e: unknown) {
-      console.error("findAll failed", e);
-      throw e;
+      const err = new Error("ISCOGroupRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

@@ -78,12 +78,14 @@ describe("test processStream", () => {
       const actualProcessPromise = processStream(givenStreamName, givenStream, givenRowProcessor);
 
       // THEN expect it to reject with the given error
-      await expect(actualProcessPromise).rejects.toThrowError(givenError);
+      const expectedErrorMessage = `Error while processing the stream: ${givenStreamName}`;
+      await expect(actualProcessPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+      );
 
       // AND an error to have been logged
       expect(errorLogger.logError).toHaveBeenCalledWith(
-        `Error while processing the stream:${givenStreamName}`,
-        givenError
+        expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
@@ -113,8 +115,7 @@ describe("test processStream", () => {
 
       // AND an error to have been logged
       expect(errorLogger.logError).toHaveBeenCalledWith(
-        `Error from the reading the stream:${givenStreamName}`,
-        givenError
+        expect.toMatchErrorWithCause(`Error from the reading the stream: ${givenStreamName}`, givenError.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
@@ -135,13 +136,15 @@ describe("test processStream", () => {
       const actualProcessPromise = processStream(givenStreamName, Readable.from(givenData), givenRowProcessor);
 
       // THEN expect it to reject with the error
-      const expectedError = new Error("Invalid Record Length: columns length is 2, got 3 on line 2");
-      await expect(actualProcessPromise).rejects.toThrowError(expectedError);
+      const expectedErrorMessage = `Error while processing the stream: ${givenStreamName}`;
+      const expectedCause = new Error("Invalid Record Length: columns length is 2, got 3 on line 2");
+      await expect(actualProcessPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause(expectedErrorMessage, expectedCause.message)
+      );
 
       // AND an error to have been logged
       expect(errorLogger.logError).toHaveBeenCalledWith(
-        `Error while processing the stream:${givenStreamName}`,
-        expectedError
+        expect.toMatchErrorWithCause(`Error while processing the stream: ${givenStreamName}`, expectedCause.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
@@ -254,12 +257,13 @@ describe("test processDownloadStream", () => {
       const actualProcessPromise = processDownloadStream(givenUrl, givenStreamName, givenRowProcessor);
 
       // THEN expect it to reject with the given error
-      await expect(actualProcessPromise).rejects.toThrowError(givenError);
+      await expect(actualProcessPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause("Failed to download file https://foo/bar.csv for some stream", givenError.message)
+      );
 
       // AND an error to have been logged
       expect(errorLogger.logError).toHaveBeenCalledWith(
-        `Failed to download file ${givenUrl} for ${givenStreamName}`,
-        givenError
+        expect.toMatchErrorWithCause(`Failed to download file ${givenUrl} for ${givenStreamName}`, givenError.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
@@ -332,11 +336,12 @@ describe("test processDownloadStream", () => {
       const actualProcessPromise = processDownloadStream(givenUrl, givenStreamName, givenRowProcessor);
 
       // THEN expect it to reject with the given error
-      await expect(actualProcessPromise).rejects.toThrowError(givenError);
+      await expect(actualProcessPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause("Error while processing https://foo/bar.csv for some stream", givenError.message)
+      );
       // AND an error to have been logged
       expect(errorLogger.logError).toHaveBeenCalledWith(
-        `Error while processing ${givenUrl} for ${givenStreamName}`,
-        givenError
+        expect.toMatchErrorWithCause(`Error from the reading the stream: ${givenStreamName}`, givenError.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });
@@ -370,12 +375,14 @@ describe("test processDownloadStream", () => {
       const actualProcessPromise = processDownloadStream(givenUrl, givenStreamName, givenRowProcessor);
 
       // THEN expect it to reject with the given error
-      await expect(actualProcessPromise).rejects.toThrowError(givenError);
+      const expectedErrorMessage = `Error while processing ${givenUrl} for ${givenStreamName}`;
+      await expect(actualProcessPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause(expectedErrorMessage, `Error while processing the stream: ${givenStreamName}`)
+      );
 
       // AND an error to have been logged
       expect(errorLogger.logError).toHaveBeenCalledWith(
-        `Error while processing ${givenUrl} for ${givenStreamName}`,
-        givenError
+        expect.toMatchErrorWithCause(`Error while processing the stream: ${givenStreamName}`, givenError.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
     });

@@ -17,7 +17,10 @@ import {
   getSimpleNewOccupationSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailure, TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailure,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import {
   expectedRelatedOccupationReference,
   expectedRelatedSkillReference,
@@ -31,6 +34,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
   let dbConnection: Connection;
   let repository: IOccupationToSkillRelationRepository;
   let repositoryRegistry: RepositoryRegistry;
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   beforeAll(async () => {
     // Using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const config = getTestConfiguration("OccupationToSkillRelationRepositoryTestDB");
@@ -527,7 +533,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const actualOccupationToSkillRelations = () => repository.findAll(getMockStringId(1));
 
       // THEN expect the operation to fail with the given error
-      expect(actualOccupationToSkillRelations).toThrowError(givenError);
+      expect(actualOccupationToSkillRelations).toThrow(
+        expect.toMatchErrorWithCause("OccupationToSkillRelationRepository.findAll: findAll failed", givenError.message)
+      );
     });
 
     test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -553,19 +561,16 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           actualOccupationToSkillRelations.push(data);
         }
       }).rejects.toThrowError(givenError);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("OccupationToSkillRelationRepository.findAll: stream failed", givenError.message)
+      );
       expect(actualStream.closed).toBeTruthy();
       expect(actualOccupationToSkillRelations).toHaveLength(0);
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfOccupationToSkillRelations = repositoryRegistry.occupationToSkillRelation.findAll(
-        getMockStringId(1)
-      );
-      for await (const _ of streamOfOccupationToSkillRelations) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.occupationToSkillRelation.findAll(getMockStringId(1))
+    );
   });
 });

@@ -278,7 +278,7 @@ describe("modelToS3", () => {
       ["OccupationToSkillRelationToCSVTransformStream", OccupationToSkillRelationToCSVTransform],
       ["SkillToSkillRelationToCSVTransformStream", SkillToSkillRelationToCSVTransform],
       ["ModelInfoToCSVTransformStream", ModelInfoToCSVTransform],
-    ])("should reject and release resources when the %s", async (_caseDescription, givenFailingStream) => {
+    ])("should reject and release resources when the %s emits errors", async (_caseDescription, givenFailingStream) => {
       const failureCallback = () =>
         (givenFailingStream as jest.Mock).mockImplementationOnce(() => {
           return Readable.from(["foo", "bar", "baz"], { objectMode: true }).on("data", function () {
@@ -286,7 +286,12 @@ describe("modelToS3", () => {
             this.emit("error", new Error("foo"));
           });
         });
-      await testFailure(failureCallback, "Premature close", true);
+      await testFailure(
+        failureCallback,
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "Premature close",
+        true
+      );
     });
   });
 
@@ -294,6 +299,8 @@ describe("modelToS3", () => {
     test.each([
       [
         "the exportProcessState will fail to update and rejects with an error",
+        "foo",
+        undefined,
         () => {
           // given the exportProcessStateRepository will fail to update the exportProcessState
           jest.spyOn(getRepositoryRegistry().exportProcessState, "update").mockRejectedValueOnce(new Error("foo"));
@@ -301,6 +308,8 @@ describe("modelToS3", () => {
       ],
       [
         "the exportProcessState will fail to update and throws an error",
+        "foo",
+        undefined,
         () => {
           // given the exportProcessStateRepository will fail to update the exportProcessState
           jest.spyOn(getRepositoryRegistry().exportProcessState, "update").mockImplementationOnce(() => {
@@ -310,6 +319,8 @@ describe("modelToS3", () => {
       ],
       [
         "the archiver will fail to initialize and throws an error",
+        "foo",
+        undefined,
         () => {
           //given the archiver will fail to initialize
           jest.spyOn(archiver, "create").mockImplementationOnce(() => {
@@ -319,6 +330,8 @@ describe("modelToS3", () => {
       ],
       [
         "ISCOGroupsToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (ISCOGroupsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -327,6 +340,8 @@ describe("modelToS3", () => {
       ],
       [
         "ESCOOccupationToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (ESCOOccupationsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -335,6 +350,8 @@ describe("modelToS3", () => {
       ],
       [
         "LocalOccupationToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (LocalOccupationsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -343,6 +360,8 @@ describe("modelToS3", () => {
       ],
       [
         "LocalizedOccupationsToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (LocalizedOccupationsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -351,6 +370,8 @@ describe("modelToS3", () => {
       ],
       [
         "SkillToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (SkillsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -359,6 +380,8 @@ describe("modelToS3", () => {
       ],
       [
         "SkillGroupToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (SkillGroupsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -367,6 +390,8 @@ describe("modelToS3", () => {
       ],
       [
         "OccupationHierarchyToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (OccupationHierarchyToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -375,6 +400,8 @@ describe("modelToS3", () => {
       ],
       [
         "SkillHierarchyToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (SkillHierarchyToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -383,6 +410,8 @@ describe("modelToS3", () => {
       ],
       [
         "OccupationToSkillRelationToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (OccupationToSkillRelationToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -391,6 +420,8 @@ describe("modelToS3", () => {
       ],
       [
         "SkillToSkillRelationToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (SkillToSkillRelationToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -399,6 +430,8 @@ describe("modelToS3", () => {
       ],
       [
         "ModelInfoToCSVTransform throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (ModelInfoToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -407,6 +440,8 @@ describe("modelToS3", () => {
       ],
       [
         "the csvToZipPipeline throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (CSVtoZipPipeline as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -415,6 +450,8 @@ describe("modelToS3", () => {
       ],
       [
         "the archiver fails to pipe and throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           callbackArchiverCreated = (zipper) => {
             (zipper.pipe as jest.Mock).mockImplementationOnce(() => {
@@ -425,6 +462,8 @@ describe("modelToS3", () => {
       ],
       [
         "the archiver fails to finalize and throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           callbackArchiverCreated = (zipper) => {
             (zipper.finalize as jest.Mock).mockImplementationOnce(() => {
@@ -435,6 +474,8 @@ describe("modelToS3", () => {
       ],
       [
         "the archiver fails to finalize and rejects with an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           callbackArchiverCreated = (zipper) => {
             (zipper.finalize as jest.Mock).mockRejectedValueOnce(new Error("foo"));
@@ -443,6 +484,8 @@ describe("modelToS3", () => {
       ],
       [
         "the uploadToS3 module rejects with an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (uploadZipToS3 as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
@@ -451,17 +494,32 @@ describe("modelToS3", () => {
       ],
       [
         "the uploadToS3 module throws an error",
+        "An error occurred while streaming data from the DB to the csv zip file on S3",
+        "foo",
         () => {
           (uploadZipToS3 as jest.Mock).mockRejectedValueOnce(new Error("foo"));
         },
       ],
-    ])("should cleanup resources and throw when %s", async (_description: string, failureCallback: () => void) => {
-      await testFailure(failureCallback, "foo", false);
-    });
+    ])(
+      "should cleanup resources and throw when %s",
+      async (
+        _description: string,
+        errorMessage: string,
+        causeMessage: string | undefined,
+        failureCallback: () => void
+      ) => {
+        await testFailure(failureCallback, errorMessage, causeMessage, false);
+      }
+    );
   });
 });
 
-async function testFailure(failureCallback: () => void, expectedErrorMessage: string, assertCreated: boolean) {
+async function testFailure(
+  failureCallback: () => void,
+  expectedErrorMessage: string,
+  expectedCause: string | undefined,
+  assertCreated: boolean
+) {
   // GIVEN an AsyncExportEvent with a modelId
   const givenEvent: AsyncExportEvent = getMockExportEvent();
 
@@ -478,7 +536,9 @@ async function testFailure(failureCallback: () => void, expectedErrorMessage: st
   const actualModelToS3Promise = modelToS3(givenEvent);
 
   // THEN expect it to throw an error
-  await expect(actualModelToS3Promise).rejects.toThrow(expectedErrorMessage);
+  await expect(actualModelToS3Promise).rejects.toThrowError(
+    expect.toMatchErrorWithCause(expectedErrorMessage, expectedCause)
+  );
 
   // AND initially the exportProcessStateRepository successfully updated the exportProcessState to RUNNING
   expect(getRepositoryRegistry().exportProcessState.update).toHaveBeenNthCalledWith(

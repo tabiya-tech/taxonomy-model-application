@@ -26,7 +26,7 @@ export async function initOnce(): Promise<void> {
     const connection = getConnectionManager().getCurrentDBConnection();
     await getRepositoryRegistry().initialize(connection);
   } catch (e: unknown) {
-    console.error("Error initializing the server", e);
+    console.error(new Error("Error initializing the server", { cause: e }));
   }
 }
 

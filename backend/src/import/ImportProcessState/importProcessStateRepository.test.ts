@@ -155,8 +155,11 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
       const actualUpdatedImportProcessStatePromise = repository.update(givenId, givenUpdateSpecs);
 
       // THEN expect to reject with an error
-      await expect(actualUpdatedImportProcessStatePromise).rejects.toThrowError(
-        `Update failed to find import process with id: ${givenId}`
+      await expect(actualUpdatedImportProcessStatePromise).rejects.toThrow(
+        expect.toMatchErrorWithCause(
+          "ImportProcessStateRepository.update: failed",
+          `Update failed to find import process with id: ${givenId}`
+        )
       );
     });
 

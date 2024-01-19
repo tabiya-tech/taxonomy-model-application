@@ -79,6 +79,8 @@ describe("CSVtoZipPipeline", () => {
       `An error occurred while reading the ${givenPipelineName} CSV data.`
     );
     // AND the error to be logged
-    expect(errorLogger.logError).toHaveBeenCalledWith(expect.any(Error), givenError);
+    expect(errorLogger.logError).toHaveBeenCalledWith(
+      expect.toMatchErrorWithCause("An error occurred while reading the testPipeline CSV data.", givenError.message)
+    );
   });
 });

@@ -40,9 +40,9 @@ class ISCOGroupToCSVRowTransformer extends Transform {
       try {
         json = JSON.stringify(iscoGroup, null, 2);
       } finally {
-        const error = new Error(`Failed to transform ISCOGroup to CSV row: ${json}`);
-        console.error(error, cause);
-        callback(error);
+        const err = new Error(`Failed to transform ISCOGroup to CSV row: ${json}`, { cause: cause });
+        console.error(err);
+        callback(err);
       }
     }
   }
@@ -61,7 +61,7 @@ const ISCOGroupsToCSVTransform = (modelId: string): Readable => {
     iscoGroupStringifier,
     (cause) => {
       if (cause) {
-        console.error(new Error("Transforming ESCO iscoGroups to CSV failed"), cause);
+        console.error(new Error("Transforming ESCO iscoGroups to CSV failed", { cause: cause }));
       }
     }
   );

@@ -107,15 +107,21 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
 
   findAll(modelId: string): Readable {
     try {
-      return stream.pipeline(
+      const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.relationModel.find({ modelId: { $eq: modelId } }).cursor(),
         new DocumentToObjectTransformer<ISkillToSkillRelationPair>(),
         () => undefined
       );
+      pipeline.on("error", (e) => {
+        console.error(new Error("SkillToSkillRelationRepository.findAll: stream failed", { cause: e }));
+      });
+
+      return pipeline;
     } catch (e: unknown) {
-      console.error("findAll failed", e);
-      throw e;
+      const err = new Error("SkillToSkillRelationRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

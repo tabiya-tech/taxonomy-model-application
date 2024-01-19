@@ -50,9 +50,11 @@ class OccupationToCSVRowTransformer extends Transform {
       try {
         json = JSON.stringify(occupation, null, 2);
       } finally {
-        const error = new Error(`Failed to transform ${this.occupationType} occupation to CSV row: ${json}`);
-        console.error(error, cause);
-        callback(error);
+        const err = new Error(`Failed to transform ${this.occupationType} occupation to CSV row: ${json}`, {
+          cause: cause,
+        });
+        console.error(err);
+        callback(err);
       }
     }
   }
@@ -74,7 +76,7 @@ const BaseOccupationsToCSVTransform = (
     occupationStringifier,
     (cause) => {
       if (cause) {
-        console.error(new Error(`Transforming ${occupationType} occupations to CSV failed`), cause);
+        console.error(new Error(`Transforming ${occupationType} occupations to CSV failed`, { cause: cause }));
       }
     }
   );

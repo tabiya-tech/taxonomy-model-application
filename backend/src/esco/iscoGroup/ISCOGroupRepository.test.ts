@@ -21,7 +21,10 @@ import {
   getSimpleNewOccupationSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
-import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailureNoSetup,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import { IOccupationReference } from "esco/occupation/occupation.types";
 import { Readable } from "node:stream";
@@ -138,7 +141,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
     expect(getRepositoryRegistry().ISCOGroup).toBeDefined();
 
     // Clean up
-    await getConnectionManager().getCurrentDBConnection()!.close(false); // do not force close as there might be pending mongo operations
+    await getConnectionManager().getCurrentDBConnection()?.close(false); // do not force close as there might be pending mongo operations
   });
 
   describe("Test create() ISCOGroup ", () => {
@@ -173,13 +176,14 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
       // WHEN Creating a new ISCOGroup with a provided UUID
       const actualNewISCOGroupPromise = repository.create({
-        ...givenNewISCOGroupSpec,
-        //@ts-ignore
+        ...givenNewISCOGroupSpec, //@ts-ignore
         UUID: randomUUID(),
       });
 
       // Then expect the promise to reject with an error
-      await expect(actualNewISCOGroupPromise).rejects.toThrowError(/UUID should not be provided/);
+      await expect(actualNewISCOGroupPromise).rejects.toThrowError(
+        "ISCOGroupRepository.create: create failed. UUID should not be provided."
+      );
     });
 
     describe("Test unique indexes", () => {
@@ -194,7 +198,9 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         const actualSecondNewISCOGroupPromise = repository.create(actualSecondNewISCOGroupSpec);
 
         // Then expect the promise to reject with an error
-        await expect(actualSecondNewISCOGroupPromise).rejects.toThrowError(/duplicate key .* dup key: { UUID/);
+        await expect(actualSecondNewISCOGroupPromise).rejects.toThrow(
+          expect.toMatchErrorWithCause(/ISCOGroupRepository.create: create failed/, /duplicate key .* dup key: { UUID/)
+        );
       });
 
       test("should successfully create a second Identical ISCOGroup in a different model", async () => {
@@ -227,7 +233,12 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
         const actualSecondNewModelPromise = repository.create(actualSecondNewISCOGroupSpec);
 
         // Then expect the promise to reject with an error
-        await expect(actualSecondNewModelPromise).rejects.toThrowError(/duplicate key error collection/);
+        await expect(actualSecondNewModelPromise).rejects.toThrow(
+          expect.toMatchErrorWithCause(
+            /ISCOGroupRepository.create: create failed/,
+            /duplicate key .* dup key: { modelId/
+          )
+        );
       });
     });
 
@@ -490,8 +501,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
               childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
             },
             usedIndex: INDEX_FOR_PARENT,
-          }),
-          // populating the child hierarchy
+          }), // populating the child hierarchy
           getExpectedPlan({
             collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
             filter: {
@@ -539,7 +549,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup!.parent).toEqual(null);
+        expect(actualFoundGroup?.parent).toEqual(null);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(`Parent is not an ISCOGroup: ${givenInconsistentPair.parentDocModel}`);
@@ -575,7 +585,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup!.children).toEqual([]);
+        expect(actualFoundGroup?.children).toEqual([]);
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
         expect(console.error).toBeCalledWith(
@@ -617,16 +627,16 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent children
         expect(actualFoundGroup_1).not.toBeNull();
-        expect(actualFoundGroup_1!.children).toEqual([]);
-        expect(actualFoundGroup_1!.parent).toEqual(null);
+        expect(actualFoundGroup_1?.children).toEqual([]);
+        expect(actualFoundGroup_1?.parent).toEqual(null);
 
         // WHEN searching for the ISCO Group_1 by its id
         const actualFoundGroup_2 = await repository.findById(givenISCOGroup_2.id);
 
         // THEN expect the ISCOGroup to not contain the inconsistent children
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.children).toEqual([]);
-        expect(actualFoundGroup_2!.parent).toEqual(null);
+        expect(actualFoundGroup_2?.children).toEqual([]);
+        expect(actualFoundGroup_2?.parent).toEqual(null);
       });
 
       test("should not find parent if it is not is the same model as the child", async () => {
@@ -662,10 +672,10 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent children
         expect(actualFoundGroup_1).not.toBeNull();
-        expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
+        expect(actualFoundGroup_1?.children).toEqual([]); // <-- The inconsistent child is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Child is not in the same model as the parent`);
+        expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
       });
 
       test("should not find child if it is not is the same model as the parent", async () => {
@@ -702,10 +712,10 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN expect the ISCOGroup to not contain the inconsistent parent
         expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
+        expect(actualFoundGroup_2?.parent).toEqual(null); // <-- The inconsistent parent is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`Parent is not in the same model as the child`);
+        expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
@@ -765,7 +775,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only occupation 2 as a child
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.children).toEqual([expectedOccupationReference(givenOccupation_3)]);
+        expect(actualFoundSubject?.children).toEqual([expectedOccupationReference(givenOccupation_3)]);
       });
 
       test("should not match entities that have the same ID but are of different types (collections) when populating parent", async () => {
@@ -825,7 +835,7 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
 
         // THEN we expect to find only occupation 2 as a parent
         expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.parent).toEqual(expectedISCOGroupReference(givenISCOGroup_2));
+        expect(actualFoundSubject?.parent).toEqual(expectedISCOGroupReference(givenISCOGroup_2));
       });
     });
 
@@ -887,7 +897,9 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
       });
 
       // THEN the findAll method should throw an error for occupations
-      expect(() => repository.findAll(givenModelId)).toThrowError(givenError);
+      expect(() => repository.findAll(givenModelId)).toThrow(
+        expect.toMatchErrorWithCause("ISCOGroupRepository.findAll: findAll failed", givenError.message)
+      );
     });
 
     test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
@@ -915,17 +927,16 @@ describe("Test the ISCOGroup Repository with an in-memory mongodb", () => {
           actualISCOGroupsArray.push(data);
         }
       }).rejects.toThrowError(givenError);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("ISCOGroupRepository.findAll: stream failed", givenError.message)
+      );
       expect(actualISCOGroups.closed).toBeTruthy();
       expect(actualISCOGroupsArray).toHaveLength(0);
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfISCOGroups = repositoryRegistry.ISCOGroup.findAll(getMockStringId(1));
-      for await (const _ of streamOfISCOGroups) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.ISCOGroup.findAll(getMockStringId(1))
+    );
   });
 });

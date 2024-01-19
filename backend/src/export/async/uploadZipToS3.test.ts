@@ -81,9 +81,9 @@ describe("uploadZipToS3", () => {
   test("should reject when the upload is done", async () => {
     // GIVEN the Upload will reject with an error
     const givenError = new Error("foo");
-    (Upload as unknown as jest.Mock).mockReturnValueOnce(() => ({
+    (Upload as unknown as jest.Mock).mockReturnValueOnce({
       done: jest.fn().mockRejectedValueOnce(givenError),
-    }));
+    });
 
     // WHEN  uploadZipToS3 is called
     const actualUploadPromise = uploadZipToS3(
@@ -94,9 +94,14 @@ describe("uploadZipToS3", () => {
     );
 
     // THEN expect it to reject
-    await expect(actualUploadPromise).rejects.toThrowError(`Zip file ${givenData.givenFileName} upload failed.`);
+    const expectedErrorMessage = `Zip file ${givenData.givenFileName} upload failed.`;
+    await expect(actualUploadPromise).rejects.toThrow(
+      expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+    );
     // AND the error should be logged
-    expect(errorLogger.logError).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+    expect(errorLogger.logError).toHaveBeenCalledWith(
+      expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+    );
   });
 
   test("should reject if constructing the S3 client fails", async () => {
@@ -115,9 +120,14 @@ describe("uploadZipToS3", () => {
     );
 
     // THEN expect it to reject
-    await expect(actualUploadPromise).rejects.toThrowError(`Zip file ${givenData.givenFileName} upload failed.`);
+    const expectErrorMessage = `Zip file ${givenData.givenFileName} upload failed.`;
+    await expect(actualUploadPromise).rejects.toThrow(
+      expect.toMatchErrorWithCause(expectErrorMessage, givenError.message)
+    );
     // AND the error should be logged
-    expect(errorLogger.logError).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+    expect(errorLogger.logError).toHaveBeenCalledWith(
+      expect.toMatchErrorWithCause(expectErrorMessage, givenError.message)
+    );
   });
 
   test("should reject if constructing the Upload fails", async () => {
@@ -136,8 +146,13 @@ describe("uploadZipToS3", () => {
     );
 
     // THEN expect it to reject
-    await expect(actualUploadPromise).rejects.toThrowError(`Zip file ${givenData.givenFileName} upload failed.`);
+    const expectErrorMessage = `Zip file ${givenData.givenFileName} upload failed.`;
+    await expect(actualUploadPromise).rejects.toThrow(
+      expect.toMatchErrorWithCause(expectErrorMessage, givenError.message)
+    );
     // AND the error should be logged
-    expect(errorLogger.logError).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+    expect(errorLogger.logError).toHaveBeenCalledWith(
+      expect.toMatchErrorWithCause(expectErrorMessage, givenError.message)
+    );
   });
 });

@@ -20,8 +20,8 @@ const uploadZipToS3 = async (uploadStream: Readable, fileName: string, region: s
     await upload.done();
     console.info(`Zip file ${fileName} successfully uploaded.`);
   } catch (cause: unknown) {
-    const err = new Error(`Zip file ${fileName} upload failed.`);
-    ErrorLogger.logError(err, cause);
+    const err = new Error(`Zip file ${fileName} upload failed.`, { cause: cause });
+    ErrorLogger.logError(err);
     throw err;
   }
 };

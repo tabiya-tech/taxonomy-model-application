@@ -42,9 +42,9 @@ class SkillGroupToCSVRowTransformer extends Transform {
       try {
         json = JSON.stringify(skillGroup, null, 2);
       } finally {
-        const error = new Error(`Failed to transform SkillGroup to CSV row: ${json}`);
-        console.error(error, cause);
-        callback(error);
+        const err = new Error(`Failed to transform SkillGroup to CSV row: ${json}`, { cause: cause });
+        console.error(err);
+        callback(err);
       }
     }
   }
@@ -63,7 +63,7 @@ const SkillGroupsToCSVTransform = (modelId: string): Readable => {
     skillGroupStringifier,
     (cause) => {
       if (cause) {
-        console.error(new Error("Transforming SkillGroups to CSV failed"), cause);
+        console.error(new Error("Transforming SkillGroups to CSV failed", { cause: cause }));
       }
     }
   );

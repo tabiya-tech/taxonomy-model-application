@@ -16,7 +16,10 @@ import { ObjectTypes, OccupationType, ReferenceWithRelationType, RelationType } 
 import { INewOccupationSpec } from "esco/occupation/occupation.types";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ISkillToSkillRelationPairDoc } from "esco/skillToSkillRelation/skillToSkillRelation.types";
-import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
+import {
+  TestDBConnectionFailureNoSetup,
+  TestStreamDBConnectionFailureNoSetup,
+} from "_test_utilities/testDBConnectionFaillure";
 import {
   getNewISCOGroupSpec,
   getNewOccupationSpec,
@@ -209,7 +212,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const actualPromise = repository.create(givenNewSkillSpecSpec);
 
       // THEN expect the actual promise to reject
-      await expect(actualPromise).rejects.toThrowError(/duplicate key/);
+      await expect(actualPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause("SkillRepository.createMany: create failed", /duplicate key .* dup key: { UUID/)
+      );
     });
     //TODO: add more unique index tests i.e should should successfully create a second Identical skill in a different model (see occupationRepository_
 
@@ -1265,7 +1270,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         expect(givenFoundSkill!.requiredByOccupations).toEqual([]); // <-- The inconsistent occupation is removed
         // AND expect an error to be logged
         expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(`RequiredBy occupation is not in the same model as the Required skill`);
+        expect(console.error).toBeCalledWith(
+          new Error(`RequiredBy occupation is not in the same model as the Required skill`)
+        );
       });
     });
 
@@ -1359,12 +1366,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       mockFind.mockRestore();
     });
 
-    TestDBConnectionFailureNoSetup<unknown>(async (repositoryRegistry) => {
-      const streamOfSkills = repositoryRegistry.skill.findAll(getMockStringId(1));
-      for await (const _ of streamOfSkills) {
-        // iterate over the stream to hot the db and trigger the error
-        // do nothing
-      }
-    });
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) => repositoryRegistry.skill.findAll(getMockStringId(1)));
   });
 });

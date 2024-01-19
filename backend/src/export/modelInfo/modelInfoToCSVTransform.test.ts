@@ -97,9 +97,11 @@ describe("ModelInfosDocToCsvTransform", () => {
       setupModelInfoRepositoryMock(() => givenModelInfo);
       // AND the transformModelInfoToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest.spyOn(SKillsToCSVTransformModule, "transformModelInfoSpecToCSVRow").mockImplementationOnce(() => {
-        throw givenError;
-      });
+      const transformFunctionSpy = jest
+        .spyOn(SKillsToCSVTransformModule, "transformModelInfoSpecToCSVRow")
+        .mockImplementationOnce(() => {
+          throw givenError;
+        });
 
       // WHEN the transformation stream is consumed
       const transformedStream = await ModelInfoToCSVTransform(givenModelInfo.id);
@@ -112,8 +114,16 @@ describe("ModelInfosDocToCsvTransform", () => {
         }
       }).rejects.toThrowError("Failed to transform ModelInfo to CSV row");
       // AND the error to be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
+      const expectedErrorMessage = `Failed to transform ModelInfo to CSV row: ${expectedLoggedItem}`;
+      const expectedError = new Error(expectedErrorMessage, { cause: givenError });
+
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+      );
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause("Transforming ModelInfo to CSV failed", expectedError.message)
+      );
       // AND the stream to end
       expect(transformedStream.closed).toBe(true);
     });

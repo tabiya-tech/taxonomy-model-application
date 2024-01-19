@@ -94,7 +94,10 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       }).rejects.toThrow(givenError);
 
       // THEN the error should be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
+      const expectedErrorMessage = "Transforming ESCO iscoGroups to CSV failed";
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
+      );
 
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
@@ -106,9 +109,11 @@ describe("ISCOGroupsDoc2csvTransform", () => {
 
       // AND  the transformISCOGroupSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
-      jest.spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow").mockImplementationOnce(() => {
-        throw givenError;
-      });
+      const transformFunctionSpy = jest
+        .spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow")
+        .mockImplementationOnce(() => {
+          throw givenError;
+        });
 
       // WHEN the transformation stream is consumed
       const transformedStream = ISCOGroupsToCSVTransform("foo");
@@ -122,9 +127,20 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       }).rejects.toThrowError("Failed to transform ISCOGroup to CSV row");
 
       // THEN the error should be logged
-      expect(console.error).toHaveBeenNthCalledWith(1, expect.any(Error), expect.any(Error));
-      expect(console.error).toHaveBeenNthCalledWith(2, expect.any(Error), expect.any(Error));
+      const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
 
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause(
+          `Failed to transform ISCOGroup to CSV row: ${expectedLoggedItem}`,
+          givenError.message
+        )
+      );
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause(
+          "Transforming ESCO iscoGroups to CSV failed",
+          `Failed to transform ISCOGroup to CSV row: ${expectedLoggedItem}`
+        )
+      );
       // AND the stream should end
       expect(transformedStream.closed).toBe(true);
     });
