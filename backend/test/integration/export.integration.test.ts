@@ -67,6 +67,8 @@ import { ISkillToSkillRelationPair } from "esco/skillToSkillRelation/skillToSkil
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
   const DIR_PATH = "./tmp";
+  const zipFilePath = "./tmp/exportIntegrationTestFile.zip";
+  const outputDir = "./tmp/exportIntegrationTestFileExtract";
   // Backup and restore the original env variables
   beforeAll(() => {
     Object.keys(process.env).forEach((key) => {
@@ -82,12 +84,6 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     Object.keys(originalEnv).forEach((key) => {
       process.env[key] = originalEnv[key];
     });
-    // Cleanup files created for test
-    // CAREFUL ------
-    if (fs.existsSync(DIR_PATH)) {
-      fs.rmSync(DIR_PATH, { recursive: true, force: true });
-    }
-    // --------
   });
 
   // Initialize the server with an in-memory mongodb
@@ -122,6 +118,14 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   });
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+  beforeAll(() => {
+    // Cleanup files created for test
+    // CAREFUL ------
+    if (fs.existsSync(DIR_PATH)) {
+      fs.rmSync(DIR_PATH, { recursive: true, force: true });
+    }
+    // --------
   });
 
   async function createTestData() {
@@ -246,7 +250,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
         return new Promise((resolve, reject) => {
           try {
             fs.mkdirSync(DIR_PATH, { recursive: true });
-            const writeStream = fs.createWriteStream("./tmp/exportIntegrationTestFile.zip");
+            const writeStream = fs.createWriteStream(zipFilePath);
             pipeline(uploadStream, writeStream, (err) => {
               if (err) {
                 console.log("UploadErrored");
@@ -291,7 +295,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     expect(console.warn).not.toHaveBeenCalled();
 
     // AND expect the correct number of exported items for each entity by counting the items in the csv
-    await assertAllItemsAreExported(actualObjects);
+    await assertAllItemsAreExported(actualObjects, zipFilePath, outputDir);
     // AND All resources have been released
     await assertThanAllResourcesAreReleased();
   });
@@ -308,7 +312,7 @@ async function assertAllItemsAreExported(actualObjects: {
   SkillHierarchy: ISkillHierarchyPair[];
   OccupationToSkillRelation: IOccupationToSkillRelationPair[];
   SkillToSkillRelation: ISkillToSkillRelationPair[];
-}) {
+}, zipFilePath: string, outputDir: string) {
   async function countRowsInFile(filePath: fs.PathLike) {
     return new Promise((resolve, reject) => {
       let rowCount = 0;
@@ -354,9 +358,6 @@ async function assertAllItemsAreExported(actualObjects: {
 
     return counts;
   }
-
-  const zipFilePath = "./tmp/exportIntegrationTestFile.zip";
-  const outputDir = "./tmp/exportIntegrationTestFile";
 
   const counts = await extractAndCountRows(zipFilePath, outputDir);
 
