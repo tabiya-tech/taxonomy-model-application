@@ -57,6 +57,10 @@ describe("Test initialization", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  afterEach(() => {
+    jest.resetModules();
+  });
   test("should initialize once", async () => {
     await jest.isolateModulesAsync(async () => {
       // GIVEN the server is not initialized
