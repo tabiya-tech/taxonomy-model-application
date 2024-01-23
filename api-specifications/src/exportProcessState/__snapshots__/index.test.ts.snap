@@ -15,16 +15,25 @@ exports[`Test the exportProcessState module The export module matches the snapsh
         "Payload": {
           "$id": "/components/schemas/ExportProcessStateSchema",
           "additionalProperties": false,
-          "description": "The state of the import process of the model. Since the import process is asynchronous, use the status to check if the import process has completed and the result to check if the process encountered any issues",
+          "description": "The state of the export process of the model. Since the export process is asynchronous, use the status to check if the export process has completed and the result to check if the process encountered any issues",
           "properties": {
             "createdAt": {
               "format": "date-time",
               "type": "string",
             },
             "downloadUrl": {
-              "description": "The url to download the exported model.",
-              "pattern": "^$|^https?://.*",
-              "type": "string",
+              "anyOf": [
+                {
+                  "pattern": "^$",
+                  "type": "string",
+                },
+                {
+                  "format": "uri",
+                  "pattern": "^https://.*",
+                  "type": "string",
+                },
+              ],
+              "description": "The url to download the exported model. It can be empty if the export process is still in running or it has not completed successfully.",
             },
             "id": {
               "description": "The identifier of the specific export state.",
