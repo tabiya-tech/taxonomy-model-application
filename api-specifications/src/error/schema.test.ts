@@ -1,9 +1,9 @@
 import APIError from "./index";
 import {
-  testSchemaWithInvalidObject,
+  testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
-} from "../_test_utilities/stdSchemaTests";
+} from "_test_utilities/stdSchemaTests";
 
 describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.Payload schema
@@ -28,5 +28,5 @@ describe("Validate JSON against the APIError Schema", () => {
 
   // AND WHEN the object has additional properties
   // THEN expect the object to not validate
-  testSchemaWithInvalidObject("APIError.Schemas.Payload", APIError.Schemas.Payload, givenValidAPIError);
+  testSchemaWithAdditionalProperties("APIError.Schemas.Payload", APIError.Schemas.Payload, givenValidAPIError);
 });

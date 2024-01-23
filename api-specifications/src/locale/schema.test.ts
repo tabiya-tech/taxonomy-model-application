@@ -1,10 +1,10 @@
 import { randomUUID } from "crypto";
-import { getTestString } from "../_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/specialCharacters";
 import {
-  testSchemaWithInvalidObject,
+  testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
-} from "../_test_utilities/stdSchemaTests";
+} from "_test_utilities/stdSchemaTests";
 import LocaleAPISpecs from "./index";
 
 describe("Test the Locale Schema", () => {
@@ -28,5 +28,9 @@ describe("Validate JSON against the Locale Schema", () => {
 
   // AND WHEN the object has additional properties
   // THEN expect the object to not validate
-  testSchemaWithInvalidObject("LocaleAPISpecs.Schemas.Payload", LocaleAPISpecs.Schemas.Payload, givenValidLocale);
+  testSchemaWithAdditionalProperties(
+    "LocaleAPISpecs.Schemas.Payload",
+    LocaleAPISpecs.Schemas.Payload,
+    givenValidLocale
+  );
 });

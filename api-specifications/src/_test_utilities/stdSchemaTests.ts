@@ -1,5 +1,8 @@
 import Ajv, { SchemaObject } from "ajv";
 import addFormats from "ajv-formats";
+import { WHITESPACE } from "./specialCharacters";
+import { getMockId } from "./mockMongoId";
+import { assertCaseForProperty, CaseType, constructSchemaError } from "./assertCaseForProperty";
 
 let ajvInstance: Ajv;
 
@@ -22,12 +25,12 @@ export const testValidSchema = (description: string, schema: SchemaObject, depen
 };
 
 export const testSchemaWithValidObject = (
-  description: string,
+  schemaName: string,
   schema: SchemaObject,
   validObject: object,
   dependencies: SchemaObject[] = []
 ) => {
-  test(`Schema ${description} validates a valid object`, () => {
+  test(`Schema ${schemaName} validates a valid object`, () => {
     ajvInstance.addSchema(schema, schema.$id);
     dependencies?.forEach((dependency) => ajvInstance.addSchema(dependency, dependency.$id));
     const validateFunction = ajvInstance.getSchema(schema.$id as string);
@@ -45,7 +48,7 @@ export const testSchemaWithValidObject = (
   });
 };
 
-export const testSchemaWithInvalidObject = (
+export const testSchemaWithAdditionalProperties = (
   description: string,
   schema: SchemaObject,
   validObject: object,
@@ -72,22 +75,81 @@ export const testSchemaWithInvalidObject = (
   });
 };
 
-export const assertValidationErrors = (
-  givenObject: unknown,
-  givenSchema: SchemaObject,
-  failure: Array<unknown>,
-  dependencies: SchemaObject[] = []
-) => {
-  ajvInstance.addSchema(givenSchema, givenSchema.$id);
-  dependencies?.forEach((dependency) => ajvInstance.addSchema(dependency, dependency.$id));
-  const validateFunction = ajvInstance.getSchema(givenSchema.$id as string);
+export function testObjectIdField<T>(fieldName: string, givenSchema: SchemaObject) {
+  test.each([
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError("", "required", `must have required property '${fieldName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be string")],
+    [
+      CaseType.Failure,
+      "only whitespace characters",
+      WHITESPACE,
+      constructSchemaError(`/${fieldName}`, "pattern", 'must match pattern "^[0-9a-f]{24}$"'),
+    ],
+    [
+      CaseType.Failure,
+      "random string",
+      "foo",
+      constructSchemaError(`/${fieldName}`, "pattern", 'must match pattern "^[0-9a-f]{24}$"'),
+    ],
+    [CaseType.Success, "a valid id", getMockId(1), undefined],
+  ])(`(%s) Validate ${fieldName} when it is %s`, (caseType, description, givenValue, failureMessages) => {
+    // GIVEN an object with the given value
+    //@ts-ignore
+    const givenObject: T = {
+      [fieldName]: givenValue,
+    };
+    // THEN expect the object to validate accordingly
+    assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages);
+  });
+}
 
-  if (typeof validateFunction !== "function") {
-    throw new Error(`Schema with ID ${givenSchema.$id} was not found in AJV instance.`);
-  }
-
-  const result = validateFunction(givenObject);
-  expect(result).toBeFalsy();
-  expect(validateFunction.errors).not.toBeNull();
-  expect(validateFunction.errors).toEqual(expect.arrayContaining(failure));
-};
+export function testTimestampField<T>(fieldName: string, givenSchema: SchemaObject) {
+  test.each([
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError("", "required", `must have required property '${fieldName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be string")],
+    [
+      CaseType.Failure,
+      "only whitespace characters",
+      WHITESPACE,
+      constructSchemaError(`/${fieldName}`, "format", 'must match format "date-time"'),
+    ],
+    [
+      CaseType.Failure,
+      "random string",
+      "foo",
+      constructSchemaError(`/${fieldName}`, "format", 'must match format "date-time"'),
+    ],
+    [CaseType.Failure, "non string date", new Date(), constructSchemaError(`/${fieldName}`, "type", "must be string")],
+    [
+      CaseType.Failure,
+      "a valid UTCString date",
+      new Date().toUTCString(),
+      constructSchemaError(`/${fieldName}`, "format", 'must match format "date-time"'),
+    ],
+    [
+      CaseType.Failure,
+      "a valid DateString date",
+      new Date().toDateString(),
+      constructSchemaError(`/${fieldName}`, "format", 'must match format "date-time"'),
+    ],
+    [CaseType.Success, "a valid ISOString date", new Date().toISOString(), undefined],
+  ])("(%s) Validate 'timestamp' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+    // GIVEN an object with the given value
+    //@ts-ignore
+    const givenObject: T = {
+      [fieldName]: givenValue,
+    };
+    // THEN expect the object to validate accordingly
+    assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages);
+  });
+}
