@@ -1,7 +1,7 @@
 // Suppress chatty console during the tests
 import "_test_utilities/consoleMock";
 
-import Ajv from "ajv";
+import Ajv, { ValidateFunction } from "ajv";
 import { randomUUID } from "crypto";
 import { Connection } from "mongoose";
 
@@ -16,22 +16,84 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { INewImportProcessStateSpec } from "import/ImportProcessState/importProcessState.types";
+import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+import { INewExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
+import { IModelInfo } from "./modelInfo.types";
+
+async function createModelInDB() {
+  return await getRepositoryRegistry().modelInfo.create({
+    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    locale: {
+      UUID: randomUUID(),
+      name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+    },
+    description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+  });
+}
 
 async function createModelsInDB(count: number) {
+  const models: IModelInfo[] = [];
   for (let i = 0; i < count; i++) {
-    await getRepositoryRegistry().modelInfo.create({
-      name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-      locale: {
-        UUID: randomUUID(),
-        name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-        shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-      },
-      description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    });
+    models.push(await createModelInDB());
   }
+  return models;
+}
+
+async function createExportProcessStatesForModel(modelInfo: IModelInfo) {
+  // create an export process for the model
+  const newExportProcessStateSpecs: INewExportProcessStateSpec = {
+    modelId: modelInfo.id,
+    result: {
+      errored: false,
+      exportErrors: false,
+      exportWarnings: false,
+    },
+    status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
+    downloadUrl: "https://foo/bar",
+    timestamp: new Date(),
+  };
+  await getRepositoryRegistry().exportProcessState.create(newExportProcessStateSpecs);
+}
+
+async function createImportProcessStatesForModel(modelInfo: IModelInfo) {
+  // create an import process for the model
+  const newImportProcessStateSpecs: INewImportProcessStateSpec = {
+    // @ts-ignore
+    id: modelInfo.importProcessState.id,
+    modelId: modelInfo.id,
+    result: {
+      errored: false,
+      parsingErrors: false,
+      parsingWarnings: false,
+    },
+    status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+  };
+  await getRepositoryRegistry().importProcessState.create(newImportProcessStateSpecs);
 }
 
 describe("Test for model handler with a DB", () => {
+  // set up the ajv validate GET, POST, etc response functions
+  const ajv = new Ajv({
+    validateSchema: true,
+    strict: true,
+    allErrors: true,
+  });
+  addFormats(ajv);
+  ajv
+    .addSchema(LocaleAPISpecs.Schemas.Payload)
+    .addSchema(ModelInfoAPISpecs.Schemas.GET.Response.Payload)
+    .addSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload);
+  const validateGETResponse: ValidateFunction = ajv.getSchema(
+    ModelInfoAPISpecs.Schemas.GET.Response.Payload.$id as string
+  ) as ValidateFunction;
+  const validatePOSTResponse: ValidateFunction = ajv.getSchema(
+    ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id as string
+  ) as ValidateFunction;
+  // ---
+
   let dbConnection: Connection | undefined;
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
@@ -81,17 +143,8 @@ describe("Test for model handler with a DB", () => {
     // THEN expect the handler to respond with the CREATED status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
     // AND a modelInfo object that validates against the ModelInfoRequest schema
-    const ajv = new Ajv({
-      validateSchema: true,
-      strict: true,
-      allErrors: true,
-    });
-    addFormats(ajv);
-    ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
-    ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload);
-    const validateResponse = ajv.compile(ModelInfoAPISpecs.Schemas.POST.Response.Payload);
-    validateResponse(JSON.parse(actualResponse.body));
-    expect(validateResponse.errors).toBeNull();
+    validatePOSTResponse(JSON.parse(actualResponse.body));
+    expect(validatePOSTResponse.errors).toBeNull();
   });
 
   test("GET should respond with the OK status code and the response passes the JSON Schema validation", async () => {
@@ -103,7 +156,8 @@ describe("Test for model handler with a DB", () => {
       },
     };
     // AND several modelInfo objects are in the DB
-    await createModelsInDB(3);
+    const models = await createModelsInDB(3);
+    expect(models.length).toBeGreaterThan(0); // guard to ensure that we actually have models in the DB
 
     // WHEN the handler is invoked with the given event
     // @ts-ignore
@@ -111,17 +165,39 @@ describe("Test for model handler with a DB", () => {
 
     // THEN expect the handler to respond with the OK status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
     // AND a modelInfo object that validates against the ModelInfoResponseGET schema
-    const ajv = new Ajv({
-      validateSchema: true,
-      strict: true,
-      allErrors: true,
-    });
-    addFormats(ajv);
-    ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
-    ajv.addSchema(ModelInfoAPISpecs.Schemas.GET.Response.Payload);
-    const validateResponse = ajv.compile(ModelInfoAPISpecs.Schemas.GET.Response.Payload);
-    validateResponse(JSON.parse(actualResponse.body));
-    expect(validateResponse.errors).toBeNull();
+    validateGETResponse(JSON.parse(actualResponse.body));
+    expect(validateGETResponse.errors).toBeNull();
+  });
+
+  test("GET should respond with OK status code and the response passes the JSON Schema validation when there are export and import processes states", async () => {
+    // GIVEN a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    // AND several modelInfo objects are in the DB
+    const models = await createModelsInDB(3);
+    expect(models.length).toBeGreaterThan(0); // guard to ensure that we actually have models in the DB
+
+    // AND each model has an import and an export process state
+    for (const model of models) {
+      await createImportProcessStatesForModel(model);
+      await createExportProcessStatesForModel(model);
+    }
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelHandler(givenEvent);
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    // AND a modelInfo object that validates against the ModelInfoResponseGET schema
+    validateGETResponse(JSON.parse(actualResponse.body));
+    expect(validateGETResponse.errors).toBeNull();
   });
 });
