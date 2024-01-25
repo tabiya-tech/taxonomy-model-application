@@ -139,6 +139,46 @@ describe("Test the ImportProcessState Repository with an in-memory mongodb", () 
       });
     });
 
+    test("should successfully update an ImportProcessState status", async () => {
+      // GIVEN an ImportProcessState in the database
+      const givenNewImportProcessStateSpec = getNewImportProcessStatusSpec();
+      const createdImportProcessState = await repository.create(givenNewImportProcessStateSpec);
+
+      // WHEN updating ImportProcessState
+      const updatedImportProcessState = await repository.update(createdImportProcessState.id, {
+        status: ImportProcessStateApiSpecs.Enums.Status.COMPLETED,
+      });
+
+      // THEN expect the updated ImportProcessState to match the given spec
+      expect(updatedImportProcessState).toEqual({
+        ...expectedFromGivenSpec(givenNewImportProcessStateSpec),
+        status: ImportProcessStateApiSpecs.Enums.Status.COMPLETED,
+      });
+    });
+
+    test("should successfully update an ImportProcessState result", async () => {
+      // GIVEN an ImportProcessState in the database
+      const givenNewImportProcessStateSpec = getNewImportProcessStatusSpec();
+      const createdImportProcessState = await repository.create(givenNewImportProcessStateSpec);
+      // AND a result
+      const givenResult = {
+        errored: false,
+        parsingErrors: false,
+        parsingWarnings: true,
+      };
+
+      // WHEN updating the ImportProcessState
+      const updatedImportProcessState = await repository.update(createdImportProcessState.id, {
+        result: givenResult,
+      });
+
+      // THEN expect the updated ImportProcessState to match the given spec
+      expect(updatedImportProcessState).toEqual({
+        ...expectedFromGivenSpec(givenNewImportProcessStateSpec),
+        result: givenResult,
+      });
+    });
+
     test("should reject with an error when updating an ImportProcessState that does not exist", async () => {
       // GIVEN an id of  ImportProcessState that does not exist
       const givenId = getMockStringId(1);

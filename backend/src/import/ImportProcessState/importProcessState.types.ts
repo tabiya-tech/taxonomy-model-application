@@ -4,7 +4,7 @@ import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
  * Describes how an import process state is saved in Database
  */
 export interface IImportProcessStateDoc {
-  id: mongoose.Types.ObjectId;
+  id: mongoose.Types.ObjectId; // we add an id field to the document, because we need to provide it upfront when creating a new document
   modelId: mongoose.Types.ObjectId;
   status: ImportProcessStateApiSpecs.Enums.Status;
   result: ImportProcessStateApiSpecs.Types.Result;
@@ -28,4 +28,4 @@ export type INewImportProcessStateSpec = Omit<IImportProcessState, "createdAt" |
 /**
  *  Describes how an import process state is updated with the API
  */
-export type IUpdateImportProcessStateSpec = Omit<IImportProcessState, "id" | "modelId" | "createdAt" | "updatedAt">;
+export type IUpdateImportProcessStateSpec = Partial<Omit<IImportProcessStateDoc, "id" | "modelId">>;
