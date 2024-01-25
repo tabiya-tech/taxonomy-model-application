@@ -61,12 +61,24 @@ export class ExportProcessStateRepository implements IExportProcessStateReposito
 
   async update(id: string, updateSpecs: IUpdateExportProcessStateSpec): Promise<IExportProcessState> {
     try {
-      const updateResult = await this.Model.updateOne({ _id: id }, updateSpecs).exec();
-      if (!updateResult.modifiedCount) {
+      const doc = await this.Model.findById(id).exec();
+      if (doc === null) {
         throw new Error("Update failed to find export process with id: " + id);
       }
-      const exportProcessState = (await this.Model.findById(id)) as mongoose.Document<IExportProcessStateDoc>;
-      return exportProcessState.toObject();
+      if (updateSpecs.status) {
+        doc.status = updateSpecs.status;
+      }
+      if (updateSpecs.result) {
+        doc.result = updateSpecs.result;
+      }
+      if (updateSpecs.downloadUrl) {
+        doc.downloadUrl = updateSpecs.downloadUrl;
+      }
+      if (updateSpecs.timestamp) {
+        doc.timestamp = updateSpecs.timestamp;
+      }
+      await doc.save();
+      return doc.toObject();
     } catch (e: unknown) {
       const err = new Error("ExportProcessStateRepository.update: update failed", { cause: e });
       console.error(err);
