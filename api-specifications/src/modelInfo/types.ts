@@ -50,7 +50,9 @@ namespace ModelInfoTypes {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _ = 0;
   // ---
-
+  export namespace Response {
+    export type IModelInfo = IModelInfoResponse;
+  }
   export namespace POST {
     export namespace Response {
       export type Payload = IModelInfoResponse;
@@ -61,7 +63,8 @@ namespace ModelInfoTypes {
   }
   export namespace GET {
     export namespace Response {
-      export type Payload = IModelInfoResponse[];
+      export type ModelInfoItem = IModelInfoResponse;
+      export type Payload = ModelInfoItem[];
     }
   }
 }
