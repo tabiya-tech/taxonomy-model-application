@@ -116,9 +116,19 @@ export const _baseResponseSchema = {
             required: ["errored", "exportErrors", "exportWarnings"],
           },
           downloadUrl: {
-            description: "The url to download the exported model.",
-            type: "string",
-            pattern: "^$|^https?://.*",
+            description:
+              "The url to download the exported model. It can be empty if the export process is still in running or it has not completed successfully.",
+            anyOf: [
+              {
+                type: "string",
+                pattern: "^$", // Allow empty string
+              },
+              {
+                type: "string",
+                format: "uri",
+                pattern: "^https://.*", // accept only https
+              },
+            ],
           },
           timestamp: {
             description: "The timestamp of the export process.",
