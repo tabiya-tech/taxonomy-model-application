@@ -3,7 +3,8 @@ import {
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testStringField,
-  testUUIDArray, testValidSchema,
+  testUUIDArray,
+  testValidSchema,
 } from "_test_utilities/stdSchemaTests";
 import ModelInfoAPISpecs from "./index";
 import ModelInfoConstants from "./constants";

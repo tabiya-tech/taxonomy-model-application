@@ -236,18 +236,8 @@ export function testBooleanField(fieldName: string, givenSchema: SchemaObject, d
     ],
     [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
     [CaseType.Failure, "not boolean", "foo", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
-    [
-      CaseType.Failure,
-      "string (true)",
-      "true",
-      constructSchemaError(`/${fieldName}`, "type", "must be boolean"),
-    ],
-    [
-      CaseType.Failure,
-      "string (false)",
-      "false",
-      constructSchemaError(`/${fieldName}`, "type", "must be boolean"),
-    ],
+    [CaseType.Failure, "string (true)", "true", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
+    [CaseType.Failure, "string (false)", "false", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
     [CaseType.Success, "true", true, undefined],
     [CaseType.Success, "false", false, undefined],
   ])(`(%s) Validate ${fieldName} when it is %s`, (caseType, _description, givenValue, failureMessages) => {

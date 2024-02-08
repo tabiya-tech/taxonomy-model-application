@@ -10,7 +10,8 @@ import {
   testUUIDArray,
   testUUIDField,
   testURIField,
-  testEnumField, testValidSchema,
+  testEnumField,
+  testValidSchema,
 } from "_test_utilities/stdSchemaTests";
 import ModelInfoAPISpecs from "./index";
 import ModelInfoConstants from "./constants";
@@ -282,7 +283,6 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
     });
 
     describe("Test validation of exportProcessState fields", () => {
-
       describe("Test validation of 'exportProcessState/id'", () => {
         test.each([...getStdObjectIdTestCases("/exportProcessState/0/id")])(
           `(%s) Validate id when it is %s`,
