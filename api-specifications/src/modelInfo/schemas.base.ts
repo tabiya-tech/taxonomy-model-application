@@ -7,7 +7,7 @@ import ExportProcessState from "../exportProcessState";
 /**
  *  The base schema for the model info request
  *  This is a workaround the fact that ajv does truly not support inheritance
- *  Using schema composition with allOf does not work as the additionalProperties = fasle
+ *  Using schema composition with allOf does not work as the additionalProperties = false
  *  and the suggested solution with unevaluatedProperties = false does not work either
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,12 +54,16 @@ export const _baseResponseSchema = {
     path: {
       description: "The path to the model resource using the resource id",
       type: "string",
-      pattern: RegExp_Str_NotEmptyString,
+      format: "uri",
+      pattern: "^https://.*", // accept only https
+      maxLength: ModelInfoConstants.MAX_URI_LENGTH,
     },
     tabiyaPath: {
       description: "The path to the model resource using the resource UUID",
       type: "string",
-      pattern: RegExp_Str_NotEmptyString,
+      format: "uri",
+      pattern: "^https://.*", // accept only https
+      maxLength: ModelInfoConstants.MAX_URI_LENGTH,
     },
     released: {
       description: "Whether the model is released or not",
@@ -118,17 +122,17 @@ export const _baseResponseSchema = {
           downloadUrl: {
             description:
               "The url to download the exported model. It can be empty if the export process is still in running or it has not completed successfully.",
+            type: "string",
             anyOf: [
               {
-                type: "string",
                 pattern: "^$", // Allow empty string
               },
               {
-                type: "string",
                 format: "uri",
                 pattern: "^https://.*", // accept only https
               },
             ],
+            maxLength: ModelInfoConstants.MAX_URI_LENGTH,
           },
           timestamp: {
             description: "The timestamp of the export process.",

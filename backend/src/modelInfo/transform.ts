@@ -2,7 +2,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { Routes } from "routes.constant";
 
-export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.Types.Response.IModelInfo  {
+export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.Types.Response.IModelInfo {
   return {
     id: data.id,
     UUID: data.UUID,

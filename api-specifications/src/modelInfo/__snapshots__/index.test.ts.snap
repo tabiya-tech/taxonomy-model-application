@@ -5,6 +5,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
   "Constants": {
     "DESCRIPTION_MAX_LENGTH": 4000,
     "MAX_PAYLOAD_LENGTH": 6000,
+    "MAX_URI_LENGTH": 4096,
     "NAME_MAX_LENGTH": 256,
     "RELEASE_NOTES_MAX_LENGTH": 100000,
     "VERSION_MAX_LENGTH": 256,
@@ -66,15 +67,15 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                       "anyOf": [
                         {
                           "pattern": "^$",
-                          "type": "string",
                         },
                         {
                           "format": "uri",
                           "pattern": "^https://.*",
-                          "type": "string",
                         },
                       ],
                       "description": "The url to download the exported model. It can be empty if the export process is still in running or it has not completed successfully.",
+                      "maxLength": 4096,
+                      "type": "string",
                     },
                     "id": {
                       "description": "The identifier of the specific export state.",
@@ -198,7 +199,9 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               },
               "path": {
                 "description": "The path to the model resource using the resource id",
-                "pattern": "\\S",
+                "format": "uri",
+                "maxLength": 4096,
+                "pattern": "^https://.*",
                 "type": "string",
               },
               "releaseNotes": {
@@ -212,7 +215,9 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               },
               "tabiyaPath": {
                 "description": "The path to the model resource using the resource UUID",
-                "pattern": "\\S",
+                "format": "uri",
+                "maxLength": 4096,
+                "pattern": "^https://.*",
                 "type": "string",
               },
               "updatedAt": {
@@ -324,15 +329,15 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                     "anyOf": [
                       {
                         "pattern": "^$",
-                        "type": "string",
                       },
                       {
                         "format": "uri",
                         "pattern": "^https://.*",
-                        "type": "string",
                       },
                     ],
                     "description": "The url to download the exported model. It can be empty if the export process is still in running or it has not completed successfully.",
+                    "maxLength": 4096,
+                    "type": "string",
                   },
                   "id": {
                     "description": "The identifier of the specific export state.",
@@ -456,7 +461,9 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             },
             "path": {
               "description": "The path to the model resource using the resource id",
-              "pattern": "\\S",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
               "type": "string",
             },
             "releaseNotes": {
@@ -470,7 +477,9 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             },
             "tabiyaPath": {
               "description": "The path to the model resource using the resource UUID",
-              "pattern": "\\S",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
               "type": "string",
             },
             "updatedAt": {
