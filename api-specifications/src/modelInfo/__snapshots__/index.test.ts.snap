@@ -91,11 +91,11 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                           "type": "boolean",
                         },
                         "exportErrors": {
-                          "description": "if the export encountered errors while processing the data and generating the csv files.",
+                          "description": "if the export encountered errors while export the csv files.",
                           "type": "boolean",
                         },
                         "exportWarnings": {
-                          "description": "if the export encountered warnings while exporting the data.",
+                          "description": "if the export encountered warnings while export the csv files.",
                           "type": "boolean",
                         },
                       },
@@ -107,7 +107,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                       "type": "object",
                     },
                     "status": {
-                      "description": "The status of the export of the model.",
+                      "description": "The status of the export process of the model.",
                       "enum": [
                         "pending",
                         "running",
@@ -353,11 +353,11 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                         "type": "boolean",
                       },
                       "exportErrors": {
-                        "description": "if the export encountered errors while processing the data and generating the csv files.",
+                        "description": "if the export encountered errors while export the csv files.",
                         "type": "boolean",
                       },
                       "exportWarnings": {
-                        "description": "if the export encountered warnings while exporting the data.",
+                        "description": "if the export encountered warnings while export the csv files.",
                         "type": "boolean",
                       },
                     },
@@ -369,7 +369,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                     "type": "object",
                   },
                   "status": {
-                    "description": "The status of the export of the model.",
+                    "description": "The status of the export process of the model.",
                     "enum": [
                       "pending",
                       "running",
