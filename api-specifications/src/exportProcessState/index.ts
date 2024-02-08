@@ -4,6 +4,7 @@
 import SchemaGETResponse from "./schema.GET.response";
 import ExportProcessStateEnums from "./enums";
 import ExportProcessStateTypes from "./types";
+import ExportProcessStateConstants from "./constants";
 
 /**
  * This file should be imported in the following way
@@ -23,6 +24,7 @@ namespace ExportProcessSchemas {
 
 namespace ExportProcessStateAPISpecs {
   export import Enums = ExportProcessStateEnums;
+  export import Constants = ExportProcessStateConstants;
   export import Types = ExportProcessStateTypes;
   export import Schemas = ExportProcessSchemas;
 }

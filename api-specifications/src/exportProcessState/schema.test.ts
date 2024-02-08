@@ -310,7 +310,6 @@ describe("Validate JSON against the ExportProcessStateAPISpecs Schema", () => {
           null,
           [
             constructSchemaError("/downloadUrl", "type", "must be string"),
-            constructSchemaError("/downloadUrl", "anyOf", "must match a schema in anyOf"),
           ],
         ],
         [

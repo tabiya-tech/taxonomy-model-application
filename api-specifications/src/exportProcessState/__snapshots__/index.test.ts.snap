@@ -2,6 +2,9 @@
 
 exports[`Test the exportProcessState module The export module matches the snapshot 1`] = `
 {
+  "Constants": {
+    "MAX_URI_LENGTH": 4096,
+  },
   "Enums": {
     "Status": {
       "COMPLETED": "completed",
@@ -25,15 +28,15 @@ exports[`Test the exportProcessState module The export module matches the snapsh
               "anyOf": [
                 {
                   "pattern": "^$",
-                  "type": "string",
                 },
                 {
                   "format": "uri",
                   "pattern": "^https://.*",
-                  "type": "string",
                 },
               ],
               "description": "The url to download the exported model. It can be empty if the export process is still in running or it has not completed successfully.",
+              "maxLength": 4096,
+              "type": "string",
             },
             "id": {
               "description": "The identifier of the specific export state.",

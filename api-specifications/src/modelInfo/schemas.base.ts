@@ -1,8 +1,8 @@
 import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4 } from "../regex";
 import ModelInfoConstants from "./constants";
 import Locale from "../locale";
-import ImportProcessState from "../importProcessState";
-import ExportProcessState from "../exportProcessState";
+import {baseImportProcessStateProperties} from "../importProcessState/schema.GET.response";
+import {baseExportProcessStateProperties} from "../exportProcessState/schema.GET.response";
 
 /**
  *  The base schema for the model info request
@@ -86,60 +86,7 @@ export const _baseResponseSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        properties: {
-          id: {
-            description: "The identifier of the specific export state.",
-            type: "string",
-            pattern: RegExp_Str_ID,
-          },
-          status: {
-            description: "The status of the export of the model.",
-            type: "string",
-            enum: Object.values(ExportProcessState.Enums.Status),
-          },
-          result: {
-            description:
-              "The result of the export process of the model. It can be errored, export errors or export warnings.",
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              errored: {
-                description:
-                  "if the export process has completed or it was did not complete due to some unexpected error.",
-                type: "boolean",
-              },
-              exportErrors: {
-                description: "if the export encountered errors while processing the data and generating the csv files.",
-                type: "boolean",
-              },
-              exportWarnings: {
-                description: "if the export encountered warnings while exporting the data.",
-                type: "boolean",
-              },
-            },
-            required: ["errored", "exportErrors", "exportWarnings"],
-          },
-          downloadUrl: {
-            description:
-              "The url to download the exported model. It can be empty if the export process is still in running or it has not completed successfully.",
-            type: "string",
-            anyOf: [
-              {
-                pattern: "^$", // Allow empty string
-              },
-              {
-                format: "uri",
-                pattern: "^https://.*", // accept only https
-              },
-            ],
-            maxLength: ModelInfoConstants.MAX_URI_LENGTH,
-          },
-          timestamp: {
-            description: "The timestamp of the export process.",
-            type: "string",
-            format: "date-time",
-          },
-        },
+        properties: { ...JSON.parse(JSON.stringify(baseExportProcessStateProperties))}, // deep copy the base exportProcessState properties
         required: ["id", "status", "downloadUrl", "timestamp", "result"],
       },
     },
@@ -147,40 +94,7 @@ export const _baseResponseSchema = {
       description: "The import process state of the model.",
       type: "object",
       additionalProperties: false,
-      properties: {
-        id: {
-          description: "The identifier of the specific import state.",
-          type: "string",
-          pattern: RegExp_Str_ID,
-        },
-        status: {
-          description: "The status of the import process of the model.",
-          type: "string",
-          enum: Object.values(ImportProcessState.Enums.Status),
-        },
-        result: {
-          description:
-            "The result of the import process of the model. It can be errored, parsing errors or parsing warnings.",
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            errored: {
-              description:
-                "if the import process has completed or it was did not complete due to some unexpected error.",
-              type: "boolean",
-            },
-            parsingErrors: {
-              description: "if the import encountered errors while parsing the csv files.",
-              type: "boolean",
-            },
-            parsingWarnings: {
-              description: "if the import encountered warnings while parsing the csv files.",
-              type: "boolean",
-            },
-          },
-          required: ["errored", "parsingErrors", "parsingWarnings"],
-        },
-      },
+      properties: { ...JSON.parse(JSON.stringify(baseImportProcessStateProperties))}, // deep copy the base importProcessState properties
       required: ["id", "status", "result"],
     },
     createdAt: { type: "string", format: "date-time" },

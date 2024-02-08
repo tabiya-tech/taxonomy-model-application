@@ -43,6 +43,10 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
           validator: (value: string) => /^$|^https?:\/\/.*/.test(value),
           message: (props) => `${props.value} is not a valid URL`,
         },
+        maxLength: [
+          ExportProcessStateApiSpecs.Constants.MAX_URI_LENGTH,
+          `DownloadUrl must be at most ${ExportProcessStateApiSpecs.Constants.MAX_URI_LENGTH} chars long`,
+        ],
       },
       timestamp: {
         type: Date,
