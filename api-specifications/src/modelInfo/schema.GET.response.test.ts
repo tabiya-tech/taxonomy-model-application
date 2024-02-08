@@ -11,7 +11,8 @@ import {
   testUUIDField,
   testURIField,
   testArraySchemaFailureWithValidObject,
-  testEnumField, testValidSchema,
+  testEnumField,
+  testValidSchema,
 } from "_test_utilities/stdSchemaTests";
 import {
   getStdObjectIdTestCases,
@@ -282,7 +283,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     });
 
     describe("Test validation of exportProcessState fields", () => {
-
       describe("Test validation of 'exportProcessState/id'", () => {
         test.each([...getStdObjectIdTestCases("/exportProcessState/0/id")])(
           `(%s) Validate id when it is %s`,
@@ -460,7 +460,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     });
 
     describe("Test validation of importProcessState fields", () => {
-
       describe("Test validation of 'importProcessState/id'", () => {
         testObjectIdField("importProcessState/id", givenSchema, [LocaleAPISpecs.Schemas.Payload]);
       });

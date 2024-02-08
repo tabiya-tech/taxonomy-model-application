@@ -1,8 +1,8 @@
 import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4 } from "../regex";
 import ModelInfoConstants from "./constants";
 import Locale from "../locale";
-import {baseImportProcessStateProperties} from "../importProcessState/schema.GET.response";
-import {baseExportProcessStateProperties} from "../exportProcessState/schema.GET.response";
+import { baseImportProcessStateProperties } from "../importProcessState/schema.GET.response";
+import { baseExportProcessStateProperties } from "../exportProcessState/schema.GET.response";
 
 /**
  *  The base schema for the model info request
@@ -86,7 +86,7 @@ export const _baseResponseSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        properties: { ...JSON.parse(JSON.stringify(baseExportProcessStateProperties))}, // deep copy the base exportProcessState properties
+        properties: { ...JSON.parse(JSON.stringify(baseExportProcessStateProperties)) }, // deep copy the base exportProcessState properties
         required: ["id", "status", "downloadUrl", "timestamp", "result"],
       },
     },
@@ -94,7 +94,7 @@ export const _baseResponseSchema = {
       description: "The import process state of the model.",
       type: "object",
       additionalProperties: false,
-      properties: { ...JSON.parse(JSON.stringify(baseImportProcessStateProperties))}, // deep copy the base importProcessState properties
+      properties: { ...JSON.parse(JSON.stringify(baseImportProcessStateProperties)) }, // deep copy the base importProcessState properties
       required: ["id", "status", "result"],
     },
     createdAt: { type: "string", format: "date-time" },
