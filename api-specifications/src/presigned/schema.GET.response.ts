@@ -1,5 +1,6 @@
 import { SchemaObject } from "ajv";
 import { RegExp_Str_NotEmptyString } from "../regex";
+import PresignedConstants from "./constants";
 
 const SchemaGETResponse: SchemaObject = {
   $id: "/components/schemas/PresignedResponseSchemaGET",
@@ -11,6 +12,8 @@ const SchemaGETResponse: SchemaObject = {
       description: "The url to upload the files to",
       type: "string",
       format: "uri",
+      pattern: "^https://.*", // accept only https
+      maxLength: PresignedConstants.MAX_URI_LENGTH,
     },
     fields: {
       description: "The fields should be added to the form-data when uploading the files",
@@ -35,6 +38,7 @@ const SchemaGETResponse: SchemaObject = {
       description: "The folder name to upload the files to",
       type: "string",
       pattern: RegExp_Str_NotEmptyString,
+      maxLength: PresignedConstants.MAX_FOLDER_NAME_LENGTH,
     },
   },
   required: ["url", "fields", "folder"],
