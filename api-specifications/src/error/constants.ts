@@ -20,5 +20,8 @@ namespace ErrorConstants {
     BAD_REQUEST = "Bad Request",
     INVALID_JSON_SCHEMA = "Invalid json schema",
   }
+
+  export const MAX_DETAILS_LENGTH = 4000;
+  export const MAX_MESSAGE_LENGTH = 256;
 }
 export default ErrorConstants;

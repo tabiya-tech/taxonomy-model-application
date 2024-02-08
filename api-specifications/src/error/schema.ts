@@ -23,11 +23,13 @@ export const ErrorSchema: SchemaObject = {
     message: {
       description: "A human readable description of the error",
       type: "string",
+      maxLength: ErrorConstants.MAX_MESSAGE_LENGTH,
     },
     details: {
       description:
         "Additional details about the error. Might be an empty string if no additional details are available",
       type: "string",
+      maxLength: ErrorConstants.MAX_DETAILS_LENGTH,
     },
   },
   required: ["errorCode", "message", "details"],
