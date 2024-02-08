@@ -6,9 +6,13 @@ import {
   testObjectIdField,
   testValidSchema,
   testTimestampField,
+  testEnumField,
+  testBooleanField,
 } from "_test_utilities/stdSchemaTests";
 import { WHITESPACE } from "_test_utilities/specialCharacters";
+import ExportProcessStateConstants from "exportProcessState/constants";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
+import { getStdURIFieldTestCases } from "_test_utilities/stdSchemaTestCases";
 
 describe("Test the ExportProcessStateAPISpecs Schema", () => {
   // GIVEN the ExportProcessStateAPISpecs.Schemas.GET.Response.Payload schema
@@ -55,68 +59,21 @@ describe("Validate JSON against the ExportProcessStateAPISpecs Schema", () => {
     givenValidExportProcessState
   );
 
-  describe("Validate ExportProcessState fields", () => {
+  describe("Validate ExportProcessStateAPISpecs.Schemas.GET.Response.Payload fields", () => {
     describe("Test validation of 'id'", () => {
-      testObjectIdField(
-        "id",
-        ExportProcessStateAPISpecs.Schemas.GET.Response.Payload
-      );
+      testObjectIdField("id", ExportProcessStateAPISpecs.Schemas.GET.Response.Payload);
     });
 
     describe("Test validation of modelId", () => {
-      testObjectIdField(
-        "modelId",
-        ExportProcessStateAPISpecs.Schemas.GET.Response.Payload
-      );
+      testObjectIdField("modelId", ExportProcessStateAPISpecs.Schemas.GET.Response.Payload);
     });
 
     describe("Test validation of 'status'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("", "required", "must have required property 'status'"),
-        ],
-        [
-          CaseType.Failure,
-          "null",
-          null,
-          [
-            constructSchemaError("/status", "type", "must be string"),
-            constructSchemaError("/status", "enum", "must be equal to one of the allowed values"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          [constructSchemaError("/status", "enum", "must be equal to one of the allowed values")],
-        ],
-        [
-          CaseType.Failure,
-          "random string",
-          "foo",
-          [constructSchemaError("/status", "enum", "must be equal to one of the allowed values")],
-        ],
-        [CaseType.Success, "a valid PENDING status", ExportProcessStateAPISpecs.Enums.Status.PENDING, undefined],
-        [CaseType.Success, "a valid RUNNING status", ExportProcessStateAPISpecs.Enums.Status.RUNNING, undefined],
-        [CaseType.Success, "a valid COMPLETED status", ExportProcessStateAPISpecs.Enums.Status.COMPLETED, undefined],
-      ])("(%s) Validate 'status' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
-        const givenObject: ExportProcessStateAPISpecs.Types.GET.Response.Payload = {
-          // @ts-ignore
-          status: givenValue,
-        };
-        // THEN expect the object to validate accordingly
-        assertCaseForProperty(
-          "status",
-          givenObject,
-          ExportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-          caseType,
-          failureMessages
-        );
-      });
+      testEnumField(
+        "status",
+        ExportProcessStateAPISpecs.Schemas.GET.Response.Payload,
+        Object.values(ExportProcessStateAPISpecs.Enums.Status)
+      );
     });
 
     describe("Test validation of 'result'", () => {
@@ -172,121 +129,24 @@ describe("Validate JSON against the ExportProcessStateAPISpecs Schema", () => {
       });
     });
 
-    describe("Test validation of 'result.errored'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("/result", "required", "must have required property 'errored'"),
-        ],
-        [CaseType.Failure, "null", null, constructSchemaError("/result/errored", "type", "must be boolean")],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          constructSchemaError("/result/errored", "type", "must be boolean"),
-        ],
-        [CaseType.Failure, "random string", "foo", constructSchemaError("/result/errored", "type", "must be boolean")],
-        [CaseType.Success, "a valid boolean", false, undefined],
-      ])("(%s) Validate 'result.errored' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
-        const givenObject: ExportProcessStateAPISpecs.Types.GET.Response.Payload = {
-          // @ts-ignore
-          result: {
-            // @ts-ignore
-            errored: givenValue,
-          },
-        };
-        // THEN expect the object to validate accordingly
-        assertCaseForProperty(
-          "result/errored",
-          givenObject,
-          ExportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-          caseType,
-          failureMessages
-        );
-      });
-    });
+    describe.each([["result/exportWarnings"], ["result/exportErrors"], ["result/errored"]])(
+      `Test validation of '%s'`,
+      (propertyName) => {
+        testBooleanField(propertyName, ExportProcessStateAPISpecs.Schemas.GET.Response.Payload);
+      }
+    );
 
-    describe("Test validation of 'result.exportErrors'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("/result", "required", "must have required property 'exportErrors'"),
-        ],
-        [CaseType.Failure, "null", null, constructSchemaError("/result/exportErrors", "type", "must be boolean")],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          constructSchemaError("/result/exportErrors", "type", "must be boolean"),
-        ],
-        [
-          CaseType.Failure,
-          "random string",
-          "foo",
-          constructSchemaError("/result/exportErrors", "type", "must be boolean"),
-        ],
-        [CaseType.Success, "a valid boolean", false, undefined],
-      ])("(%s) Validate 'result.exportErrors' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
-        const givenObject: ExportProcessStateAPISpecs.Types.GET.Response.Payload = {
-          // @ts-ignore
-          result: {
-            // @ts-ignore
-            exportErrors: givenValue,
-          },
-        };
-        // THEN expect the object to validate accordingly
-        assertCaseForProperty(
-          "result/exportErrors",
-          givenObject,
-          ExportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-          caseType,
-          failureMessages
-        );
-      });
-    });
-
-    describe("Test validation of 'result.exportWarnings'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("/result", "required", "must have required property 'exportWarnings'"),
-        ],
-        [CaseType.Failure, "null", null, constructSchemaError("/result/exportWarnings", "type", "must be boolean")],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          constructSchemaError("/result/exportWarnings", "type", "must be boolean"),
-        ],
-        [
-          CaseType.Failure,
-          "random string",
-          "foo",
-          constructSchemaError("/result/exportWarnings", "type", "must be boolean"),
-        ],
-        [CaseType.Success, "a valid boolean", false, undefined],
-      ])(
-        "(%s) Validate 'result.exportWarnings' when it is %s",
+    describe("Test validation of 'downloadUrl'", () => {
+      test.each(getStdURIFieldTestCases("downloadUrl", ExportProcessStateConstants.MAX_URI_LENGTH, true))(
+        "(%s) Validate 'downloadUrl' when it is %s",
         (caseType, _description, givenValue, failureMessages) => {
           // GIVEN an object with the given value
-          const givenObject: ExportProcessStateAPISpecs.Types.GET.Response.Payload = {
-            // @ts-ignore
-            result: {
-              // @ts-ignore
-              exportWarnings: givenValue,
-            },
+          const givenObject = {
+            downloadUrl: givenValue,
           };
           // THEN expect the object to validate accordingly
           assertCaseForProperty(
-            "result/exportWarnings",
+            "downloadUrl",
             givenObject,
             ExportProcessStateAPISpecs.Schemas.GET.Response.Payload,
             caseType,
@@ -294,94 +154,6 @@ describe("Validate JSON against the ExportProcessStateAPISpecs Schema", () => {
           );
         }
       );
-    });
-
-    describe("Test validation of 'downloadUrl'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("", "required", "must have required property 'downloadUrl'"),
-        ],
-        [
-          CaseType.Failure,
-          "null",
-          null,
-          [
-            constructSchemaError("/downloadUrl", "type", "must be string"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          [
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^$"'),
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^https://.*"'),
-            constructSchemaError("/downloadUrl", "format", 'must match format "uri"'),
-            constructSchemaError("/downloadUrl", "anyOf", "must match a schema in anyOf"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "random string",
-          "foo",
-          [
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^$"'),
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^https://.*"'),
-            constructSchemaError("/downloadUrl", "format", 'must match format "uri"'),
-            constructSchemaError("/downloadUrl", "anyOf", "must match a schema in anyOf"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "a valid HTTP URL",
-          "http://foo.bar.com",
-          [
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^$"'),
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^https://.*"'),
-            constructSchemaError("/downloadUrl", "anyOf", "must match a schema in anyOf"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "a valid FTP URL",
-          "ftp://foo.bar.com",
-          [
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^$"'),
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^https://.*"'),
-            constructSchemaError("/downloadUrl", "anyOf", "must match a schema in anyOf"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "SMTP URL",
-          "smtp://smtp.foo.bar.com",
-          [
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^$"'),
-            constructSchemaError("/downloadUrl", "pattern", 'must match pattern "^https://.*"'),
-            constructSchemaError("/downloadUrl", "anyOf", "must match a schema in anyOf"),
-          ],
-        ],
-        [CaseType.Success, "an empty string", "", undefined],
-        [CaseType.Success, "a valid HTTPS URL", "https://foo.bar.com", undefined],
-        [CaseType.Success, "a valid complex HTTPS URL", "https://u:p@foo.bar.com:8080/%25?25#%25", undefined],
-      ])("(%s) Validate 'downloadUrl' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
-        const givenObject: ExportProcessStateAPISpecs.Types.GET.Response.Payload = {
-          // @ts-ignore
-          downloadUrl: givenValue,
-        };
-        // THEN expect the object to validate accordingly
-        assertCaseForProperty(
-          "downloadUrl",
-          givenObject,
-          ExportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-          caseType,
-          failureMessages
-        );
-      });
     });
 
     describe("Test validation of 'timestamp'", () => {
