@@ -16,6 +16,7 @@ describe("Test the modelInfo module", () => {
     expect(Constants.DESCRIPTION_MAX_LENGTH).toBeDefined();
     expect(Constants.RELEASE_NOTES_MAX_LENGTH).toBeDefined();
     expect(Constants.VERSION_MAX_LENGTH).toBeDefined();
+    expect(Constants.MAX_URI_LENGTH).toBeDefined();
   });
 
   test("The export module matches the snapshot", () => {
