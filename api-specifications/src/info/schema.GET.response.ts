@@ -1,4 +1,5 @@
 import { SchemaObject } from "ajv";
+import InfoConstants from "../info/constants";
 
 const SchemaGETResponse: SchemaObject = {
   $id: "/components/schemas/InfoResponseSchemaGET",
@@ -13,18 +14,24 @@ const SchemaGETResponse: SchemaObject = {
     branch: {
       type: "string",
       description: "The name of the git branch the application was built from.",
+      maxLength: InfoConstants.BRANCH_MAX_LENGTH,
     },
     buildNumber: {
       type: "string",
       description: "The build number of the application.",
+      maxLength: InfoConstants.BUILD_NUMBER_MAX_LENGTH,
     },
     sha: {
       type: "string",
       description: "The git SHA of the commit used to build the application.",
+      maxLength: InfoConstants.SHA_MAX_LENGTH,
     },
     path: {
       type: "string",
       description: "The URL path of the endpoint.",
+      format: "uri",
+      pattern: "^https://.*", // accept only https
+      maxLength: InfoConstants.MAX_URI_LENGTH,
     },
     database: {
       type: "string",

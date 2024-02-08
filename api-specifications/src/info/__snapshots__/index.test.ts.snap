@@ -11,10 +11,12 @@ exports[`Test the info module The info module matches the snapshot 1`] = `
           "properties": {
             "branch": {
               "description": "The name of the git branch the application was built from.",
+              "maxLength": 256,
               "type": "string",
             },
             "buildNumber": {
               "description": "The build number of the application.",
+              "maxLength": 256,
               "type": "string",
             },
             "database": {
@@ -32,10 +34,14 @@ exports[`Test the info module The info module matches the snapshot 1`] = `
             },
             "path": {
               "description": "The URL path of the endpoint.",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
               "type": "string",
             },
             "sha": {
               "description": "The git SHA of the commit used to build the application.",
+              "maxLength": 40,
               "type": "string",
             },
           },
