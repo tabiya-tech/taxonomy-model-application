@@ -13,6 +13,8 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
       "TOO_LARGE_PAYLOAD": "TOO_LARGE_PAYLOAD",
       "UNSUPPORTED_MEDIA_TYPE": "UNSUPPORTED_MEDIA_TYPE",
     },
+    "MAX_DETAILS_LENGTH": 4000,
+    "MAX_MESSAGE_LENGTH": 256,
     "ReasonPhrases": {
       "BAD_REQUEST": "Bad Request",
       "INTERNAL_SERVER_ERROR": "Internal Server Error",
@@ -31,6 +33,7 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
       "properties": {
         "details": {
           "description": "Additional details about the error. Might be an empty string if no additional details are available",
+          "maxLength": 4000,
           "type": "string",
         },
         "errorCode": {
@@ -54,6 +57,7 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
         },
         "message": {
           "description": "A human readable description of the error",
+          "maxLength": 256,
           "type": "string",
         },
       },
