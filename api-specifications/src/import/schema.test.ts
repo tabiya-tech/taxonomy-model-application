@@ -84,10 +84,7 @@ describe("Validate JSON against the Import Schema", () => {
 
   describe("Validate the ImportRequest Fields", () => {
     describe("Test validation of modelId", () => {
-      testObjectIdField<ImportAPISpecs.Types.POST.Request.Payload>(
-        "modelId",
-        ImportAPISpecs.Schemas.POST.Request.Payload
-      );
+      testObjectIdField("modelId", ImportAPISpecs.Schemas.POST.Request.Payload);
     });
     describe("Test validation of 'filePaths'", () => {
       test.each([

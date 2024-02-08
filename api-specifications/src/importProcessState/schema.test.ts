@@ -54,14 +54,14 @@ describe("Validate JSON against the ImportProcessStateAPISpecs Schema", () => {
   );
   describe("Validate ImportProcessState fields", () => {
     describe("Test validation of 'id'", () => {
-      testObjectIdField<ImportProcessStateAPISpecs.Types.GET.Response.Payload>(
+      testObjectIdField(
         "id",
         ImportProcessStateAPISpecs.Schemas.GET.Response.Payload
       );
     });
 
     describe("Test validation of modelId", () => {
-      testObjectIdField<ImportProcessStateAPISpecs.Types.GET.Response.Payload>(
+      testObjectIdField(
         "modelId",
         ImportProcessStateAPISpecs.Schemas.GET.Response.Payload
       );

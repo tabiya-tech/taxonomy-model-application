@@ -41,10 +41,7 @@ describe("Validate JSON against the Export Schema", () => {
     );
 
     describe("Fail validation of 'modelId'", () => {
-      testObjectIdField<ExportAPISpecs.Types.POST.Request.Payload>(
-        "modelId",
-        ExportAPISpecs.Schemas.POST.Request.Payload
-      );
+      testObjectIdField("modelId", ExportAPISpecs.Schemas.POST.Request.Payload);
     });
   });
 });
