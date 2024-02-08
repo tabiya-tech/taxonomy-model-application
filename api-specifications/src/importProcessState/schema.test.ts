@@ -1,6 +1,8 @@
 import ImportProcessStateAPISpecs from "./index";
 import { getMockId } from "_test_utilities/mockMongoId";
 import {
+  testBooleanField,
+  testEnumField,
   testObjectIdField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
@@ -54,66 +56,19 @@ describe("Validate JSON against the ImportProcessStateAPISpecs Schema", () => {
   );
   describe("Validate ImportProcessState fields", () => {
     describe("Test validation of 'id'", () => {
-      testObjectIdField(
-        "id",
-        ImportProcessStateAPISpecs.Schemas.GET.Response.Payload
-      );
+      testObjectIdField("id", ImportProcessStateAPISpecs.Schemas.GET.Response.Payload);
     });
 
     describe("Test validation of modelId", () => {
-      testObjectIdField(
-        "modelId",
-        ImportProcessStateAPISpecs.Schemas.GET.Response.Payload
-      );
+      testObjectIdField("modelId", ImportProcessStateAPISpecs.Schemas.GET.Response.Payload);
     });
 
     describe("Test validation of 'status'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("", "required", "must have required property 'status'"),
-        ],
-        [
-          CaseType.Failure,
-          "null",
-          null,
-          [
-            constructSchemaError("/status", "type", "must be string"),
-            constructSchemaError("/status", "enum", "must be equal to one of the allowed values"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          [constructSchemaError("/status", "enum", "must be equal to one of the allowed values")],
-        ],
-        [
-          CaseType.Failure,
-          "random string",
-          "foo",
-          [constructSchemaError("/status", "enum", "must be equal to one of the allowed values")],
-        ],
-        [CaseType.Success, "a valid PENDING status", ImportProcessStateAPISpecs.Enums.Status.PENDING, undefined],
-        [CaseType.Success, "a valid RUNNING status", ImportProcessStateAPISpecs.Enums.Status.RUNNING, undefined],
-        [CaseType.Success, "a valid COMPLETED status", ImportProcessStateAPISpecs.Enums.Status.COMPLETED, undefined],
-      ])("(%s) Validate 'status' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
-        const givenObject: ImportProcessStateAPISpecs.Types.GET.Response.Payload = {
-          // @ts-ignore
-          status: givenValue,
-        };
-        // THEN expect the object to validate accordingly
-        assertCaseForProperty(
-          "status",
-          givenObject,
-          ImportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-          caseType,
-          failureMessages
-        );
-      });
+      testEnumField(
+        "status",
+        ImportProcessStateAPISpecs.Schemas.GET.Response.Payload,
+        Object.values(ImportProcessStateAPISpecs.Enums.Status)
+      );
     });
 
     describe("Test validation of 'result'", () => {
@@ -169,132 +124,12 @@ describe("Validate JSON against the ImportProcessStateAPISpecs Schema", () => {
       });
     });
 
-    describe("Test validation of 'result.errored'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("/result", "required", "must have required property 'errored'"),
-        ],
-        [CaseType.Failure, "null", null, constructSchemaError("/result/errored", "type", "must be boolean")],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          constructSchemaError("/result/errored", "type", "must be boolean"),
-        ],
-        [CaseType.Failure, "random string", "foo", constructSchemaError("/result/errored", "type", "must be boolean")],
-        [CaseType.Success, "a valid boolean", false, undefined],
-      ])("(%s) Validate 'result.errored' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
-        const givenObject: ImportProcessStateAPISpecs.Types.GET.Response.Payload = {
-          // @ts-ignore
-          result: {
-            // @ts-ignore
-            errored: givenValue,
-          },
-        };
-        // THEN expect the object to validate accordingly
-        assertCaseForProperty(
-          "result/errored",
-          givenObject,
-          ImportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-          caseType,
-          failureMessages
-        );
-      });
-    });
-
-    describe("Test validation of 'result.parsingErrors'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("/result", "required", "must have required property 'parsingErrors'"),
-        ],
-        [CaseType.Failure, "null", null, constructSchemaError("/result/parsingErrors", "type", "must be boolean")],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          constructSchemaError("/result/parsingErrors", "type", "must be boolean"),
-        ],
-        [
-          CaseType.Failure,
-          "random string",
-          "foo",
-          constructSchemaError("/result/parsingErrors", "type", "must be boolean"),
-        ],
-        [CaseType.Success, "a valid boolean", false, undefined],
-      ])(
-        "(%s) Validate 'result.parsingErrors' when it is %s",
-        (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          const givenObject: ImportProcessStateAPISpecs.Types.GET.Response.Payload = {
-            // @ts-ignore
-            result: {
-              // @ts-ignore
-              parsingErrors: givenValue,
-            },
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "result/parsingErrors",
-            givenObject,
-            ImportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-            caseType,
-            failureMessages
-          );
-        }
-      );
-    });
-
-    describe("Test validation of 'result.parsingWarnings'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("/result", "required", "must have required property 'parsingWarnings'"),
-        ],
-        [CaseType.Failure, "null", null, constructSchemaError("/result/parsingWarnings", "type", "must be boolean")],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          constructSchemaError("/result/parsingWarnings", "type", "must be boolean"),
-        ],
-        [
-          CaseType.Failure,
-          "random string",
-          "foo",
-          constructSchemaError("/result/parsingWarnings", "type", "must be boolean"),
-        ],
-        [CaseType.Success, "a valid boolean", false, undefined],
-      ])(
-        "(%s) Validate 'result.parsingWarnings' when it is %s",
-        (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          const givenObject: ImportProcessStateAPISpecs.Types.GET.Response.Payload = {
-            // @ts-ignore
-            result: {
-              // @ts-ignore
-              parsingWarnings: givenValue,
-            },
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "result/parsingWarnings",
-            givenObject,
-            ImportProcessStateAPISpecs.Schemas.GET.Response.Payload,
-            caseType,
-            failureMessages
-          );
-        }
-      );
-    });
+    describe.each([["result/parsingWarnings"], ["result/parsingErrors"], ["result/errored"]])(
+      `Test validation of '%s'`,
+      (propertyName) => {
+        testBooleanField(propertyName, ImportProcessStateAPISpecs.Schemas.GET.Response.Payload);
+      }
+    );
 
     describe("Test validation of 'createdAt'", () => {
       testTimestampField<ImportProcessStateAPISpecs.Types.GET.Response.Payload>(
