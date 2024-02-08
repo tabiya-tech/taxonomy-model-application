@@ -113,7 +113,7 @@ export const testArraySchemaFailureWithValidObject = (
   });
 };
 
-export function testObjectIdField<T>(fieldName: string, givenSchema: SchemaObject, dependencies: SchemaObject[] = []) {
+export function testObjectIdField(fieldName: string, givenSchema: SchemaObject, dependencies: SchemaObject[] = []) {
   const fields = fieldName.split("/");
   test.each(getStdObjectIdTestCases(`/${fieldName}`))(
     `(%s) Validate ${fieldName} when it is %s`,

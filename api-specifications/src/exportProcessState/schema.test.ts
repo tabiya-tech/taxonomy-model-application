@@ -57,14 +57,14 @@ describe("Validate JSON against the ExportProcessStateAPISpecs Schema", () => {
 
   describe("Validate ExportProcessState fields", () => {
     describe("Test validation of 'id'", () => {
-      testObjectIdField<ExportProcessStateAPISpecs.Types.GET.Response.Payload>(
+      testObjectIdField(
         "id",
         ExportProcessStateAPISpecs.Schemas.GET.Response.Payload
       );
     });
 
     describe("Test validation of modelId", () => {
-      testObjectIdField<ExportProcessStateAPISpecs.Types.GET.Response.Payload>(
+      testObjectIdField(
         "modelId",
         ExportProcessStateAPISpecs.Schemas.GET.Response.Payload
       );
