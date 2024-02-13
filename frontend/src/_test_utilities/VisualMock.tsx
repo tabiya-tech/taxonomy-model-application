@@ -26,7 +26,7 @@ export const VisualMock = (props: VisualMockProps) => {
         position: "relative",
       }}
     >
-      <Typography textAlign={"center"} variant={"h1"}>
+      <Typography textAlign={"center"} variant={"h1"} sx={{ wordBreak: "break-word" }}>
         {props.text}
       </Typography>
       <svg

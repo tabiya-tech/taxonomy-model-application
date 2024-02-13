@@ -1,0 +1,58 @@
+// mute the console
+import "src/_test_utilities/consoleMock";
+
+import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { render, screen } from "src/_test_utilities/test-utils";
+import ModelPropertiesVersion, { DATA_TEST_ID } from "./ModelPropertiesVersion";
+
+//mock the ModelPropertiesItemDetails component
+jest.mock(
+  "src/modeldirectory/components/ModelProperties/components/ModelPropertiesItemDetails/ModelPropertiesItemDetails",
+  () => {
+    return function ItemDetailsMock(props: { title: string; value: string; "data-testid": string }) {
+      return (
+        <div data-testid={props["data-testid"]}>
+          <span>{props.title}</span>
+          <span>{props.value}</span>
+        </div>
+      );
+    };
+  }
+);
+
+describe("ModelPropertiesVersion", () => {
+  test("should render correctly with the provided model props", () => {
+    // GIVEN a model
+    const givenModel = fakeModel;
+
+    // WHEN ModelPropertiesVersion is rendered with the given model
+    render(<ModelPropertiesVersion model={givenModel} />);
+
+    // THEN expect no errors or warnings to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the component to be shown
+    const modelPropertiesVersionContainer = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_VERSION_CONTAINER);
+    expect(modelPropertiesVersionContainer).toBeInTheDocument();
+    // AND the UUID property to be shown
+    const actualUUID = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_UUID);
+    expect(actualUUID).toBeInTheDocument();
+    // AND the tabiyaPath property to be shown
+    const actualTabiyaPath = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_TABIYA_PATH);
+    expect(actualTabiyaPath).toBeInTheDocument();
+    // AND the path property to be shown
+    const actualPath = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_PATH);
+    expect(actualPath).toBeInTheDocument();
+    // AND the version property to be shown
+    const actualVersion = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_VERSION);
+    expect(actualVersion).toBeInTheDocument();
+    // AND the released property to be shown
+    const actualReleased = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_RELEASED);
+    expect(actualReleased).toBeInTheDocument();
+    // AND the release notes property to be shown
+    const actualReleaseNotes = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES);
+    expect(actualReleaseNotes).toBeInTheDocument();
+    // AND to match the snapshot
+    expect(modelPropertiesVersionContainer).toMatchSnapshot();
+  });
+});
