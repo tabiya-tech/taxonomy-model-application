@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelPropertiesHeader should render model properties header component 1`] = `
+<div
+  class="MuiBox-root css-j7qwjs"
+  data-testid="model-properties-header-a9f38045-7a8d-4226-88c6-8c9384516012"
+>
+  <div
+    class="MuiBox-root css-rvqy99"
+  >
+    <div
+      class="MuiBox-root css-1fjtzvx"
+    >
+      <h2
+        class="MuiTypography-root MuiTypography-h2 css-2jbldj-MuiTypography-root"
+        data-testid="header-title-a9f38045-7a8d-4226-88c6-8c9384516012"
+      >
+        Model Properties
+      </h2>
+    </div>
+    <button
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1e844z7-MuiButtonBase-root-MuiIconButton-root"
+      data-testid="header-close-button-a9f38045-7a8d-4226-88c6-8c9384516012"
+      tabindex="0"
+      title="Close model properties"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+        data-testid="CloseIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+  </div>
+  <div
+    class="MuiBox-root css-1ygqla7"
+  >
+    <h6
+      class="MuiTypography-root MuiTypography-subtitle1 css-umxpai-MuiTypography-root"
+      data-testid="model-name-a9f38045-7a8d-4226-88c6-8c9384516012"
+    >
+      Model Name
+    </h6>
+  </div>
+</div>
+`;

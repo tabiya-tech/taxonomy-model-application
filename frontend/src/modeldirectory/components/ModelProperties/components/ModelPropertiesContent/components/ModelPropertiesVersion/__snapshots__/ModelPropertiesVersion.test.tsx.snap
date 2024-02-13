@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelPropertiesVersion should render correctly with the provided model props 1`] = `
+<div
+  class="MuiBox-root css-1ck9pm7"
+  data-testid="model-properties-version-container-8d3b0caa-95e2-4f11-a98c-054208e72438"
+>
+  <div
+    data-testid="model-properties-uuid-8d3b0caa-95e2-4f11-a98c-054208e72438"
+  >
+    <span>
+      UUID
+    </span>
+    <span>
+      8d914eab-6f7d-4183-accc-a09f99887b39
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-tabiya-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
+  >
+    <span>
+      Tabiya Path
+    </span>
+    <span>
+      https://silver-vulture.biz
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
+  >
+    <span>
+      Path
+    </span>
+    <span>
+      https://unwelcome-editorial.net/
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-version-8d3b0caa-95e2-4f11-a98c-054208e72438"
+  >
+    <span>
+      Version
+    </span>
+    <span>
+      0.2.2
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-released-8d3b0caa-95e2-4f11-a98c-054208e72438"
+  >
+    <span>
+      Released
+    </span>
+    <span>
+      true
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"
+  >
+    <span>
+      Release Notes
+    </span>
+    <span>
+      Perferendis modi impedit necessitatibus a
+    </span>
+  </div>
+</div>
+`;

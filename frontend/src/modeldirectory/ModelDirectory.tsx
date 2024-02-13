@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import ImportModelDialog, { CloseEvent, ImportData } from "src/import/ImportModelDialog";
+import ImportModelDialog, { ImportData, CloseEvent as ImportModelDialogCloseEvent } from "src/import/ImportModelDialog";
 import { ServiceError, getUserFriendlyErrorMessage } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
@@ -13,6 +13,9 @@ import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirecto
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
 import { IsOnlineContext } from "src/app/providers";
 import ExportService from "src/export/export.service";
+import ModelPropertiesDrawer, {
+  CloseEvent as DrawerCloseEvent,
+} from "./components/ModelProperties/ModelPropertiesDrawer";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -46,12 +49,36 @@ const ModelDirectory = () => {
   const [isLoadingModels, setIsLoadingModels] = React.useState(true);
   const [message, setMessage] = React.useState("");
 
+  const [drawerModel, setDrawerModel] = React.useState<ModelInfoTypes.ModelInfo | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const isOnline = useContext(IsOnlineContext);
 
   const showImportDialog = (b: boolean) => {
     setIsImportDlgOpen(b);
+  };
+
+  const handleNotifyOnShowModelDetails = (modelId: string) => {
+    // set the drawerModel based on the modelID
+    const modelToShow = models.find((model) => model.id === modelId);
+    if (!modelToShow) {
+      enqueueSnackbar(
+        "The selected model could not be found. Please try again. If the problem persists, clear your browser's cache and refresh the page.",
+        {
+          variant: "error",
+          preventDuplicate: true,
+        }
+      );
+      return;
+    }
+    setDrawerModel(modelToShow);
+    setIsDrawerOpen(true);
+  };
+  const handleNotifyOnModelDrawerClose = (_event: DrawerCloseEvent) => {
+    // We keep the previous drawerModel so that during the drawer animation it keeps the model
+    setIsDrawerOpen(false);
   };
 
   function modelArraysAreEqual(m1: ModelInfoTypes.ModelInfo[], m2: ModelInfoTypes.ModelInfo[]) {
@@ -111,7 +138,7 @@ const ModelDirectory = () => {
     };
   }, [handleModelInfoFetch]);
 
-  const handleOnImportDialogClose = async (event: CloseEvent) => {
+  const handleOnImportDialogClose = async (event: ImportModelDialogCloseEvent) => {
     showImportDialog(false);
     if (event.name === "IMPORT") {
       setMessage("The model is being created and the files uploaded. Please wait ... ");
@@ -173,7 +200,12 @@ const ModelDirectory = () => {
       <ContentLayout
         headerComponent={<ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />}
         mainComponent={
-          <ModelsTable models={models} isLoading={isLoadingModels} notifyOnExport={handleNotifyOnExport} />
+          <ModelsTable
+            models={models}
+            isLoading={isLoadingModels}
+            notifyOnExport={handleNotifyOnExport}
+            notifyOnShowModelDetails={handleNotifyOnShowModelDetails}
+          />
         }
       >
         {isImportDlgOpen && (
@@ -184,6 +216,11 @@ const ModelDirectory = () => {
           />
         )}
         {isBackDropShown && <Backdrop isShown={isBackDropShown} message={message} />}
+        <ModelPropertiesDrawer
+          isOpen={isDrawerOpen}
+          notifyOnClose={handleNotifyOnModelDrawerClose}
+          model={drawerModel}
+        />
       </ContentLayout>
     </div>
   );

@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelPropertiesDescription should render correctly with the provided model props 1`] = `
+<div
+  class="MuiBox-root css-1ck9pm7"
+  data-testid="model-properties-description-container-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
+>
+  <div
+    data-testid="model-properties-name-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
+  >
+    <span>
+      Name
+    </span>
+    <span>
+      1/1 - fysmros tcgcnjbbrrev
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-locale-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
+  >
+    <span>
+      Locale
+    </span>
+    <span>
+      Palestine(ETH)
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-description-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
+  >
+    <span>
+      Description
+    </span>
+    <span>
+      aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+    </span>
+  </div>
+</div>
+`;

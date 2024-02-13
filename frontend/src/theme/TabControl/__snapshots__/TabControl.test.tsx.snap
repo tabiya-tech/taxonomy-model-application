@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TabControl component render tests renders correctly with no items 1`] = `
+<div
+  class="MuiBox-root css-1g4yje1"
+  data-testid="test-id"
+>
+  <div
+    class="MuiTabs-root css-9j4t2f-MuiTabs-root"
+  >
+    <div
+      class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+      style="overflow: hidden; margin-bottom: 0px;"
+    >
+      <div
+        aria-label="Test tabs"
+        class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+        role="tablist"
+      />
+      <span
+        class="MuiTabs-indicator css-1ktk2h2-MuiTabs-indicator"
+        style="left: 0px; width: 0px;"
+      >
+        <span
+          class="MuiTabs-indicatorSpan"
+        />
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TabControl component render tests renders tabs and content for a single provided item 1`] = `
+<div
+  class="MuiBox-root css-1g4yje1"
+  data-testid="test-id"
+>
+  <div
+    class="MuiTabs-root css-9j4t2f-MuiTabs-root"
+  >
+    <div
+      class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+      style="overflow: hidden; margin-bottom: 0px;"
+    >
+      <div
+        aria-label="Test tabs"
+        class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+        role="tablist"
+      >
+        <button
+          aria-selected="true"
+          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-l3v1a8-MuiButtonBase-root-MuiTab-root"
+          data-testid="tab-control-tabs-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
+          id="tab-unique-id"
+          role="tab"
+          tabindex="0"
+          type="button"
+        >
+          Test Label
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+      </div>
+      <span
+        class="MuiTabs-indicator css-1ktk2h2-MuiTabs-indicator"
+        style="left: 0px; width: 0px;"
+      >
+        <span
+          class="MuiTabs-indicatorSpan"
+        />
+      </span>
+    </div>
+  </div>
+  <div
+    aria-labelledby="tab-unique-id"
+    class="MuiBox-root css-1j1uas5"
+    data-testid="tab-control-panel-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
+    id="tabpanel-unique-id"
+    role="tabpanel"
+  >
+    <div
+      class="MuiBox-root css-0"
+    >
+      <div>
+        Test Panel
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TabControl component render tests renders tabs and content for multiple provided items 1`] = `
+<div
+  class="MuiBox-root css-1g4yje1"
+  data-testid="test-id"
+>
+  <div
+    class="MuiTabs-root css-9j4t2f-MuiTabs-root"
+  >
+    <div
+      class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+      style="overflow: hidden; margin-bottom: 0px;"
+    >
+      <div
+        aria-label="Test tabs"
+        class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+        role="tablist"
+      >
+        <button
+          aria-selected="true"
+          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-l3v1a8-MuiButtonBase-root-MuiTab-root"
+          data-testid="tab-control-tabs-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
+          id="tab-unique-id-1"
+          role="tab"
+          tabindex="0"
+          type="button"
+        >
+          Test Label 1
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+        <button
+          aria-selected="false"
+          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth css-l3v1a8-MuiButtonBase-root-MuiTab-root"
+          data-testid="tab-control-tabs-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
+          id="tab-unique-id-2"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          Test Label 2
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+      </div>
+      <span
+        class="MuiTabs-indicator css-1ktk2h2-MuiTabs-indicator"
+        style="left: 0px; width: 0px;"
+      >
+        <span
+          class="MuiTabs-indicatorSpan"
+        />
+      </span>
+    </div>
+  </div>
+  <div
+    aria-labelledby="tab-unique-id-1"
+    class="MuiBox-root css-1j1uas5"
+    data-testid="tab-control-panel-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
+    id="tabpanel-unique-id-1"
+    role="tabpanel"
+  >
+    <div
+      class="MuiBox-root css-0"
+    >
+      <div>
+        Test Panel 1
+      </div>
+    </div>
+  </div>
+  <div
+    aria-labelledby="tab-unique-id-2"
+    class="MuiBox-root css-1j1uas5"
+    data-testid="tab-control-panel-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
+    hidden=""
+    id="tabpanel-unique-id-2"
+    role="tabpanel"
+  />
+</div>
+`;

@@ -26,6 +26,7 @@ interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
   isLoading?: boolean;
   notifyOnExport: (modelId: string) => void;
+  notifyOnShowModelDetails: (modelId: string) => void;
 }
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";
@@ -166,7 +167,11 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
       open: true,
       anchorEl: element,
       model: model,
-      menuItems: buildMenuItemsConfig(model, props.notifyOnExport, isOnline),
+      menuItems: buildMenuItemsConfig(
+        model,
+        { handleExport: props.notifyOnExport, handleShowModelDetails: props.notifyOnShowModelDetails },
+        isOnline
+      ),
     });
   };
 

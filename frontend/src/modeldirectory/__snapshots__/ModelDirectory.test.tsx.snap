@@ -36,6 +36,11 @@ exports[`ModelDirectory ModelDirectory Render ModelDirectory initial render test
       </div>
     </div>
   </div>
+  <div
+    data-testid="model-properties-drawer-a76cf289-b403-4782-a886-b56047a8fff9"
+  >
+    My Model Properties Drawer
+  </div>
 </div>
 `;
 
@@ -74,6 +79,11 @@ exports[`ModelDirectory ModelDirectory Render should re-render the modelTable wh
         </div>
       </div>
     </div>
+  </div>
+  <div
+    data-testid="model-properties-drawer-a76cf289-b403-4782-a886-b56047a8fff9"
+  >
+    My Model Properties Drawer
   </div>
 </div>
 `;

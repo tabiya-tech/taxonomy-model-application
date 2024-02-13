@@ -108,7 +108,9 @@ describe("ModelsTable", () => {
       const givenModels = getArrayOfRandomModelsMaxLength(3);
 
       // WHEN the ModelsTable is rendered with the given models
-      const { container } = render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+      const { container } = render(
+        <ModelsTable models={givenModels} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />
+      );
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -260,7 +262,7 @@ describe("ModelsTable", () => {
     test("should render the table with the single model and match the snapshot", () => {
       // GIVEN a single model
       // WHEN the ModelsTable is rendered with the single model in an array
-      render(<ModelsTable models={[fakeModel]} notifyOnExport={jest.fn()} />);
+      render(<ModelsTable models={[fakeModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
       // THEN expect the table to be shown
       const tableElement = screen.getByTestId(DATA_TEST_ID.MODELS_TABLE_ID);
@@ -278,7 +280,7 @@ describe("ModelsTable", () => {
 
       // WHEN the ModelsTable is rendered
       // @ts-ignore
-      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -340,7 +342,7 @@ describe("ModelsTable", () => {
       );
 
       // WHEN we render the ModelsTable
-      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+      render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -362,7 +364,7 @@ describe("ModelsTable", () => {
           givenModels[0].released = givenIsReleasedFlag;
 
           // WHEN the ModelsTable is rendered
-          render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+          render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
           // THEN expect no errors or warning to have occurred
           expect(console.error).not.toHaveBeenCalled();
@@ -402,7 +404,7 @@ describe("ModelsTable", () => {
           givenModels[0].description = givenDescription;
 
           // WHEN the ModelsTable is rendered
-          render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+          render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
           // THEN expect no errors or warning to have occurred
           expect(console.error).not.toHaveBeenCalled();
@@ -437,7 +439,7 @@ describe("ModelsTable", () => {
           expect(givenModel.importProcessState).toBeDefined();
 
           // WHEN the ModelsTable is rendered with the given model
-          render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} />);
+          render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
           // THEN expect no errors or warning to have occurred
           expect(console.error).not.toHaveBeenCalled();
@@ -467,7 +469,7 @@ describe("ModelsTable", () => {
           expect(givenModel.exportProcessState).toBeDefined();
 
           // WHEN the ModelsTable is rendered with the given model
-          render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} />);
+          render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
           // THEN expect no errors or warning to have occurred
           expect(console.error).not.toHaveBeenCalled();
@@ -495,7 +497,14 @@ describe("ModelsTable", () => {
         // AND an empty models list is provided
 
         // WHEN the ModelsTable component is rendered with the given properties
-        render(<ModelsTable models={[]} isLoading={givenIsLoading} notifyOnExport={jest.fn()} />);
+        render(
+          <ModelsTable
+            models={[]}
+            isLoading={givenIsLoading}
+            notifyOnExport={jest.fn()}
+            notifyOnShowModelDetails={jest.fn}
+          />
+        );
 
         // THEN expect no errors or warning to have occurred
         expect(console.error).not.toHaveBeenCalled();
@@ -537,7 +546,14 @@ describe("ModelsTable", () => {
         const givenModels: ModelInfoTypes.ModelInfo[] = getArrayOfRandomModelsMaxLength(3);
 
         // WHEN the ModelsTable component is rendered with the given properties
-        render(<ModelsTable models={givenModels} isLoading={givenIsLoading} notifyOnExport={jest.fn()} />);
+        render(
+          <ModelsTable
+            models={givenModels}
+            isLoading={givenIsLoading}
+            notifyOnExport={jest.fn()}
+            notifyOnShowModelDetails={jest.fn}
+          />
+        );
 
         // THEN expect no errors or warning to have occurred
         expect(console.error).not.toHaveBeenCalled();
@@ -562,7 +578,7 @@ describe("ModelsTable", () => {
         const givenModels = getArrayOfRandomModelsMaxLength(3);
 
         // WHEN the ModelsTable component is rendered with the given models
-        render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} />);
+        render(<ModelsTable models={givenModels} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
         // THEN expect no errors or warning to have occurred
         expect(console.error).not.toHaveBeenCalled();
@@ -582,9 +598,16 @@ describe("ModelsTable", () => {
       const givenModels = getArrayOfRandomModelsMaxLength(3);
       // AND a function notifyOnExport will be passed to the ModelsTable
       const mockNotifyOnExport = jest.fn();
+      const mockNotifyOnShowModelDetails = jest.fn();
 
       // WHEN the ModelsTable component is rendered with the given models
-      render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
+      render(
+        <ModelsTable
+          models={givenModels}
+          notifyOnExport={mockNotifyOnExport}
+          notifyOnShowModelDetails={mockNotifyOnShowModelDetails}
+        />
+      );
 
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -612,8 +635,10 @@ describe("ModelsTable", () => {
       async (givenIsOnline) => {
         // GIVEN N models to be shown in the table
         const givenModels = getArrayOfRandomModelsMaxLength(5);
-        // AND a function notifyOnExport
+        // AND a notifyOnExport callback function
         const mockNotifyOnExport = jest.fn();
+        // AND a notifyOnShowModelDetails callback function
+        const mockNotifyOnShowModelDetails = jest.fn();
         // AND the function "buildMenuItemsConfig" will return some items
         const givenMenuItems = [
           {
@@ -633,8 +658,17 @@ describe("ModelsTable", () => {
           }
           return actual.useContext(ctx);
         });
-        // AND the ModelsTable is rendered with the given models and the notifyOnExport function
-        render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
+        // AND the ModelsTable is rendered with:
+        // - the given models,
+        // - the notifyOnExport function and
+        // - the notifyOnShowModelDetails function
+        render(
+          <ModelsTable
+            models={givenModels}
+            notifyOnExport={mockNotifyOnExport}
+            notifyOnShowModelDetails={mockNotifyOnShowModelDetails}
+          />
+        );
 
         // WHEN the more button is clicked for a model
         for (const model of givenModels) {
@@ -645,9 +679,20 @@ describe("ModelsTable", () => {
           // THEN expect the context menu to be shown
           const actualContextMenu = screen.getByTestId("mock-context-menu");
           expect(actualContextMenu).toBeInTheDocument();
-          // AND the function "buildMenuItemsConfig" to have been called with the current model, the given notifyOnExport function and isOnline context
-          expect(buildMenuItemsConfig).toHaveBeenCalledWith(model, mockNotifyOnExport, givenIsOnline);
-          // AND the contextMenu to be called with the items returned by the "buildMenuItemsConfig" function, the actualMoreButton as anchorEl and open = true
+          // AND the function "buildMenuItemsConfig" to have been called with:
+          // - the current model,
+          // - the given notifyOnExport function
+          // - the given handleShowModelDetails
+          // - and isOnline context
+          expect(buildMenuItemsConfig).toHaveBeenCalledWith(
+            model,
+            { handleExport: mockNotifyOnExport, handleShowModelDetails: mockNotifyOnShowModelDetails },
+            givenIsOnline
+          );
+          // AND the contextMenu to be called with:
+          // - the given items returned by the "buildMenuItemsConfig" function,
+          // - the actual MoreButton as an anchorEl and
+          // - open = true
           expect(ContextMenu).toHaveBeenCalledWith(
             {
               anchorEl: actualMoreButton,
@@ -666,7 +711,9 @@ describe("ModelsTable", () => {
       const givenModels = getArrayOfRandomModelsMaxLength(1);
       // AND a function notifyOnExport will be passed to the ModelsTable
       const mockNotifyOnExport = jest.fn();
-      render(<ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} />);
+      render(
+        <ModelsTable models={givenModels} notifyOnExport={mockNotifyOnExport} notifyOnShowModelDetails={jest.fn} />
+      );
       // AND the more button is clicked to open the context menu
       const actualMoreButton = screen.getAllByTestId(DATA_TEST_ID.MODEL_CELL_MORE_BUTTON)[0];
       fireEvent.click(actualMoreButton);

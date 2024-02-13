@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelPropertiesHistory should render correctly with the provided model props 1`] = `
+<div
+  class="MuiBox-root css-1ck9pm7"
+  data-testid="model-properties-history-container-08e457ca-63fa-4a92-b5fa-729a444ab827"
+>
+  <div
+    data-testid="model-properties-created-date-08e457ca-63fa-4a92-b5fa-729a444ab827"
+  >
+    <span>
+      Date Created
+    </span>
+    <span>
+      Sat, Jun 28, 1914, 10:45 AM GMT+1
+    </span>
+  </div>
+  <div
+    data-testid="model-properties-updated-date-08e457ca-63fa-4a92-b5fa-729a444ab827"
+  >
+    <span>
+      Last Updated
+    </span>
+    <span>
+      Sat, Jun 28, 1914, 10:45 AM GMT+1
+    </span>
+  </div>
+</div>
+`;
