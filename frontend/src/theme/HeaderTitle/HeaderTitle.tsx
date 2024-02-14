@@ -1,8 +1,8 @@
-import React  from "react";
+import React from "react";
 import { Typography } from "@mui/material";
 
 export interface HeaderTitleProps {
-  title: React.ReactNode;
+  children: React.ReactNode;
   "data-testid": string;
 }
 
@@ -12,8 +12,12 @@ export interface HeaderTitleProps {
  * @param props gets data-testid for testing from parent
  * @constructor
  */
-const HeaderTitle: React.FC<HeaderTitleProps> = (props : Readonly<HeaderTitleProps>) => {
-  return <Typography variant="h2" data-testid={props["data-testid"]}>{props.title}</Typography>;
+const HeaderTitle: React.FC<HeaderTitleProps> = (props: Readonly<HeaderTitleProps>) => {
+  return (
+    <Typography variant="h2" data-testid={props["data-testid"]}>
+      {props.children}
+    </Typography>
+  );
 };
 
 export default HeaderTitle;
