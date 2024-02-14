@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelPropertiesHeader should render model properties header component 1`] = `
+<div
+  class="MuiBox-root css-gejfwh"
+  data-testid="model-properties-header-a9f38045-7a8d-4226-88c6-8c9384516012"
+>
+  <h2
+    class="MuiTypography-root MuiTypography-h2 css-ca93eg-MuiTypography-root"
+    data-testid="header-title-a9f38045-7a8d-4226-88c6-8c9384516012"
+  >
+    Header title
+  </h2>
+  <button
+    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1e844z7-MuiButtonBase-root-MuiIconButton-root"
+    data-testid="header-close-button-a9f38045-7a8d-4226-88c6-8c9384516012"
+    tabindex="0"
+    title="Close model properties"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+      data-testid="CloseIcon"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+      />
+    </svg>
+    <span
+      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+    />
+  </button>
+</div>
+`;
