@@ -1,6 +1,9 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 
-export type CloseEvent = { name: "DISMISS" };
+enum CloseEventName {
+  DISMISS = "DISMISS",
+}
+export type CloseEvent = { name: CloseEventName }
 
 export interface ModelPropertiesDrawerProps {
   isOpen: boolean; // for the drawer
@@ -22,7 +25,7 @@ export const DATA_TEST_ID = {
  * @constructor
  */
 function ModelPropertiesDrawer(props: Readonly<ModelPropertiesDrawerProps>) {
-  return <></>;
+  return <div data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DRAWER}></div>;
 }
 
 export default ModelPropertiesDrawer;

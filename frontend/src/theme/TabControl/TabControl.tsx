@@ -3,6 +3,7 @@ import React from "react";
 
 export interface TabControlProps {
   items: TabControlConfig[];
+  "data-testid": string;
 }
 
 /**
@@ -18,11 +19,13 @@ export const DATA_TEST_ID = {
   TAB_CONTROL_PANEL: `tab-control-panel-${uniqueId}`,
 };
 
-const TabControl: React.FC<TabControlProps> = ({
-  items,
-  ...props
-}) =>  {
-  return <></>;
-}
+const TabControl: React.FC<TabControlProps> = (props: Readonly<TabControlProps>) => {
+  return (
+    <div data-testid={props["data-testid"]}>
+      <div data-testid={DATA_TEST_ID.TAB_CONTROL_LABEL}></div>
+      <div data-testid={DATA_TEST_ID.TAB_CONTROL_PANEL}></div>
+    </div>
+  );
+};
 
 export default TabControl;
