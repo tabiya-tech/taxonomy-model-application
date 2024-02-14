@@ -1,10 +1,18 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 
+export type CloseEvent = { name: "DISMISS" };
+
 export interface ModelPropertiesDrawerProps {
   isOpen: boolean; // for the drawer
-  notifyOnClose: () => void; // for the header close button (and the footer)
+  notifyOnClose: (event : CloseEvent) => void; // for the header close button (and the footer)
   model: ModelInfoTypes.ModelInfo;
 }
+
+const uniqueId = "a76cf289-b403-4782-a886-b56047a8fff9"
+
+export const DATA_TEST_ID = {
+  MODEL_PROPERTIES_DRAWER: `model-properties-drawer-${uniqueId}`,
+};
 
 /**
  * ModelPropertiesDrawer responsible for rendering the drawer that displays the properties of a model

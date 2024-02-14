@@ -1,7 +1,15 @@
 export interface ModelPropertiesHeaderProps {
   title: string;
-  notifyOnClose: () => void; // Bit of a prop drilly way to do it, consider using a context
+  notifyOnClose: () => void; // TODO reconsider prop drilling
 }
+
+const uniqueId = "a9f38045-7a8d-4226-88c6-8c9384516012"
+
+export const DATA_TEST_ID = {
+  MODEL_PROPERTIES_HEADER: `model-properties-header-${uniqueId}`,
+  MODEL_PROPERTIES_HEADER_TITLE: `header-title-${uniqueId}`,
+  MODEL_PROPERTIES_HEADER_CLOSE_BUTTON: `header-close-button-${uniqueId}`,
+};
 
 /**
  * ModelPropertiesHeader responsible for rendering the header of the model properties drawer

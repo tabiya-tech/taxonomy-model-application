@@ -5,11 +5,11 @@ export interface HeaderTitleProps {
 /**
  * Reusable title component for Headers in the app.
  * Should use h2 variant of the mui typography
- * @param props
+ * @param props gets data-testid for testing from parent
  * @constructor
  */
-function HeaderTitle(props: Readonly<HeaderTitleProps>) {
+const HeaderTitle: React.FC<HeaderTitleProps> = ({ title, ...props }) => {
   return <></>;
-}
+};
 
 export default HeaderTitle;
