@@ -2,23 +2,13 @@ import React from "react";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 
 interface CustomIconButtonProps extends IconButtonProps {
-  handleClick: () => void;
-  icon: React.ReactNode;
-  disabled: boolean;
-  ariaLabel: string;
+  // Add additional props specific to CustomIconButton here
 }
-
-const uniqueId = "ae03cd99-e992-4313-8a8e-56f567cc92d0";
-
-export const DATA_TEST_ID = {
-  ICON_BUTTON: `icon-button-${uniqueId}`,
-};
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
   borderRadius: theme.spacing(theme.tabiyaSpacing.sm),
   lineHeight: "0",
-  paddingY: theme.spacing(theme.tabiyaSpacing.xs),
-  paddingX: theme.spacing(theme.tabiyaSpacing.md),
+  padding: 0,
   color: theme.palette.primary.main,
   ":hover": {
     backgroundColor: theme.palette.primary.dark,
@@ -30,10 +20,10 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const CustomIconButton: React.FC<CustomIconButtonProps> = ({ handleClick, icon, disabled,  ariaLabel }) => {
+const CustomIconButton: React.FC<CustomIconButtonProps> = ({ children, ...props }) => {
   return (
-    <StyledIconButton color={"primary"} aria-label={ariaLabel} onClick={handleClick} data-testid={DATA_TEST_ID.ICON_BUTTON} disabled={disabled}>
-      {icon}
+    <StyledIconButton color={"primary"} {...props}>
+      {children}
     </StyledIconButton>
   );
 };
