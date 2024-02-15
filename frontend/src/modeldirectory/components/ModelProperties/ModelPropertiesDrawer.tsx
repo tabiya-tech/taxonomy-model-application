@@ -1,17 +1,22 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { Drawer } from "@mui/material";
+import ContentLayout from "src/theme/ContentLayout/ContentLayout";
+import ModelPropertiesHeader from "./components/ModelPropertiesHeader";
+import ModelPropertiesContent from "./components/ModelPropertiesContent";
 
-enum CloseEventName {
+export enum CloseEventName {
   DISMISS = "DISMISS",
 }
-export type CloseEvent = { name: CloseEventName }
+
+export type CloseEvent = { name: CloseEventName };
 
 export interface ModelPropertiesDrawerProps {
   isOpen: boolean; // for the drawer
-  notifyOnClose: (event : CloseEvent) => void; // for the header close button (and the footer)
+  notifyOnClose: (event: CloseEvent) => void; // for the header close button (and the footer)
   model: ModelInfoTypes.ModelInfo;
 }
 
-const uniqueId = "a76cf289-b403-4782-a886-b56047a8fff9"
+const uniqueId = "a76cf289-b403-4782-a886-b56047a8fff9";
 
 export const DATA_TEST_ID = {
   MODEL_PROPERTIES_DRAWER: `model-properties-drawer-${uniqueId}`,
@@ -25,7 +30,37 @@ export const DATA_TEST_ID = {
  * @constructor
  */
 function ModelPropertiesDrawer(props: Readonly<ModelPropertiesDrawerProps>) {
-  return <div data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DRAWER}></div>;
+  const handleDismiss = () => {
+    try {
+      props.notifyOnClose({ name: CloseEventName.DISMISS });
+    } catch (e) {
+      console.error("Couldn't close drawer", e);
+    }
+  };
+  return (
+    <Drawer
+      anchor="right"
+      open={props.isOpen}
+      onClose={handleDismiss}
+      PaperProps={{
+        sx: {
+          width: "40%",
+          padding: 0,
+        },
+      }}
+      data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DRAWER}
+    >
+      <ContentLayout
+        headerComponent={
+          <ModelPropertiesHeader
+            notifyOnClose={handleDismiss}
+            title={`${props.model.name} : ${props.model.locale.name}`}
+          />
+        }
+        mainComponent={<ModelPropertiesContent model={props.model} />}
+      />
+    </Drawer>
+  );
 }
 
 export default ModelPropertiesDrawer;
