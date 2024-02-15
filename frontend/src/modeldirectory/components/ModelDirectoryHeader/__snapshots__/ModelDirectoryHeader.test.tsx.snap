@@ -2,7 +2,7 @@
 
 exports[`ModelDirectoryHeader should render model directory header component 1`] = `
 <div
-  class="MuiBox-root css-147x205"
+  class="MuiBox-root css-115mvb4"
   data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
 >
   <h2

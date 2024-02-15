@@ -21,7 +21,9 @@ const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
     display="flex"
     width="100%"
     justifyContent="space-between"
-    alignItems="center"
+    flexDirection="row"
+    flexWrap="wrap"
+    alignItems="start"
     data-testid={DATA_TEST_ID.MODEL_DIRECTORY_HEADER}
   >
     <Typography variant="h2" data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>
