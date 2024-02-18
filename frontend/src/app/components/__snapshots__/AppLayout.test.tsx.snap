@@ -1,23 +1,53 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`AppLayout Render should render app layout component 1`] = `
+exports[`AppLayout render tests should render app layout component 1`] = `
 <div
-  class="MuiBox-root css-1e3gqq1"
-  data-testid="cabab611-7d62-417a-a4a7-5d8f7266ea92"
+  class="MuiBox-root css-m6ooxs"
+  data-testid="layout-root-cabab611-7d62-417a-a4a7-5d8f7266ea92"
 >
   <div
-    data-testid="app-header-container-65b0785e-14d9-43a3-b260-869983312406"
-  >
-    Mocked AppHeader
-  </div>
-  <div
-    class="MuiBox-root css-k287y7"
+    class="MuiBox-root css-fy22zg"
   >
     <div
-      data-testid="app-sidebar-container-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
+      data-testid="app-header-container-65b0785e-14d9-43a3-b260-869983312406"
     >
-      Mocked AppSidebar
+      Mocked AppHeader
     </div>
+  </div>
+  <div
+    class="MuiBox-root css-2oxiu6"
+  >
+    <div
+      style="opacity: 0; width: auto;"
+    >
+      <div
+        data-testid="app-sidebar-container-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
+      >
+        Mocked AppSidebar
+      </div>
+    </div>
+    <button
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-10pn7op-MuiButtonBase-root-MuiIconButton-root"
+      data-testid="toggle-button-cabab611-7d62-417a-a4a7-5d8f7266ea92"
+      tabindex="0"
+      title="Hide the navigation sidebar"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1x821ac-MuiSvgIcon-root"
+        data-testid="ChevronLeftIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
     <div
       class="MuiBox-root css-1oz4csq"
     >
