@@ -6,21 +6,25 @@ exports[`ContentLayout should render 1`] = `
   data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
 >
   <div
-    class="MuiBox-root css-29yj2o"
+    style="width: 100%; height: 100%; opacity: 0;"
   >
     <div
-      class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+      class="MuiBox-root css-135vfhz"
     >
       <div
-        data-testid="header-test-id"
-      />
-    </div>
-    <div
-      class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
-    >
+        class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+      >
+        <div
+          data-testid="header-test-id"
+        />
+      </div>
       <div
-        data-testid="main-test-id"
-      />
+        class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
+      >
+        <div
+          data-testid="main-test-id"
+        />
+      </div>
     </div>
   </div>
 </div>
