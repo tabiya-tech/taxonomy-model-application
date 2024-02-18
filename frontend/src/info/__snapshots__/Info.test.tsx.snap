@@ -10,160 +10,164 @@ exports[`Testing Info component it should show frontend and backend info success
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
-      class="MuiBox-root css-29yj2o"
+      style="width: 100%; height: 100%; opacity: 0;"
     >
       <div
-        class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
-      >
-        <h2
-          class="MuiTypography-root MuiTypography-h2 css-1a5e95o-MuiTypography-root"
-        >
-          Info
-        </h2>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
+        class="MuiBox-root css-135vfhz"
       >
         <div
-          class="MuiBox-root css-1tnxox3"
+          class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+        >
+          <h2
+            class="MuiTypography-root MuiTypography-h2 css-1a5e95o-MuiTypography-root"
+          >
+            Info
+          </h2>
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
         >
           <div
-            class="MuiBox-root css-1spy2rg"
-            data-testid="version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
+            class="MuiBox-root css-1tnxox3"
           >
-            <h6
-              class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
-            >
-              Frontend
-            </h6>
             <div
-              class="MuiBox-root css-1ed85oj"
+              class="MuiBox-root css-1spy2rg"
+              data-testid="version-frontend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
             >
-              <div
-                class="MuiBox-root css-0"
+              <h6
+                class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
-                >
-                  Date
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
-                >
-                  fooFrontend
-                </p>
-              </div>
+                Frontend
+              </h6>
               <div
-                class="MuiBox-root css-0"
+                class="MuiBox-root css-1ed85oj"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  Branch
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    Date
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    fooFrontend
+                  </p>
+                </div>
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  barFrontend
-                </p>
-              </div>
-              <div
-                class="MuiBox-root css-0"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    Branch
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    barFrontend
+                  </p>
+                </div>
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  Build Number
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    Build Number
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    bazFrontend
+                  </p>
+                </div>
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  bazFrontend
-                </p>
-              </div>
-              <div
-                class="MuiBox-root css-0"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
-                >
-                  GIT SHA
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
-                >
-                  gooFrontend
-                </p>
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    GIT SHA
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    gooFrontend
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-          <div
-            class="MuiBox-root css-1spy2rg"
-            data-testid="version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
-          >
-            <h6
-              class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
-            >
-              Backend
-            </h6>
             <div
-              class="MuiBox-root css-1ed85oj"
+              class="MuiBox-root css-1spy2rg"
+              data-testid="version-backend-37d307ae-4f1e-4d8d-bafe-fd642f8af4dc"
             >
-              <div
-                class="MuiBox-root css-0"
+              <h6
+                class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
-                >
-                  Date
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
-                >
-                  fooBackend
-                </p>
-              </div>
+                Backend
+              </h6>
               <div
-                class="MuiBox-root css-0"
+                class="MuiBox-root css-1ed85oj"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  Branch
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    Date
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    fooBackend
+                  </p>
+                </div>
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  barBackend
-                </p>
-              </div>
-              <div
-                class="MuiBox-root css-0"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    Branch
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    barBackend
+                  </p>
+                </div>
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  Build Number
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    Build Number
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    bazBackend
+                  </p>
+                </div>
+                <div
+                  class="MuiBox-root css-0"
                 >
-                  bazBackend
-                </p>
-              </div>
-              <div
-                class="MuiBox-root css-0"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
-                >
-                  GIT SHA
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
-                >
-                  gooBackend
-                </p>
+                  <h6
+                    class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+                  >
+                    GIT SHA
+                  </h6>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+                  >
+                    gooBackend
+                  </p>
+                </div>
               </div>
             </div>
           </div>

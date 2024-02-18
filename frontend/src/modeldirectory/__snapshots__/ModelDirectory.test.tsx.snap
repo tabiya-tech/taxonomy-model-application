@@ -10,24 +10,28 @@ exports[`ModelDirectory ModelDirectory Render ModelDirectory initial render test
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
-      class="MuiBox-root css-29yj2o"
+      style="width: 100%; height: 100%; opacity: 0;"
     >
       <div
-        class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+        class="MuiBox-root css-135vfhz"
       >
         <div
-          data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
+          class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
         >
-          My Model Directory Header
+          <div
+            data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
+          >
+            My Model Directory Header
+          </div>
         </div>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
-      >
         <div
-          data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
         >
-           My Models Table
+          <div
+            data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          >
+             My Models Table
+          </div>
         </div>
       </div>
     </div>
@@ -45,24 +49,28 @@ exports[`ModelDirectory ModelDirectory Render should re-render the modelTable wh
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
-      class="MuiBox-root css-29yj2o"
+      style="width: 100%; height: 100%; opacity: 0;"
     >
       <div
-        class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+        class="MuiBox-root css-135vfhz"
       >
         <div
-          data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
+          class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
         >
-          My Model Directory Header
+          <div
+            data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
+          >
+            My Model Directory Header
+          </div>
         </div>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
-      >
         <div
-          data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
         >
-           My Models Table
+          <div
+            data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          >
+             My Models Table
+          </div>
         </div>
       </div>
     </div>

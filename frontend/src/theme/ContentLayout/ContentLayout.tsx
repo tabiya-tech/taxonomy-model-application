@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Grid } from "@mui/material";
+import { motion } from "framer-motion";
 
 const uniqueId = "14c01398-e7fc-4b09-8dcb-3195acdf120a";
 export const DATA_TEST_ID = {
@@ -43,46 +44,53 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
         }}
         data-testid={DATA_TEST_ID.CONTENT_LAYOUT}
       >
-        <Box
-          component={"div"}
-          sx={{
-            width: "100%",
-            height: "100%",
-            marginY: (theme) => theme.tabiyaSpacing.none,
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            backgroundColor: "none", //"blue", //
-          }}
+        <motion.div
+          initial={{ width: "100%", height: "100%", opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1 }}
         >
-          <Grid
-            item
-            sx={{
-              width: "100%",
-              margin: (theme) => theme.tabiyaSpacing.none,
-              padding: (theme) => theme.tabiyaSpacing.none,
-              paddingY: (theme) => theme.tabiyaSpacing.xl,
-              backgroundColor: "none", //"green",//
-            }}
-          >
-            {props.headerComponent}
-          </Grid>
-          <Grid
-            item
+          <Box
+            component={"div"}
             sx={{
               width: "100%",
               height: "100%",
-              margin: (theme) => theme.tabiyaSpacing.none,
-              padding: (theme) => theme.tabiyaSpacing.none,
-              flex: "1",
-              overflowY: "clip",
-              backgroundColor: "none", //"magenta"
+              marginY: (theme) => theme.tabiyaSpacing.none,
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "start",
+              backgroundColor: "none", //"blue", //
             }}
           >
-            {props.mainComponent}
-          </Grid>
-        </Box>
+            <Grid
+              item
+              sx={{
+                width: "100%",
+                margin: (theme) => theme.tabiyaSpacing.none,
+                padding: (theme) => theme.tabiyaSpacing.none,
+                paddingY: (theme) => theme.tabiyaSpacing.xl,
+                backgroundColor: "none", //"green",//
+              }}
+            >
+              {props.headerComponent}
+            </Grid>
+            <Grid
+              item
+              sx={{
+                width: "100%",
+                height: "100%",
+                margin: (theme) => theme.tabiyaSpacing.none,
+                padding: (theme) => theme.tabiyaSpacing.none,
+                flex: "1",
+                overflowY: "clip",
+                backgroundColor: "none", //"magenta"
+              }}
+            >
+              {props.mainComponent}
+            </Grid>
+          </Box>
+        </motion.div>
       </Grid>
       {props.children}
     </>
