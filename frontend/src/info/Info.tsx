@@ -3,8 +3,8 @@ import { InfoProps } from "./info.types";
 import InfoService from "./info.service";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import ContentTitle from "src/theme/ContentTitle";
-import { styled } from "@mui/material/styles";
 import { IsOnlineContext } from "src/app/providers";
+import ContentLayout from "src/theme/ContentLayout/ContentLayout";
 
 const uniqueId = "37d307ae-4f1e-4d8d-bafe-fd642f8af4dc";
 export const DATA_TEST_ID = {
@@ -12,20 +12,6 @@ export const DATA_TEST_ID = {
   VERSION_FRONTEND_ROOT: `version-frontend-${uniqueId}`,
   VERSION_BACKEND_ROOT: `version-backend-${uniqueId}`,
 };
-
-const StyledContainer = styled(Box)`
-  flex: 1;
-  border-radius: ${({ theme }) =>
-    theme.rounding(theme.tabiyaRounding.md) +
-    " " +
-    theme.rounding(theme.tabiyaRounding.md) +
-    " " +
-    theme.rounding(theme.tabiyaRounding.none) +
-    " " +
-    theme.rounding(theme.tabiyaRounding.none)};
-  overflow-y: auto;
-  background-color: ${({ theme }) => theme.palette.containerBackground.light};
-`;
 
 const VersionInfoItem = ({ title, value, skeleton }: { title: string; value: string; skeleton?: boolean }) => {
   return (
@@ -65,7 +51,6 @@ const VersionContainer = ({ dataTestId, title, info }: { dataTestId: string; tit
 const Info = () => {
   const [versions, setVersions] = useState<InfoProps[]>([]);
   const infoService = useMemo(() => new InfoService(), []);
-  const theme = useTheme();
   const isOnline = useContext(IsOnlineContext);
   useEffect(() => {
     if (isOnline) {
@@ -74,19 +59,27 @@ const Info = () => {
   }, [infoService, isOnline]);
 
   return (
-    <StyledContainer
-      data-testid={DATA_TEST_ID.INFO_ROOT}
-      display="flex"
-      flexDirection="column"
-      sx={{ padding: theme.tabiyaSpacing.lg, gap: theme.tabiyaSpacing.lg }}
-    >
-      <ContentTitle text="Info" />
-      <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.xl}>
-        <VersionContainer title="Frontend" info={versions[0]} dataTestId={DATA_TEST_ID.VERSION_FRONTEND_ROOT} />
-        <VersionContainer title="Backend" info={versions[1]} dataTestId={DATA_TEST_ID.VERSION_BACKEND_ROOT} />
-      </Box>
-    </StyledContainer>
+    <div style={{ width: "100%", height: "100%" }} data-testid={DATA_TEST_ID.INFO_ROOT}>
+      <ContentLayout
+        headerComponent={<ApplicationInfoHeader />}
+        mainComponent={<ApplicationInfoMain versions={versions} />}
+      />
+    </div>
   );
 };
 
 export default Info;
+
+const ApplicationInfoHeader = () => {
+  return <ContentTitle text="Info" />;
+};
+
+const ApplicationInfoMain = (props: { versions: InfoProps[] }) => {
+  const theme = useTheme();
+  return (
+    <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.xl}>
+      <VersionContainer title="Frontend" info={props.versions[0]} dataTestId={DATA_TEST_ID.VERSION_FRONTEND_ROOT} />
+      <VersionContainer title="Backend" info={props.versions[1]} dataTestId={DATA_TEST_ID.VERSION_BACKEND_ROOT} />
+    </Box>
+  );
+};
