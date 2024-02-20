@@ -14,7 +14,7 @@ describe("SkillHierarchyValidation", () => {
       childType: ObjectTypes.SkillGroup,
     };
     // AND some existingIds
-    const givenExistingIds: Map<string, [ObjectTypes]> = new Map<string, [ObjectTypes]>();
+    const givenExistingIds: Map<string, ObjectTypes[]> = new Map<string, ObjectTypes[]>();
     // AND the isRelationPairValid returns the given result
     jest.spyOn(relationValidationModule, "isRelationPairValid").mockImplementation(() => givenResult);
 

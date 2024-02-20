@@ -345,6 +345,67 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       } as ISkill);
     });
 
+    test("should successfully create the hierarchy of SkillGroups/Skills even if the objects share the same ids", async () => {
+      // GIVEN a SkillGroup and a Skill exist in the database, in the same model and have the same id
+      const givenModelId = getMockStringId(1);
+      const givenObjectId = getMockStringId(2);
+      const groupSpec = getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1");
+      //@ts-ignore
+      groupSpec.id = givenObjectId;
+      const givenGroup_1 = await repositoryRegistry.skillGroup.create(groupSpec);
+      const skillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
+      //@ts-ignore
+      skillSpec.id = givenObjectId;
+      const givenSkill_1: ISkill = await repositoryRegistry.skill.create(skillSpec);
+      // guard to make sure the ids are the same
+      expect(givenGroup_1.id).toEqual(givenSkill_1.id);
+
+      // AND the following hierarchy
+      const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
+        {
+          parentId: givenGroup_1.id,
+          parentType: ObjectTypes.SkillGroup,
+          childId: givenSkill_1.id,
+          childType: ObjectTypes.Skill,
+        },
+      ];
+
+      // WHEN updating the hierarchy of the SkillGroups
+      const actualNewSkillHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
+
+      // THEN expect all the Hierarchy entries to be created
+      expect(actualNewSkillHierarchy).toHaveLength(givenNewHierarchySpecs.length);
+      expect(actualNewSkillHierarchy).toEqual(
+        expect.arrayContaining([
+          {
+            ...givenNewHierarchySpecs[0],
+            parentDocModel: MongooseModelName.SkillGroup,
+            childDocModel: MongooseModelName.Skill,
+            id: expect.any(String),
+            modelId: givenModelId,
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date),
+          },
+        ])
+      );
+      // AND to have the expected hierarchy
+      const actualGroup_1 = await repositoryRegistry.skillGroup.findById(givenGroup_1.id);
+      expect(actualGroup_1).toEqual({
+        ...givenGroup_1,
+        parents: [],
+        children: [expectedSkillReference(givenSkill_1)],
+        updatedAt: expect.any(Date),
+      } as ISkillGroup);
+
+      const actualSkill_1 = await repositoryRegistry.skill.findById(givenSkill_1.id);
+      expect(actualSkill_1).toEqual({
+        ...givenSkill_1,
+        children: [],
+        parents: expect.arrayContaining([expectedSkillGroupReference(givenGroup_1)]),
+        updatedAt: expect.any(Date),
+      } as ISkill);
+    });
+
     test("should successfully update the hierarchy even if some don't validate", async () => {
       // GIVEN 3 SkillGroups exist in the database
       const givenModelId = getMockStringId(1);

@@ -65,7 +65,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
     const newHierarchyDocs: mongoose.Document<unknown, unknown, IOccupationHierarchyPairDoc>[] = [];
     try {
-      const existingIds = new Map<string, [ObjectTypes]>();
+      const existingIds = new Map<string, ObjectTypes[]>();
 
       //  get all ISCO groups
       const _existingIscoGroupIds = await this.iscoGroupModel

@@ -56,7 +56,7 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
     if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
     const newRelationsDocs: mongoose.Document<unknown, unknown, ISkillToSkillRelationPairDoc>[] = [];
     try {
-      const existingIds = new Map<string, [ObjectTypes]>();
+      const existingIds = new Map<string, ObjectTypes[]>();
 
       // Get all Skills
       const _existingSkillsIds = await this.skillModel

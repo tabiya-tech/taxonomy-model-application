@@ -14,7 +14,7 @@ describe("OccupationHierarchyValidation", () => {
     } as unknown as INewOccupationHierarchyPairSpec;
 
     // AND existingIds of the pair
-    const givenExistingIds: Map<string, [ObjectTypes]> = new Map<string, [ObjectTypes]>();
+    const givenExistingIds: Map<string, ObjectTypes[]> = new Map<string, ObjectTypes[]>();
     givenExistingIds.set(givenPair.parentId, [givenPair.parentType]);
     givenExistingIds.set(givenPair.childId, [givenPair.childType]);
 

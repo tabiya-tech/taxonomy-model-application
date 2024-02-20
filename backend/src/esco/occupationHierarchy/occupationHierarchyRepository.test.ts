@@ -153,7 +153,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         // GIVEN a parent and children that exist in the same model
         const givenParent = await createEntityFromType(givenParentType);
         const givenChildren = await Promise.all(givenChildrenTypes.map((type) => createEntityFromType(type)));
-        // AND the following hierarhy
+        // AND the following hierarchy
         // @ts-ignore
         const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = givenChildren.map((child, index) => ({
           parentId: givenParent.id,
@@ -197,6 +197,49 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         });
       }
     );
+
+    test("should successfully create the hierarchy even if an occupation shares the same ids as an ISCOGroup", async () => {
+      // GIVEN an ISCOGroup and Occupation exist in the database in the same model and share the same id
+      const givenModelId = getMockStringId(1);
+      const givenObjectId = getMockStringId(2);
+      const givenGroupSpec = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
+      // @ts-ignore
+      givenGroupSpec._id = givenObjectId;
+      const givenGroup = await repositoryRegistry.ISCOGroup.create(givenGroupSpec);
+
+      const givenOccupationSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1");
+      // @ts-ignore
+      givenOccupationSpec._id = givenObjectId;
+
+      const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
+      // guard to make sure the ids are the same
+      expect(givenGroup.id).toEqual(givenOccupation.id);
+
+      // AND linked with a parent-child relationship
+      const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
+        {
+          parentId: givenGroup.id,
+          parentType: ObjectTypes.ISCOGroup,
+          childId: givenOccupation.id,
+          childType: givenOccupation.occupationType,
+        },
+      ];
+
+      // WHEN updating the hierarchy of the ISCOGroups
+      const actualNewOccupationHierarchy = await repository.createMany(givenModelId, givenNewHierarchySpecs);
+      // THEN expect the first entry to be created.
+      expect(actualNewOccupationHierarchy).toHaveLength(1);
+      // AND expect the created entry to be valid
+      expect(actualNewOccupationHierarchy[0]).toEqual({
+        ...givenNewHierarchySpecs[0],
+        id: expect.any(String),
+        modelId: givenModelId,
+        parentDocModel: MongooseModelName.ISCOGroup,
+        childDocModel: MongooseModelName.Occupation,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      });
+    });
 
     test("should successfully update the hierarchy even if some don't validate", async () => {
       // GIVEN 3 ISCOGroups exist in the database

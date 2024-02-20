@@ -69,7 +69,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
     }
     const newRelationsDocs: mongoose.Document<unknown, unknown, IOccupationToSkillRelationPairDoc>[] = [];
     try {
-      const existingIds = new Map<string, [ObjectTypes]>();
+      const existingIds = new Map<string, ObjectTypes[]>();
 
       // Get all Skills
       const _existingSkillsIds = await this.skillModel

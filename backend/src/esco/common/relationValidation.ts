@@ -11,6 +11,7 @@ export interface IRelationshipSpec {
   secondPartnerId: string;
 }
 
+export type ValidPairTypes = { firstPartnerType: ObjectTypes; secondPartnerType: ObjectTypes }[];
 /**
  * Validates if the given spec represents a valid relationship based on existing IDs and valid pair types.
  *
@@ -23,10 +24,10 @@ export interface IRelationshipSpec {
 export function isRelationPairValid(
   spec: IRelationshipSpec,
   existingIds: Map<string, ObjectTypes[]>,
-  validPairTypes: { firstPartnerType: ObjectTypes; secondPartnerType: ObjectTypes }[]
+  validPairTypes: ValidPairTypes
 ): boolean {
-  // Return false if first and second partner IDs are the same (self-referencing)
-  if (spec.firstPartnerId === spec.secondPartnerId) {
+  // Return false if first and second partner are the same objects (self-referencing)
+  if (spec.firstPartnerId === spec.secondPartnerId && spec.firstPartnerType === spec.secondPartnerType) {
     return false;
   }
 
@@ -42,12 +43,17 @@ export function isRelationPairValid(
   const existingFirstPartnerType = existingIds.get(spec.firstPartnerId);
   if (!existingFirstPartnerType) return false;
   // or if its type doesn't match
+  // The object id may have multiple types, as objects is different collections can have the same id
+  // We only need to make sure that we have at least one object that has the expected type
   if (!existingFirstPartnerType.includes(spec.firstPartnerType)) return false;
 
+  // Verify that the first partner ID exists and has the expected type
   // Return false if second partner ID doesn't exist
   const existingSecondPartnerType = existingIds.get(spec.secondPartnerId);
   if (!existingSecondPartnerType) return false;
   // or if its type doesn't match
+  // The object id may have multiple types, as objects is different collections can have the same id
+  // We only need to make sure that we have at least one object that has the expected type
   if (!existingSecondPartnerType.includes(spec.secondPartnerType)) return false;
 
   //  If everything passes return true

@@ -203,6 +203,39 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       expect(actualNewOccupationToSkillRelation).toHaveLength(givenNewRelationSpecs.length);
     });
 
+    test("should successfully create the relation for different occupation types even if an occupation shares the same ids as a skill", async () => {
+      // GIVEN An occupations exist in a same model
+      const givenModelId = getMockStringId(1);
+      const givenObjectId = getMockStringId(2);
+      const escoOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "ESCO Occupation");
+      //@ts-ignore
+      escoOccupationSpecs.id = givenObjectId;
+      const escoOccupation = await repositoryRegistry.occupation.create(escoOccupationSpecs);
+      // AND a skill in the same model and with the same id as the occupation
+      const childSkillSpecs = getSimpleNewSkillSpec(givenModelId, "childSkill");
+      //@ts-ignore
+      childSkillSpecs.id = givenObjectId;
+      const childSkill = await repositoryRegistry.skill.create(childSkillSpecs);
+      // guard to make sure the ids are the same
+      expect(escoOccupation.id).toEqual(childSkill.id);
+
+      // AND the following relation
+      const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
+        {
+          requiringOccupationId: escoOccupation.id,
+          relationType: RelationType.OPTIONAL,
+          requiredSkillId: childSkill.id,
+          requiringOccupationType: escoOccupation.occupationType,
+        },
+      ];
+
+      // WHEN creating the relation
+      const actualNewOccupationToSkillRelation = await repository.createMany(givenModelId, givenNewRelationSpecs);
+
+      // THEN expect all the Relation entries to be created
+      expect(actualNewOccupationToSkillRelation).toHaveLength(givenNewRelationSpecs.length);
+    });
+
     test("should successfully update the relation even if some don't validate", async () => {
       // GIVEN 2 Occupations and 2 Skillls exist in the database in the same model
       const givenModelId = getMockStringId(1);
