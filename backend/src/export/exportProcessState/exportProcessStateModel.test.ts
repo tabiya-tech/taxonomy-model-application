@@ -92,7 +92,13 @@ describe("Test the definition of ExportProcessState Model", () => {
       ])(
         `(%s) Validate 'status' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IExportProcessStateDoc>(model, "status", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IExportProcessStateDoc>({
+            model,
+            propertyNames: "status",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -110,13 +116,13 @@ describe("Test the definition of ExportProcessState Model", () => {
         ])(
           `(%s) Validate 'result.${fieldName}' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-            assertCaseForProperty<IExportProcessStateDoc>(
+            assertCaseForProperty<IExportProcessStateDoc>({
               model,
-              ["result", fieldName],
+              propertyNames: ["result", fieldName],
               caseType,
-              value,
-              expectedFailureMessage
-            );
+              testValue: value,
+              expectedFailureMessage,
+            });
           }
         );
       }
@@ -133,7 +139,13 @@ describe("Test the definition of ExportProcessState Model", () => {
       ])(
         `(%s) Validate 'downloadUrl' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IExportProcessStateDoc>(model, "downloadUrl", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IExportProcessStateDoc>({
+            model,
+            propertyNames: "downloadUrl",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -147,7 +159,13 @@ describe("Test the definition of ExportProcessState Model", () => {
       ])(
         `(%s) Validate 'timestamp' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IExportProcessStateDoc>(model, "timestamp", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IExportProcessStateDoc>({
+            model,
+            propertyNames: "timestamp",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });

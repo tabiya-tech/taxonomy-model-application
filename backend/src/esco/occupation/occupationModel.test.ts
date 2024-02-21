@@ -6,12 +6,10 @@ import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./occupationModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import {
-  ATL_LABELS_MAX_ITEMS,
   DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
-  ORIGIN_URI_MAX_LENGTH,
   IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH,
   REGULATED_PROFESSION_NOTE_MAX_LENGTH,
@@ -23,8 +21,12 @@ import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode"
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { IOccupationDoc } from "./occupation.types";
 import {
+  testAltLabelsField,
+  testDescription,
   testImportId,
   testObjectIdField,
+  testOriginUri,
+  testPreferredLabel,
   testUUIDField,
   testUUIDHistoryField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
@@ -176,13 +178,13 @@ describe("Test the definition of the Occupation Model", () => {
       ])(
         `(%s) Validate 'ISCOGroupCode' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(
-            OccupationModel,
-            "ISCOGroupCode",
+          assertCaseForProperty<IOccupationDoc>({
+            model: OccupationModel,
+            propertyNames: "ISCOGroupCode",
             caseType,
-            value,
-            expectedFailureMessage
-          );
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -209,8 +211,13 @@ describe("Test the definition of the Occupation Model", () => {
         ])(
           `(%s) Validate 'code' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-            assertCaseForProperty<IOccupationDoc>(OccupationModel, "code", caseType, value, expectedFailureMessage, {
-              occupationType: OccupationType.ESCO,
+            assertCaseForProperty<IOccupationDoc>({
+              model: OccupationModel,
+              propertyNames: "code",
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+              dependencies: { occupationType: OccupationType.ESCO },
             });
           }
         );
@@ -265,8 +272,13 @@ describe("Test the definition of the Occupation Model", () => {
         ])(
           `(%s) Validate 'code' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-            assertCaseForProperty<IOccupationDoc>(OccupationModel, "code", caseType, value, expectedFailureMessage, {
-              occupationType: OccupationType.LOCAL,
+            assertCaseForProperty<IOccupationDoc>({
+              model: OccupationModel,
+              propertyNames: "code",
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+              dependencies: { occupationType: OccupationType.LOCAL },
             });
           }
         );
@@ -286,113 +298,9 @@ describe("Test the definition of the Occupation Model", () => {
       });
     });
 
-    describe("Test validation of 'originUri'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [
-          CaseType.Failure,
-          "Too long Origin uri",
-          getTestString(ORIGIN_URI_MAX_LENGTH + 1),
-          `{0} must be at most ${ORIGIN_URI_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one letter", "a", undefined],
-        [CaseType.Success, "The longest originUri", getTestString(ORIGIN_URI_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'originUri' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(OccupationModel, "originUri", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testPreferredLabel<IOccupationDoc>(() => OccupationModel);
 
-    describe("Test validation of 'preferredLabel'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [
-          CaseType.Failure,
-          "Too long preferredLabel",
-          getTestString(LABEL_MAX_LENGTH + 1),
-          `PreferredLabel must be at most ${LABEL_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'preferredLabel' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(
-            OccupationModel,
-            "preferredLabel",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
-    });
-
-    describe("Test validation of 'altLabels'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "not and array of strings (objects)", [{ foo: "bar" }], "Path `{0}` is required."],
-        [CaseType.Failure, "array with null", [null, null], "Validator failed for path `altLabels` with value `,`"],
-        [
-          CaseType.Failure,
-          "array with undefined",
-          [undefined, undefined],
-          "Validator failed for path `altLabels` with value `,`",
-        ],
-        [
-          CaseType.Failure,
-          "array with double entries",
-          ["foo", "foo"],
-          "Validator failed for path `{0}` with value `foo,foo`",
-        ],
-        [
-          CaseType.Failure,
-          "array with too long label",
-          [getTestString(LABEL_MAX_LENGTH + 1)],
-          `Validator failed for path \`{0}\` with value \`.{${LABEL_MAX_LENGTH + 1}}\``,
-        ],
-        [
-          CaseType.Failure,
-          "too long array",
-          new Array(ATL_LABELS_MAX_ITEMS + 1).fill(undefined).map((v, i) => "foo" + i),
-          `Validator failed for path \`{0}\` with value \`foo0,foo1,.*,foo${ATL_LABELS_MAX_ITEMS}\``,
-        ],
-        [CaseType.Success, "empty array", [], undefined],
-        [CaseType.Success, "a string (automatically converted to array)", "foo", undefined],
-        [CaseType.Success, "valid array", ["foo", "bar"], undefined],
-        [CaseType.Success, "valid array with longest label", [getTestString(LABEL_MAX_LENGTH)], undefined],
-        [
-          CaseType.Success,
-          "valid longest array with longest label",
-          new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)),
-          undefined,
-        ],
-      ])(
-        `(%s) Validate 'altLabels' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(OccupationModel, "altLabels", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testAltLabelsField<IOccupationDoc>(() => OccupationModel);
 
     describe("Test validation of 'scopeNote'", () => {
       test.each([
@@ -411,7 +319,13 @@ describe("Test the definition of the Occupation Model", () => {
       ])(
         `(%s) Validate 'scopeNote' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(OccupationModel, "scopeNote", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IOccupationDoc>({
+            model: OccupationModel,
+            propertyNames: "scopeNote",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -433,38 +347,20 @@ describe("Test the definition of the Occupation Model", () => {
       ])(
         `(%s) Validate 'definition' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(OccupationModel, "definition", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IOccupationDoc>({
+            model: OccupationModel,
+            propertyNames: "definition",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
 
-    describe("Test validation of 'description'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long description",
-          getTestString(DESCRIPTION_MAX_LENGTH + 1),
-          `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'description' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(
-            OccupationModel,
-            "description",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
-    });
+    testOriginUri<IOccupationDoc>(() => OccupationModel);
+
+    testDescription<IOccupationDoc>(() => OccupationModel);
 
     describe("Test validation of 'regulatedProfessionNote'", () => {
       test.each([
@@ -483,20 +379,18 @@ describe("Test the definition of the Occupation Model", () => {
       ])(
         `(%s) Validate 'regulatedProfessionNote' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(
-            OccupationModel,
-            "regulatedProfessionNote",
+          assertCaseForProperty<IOccupationDoc>({
+            model: OccupationModel,
+            propertyNames: "regulatedProfessionNote",
             caseType,
-            value,
-            expectedFailureMessage
-          );
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
 
-    describe("Test validation of 'importId'", () => {
-      testImportId<IOccupationDoc>(() => OccupationModel);
-    });
+    testImportId<IOccupationDoc>(() => OccupationModel);
 
     describe("Test validation of 'occupationType", () => {
       test.each([
@@ -509,13 +403,13 @@ describe("Test the definition of the Occupation Model", () => {
       ])(
         `(%s) Validate 'definition' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>(
-            OccupationModel,
-            "occupationType",
+          assertCaseForProperty<IOccupationDoc>({
+            model: OccupationModel,
+            propertyNames: "occupationType",
             caseType,
-            value,
-            expectedFailureMessage
-          );
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });

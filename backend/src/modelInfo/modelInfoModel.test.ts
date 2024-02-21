@@ -110,7 +110,13 @@ describe("Test the definition of the ModelInfo Model", () => {
       ])(
         "(%s) Validate 'description' when it is %s",
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "description", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IModelInfoDoc>({
+            model: ModelInfoModel,
+            propertyNames: "description",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -137,7 +143,13 @@ describe("Test the definition of the ModelInfo Model", () => {
       ])(
         "(%s) Validate 'releaseNotes' when it is %s",
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "releaseNotes", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IModelInfoDoc>({
+            model: ModelInfoModel,
+            propertyNames: "releaseNotes",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -159,7 +171,13 @@ describe("Test the definition of the ModelInfo Model", () => {
       ])(
         "(%s) Validate 'version' when it is %s",
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "version", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IModelInfoDoc>({
+            model: ModelInfoModel,
+            propertyNames: "version",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -184,145 +202,166 @@ describe("Test the definition of the ModelInfo Model", () => {
         [CaseType.Success, "one character", "a", undefined],
         [CaseType.Success, "the longest", getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH), undefined],
       ])("(%s) Validate 'name' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "name", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IModelInfoDoc>({
+          model: ModelInfoModel,
+          propertyNames: "name",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
       });
-    });
 
-    testUUIDHistoryField<IModelInfoDoc>(() => ModelInfoModel);
+      testUUIDHistoryField<IModelInfoDoc>(() => ModelInfoModel);
 
-    describe("Test validation of 'UUID", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-      ])("(%s) Validate 'UUID' when it is %s", (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "UUID", caseType, value, expectedFailureMessage);
+      describe("Test validation of 'UUID", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "only whitespace characters",
+            WHITESPACE,
+            `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+          ],
+          [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+          [CaseType.Success, "Valid UUID", randomUUID(), undefined],
+        ])(
+          "(%s) Validate 'UUID' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IModelInfoDoc>({
+              model: ModelInfoModel,
+              propertyNames: "UUID",
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+            });
+          }
+        );
       });
+
+      describe("Test validation of 'released'", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
+          [CaseType.Success, "true", true, undefined],
+          [CaseType.Success, "false", false, undefined],
+        ])(
+          "(%s) Validate 'released' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IModelInfoDoc>({
+              model: ModelInfoModel,
+              propertyNames: "released",
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+            });
+          }
+        );
+      });
+
+      describe("Test validation of 'locale.UUID'", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "only whitespace characters",
+            WHITESPACE,
+            `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+          ],
+          [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+          [CaseType.Success, "Valid locale.UUID", randomUUID(), undefined],
+        ])(
+          "(%s) Validate 'locale.name' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IModelInfoDoc>({
+              model: ModelInfoModel,
+              propertyNames: ["locale", "UUID"],
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+            });
+          }
+        );
+      });
+
+      describe("Test validation of 'locale.name'", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "Too long locale name",
+            getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH + 1),
+            `Name must be at most ${ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH} chars long`,
+          ],
+          [CaseType.Success, "Empty locale.name", "", undefined],
+          [CaseType.Success, "Valid locale.name", getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH), undefined],
+        ])(
+          "(%s) Validate 'locale.name' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IModelInfoDoc>({
+              model: ModelInfoModel,
+              propertyNames: ["locale", "name"],
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+            });
+          }
+        );
+      });
+
+      describe("Test validation of 'locale.shortCode'", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "Too long locale name",
+            getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1),
+            `Short code must be at most ${LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`,
+          ],
+          [CaseType.Success, "Empty locale.shortCode", "", undefined],
+          [
+            CaseType.Success,
+            "Valid locale.shortCode",
+            getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+            undefined,
+          ],
+        ])(
+          "(%s) Validate 'locale.shortcode' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IModelInfoDoc>({
+              model: ModelInfoModel,
+              propertyNames: ["locale", "shortCode"],
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+            });
+          }
+        );
+      });
+
+      testObjectIdField(() => ModelInfoModel, "importProcessState");
     });
 
-    describe("Test validation of 'released'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
-        [CaseType.Success, "true", true, undefined],
-        [CaseType.Success, "false", false, undefined],
-      ])(
-        "(%s) Validate 'released' when it is %s",
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(ModelInfoModel, "released", caseType, value, expectedFailureMessage);
-        }
-      );
+    test("should have correct indexes", async () => {
+      // GIVEN that the indexes exist
+      await ModelInfoModel.createIndexes();
+
+      // WHEN getting the indexes
+      const indexes = (await ModelInfoModel.listIndexes()).map((index) => {
+        return { key: index.key, unique: index.unique };
+      });
+
+      // THEN expect the indexes to be correct
+      expect(indexes).toEqual([
+        { key: { _id: 1 }, unique: undefined },
+        { key: { UUID: 1 }, unique: true },
+      ]);
     });
-
-    describe("Test validation of 'locale.UUID'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
-        [CaseType.Success, "Valid locale.UUID", randomUUID(), undefined],
-      ])(
-        "(%s) Validate 'locale.name' when it is %s",
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            ["locale", "UUID"],
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
-    });
-
-    describe("Test validation of 'locale.name'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long locale name",
-          getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH + 1),
-          `Name must be at most ${ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "Empty locale.name", "", undefined],
-        [CaseType.Success, "Valid locale.name", getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH), undefined],
-      ])(
-        "(%s) Validate 'locale.name' when it is %s",
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            ["locale", "name"],
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
-    });
-
-    describe("Test validation of 'locale.shortCode'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long locale name",
-          getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1),
-          `Short code must be at most ${LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "Empty locale.shortCode", "", undefined],
-        [
-          CaseType.Success,
-          "Valid locale.shortCode",
-          getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-          undefined,
-        ],
-      ])(
-        "(%s) Validate 'locale.shortcode' when it is %s",
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IModelInfoDoc>(
-            ModelInfoModel,
-            ["locale", "shortCode"],
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
-    });
-
-    testObjectIdField(() => ModelInfoModel, "importProcessState");
-  });
-
-  test("should have correct indexes", async () => {
-    // GIVEN that the indexes exist
-    await ModelInfoModel.createIndexes();
-
-    // WHEN getting the indexes
-    const indexes = (await ModelInfoModel.listIndexes()).map((index) => {
-      return { key: index.key, unique: index.unique };
-    });
-
-    // THEN expect the indexes to be correct
-    expect(indexes).toEqual([
-      { key: { _id: 1 }, unique: undefined },
-      { key: { UUID: 1 }, unique: true },
-    ]);
   });
 });

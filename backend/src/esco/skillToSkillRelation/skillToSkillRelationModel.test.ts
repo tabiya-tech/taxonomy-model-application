@@ -89,13 +89,13 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
       [CaseType.Success, RelationType.ESSENTIAL, undefined],
       [CaseType.Success, RelationType.OPTIONAL, undefined],
     ])(`(%s) Validate 'relationType' when it is %s`, (caseType: CaseType, value, expectedFailureMessage) => {
-      assertCaseForProperty<ISkillToSkillRelationPairDoc>(
-        SkillToSkillRelationModel,
-        "relationType",
+      assertCaseForProperty<ISkillToSkillRelationPairDoc>({
+        model: SkillToSkillRelationModel,
+        propertyNames: "relationType",
         caseType,
-        value,
-        expectedFailureMessage
-      );
+        testValue: value,
+        expectedFailureMessage,
+      });
     });
   });
 

@@ -1,28 +1,46 @@
 import mongoose from "mongoose";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
-import { getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
-import { IMPORT_ID_MAX_LENGTH } from "esco/common/modelSchema";
+import { getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import {
+  ATL_LABELS_MAX_ITEMS,
+  DESCRIPTION_MAX_LENGTH,
+  IMPORT_ID_MAX_LENGTH,
+  LABEL_MAX_LENGTH,
+  ORIGIN_URI_MAX_LENGTH,
+  UUID_HISTORY_MAX_ITEMS,
+} from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 
 export function testImportId<T>(getModel: () => mongoose.Model<T>) {
-  test.each([
-    [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-    [CaseType.Failure, "null", null, "Path `{0}` is required."],
-    [
-      CaseType.Failure,
-      "Too long importId",
-      getTestString(IMPORT_ID_MAX_LENGTH + 1),
-      `{0} must be at most ${IMPORT_ID_MAX_LENGTH} chars long`,
-    ],
-    [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-    [CaseType.Success, "empty", "", undefined],
-    [CaseType.Success, "one letter", "a", undefined],
-    [CaseType.Success, "The longest importId", getTestString(IMPORT_ID_MAX_LENGTH), undefined],
-  ])(`(%s) Validate 'importId' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-    assertCaseForProperty<T>(getModel(), "importId", caseType, value, expectedFailureMessage);
+  return describe("Test validation of 'importId'", () => {
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [
+        CaseType.Failure,
+        "Too long importId",
+        getTestString(IMPORT_ID_MAX_LENGTH + 1),
+        `{0} must be at most ${IMPORT_ID_MAX_LENGTH} chars long`,
+      ],
+      [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+      [CaseType.Success, "empty", "", undefined],
+      [CaseType.Success, "one letter", "a", undefined],
+      [CaseType.Success, "The longest importId", getTestString(IMPORT_ID_MAX_LENGTH), undefined],
+    ])(
+      `(%s) Validate 'importId' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "importId",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
   });
 }
 
@@ -59,7 +77,13 @@ export function testDocModel<T>(
     ])(
       `(%s) Validate ''${fieldName}' when it is %s`,
       (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<T>(getModel(), fieldName, caseType, value, expectedFailureMessage);
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: fieldName,
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
       }
     );
   });
@@ -98,7 +122,13 @@ export function testObjectType<T>(
     ])(
       `(%s) Validate ''${fieldName}' when it is %s`,
       (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<T>(getModel(), fieldName, caseType, value, expectedFailureMessage);
+        assertCaseForProperty({
+          model: getModel(),
+          propertyNames: fieldName,
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
       }
     );
   });
@@ -133,7 +163,13 @@ export function testObjectIdField<T>(getModel: () => mongoose.Model<T>, fieldNam
     ])(
       `(%s) Validate '${fieldName}' when it is %s`,
       (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<T>(getModel(), fieldName, caseType, value, expectedFailureMessage);
+        assertCaseForProperty({
+          model: getModel(),
+          propertyNames: fieldName,
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
       }
     );
   });
@@ -154,7 +190,13 @@ export function testUUIDField<T>(getModel: () => mongoose.Model<T>) {
       [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
       [CaseType.Success, "Valid UUID", randomUUID(), undefined],
     ])(`(%s) Validate 'UUID' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-      assertCaseForProperty<T>(getModel(), "UUID", caseType, value, expectedFailureMessage);
+      assertCaseForProperty<T>({
+        model: getModel(),
+        propertyNames: "UUID",
+        caseType,
+        testValue: value,
+        expectedFailureMessage,
+      });
     });
   });
 }
@@ -163,42 +205,247 @@ export function testUUIDHistoryField<T>(getModel: () => mongoose.Model<T>) {
   return describe("Test validation of 'UUIDHistory'", () => {
     const randomValidUUID = randomUUID();
     test.each([
-      [CaseType.Failure, "undefined", undefined, "Path `UUIDHistory` is required."],
-      [CaseType.Failure, "null", null, "Path `{0}` is required."],
-      [CaseType.Failure, "empty string", "", "Validator failed for path `UUIDHistory` with value ``"],
+      [CaseType.Failure, "undefined", undefined, "Path `UUIDHistory` is required.", undefined],
+      [CaseType.Failure, "null", null, "Path `{0}` is required.", undefined],
+      [
+        CaseType.Failure,
+        "empty string",
+        "",
+        "Validator failed for path `UUIDHistory` with value ``",
+        "UUIDHistory must be an array of valid UUIDs",
+      ],
       [
         CaseType.Failure,
         "only whitespace characters",
         WHITESPACE,
         `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+        "UUIDHistory must be an array of valid UUIDs",
       ],
-      [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `UUIDHistory` with value `foo`"],
+      [
+        CaseType.Failure,
+        "not a UUID v4",
+        "foo",
+        "Validator failed for path `UUIDHistory` with value `foo`",
+        "UUIDHistory must be an array of valid UUIDs",
+      ],
       [
         CaseType.Failure,
         "an array of non UUID strings",
         ["foo", "bar"],
         "Validator failed for path `UUIDHistory` with value `foo,bar`",
+        "UUIDHistory must be an array of valid UUIDs",
       ],
       [
         CaseType.Failure,
         "mixed array of strings and UUIDs",
         [randomValidUUID, "foo"],
         "Validator failed for path `UUIDHistory` with value `" + randomValidUUID + ",foo`",
+        "UUIDHistory must be an array of valid UUIDs",
       ],
-      [CaseType.Failure, "empty array", [], "Validator failed for path `UUIDHistory` with value ``"],
+      [
+        CaseType.Failure,
+        "empty array",
+        [],
+        "Validator failed for path `UUIDHistory` with value ``",
+        "UUIDHistory must be a non empty array",
+      ],
       [
         CaseType.Failure,
         "not unique UUIDs",
         [randomValidUUID, randomValidUUID],
         `Validator failed for path \`UUIDHistory\` with value \`${randomValidUUID},${randomValidUUID}\``,
+        "Duplicate UUID found",
       ],
-      [CaseType.Success, "Valid UUID", randomValidUUID, undefined],
-      [CaseType.Success, "an array with a single valid UUID", [randomValidUUID], undefined],
-      [CaseType.Success, "an array with many valid UUIDs", [randomUUID(), randomUUID(), randomUUID()], undefined],
+      [
+        CaseType.Failure,
+        "an array with too many UUIDs",
+        new Array(UUID_HISTORY_MAX_ITEMS + 1).fill(undefined).map(() => randomUUID()),
+        "Validator failed for path `UUIDHistory` with value `.*`",
+        `UUIDHistory can be no larger than ${UUID_HISTORY_MAX_ITEMS} items`,
+      ],
+      [CaseType.Success, "Valid UUID", randomValidUUID, undefined, undefined],
+      [CaseType.Success, "an array with a single valid UUID", [randomValidUUID], undefined, undefined],
+      [
+        CaseType.Success,
+        "an array with many valid UUIDs",
+        [randomUUID(), randomUUID(), randomUUID()],
+        undefined,
+        undefined,
+      ],
+      [
+        CaseType.Success,
+        "an array with the maximum support number of UUIDs",
+        new Array(UUID_HISTORY_MAX_ITEMS).fill(undefined).map(() => randomUUID()),
+        undefined,
+        undefined,
+      ],
     ])(
       `(%s) Validate 'UUIDHistory' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage, expectedFailureReason) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "UUIDHistory",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+          expectedFailureReason,
+        });
+      }
+    );
+  });
+}
+
+export function testAltLabelsField<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'altLabels'", () => {
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [CaseType.Failure, "not and array of strings (objects)", [{ foo: "bar" }], "Path `{0}` is required."],
+      [CaseType.Failure, "array with null", [null, null], "Validator failed for path `altLabels` with value `,`"],
+      [
+        CaseType.Failure,
+        "array with undefined",
+        [undefined, undefined],
+        "Validator failed for path `altLabels` with value `,`",
+      ],
+      [
+        CaseType.Failure,
+        "array with double entries",
+        ["foo", "foo"],
+        "Validator failed for path `{0}` with value `foo,foo`",
+      ],
+      [
+        CaseType.Failure,
+        "array with too long label",
+        [getTestString(LABEL_MAX_LENGTH + 1)],
+        `Validator failed for path \`{0}\` with value \`.{${LABEL_MAX_LENGTH + 1}}\``,
+      ],
+      [
+        CaseType.Failure,
+        "too long array",
+        new Array(ATL_LABELS_MAX_ITEMS + 1).fill(undefined).map((v, i) => "foo" + i),
+        `Validator failed for path \`{0}\` with value \`foo0,foo1,.*,foo${ATL_LABELS_MAX_ITEMS}\``,
+      ],
+      [CaseType.Success, "empty array", [], undefined],
+      [CaseType.Success, "a string (automatically converted to array)", "foo", undefined],
+      [CaseType.Success, "valid array", ["foo", "bar"], undefined],
+      [CaseType.Success, "valid array with longest label", [getTestString(LABEL_MAX_LENGTH)], undefined],
+      [
+        CaseType.Success,
+        "valid longest array with longest label",
+        new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)),
+        undefined,
+      ],
+    ])(
+      `(%s) Validate 'altLabels' when it is %s`,
       (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<T>(getModel(), "UUIDHistory", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "altLabels",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
+  });
+}
+
+export function testPreferredLabel<T>(getModel: () => mongoose.Model<T>) {
+  describe("Test validation of 'preferredLabel'", () => {
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+      [
+        CaseType.Failure,
+        "only whitespace characters",
+        WHITESPACE,
+        `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+      ],
+      [
+        CaseType.Failure,
+        "Too long preferredLabel",
+        getTestString(LABEL_MAX_LENGTH + 1),
+        `PreferredLabel must be at most ${LABEL_MAX_LENGTH} chars long`,
+      ],
+      [CaseType.Success, "one character", "a", undefined],
+      [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
+    ])(
+      `(%s) Validate 'preferredLabel' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "preferredLabel",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
+  });
+}
+
+export function testDescription<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'description'", () => {
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [
+        CaseType.Failure,
+        "Too long description",
+        getTestString(DESCRIPTION_MAX_LENGTH + 1),
+        `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`,
+      ],
+      [CaseType.Success, "empty", "", undefined],
+      [CaseType.Success, "one character", "a", undefined],
+      [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+      [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
+    ])(
+      `(%s) Validate 'description' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "description",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
+  });
+}
+
+export function testOriginUri<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'originUri'", () => {
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [
+        CaseType.Failure,
+        "only whitespace characters",
+        WHITESPACE,
+        `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+      ],
+      [
+        CaseType.Failure,
+        "Too long Origin uri",
+        getTestString(ORIGIN_URI_MAX_LENGTH + 1),
+        `{0} must be at most ${ORIGIN_URI_MAX_LENGTH} chars long`,
+      ],
+      [CaseType.Success, "empty", "", undefined],
+      [CaseType.Success, "one letter", "a", undefined],
+      [CaseType.Success, "The longest originUri", getTestString(ORIGIN_URI_MAX_LENGTH), undefined],
+    ])(
+      `(%s) Validate 'originUri' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "originUri",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
       }
     );
   });

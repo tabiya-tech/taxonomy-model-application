@@ -92,13 +92,13 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       [CaseType.Success, RelationType.ESSENTIAL, undefined],
       [CaseType.Success, RelationType.OPTIONAL, undefined],
     ])(`(%s) Validate 'relationType' when it is %s`, (caseType: CaseType, value, expectedFailureMessage) => {
-      assertCaseForProperty<IOccupationToSkillRelationPairDoc>(
-        OccupationToSkillRelationModel,
-        "relationType",
+      assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
+        model: OccupationToSkillRelationModel,
+        propertyNames: "relationType",
         caseType,
-        value,
-        expectedFailureMessage
-      );
+        testValue: value,
+        expectedFailureMessage,
+      });
     });
 
     // Test the requiringOccupationType field
@@ -110,13 +110,13 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       [CaseType.Success, OccupationType.LOCALIZED, undefined],
       [CaseType.Success, OccupationType.LOCAL, undefined],
     ])(`(%s) Validate 'requiringOccupationType' when it is %s`, (caseType: CaseType, value, expectedFailureMessage) => {
-      assertCaseForProperty<IOccupationToSkillRelationPairDoc>(
-        OccupationToSkillRelationModel,
-        "requiringOccupationType",
+      assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
+        model: OccupationToSkillRelationModel,
+        propertyNames: "requiringOccupationType",
         caseType,
-        value,
-        expectedFailureMessage
-      );
+        testValue: value,
+        expectedFailureMessage,
+      });
     });
   });
 

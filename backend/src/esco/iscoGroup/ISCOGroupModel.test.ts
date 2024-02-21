@@ -6,21 +6,19 @@ import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./ISCOGroupModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
-import {
-  ATL_LABELS_MAX_ITEMS,
-  DESCRIPTION_MAX_LENGTH,
-  ORIGIN_URI_MAX_LENGTH,
-  IMPORT_ID_MAX_LENGTH,
-  LABEL_MAX_LENGTH,
-} from "esco/common/modelSchema";
+import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { DESCRIPTION_MAX_LENGTH, IMPORT_ID_MAX_LENGTH, LABEL_MAX_LENGTH } from "esco/common/modelSchema";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { IISCOGroupDoc } from "./ISCOGroup.types";
 import {
+  testAltLabelsField,
+  testDescription,
   testImportId,
   testObjectIdField,
+  testOriginUri,
+  testPreferredLabel,
   testUUIDField,
   testUUIDHistoryField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
@@ -121,121 +119,25 @@ describe("Test the definition of the ISCOGroup Model", () => {
         [CaseType.Success, "leading zero", "0009", undefined],
         [CaseType.Success, "any way in range", "090", undefined],
       ])(`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "code", caseType, value, expectedFailureMessage);
+        assertCaseForProperty<IISCOGroupDoc>({
+          model: ISCOGroupModel,
+          propertyNames: "code",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
       });
     });
 
-    describe("Test validation of 'originUri'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [
-          CaseType.Failure,
-          "Too long Origin uri",
-          getTestString(ORIGIN_URI_MAX_LENGTH + 1),
-          `{0} must be at most ${ORIGIN_URI_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one letter", "a", undefined],
-        [CaseType.Success, "The longest originUri", getTestString(ORIGIN_URI_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'originUri' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "originUri", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testDescription<IISCOGroupDoc>(() => ISCOGroupModel);
 
-    describe("Test validation of 'preferredLabel'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [
-          CaseType.Failure,
-          "Too long preferredLabel",
-          getTestString(LABEL_MAX_LENGTH + 1),
-          `PreferredLabel must be at most ${LABEL_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'preferredLabel' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IISCOGroupDoc>(
-            ISCOGroupModel,
-            "preferredLabel",
-            caseType,
-            value,
-            expectedFailureMessage
-          );
-        }
-      );
-    });
+    testOriginUri<IISCOGroupDoc>(() => ISCOGroupModel);
 
-    describe("Test validation of 'altLabels'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "not and array of strings (objects)", [{ foo: "bar" }], "Path `{0}` is required."],
-        [CaseType.Failure, "array with null", [null, null], "Validator failed for path `altLabels` with value `,`"],
-        [
-          CaseType.Failure,
-          "array with undefined",
-          [undefined, undefined],
-          "Validator failed for path `altLabels` with value `,`",
-        ],
-        [
-          CaseType.Failure,
-          "array with double entries",
-          ["foo", "foo"],
-          "Validator failed for path `{0}` with value `foo,foo`",
-        ],
-        [
-          CaseType.Failure,
-          "array with too long label",
-          [getTestString(LABEL_MAX_LENGTH + 1)],
-          `Validator failed for path \`{0}\` with value \`.{${LABEL_MAX_LENGTH + 1}}\``,
-        ],
-        [
-          CaseType.Failure,
-          "too long array",
-          new Array(ATL_LABELS_MAX_ITEMS + 1).fill(undefined).map((v, i) => "foo" + i),
-          `Validator failed for path \`{0}\` with value \`foo0,foo1,.*,foo${ATL_LABELS_MAX_ITEMS}\``,
-        ],
-        [CaseType.Success, "empty array", [], undefined],
-        [CaseType.Success, "a string (automatically converted to array)", "foo", undefined],
-        [CaseType.Success, "valid array", ["foo", "bar"], undefined],
-        [CaseType.Success, "valid array with longest label", [getTestString(LABEL_MAX_LENGTH)], undefined],
-        [
-          CaseType.Success,
-          "valid longest array with longest label",
-          new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)),
-          undefined,
-        ],
-      ])(
-        `(%s) Validate 'altLabels' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IISCOGroupDoc>(ISCOGroupModel, "altLabels", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testPreferredLabel<IISCOGroupDoc>(() => ISCOGroupModel);
 
-    describe("Test validation of 'importId'", () => {
-      testImportId<IISCOGroupDoc>(() => ISCOGroupModel);
-    });
+    testAltLabelsField<IISCOGroupDoc>(() => ISCOGroupModel);
+
+    testImportId<IISCOGroupDoc>(() => ISCOGroupModel);
   });
 
   describe("Test the indexes of the ISCOGroup Model", () => {

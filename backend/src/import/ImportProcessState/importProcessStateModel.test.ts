@@ -6,10 +6,11 @@ import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./importProcessStateModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { getMockStringId, getMockObjectId } from "_test_utilities/mockMongoId";
+import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { WHITESPACE } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { IImportProcessStateDoc } from "./importProcessState.types";
+import { testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 
 describe("Test the definition of the ImportProcessState Model", () => {
   let dbConnection: Connection;
@@ -63,38 +64,7 @@ describe("Test the definition of the ImportProcessState Model", () => {
   });
 
   describe("Validate ImportModelState fields", () => {
-    describe("Test validation of 'modelId'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", 'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"'],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [
-          CaseType.Failure,
-          "not a objectId (string)",
-          "foo",
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [
-          CaseType.Failure,
-          "not a objectId (object)",
-          { foo: "bar" },
-          'Cast to ObjectId failed for value .* at path "{0}" because of "BSONError"',
-        ],
-        [CaseType.Success, "ObjectID", new mongoose.Types.ObjectId(), undefined],
-        [CaseType.Success, "hex 24 chars", getMockStringId(2), undefined],
-      ])(
-        `(%s) Validate 'modelId' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IImportProcessStateDoc>(model, "modelId", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testObjectIdField<IImportProcessStateDoc>(() => model, "modelId");
 
     describe("Test validation of 'status'", () => {
       test.each([
@@ -123,7 +93,13 @@ describe("Test the definition of the ImportProcessState Model", () => {
       ])(
         `(%s) Validate 'status' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IImportProcessStateDoc>(model, "status", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<IImportProcessStateDoc>({
+            model,
+            propertyNames: "status",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -138,13 +114,13 @@ describe("Test the definition of the ImportProcessState Model", () => {
       ])(
         "(%s) Validate 'result.errored' when it is %s",
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IImportProcessStateDoc>(
+          assertCaseForProperty<IImportProcessStateDoc>({
             model,
-            ["result", "errored"],
+            propertyNames: ["result", "errored"],
             caseType,
-            value,
-            expectedFailureMessage
-          );
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -159,13 +135,13 @@ describe("Test the definition of the ImportProcessState Model", () => {
       ])(
         "(%s) Validate 'result.parsingErrors' when it is %s",
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IImportProcessStateDoc>(
+          assertCaseForProperty<IImportProcessStateDoc>({
             model,
-            ["result", "parsingErrors"],
+            propertyNames: ["result", "parsingErrors"],
             caseType,
-            value,
-            expectedFailureMessage
-          );
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -180,13 +156,13 @@ describe("Test the definition of the ImportProcessState Model", () => {
       ])(
         "(%s) Validate 'result.parsingWarnings' when it is %s",
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IImportProcessStateDoc>(
+          assertCaseForProperty<IImportProcessStateDoc>({
             model,
-            ["result", "parsingWarnings"],
+            propertyNames: ["result", "parsingWarnings"],
             caseType,
-            value,
-            expectedFailureMessage
-          );
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
