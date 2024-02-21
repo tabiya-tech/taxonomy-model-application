@@ -6,10 +6,8 @@ import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./skillModel";
 import {
-  ATL_LABELS_MAX_ITEMS,
   DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
-  ORIGIN_URI_MAX_LENGTH,
   IMPORT_ID_MAX_LENGTH,
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH,
@@ -20,8 +18,12 @@ import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
 import {
+  testAltLabelsField,
+  testDescription,
   testImportId,
   testObjectIdField,
+  testOriginUri,
+  testPreferredLabel,
   testUUIDField,
   testUUIDHistoryField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
@@ -109,108 +111,11 @@ describe("Test the definition of the skill Model", () => {
 
     testUUIDHistoryField<ISkillDoc>(() => skillModel);
 
-    describe("Test validation of 'originUri'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [
-          CaseType.Failure,
-          "Too long Origin uri",
-          getTestString(ORIGIN_URI_MAX_LENGTH + 1),
-          `{0} must be at most ${ORIGIN_URI_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one letter", "a", undefined],
-        [CaseType.Success, "The longest originUri", getTestString(ORIGIN_URI_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'originUri' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "originUri", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testOriginUri<ISkillDoc>(() => skillModel);
 
-    describe("Test validation of 'preferredLabel'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [
-          CaseType.Failure,
-          "Too long preferredLabel",
-          getTestString(LABEL_MAX_LENGTH + 1),
-          `PreferredLabel must be at most ${LABEL_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "the longest", getTestString(LABEL_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'preferredLabel' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "preferredLabel", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testPreferredLabel<ISkillDoc>(() => skillModel);
 
-    describe("Test validation of 'altLabels'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "not and array of strings (objects)", [{ foo: "bar" }], "Path `{0}` is required."],
-        [CaseType.Failure, "not and array of array of (string)", [["bar"]], "Path `{0}` is required."],
-        [CaseType.Failure, "array with null", [null, null], "Validator failed for path `altLabels` with value `,`"],
-        [
-          CaseType.Failure,
-          "array with undefined",
-          [undefined, undefined],
-          "Validator failed for path `altLabels` with value `,`",
-        ],
-        [
-          CaseType.Failure,
-          "array with double entries",
-          ["foo", "foo"],
-          "Validator failed for path `{0}` with value `foo,foo`",
-        ],
-        [
-          CaseType.Failure,
-          "array with too long label",
-          [getTestString(LABEL_MAX_LENGTH + 1)],
-          `Validator failed for path \`{0}\` with value \`.{${LABEL_MAX_LENGTH + 1}}\``,
-        ],
-        [
-          CaseType.Failure,
-          "too long array",
-          new Array(ATL_LABELS_MAX_ITEMS + 1).fill(undefined).map((v, i) => "foo" + i),
-          `Validator failed for path \`{0}\` with value \`foo0,foo1,.*,foo${ATL_LABELS_MAX_ITEMS}\``,
-        ],
-        [CaseType.Success, "empty array", [], undefined],
-        [CaseType.Success, "a string (automatically converted to array)", "foo", undefined],
-        [CaseType.Success, "valid array", ["foo", "bar"], undefined],
-        [CaseType.Success, "valid array with longest label", [getTestString(LABEL_MAX_LENGTH)], undefined],
-        [
-          CaseType.Success,
-          "valid longest array with longest label",
-          new Array(ATL_LABELS_MAX_ITEMS).fill(undefined).map(() => getRandomString(LABEL_MAX_LENGTH)),
-          undefined,
-        ],
-      ])(
-        `(%s) Validate 'altLabels' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "altLabels", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testAltLabelsField<ISkillDoc>(() => skillModel);
 
     describe("Test validation of 'scopeNote'", () => {
       test.each([
@@ -229,7 +134,13 @@ describe("Test the definition of the skill Model", () => {
       ])(
         `(%s) Validate 'scopeNote' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "scopeNote", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "scopeNote",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -251,32 +162,18 @@ describe("Test the definition of the skill Model", () => {
       ])(
         `(%s) Validate 'definition' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "definition", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "definition",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
 
-    describe("Test validation of 'description'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long description",
-          getTestString(DESCRIPTION_MAX_LENGTH + 1),
-          `Description must be at most ${DESCRIPTION_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(DESCRIPTION_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'description' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "description", caseType, value, expectedFailureMessage);
-        }
-      );
-    });
+    testDescription<ISkillDoc>(() => skillModel);
 
     describe("Test validation of 'skillType'", () => {
       test.each([
@@ -292,7 +189,13 @@ describe("Test the definition of the skill Model", () => {
       ])(
         `(%s) Validate 'skillType' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "skillType", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "skillType",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
@@ -311,14 +214,18 @@ describe("Test the definition of the skill Model", () => {
       ])(
         `(%s) Validate 'reuseLevel' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>(skillModel, "reuseLevel", caseType, value, expectedFailureMessage);
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "reuseLevel",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
         }
       );
     });
 
-    describe("Test validation of 'importId'", () => {
-      testImportId<ISkillDoc>(() => skillModel);
-    });
+    testImportId<ISkillDoc>(() => skillModel);
   });
 
   test("should have correct indexes", async () => {

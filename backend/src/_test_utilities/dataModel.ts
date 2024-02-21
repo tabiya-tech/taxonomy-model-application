@@ -10,12 +10,16 @@ function assertValidationError<T>(
   model: mongoose.Model<T>,
   docSpec: Partial<T>,
   failedProperty: string,
-  failMessage: string
+  failMessage: string,
+  failReason?: string
 ) {
   const newDoc = new model(docSpec);
   const result = newDoc.validateSync();
   expect(result).toBeDefined();
   expect(result?.errors[failedProperty]?.message).toEqual(expect.stringMatching(new RegExp(failMessage)));
+  if (failReason) {
+    expect(result?.errors[failedProperty]?.reason?.message).toEqual(expect.stringMatching(new RegExp(failReason)));
+  }
 }
 
 function assertNoValidationError<T>(model: mongoose.Model<T>, docSpecs: Partial<T>, failedProperty: string) {
@@ -31,35 +35,37 @@ export enum CaseType {
   Failure = "Failure",
 }
 
-export function assertCaseForProperty<T>(
+export function assertCaseForProperty<T>(options: {
   model: mongoose.Model<T>,
   propertyNames: string | string[],
   caseType: CaseType,
   testValue: unknown,
   expectedFailureMessage?: string,
-  dependencies?: Partial<T>
-) {
-  if (typeof propertyNames === "string") {
-    propertyNames = [propertyNames];
+  expectedFailureReason?: string,
+  dependencies?: Partial<T>,
+}) {
+  if (typeof options.propertyNames === "string") {
+    options.propertyNames = [options.propertyNames];
   }
   // @ts-ignore
-  let docSpec: Partial<T> = createNestedObject(propertyNames, testValue);
+  let docSpec: Partial<T> = createNestedObject(options.propertyNames, options.testValue);
 
-  if (dependencies) {
-    docSpec = { ...docSpec, ...dependencies };
+  if (options.dependencies) {
+    docSpec = { ...docSpec, ...options.dependencies };
   }
 
-  const propertyPath = propertyNames.join(".");
+  const propertyPath = options.propertyNames.join(".");
 
-  if (caseType === CaseType.Success) {
-    assertNoValidationError<T>(model, docSpec, propertyPath);
+  if (options.caseType === CaseType.Success) {
+    assertNoValidationError<T>(options.model, docSpec, propertyPath);
   } else {
-    expect(expectedFailureMessage).toBeDefined();
+    expect(options.expectedFailureMessage).toBeDefined();
     assertValidationError<T>(
-      model,
+      options.model,
       docSpec,
       propertyPath,
-      formatMessage(expectedFailureMessage as string, propertyPath)
+      formatMessage(options.expectedFailureMessage as string, propertyPath),
+      options.expectedFailureReason
     );
   }
 }
