@@ -21,6 +21,14 @@ We prioritize accessibility, ensuring that all components are usable by everyone
 - Complying to WAG 2.0 A rules is **mandatory**.
 - Complying to WAG 2.0 AA rules is **recommended** but optional.
 - Complying to WAG 2.0 AAA rules is entirely optional.
+- Complying to Best Practice Rules is
+  entirely optional.
+
+See '[Rule Descriptions](https://www.deque.com/axe/core-documentation/api-documentation/#axe-core-tags)' for more information on the rules.
+
+> **Note:**
+Accessibility testing is conducted with [storybook-addon-a11y](https://storybook.js.org/addons/@storybook/addon-a11y). Please note that specifying a DOM element for testing is necessary, and there's a slight possibility of the tests not selecting the correct element and reporting a false positive. For more details, refer to the [](.storybook/preview.tsx) and [](.storybook/test-runner.js) files in the folder. If your component requires a different selector, see [how to configure the tests](https://storybook.js.org/docs/writing-tests/accessibility-testing#configure) at the component or story level.
+> 
 
 ## Typography
 

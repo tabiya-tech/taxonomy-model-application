@@ -94,7 +94,7 @@ yarn build-storybook && yarn test:accessibility
 
 Failing to comply to WAG 2.0 A rules will generate errors.
 
-Failing to comply to WAG 2.0 AA or WAG 2.0 AAA rules will only generate warnings.
+Failing to comply to WAG 2.0 AA, WAG 2.0 AAA, or Best Practice Rules will only generate warnings.
 
 See [UI Guidlines](ui-guidelines.md#accessibility) for more information on accessibility.
 
