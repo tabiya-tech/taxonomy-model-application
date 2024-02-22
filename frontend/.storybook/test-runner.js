@@ -1,6 +1,5 @@
-const {getStoryContext} = require('@storybook/test-runner');
-const {injectAxe, checkA11y, configureAxe, getViolations, reportViolations} = require('axe-playwright');
-const TerminalReporterV2 = require("axe-playwright/dist/reporter/terminalReporterV2").default;
+const { getStoryContext } = require("@storybook/test-runner");
+const { injectAxe, checkA11y, configureAxe } = require("axe-playwright");
 
 module.exports = {
   async preRender(page) {
@@ -19,26 +18,40 @@ module.exports = {
     await configureAxe(page, {
       rules: storyContext.parameters?.a11y?.config?.rules,
     });
-
+    // See comments in the preview.js file for more details on the rootElement selector
+    const rootElement = '#storybook-root:not([aria-hidden="true"]), body > div[role="presentation"]';
     // Fail on WCAG2A rules
-    await checkA11y(page, "#storybook-root", {
-      detailedReport: true,
-      detailedReportOptions: {
-        html: false,
+    // https://github.com/dequelabs/axe-core/blob/develop/doc/rule-descriptions.md
+    await checkA11y(
+      page,
+      rootElement,
+      {
+        detailedReport: true,
+        detailedReportOptions: {
+          html: false,
+        },
+        verbose: false,
+        axeOptions: { runOnly: ["wcag2a"] },
       },
-      verbose: false,
-      axeOptions: {runOnly: ['wcag2a']},
-    }, false, 'v2');
+      false,
+      "v2"
+    );
 
-    // Warn for WCAG2AA, WCAG2AAA rules
-    await checkA11y(page, "#storybook-root", {
-      detailedReport: true,
-      detailedReportOptions: {
-        html: false,
+    // Warn for WCAG2AA, WCAG2AAA rules, and Best Practice Rules
+    // https://github.com/dequelabs/axe-core/blob/develop/doc/rule-descriptions.md
+    await checkA11y(
+      page,
+      "#storybook-root",
+      {
+        detailedReport: true,
+        detailedReportOptions: {
+          html: false,
+        },
+        verbose: false,
+        axeOptions: { runOnly: ["wcag2aa", "wcag2aaa", "best-practice"] },
       },
-      verbose: false,
-      axeOptions: {runOnly: ['wcag2aa', 'wcag2aaa']},
-    }, true, 'default');
+      true,
+      "default"
+    );
   },
 };
-
