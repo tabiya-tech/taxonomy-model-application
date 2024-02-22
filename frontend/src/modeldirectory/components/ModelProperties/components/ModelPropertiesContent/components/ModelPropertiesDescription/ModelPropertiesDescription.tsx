@@ -1,8 +1,8 @@
 import React from "react";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import Box from "@mui/material/Box";
-import ModelPropertiesItemDetails from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesItemDetails/ModelPropertiesItemDetails";
 import { useTheme } from "@mui/material";
+import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 
 export interface ModelPropertiesDescriptionProps {
   model: ModelInfoTypes.ModelInfo;
@@ -15,6 +15,12 @@ export const DATA_TEST_ID = {
   MODEL_PROPERTIES_NAME: `model-properties-name-${uniqueId}`,
   MODEL_PROPERTIES_LOCALE: `model-properties-locale-${uniqueId}`,
   MODEL_PROPERTIES_DESCRIPTION: `model-properties-description-${uniqueId}`,
+};
+
+const FIELD_ID = {
+  NAME: `name-${uniqueId}`,
+  LOCALE: `locale-${uniqueId}`,
+  DESCRIPTION: `description-${uniqueId}`,
 };
 
 /**
@@ -35,20 +41,23 @@ const ModelPropertiesDescription: React.FC<ModelPropertiesDescriptionProps> = (
       gap={theme.tabiyaSpacing.md}
       data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION_CONTAINER}
     >
-      <ModelPropertiesItemDetails
-        title={"Name"}
-        value={`${props.model.name}`}
+      <TextPropertyField
+        label={"Name"}
+        text={`${props.model.name}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_NAME}
+        fieldId={FIELD_ID.NAME}
       />
-      <ModelPropertiesItemDetails
-        title={"Locale"}
-        value={`${props.model.locale.name}(${props.model.locale.shortCode})`}
+      <TextPropertyField
+        label={"Locale"}
+        text={`${props.model.locale.name}(${props.model.locale.shortCode})`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_LOCALE}
+        fieldId={FIELD_ID.LOCALE}
       />
-      <ModelPropertiesItemDetails
-        title={"Description"}
-        value={props.model.description}
+      <TextPropertyField
+        label={"Desciption"}
+        text={props.model.description}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION}
+        fieldId={FIELD_ID.DESCRIPTION}
       />
     </Box>
   );

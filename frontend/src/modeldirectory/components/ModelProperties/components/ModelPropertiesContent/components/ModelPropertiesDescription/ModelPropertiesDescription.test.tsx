@@ -5,20 +5,17 @@ import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utili
 import { render, screen } from "src/_test_utilities/test-utils";
 import ModelPropertiesDescription, { DATA_TEST_ID } from "./ModelPropertiesDescription";
 
-//mock the ModelPropertiesItemDetails component
-jest.mock(
-  "src/modeldirectory/components/ModelProperties/components/ModelPropertiesItemDetails/ModelPropertiesItemDetails",
-  () => {
-    return function ItemDetailsMock(props: { title: string; value: string; "data-testid": string }) {
-      return (
-        <div data-testid={props["data-testid"]}>
-          <span>{props.title}</span>
-          <span>{props.value}</span>
-        </div>
-      );
-    };
-  }
-);
+//mock the TextPropertyField component
+jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", () => {
+  return function ItemDetailsMock(props: { label: string; text: string; "data-testid": string; fieldId: string }) {
+    return (
+      <div data-testid={props["data-testid"]} id={props.fieldId}>
+        <span>{props.label}</span>
+        <span>{props.text}</span>
+      </div>
+    );
+  };
+});
 
 describe("ModelPropertiesDescription", () => {
   test("should render correctly with the provided model props", () => {
