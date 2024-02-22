@@ -6,7 +6,7 @@ import { isUnspecified } from "src/utils/isUnspecified";
 export const TEXT = {
   MODEL_LOCALE_SELECT_LABEL: "Select Model Locale",
 };
-const uniqueId = "110643ab-593e-47dc-b398-ecc98518660e";
+const uniqueId = "dfdbbef3-ec63-44f4-9945-a757d9c81269";
 
 export const DATA_TEST_ID = {
   MODEL_LOCALE_SELECT_FIELD: `model-locale-select-field-${uniqueId}`,
