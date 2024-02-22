@@ -7,6 +7,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
 >
   <div
     data-testid="model-properties-uuid-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="uuid-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
     <span>
       UUID
@@ -17,6 +18,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
   </div>
   <div
     data-testid="model-properties-tabiya-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="tabiya-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
     <span>
       Tabiya Path
@@ -27,6 +29,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
   </div>
   <div
     data-testid="model-properties-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="path-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
     <span>
       Path
@@ -37,6 +40,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
   </div>
   <div
     data-testid="model-properties-version-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="version-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
     <span>
       Version
@@ -47,6 +51,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
   </div>
   <div
     data-testid="model-properties-released-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="released-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
     <span>
       Released
@@ -57,6 +62,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
   </div>
   <div
     data-testid="model-properties-release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
     <span>
       Release Notes

@@ -2,6 +2,20 @@ import { Typography } from "@mui/material";
 
 // the text is a prop
 interface VisualMockProps {
+  variant?:
+    | "h1"
+    | "h2"
+    | "h3"
+    | "h4"
+    | "h5"
+    | "h6"
+    | "subtitle1"
+    | "subtitle2"
+    | "body1"
+    | "body2"
+    | "caption"
+    | "button"
+    | "overline";
   text: string;
 }
 
@@ -26,7 +40,7 @@ export const VisualMock = (props: VisualMockProps) => {
         position: "relative",
       }}
     >
-      <Typography textAlign={"center"} variant={"h1"} sx={{ wordBreak: "break-word" }}>
+      <Typography textAlign={"center"} variant={props.variant ?? "h1"} sx={{ wordBreak: "break-word" }}>
         {props.text}
       </Typography>
       <svg

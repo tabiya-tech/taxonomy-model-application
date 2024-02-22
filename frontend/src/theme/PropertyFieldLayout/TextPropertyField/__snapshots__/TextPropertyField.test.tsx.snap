@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextPropertyField render tests should render with provided label and text 1`] = `
+<div
+  data-testid="item-details"
+>
+  <span>
+    foo
+  </span>
+  <span>
+    <p
+      aria-labelledby="field-id"
+      class="MuiTypography-root MuiTypography-body1 css-1cy5wtl-MuiTypography-root"
+      data-testid="text-property-field-text-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+    >
+      bar
+    </p>
+  </span>
+</div>
+`;

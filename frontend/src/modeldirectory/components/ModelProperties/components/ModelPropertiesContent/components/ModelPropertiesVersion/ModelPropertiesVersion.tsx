@@ -2,7 +2,7 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
-import ModelPropertiesItemDetails from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesItemDetails/ModelPropertiesItemDetails";
+import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 
 export interface ModelPropertiesVersionProps {
   model: ModelInfoTypes.ModelInfo;
@@ -20,6 +20,14 @@ export const DATA_TEST_ID = {
   MODEL_PROPERTIES_RELEASE_NOTES: `model-properties-release-notes-${uniqueId}`,
 };
 
+const FIELD_ID = {
+  UUID: `uuid-${uniqueId}`,
+  TABIYA_PATH: `tabiya-path-${uniqueId}`,
+  PATH: `path-${uniqueId}`,
+  VERSION: `version-${uniqueId}`,
+  RELEASED: `released-${uniqueId}`,
+  RELEASE_NOTES: `release-notes-${uniqueId}`,
+};
 /**
  * ModelPropertiesVersion responsible for displaying the version details of a model
  * like UUID, tabiyaPath, path, version, released, release notes, etc.
@@ -39,35 +47,46 @@ const ModelPropertiesVersion: React.FC<ModelPropertiesVersionProps> = (
       gap={theme.tabiyaSpacing.md}
       data-testid={DATA_TEST_ID.MODEL_PROPERTIES_VERSION_CONTAINER}
     >
-      <ModelPropertiesItemDetails
-        title={"UUID"}
-        value={`${props.model.UUID}`}
+      <TextPropertyField
+        label={"UUID"}
+        text={`${props.model.UUID}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_UUID}
+        fieldId={FIELD_ID.UUID}
       />
-      <ModelPropertiesItemDetails
-        title={"Tabiya Path"}
-        value={props.model.tabiyaPath}
+
+      <TextPropertyField
+        label={"Tabiya Path"}
+        text={`${props.model.tabiyaPath}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_TABIYA_PATH}
+        fieldId={FIELD_ID.TABIYA_PATH}
       />
-      <ModelPropertiesItemDetails
-        title={"Path"}
-        value={props.model.path}
+
+      <TextPropertyField
+        label={"Path"}
+        text={`${props.model.path}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_PATH}
+        fieldId={FIELD_ID.PATH}
       />
-      <ModelPropertiesItemDetails
-        title={"Version"}
-        value={props.model.version}
+
+      <TextPropertyField
+        label={"Version"}
+        text={`${props.model.version}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_VERSION}
+        fieldId={FIELD_ID.VERSION}
       />
-      <ModelPropertiesItemDetails
-        title={"Released"}
-        value={props.model.released ? "true" : "false"}
+
+      <TextPropertyField
+        label={"Released"}
+        text={props.model.released ? "true" : "false"}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_RELEASED}
+        fieldId={FIELD_ID.RELEASED}
       />
-      <ModelPropertiesItemDetails
-        title={"Release Notes"}
-        value={props.model.releaseNotes}
+
+      <TextPropertyField
+        label={"Release Notes"}
+        text={props.model.releaseNotes}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES}
+        fieldId={FIELD_ID.RELEASE_NOTES}
       />
     </Box>
   );

@@ -2,8 +2,8 @@ import React from "react";
 import { useTheme } from "@mui/material";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import Box from "@mui/material/Box";
-import ModelPropertiesItemDetails from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesItemDetails/ModelPropertiesItemDetails";
 import { formattedDate } from "src/utils/userFriendlyDateFormat";
+import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 
 export interface ModelPropertiesHistoryProps {
   model: ModelInfoTypes.ModelInfo;
@@ -15,6 +15,11 @@ export const DATA_TEST_ID = {
   MODEL_PROPERTIES_HISTORY_CONTAINER: `model-properties-history-container-${uniqueId}`,
   MODEL_PROPERTIES_CREATED_DATE: `model-properties-created-date-${uniqueId}`,
   MODEL_PROPERTIES_UPDATED_DATE: `model-properties-updated-date-${uniqueId}`,
+};
+
+const FIELD_ID = {
+  DATE_CREATED: `created-${uniqueId}`,
+  LAST_UPDATED: `updated-${uniqueId}`,
 };
 
 /**
@@ -36,15 +41,17 @@ const ModelPropertiesHistory: React.FC<ModelPropertiesHistoryProps> = (
       gap={theme.tabiyaSpacing.md}
       data-testid={DATA_TEST_ID.MODEL_PROPERTIES_HISTORY_CONTAINER}
     >
-      <ModelPropertiesItemDetails
-        title={"Date Created"}
-        value={formattedDate(props.model.createdAt)}
+      <TextPropertyField
+        label={"Date Created"}
+        text={formattedDate(props.model.createdAt)}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_CREATED_DATE}
+        fieldId={FIELD_ID.DATE_CREATED}
       />
-      <ModelPropertiesItemDetails
-        title={"Last Updated"}
-        value={formattedDate(props.model.updatedAt)}
+      <TextPropertyField
+        label={"Last Updated"}
+        text={formattedDate(props.model.updatedAt)}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_UPDATED_DATE}
+        fieldId={FIELD_ID.LAST_UPDATED}
       />
     </Box>
   );
