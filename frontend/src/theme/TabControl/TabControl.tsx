@@ -36,7 +36,7 @@ const StyledTabs = (props: StyledTabsProps) => (
 export interface TabControlProps {
   "aria-label": string;
   items: TabControlConfig[];
-  "data-testid": string;
+  "data-testid"?: string;
 }
 
 /**

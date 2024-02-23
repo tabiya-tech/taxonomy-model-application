@@ -3,7 +3,7 @@ import { Typography } from "@mui/material";
 
 export interface HeaderTitleProps {
   children: React.ReactNode;
-  "data-testid": string;
+  "data-testid"?: string;
 }
 
 /**
