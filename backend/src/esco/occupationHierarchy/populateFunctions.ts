@@ -1,7 +1,7 @@
 import { IPopulatedOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
 import { IISCOGroupDoc, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
-import { IOccupationDoc } from "esco/occupations/occupation/occupation.types";
-import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
+import { IOccupationDoc } from "esco/occupations/occupation.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import mongoose from "mongoose";
 
 export function getOccupationHierarchyChildReference(

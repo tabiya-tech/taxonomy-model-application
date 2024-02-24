@@ -1,4 +1,4 @@
-import { INewOccupationSpec } from "esco/occupations/occupation/occupation.types";
+import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 export const expected: Omit<INewOccupationSpec, "modelId">[] = [
@@ -15,12 +15,13 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     regulatedProfessionNote: "regulated profession note",
     importId: "key_1",
     occupationType: ObjectTypes.ESCOOccupation,
+    isLocalized: false,
   },
   {
     originUri: "origin\nuri\nwith\nlinebreak",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     ISCOGroupCode: "0101",
-    code: "0101.01.02.03", //NOSONAR
+    code: "0101.01.02.03_01",
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
     description: "description\nwith\nlinebreak",
@@ -28,35 +29,38 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     scopeNote: "scope\nnote\nwith\nlinebreak",
     regulatedProfessionNote: "regulated\nprofession\nnote\nwith\nlinebreak",
     importId: "key_2",
-    occupationType: ObjectTypes.ESCOOccupation,
+    occupationType: ObjectTypes.LocalOccupation,
+    isLocalized: false,
   },
   {
     originUri: "origin uri",
-    UUIDHistory: [],
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
     ISCOGroupCode: "01",
-    code: "0001.1.2.3.4",
+    code: "1000.1.2.3",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description",
     definition: "definition",
     scopeNote: "scope note",
     regulatedProfessionNote: "regulated profession note",
-    importId: "key_7",
+    importId: "key_3",
     occupationType: ObjectTypes.ESCOOccupation,
+    isLocalized: true,
   },
 
   {
     originUri: "origin uri",
     UUIDHistory: [],
     ISCOGroupCode: "01",
-    code: "0101.01.02.04",
+    code: "0001.1.2.3.4_01",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description",
     definition: "definition",
     scopeNote: "scope note",
     regulatedProfessionNote: "regulated profession note",
-    importId: "key_8",
-    occupationType: ObjectTypes.ESCOOccupation,
+    importId: "key_4",
+    occupationType: ObjectTypes.LocalOccupation,
+    isLocalized: false,
   },
 ];

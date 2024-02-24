@@ -19,7 +19,6 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromFile } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromFile } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromFile } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
-import { ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
 
@@ -131,23 +130,14 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
         getRepositoryRegistry().skill.Model,
         dataFolder + "skills.csv"
       );
+      // TODO: ADD the ESCO_ORIGINAL_OCCUPATIONS.csv here
+
       // parse the occupations.csv file and assert that all rows were imported successfully
       await assertEntityImportedSuccessfully(
-        () => parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap, false),
+        () => parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap),
         getRepositoryRegistry().occupation.Model,
         dataFolder + "occupations.csv"
       );
-
-      // next parse the local and localized occupations in the case of sample import since they depend on the occupations being imported first
-      if (dataTestType === DataTestType.SAMPLE) {
-        // parse the local occupations.csv file and assert that all rows were imported successfully
-        await assertOccupationImportedSuccessfully(
-          () => parseOccupationsFromFile(modelInfo.id, dataFolder + "local_occupations.csv", importIdToDBIdMap, true),
-          getRepositoryRegistry().occupation.Model,
-          dataFolder + "local_occupations.csv",
-          ObjectTypes.LocalOccupation
-        );
-      }
 
       // finally parse the relations between the entities and assert that all rows were imported successfully,
       // since they depend on the entities being imported first
@@ -197,25 +187,7 @@ const assertEntityImportedSuccessfully = async (
   const parsedStats = await parserCallback();
   const csvRowCount = countCSVRecords(fileName);
   const dbRowCount = await model.countDocuments({});
-  assertSuccessfullyImported(
-    parsedStats,
-    csvRowCount,
-    dbRowCount,
-    jest.spyOn(console, "error"),
-    jest.spyOn(console, "warn")
-  );
-};
-
-const assertOccupationImportedSuccessfully = async (
-  parserCallback: () => Promise<RowsProcessedStats>,
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model: mongoose.Model<any>,
-  fileName: string,
-  occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
-) => {
-  const parsedStats = await parserCallback();
-  const csvRowCount = countCSVRecords(fileName);
-  const dbRowCount = await model.countDocuments({ occupationType });
+  console.log(fileName, "csvRowCount", csvRowCount, "dbRowCount", dbRowCount);
   assertSuccessfullyImported(
     parsedStats,
     csvRowCount,

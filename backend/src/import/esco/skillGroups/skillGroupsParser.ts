@@ -9,7 +9,7 @@ import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import { ISkillGroupImportRow, skillGroupImportHeaders } from "esco/common/entityToCSV.types";
-import { arrayFromString } from "../common/parseNewLineSeparatedArray";
+import { arrayFromString } from "../../../common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 // expect all columns to be in upper case
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {

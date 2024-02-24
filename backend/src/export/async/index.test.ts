@@ -17,7 +17,7 @@ jest.mock("server/init", () => {
     initOnce: jest.fn(), // Just create a basic mock without any specific behavior.
   };
 });
-//Mock the parseModelToFile function
+//Mock the modelToS3 function
 jest.mock("./modelToS3", () => ({
   modelToS3: jest.fn(),
 }));
@@ -105,7 +105,7 @@ describe("Test the main async handler", () => {
       ["exportProcessStateId missing", { modelId: "foo" } as AsyncExportEvent],
       ["both are missing", { foo: "bar" } as unknown as AsyncExportEvent],
     ])(
-      "should not throw error and not call parseModelToFile and InitOnce when %s",
+      "should not throw error and not call modelToS3 and InitOnce when %s",
       async (description: string, givenBadEvent: AsyncExportEvent) => {
         // GIVEN an event that does not conform to the expected export event
         // WHEN the main handler is invoked with the given bad event
@@ -114,7 +114,7 @@ describe("Test the main async handler", () => {
         // THEN expect it to return without throwing an error
         expect(actualPromiseHandler).not.toThrowError();
 
-        // AND expect parseModelToFile not to have been called
+        // AND expect modelToS3 not to have been called
         expect(modelToS3).not.toHaveBeenCalled();
         // AND expect initOnce not to have been called
         expect(initOnce).not.toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe("Test the main async handler", () => {
       }
     );
 
-    test("should throw error and not call parseModelToFiles when initOnce fails", async () => {
+    test("should throw error and not call modelToS3 when initOnce fails", async () => {
       // GIVEN initOnce will fail
       const givenError = new Error("foo");
       (initOnce as jest.Mock).mockRejectedValueOnce(givenError);
@@ -147,7 +147,7 @@ describe("Test the main async handler", () => {
       expect(getRepositoryRegistry().exportProcessState.update).not.toHaveBeenCalled();
     });
 
-    test("should not throw error and not call parseModelToFile when exportProcessStateRepository.findById fails", async () => {
+    test("should not throw error and not call modelToS3 when exportProcessStateRepository.findById fails", async () => {
       //GIVEN exportProcessStateRepository.find will fail
       const givenExportError = new Error("foo");
       (getRepositoryRegistry().exportProcessState.findById as jest.Mock).mockRejectedValueOnce(givenExportError);
@@ -159,7 +159,7 @@ describe("Test the main async handler", () => {
       await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
     });
 
-    test("should not throw error and not call parseModelToFile when there is no exportProcessState for the given id", async () => {
+    test("should not throw error and not call modelToS3 when there is no exportProcessState for the given id", async () => {
       //GIVEN exportProcessStateRepository.find will return null
       (getRepositoryRegistry().exportProcessState.findById as jest.Mock).mockResolvedValueOnce(null);
 
@@ -174,7 +174,7 @@ describe("Test the main async handler", () => {
       ["Running", ExportProcessStateAPISpecs.Enums.Status.RUNNING],
       ["Completed", ExportProcessStateAPISpecs.Enums.Status.COMPLETED],
     ])(
-      "should not throw error and not call parseModelToFile when exportProcessState status is not PENDING (%s)",
+      "should not throw error and not call modelToS3 when exportProcessState status is not PENDING (%s)",
       async (_description: string, givenStatus: ExportProcessStateAPISpecs.Enums.Status) => {
         // GIVEN exportProcessStateRepository.find will return a not PENDING status
         const givenExportProcessState = getMockExportProcessState();
@@ -196,8 +196,8 @@ describe("Test the main async handler", () => {
       }
     );
 
-    test("should not throw error when parseFiles fails", async () => {
-      // GIVEN parseModelToFile will fail
+    test("should not throw error when modelToS3 fails", async () => {
+      // GIVEN modelToS3 will fail
       (modelToS3 as jest.Mock).mockRejectedValueOnce(new Error("foo"));
 
       // WHEN the handler is invoked with a valid event
@@ -221,7 +221,7 @@ describe("Test the main async handler", () => {
     });
 
     test("should set exportErrors to true when errorLogger has errors ", async () => {
-      // GIVEN parseModelToFile will fail and log an export error
+      // GIVEN modelToS3 will fail and log an export error
       (modelToS3 as jest.Mock).mockImplementationOnce(() => {
         exportLogger.logError(new Error("foo"));
         throw new Error("bar");
@@ -249,7 +249,7 @@ describe("Test the main async handler", () => {
     });
 
     test("should set exportWarnings to true when errorLogger has warnings ", async () => {
-      // GIVEN parseModelToFile will fail and log an export warning
+      // GIVEN modelToS3 will fail and log an export warning
       (modelToS3 as jest.Mock).mockImplementationOnce(() => {
         exportLogger.logWarning(new Error("foo"));
         throw new Error("bar");

@@ -2,11 +2,11 @@
  * Enum for the different types of objects in the ESCO ontology.
  */
 export enum ObjectTypes {
-  ISCOGroup = "ISCOGroup",
-  ESCOOccupation = "EscoOccupation",
-  LocalOccupation = "LocalOccupation",
-  Skill = "Skill",
-  SkillGroup = "SkillGroup",
+  ISCOGroup = "iscogroup",
+  ESCOOccupation = "escooccupation",
+  LocalOccupation = "localoccupation",
+  Skill = "skill",
+  SkillGroup = "skillgroup",
 }
 
 /**

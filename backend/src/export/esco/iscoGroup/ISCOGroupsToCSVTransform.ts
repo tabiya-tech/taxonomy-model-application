@@ -3,7 +3,7 @@ import { IISCOGroupExportRow, ISCOGroupExportHeaders } from "esco/common/entityT
 import { pipeline, Readable, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { stringify } from "csv-stringify";
-import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
+import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 export type IUnpopulatedISCOGroup = Omit<IISCOGroup, "parent" | "children">;
 

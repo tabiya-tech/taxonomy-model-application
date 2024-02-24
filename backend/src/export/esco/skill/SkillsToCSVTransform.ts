@@ -4,8 +4,8 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { stringify } from "csv-stringify";
 import { ISkill } from "esco/skill/skills.types";
 import { Readable } from "node:stream";
-import { getCSVTypeFromReuseLevel, getCSVTypeFromSkillType } from "../../../esco/common/csvObjectTypes";
-import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
+import { getCSVTypeFromReuseLevel, getCSVTypeFromSkillType } from "esco/common/csvObjectTypes";
+import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 export type IUnpopulatedSkill = Omit<
   ISkill,
@@ -14,11 +14,11 @@ export type IUnpopulatedSkill = Omit<
 
 export const transformSkillSpecToCSVRow = (skill: IUnpopulatedSkill): ISkillExportRow => {
   const REUSELEVEL = getCSVTypeFromReuseLevel(skill.reuseLevel);
-  if (!REUSELEVEL) {
+  if (REUSELEVEL === null) {
     throw new Error(`Failed to transform Skill to CSV row: Invalid reuseLevel: ${skill.reuseLevel}`);
   }
   const SKILLTYPE = getCSVTypeFromSkillType(skill.skillType);
-  if (!SKILLTYPE) {
+  if (SKILLTYPE === null) {
     throw new Error(`Failed to transform Skill to CSV row: Invalid skillType: ${skill.skillType}`);
   }
 

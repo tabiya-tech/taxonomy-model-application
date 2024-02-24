@@ -151,6 +151,7 @@ export const occupationImportHeaders = [
   "SCOPENOTE",
   "REGULATEDPROFESSIONNOTE",
   "OCCUPATIONTYPE",
+  "ISLOCALIZED",
   HEADER_NAMES.PREFERREDLABEL,
   HEADER_NAMES.ALTLABELS,
   HEADER_NAMES.DESCRIPTION,
@@ -174,7 +175,8 @@ export interface IOccupationImportRow {
   DEFINITION: string;
   SCOPENOTE: string;
   REGULATEDPROFESSIONNOTE: string;
-  OCCUPATIONTYPE: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  ISLOCALIZED: string;
+  OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
 }
 
 export interface IOccupationExportRow {
@@ -190,6 +192,7 @@ export interface IOccupationExportRow {
   SCOPENOTE: string;
   REGULATEDPROFESSIONNOTE: string;
   OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  ISLOCALIZED: string;
   CREATEDAT: string;
   UPDATEDAT: string;
 }

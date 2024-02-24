@@ -12,7 +12,11 @@ import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransfo
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
-import { ObjectTypes } from "../../common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
+
+export type SearchFilter = {
+  occupationType?: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+};
 
 export interface IOccupationRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
@@ -49,11 +53,11 @@ export interface IOccupationRepository {
    * Returns all occupations as a stream. The Occupations are transformed to objects (via the .toObject()), however
    * in the current version they are not populated with parents, children or required skills.This will be implemented in a future version.
    * @param {string} modelId - The modelId of the occupations.
-   * @param {OccupationType} occupationType - Used for filtering between local and ESCO occupations.
+   * @param {SearchFilter} filter - Used for restricting the search.
    * @return {Readable} - A Readable stream of IOccupations
    * Rejects with an error if the operation fails.
    */
-  findAll(modelId: string, occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation): Readable;
+  findAll(modelId: string, filter?: SearchFilter): Readable;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -151,21 +155,26 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  findAll(modelId: string, occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation): Readable {
-    // Allow only ESCO or local occupations
-    if (occupationType !== ObjectTypes.ESCOOccupation && occupationType !== ObjectTypes.LocalOccupation) {
+  findAll(modelId: string, filter?: SearchFilter): Readable {
+    // If occupationType is set then allow only ESCO or Local occupations
+    if (
+      filter?.occupationType !== undefined &&
+      filter.occupationType !== ObjectTypes.ESCOOccupation &&
+      filter.occupationType !== ObjectTypes.LocalOccupation
+    ) {
       const err = new Error(
         "OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL."
       );
       console.error(err);
       throw err;
     }
+
     try {
       const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.Model.find({
           modelId: { $eq: modelId },
-          occupationType: { $eq: occupationType },
+          ...(filter?.occupationType !== undefined ? { occupationType: { $eq: filter.occupationType } } : {}),
         }).cursor(), // in the current version we do not populate the parent, children or requiresSkills
         new DocumentToObjectTransformer<IOccupation>(),
         () => undefined

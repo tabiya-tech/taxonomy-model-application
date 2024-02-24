@@ -11,6 +11,7 @@ export interface IBaseOccupationDoc extends ImportIdentifiable {
   ISCOGroupCode: string;
   code: string;
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  isLocalized: boolean;
 }
 
 /**

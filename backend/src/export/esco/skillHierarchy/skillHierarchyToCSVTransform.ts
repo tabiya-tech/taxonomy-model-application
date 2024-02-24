@@ -4,18 +4,18 @@ import { ISkillHierarchyExportRow, skillHierarchyExportHeaders } from "esco/comm
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import { Readable } from "node:stream";
-import { getCSVTypeFromObjectObjectType } from "esco/common/csvObjectTypes";
+import { getCSVTypeFromObjectType } from "esco/common/csvObjectTypes";
 export type IUnpopulatedSkillHierarchy = Omit<ISkillHierarchyPair, "parentDocModel" | "childDocModel">;
 
 export const transformSkillHierarchySpecToCSVRow = (
   skillHierarchy: IUnpopulatedSkillHierarchy
 ): ISkillHierarchyExportRow => {
-  const PARENTOBJECTTYPE = getCSVTypeFromObjectObjectType(skillHierarchy.parentType);
-  if (!PARENTOBJECTTYPE) {
+  const PARENTOBJECTTYPE = getCSVTypeFromObjectType(skillHierarchy.parentType);
+  if (PARENTOBJECTTYPE === null) {
     throw new Error(`Failed to transform SkillHierarchy to CSV row: Invalid parentType: ${skillHierarchy.parentType}`);
   }
-  const CHILDOBJECTTYPE = getCSVTypeFromObjectObjectType(skillHierarchy.childType);
-  if (!CHILDOBJECTTYPE) {
+  const CHILDOBJECTTYPE = getCSVTypeFromObjectType(skillHierarchy.childType);
+  if (CHILDOBJECTTYPE === null) {
     throw new Error(`Failed to transform SkillHierarchy to CSV row: Invalid childType: ${skillHierarchy.childType}`);
   }
 

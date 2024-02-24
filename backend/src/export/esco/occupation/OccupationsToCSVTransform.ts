@@ -1,18 +1,17 @@
 import { stringify } from "csv-stringify";
 import { pipeline, Transform } from "stream";
-import { IOccupation } from "esco/occupations/occupation/occupation.types";
+import { IOccupation } from "esco/occupations/occupation.types";
 import { IOccupationExportRow, occupationExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { ObjectTypes } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
-import { getCSVTypeFromObjectObjectType } from "../../../esco/common/csvObjectTypes";
-import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
+import { CSVObjectTypes, getCSVTypeFromObjectType } from "esco/common/csvObjectTypes";
+import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 export type IUnpopulatedOccupation = Omit<IOccupation, "parent" | "children" | "requiresSkills">;
 
 export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupation): IOccupationExportRow => {
-  const OCCUPATIONTYPE = getCSVTypeFromObjectObjectType(occupation.occupationType);
-  if (!OCCUPATIONTYPE) {
+  const OCCUPATIONTYPE = getCSVTypeFromObjectType(occupation.occupationType);
+  if (OCCUPATIONTYPE !== CSVObjectTypes.ESCOOccupation && OCCUPATIONTYPE !== CSVObjectTypes.LocalOccupation) {
     throw new Error(`Failed to transform Occupation to CSV row: Invalid occupationType: ${occupation.occupationType}`);
   }
   return {
@@ -27,19 +26,16 @@ export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupati
     DEFINITION: occupation.definition,
     SCOPENOTE: occupation.scopeNote,
     REGULATEDPROFESSIONNOTE: occupation.regulatedProfessionNote,
-    // @ts-ignore
     OCCUPATIONTYPE,
+    ISLOCALIZED: occupation.isLocalized.toString(),
     CREATEDAT: occupation.createdAt.toISOString(),
     UPDATEDAT: occupation.updatedAt.toISOString(),
   };
 };
 
 class OccupationToCSVRowTransformer extends Transform {
-  readonly occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
-
-  constructor(occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation) {
+  constructor() {
     super({ objectMode: true });
-    this.occupationType = occupationType;
   }
 
   _transform(
@@ -57,7 +53,7 @@ class OccupationToCSVRowTransformer extends Transform {
       try {
         json = JSON.stringify(occupation, null, 2);
       } finally {
-        const err = new Error(`Failed to transform ${this.occupationType} occupation to CSV row: ${json}`, {
+        const err = new Error(`Failed to transform Occupation to CSV row: ${json}`, {
           cause: cause,
         });
         console.error(err);
@@ -67,10 +63,7 @@ class OccupationToCSVRowTransformer extends Transform {
   }
 }
 
-const BaseOccupationsToCSVTransform = (
-  modelId: string,
-  occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
-): Readable => {
+const OccupationsToCSVTransform = (modelId: string): Readable => {
   // the stringify is a stream, and we need a new one every time we create a new pipeline
   const occupationStringifier = stringify({
     header: true,
@@ -78,15 +71,15 @@ const BaseOccupationsToCSVTransform = (
   });
 
   return pipeline(
-    getRepositoryRegistry().occupation.findAll(modelId, occupationType),
-    new OccupationToCSVRowTransformer(occupationType),
+    getRepositoryRegistry().occupation.findAll(modelId),
+    new OccupationToCSVRowTransformer(),
     occupationStringifier,
     (cause) => {
       if (cause) {
-        console.error(new Error(`Transforming ${occupationType} occupations to CSV failed`, { cause: cause }));
+        console.error(new Error(`Transforming Occupations to CSV failed`, { cause: cause }));
       }
     }
   );
 };
 
-export default BaseOccupationsToCSVTransform;
+export default OccupationsToCSVTransform;

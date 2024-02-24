@@ -23,8 +23,9 @@ import { pipeline, Readable } from "stream";
 import fs from "fs";
 import { AsyncExportEvent } from "export/async/async.types";
 import * as ISCOGroupsToCSVTransformModule from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
-import * as ESCOOccupationsToCSVTransformModule from "export/esco/occupation/ESCOOccupationsToCSVTransform";
-import * as LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
+// TODO: This will become ESCO_OriginalOccupationsToCSVTransform
+//import * as ESCOOccupationsToCSVTransformModule from "export/esco/occupation/ESCOOccupationsToCSVTransform";
+import * as OccupationsToCSVTransform from "export/esco/occupation/OccupationsToCSVTransform";
 import * as SkillsToCSVTransformModule from "export/esco/skill/SkillsToCSVTransform";
 import * as SkillGroupsToCSVTransformModule from "export/esco/skillGroup/SkillGroupsToCSVTransform";
 import * as OccupationHierarchyToCSVTransformModule from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
@@ -47,6 +48,11 @@ import {
   getSampleSkillsSpecs,
   getSampleSkillToSkillRelations,
 } from "./getSampleEntitiesArray";
+import extract from "extract-zip";
+import * as path from "path";
+import {FILENAMES} from "export/async/modelToS3";
+import {countCSVRecords} from "import/esco/_test_utilities/countCSVRecords";
+import mongoose from "mongoose";
 
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -101,7 +107,9 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     jest.clearAllMocks();
   });
 
-  async function createTestModel() {
+
+  async function createTestModel(): Promise<{ modelId: string }> {
+
     // Construct a model
     const givenModel = await getRepositoryRegistry().modelInfo.create({
       name: "foo",
@@ -182,8 +190,9 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   test("export to file", async () => {
     // For each Collection exported
     jest.spyOn(ISCOGroupsToCSVTransformModule, "default");
-    jest.spyOn(ESCOOccupationsToCSVTransformModule, "default");
-    jest.spyOn(LocalOccupationsToCSVTransform, "default");
+    // TODO: This will become ESCO_OriginalOccupationsToCSVTransform
+    // jest.spyOn(ESCO_OriginalOccupationsToCSVTransform, "default");
+    jest.spyOn(OccupationsToCSVTransform, "default");
     jest.spyOn(SkillsToCSVTransformModule, "default");
     jest.spyOn(SkillGroupsToCSVTransformModule, "default");
     jest.spyOn(OccupationHierarchyToCSVTransformModule, "default");
@@ -271,10 +280,40 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
 
+    // AND assert the content of the zip file
+    const zipFile = "./tmp/" + actualExportProcessState!.downloadUrl.split("/").pop();
+    const extractFolder = path.resolve(zipFile.replace(".zip", ""));
+    await extract(zipFile, { dir: extractFolder });
+
+    // AND assert the content of the extracted files
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().ISCOGroup.Model, path.join(extractFolder, FILENAMES.ISCOGroups));
+    // TODO: Assert the original occupations file
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupation.Model, path.join(extractFolder, FILENAMES.Occupations));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().skill.Model, path.join(extractFolder, FILENAMES.Skills));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillGroup.Model, path.join(extractFolder, FILENAMES.SkillGroups));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupationHierarchy.hierarchyModel, path.join(extractFolder, FILENAMES.OccupationHierarchy));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillHierarchy.hierarchyModel, path.join(extractFolder, FILENAMES.SkillHierarchy));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupationToSkillRelation.relationModel, path.join(extractFolder, FILENAMES.OccupationToSkillRelation));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillToSkillRelation.relationModel, path.join(extractFolder, FILENAMES.SkillToSkillRelation));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().modelInfo.Model, path.join(extractFolder, FILENAMES.ModelInfo));
+
     // AND All resources have been released
     await assertThanAllResourcesAreReleased();
   });
 });
+
+
+const assertCollectionExportedSuccessfully = async (
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model: mongoose.Model<any>,
+  fileName: string
+) => {
+  const csvRowCount = countCSVRecords(fileName);
+  const dbRowCount = await model.countDocuments({});
+  expect(csvRowCount).toBeGreaterThan(0);
+  expect(dbRowCount).toBeGreaterThan(0);
+  expect(csvRowCount).toEqual(dbRowCount);
+};
 
 async function assertStreamIsClosedAndDestroyed(stream: Readable) {
   await new Promise((resolve) =>
@@ -304,8 +343,9 @@ async function assertThanAllResourcesAreReleased() {
   // Assert stream resources are released
   for (const module of [
     ISCOGroupsToCSVTransformModule.default,
-    ESCOOccupationsToCSVTransformModule.default,
-    LocalOccupationsToCSVTransform.default,
+    // TODO: This will become ESCO_OriginalOccupationsToCSVTransform
+    //ESCOOccupationsToCSVTransformModule.default,
+    OccupationsToCSVTransform.default,
     SkillsToCSVTransformModule.default,
     SkillGroupsToCSVTransformModule.default,
     OccupationHierarchyToCSVTransformModule.default,

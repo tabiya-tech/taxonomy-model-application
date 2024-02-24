@@ -3,7 +3,7 @@ import {
   IBaseOccupationDoc,
   IOccupationReference,
   IOccupationReferenceDoc,
-} from "esco/occupations/common/occupationReference.types";
+} from "esco/occupations/occupationReference.types";
 import mongoose from "mongoose";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
@@ -18,6 +18,7 @@ export function getOccupationDocReference(occupation: OccupationDocument): IOccu
     code: occupation.code,
     preferredLabel: occupation.preferredLabel,
     occupationType: occupation.occupationType,
+    isLocalized: occupation.isLocalized,
   };
 }
 export function getOccupationReferenceWithRelationType(

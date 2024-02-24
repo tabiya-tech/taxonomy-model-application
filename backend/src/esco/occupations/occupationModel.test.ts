@@ -4,7 +4,13 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
-import { initializeSchemaAndModel } from "./occupationModel";
+import {
+  INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE,
+  INDEX_FOR_UNIQUE_CODE,
+  INDEX_FOR_UUID,
+  INDEX_FOR_UUID_HISTORY,
+  initializeSchemaAndModel,
+} from "./occupationModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import {
@@ -25,6 +31,7 @@ import {
   testDescription,
   testImportId,
   testObjectIdField,
+  testObjectType,
   testOriginUri,
   testPreferredLabel,
   testUUIDField,
@@ -68,6 +75,7 @@ describe("Test the definition of the Occupation Model", () => {
         regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
       } as IOccupationDoc,
     ],
     [
@@ -87,6 +95,47 @@ describe("Test the definition of the Occupation Model", () => {
         regulatedProfessionNote: "",
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
+      } as IOccupationDoc,
+    ],
+    [
+      "mandatory fields ESCO Localised occupation",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomOccupationCode(false),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: generateRandomUrl(),
+        altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
+        description: getTestString(DESCRIPTION_MAX_LENGTH),
+        ISCOGroupCode: getMockRandomISCOGroupCode(),
+        definition: getTestString(DEFINITION_MAX_LENGTH),
+        scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+        regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: true,
+      } as IOccupationDoc,
+    ],
+    [
+      "optional fields ESCO Localised occupation",
+      {
+        UUID: randomUUID(),
+        code: getMockRandomOccupationCode(false),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: "",
+        altLabels: [],
+        description: "",
+        ISCOGroupCode: getMockRandomISCOGroupCode(),
+        definition: "",
+        scopeNote: "",
+        regulatedProfessionNote: "",
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: true,
       } as IOccupationDoc,
     ],
     [
@@ -106,6 +155,7 @@ describe("Test the definition of the Occupation Model", () => {
         regulatedProfessionNote: getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.LocalOccupation,
+        isLocalized: false,
       } as IOccupationDoc,
     ],
     [
@@ -125,6 +175,7 @@ describe("Test the definition of the Occupation Model", () => {
         regulatedProfessionNote: "",
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.LocalOccupation,
+        isLocalized: false,
       } as IOccupationDoc,
     ],
   ])("Successfully validate Occupation with %s", async (description, givenObject: IOccupationDoc) => {
@@ -290,13 +341,25 @@ describe("Test the definition of the Occupation Model", () => {
         ["undefined", undefined],
         ["null", null],
         ["unknown type", "foo"],
+        [ObjectTypes.ISCOGroup, ObjectTypes.ISCOGroup],
+        [ObjectTypes.SkillGroup, ObjectTypes.SkillGroup],
+        [ObjectTypes.Skill, ObjectTypes.Skill],
       ])(`should fail validation with reason when occupation type is %s `, (desc, givenOccupationType) => {
         const givenOccupation = {
           code: "1234.1", // valid code for ESCO
           occupationType: givenOccupationType, // invalid occupation type
         };
-        const actual = new OccupationModel(givenOccupation).validateSync();
-        expect(actual?.errors["code"]?.reason).toEqual(new Error("Value of 'occupationType' path is not supported"));
+        assertCaseForProperty({
+          model: OccupationModel,
+          propertyNames: "code",
+          caseType: CaseType.Failure,
+          testValue: givenOccupation.code,
+          expectedFailureMessage: "Validator failed for path `code` with value `1234.1`",
+          expectedFailureReason: "Value of 'occupationType' path is not supported",
+          dependencies: {
+            code: "1234.1", // valid code for ESCO },
+          },
+        });
       });
     });
 
@@ -392,39 +455,110 @@ describe("Test the definition of the Occupation Model", () => {
       );
     });
 
-
     testImportId<IOccupationDoc>(() => OccupationModel);
 
+    testObjectType(() => OccupationModel, "occupationType", [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation], {
+      isLocalized: false,
+    });
+
     describe("Test validation of 'occupationType'", () => {
-      testObjectType(() => OccupationModel, "occupationType", [
-        ObjectTypes.ESCOOccupation,
-        ObjectTypes.LocalOccupation,
+      test("(Failure) Validate 'occupationType' when it is LocalOccupation and isLocalized = true", () => {
+        // GIVEN an LocalOccupation that is set to isLocalized = true
+        const givenOccupation = {
+          occupationType: ObjectTypes.LocalOccupation,
+          isLocalized: true,
+        };
+        assertCaseForProperty({
+          model: OccupationModel,
+          propertyNames: "occupationType",
+          caseType: CaseType.Failure,
+          testValue: givenOccupation.occupationType,
+          expectedFailureMessage: `Validator failed for path \`occupationType\` with value \`${ObjectTypes.LocalOccupation}\``,
+          expectedFailureReason:
+            "Value of `occupationType` is not compatible with value of `isLocalized`. Local occupations cannot be localised",
+          dependencies: { occupationType: ObjectTypes.LocalOccupation, isLocalized: true },
+        });
+      });
+    });
+
+    describe("Test validation of 'isLocalized'", () => {
+      describe("Test validation of 'isLocalized' for ESCO occupations", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
+          [CaseType.Success, "true", true, undefined],
+          [CaseType.Success, "false", false, undefined],
+        ])(
+          "(%s) Validate 'isLocalized' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IOccupationDoc>({
+              model: OccupationModel,
+              propertyNames: "isLocalized",
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+              dependencies: {
+                occupationType: ObjectTypes.ESCOOccupation,
+              },
+            });
+          }
+        );
+      });
+
+      describe("Test validation of 'isLocalized' for Local occupations", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
+          [CaseType.Success, "false", false, undefined],
+        ])(
+          "(%s) Validate 'isLocalized' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IOccupationDoc>({
+              model: OccupationModel,
+              propertyNames: "isLocalized",
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+              dependencies: {
+                occupationType: ObjectTypes.LocalOccupation,
+              },
+            });
+          }
+        );
+        test("(Failure) Validate 'isLocalized' when it is true", () => {
+          // GIVEN an LocalOccupation that is set to isLocalized = true
+          assertCaseForProperty({
+            model: OccupationModel,
+            propertyNames: "isLocalized",
+            caseType: CaseType.Failure,
+            testValue: true,
+            expectedFailureMessage: "Validator failed for path `isLocalized` with value `true`",
+            expectedFailureReason: "Local occupations cannot be localised",
+            dependencies: { occupationType: ObjectTypes.LocalOccupation },
+          });
+        });
+      });
+    });
+
+    test("should have correct indexes", async () => {
+      // GIVEN that the indexes exist
+      await OccupationModel.createIndexes();
+
+      // WHEN getting the indexes
+      const indexes = (await OccupationModel.listIndexes()).map((index) => {
+        return { key: index.key, unique: index.unique };
+      });
+
+      // THEN expect the indexes to be correct
+      expect(indexes).toIncludeSameMembers([
+        { key: { _id: 1 }, unique: undefined },
+        { key: INDEX_FOR_UUID, unique: true },
+        { key: INDEX_FOR_UUID_HISTORY, unique: undefined },
+        { key: INDEX_FOR_UNIQUE_CODE, unique: true },
+        { key: INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE, unique: undefined },
       ]);
     });
-  });
-
-  test("should have correct indexes", async () => {
-    // GIVEN that the indexes exist
-    await OccupationModel.createIndexes();
-
-    // WHEN getting the indexes
-    const indexes = (await OccupationModel.listIndexes()).map((index) => {
-      return { key: index.key, unique: index.unique };
-    });
-
-    // THEN expect the indexes to be correct
-    expect(indexes).toIncludeSameMembers([
-      { key: { _id: 1 }, unique: undefined },
-      { key: { UUID: 1 }, unique: true },
-      {
-        key: {
-          code: 1,
-          modelId: 1,
-        },
-        unique: true,
-      },
-      { key: { modelId: 1 }, unique: undefined },
-      { key: { UUIDHistory: 1 }, unique: undefined },
-    ]);
   });
 });

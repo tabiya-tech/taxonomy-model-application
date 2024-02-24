@@ -25,8 +25,8 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     // GIVEN an Import
     const givenImport: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to//ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to//ESCO_SKILL.csv",
       },
       modelId: "foo",
     };
@@ -63,8 +63,8 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
     // GIVEN an Import
     const givenImport: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/toESCO_SKILL_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/toESCO_SKILL_GROUP.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILL.csv",
       },
       modelId: "foo",
     };

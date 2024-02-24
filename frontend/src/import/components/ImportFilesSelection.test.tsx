@@ -1,5 +1,9 @@
+import { FileEntryProps } from "./FileEntry";
+
 jest.mock("./FileEntry", () => {
-  const mFileEntry = () => <div data-testid="mock-file-entry">Mock FileEntry</div>;
+  const mFileEntry = (props: FileEntryProps) => (
+    <div data-testid="mock-file-entry">Mock FileEntry: {props.fileType} </div>
+  );
   return {
     __esModule: true,
     default: mFileEntry,

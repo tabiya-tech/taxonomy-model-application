@@ -63,6 +63,46 @@ export function setUpPopulateWithExplain<T>(model: mongoose.Model<T>): Explained
 }
 
 /**
+ * This function sets up a spy on mongoose.Model.find() that will call explain() on the query plan in addition to executing the query.
+ * The query plan is stored in the explainedPlans array that is returned by this function as a promise.
+ *
+ * IMPORTANT: This function must be called before any calls to mongoose.Model.find() are made.
+ *
+ * IMPORTANT: Make sure that the original find() are restored by adding an afterEach() function :
+ * afterEach(() => {
+ *    jest.spyOn(mongoose.Model, "find").mockRestore();
+ * });
+ * @param model The model with the find() to be explained .
+ * @returns {any[]} An array of query plans that were returned by the explain() call.
+ *
+ * Example:
+ *
+ *   const actualPlans = setUpPopulateWithExplain(repository.Model);
+ *   await repository.find(modelId, filter);
+ *   await expect(actualPlans).resolve.toHaveLength(1);
+ */
+export function setUpFindWithExplain<T>(model: mongoose.Model<T>): Promise<ExplainedPlanPartial[]> {
+  return new Promise<ExplainedPlanPartial[]>((resolve) => {
+    const explainedPlans: ExplainedPlanPartial[] = [];
+    // Make a copy of the original Model.find() function and bind it to the model.
+    // The code of the original Model.find() function is in node_modules/mongoose/lib/model.js
+    const actualFind = mongoose.Model.find.bind(model);
+    jest.spyOn(mongoose.Model, "find").mockImplementationOnce((...args) => {
+      // Once the spy is called run the query with explain() and store the query plan in the explainedPlans array.
+      actualFind(...args)
+        .explain("executionStats")
+        .then((explainedPlan) => {
+          // @ts-ignore
+          explainedPlans.push(explainedPlan);
+          resolve(explainedPlans);
+        });
+      // Now call the original find() function with arguments that mongoose passes to it.
+      return actualFind(...args);
+    });
+  });
+}
+
+/**
  * This type includes only the fields that are interesting from the query plan.
  */
 export type ExplainedPlanPartial = {

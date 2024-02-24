@@ -20,7 +20,7 @@ describe("test for trigger ImportHandler", () => {
   });
 
   test.each([
-    ["some of the file paths", { [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/file" }],
+    ["some of the file paths", { [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/file" }],
     [
       "max payload size",
       Object.values(ImportAPISpecs.Constants.ImportFileTypes).reduce((accumulated, current) => {

@@ -12,7 +12,7 @@ import { IOccupationHierarchyRepository } from "./occupationHierarchyRepository"
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IISCOGroup } from "esco/iscoGroup/ISCOGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IOccupation } from "esco/occupations/occupation/occupation.types";
+import { IOccupation } from "esco/occupations/occupation.types";
 import { INewOccupationHierarchyPairSpec, IOccupationHierarchyPair } from "./occupationHierarchy.types";
 import {
   getSimpleNewESCOOccupationSpec,

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IOccupationReferenceDoc } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
 import { IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
 
 /**

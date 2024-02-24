@@ -1,10 +1,10 @@
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import mongoose from "mongoose";
-import { getOccupationDocReference, OccupationDocument } from "esco/occupations/common/occupationReference";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/occupationReference";
 import { getRequiredByOccupationReference } from "esco/occupationToSkillRelation/populateFunctions";
 import { SkillModelPaths } from "./skillModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
-import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 

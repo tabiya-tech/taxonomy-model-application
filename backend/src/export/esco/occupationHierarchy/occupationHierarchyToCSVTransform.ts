@@ -4,21 +4,21 @@ import { IOccupationHierarchyExportRow, occupationHierarchyExportHeaders } from 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { IOccupationHierarchyPair } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { Readable } from "node:stream";
-import { getCSVTypeFromObjectObjectType } from "../../../esco/common/csvObjectTypes";
+import { getCSVTypeFromObjectType } from "esco/common/csvObjectTypes";
 
 export type IUnpopulatedOccupationHierarchy = Omit<IOccupationHierarchyPair, "parentDocModel" | "childDocModel">;
 
 export const transformOccupationHierarchySpecToCSVRow = (
   occupationHierarchy: IUnpopulatedOccupationHierarchy
 ): IOccupationHierarchyExportRow => {
-  const PARENTOBJECTTYPE = getCSVTypeFromObjectObjectType(occupationHierarchy.parentType);
-  if (!PARENTOBJECTTYPE) {
+  const PARENTOBJECTTYPE = getCSVTypeFromObjectType(occupationHierarchy.parentType);
+  if (PARENTOBJECTTYPE === null) {
     throw new Error(
       `Failed to transform OccupationHierarchy to CSV row: Invalid parentType: ${occupationHierarchy.parentType}`
     );
   }
-  const CHILDOBJECTTYPE = getCSVTypeFromObjectObjectType(occupationHierarchy.childType);
-  if (!CHILDOBJECTTYPE) {
+  const CHILDOBJECTTYPE = getCSVTypeFromObjectType(occupationHierarchy.childType);
+  if (CHILDOBJECTTYPE === null) {
     throw new Error(
       `Failed to transform OccupationHierarchy to CSV row: Invalid childType: ${occupationHierarchy.childType}`
     );

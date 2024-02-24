@@ -34,97 +34,108 @@ jest.mock("./S3PresignerService", () => {
   };
 });
 
+//
+
 // Mock the ISCOGroupsParser
+const givenISCGOGroupsStats: RowsProcessedStats = {
+  rowsProcessed: 100,
+  rowsSuccess: 100,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
   return {
-    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
-      rowsProcessed: 100,
-      rowsSuccess: 100,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue(givenISCGOGroupsStats),
   };
 });
 // Mock the ESCOSkillGroupsParser
+const givenESCOSkillGroupsStats: RowsProcessedStats = {
+  rowsProcessed: 200,
+  rowsSuccess: 200,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/skillGroups/skillGroupsParser.ts", () => {
   return {
-    parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
-      rowsProcessed: 200,
-      rowsSuccess: 200,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseSkillGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue(givenESCOSkillGroupsStats),
   };
 });
 
 // Mock the ESCOSkillParser
+const givenESCOSkillsStats: RowsProcessedStats = {
+  rowsProcessed: 300,
+  rowsSuccess: 300,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/skills/skillsParser.ts", () => {
   return {
-    parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
-      rowsProcessed: 300,
-      rowsSuccess: 300,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseSkillsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue(givenESCOSkillsStats),
   };
 });
 
 // Mock the OccupationsParser
+const givenOccupationsStats: RowsProcessedStats = {
+  rowsProcessed: 200,
+  rowsSuccess: 200,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/occupations/occupationsParser.ts", () => {
   return {
-    parseOccupationsFromUrl: jest
-      .fn<Promise<RowsProcessedStats>, never>()
-      .mockImplementation(
-        (_modelId: string, _url: string, _importIdToDBIdMap: Map<string, string>, isLocalImport: boolean) => {
-          const rows = isLocalImport ? 200 : 300;
-          return Promise.resolve({
-            rowsProcessed: rows,
-            rowsSuccess: rows,
-            rowsFailed: 0,
-          } as RowsProcessedStats);
-        }
-      ),
+    parseOccupationsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue(givenOccupationsStats),
   };
 });
 
 // Mock the OccupationHierarchyParser
+const givenOccupationHierarchyStats: RowsProcessedStats = {
+  // 10 are the to level isco groups that to not have a parent and are not in the hierarchy
+  rowsProcessed: givenISCGOGroupsStats.rowsProcessed + givenOccupationsStats.rowsProcessed - 10,
+  rowsSuccess: givenISCGOGroupsStats.rowsSuccess + givenOccupationsStats.rowsSuccess - 10,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
   return {
-    parseOccupationHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
-      // countISCOGroups + countOccupations(Local and ESCO) - 10
-      rowsProcessed: 100 + 200 + 300 - 10,
-      rowsSuccess: 100 + 200 + 300 - 10,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseOccupationHierarchyFromUrl: jest
+      .fn<Promise<RowsProcessedStats>, never>()
+      .mockResolvedValue(givenOccupationHierarchyStats),
   };
 });
 
 // Mock the SkillHierarchyParser
+const givenSkillHierarchyStats: RowsProcessedStats = {
+  rowsProcessed: 600,
+  rowsSuccess: 600,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/skillHierarchy/skillHierarchyParser.ts", () => {
   return {
-    parseSkillHierarchyFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
-      rowsProcessed: 600,
-      rowsSuccess: 600,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseSkillHierarchyFromUrl: jest
+      .fn<Promise<RowsProcessedStats>, never>()
+      .mockResolvedValue(givenSkillHierarchyStats),
   };
 });
 
 // Mock the SkillToSkillRelationParser
+const givenSkillToSkillRelationStats: RowsProcessedStats = {
+  rowsProcessed: 500,
+  rowsSuccess: 500,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/skillToSkillRelation/skillToSkillRelationParser.ts", () => {
   return {
-    parseSkillToSkillRelationFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
-      rowsProcessed: 500,
-      rowsSuccess: 500,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseSkillToSkillRelationFromUrl: jest
+      .fn<Promise<RowsProcessedStats>, never>()
+      .mockResolvedValue(givenSkillToSkillRelationStats),
   };
 });
 // Mock the OccupationToSkillRelationParser
+const givenOccupationToSkillRelationStats: RowsProcessedStats = {
+  rowsProcessed: 10000,
+  rowsSuccess: 10000,
+  rowsFailed: 0,
+};
 jest.mock("import/esco/occupationToSkillRelation/occupationToSkillRelationParser.ts", () => {
   return {
-    parseOccupationToSkillRelationFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue({
-      rowsProcessed: 10000,
-      rowsSuccess: 10000,
-      rowsFailed: 0,
-    } as RowsProcessedStats),
+    parseOccupationToSkillRelationFromUrl: jest
+      .fn<Promise<RowsProcessedStats>, never>()
+      .mockResolvedValue(givenOccupationToSkillRelationStats),
   };
 });
 // ##############
@@ -191,15 +202,14 @@ describe("Test the main async handler", () => {
     // AND an Import event
     const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION]: "path/to/LOCAL_OCCUPATION.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]: "path/to/ESCO_SKILL_SKILL_RELATIONS.csv",
-        [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATION]: "path/to/OCCUPATION_SKILL_RELATION.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATIONS]: "path/to/OCCUPATION_SKILL_RELATIONS.csv",
         // ADD additional file types here
       },
       modelId: givenModelId,
@@ -226,37 +236,28 @@ describe("Test the main async handler", () => {
       const expectedFileType = entry[0];
       const expectedPresignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
       switch (expectedFileType) {
-        case ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP:
+        case ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS:
           expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
             expect.any(Map)
           );
           break;
-        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP:
+        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS:
           expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
             expect.any(Map)
           );
           break;
-        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL:
+        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS:
           expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
           break;
-        case ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION:
+        case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS:
           expect(parseOccupationsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
-            expect.any(Map),
-            false
-          );
-          break;
-        case ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION:
-          expect(parseOccupationsFromUrl).toHaveBeenCalledWith(
-            givenEvent.modelId,
-            expectedPresignedUrl,
-            expect.any(Map),
-            true
+            expect.any(Map)
           );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:
@@ -280,7 +281,7 @@ describe("Test the main async handler", () => {
             expect.any(Map)
           );
           break;
-        case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATION:
+        case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATIONS:
           expect(parseOccupationToSkillRelationFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
@@ -398,16 +399,16 @@ describe("Test the main async handler", () => {
       // AND an Import event
       const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
         filePaths: {
-          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.LOCAL_OCCUPATION]: "path/to/LOCAL_OCCUPATION.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]:
             "path/to/ESCO_SKILL_SKILL_RELATIONS.csv",
-          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATION]: "path/to/OCCUPATION_SKILL_RELATION.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATIONS]:
+            "path/to/OCCUPATION_SKILL_RELATIONS.csv",
           // ADD additional file types here
         },
         modelId: givenModelId,

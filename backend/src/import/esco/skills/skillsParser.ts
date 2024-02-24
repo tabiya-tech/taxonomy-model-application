@@ -9,9 +9,9 @@ import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import { ISkillImportRow, skillImportHeaders } from "esco/common/entityToCSV.types";
-import { getReuseLevelFromCSVReuseLevel, getSkillTypeFromCSVSkillType } from "../../../esco/common/csvObjectTypes";
-import { arrayFromString } from "../common/parseNewLineSeparatedArray";
-import errorLogger from "../../../common/errorLogger/errorLogger";
+import { getReuseLevelFromCSVReuseLevel, getSkillTypeFromCSVSkillType } from "esco/common/csvObjectTypes";
+import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import errorLogger from "common/errorLogger/errorLogger";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, skillImportHeaders);

@@ -66,11 +66,12 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
     // We expect the parseModelToFile function to throw errors and set the export process status to FAILED in the catch block.
     await modelToS3(event);
   } catch (e: unknown) {
-    console.error(new Error("Error updating ExportProcessState:", { cause: e }));
+    console.error(new Error("Error exporting the model", { cause: e }));
     // Set the export process status to FAILED
     await exportErrored(event.exportProcessStateId);
   }
 };
+// TODO: should not trow errors, but log them and set the exportProcessState to FAILED
 
 // The exportErrored function does not throw errors.
 // This is because we don't want to retry the lambda function in case of errors during the export process.

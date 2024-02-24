@@ -13,7 +13,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
-import { INewOccupationSpec } from "esco/occupations/occupation/occupation.types";
+import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ISkillToSkillRelationPairDoc } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import {
@@ -39,7 +39,7 @@ import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { Readable } from "node:stream";
-import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
+import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "esco/skillHierarchy/skillHierarchyModel";
 import {
   INDEX_FOR_REQUIRED_BY_SKILLS,

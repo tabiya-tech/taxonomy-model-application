@@ -26,7 +26,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        ISCO_GROUPS
+         
       </div>
     </div>
     <div
@@ -35,7 +37,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        OCCUPATIONS
+         
       </div>
     </div>
     <div
@@ -44,7 +48,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        ESCO_SKILL_GROUPS
+         
       </div>
     </div>
     <div
@@ -53,7 +59,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        ESCO_SKILLS
+         
       </div>
     </div>
     <div
@@ -62,7 +70,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        OCCUPATION_HIERARCHY
+         
       </div>
     </div>
     <div
@@ -71,7 +81,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        ESCO_SKILL_HIERARCHY
+         
       </div>
     </div>
     <div
@@ -80,7 +92,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        ESCO_SKILL_SKILL_RELATIONS
+         
       </div>
     </div>
     <div
@@ -89,7 +103,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        OCCUPATION_SKILL_RELATIONS
+         
       </div>
     </div>
     <div
@@ -98,7 +114,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
+        Mock FileEntry: 
+        OCCUPATION_LOGS
+         
       </div>
     </div>
     <div
@@ -107,34 +125,9 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       <div
         data-testid="mock-file-entry"
       >
-        Mock FileEntry
-      </div>
-    </div>
-    <div
-      class="MuiBox-root css-8ghero"
-    >
-      <div
-        data-testid="mock-file-entry"
-      >
-        Mock FileEntry
-      </div>
-    </div>
-    <div
-      class="MuiBox-root css-8ghero"
-    >
-      <div
-        data-testid="mock-file-entry"
-      >
-        Mock FileEntry
-      </div>
-    </div>
-    <div
-      class="MuiBox-root css-8ghero"
-    >
-      <div
-        data-testid="mock-file-entry"
-      >
-        Mock FileEntry
+        Mock FileEntry: 
+        OCCUPATION_LOG_CHANGES
+         
       </div>
     </div>
   </div>

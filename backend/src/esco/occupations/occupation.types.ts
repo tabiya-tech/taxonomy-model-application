@@ -2,7 +2,7 @@ import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco
 import mongoose from "mongoose";
 import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
-import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
 
 /**
  * Describes how an occupation is saved in MongoDB
@@ -21,6 +21,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   scopeNote: string;
   regulatedProfessionNote: string;
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  isLocalized: boolean;
 }
 
 /**

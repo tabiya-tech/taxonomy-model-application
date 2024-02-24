@@ -44,11 +44,9 @@ function getRowToSpecificationTransformFn(
     const childType = getObjectTypeFromCSVObjectType(row.CHILDOBJECTTYPE);
 
     if (
-      !parentType ||
       (parentType !== ObjectTypes.ISCOGroup &&
         parentType !== ObjectTypes.ESCOOccupation &&
         parentType !== ObjectTypes.LocalOccupation) ||
-      !childType ||
       (childType !== ObjectTypes.ISCOGroup &&
         childType !== ObjectTypes.ESCOOccupation &&
         childType !== ObjectTypes.LocalOccupation)

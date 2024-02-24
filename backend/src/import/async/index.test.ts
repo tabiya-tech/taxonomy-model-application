@@ -27,11 +27,14 @@ jest.mock("./parseFiles", () => ({
 const getMockImportEvent = (): ImportAPISpecs.Types.POST.Request.Payload => {
   return {
     filePaths: {
-      [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUP]: "path/to/ISCO_GROUP.csv",
-      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP]: "path/to/ESCO_SKILL_GROUP.csv",
-      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "path/to/ESCO_SKILL.csv",
-      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION]: "path/to/ESCO_OCCUPATION.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",
       [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]: "path/to/ESCO_SKILL_SKILL_RELATIONS.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATIONS]: "path/to/OCCUPATION_SKILL_RELATIONS.csv",
       // ADD additional file types here
     },
     modelId: getMockStringId(1),

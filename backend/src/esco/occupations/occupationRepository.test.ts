@@ -8,7 +8,7 @@ import { getNewConnection } from "server/connection/newConnection";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
-import { IOccupationRepository } from "./occupationRepository";
+import { IOccupationRepository, SearchFilter } from "./occupationRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationDoc } from "./occupation.types";
 import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
@@ -24,6 +24,7 @@ import {
   getSimpleNewLocalOccupationSpec,
   getNewLocalOccupationSpec,
   getNewESCOOccupationSpec,
+  getSimpleNewLocalizedESCOOccupationSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -37,10 +38,15 @@ import {
 import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { Readable } from "node:stream";
-import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
+import {
+  getExpectedPlan,
+  setUpFindWithExplain,
+  setUpPopulateWithExplain,
+} from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { INDEX_FOR_REQUIRES_SKILLS } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
-import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE } from "./occupationModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -70,6 +76,16 @@ function expectedFromGivenSpec(givenSpec: INewOccupationSpec, newUUID: string): 
   };
 }
 
+function getNewOccupation(givenOccupationType: ObjectTypes) {
+  if (givenOccupationType === ObjectTypes.ESCOOccupation) {
+    return getNewESCOOccupationSpec();
+  } else if (givenOccupationType == ObjectTypes.LocalOccupation) {
+    return getNewLocalOccupationSpec();
+  } else {
+    throw new Error("Invalid occupation type");
+  }
+}
+
 describe("Test the Occupation Repository with an in-memory mongodb", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -77,6 +93,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
     jest.spyOn(mongoose.Model, "populate").mockRestore();
     jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    //---
+    // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpFindWithExplain()
+    jest.spyOn(mongoose.Model, "find").mockRestore();
     //---
   });
 
@@ -117,6 +136,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     const givenNewOccupationSpecs: INewOccupationSpec[] = [];
     for (let i = 0; i < batchSize; i++) {
       givenNewOccupationSpecs.push(getSimpleNewESCOOccupationSpec(modelId, `ESCO_occupation_${i}`));
+      givenNewOccupationSpecs.push(getSimpleNewLocalizedESCOOccupationSpec(modelId, `ESCO_occupation_localized${i}`));
       givenNewOccupationSpecs.push(getSimpleNewLocalOccupationSpec(modelId, `Local_occupation_${i}`));
     }
     return await repository.createMany(givenNewOccupationSpecs);
@@ -158,33 +178,26 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() Occupation ", () => {
-    test.each([
-      ["ESCO", false],
-      ["Local", true],
-    ])("should successfully create a new %s Occupation", async (_description: string, isLocal: boolean) => {
-      // GIVEN a valid OccupationSpec
-      const givenNewOccupationSpec: INewOccupationSpec = isLocal
-        ? getNewLocalOccupationSpec()
-        : getNewESCOOccupationSpec();
+    test.each([ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation])(
+      "should successfully create a new %s Occupation",
+      async (givenOccupationType) => {
+        // GIVEN a valid OccupationSpec
+        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupation(givenOccupationType);
+        // WHEN Creating a new occupation with given specifications
+        const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
 
-      // WHEN Creating a new occupation with given specifications
-      const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
+        // THEN expect the new occupation to be created with the specific attributes
+        const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
+        expect(actualNewOccupation).toEqual(expectedNewISCO);
+      }
+    );
 
-      // THEN expect the new occupation to be created with the specific attributes
-      const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
-      expect(actualNewOccupation).toEqual(expectedNewISCO);
-    });
-
-    test.each([
-      ["ESCO", false],
-      ["Local", true],
-    ])(
+    test.each([ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation])(
       "should successfully create a new %s occupation when the given specifications have an empty UUIDHistory",
-      async (_description: string, isLocal: boolean) => {
+      async (givenOccupationType) => {
         // GIVEN a valid OccupationSpec that has an empty UUIDHistory
-        const givenNewOccupationSpec: INewOccupationSpec = isLocal
-          ? getNewLocalOccupationSpec()
-          : getNewESCOOccupationSpec();
+        // GIVEN a valid OccupationSpec
+        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupation(givenOccupationType);
         givenNewOccupationSpec.UUIDHistory = [];
 
         // WHEN Creating a new occupation with given specifications
@@ -263,7 +276,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         await expect(actualSecondNewModelPromise).rejects.toThrow(
           expect.toMatchErrorWithCause(
             "OccupationRepository.create: create failed.",
-            /duplicate key .* dup key: { code/
+            /duplicate key .* dup key: { modelId: .* code: .* }/
           )
         );
       });
@@ -275,45 +288,42 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
   });
 
   describe("Test createMany() Occupation ", () => {
-    test.each([
-      ["ESCO", false],
-      ["Local", true],
-    ])("should successfully create a batch of new %s Occupations", async (_description: string, isLocal: boolean) => {
-      // GIVEN some valid OccupationSpec
-      const givenBatchSize = 3;
-      const givenNewOccupationSpecs: INewOccupationSpec[] = [];
-      for (let i = 0; i < givenBatchSize; i++) {
-        givenNewOccupationSpecs[i] = isLocal ? getNewLocalOccupationSpec() : getNewESCOOccupationSpec();
+    test.each([ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation])(
+      "should successfully create a batch of new %s Occupations",
+      async (givenOccupationType) => {
+        // GIVEN some valid OccupationSpec
+        const givenBatchSize = 3;
+        const givenNewOccupationSpecs: INewOccupationSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewOccupationSpecs[i] = getNewOccupation(givenOccupationType);
+        }
+
+        // WHEN creating the batch of occupations with the given specifications
+        const actualNewOccupations: IOccupation[] = await repository.createMany(givenNewOccupationSpecs);
+
+        // THEN expect all the occupations to be created with the specific attributes
+        expect(actualNewOccupations).toEqual(
+          expect.arrayContaining(
+            givenNewOccupationSpecs.map((givenNewOccupationSpec, index) => {
+              return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
+            })
+          )
+        );
       }
+    );
 
-      // WHEN creating the batch of occupations with the given specifications
-      const actualNewOccupations: IOccupation[] = await repository.createMany(givenNewOccupationSpecs);
-
-      // THEN expect all the occupations to be created with the specific attributes
-      expect(actualNewOccupations).toEqual(
-        expect.arrayContaining(
-          givenNewOccupationSpecs.map((givenNewOccupationSpec, index) => {
-            return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
-          })
-        )
-      );
-    });
-
-    test.each([
-      ["ESCO", false],
-      ["Local", true],
-    ])(
+    test.each([ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation])(
       "should successfully create a batch of new %s Occupations even if some don't validate",
-      async (_description: string, isLocal: boolean) => {
+      async (givenOccupationType) => {
         // GIVEN two valid OccupationSpec
         const givenValidOccupationSpecs: INewOccupationSpec[] = [
-          isLocal ? getNewLocalOccupationSpec() : getNewESCOOccupationSpec(),
-          isLocal ? getNewLocalOccupationSpec() : getNewESCOOccupationSpec(),
+          getNewOccupation(givenOccupationType),
+          getNewOccupation(givenOccupationType),
         ];
         // AND two OccupationSpec that is invalid
         const givenInvalidOccupationSpec: INewOccupationSpec[] = [
-          isLocal ? getNewLocalOccupationSpec() : getNewESCOOccupationSpec(),
-          isLocal ? getNewLocalOccupationSpec() : getNewESCOOccupationSpec(),
+          getNewOccupation(givenOccupationType),
+          getNewOccupation(givenOccupationType),
         ];
         givenInvalidOccupationSpec[0].code = "invalid code"; // will not validate but will not throw an error
         // @ts-ignore
@@ -338,17 +348,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       }
     );
 
-    test.each([
-      ["ESCO", false],
-      ["Local", true],
-    ])(
+    test.each([ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation])(
       "should successfully create a batch of new %s occupations when they have an empty UUIDHistory",
-      async (_description: string, isLocal: boolean) => {
+      async (givenOccupationType) => {
         // GIVEN some valid OccupationSpec that have an empty UUIDHistory
         const givenBatchSize = 3;
         const givenNewOccupationSpecs: INewOccupationSpec[] = [];
         for (let i = 0; i < givenBatchSize; i++) {
-          givenNewOccupationSpecs[i] = isLocal ? getNewLocalOccupationSpec() : getNewESCOOccupationSpec();
+          givenNewOccupationSpecs[i] = getNewOccupation(givenOccupationType);
           givenNewOccupationSpecs[i].UUIDHistory = [];
         }
 
@@ -1219,109 +1226,156 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
   describe("Test findAll()", () => {
     describe.each([
-      ["ESCO Occupations", ObjectTypes.ESCOOccupation],
-      ["Local Occupations", ObjectTypes.LocalOccupation],
-    ])("Test findAll() for %s", (caseDescription: string, givenOccupationType: ObjectTypes) => {
-      test(`should find all ${caseDescription} in the correct model`, async () => {
-        // Given some modelId
-        const givenModelId = getMockStringId(1);
-        // AND a set of Occupations exist in the database for a given Model
-        const givenOccupations = await createOccupationsInDB(givenModelId);
-        // AND some other Occupations exist in the database for a different model
-        const givenModelId_other = getMockStringId(2);
-        await createOccupationsInDB(givenModelId_other);
+      ["no filter", undefined, () => true, { queryFilter: {}, usedIndex: INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE }],
+      [
+        "filter with undefined occupationType",
+        { occupationType: undefined },
+        () => true,
+        {
+          queryFilter: {},
+          usedIndex: INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE, // HERE any index is that starts with modelId could be used
+        },
+      ],
+      [
+        "ESCO Occupations",
+        { occupationType: ObjectTypes.ESCOOccupation } as SearchFilter,
+        (occupation: IOccupation) => occupation.occupationType === ObjectTypes.ESCOOccupation,
+        {
+          queryFilter: { occupationType: { $eq: ObjectTypes.ESCOOccupation } },
+          usedIndex: INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE,
+        },
+      ],
+      [
+        "Local Occupations",
+        { occupationType: ObjectTypes.LocalOccupation } as SearchFilter,
+        (occupation: IOccupation) => occupation.occupationType === ObjectTypes.LocalOccupation,
+        {
+          queryFilter: { occupationType: { $eq: ObjectTypes.LocalOccupation } },
+          usedIndex: INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE,
+        },
+      ],
+    ])(
+      "Test findAll() for %s",
+      (
+        caseDescription: string,
+        givenFilter: SearchFilter | undefined,
+        assertionFilter: (_occupation: IOccupation) => boolean,
+        expectedPlan: { queryFilter: mongoose.FilterQuery<IOccupationDoc>; usedIndex: mongoose.IndexDefinition }
+      ) => {
+        test(`should find all ${caseDescription} in the correct model`, async () => {
+          // Given some modelId
+          const givenModelId = getMockStringId(1);
+          // AND a set of Occupations exist in the database for a given Model
+          const givenOccupations = await createOccupationsInDB(givenModelId);
+          // AND some other Occupations exist in the database for a different model
+          const givenModelId_other = getMockStringId(2);
+          await createOccupationsInDB(givenModelId_other);
 
-        // WHEN searching for all occupations in the given model of a given type
-        // @ts-ignore
-        const actualOccupations = repository.findAll(givenModelId, givenOccupationType);
+          // WHEN searching for all occupations in the given model with a given filter
+          // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+          const actualPlans = setUpFindWithExplain<IOccupationDoc>(repository.Model);
+          const actualOccupations = repository.findAll(givenModelId, givenFilter);
 
-        // THEN the occupations should be returned as a consumable stream that emits all occupations
-        const actualOccupationsArray: IOccupation[] = [];
-        for await (const data of actualOccupations) {
-          actualOccupationsArray.push(data);
-        }
-        const expectedOccupations = givenOccupations
-          .filter((occupation) => occupation.occupationType == givenOccupationType)
-          .map((occupation) => {
-            const { parent, children, requiresSkills, ...occupationData } = occupation;
-            return occupationData;
-          });
-        expect(actualOccupationsArray).toIncludeSameMembers(expectedOccupations);
-      });
-
-      test(`should not return any ${caseDescription} when the model does not have any and other models have`, async () => {
-        // GIVEN no Occupations exist in the database for the given model
-        const givenModelId = getMockStringId(1);
-        const givenModelId_other = getMockStringId(2);
-        // BUT some other Occupations exist in the database for a different model
-        await createOccupationsInDB(givenModelId_other);
-
-        // WHEN the findAll method is called for occupations
-        // @ts-ignore
-        const actualStream = repository.findAll(givenModelId, givenOccupationType);
-
-        // THEN the stream should end without emitting any data
-        const receivedData: IOccupation[] = [];
-        for await (const data of actualStream) {
-          receivedData.push(data);
-        }
-        expect(receivedData).toHaveLength(0);
-      });
-
-      test("should handle errors during data retrieval", async () => {
-        // GIVEN an error occurs during the find operation
-        const givenModelId = getMockStringId(1);
-        const givenError = new Error("foo");
-        jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
-          throw givenError;
-        });
-
-        // THEN the findAll method should throw an error for occupations
-        // @ts-ignore
-        expect(() => repository.findAll(givenModelId, givenOccupationType)).toThrow(
-          expect.toMatchErrorWithCause("OccupationRepository.findAll: findAll failed", givenError.message)
-        );
-      });
-
-      test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
-        // GIVEN an error occurs during the streaming of the find operation
-        const givenError = new Error("foo");
-        const mockStream = Readable.from([{ toObject: jest.fn() }]);
-        mockStream._read = jest.fn().mockImplementation(() => {
-          throw givenError;
-        });
-        const mockFind = jest.spyOn(repository.Model, "find");
-        // @ts-ignore
-        mockFind.mockReturnValue({
-          cursor: jest.fn().mockImplementationOnce(() => {
-            return mockStream;
-          }),
-        });
-
-        // WHEN searching for all occupations in the given model of a given type
-        // @ts-ignore
-        const actualOccupations = repository.findAll(getMockStringId(1), givenOccupationType);
-
-        // THEN the occupations should be returned as a consumable stream that emits an error and ends
-        const actualOccupationsArray: IOccupation[] = [];
-        await expect(async () => {
+          // THEN the occupations should be returned as a consumable stream that emits all occupations
+          const actualOccupationsArray: IOccupation[] = [];
           for await (const data of actualOccupations) {
             actualOccupationsArray.push(data);
           }
-        }).rejects.toThrowError(givenError);
-        expect(console.error).toHaveBeenCalledWith(
-          expect.toMatchErrorWithCause("OccupationRepository.findAll: stream failed", givenError.message)
-        );
-        expect(actualOccupations.closed).toBeTruthy();
-        expect(actualOccupationsArray).toHaveLength(0);
-        mockFind.mockRestore();
-      });
+          const expectedOccupations = givenOccupations.filter(assertionFilter).map((occupation) => {
+            const { parent, children, requiresSkills, ...occupationData } = occupation;
+            return occupationData;
+          });
+          expect(actualOccupationsArray).toIncludeSameMembers(expectedOccupations);
+          // AND expect the populate query plan to use the correct indexes
+          await expect(actualPlans).resolves.toHaveLength(1); // 1 for the search
+          await expect(actualPlans).resolves.toEqual(
+            expect.arrayContaining([
+              getExpectedPlan({
+                collectionName: repository.Model.collection.name,
+                filter: {
+                  modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+                  ...expectedPlan.queryFilter,
+                },
+                usedIndex: expectedPlan.usedIndex,
+              }),
+            ])
+          );
+        });
 
-      TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
-        //@ts-ignore
-        repositoryRegistry.occupation.findAll(getMockStringId(1), givenOccupationType)
-      );
-    });
+        test(`should not return any ${caseDescription} when the model does not have any and other models have`, async () => {
+          // GIVEN no Occupations exist in the database for the given model
+          const givenModelId = getMockStringId(1);
+          const givenModelId_other = getMockStringId(2);
+          // BUT some other Occupations exist in the database for a different model
+          await createOccupationsInDB(givenModelId_other);
+
+          // WHEN the findAll method is called for occupations
+          // @ts-ignore
+          const actualStream = repository.findAll(givenModelId, givenFilter);
+
+          // THEN the stream should end without emitting any data
+          const receivedData: IOccupation[] = [];
+          for await (const data of actualStream) {
+            receivedData.push(data);
+          }
+          expect(receivedData).toHaveLength(0);
+        });
+
+        test("should handle errors during data retrieval", async () => {
+          // GIVEN an error occurs during the find operation
+          const givenModelId = getMockStringId(1);
+          const givenError = new Error("foo");
+          jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+            throw givenError;
+          });
+
+          // THEN the findAll method should throw an error for occupations
+          // @ts-ignore
+          expect(() => repository.findAll(givenModelId, givenFilter)).toThrow(
+            expect.toMatchErrorWithCause("OccupationRepository.findAll: findAll failed", givenError.message)
+          );
+        });
+
+        test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+          // GIVEN an error occurs during the streaming of the find operation
+          const givenError = new Error("foo");
+          const mockStream = Readable.from([{ toObject: jest.fn() }]);
+          mockStream._read = jest.fn().mockImplementation(() => {
+            throw givenError;
+          });
+          const mockFind = jest.spyOn(repository.Model, "find");
+          // @ts-ignore
+          mockFind.mockReturnValue({
+            cursor: jest.fn().mockImplementationOnce(() => {
+              return mockStream;
+            }),
+          });
+
+          // WHEN searching for all occupations in the given model of a given type
+          // @ts-ignore
+          const actualOccupations = repository.findAll(getMockStringId(1), givenFilter);
+
+          // THEN the occupations should be returned as a consumable stream that emits an error and ends
+          const actualOccupationsArray: IOccupation[] = [];
+          await expect(async () => {
+            for await (const data of actualOccupations) {
+              actualOccupationsArray.push(data);
+            }
+          }).rejects.toThrowError(givenError);
+          expect(console.error).toHaveBeenCalledWith(
+            expect.toMatchErrorWithCause("OccupationRepository.findAll: stream failed", givenError.message)
+          );
+          expect(actualOccupations.closed).toBeTruthy();
+          expect(actualOccupationsArray).toHaveLength(0);
+          mockFind.mockRestore();
+        });
+
+        TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+          //@ts-ignore
+          repositoryRegistry.occupation.findAll(getMockStringId(1), givenFilter)
+        );
+      }
+    );
 
     // should throw an error if occupationType is not ESCO or LOCAL
     test("should throw an error if occupationType is not valid", async () => {
@@ -1329,10 +1383,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
 
       // WHEN the findAll method is called for occupations
-      //@ts-ignore
-      expect(() => repository.findAll(givenModelId, ObjectTypes.ISCOGroup)).toThrowError(
-        "OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL."
-      );
+      expect(() =>
+        repository.findAll(
+          givenModelId,
+          // @ts-ignore
+          { occupationType: ObjectTypes.ISCOGroup }
+        )
+      ).toThrowError("OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL.");
     });
   });
 });

@@ -15,30 +15,38 @@ const SkillRepository = jest.spyOn(getRepositoryRegistry(), "skill", "get");
 
 const getMockSkills = (): IUnpopulatedSkill[] => {
   const getReuseLevel = (i: number) => {
-    switch (i % 4) {
+    switch (i % 5) {
       case 0:
         return ReuseLevel.Transversal;
       case 1:
         return ReuseLevel.CrossSector;
       case 2:
         return ReuseLevel.OccupationSpecific;
-      default:
+      case 3:
         return ReuseLevel.SectorSpecific;
+      default:
+        return ReuseLevel.None;
     }
   };
   const getSkillType = (i: number) => {
-    switch (i % 4) {
+    switch (i % 5) {
       case 0:
         return SkillType.Knowledge;
       case 1:
         return SkillType.Language;
       case 2:
         return SkillType.Attitude;
-      default:
+      case 3:
         return SkillType.SkillCompetence;
+      default:
+        return SkillType.None;
     }
   };
-  return Array.from<never, IUnpopulatedSkill>({ length: 6 }, (_, i) => ({
+  const givenLength = 6;
+  // ensure that we have enough elements to test all skill types and reuse levels
+  expect(givenLength).toBeGreaterThanOrEqual(Object.values(SkillType).length);
+  expect(givenLength).toBeGreaterThanOrEqual(Object.values(ReuseLevel).length);
+  return Array.from<never, IUnpopulatedSkill>({ length: givenLength }, (_, i) => ({
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
     UUIDHistory: i % 2 ? [`uuidHistory_${i}_${getTestString(80)}`, `uuidHistory_${i + 1}_${getTestString(80)}`] : [],
@@ -50,8 +58,8 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
     originUri: `originUri_${i}_${getTestString(80)}`,
     scopeNote: `scopeNote_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
-    skillType: getSkillType(i),
-    reuseLevel: getReuseLevel(i),
+    skillType: getSkillType(i), // we should test all skill types, so we have to ensure that the length of the array is >= 5
+    reuseLevel: getReuseLevel(i), // we should test all skill types, so we have to ensure that the length of the array is >= 5
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));

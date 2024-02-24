@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco/common/objectTypes";
 import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
-import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
 
 /**
  * Enum for the different types of skills.

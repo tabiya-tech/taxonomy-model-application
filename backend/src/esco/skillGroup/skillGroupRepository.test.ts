@@ -28,7 +28,7 @@ import {
 } from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 import { Readable } from "node:stream";
-import { getExpectedPlan, setUpPopulateWithExplain } from "../_test_utilities/populateWithExplainPlan";
+import { getExpectedPlan, setUpPopulateWithExplain } from "../_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "../skillHierarchy/skillHierarchyModel";
 
 jest.mock("crypto", () => {

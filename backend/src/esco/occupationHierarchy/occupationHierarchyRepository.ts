@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { IOccupationDoc } from "esco/occupations/occupation/occupation.types";
+import { IOccupationDoc } from "esco/occupations/occupation.types";
 import { IISCOGroupDoc } from "esco/iscoGroup/ISCOGroup.types";
 import {
   INewOccupationHierarchyPairSpec,

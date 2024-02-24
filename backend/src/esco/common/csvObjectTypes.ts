@@ -1,5 +1,5 @@
 import { ObjectTypes, RelationType } from "esco/common/objectTypes";
-import { ReuseLevel, SkillType } from "../skill/skills.types";
+import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 
 export const enum CSVObjectTypes {
   ISCOGroup = "iscogroup",
@@ -26,8 +26,8 @@ export const getObjectTypeFromCSVObjectType = (type: string): ObjectTypes | null
   }
 };
 
-export const getCSVTypeFromObjectObjectType = (type: string): CSVObjectTypes | null => {
-  switch (type) {
+export const getCSVTypeFromObjectType = (type: string): CSVObjectTypes | null => {
+  switch (type?.toLowerCase()) {
     case ObjectTypes.ISCOGroup:
       return CSVObjectTypes.ISCOGroup;
     case ObjectTypes.ESCOOccupation:
@@ -49,7 +49,7 @@ export enum CSVRelationType {
 }
 
 export const getRelationTypeFromCSVRelationType = (type: string): RelationType | null => {
-  switch (type.toLowerCase()) {
+  switch (type?.toLowerCase()) {
     case CSVRelationType.Essential:
       return RelationType.ESSENTIAL;
     case CSVRelationType.Optional:
@@ -60,7 +60,7 @@ export const getRelationTypeFromCSVRelationType = (type: string): RelationType |
 };
 
 export const getCSVRelationTypeFromRelationType = (type: string): CSVRelationType | null => {
-  switch (type) {
+  switch (type?.toLowerCase()) {
     case RelationType.ESSENTIAL:
       return CSVRelationType.Essential;
     case RelationType.OPTIONAL:
@@ -79,7 +79,7 @@ export enum CSVReuseLevel {
 }
 
 export const getCSVTypeFromReuseLevel = (type: string): CSVReuseLevel | null => {
-  switch (type.toLowerCase()) {
+  switch (type?.toLowerCase()) {
     case ReuseLevel.SectorSpecific:
       return CSVReuseLevel.SectorSpecific;
     case ReuseLevel.OccupationSpecific:
@@ -96,7 +96,7 @@ export const getCSVTypeFromReuseLevel = (type: string): CSVReuseLevel | null => 
 };
 
 export const getReuseLevelFromCSVReuseLevel = (type: string): ReuseLevel | null => {
-  switch (type) {
+  switch (type?.toLowerCase()) {
     case CSVReuseLevel.SectorSpecific:
       return ReuseLevel.SectorSpecific;
     case CSVReuseLevel.OccupationSpecific:
@@ -121,7 +121,7 @@ export enum CSVSkillType {
 }
 
 export const getCSVTypeFromSkillType = (type: string): CSVSkillType | null => {
-  switch (type) {
+  switch (type?.toLowerCase()) {
     case SkillType.SkillCompetence:
       return CSVSkillType.SkillCompetence;
     case SkillType.Knowledge:
@@ -138,7 +138,7 @@ export const getCSVTypeFromSkillType = (type: string): CSVSkillType | null => {
 };
 
 export const getSkillTypeFromCSVSkillType = (type: string): SkillType | null => {
-  switch (type.toLowerCase()) {
+  switch (type?.toLowerCase()) {
     case CSVSkillType.SkillCompetence:
       return SkillType.SkillCompetence;
     case CSVSkillType.Knowledge:

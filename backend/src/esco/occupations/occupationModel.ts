@@ -47,6 +47,30 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         type: String,
         required: true,
         enum: [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
+        validate: {
+          validator: function (value: ObjectTypes) {
+            // @ts-ignore
+            if (value === ObjectTypes.LocalOccupation && this.isLocalized) {
+              throw new Error(
+                "Value of `occupationType` is not compatible with value of `isLocalized`. Local occupations cannot be localised"
+              );
+            }
+          },
+        },
+      },
+      isLocalized: {
+        type: Boolean,
+        required: true,
+        validate: {
+          validator: function (value: boolean) {
+            // @ts-ignore
+            if (value && this.occupationType === ObjectTypes.LocalOccupation) {
+              throw new Error(
+                "Value of `isLocalized` is not compatible with value of `occupationType`. Local occupations cannot be localised"
+              );
+            }
+          },
+        },
       },
     },
     {
@@ -88,11 +112,27 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     }),
   });
 
-  OccupationSchema.index({ UUID: 1 }, { unique: true });
-  OccupationSchema.index({ code: 1, modelId: 1 }, { unique: true });
-  OccupationSchema.index({ modelId: 1 });
-  OccupationSchema.index({ UUIDHistory: 1 });
+  OccupationSchema.index(INDEX_FOR_UUID, { unique: true });
+  OccupationSchema.index(INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE);
+  OccupationSchema.index(INDEX_FOR_UNIQUE_CODE, { unique: true });
+  OccupationSchema.index(INDEX_FOR_UUID_HISTORY);
 
   // Model
   return dbConnection.model<IOccupationDoc>(MongooseModelName.Occupation, OccupationSchema);
 }
+
+export const INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE: mongoose.IndexDefinition = {
+  modelId: 1,
+  occupationType: 1,
+};
+
+export const INDEX_FOR_UNIQUE_CODE: mongoose.IndexDefinition = {
+  modelId: 1,
+  code: 1,
+};
+export const INDEX_FOR_UUID: mongoose.IndexDefinition = {
+  UUID: 1,
+};
+export const INDEX_FOR_UUID_HISTORY: mongoose.IndexDefinition = {
+  UUIDHistory: 1,
+};

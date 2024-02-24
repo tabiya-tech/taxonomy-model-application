@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes, RelationType } from "esco/common/objectTypes";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
-import { IOccupationReferenceDoc } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
 
 /**
  * Describes how an Occupation to skill relation is saved in the database.

@@ -11,6 +11,7 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { getRelationBatchFunction } from "import/esco/common/processRelationBatchFunction";
 import { ISkillHierarchyImportRow, skillHierarchyImportHeaders } from "esco/common/entityToCSV.types";
 import { getObjectTypeFromCSVObjectType } from "esco/common/csvObjectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, skillHierarchyImportHeaders);
@@ -34,10 +35,8 @@ function getRowToSpecificationTransformFn(
     const parentType = getObjectTypeFromCSVObjectType(row.PARENTOBJECTTYPE);
     const childType = getObjectTypeFromCSVObjectType(row.CHILDOBJECTTYPE);
     if (
-      !parentType ||
-      (parentType !== "Skill" && parentType !== "SkillGroup") ||
-      !childType ||
-      (childType !== "Skill" && childType !== "SkillGroup")
+      (parentType !== ObjectTypes.Skill && parentType !== ObjectTypes.SkillGroup) ||
+      (childType !== ObjectTypes.Skill && childType !== ObjectTypes.SkillGroup)
     ) {
       errorLogger.logWarning(
         `Failed to import SkillHierarchy row with parentType:'${row.PARENTOBJECTTYPE}' and childType:'${row.CHILDOBJECTTYPE}'`

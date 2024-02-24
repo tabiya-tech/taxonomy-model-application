@@ -263,7 +263,7 @@ describe("ImportModel dialog action tests", () => {
     await fillInImportDialog(givenData);
 
     // AND the user removes one of the files
-    const givenFileTypeToRemove = ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUP;
+    const givenFileTypeToRemove = ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS;
 
     const fileEntries = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.FILE_ENTRY);
 

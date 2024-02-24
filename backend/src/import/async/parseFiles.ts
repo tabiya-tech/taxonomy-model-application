@@ -62,29 +62,24 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
 
   // Process the files
   let countISCOGroups = 0;
-  if (downloadUrls.ISCO_GROUP) {
-    const stats = await parseISCOGroupsFromUrl(modelId, downloadUrls.ISCO_GROUP, importIdToDBIdMap);
+  if (downloadUrls.ISCO_GROUPS) {
+    const stats = await parseISCOGroupsFromUrl(modelId, downloadUrls.ISCO_GROUPS, importIdToDBIdMap);
     countISCOGroups = stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} ISCO Groups`);
   }
-  if (downloadUrls.ESCO_SKILL_GROUP) {
-    const stats = await parseSkillGroupsFromUrl(modelId, downloadUrls.ESCO_SKILL_GROUP, importIdToDBIdMap);
+  if (downloadUrls.ESCO_SKILL_GROUPS) {
+    const stats = await parseSkillGroupsFromUrl(modelId, downloadUrls.ESCO_SKILL_GROUPS, importIdToDBIdMap);
     console.info(`Processed ${JSON.stringify(stats)} Skill Groups`);
   }
-  if (downloadUrls.ESCO_SKILL) {
-    const stats = await parseSkillsFromUrl(modelId, downloadUrls.ESCO_SKILL, importIdToDBIdMap);
+  if (downloadUrls.ESCO_SKILLS) {
+    const stats = await parseSkillsFromUrl(modelId, downloadUrls.ESCO_SKILLS, importIdToDBIdMap);
     console.info(`Processed ${JSON.stringify(stats)} Skills`);
   }
   let countOccupations = 0;
-  if (downloadUrls.ESCO_OCCUPATION) {
-    const stats = await parseOccupationsFromUrl(modelId, downloadUrls.ESCO_OCCUPATION, importIdToDBIdMap, false);
-    countOccupations = stats.rowsSuccess;
-    console.info(`Processed ${JSON.stringify(stats)} ESCO Occupations`);
-  }
-  if (downloadUrls.LOCAL_OCCUPATION) {
-    const stats = await parseOccupationsFromUrl(modelId, downloadUrls.LOCAL_OCCUPATION, importIdToDBIdMap, true);
+  if (downloadUrls.OCCUPATIONS) {
+    const stats = await parseOccupationsFromUrl(modelId, downloadUrls.OCCUPATIONS, importIdToDBIdMap);
     countOccupations += stats.rowsSuccess;
-    console.info(`Processed ${JSON.stringify(stats)} Local Occupations`);
+    console.info(`Processed ${JSON.stringify(stats)}  Occupations`);
   }
   if (downloadUrls.OCCUPATION_HIERARCHY) {
     const stats = await parseOccupationHierarchyFromUrl(modelId, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);
@@ -111,10 +106,10 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     );
     console.info(`Processed ${JSON.stringify(stats)} Skill to skill relation entries`);
   }
-  if (downloadUrls.OCCUPATION_SKILL_RELATION) {
+  if (downloadUrls.OCCUPATION_SKILL_RELATIONS) {
     const stats = await parseOccupationToSkillRelationFromUrl(
       modelId,
-      downloadUrls.OCCUPATION_SKILL_RELATION,
+      downloadUrls.OCCUPATION_SKILL_RELATIONS,
       importIdToDBIdMap
     );
     console.info(`Processed ${JSON.stringify(stats)} Occupation to skill relation entries`);

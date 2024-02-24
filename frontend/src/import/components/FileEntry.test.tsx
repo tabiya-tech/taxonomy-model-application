@@ -60,7 +60,7 @@ describe("FileEntry render tests", () => {
 describe("FileEntry action tests", () => {
   it("should selected file", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS;
     // AND some file
     const givenAFile = new File([], "foo.csv", { type: "text/csv" });
 
@@ -84,7 +84,7 @@ describe("FileEntry action tests", () => {
 
   it("should remove selected file", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS;
     // AND some file
     const givenAFile = new File([], "foo.csv", { type: "text/csv" });
     // AND fileEntry is rendered
@@ -111,7 +111,7 @@ describe("FileEntry action tests", () => {
 
   it("should correctly notify the notifySelectedFileChange handler when file is selected", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS;
     // AND a notification handler
     const givenMockNotification = jest.fn();
     // AND some file
@@ -129,7 +129,7 @@ describe("FileEntry action tests", () => {
 
   it("should correctly notify the notifySelectedFileChange handler when file is removed", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS;
     // AND someNotificationHandler
     const givenMockNotification = jest.fn();
     // AND some file
@@ -152,7 +152,7 @@ describe("FileEntry action tests", () => {
 
   it("should handle file changes even if notifySelectedFileChange handler is not set", async () => {
     // GIVEN some fileType
-    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.ESCO_OCCUPATION;
+    const givenFileType = ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS;
     // AND some file
     const givenAFile = new File([], "foo.csv", { type: "text/csv" });
 

@@ -1,11 +1,11 @@
 import { ReferenceWithRelationType } from "esco/common/objectTypes";
 import { IPopulatedOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
-import { getOccupationReferenceWithRelationType } from "esco/occupations/common/occupationReference";
-import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
+import { getOccupationReferenceWithRelationType } from "esco/occupations/occupationReference";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
 import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
 import mongoose from "mongoose";
-import { IOccupationDoc } from "esco/occupations/occupation/occupation.types";
+import { IOccupationDoc } from "esco/occupations/occupation.types";
 
 export function getRequiredByOccupationReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc

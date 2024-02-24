@@ -9,7 +9,7 @@ import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import { IISCOGroupImportRow, ISCOGroupImportHeaders } from "esco/common/entityToCSV.types";
-import { arrayFromString } from "../common/parseNewLineSeparatedArray";
+import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, ISCOGroupImportHeaders);

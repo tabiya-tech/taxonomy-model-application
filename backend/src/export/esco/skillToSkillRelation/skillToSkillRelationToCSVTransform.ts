@@ -3,7 +3,7 @@ import { pipeline, Transform } from "stream";
 import { ISkillToSkillsRelationExportRow, skillToSkillRelationExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillToSkillRelationPair } from "esco/skillToSkillRelation/skillToSkillRelation.types";
-import { getCSVRelationTypeFromRelationType } from "../../../esco/common/csvObjectTypes";
+import { getCSVRelationTypeFromRelationType } from "esco/common/csvObjectTypes";
 
 export type IUnpopulatedSkillToSkillRelation = Omit<
   ISkillToSkillRelationPair,
@@ -14,7 +14,7 @@ export const transformSkillRelationSpecToCSVRow = (
   skillRelation: IUnpopulatedSkillToSkillRelation
 ): ISkillToSkillsRelationExportRow => {
   const RELATIONTYPE = getCSVRelationTypeFromRelationType(skillRelation.relationType);
-  if (!RELATIONTYPE) {
+  if (RELATIONTYPE === null) {
     throw new Error(
       `Failed to transform SkillToSkillRelation to CSV row: Invalid relationType: ${skillRelation.relationType}`
     );

@@ -97,7 +97,8 @@ export function testDocModel<T>(
 export function testObjectType<T>(
   getModel: () => mongoose.Model<T>,
   fieldName: string,
-  acceptedObjectTypes: ObjectTypes[]
+  acceptedObjectTypes: ObjectTypes[],
+  dependencies?: Partial<T>
 ) {
   const expectedFailingObjectTypeCases = Object.values(ObjectTypes)
     .filter((value) => !acceptedObjectTypes.includes(value))
@@ -133,6 +134,7 @@ export function testObjectType<T>(
           caseType,
           testValue: value,
           expectedFailureMessage,
+          dependencies,
         });
       }
     );

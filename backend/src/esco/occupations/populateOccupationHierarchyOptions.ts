@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import { getISCOGroupDocReference, ISCOGroupDocument } from "esco/iscoGroup/ISCOGroupReference";
-import { getOccupationDocReference, OccupationDocument } from "esco/occupations/common/occupationReference";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/occupationReference";
 import { IISCOGroupReference, IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
-import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IPopulatedOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import {

@@ -1,4 +1,4 @@
-import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { ObjectTypes, RelationType } from "esco/common/objectTypes";
@@ -26,6 +26,7 @@ export const getSampleESCOOccupationSpecs = (givenModelId: string): INewOccupati
     originUri: `originUri_${i}`,
     description: `description_${i}`,
     importId: `importId_${i}`,
+    isLocalized: i % 2 === 0,
     occupationType: ObjectTypes.ESCOOccupation,
   }));
 };
@@ -44,6 +45,7 @@ export const getSampleLocalOccupationSpecs = (givenModelId: string): INewOccupat
     originUri: `originUri_${i}`,
     description: `description_${i}`,
     importId: `importId_${i}`,
+    isLocalized: false,
     occupationType: ObjectTypes.LocalOccupation,
   }));
 };

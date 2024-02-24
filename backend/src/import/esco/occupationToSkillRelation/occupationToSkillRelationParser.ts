@@ -39,7 +39,7 @@ function getRowToSpecificationTransformFn(
   return (row: IOccupationToSkillRelationImportRow) => {
     // Check if relation type is valid
     const relationType = getRelationTypeFromCSVRelationType(row.RELATIONTYPE);
-    if (!relationType) {
+    if (relationType === null) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );
@@ -48,7 +48,7 @@ function getRowToSpecificationTransformFn(
     // Check if occupation type is valid
 
     const occupationType = getOccupationTypeFromCSVObjectType(row.OCCUPATIONTYPE);
-    if (!occupationType) {
+    if (occupationType === null) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );

@@ -10,7 +10,7 @@ import {
 } from "esco/common/modelSchema";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewOccupationSpec } from "esco/occupations/occupation/occupation.types";
+import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
@@ -71,7 +71,14 @@ export function getNewESCOOccupationSpec(): INewOccupationSpec {
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
     occupationType: ObjectTypes.ESCOOccupation,
+    isLocalized: false,
   };
+}
+
+export function getNewLocalizedESCOOccupationSpec(): INewOccupationSpec {
+  const spec = getNewESCOOccupationSpec();
+  spec.isLocalized = true;
+  return spec;
 }
 
 export function getNewLocalOccupationSpec(): INewOccupationSpec {
@@ -89,6 +96,7 @@ export function getNewLocalOccupationSpec(): INewOccupationSpec {
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
     occupationType: ObjectTypes.LocalOccupation,
+    isLocalized: false,
   };
 }
 
@@ -111,9 +119,15 @@ export function getSimpleNewESCOOccupationSpec(modelId: string, preferredLabel: 
     description: "",
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
     occupationType: ObjectTypes.ESCOOccupation,
+    isLocalized: false,
   };
 }
 
+export function getSimpleNewLocalizedESCOOccupationSpec(modelId: string, preferredLabel: string) {
+  const occ = getSimpleNewESCOOccupationSpec(modelId, preferredLabel);
+  occ.isLocalized = true;
+  return occ;
+}
 export function getSimpleNewLocalOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
     ISCOGroupCode: getMockRandomISCOGroupCode(),
@@ -129,6 +143,7 @@ export function getSimpleNewLocalOccupationSpec(modelId: string, preferredLabel:
     description: "",
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
     occupationType: ObjectTypes.LocalOccupation,
+    isLocalized: false,
   };
 }
 

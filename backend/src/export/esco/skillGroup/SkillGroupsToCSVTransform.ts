@@ -4,7 +4,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { stringify } from "csv-stringify";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { Readable } from "node:stream";
-import { stringFromArray } from "../../../import/esco/common/parseNewLineSeparatedArray";
+import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 export type IUnpopulatedSkillGroup = Omit<ISkillGroup, "parents" | "children">;
 

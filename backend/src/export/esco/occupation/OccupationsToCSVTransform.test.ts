@@ -2,10 +2,10 @@
 import "_test_utilities/consoleMock";
 
 import { Readable } from "stream";
-import * as BaseOccupationsToCSVTransformModule from "./BaseOccupationsToCSVTransform";
-import BaseOccupationsToCSVTransform, { IUnpopulatedOccupation } from "./BaseOccupationsToCSVTransform";
+import * as BaseOccupationsToCSVTransformModule from "./OccupationsToCSVTransform";
+import OccupationsToCSVTransform, { IUnpopulatedOccupation } from "./OccupationsToCSVTransform";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { IOccupationRepository } from "esco/occupations/occupation/occupationRepository";
+import { IOccupationRepository } from "esco/occupations/occupationRepository";
 import { parse } from "csv-parse/sync";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getTestString } from "_test_utilities/specialCharacters";
@@ -32,6 +32,7 @@ const getMockOccupations = (
     description: `description_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     occupationType: occupationType,
+    isLocalized: occupationType === ObjectTypes.LocalOccupation ? true : i % 2 === 0,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
@@ -91,10 +92,7 @@ describe("BaseOccupationsDoc2csvTransform", () => {
         setupOccupationRepositoryMock(() => Readable.from(givenOccupations));
 
         // WHEN the transformation is applied
-        const transformedStream = BaseOccupationsToCSVTransform(
-          "foo",
-          givenOccupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
-        );
+        const transformedStream = OccupationsToCSVTransform("foo");
 
         // THEN the output should be a stream
         const chunks = [];
@@ -127,10 +125,7 @@ describe("BaseOccupationsDoc2csvTransform", () => {
           );
 
           // WHEN the transformation stream is consumed
-          const transformedStream = BaseOccupationsToCSVTransform(
-            "foo",
-            givenOccupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
-          );
+          const transformedStream = OccupationsToCSVTransform("foo");
           // THEN expect the given error to be thrown
           await expect(async () => {
             //  iterate to consume the stream
@@ -140,7 +135,7 @@ describe("BaseOccupationsDoc2csvTransform", () => {
           }).rejects.toThrow(givenError);
 
           // THEN the error should be logged
-          const expectedErrorMessage = `Transforming ${givenOccupationType} occupations to CSV failed`;
+          const expectedErrorMessage = `Transforming Occupations to CSV failed`;
           expect(console.error).toHaveBeenCalledWith(
             expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
           );
@@ -166,10 +161,7 @@ describe("BaseOccupationsDoc2csvTransform", () => {
             });
 
           // WHEN the transformation stream is consumed
-          const transformedStream = BaseOccupationsToCSVTransform(
-            "foo",
-            givenOccupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
-          );
+          const transformedStream = OccupationsToCSVTransform("foo");
           // THEN expect the given error to be thrown
 
           await expect(async () => {
@@ -177,21 +169,18 @@ describe("BaseOccupationsDoc2csvTransform", () => {
             for await (const _ of transformedStream) {
               // do nothing
             }
-          }).rejects.toThrowError(`Failed to transform ${givenOccupationType} occupation to CSV row`);
+          }).rejects.toThrowError(`Failed to transform Occupation to CSV row`);
 
           // THEN the error should be logged
           const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
-          const expectedErrorMessage = `Failed to transform ${givenOccupationType} occupation to CSV row: ${expectedLoggedItem}`;
+          const expectedErrorMessage = `Failed to transform Occupation to CSV row: ${expectedLoggedItem}`;
           const expectedError = new Error(expectedErrorMessage, { cause: givenError });
 
           expect(console.error).toHaveBeenCalledWith(
             expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
           );
           expect(console.error).toHaveBeenCalledWith(
-            expect.toMatchErrorWithCause(
-              `Transforming ${givenOccupationType} occupations to CSV failed`,
-              expectedError.message
-            )
+            expect.toMatchErrorWithCause(`Transforming Occupations to CSV failed`, expectedError.message)
           );
 
           // AND the stream should end

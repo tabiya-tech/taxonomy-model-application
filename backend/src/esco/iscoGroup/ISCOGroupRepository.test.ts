@@ -27,9 +27,9 @@ import {
   TestStreamDBConnectionFailureNoSetup,
 } from "_test_utilities/testDBConnectionFaillure";
 import { expectedISCOGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
-import { IOccupationReference } from "esco/occupations/common/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { Readable } from "node:stream";
-import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/populateWithExplainPlan";
+import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
 
 jest.mock("crypto", () => {

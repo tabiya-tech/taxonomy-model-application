@@ -4,12 +4,10 @@ import { AsyncExportEvent } from "./async.types";
 import stream from "stream";
 import archiver from "archiver";
 import ErrorLogger from "common/errorLogger/errorLogger";
-import ESCOOccupationsToCSVTransform from "export/esco/occupation/ESCOOccupationsToCSVTransform";
 import CSVtoZipPipeline from "export/async/CSVtoZipPipeline";
 import uploadZipToS3 from "./uploadZipToS3";
 import { getDownloadBucketName, getDownloadBucketRegion } from "server/config/config";
 import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
-import LocalOccupationsToCSVTransform from "export/esco/occupation/LocalOccupationsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
 import OccupationHierarchyToCSVTransform from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
@@ -17,6 +15,7 @@ import SkillHierarchyToCSVTransform from "export/esco/skillHierarchy/skillHierar
 import OccupationToSkillRelationToCSVTransform from "export/esco/occupationToSkillRelation/occupationToSkillRelationToCSVTransform";
 import SkillToSkillRelationToCSVTransform from "export/esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
 import ModelInfoToCSVTransform from "export/modelInfo/modelInfoToCSVTransform";
+import OccupationsToCSVTransform from "export/esco/occupation/OccupationsToCSVTransform";
 
 /**
  * Exports a model into a zip file containing all the entities in the database pertaining to that model,
@@ -61,29 +60,32 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
 
     // For each Collection in the DB
     [
-      { collectionName: "ISCOGroups", fileName: "isco_groups.csv", csvStream: ISCOGroupsToCSVTransform },
-      { collectionName: "ESCOOccupations", fileName: "esco_occupations.csv", csvStream: ESCOOccupationsToCSVTransform },
+      { collectionName: "ISCOGroups", fileName: FILENAMES.ISCOGroups, csvStream: ISCOGroupsToCSVTransform },
       {
-        collectionName: "Local Occupations",
-        fileName: "local_occupations.csv",
-        csvStream: LocalOccupationsToCSVTransform,
+        collectionName: "Occupations",
+        fileName: FILENAMES.Occupations,
+        csvStream: OccupationsToCSVTransform,
       },
-      { collectionName: "Skill Groups", fileName: "skill_groups.csv", csvStream: SkillGroupsToCSVTransform },
-      { collectionName: "Skills", fileName: "skills.csv", csvStream: SkillsToCSVTransform },
+      { collectionName: "Skill Groups", fileName: FILENAMES.SkillGroups, csvStream: SkillGroupsToCSVTransform },
+      { collectionName: "Skills", fileName: FILENAMES.Skills, csvStream: SkillsToCSVTransform },
       {
         collectionName: "Occupation Hierarchy",
-        fileName: "occupation_hierarchy.csv",
+        fileName: FILENAMES.OccupationHierarchy,
         csvStream: OccupationHierarchyToCSVTransform,
       },
-      { collectionName: "Skill Hierarchy", fileName: "skill_hierarchy.csv", csvStream: SkillHierarchyToCSVTransform },
+      {
+        collectionName: "Skill Hierarchy",
+        fileName: FILENAMES.SkillHierarchy,
+        csvStream: SkillHierarchyToCSVTransform,
+      },
       {
         collectionName: "Occupation to Skill Relation",
-        fileName: "occupation_to_skill_relation.csv",
+        fileName: FILENAMES.OccupationToSkillRelation,
         csvStream: OccupationToSkillRelationToCSVTransform,
       },
       {
         collectionName: "Skill to Skill Relation",
-        fileName: "skill_to_skill_relation.csv",
+        fileName: FILENAMES.SkillToSkillRelation,
         csvStream: SkillToSkillRelationToCSVTransform,
       },
     ].forEach((item) => {
@@ -101,7 +103,7 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
     // for modelInfo since it is asynchronous
     const modelInfoStream = await ModelInfoToCSVTransform(event.modelId);
     streamResources.push(modelInfoStream);
-    CSVtoZipPipeline("ModelInfo", "model_info.csv", modelInfoStream, zipper, (error?: Error) => {
+    CSVtoZipPipeline("ModelInfo", FILENAMES.ModelInfo, modelInfoStream, zipper, (error?: Error) => {
       if (error) {
         // If the pipeline failed then the passThrough must be destroyed as the archiver does not handle the clean-up of the streams
         // If the passThrough is not destroyed, the uploadZipToS3 will hang waiting for the stream to end
@@ -144,4 +146,16 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
 
   await getRepositoryRegistry().exportProcessState.update(event.exportProcessStateId, exportState);
   console.info("Export completed", exportState);
+};
+
+export const FILENAMES = {
+  ISCOGroups: "isco_groups.csv",
+  Occupations: "occupations.csv",
+  SkillGroups: "skill_groups.csv",
+  Skills: "skills.csv",
+  OccupationHierarchy: "occupation_hierarchy.csv",
+  SkillHierarchy: "skill_hierarchy.csv",
+  OccupationToSkillRelation: "occupation_to_skill_relation.csv",
+  SkillToSkillRelation: "skill_to_skill_relation.csv",
+  ModelInfo: "model_info.csv",
 };

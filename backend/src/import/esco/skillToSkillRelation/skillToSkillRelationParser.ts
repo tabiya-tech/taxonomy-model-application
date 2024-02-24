@@ -36,7 +36,7 @@ function getRowToSpecificationTransformFn(
   return (row: ISkillToSkillsRelationImportRow) => {
     // Check if relation type is valid
     const relationType = getRelationTypeFromCSVRelationType(row.RELATIONTYPE);
-    if (!relationType) {
+    if (relationType === null) {
       errorLogger.logWarning(
         `Failed to import SkillToSkillRelation row with requiringSkillId:'${row.REQUIRINGID}' and requiredSkillId:'${row.REQUIREDID}'`
       );

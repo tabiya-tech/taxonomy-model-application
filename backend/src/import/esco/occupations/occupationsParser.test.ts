@@ -3,11 +3,11 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parseOccupationsFromFile, parseOccupationsFromUrl } from "./occupationsParser";
-import { IOccupationRepository } from "esco/occupations/occupation/occupationRepository";
+import { IOccupationRepository } from "esco/occupations/occupationRepository";
 import fs from "fs";
 import https from "https";
 import { StatusCodes } from "server/httpUtils";
-import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
@@ -18,8 +18,7 @@ jest.mock("https");
 const parseFromUrlCallback = (
   file: string,
   givenModelId: string,
-  importIdToDBIdMap: Map<string, string>,
-  isLocalImport: boolean
+  importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> => {
   const mockResponse = fs.createReadStream(file);
   // @ts-ignore
@@ -30,16 +29,15 @@ const parseFromUrlCallback = (
       on: jest.fn(),
     };
   });
-  return parseOccupationsFromUrl(givenModelId, "someUrl", importIdToDBIdMap, isLocalImport);
+  return parseOccupationsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
 };
 
 const parseFromFileCallback = (
   file: string,
   givenModelId: string,
-  importIdToDBIdMap: Map<string, string>,
-  isLocalImport: boolean
+  importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> => {
-  return parseOccupationsFromFile(givenModelId, file, importIdToDBIdMap, isLocalImport);
+  return parseOccupationsFromFile(givenModelId, file, importIdToDBIdMap);
 };
 
 describe("test parseOccupations from", () => {
@@ -53,44 +51,26 @@ describe("test parseOccupations from", () => {
   test.each([
     [
       "url file",
-      true,
-      "./src/import/esco/occupations/_test_data_/givenLocal.csv",
-      "./_test_data_/expectedLocal.ts",
+      "./src/import/esco/occupations/_test_data_/given.csv",
+      "./_test_data_/expected.ts",
       parseFromUrlCallback,
     ],
     [
       "csv file",
-      true,
-      "./src/import/esco/occupations/_test_data_/givenLocal.csv",
-      "./_test_data_/expectedLocal.ts",
-      parseFromFileCallback,
-    ],
-    [
-      "url file",
-      false,
-      "./src/import/esco/occupations/_test_data_/givenESCO.csv",
-      "./_test_data_/expectedESCO.ts",
-      parseFromUrlCallback,
-    ],
-    [
-      "csv file",
-      false,
-      "./src/import/esco/occupations/_test_data_/givenESCO.csv",
-      "./_test_data_/expectedESCO.ts",
+      "./src/import/esco/occupations/_test_data_/given.csv",
+      "./_test_data_/expected.ts",
       parseFromFileCallback,
     ],
   ])(
-    "should create Occupations from %s for rows with importId and 'isLocalImport' %s",
+    "should create Occupations from %s for rows with importId",
     async (
       description,
-      isLocalImport: boolean,
       givenCSVFile,
       expectedFile,
       parseCallBack: (
         file: string,
         givenModelId: string,
-        importIdToDBIdMap: Map<string, string>,
-        isLocalImport: boolean
+        importIdToDBIdMap: Map<string, string>
       ) => Promise<RowsProcessedStats>
     ) => {
       // GIVEN a model id
@@ -125,26 +105,28 @@ describe("test parseOccupations from", () => {
       jest.spyOn(givenImportIdToDBIdMap, "set");
 
       // WHEN the data are parsed
-      const actualStats = await parseCallBack(givenCSVFile, givenModelId, givenImportIdToDBIdMap, isLocalImport);
+      const actualStats = await parseCallBack(givenCSVFile, givenModelId, givenImportIdToDBIdMap);
 
       // THEN expect the repository to have been called with the expected spec
       const expectedFileModule = await import(expectedFile);
-      const expectedResults = expectedFileModule.expected;
-      expectedResults.forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">) => {
-        expect(mockRepository.createMany).toHaveBeenLastCalledWith(
-          expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
-        );
-      });
+      const expectedSpecs: INewOccupationSpec[] = expectedFileModule.expected.map(
+        (expectedSpec: Omit<INewOccupationSpec, "modelId">) => {
+          return { ...expectedSpec, modelId: givenModelId };
+        }
+      );
+
+      expect((mockRepository.createMany as jest.Mock).mock.lastCall[0]).toIncludeSameMembers(expectedSpecs);
+
       // AND all the expected rows to have been processed successfully
       const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
       expect(actualStats).toEqual({
         rowsProcessed: expectedCSVFileRowCount,
-        rowsSuccess: expectedResults.length,
-        rowsFailed: expectedCSVFileRowCount - expectedResults.length,
+        rowsSuccess: expectedSpecs.length,
+        rowsFailed: expectedCSVFileRowCount - expectedSpecs.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
       expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(4);
-      expectedResults
+      expectedSpecs
         .filter((res: Omit<INewOccupationSpec, "modelId">) => isSpecified(res.importId))
         .forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">, index: number) => {
           expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
@@ -164,41 +146,27 @@ describe("test parseOccupations from", () => {
         2,
         "Failed to import Occupation row with id:''. OccupationType not found/invalid."
       );
-      if (isLocalImport) {
-        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-          3,
-          "Failed to import Local Occupation row with id:'key_3'. Code not valid."
-        );
-      } else {
-        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-          3,
-          "Failed to import ESCO Occupation row with id:'key_3'. Code not valid."
-        );
-      }
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        4,
-        "Failed to import Occupation row with id:'key_4'. OccupationType not found/invalid."
+        3,
+        "Failed to import ESCO Occupation row with id:'error_3'. Code not valid."
       );
 
-      if (isLocalImport) {
-        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-          5,
-          "Failed to import Local Occupation row with id:'key_5'. Code not valid."
-        );
-        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-          6,
-          "Failed to import Local Occupation row with id:'key_6'. Not a local occupation."
-        );
-      } else {
-        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-          5,
-          "Failed to import ESCO Occupation row with id:'key_5'. Code not valid."
-        );
-        expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-          6,
-          "Failed to import ESCO Occupation row with id:'key_6'. Not an ESCO occupation."
-        );
-      }
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        4,
+        "Failed to import Occupation row with id:'error_4'. OccupationType not found/invalid."
+      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        5,
+        "Failed to import Local Occupation row with id:'error_5'. Code not valid."
+      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        6,
+        "Failed to import ESCO Occupation row with id:'error_6'. Code not valid."
+      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        7,
+        "Failed to import Local Occupation row with id:'error_7'. Local occupation cannot be localized."
+      );
     }
   );
 });

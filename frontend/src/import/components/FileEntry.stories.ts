@@ -14,6 +14,6 @@ type Story = StoryObj<typeof FileEntry>;
 
 export const ComponentRendered: Story = {
   args: {
-    fileType: Import.Constants.ImportFileTypes.ESCO_OCCUPATION,
+    fileType: Import.Constants.ImportFileTypes.OCCUPATIONS,
   },
 };

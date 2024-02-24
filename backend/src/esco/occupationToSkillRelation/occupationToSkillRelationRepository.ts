@@ -9,7 +9,7 @@ import {
   IOccupationToSkillRelationPairDoc,
 } from "./occupationToSkillRelation.types";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { IOccupationDoc } from "esco/occupations/occupation/occupation.types";
+import { IOccupationDoc } from "esco/occupations/occupation.types";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";

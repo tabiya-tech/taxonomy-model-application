@@ -12,7 +12,7 @@ import { getTestString } from "src/_test_utilities/specialCharacters";
 import { getMockId } from "src/_test_utilities/mockMongoId";
 
 const mockFilePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths = {
-  [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL]: "foo/bar",
+  [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "foo/bar",
   [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "bar/baz",
 };
 
