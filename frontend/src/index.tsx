@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./app";
 import reportWebVitals from "./reportWebVitals";
-import applicationTheme, { ThemeMode } from "./theme/applicationTheme";
+import applicationTheme, { ThemeMode } from "./theme/applicationTheme/applicationTheme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider } from "./app/providers";

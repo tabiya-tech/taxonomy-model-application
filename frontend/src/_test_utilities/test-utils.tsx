@@ -3,7 +3,7 @@
 import React, { ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
-import applicationTheme, { ThemeMode } from "src/theme/applicationTheme";
+import applicationTheme, { ThemeMode } from "src/theme/applicationTheme/applicationTheme";
 import SnackbarProvider from "src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider } from "src/app/providers";
 
