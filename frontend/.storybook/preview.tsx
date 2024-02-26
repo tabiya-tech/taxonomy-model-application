@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router } from "react-router-dom";
-import { applicationTheme, ThemeMode } from "../src/theme/applicationTheme";
+import { applicationTheme, ThemeMode } from "../src/theme/applicationTheme/applicationTheme";
 // Load fonts
 // The application font are typically loaded in the index.html, index.css or index.tsx file
 // The fonts for the storybook are loaded here
@@ -8,7 +8,7 @@ import { applicationTheme, ThemeMode } from "../src/theme/applicationTheme";
 // we need to load them here as well
 import "../src/index.css";
 // Load the application theme css file here
-import "../src/theme/application-theme.css";
+import "../src/theme/applicationTheme/application-theme.css";
 //If the application fonts are loaded from the index.tsx file via an import, then the fonts can be loaded here as well
 /*
 import "@fontsource/roboto/300.css";

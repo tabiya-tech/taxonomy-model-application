@@ -1,6 +1,6 @@
-import "../_test_utilities/consoleMock";
+import "src/_test_utilities/consoleMock";
 import { renderHook, act } from "@testing-library/react";
-import { useResponsiveStyleValue } from "./storybook";
+import { useResponsiveStyleValue } from "./useResponsiveStyleValue";
 
 const MOCKED_COMPUTED_VALUE = "46";
 

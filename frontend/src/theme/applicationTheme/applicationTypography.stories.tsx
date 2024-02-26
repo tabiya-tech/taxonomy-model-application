@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { Box, Theme, Typography, useTheme } from "@mui/material";
 import { useRef } from "react";
-import { useResponsiveStyleValue } from "src/utils/storybook";
-import { TabiyaBaseSizes } from "./applicationTheme";
+import { useResponsiveStyleValue } from "src/theme/applicationTheme/useResponsiveStyleValue";
+import { TabiyaBaseSizes } from "src/theme/applicationTheme/applicationTheme";
 
 const meta: Meta = {
   title: "Style/Typography",

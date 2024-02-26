@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { Box, Typography, useTheme, Icon } from "@mui/material";
 import { Theme } from "@mui/material/styles";
-import { TabiyaIconStyles } from "./applicationTheme";
+import { TabiyaIconStyles } from "src/theme/applicationTheme/applicationTheme";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const meta: Meta = {
