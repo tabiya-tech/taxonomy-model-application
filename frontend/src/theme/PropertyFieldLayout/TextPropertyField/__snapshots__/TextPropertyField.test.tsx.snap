@@ -12,6 +12,7 @@ exports[`TextPropertyField render tests should render with provided label and te
       aria-labelledby="field-id"
       class="MuiTypography-root MuiTypography-body1 css-1cy5wtl-MuiTypography-root"
       data-testid="text-property-field-text-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      role="text"
     >
       bar
     </p>

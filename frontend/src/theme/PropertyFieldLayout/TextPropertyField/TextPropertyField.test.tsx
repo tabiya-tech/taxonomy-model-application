@@ -56,6 +56,7 @@ describe("TextPropertyField", () => {
           alignItems="center"
           data-testid={DATA_TEST_ID.TEXT_PROPERTY_FIELD_TEXT}
           aria-labelledby={givenFieldId}
+          role={"text"}
         >
           {givenItem.text}
         </Typography>
