@@ -10,7 +10,7 @@ exports[`ModelDirectory ModelDirectory Render ModelDirectory initial render test
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
-      style="width: 100%; height: 100%; opacity: 0;"
+      style="width: 100%; height: 100%; opacity: 0.2;"
     >
       <div
         class="MuiBox-root css-135vfhz"
@@ -54,7 +54,7 @@ exports[`ModelDirectory ModelDirectory Render should re-render the modelTable wh
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
-      style="width: 100%; height: 100%; opacity: 0;"
+      style="width: 100%; height: 100%; opacity: 0.2;"
     >
       <div
         class="MuiBox-root css-135vfhz"

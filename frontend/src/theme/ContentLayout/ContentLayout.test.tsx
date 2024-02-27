@@ -38,16 +38,6 @@ describe("ContentLayout", () => {
     // AND the ContentLayout component should match the snapshot
     expect(screen.getByTestId(DATA_TEST_ID.CONTENT_LAYOUT)).toMatchSnapshot();
 
-    // THEN the header component is rendered initially hidden
-    expect(screen.getByTestId(givenHeaderComponentTestId)).toBeInTheDocument();
-    expect(screen.getByTestId(givenHeaderComponentTestId)).not.toBeVisible();
-    // AND the main component is rendered initially hidden
-    expect(screen.getByTestId(givenMainComponentTestId)).toBeInTheDocument();
-    expect(screen.getByTestId(givenMainComponentTestId)).not.toBeVisible();
-    // AND the child component is rendered initially hidden
-    expect(screen.getByTestId(givenChildComponentTestId)).toBeInTheDocument();
-    expect(screen.getByTestId(givenMainComponentTestId)).not.toBeVisible();
-
     // AND WHEN some time has passed
     // THEN the header component is rendered visible
     await waitFor(() => expect(screen.getByTestId(givenHeaderComponentTestId)).toBeVisible());
