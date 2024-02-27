@@ -1,6 +1,7 @@
 import { TabControlConfig } from "./TabControl.types";
 import React, { useState } from "react";
 import { Box, Tab, Tabs, useTheme } from "@mui/material";
+import { motion } from "framer-motion";
 
 interface StyledTabsProps {
   children?: React.ReactNode;
@@ -13,6 +14,7 @@ const StyledTabs = (props: StyledTabsProps) => (
   <Tabs
     {...props}
     variant="fullWidth"
+    selectionFollowsFocus
     sx={{
       backgroundColor: (theme) => theme.palette.common.white,
       position: "sticky",
@@ -24,7 +26,7 @@ const StyledTabs = (props: StyledTabsProps) => (
         backgroundColor: "transparent",
       },
       "& .MuiTabs-indicatorSpan": {
-        maxWidth: 40,
+        maxWidth: "40%",
         width: "100%",
         backgroundColor: (theme) => theme.palette.primary.main,
       },
@@ -62,7 +64,7 @@ const TabControl: React.FC<TabControlProps> = (props: Readonly<TabControlProps>)
   return (
     <Box display="flex" flexDirection={"column"} sx={{ height: "100%" }} data-testid={props["data-testid"]}>
       <StyledTabs value={value} onChange={handleChange} aria-label={props["aria-label"]}>
-        {props.items.map((item, index) => (
+        {props.items.map((item) => (
           <Tab
             sx={{
               ...theme.typography.button,
@@ -74,26 +76,32 @@ const TabControl: React.FC<TabControlProps> = (props: Readonly<TabControlProps>)
           />
         ))}
       </StyledTabs>
-      {props.items.map((item, index) => (
-        <Box
-          role="tabpanel"
-          hidden={value !== index}
-          id={`tabpanel-${item.id}`}
-          aria-labelledby={`tab-${item.id}`}
-          key={item.id}
-          data-testid={DATA_TEST_ID.TAB_CONTROL_PANEL}
-          sx={{
-            paddingBottom: (theme) => theme.spacing(theme.tabiyaSpacing.lg),
-            maxHeight: "100%",
-            paddingTop: (theme) => theme.spacing(theme.tabiyaSpacing.lg),
-            flexGrow: 1,
-            overflowY: "auto",
-            overflowX: "hidden",
-          }}
-        >
-          {value === index && <Box>{item.panel}</Box>}
-        </Box>
-      ))}
+      {props.items.map(
+        (item, index) =>
+          value === index && (
+            <Box
+              role="tabpanel"
+              id={`tabpanel-${item.id}`}
+              aria-labelledby={`tab-${item.id}`}
+              data-testid={DATA_TEST_ID.TAB_CONTROL_PANEL}
+              key={item.id}
+              sx={{
+                paddingBottom: theme.spacing(theme.tabiyaSpacing.lg),
+                maxHeight: "100%",
+                paddingTop: theme.spacing(theme.tabiyaSpacing.lg),
+                flexGrow: 1,
+                overflowY: "auto",
+                overflowX: "hidden",
+              }}
+            >
+              {
+                <motion.div initial={{ opacity: 0.2 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
+                  {item.panel}
+                </motion.div>
+              }
+            </Box>
+          )
+      )}
     </Box>
   );
 };

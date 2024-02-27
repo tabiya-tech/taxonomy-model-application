@@ -6,7 +6,7 @@ exports[`TabControl component render tests renders correctly with no items 1`] =
   data-testid="test-id"
 >
   <div
-    class="MuiTabs-root css-9j4t2f-MuiTabs-root"
+    class="MuiTabs-root css-6gqcb5-MuiTabs-root"
   >
     <div
       class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
@@ -36,7 +36,7 @@ exports[`TabControl component render tests renders tabs and content for a single
   data-testid="test-id"
 >
   <div
-    class="MuiTabs-root css-9j4t2f-MuiTabs-root"
+    class="MuiTabs-root css-6gqcb5-MuiTabs-root"
   >
     <div
       class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
@@ -80,7 +80,7 @@ exports[`TabControl component render tests renders tabs and content for a single
     role="tabpanel"
   >
     <div
-      class="MuiBox-root css-0"
+      style="opacity: 0.2;"
     >
       <div>
         Test Panel
@@ -96,7 +96,7 @@ exports[`TabControl component render tests renders tabs and content for multiple
   data-testid="test-id"
 >
   <div
-    class="MuiTabs-root css-9j4t2f-MuiTabs-root"
+    class="MuiTabs-root css-6gqcb5-MuiTabs-root"
   >
     <div
       class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
@@ -154,20 +154,12 @@ exports[`TabControl component render tests renders tabs and content for multiple
     role="tabpanel"
   >
     <div
-      class="MuiBox-root css-0"
+      style="opacity: 0.2;"
     >
       <div>
         Test Panel 1
       </div>
     </div>
   </div>
-  <div
-    aria-labelledby="tab-unique-id-2"
-    class="MuiBox-root css-1j1uas5"
-    data-testid="tab-control-panel-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
-    hidden=""
-    id="tabpanel-unique-id-2"
-    role="tabpanel"
-  />
 </div>
 `;
