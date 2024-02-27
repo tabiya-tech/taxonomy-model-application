@@ -2,7 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import TabControl, { DATA_TEST_ID } from "./TabControl";
-import { render, screen, within, act } from "src/_test_utilities/test-utils";
+import { render, screen, within, act, waitFor } from "src/_test_utilities/test-utils";
 import { TabControlConfig } from "./TabControl.types";
 
 describe("TabControl component render tests", () => {
@@ -27,7 +27,7 @@ describe("TabControl component render tests", () => {
     expect(console.error).not.toHaveBeenCalled();
   });
 
-  test("renders tabs and content for a single provided item", () => {
+  test("renders tabs and content for a single provided item", async () => {
     // GIVEN a single `TabControlConfig` item with unique `id`, `label`, and `panel`
     const givenItem: TabControlConfig = {
       id: "unique-id",
@@ -49,11 +49,20 @@ describe("TabControl component render tests", () => {
     expect(tabPanel).toBeInTheDocument();
     // AND match the snapshot
     expect(tabControlComponent).toMatchSnapshot();
+
+    // AND WHEN some time has passed
+    // THEN the component is rendered visible
+    await waitFor(() => expect(screen.getByTestId(givenTestId)).toBeVisible());
+    // AND the label is rendered visible
+    await waitFor(() => expect(screen.getByTestId(DATA_TEST_ID.TAB_CONTROL_LABEL)).toBeVisible());
+    // AND the panel is rendered visible
+    await waitFor(() => expect(screen.getByTestId(DATA_TEST_ID.TAB_CONTROL_PANEL)).toBeVisible());
+
     // AND no errors should be logged to the console
     expect(console.error).not.toHaveBeenCalled();
   });
 
-  test("renders tabs and content for multiple provided items", () => {
+  test("renders tabs and content for multiple provided items", async () => {
     // GIVEN an array of `TabControlConfig` items with unique `id`, `label`, and `panel` components
     const givenItems: TabControlConfig[] = [
       {
@@ -81,6 +90,17 @@ describe("TabControl component render tests", () => {
     expect(screen.getByText("Test Panel 1")).toBeInTheDocument();
     // AND match the snapshot
     expect(tabControlComponent).toMatchSnapshot();
+
+    // AND after some time has passed
+    // THEN the component is rendered visible
+    await waitFor(() => expect(screen.getByTestId(givenTestId)).toBeVisible());
+    // AND the first label is rendered visible
+    await waitFor(() => expect(screen.getByText(givenItems[0].label)).toBeVisible());
+    // AND the second label is rendered visible
+    await waitFor(() => expect(screen.getByText(givenItems[1].label)).toBeVisible());
+    // AND the first panel is rendered visible
+    await waitFor(() => expect(screen.getByText("Test Panel 1")).toBeVisible());
+
     // AND no errors should be logged to the console
     expect(console.error).not.toHaveBeenCalled();
   });
@@ -122,6 +142,10 @@ describe("TabControl component interaction tests", () => {
     // AND the third item's panel content should not be displayed
     expect(screen.queryByText("Test Panel 3")).not.toBeInTheDocument();
 
+    // AND after some time has passed
+    // THEN the second panel is rendered visible
+    await waitFor(() => expect(screen.getByText("Test Panel 2")).toBeVisible());
+
     // AND WHEN the third tab label is clicked
     act(() => {
       screen.getByText(givenItems[2].label).click();
@@ -133,6 +157,10 @@ describe("TabControl component interaction tests", () => {
     // AND the second item's panel content should not be displayed
     expect(screen.queryByText("Test Panel 2")).not.toBeInTheDocument();
 
+    // AND after some time has passed
+    // THEN the third panel is rendered visible
+    await waitFor(() => expect(screen.getByText("Test Panel 3")).toBeVisible());
+
     // AND WHEN the first tab label is clicked again
     act(() => {
       screen.getByText(givenItems[0].label).click();
@@ -143,6 +171,10 @@ describe("TabControl component interaction tests", () => {
     expect(screen.queryByText("Test Panel 2")).not.toBeInTheDocument();
     // AND the third item's panel content should not be displayed
     expect(screen.queryByText("Test Panel 3")).not.toBeInTheDocument();
+
+    // AND after some time has passed
+    // THEN the first panel is rendered visible
+    await waitFor(() => expect(screen.getByText("Test Panel 1")).toBeVisible());
 
     // AND no errors should be logged to the console
     expect(console.error).not.toHaveBeenCalled();
