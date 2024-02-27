@@ -125,7 +125,7 @@ describe("ModelPropertiesDrawer component render tests", () => {
     expect(modelPropertiesHeaderComponent).toBeInTheDocument();
     expect(ModelPropertiesHeader).toHaveBeenCalledWith(
       {
-        name: `${testModel.name} : ${testModel.locale.name}`,
+        name: `${testModel.name} (${testModel.locale.shortCode})`,
         notifyOnClose: expect.any(Function),
       },
       {}
