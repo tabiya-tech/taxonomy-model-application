@@ -5,7 +5,7 @@ import AppSidebar from "./AppSidebar";
 import { styled, useTheme } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import CustomIconButton from "src/theme/IconButton/CustomIconButton";
+import PrimaryIconButton from "src/theme/PrimaryIconButton/PrimaryIconButton";
 
 const Container = styled(Box)`
   display: flex;
@@ -86,7 +86,7 @@ export default AppLayout;
 
 const ToggleAppSidebarButton = (props: { toggleAppSidebarCallBack: () => void; isAppSidebarVisible: boolean }) => {
   return (
-    <CustomIconButton
+    <PrimaryIconButton
       data-testid={DATA_TEST_ID.TOGGLE_BUTTON}
       onClick={props.toggleAppSidebarCallBack}
       sx={{ padding: 0, marginRight: (theme) => theme.tabiyaSpacing.xs, height: "auto", alignSelf: "center" }}
@@ -97,6 +97,6 @@ const ToggleAppSidebarButton = (props: { toggleAppSidebarCallBack: () => void; i
       ) : (
         <ChevronRight sx={{ padding: 0, margin: 0 }} />
       )}
-    </CustomIconButton>
+    </PrimaryIconButton>
   );
 };

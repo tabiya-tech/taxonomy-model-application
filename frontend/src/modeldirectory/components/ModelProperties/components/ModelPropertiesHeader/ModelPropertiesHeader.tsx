@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import HeaderTitle from "src/theme/HeaderTitle/HeaderTitle";
-import CustomIconButton from "src/theme/IconButton/CustomIconButton";
+import PrimaryIconButton from "src/theme/PrimaryIconButton/PrimaryIconButton";
 
 export interface ModelPropertiesHeaderProps {
   name: string;
@@ -40,13 +40,13 @@ const ModelPropertiesHeader: React.FC<ModelPropertiesHeaderProps> = (props: Read
         <Box flex={1} minWidth={0}>
           <HeaderTitle data-testid={DATA_TEST_ID.MODEL_PROPERTIES_HEADER_TITLE}>Model Properties</HeaderTitle>
         </Box>
-        <CustomIconButton
+        <PrimaryIconButton
           onClick={handleOnClick}
           title="Close model properties"
           data-testid={DATA_TEST_ID.MODEL_PROPERTIES_HEADER_CLOSE_BUTTON}
         >
           <CloseIcon />
-        </CustomIconButton>
+        </PrimaryIconButton>
       </Box>
       <Box
         flex={1}
