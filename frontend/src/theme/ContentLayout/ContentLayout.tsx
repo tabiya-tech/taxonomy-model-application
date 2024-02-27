@@ -45,9 +45,8 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
         data-testid={DATA_TEST_ID.CONTENT_LAYOUT}
       >
         <motion.div
-          initial={{ width: "100%", height: "100%", opacity: 0 }}
+          initial={{ width: "100%", height: "100%", opacity: 0.2 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
         >
           <Box
