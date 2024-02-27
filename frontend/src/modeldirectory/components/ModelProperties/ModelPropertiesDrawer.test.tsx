@@ -215,4 +215,35 @@ describe("ModelPropertiesDrawer component action tests", () => {
     expect(notifyOnCloseHandler).toHaveBeenCalledWith({ name: CloseEventName.DISMISS });
     expect(notifyOnCloseHandler).toHaveBeenCalledTimes(1);
   });
+
+  test("should catch the error and log it when the parent's notifyOnClose throws an error", () => {
+    // GIVEN that the drawer is open with a notifyOnClose that will throw an error
+    const givenError = new Error("notifyOnClose error");
+    const notifyOnCloseHandler = jest.fn(() => {
+      throw givenError;
+    });
+    render(<ModelPropertiesDrawer model={testModel} isOpen={true} notifyOnClose={notifyOnCloseHandler} />);
+
+    // WHEN attempting to close the drawer
+    fireEvent.keyDown(screen.getByTestId(MODEL_PROPERTIES_DRAWER_DATA_TEST_ID.MODEL_PROPERTIES_DRAWER), {
+      key: "Escape",
+    });
+
+    // THEN expect the given error to have been logged to the console
+    expect(console.error).toHaveBeenCalledWith("Couldn't close drawer", givenError);
+  });
+
+  test("should catch the error and log it when the parent's notifyOnClose was not provided", () => {
+    // GIVEN that the drawer is open without a notifyOnClose callback
+    // @ts-ignore
+    render(<ModelPropertiesDrawer model={testModel} isOpen={true} />);
+
+    // WHEN attempting to close the drawer
+    fireEvent.keyDown(screen.getByTestId(MODEL_PROPERTIES_DRAWER_DATA_TEST_ID.MODEL_PROPERTIES_DRAWER), {
+      key: "Escape",
+    });
+
+    // THEN expect the given error to have been logged to the console
+    expect(console.error).toHaveBeenCalledWith("Couldn't close drawer", expect.any(Error));
+  });
 });
