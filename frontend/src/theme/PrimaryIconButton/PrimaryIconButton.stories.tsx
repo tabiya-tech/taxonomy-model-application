@@ -1,18 +1,18 @@
-import CustomIconButton from "./CustomIconButton";
+import PrimaryIconButton from "./PrimaryIconButton";
 import { Meta, StoryObj } from "@storybook/react";
 import { ContentCopy } from "@mui/icons-material";
 import React from "react";
 import Box from "@mui/material/Box";
 
-const meta: Meta<typeof CustomIconButton> = {
-  title: "Components/CustomIconButton",
-  component: CustomIconButton,
+const meta: Meta<typeof PrimaryIconButton> = {
+  title: "Components/PrimaryIconButton",
+  component: PrimaryIconButton,
   tags: ["autodocs"],
   argTypes: {},
 };
 
 export default meta;
-type Story = StoryObj<typeof CustomIconButton>;
+type Story = StoryObj<typeof PrimaryIconButton>;
 
 export const Shown: Story = {
   args: {
