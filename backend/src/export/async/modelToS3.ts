@@ -80,12 +80,12 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
       },
       {
         collectionName: "Occupation to Skill Relation",
-        fileName: FILENAMES.OccupationToSkillRelation,
+        fileName: FILENAMES.OccupationToSkillRelations,
         csvStream: OccupationToSkillRelationToCSVTransform,
       },
       {
         collectionName: "Skill to Skill Relation",
-        fileName: FILENAMES.SkillToSkillRelation,
+        fileName: FILENAMES.SkillToSkillRelations,
         csvStream: SkillToSkillRelationToCSVTransform,
       },
     ].forEach((item) => {
@@ -155,7 +155,7 @@ export const FILENAMES = {
   Skills: "skills.csv",
   OccupationHierarchy: "occupation_hierarchy.csv",
   SkillHierarchy: "skill_hierarchy.csv",
-  OccupationToSkillRelation: "occupation_to_skill_relation.csv",
-  SkillToSkillRelation: "skill_to_skill_relation.csv",
+  OccupationToSkillRelations: "occupation_to_skill_relations.csv",
+  SkillToSkillRelations: "skill_to_skill_relations.csv",
   ModelInfo: "model_info.csv",
 };

@@ -146,6 +146,7 @@ export const getSampleOccupationToSkillRelations = (
   givenOccupations: IOccupation[],
   givenSkills: ISkill[]
 ): INewOccupationToSkillPairSpec[] => {
+  expect(givenOccupations.length).toBeGreaterThanOrEqual(givenSkills.length);
   return givenSkills.map((skill, i) => ({
     requiringOccupationType: givenOccupations[i].occupationType,
     requiredSkillId: skill.id,

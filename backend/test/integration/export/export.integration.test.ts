@@ -23,8 +23,6 @@ import { pipeline, Readable } from "stream";
 import fs from "fs";
 import { AsyncExportEvent } from "export/async/async.types";
 import * as ISCOGroupsToCSVTransformModule from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
-// TODO: This will become ESCO_OriginalOccupationsToCSVTransform
-//import * as ESCOOccupationsToCSVTransformModule from "export/esco/occupation/ESCOOccupationsToCSVTransform";
 import * as OccupationsToCSVTransform from "export/esco/occupation/OccupationsToCSVTransform";
 import * as SkillsToCSVTransformModule from "export/esco/skill/SkillsToCSVTransform";
 import * as SkillGroupsToCSVTransformModule from "export/esco/skillGroup/SkillGroupsToCSVTransform";
@@ -190,8 +188,6 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   test("export to file", async () => {
     // For each Collection exported
     jest.spyOn(ISCOGroupsToCSVTransformModule, "default");
-    // TODO: This will become ESCO_OriginalOccupationsToCSVTransform
-    // jest.spyOn(ESCO_OriginalOccupationsToCSVTransform, "default");
     jest.spyOn(OccupationsToCSVTransform, "default");
     jest.spyOn(SkillsToCSVTransformModule, "default");
     jest.spyOn(SkillGroupsToCSVTransformModule, "default");
@@ -287,14 +283,13 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
 
     // AND assert the content of the extracted files
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().ISCOGroup.Model, path.join(extractFolder, FILENAMES.ISCOGroups));
-    // TODO: Assert the original occupations file
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupation.Model, path.join(extractFolder, FILENAMES.Occupations));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().skill.Model, path.join(extractFolder, FILENAMES.Skills));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillGroup.Model, path.join(extractFolder, FILENAMES.SkillGroups));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupationHierarchy.hierarchyModel, path.join(extractFolder, FILENAMES.OccupationHierarchy));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillHierarchy.hierarchyModel, path.join(extractFolder, FILENAMES.SkillHierarchy));
-    await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupationToSkillRelation.relationModel, path.join(extractFolder, FILENAMES.OccupationToSkillRelation));
-    await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillToSkillRelation.relationModel, path.join(extractFolder, FILENAMES.SkillToSkillRelation));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupationToSkillRelation.relationModel, path.join(extractFolder, FILENAMES.OccupationToSkillRelations));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillToSkillRelation.relationModel, path.join(extractFolder, FILENAMES.SkillToSkillRelations));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().modelInfo.Model, path.join(extractFolder, FILENAMES.ModelInfo));
 
     // AND All resources have been released
@@ -343,8 +338,6 @@ async function assertThanAllResourcesAreReleased() {
   // Assert stream resources are released
   for (const module of [
     ISCOGroupsToCSVTransformModule.default,
-    // TODO: This will become ESCO_OriginalOccupationsToCSVTransform
-    //ESCOOccupationsToCSVTransformModule.default,
     OccupationsToCSVTransform.default,
     SkillsToCSVTransformModule.default,
     SkillGroupsToCSVTransformModule.default,

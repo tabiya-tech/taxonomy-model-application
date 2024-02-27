@@ -220,8 +220,8 @@ describe("modelToS3", () => {
       [SkillsToCSVTransform, FILENAMES.Skills],
       [OccupationHierarchyToCSVTransform, FILENAMES.OccupationHierarchy],
       [SkillHierarchyToCSVTransform, FILENAMES.SkillHierarchy],
-      [OccupationToSkillRelationToCSVTransform, FILENAMES.OccupationToSkillRelation],
-      [SkillToSkillRelationToCSVTransform, FILENAMES.SkillToSkillRelation],
+      [OccupationToSkillRelationToCSVTransform, FILENAMES.OccupationToSkillRelations],
+      [SkillToSkillRelationToCSVTransform, FILENAMES.SkillToSkillRelations],
       [ModelInfoToCSVTransform, FILENAMES.ModelInfo],
     ].forEach(([transform, filename]) => {
       // EXPECT the collection to be transfomred to CSV
