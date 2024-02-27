@@ -24,6 +24,7 @@ const TextPropertyField = (props: Readonly<TextPropertyFieldProps>) => {
         alignItems="center"
         data-testid={DATA_TEST_ID.TEXT_PROPERTY_FIELD_TEXT}
         aria-labelledby={props.fieldId}
+        role="text"
       >
         {props.text}
       </Typography>
