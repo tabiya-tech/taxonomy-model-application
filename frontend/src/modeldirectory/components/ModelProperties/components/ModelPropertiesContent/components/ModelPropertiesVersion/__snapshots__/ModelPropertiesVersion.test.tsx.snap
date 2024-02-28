@@ -50,15 +50,10 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
     </span>
   </div>
   <div
-    data-testid="model-properties-released-8d3b0caa-95e2-4f11-a98c-054208e72438"
-    id="released-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    data-testid="model-properties-released-status-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="released-status-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
-    <span>
-      Released
-    </span>
-    <span>
-      true
-    </span>
+    Released Status Mock
   </div>
   <div
     data-testid="model-properties-release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"

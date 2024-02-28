@@ -3,7 +3,8 @@ import "src/_test_utilities/consoleMock";
 
 import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import { render, screen } from "src/_test_utilities/test-utils";
-import ModelPropertiesVersion, { DATA_TEST_ID } from "./ModelPropertiesVersion";
+import ModelPropertiesVersion, { DATA_TEST_ID, FIELD_ID } from "./ModelPropertiesVersion";
+import ReleasedPropertyField from "src/theme/PropertyFieldLayout/ReleasedPropertyField/ReleasedPropertyField";
 
 //mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", () => {
@@ -14,6 +15,18 @@ jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", (
         <span>{props.text}</span>
       </div>
     );
+  };
+});
+
+// mock  the ReleasedPropertyField component
+jest.mock("src/theme/PropertyFieldLayout/ReleasedPropertyField/ReleasedPropertyField", () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation((props) => (
+      <div data-testid={props["data-testid"]} id={props.fieldId}>
+        Released Status Mock
+      </div>
+    )),
   };
 });
 
@@ -44,8 +57,17 @@ describe("ModelPropertiesVersion", () => {
     const actualVersion = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_VERSION);
     expect(actualVersion).toBeInTheDocument();
     // AND the released property to be shown
-    const actualReleased = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_RELEASED);
+    const actualReleased = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_RELEASED_STATUS);
     expect(actualReleased).toBeInTheDocument();
+    // AND the ReleasedPropertyField component to be called with the correct props
+    expect(ReleasedPropertyField).toHaveBeenCalledWith(
+      {
+        released: givenModel.released,
+        "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_RELEASED_STATUS,
+        fieldId: FIELD_ID.RELEASED_STATUS,
+      },
+      {}
+    );
     // AND the release notes property to be shown
     const actualReleaseNotes = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES);
     expect(actualReleaseNotes).toBeInTheDocument();
