@@ -3,6 +3,7 @@ import { useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
+import ReleasedPropertyField from "src/theme/PropertyFieldLayout/ReleasedPropertyField/ReleasedPropertyField";
 
 export interface ModelPropertiesVersionProps {
   model: ModelInfoTypes.ModelInfo;
@@ -16,16 +17,16 @@ export const DATA_TEST_ID = {
   MODEL_PROPERTIES_TABIYA_PATH: `model-properties-tabiya-path-${uniqueId}`,
   MODEL_PROPERTIES_PATH: `model-properties-path-${uniqueId}`,
   MODEL_PROPERTIES_VERSION: `model-properties-version-${uniqueId}`,
-  MODEL_PROPERTIES_RELEASED: `model-properties-released-${uniqueId}`,
+  MODEL_PROPERTIES_RELEASED_STATUS: `model-properties-released-status-${uniqueId}`,
   MODEL_PROPERTIES_RELEASE_NOTES: `model-properties-release-notes-${uniqueId}`,
 };
 
-const FIELD_ID = {
+export const FIELD_ID = {
   UUID: `uuid-${uniqueId}`,
   TABIYA_PATH: `tabiya-path-${uniqueId}`,
   PATH: `path-${uniqueId}`,
   VERSION: `version-${uniqueId}`,
-  RELEASED: `released-${uniqueId}`,
+  RELEASED_STATUS: `released-status-${uniqueId}`,
   RELEASE_NOTES: `release-notes-${uniqueId}`,
 };
 /**
@@ -75,11 +76,10 @@ const ModelPropertiesVersion: React.FC<ModelPropertiesVersionProps> = (
         fieldId={FIELD_ID.VERSION}
       />
 
-      <TextPropertyField
-        label={"Released"}
-        text={props.model.released ? "true" : "false"}
-        data-testid={DATA_TEST_ID.MODEL_PROPERTIES_RELEASED}
-        fieldId={FIELD_ID.RELEASED}
+      <ReleasedPropertyField
+        released={props.model.released}
+        data-testid={DATA_TEST_ID.MODEL_PROPERTIES_RELEASED_STATUS}
+        fieldId={FIELD_ID.RELEASED_STATUS}
       />
 
       <TextPropertyField
