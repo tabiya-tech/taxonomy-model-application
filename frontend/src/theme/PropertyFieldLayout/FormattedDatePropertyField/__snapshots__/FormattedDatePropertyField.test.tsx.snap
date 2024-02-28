@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FormattedDatePropertyField renders correctly 1`] = `
+<div
+  data-testid="foo-data-test-id"
+>
+   
+</div>
+`;

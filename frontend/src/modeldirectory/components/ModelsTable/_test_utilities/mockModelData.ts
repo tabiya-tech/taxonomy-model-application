@@ -147,7 +147,6 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
 export const fakeModel: ModelInfoTypes.ModelInfo = {
   UUID: "8d914eab-6f7d-4183-accc-a09f99887b39",
   UUIDHistory: ["8d914eab-6f7d-4183-accc-a09f99887b39"],
-  createdAt: new Date("2023-10-18T17:35:10.571Z"),
   description: "aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm",
   id: "000000000000000000000001",
   importProcessState: {
@@ -182,7 +181,8 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
   releaseNotes: "Perferendis modi impedit necessitatibus a",
   released: true,
   tabiyaPath: "https://silver-vulture.biz",
-  updatedAt: new Date("2023-10-18T17:35:10.571Z"),
+  createdAt: new Date("2023-10-18T17:35:10.571Z"),
+  updatedAt: new Date("2022-10-18T17:35:10.571Z"),
   version: "0.2.2",
 };
 
