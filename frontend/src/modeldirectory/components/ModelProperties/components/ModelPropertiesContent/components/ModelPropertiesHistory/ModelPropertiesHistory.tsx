@@ -21,7 +21,7 @@ const FIELD_ID = {
   LAST_UPDATED: `updated-${uniqueId}`,
 };
 
-export const FIELD_LABEL = {
+export const FIELD_LABEL_TEXT = {
   CREATION_DATE: "Creation Date",
   LAST_UPDATE: "Last Update",
 };
@@ -46,13 +46,13 @@ const ModelPropertiesHistory: React.FC<ModelPropertiesHistoryProps> = (
       data-testid={DATA_TEST_ID.MODEL_PROPERTIES_HISTORY_CONTAINER}
     >
       <FormattedDatePropertyField
-        label={FIELD_LABEL.CREATION_DATE}
+        label={FIELD_LABEL_TEXT.CREATION_DATE}
         date={props.model.createdAt}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_CREATED_DATE}
         fieldId={FIELD_ID.DATE_CREATED}
       />
       <FormattedDatePropertyField
-        label={FIELD_LABEL.LAST_UPDATE}
+        label={FIELD_LABEL_TEXT.LAST_UPDATE}
         date={props.model.updatedAt}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_UPDATED_DATE}
         fieldId={FIELD_ID.LAST_UPDATED}

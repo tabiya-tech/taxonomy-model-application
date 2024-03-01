@@ -17,10 +17,16 @@ export const DATA_TEST_ID = {
   MODEL_PROPERTIES_DESCRIPTION: `model-properties-description-${uniqueId}`,
 };
 
-const FIELD_ID = {
+export const FIELD_ID = {
   NAME: `name-${uniqueId}`,
   LOCALE: `locale-${uniqueId}`,
   DESCRIPTION: `description-${uniqueId}`,
+};
+
+export const FIELD_LABEL_TEXT = {
+  LABEL_NAME: "Name",
+  LABEL_LOCALE: "Locale",
+  LABEL_DESCRIPTION: "Description",
 };
 
 /**
@@ -42,19 +48,19 @@ const ModelPropertiesDescription: React.FC<ModelPropertiesDescriptionProps> = (
       data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION_CONTAINER}
     >
       <TextPropertyField
-        label={"Name"}
+        label={FIELD_LABEL_TEXT.LABEL_NAME}
         text={`${props.model.name}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_NAME}
         fieldId={FIELD_ID.NAME}
       />
       <TextPropertyField
-        label={"Locale"}
+        label={FIELD_LABEL_TEXT.LABEL_LOCALE}
         text={`${props.model.locale.name}(${props.model.locale.shortCode})`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_LOCALE}
         fieldId={FIELD_ID.LOCALE}
       />
       <TextPropertyField
-        label={"Desciption"}
+        label={FIELD_LABEL_TEXT.LABEL_DESCRIPTION}
         text={props.model.description}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION}
         fieldId={FIELD_ID.DESCRIPTION}

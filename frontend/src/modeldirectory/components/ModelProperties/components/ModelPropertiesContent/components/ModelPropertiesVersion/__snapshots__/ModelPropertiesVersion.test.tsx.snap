@@ -9,45 +9,25 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
     data-testid="model-properties-uuid-8d3b0caa-95e2-4f11-a98c-054208e72438"
     id="uuid-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
-    <span>
-      UUID
-    </span>
-    <span>
-      8d914eab-6f7d-4183-accc-a09f99887b39
-    </span>
+    Text Property Field Mock
   </div>
   <div
     data-testid="model-properties-tabiya-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
     id="tabiya-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
-    <span>
-      Tabiya Path
-    </span>
-    <span>
-      https://silver-vulture.biz
-    </span>
+    Text Property Field Mock
   </div>
   <div
     data-testid="model-properties-path-8d3b0caa-95e2-4f11-a98c-054208e72438"
     id="path-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
-    <span>
-      Path
-    </span>
-    <span>
-      https://unwelcome-editorial.net/
-    </span>
+    Text Property Field Mock
   </div>
   <div
     data-testid="model-properties-version-8d3b0caa-95e2-4f11-a98c-054208e72438"
     id="version-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
-    <span>
-      Version
-    </span>
-    <span>
-      0.2.2
-    </span>
+    Text Property Field Mock
   </div>
   <div
     data-testid="model-properties-released-status-8d3b0caa-95e2-4f11-a98c-054208e72438"
@@ -59,12 +39,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
     data-testid="model-properties-release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"
     id="release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
-    <span>
-      Release Notes
-    </span>
-    <span>
-      Perferendis modi impedit necessitatibus a
-    </span>
+    Text Property Field Mock
   </div>
 </div>
 `;

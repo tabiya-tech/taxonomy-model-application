@@ -9,34 +9,19 @@ exports[`ModelPropertiesDescription should render correctly with the provided mo
     data-testid="model-properties-name-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
     id="name-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
   >
-    <span>
-      Name
-    </span>
-    <span>
-      1/1 - fysmros tcgcnjbbrrev
-    </span>
+    Text Property Field Mock
   </div>
   <div
     data-testid="model-properties-locale-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
     id="locale-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
   >
-    <span>
-      Locale
-    </span>
-    <span>
-      Palestine(ETH)
-    </span>
+    Text Property Field Mock
   </div>
   <div
     data-testid="model-properties-description-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
     id="description-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
   >
-    <span>
-      Desciption
-    </span>
-    <span>
-      aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
-    </span>
+    Text Property Field Mock
   </div>
 </div>
 `;

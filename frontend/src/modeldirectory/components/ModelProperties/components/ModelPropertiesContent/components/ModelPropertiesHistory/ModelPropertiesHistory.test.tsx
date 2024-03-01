@@ -3,7 +3,7 @@ import "src/_test_utilities/consoleMock";
 
 import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import { render, screen } from "src/_test_utilities/test-utils";
-import ModelPropertiesHistory, { DATA_TEST_ID, FIELD_LABEL } from "./ModelPropertiesHistory";
+import ModelPropertiesHistory, { DATA_TEST_ID, FIELD_LABEL_TEXT } from "./ModelPropertiesHistory";
 import FormattedDatePropertyField from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDatePropertyField";
 import * as React from "react";
 //mock the TextPropertyField component
@@ -52,7 +52,7 @@ describe("ModelPropertiesHistory", () => {
       {
         "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_CREATED_DATE,
         date: givenModel.createdAt,
-        label: FIELD_LABEL.CREATION_DATE,
+        label: FIELD_LABEL_TEXT.CREATION_DATE,
         fieldId: expect.any(String),
       },
       {}
@@ -65,7 +65,7 @@ describe("ModelPropertiesHistory", () => {
       {
         "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_UPDATED_DATE,
         date: givenModel.updatedAt,
-        label: FIELD_LABEL.LAST_UPDATE,
+        label: FIELD_LABEL_TEXT.LAST_UPDATE,
         fieldId: expect.any(String),
       },
       {}

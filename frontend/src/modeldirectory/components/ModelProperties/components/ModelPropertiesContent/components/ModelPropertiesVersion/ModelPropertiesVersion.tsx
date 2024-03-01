@@ -29,6 +29,15 @@ export const FIELD_ID = {
   RELEASED_STATUS: `released-status-${uniqueId}`,
   RELEASE_NOTES: `release-notes-${uniqueId}`,
 };
+
+export const FIELD_LABEL_TEXT = {
+  LABEL_UUID: "UUID",
+  LABEL_TABIYA_PATH: "Tabiya Path",
+  LABEL_PATH: "Path",
+  LABEL_VERSION: "Version",
+  LABEL_RELEASE_NOTES: "Release Notes",
+};
+
 /**
  * ModelPropertiesVersion responsible for displaying the version details of a model
  * like UUID, tabiyaPath, path, version, released, release notes, etc.
@@ -49,28 +58,28 @@ const ModelPropertiesVersion: React.FC<ModelPropertiesVersionProps> = (
       data-testid={DATA_TEST_ID.MODEL_PROPERTIES_VERSION_CONTAINER}
     >
       <TextPropertyField
-        label={"UUID"}
+        label={FIELD_LABEL_TEXT.LABEL_UUID}
         text={`${props.model.UUID}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_UUID}
         fieldId={FIELD_ID.UUID}
       />
 
       <TextPropertyField
-        label={"Tabiya Path"}
+        label={FIELD_LABEL_TEXT.LABEL_TABIYA_PATH}
         text={`${props.model.tabiyaPath}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_TABIYA_PATH}
         fieldId={FIELD_ID.TABIYA_PATH}
       />
 
       <TextPropertyField
-        label={"Path"}
+        label={FIELD_LABEL_TEXT.LABEL_PATH}
         text={`${props.model.path}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_PATH}
         fieldId={FIELD_ID.PATH}
       />
 
       <TextPropertyField
-        label={"Version"}
+        label={FIELD_LABEL_TEXT.LABEL_VERSION}
         text={`${props.model.version}`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_VERSION}
         fieldId={FIELD_ID.VERSION}
@@ -83,7 +92,7 @@ const ModelPropertiesVersion: React.FC<ModelPropertiesVersionProps> = (
       />
 
       <TextPropertyField
-        label={"Release Notes"}
+        label={FIELD_LABEL_TEXT.LABEL_RELEASE_NOTES}
         text={props.model.releaseNotes}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES}
         fieldId={FIELD_ID.RELEASE_NOTES}
