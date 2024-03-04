@@ -336,7 +336,7 @@ exports[`ModelsTable render tests should render the table with the single model 
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1eue9gk-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1eue9gk-MuiButtonBase-root-MuiButton-root"
             data-testid="model-cell-more-icon-ae03cd11-e992-4313-9a9e-49f497cc92d0"
             tabindex="0"
             type="button"

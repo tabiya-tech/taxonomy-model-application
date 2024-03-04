@@ -23,7 +23,7 @@ const DurationPropertyField = (props: DurationPropertyFieldProps) => {
     text = duration + (!props.secondDate ? " (ongoing)" : "");
   } catch (e) {
     console.error(e);
-    text = "Invalid date range";
+    text = "Date calculation error";
   }
 
   return (

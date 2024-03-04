@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportTimeline renders correctly 1`] = `
+<ul
+  class="MuiTimeline-root MuiTimeline-positionRight css-urcpbk-MuiTimeline-root"
+  data-testid="import-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+>
+  <div
+    data-testid="import-timeline-item-920424ec-c21e-4673-a127-6c92451a38dc"
+  >
+     My Models Table
+  </div>
+</ul>
+`;

@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react";
 import ModelPropertiesDrawer from "./ModelPropertiesDrawer";
-import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import {fakeModel} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ModelPropertiesDrawer> = {
   title: "ModelDirectory/ModelProperties/ModelPropertiesDrawer",
@@ -12,7 +12,7 @@ const meta: Meta<typeof ModelPropertiesDrawer> = {
 export const Shown = {
   args: {
     isOpen: true,
-    model: getOneFakeModel(1),
+    model: fakeModel,
   },
 };
 

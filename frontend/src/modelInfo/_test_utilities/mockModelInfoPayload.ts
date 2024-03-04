@@ -76,6 +76,8 @@ export namespace GET {
             },
             downloadUrl: faker.internet.url(),
             timestamp: new Date().toISOString(),
+            createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
+            updatedAt: new Date().toISOString(),
           },
         ],
         importProcessState: {
@@ -86,6 +88,8 @@ export namespace GET {
             parsingErrors: faker.datatype.boolean(),
             parsingWarnings: faker.datatype.boolean(),
           },
+          createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
+          updatedAt: new Date().toISOString(),
         },
         createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 24).toISOString(),
         updatedAt: new Date().toISOString(),
@@ -134,6 +138,8 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
         },
         downloadUrl: _id % 2 === 0 ? "" : "https://foo/bar/baz", // errored models don't have downloadUrl
         timestamp: new Date().toISOString(),
+        createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
+        updatedAt: new Date().toISOString(),
       },
     ],
     importProcessState: {
@@ -144,6 +150,8 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
         parsingErrors: faker.datatype.boolean(),
         parsingWarnings: faker.datatype.boolean(),
       },
+      createdAt: _id % 2 === 0 ? new Date(new Date().getTime() - 60000).toISOString() : undefined, // make createdAt 1 minute ago and different from updatedAt
+      updatedAt: _id % 2 === 0 ? new Date().toISOString() : undefined,
     },
     createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
     updatedAt: new Date().toISOString(),

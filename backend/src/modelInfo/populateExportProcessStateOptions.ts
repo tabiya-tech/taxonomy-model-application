@@ -11,6 +11,8 @@ export const populateExportProcessStateOptions = {
       result: doc.result,
       downloadUrl: doc.downloadUrl,
       timestamp: doc.timestamp,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   },
 };

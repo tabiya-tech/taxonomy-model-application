@@ -63,6 +63,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "createdAt": {
+                      "format": "date-time",
+                      "type": "string",
+                    },
                     "downloadUrl": {
                       "anyOf": [
                         {
@@ -120,6 +124,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                       "format": "date-time",
                       "type": "string",
                     },
+                    "updatedAt": {
+                      "format": "date-time",
+                      "type": "string",
+                    },
                   },
                   "required": [
                     "id",
@@ -127,6 +135,8 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                     "downloadUrl",
                     "timestamp",
                     "result",
+                    "createdAt",
+                    "updatedAt",
                   ],
                   "type": "object",
                 },
@@ -142,6 +152,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 "additionalProperties": false,
                 "description": "The import process state of the model.",
                 "properties": {
+                  "createdAt": {
+                    "format": "date-time",
+                    "type": "string",
+                  },
                   "id": {
                     "description": "The identifier of the specific import state.",
                     "pattern": "^[0-9a-f]{24}$",
@@ -178,6 +192,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                       "running",
                       "completed",
                     ],
+                    "type": "string",
+                  },
+                  "updatedAt": {
+                    "format": "date-time",
                     "type": "string",
                   },
                 },
@@ -325,6 +343,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "items": {
                 "additionalProperties": false,
                 "properties": {
+                  "createdAt": {
+                    "format": "date-time",
+                    "type": "string",
+                  },
                   "downloadUrl": {
                     "anyOf": [
                       {
@@ -382,6 +404,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                     "format": "date-time",
                     "type": "string",
                   },
+                  "updatedAt": {
+                    "format": "date-time",
+                    "type": "string",
+                  },
                 },
                 "required": [
                   "id",
@@ -389,6 +415,8 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                   "downloadUrl",
                   "timestamp",
                   "result",
+                  "createdAt",
+                  "updatedAt",
                 ],
                 "type": "object",
               },
@@ -404,6 +432,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "additionalProperties": false,
               "description": "The import process state of the model.",
               "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string",
+                },
                 "id": {
                   "description": "The identifier of the specific import state.",
                   "pattern": "^[0-9a-f]{24}$",
@@ -440,6 +472,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                     "running",
                     "completed",
                   ],
+                  "type": "string",
+                },
+                "updatedAt": {
+                  "format": "date-time",
                   "type": "string",
                 },
               },

@@ -22,6 +22,8 @@ interface IModelInfoResponse extends IModelInfoRequest {
     };
     downloadUrl: string;
     timestamp: string;
+    createdAt: string;
+    updatedAt: string;
   }[];
   importProcessState: {
     id: string;
@@ -31,6 +33,8 @@ interface IModelInfoResponse extends IModelInfoRequest {
       parsingErrors: boolean;
       parsingWarnings: boolean;
     };
+    createdAt?: string;
+    updatedAt?: string;
   };
   createdAt: string;
   updatedAt: string;

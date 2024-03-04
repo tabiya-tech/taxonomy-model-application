@@ -16,7 +16,7 @@ exports[`FileEntry render tests should render default state ESCO_SKILL_GROUPS ->
     />
     <div
       aria-label="Add Skill Groups csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -61,7 +61,7 @@ exports[`FileEntry render tests should render default state ESCO_SKILL_HIERARCHY
     />
     <div
       aria-label="Add Skill Hierarchy csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -106,7 +106,7 @@ exports[`FileEntry render tests should render default state ESCO_SKILL_SKILL_REL
     />
     <div
       aria-label="Add Skill-To-Skill Relations csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -151,7 +151,7 @@ exports[`FileEntry render tests should render default state ESCO_SKILLS -> Skill
     />
     <div
       aria-label="Add Skills csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -196,7 +196,7 @@ exports[`FileEntry render tests should render default state ISCO_GROUPS -> ISCO 
     />
     <div
       aria-label="Add ISCO Groups csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -241,7 +241,7 @@ exports[`FileEntry render tests should render default state OCCUPATION_HIERARCHY
     />
     <div
       aria-label="Add Occupation Hierarchy csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -286,7 +286,7 @@ exports[`FileEntry render tests should render default state OCCUPATION_LOG_CHANG
     />
     <div
       aria-label="Add Occupation Log Changes csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -331,7 +331,7 @@ exports[`FileEntry render tests should render default state OCCUPATION_LOGS -> O
     />
     <div
       aria-label="Add Occupation Logs csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -376,7 +376,7 @@ exports[`FileEntry render tests should render default state OCCUPATION_SKILL_REL
     />
     <div
       aria-label="Add Occupation-To-Skill Relations csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"
@@ -421,7 +421,7 @@ exports[`FileEntry render tests should render default state OCCUPATIONS -> Occup
     />
     <div
       aria-label="Add Occupations csv file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       role="button"
       tabindex="0"

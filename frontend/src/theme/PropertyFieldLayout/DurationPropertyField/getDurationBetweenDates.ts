@@ -23,6 +23,7 @@ export function getDurationBetweenDates(firstDate: Date, secondDate: Date): stri
     output.push(seconds + " " + pluralize(seconds, "second"));
   }
 
+  if(!output.length) return "0 seconds";
   return output.join(" ");
 }
 

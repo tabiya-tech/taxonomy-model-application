@@ -377,6 +377,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
             status: givenExportProcessState.status,
             result: givenExportProcessState.result,
             timestamp: expect.any(Date),
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date),
           });
         });
       }
