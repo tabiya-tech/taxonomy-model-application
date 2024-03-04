@@ -4,6 +4,7 @@ import ModelPropertiesDescription from "./components/ModelPropertiesDescription/
 import ModelPropertiesVersion from "./components/ModelPropertiesVersion/ModelPropertiesVersion";
 import { Box } from "@mui/material";
 import ModelPropertiesHistory from "./components/ModelPropertiesHistory/ModelPropertiesHistory";
+import ModelPropertiesImportExport from "./components/ModelPropertiesImportExport/ModelPropertiesImportExport";
 
 export interface ModelPropertiesContentProps {
   model: ModelInfoTypes.ModelInfo;
@@ -20,12 +21,14 @@ export const MODEL_PROPERTIES_TAB_LABEL = {
   TAB_LABEL_DEFINITION: "Definition",
   TAB_LABEL_VERSION: "Version",
   TAB_LABEL_HISTORY: "History",
+  TAB_LABEL_IMPORT_EXPORT: "Import/Export",
 };
 
 export const MODEL_PROPERTIES_TAB_ID = {
   TAB_ID_DEFINITION: `model-properties-definition-tab-${uniqueId}`,
   TAB_ID_VERSION: `model-properties-version-tab-${uniqueId}`,
   TAB_ID_HISTORY: `model-properties-history-tab-${uniqueId}`,
+  TAB_ID_IMPORT_EXPORT: `model-properties-import-export-tab-${uniqueId}`,
 };
 
 /**
@@ -50,6 +53,11 @@ function ModelPropertiesContent(props: Readonly<ModelPropertiesContentProps>) {
       label: MODEL_PROPERTIES_TAB_LABEL.TAB_LABEL_HISTORY,
       panel: <ModelPropertiesHistory model={props.model} />,
     },
+    {
+      id: MODEL_PROPERTIES_TAB_ID.TAB_ID_IMPORT_EXPORT,
+      label: MODEL_PROPERTIES_TAB_LABEL.TAB_LABEL_IMPORT_EXPORT,
+      panel: <ModelPropertiesImportExport model={props.model} />,
+    }
   ];
 
   return (
