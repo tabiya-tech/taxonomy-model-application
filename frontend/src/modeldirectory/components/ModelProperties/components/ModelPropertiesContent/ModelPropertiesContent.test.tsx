@@ -12,6 +12,7 @@ import ModelPropertiesDescription from "./components/ModelPropertiesDescription/
 import TabControl from "src/theme/TabControl/TabControl";
 import ModelPropertiesVersion from "./components/ModelPropertiesVersion/ModelPropertiesVersion";
 import ModelPropertiesHistory from "./components/ModelPropertiesHistory/ModelPropertiesHistory";
+import ModelPropertiesImportExport from "./components/ModelPropertiesImportExport/ModelPropertiesImportExport";
 
 // mock TabControl
 jest.mock("src/theme/TabControl/TabControl", () => {
@@ -49,6 +50,7 @@ describe("ModelPropertiesContent", () => {
       const expectedDescriptionPanel = <ModelPropertiesDescription model={givenModel} />;
       const expectedVersionPanel = <ModelPropertiesVersion model={givenModel} />;
       const expectedHistoryPanel = <ModelPropertiesHistory model={givenModel} />;
+      const expectedImportExportPanel = <ModelPropertiesImportExport model={givenModel} />;
       expect(TabControl).toHaveBeenCalledWith(
         {
           items: [
@@ -74,6 +76,14 @@ describe("ModelPropertiesContent", () => {
               panel: expect.objectContaining({
                 type: expectedHistoryPanel.type,
                 props: expectedHistoryPanel.props,
+              }),
+            }),
+            expect.objectContaining({
+              id: MODEL_PROPERTIES_TAB_ID.TAB_ID_IMPORT_EXPORT,
+              label: MODEL_PROPERTIES_TAB_LABEL.TAB_LABEL_IMPORT_EXPORT,
+              panel: expect.objectContaining({
+                type: expectedImportExportPanel.type,
+                props: expectedImportExportPanel.props,
               }),
             }),
           ],
