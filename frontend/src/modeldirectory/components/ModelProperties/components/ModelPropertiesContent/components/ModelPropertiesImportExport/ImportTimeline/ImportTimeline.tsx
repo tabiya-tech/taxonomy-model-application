@@ -9,7 +9,7 @@ interface ImportTimelineProps {
 const uniqueId = "48d564f1-fe4b-4c2f-bfc4-023cde28397f";
 
 export const DATA_TEST_ID = {
-  IMPORT_TIMELINE_ITEM: `import-timeline-item-${uniqueId}`,
+  IMPORT_TIMELINE: `import-timeline-${uniqueId}`,
 };
 
 /**
