@@ -23,3 +23,5 @@ const ImportTimeline: React.FC<ImportTimelineProps> = (
 ) => {
   return <VisualMock text="ImportTimeline" />
 };
+
+export default ImportTimeline;
