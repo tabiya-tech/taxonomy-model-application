@@ -20,6 +20,8 @@ export const getAllImportProcessStatePermutations = (): ModelInfoTypes.ImportPro
               parsingErrors: parsingErrors,
               parsingWarnings: parsingWarnings,
             },
+            createdAt: new Date(allPermutations.length),
+            updatedAt: new Date(allPermutations.length),
           });
         });
       });

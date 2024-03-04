@@ -77,7 +77,14 @@ describe("ModelInfoService", () => {
           exportProcessState: givenModel.exportProcessState.map((givenExportProcessState) => ({
             ...givenExportProcessState,
             timestamp: new Date(givenExportProcessState.timestamp),
+            createdAt: new Date(givenExportProcessState.createdAt),
+            updatedAt: new Date(givenExportProcessState.updatedAt),
           })),
+          importProcessState: {
+            ...givenModel.importProcessState,
+            createdAt: givenModel.importProcessState.createdAt ? new Date(givenModel.importProcessState.createdAt) : undefined,
+            updatedAt: givenModel.importProcessState.updatedAt ? new Date(givenModel.importProcessState.updatedAt) : undefined,
+          },
           createdAt: new Date(givenModel.createdAt),
           updatedAt: new Date(givenModel.updatedAt),
         }); // currently we do not transform the response, so it should be the same
@@ -450,7 +457,14 @@ describe("ModelInfoService", () => {
         exportProcessState: givenResponseBody.exportProcessState.map((givenExportProcessState) => ({
           ...givenExportProcessState,
           timestamp: new Date(givenExportProcessState.timestamp),
+          createdAt: new Date(givenExportProcessState.createdAt),
+          updatedAt: new Date(givenExportProcessState.updatedAt),
         })),
+        importProcessState: {
+          ...givenResponseBody.importProcessState,
+          createdAt: givenResponseBody.importProcessState.createdAt ? new Date(givenResponseBody.importProcessState.createdAt) : undefined,
+          updatedAt: givenResponseBody.importProcessState.updatedAt ? new Date(givenResponseBody.importProcessState.updatedAt) : undefined,
+        },
         createdAt: new Date(givenResponseBody.createdAt),
         updatedAt: new Date(givenResponseBody.updatedAt),
       });

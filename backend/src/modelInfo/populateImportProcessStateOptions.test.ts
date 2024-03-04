@@ -164,6 +164,8 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
         id: givenImportProcessState.id,
         status: givenImportProcessState.status,
         result: givenImportProcessState.result,
+        createdAt: givenImportProcessState.createdAt,
+        updatedAt: givenImportProcessState.updatedAt,
       });
     });
 
@@ -178,6 +180,8 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
         id: givenImportProcessState.id,
         status: givenImportProcessState.status,
         result: givenImportProcessState.result,
+        createdAt: givenImportProcessState.createdAt,
+        updatedAt: givenImportProcessState.updatedAt,
       });
     });
 
@@ -191,6 +195,8 @@ describe("Test populating the ModelInfo.ImportProcessState with an in-memory mon
         id: givenImportProcessState.id,
         status: givenImportProcessState.status,
         result: givenImportProcessState.result,
+        createdAt: givenImportProcessState.createdAt,
+        updatedAt: givenImportProcessState.updatedAt,
       });
     });
   });

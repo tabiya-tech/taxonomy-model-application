@@ -131,7 +131,7 @@ describe("DurationPropertyField", () => {
     expect(TextPropertyField).toHaveBeenCalledWith(
       {
         label: givenLabel,
-        text: "Invalid date range",
+        text: "Date calculation error",
         fieldId: givenFieldId,
         "data-testid": givenDataTestId,
       },

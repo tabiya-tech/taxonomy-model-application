@@ -23,6 +23,8 @@ export const populateImportProcessStateOptions = {
         id: _id.toString(),
         status: doc.status,
         result: doc.result,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
       };
     }
   },

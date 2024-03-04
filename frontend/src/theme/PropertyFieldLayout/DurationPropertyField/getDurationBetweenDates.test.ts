@@ -62,6 +62,7 @@ describe("getDurationBetweenDates", () => {
       expect(result).toBe("10 days 10 hours 10 minutes 10 seconds");
     });
   });
+
   describe("singular dates", () => {
     test("should return the expected duration in 'day'", () => {
       // GIVEN two dates
@@ -113,6 +114,17 @@ describe("getDurationBetweenDates", () => {
   });
 
   describe("invalid dates", () => {
+    test("should return 0 seconds when the dates are the same", () => {
+      // GIVEN two dates
+      const givenFirstDate = new Date("2021-10-10");
+      const givenSecondDate = new Date("2021-10-10");
+
+      // WHEN getDurationBetweenDates is called with the given dates
+      const result = getDurationBetweenDates(givenFirstDate, givenSecondDate);
+
+      // THEN expect the expected duration to be returned
+      expect(result).toBe("0 seconds");
+    })
     test("should return the expected failure message when the first date is after the second date", () => {
       // GIVEN two dates
       const givenFirstDate = new Date("2021-10-10");

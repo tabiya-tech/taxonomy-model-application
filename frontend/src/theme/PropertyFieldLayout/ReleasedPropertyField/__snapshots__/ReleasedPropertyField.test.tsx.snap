@@ -14,7 +14,8 @@ exports[`ReleasedPropertyField should render with provided 'Not Released' status
     Released Status
   </h6>
   <div
-    class="MuiBox-root css-1vvwjbg"
+    aria-labelledby="field-id"
+    class="MuiBox-root css-taz3go"
   >
     <div
       aria-labelledby="field-id"
@@ -58,7 +59,8 @@ exports[`ReleasedPropertyField should render with provided 'Released' status 1`]
     Released Status
   </h6>
   <div
-    class="MuiBox-root css-1vvwjbg"
+    aria-labelledby="field-id"
+    class="MuiBox-root css-taz3go"
   >
     <div
       aria-labelledby="field-id"

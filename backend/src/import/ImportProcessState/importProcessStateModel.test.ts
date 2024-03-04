@@ -41,6 +41,8 @@ describe("Test the definition of the ImportProcessState Model", () => {
         parsingErrors: false,
         parsingWarnings: false,
       },
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const givenImportStateDocument = new model(givenObject);
 

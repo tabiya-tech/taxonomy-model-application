@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelPropertiesImportExport Should render import correctly with the provided model props 1`] = `
+<div
+  class="MuiBox-root css-1ck9pm7"
+  data-testid="import-export-tab-7804fa94-6151-4a64-8685-cdc3d845063c"
+>
+  <div
+    class="MuiBox-root css-1ofqig9"
+  >
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="import-7804fa94-6151-4a64-8685-cdc3d845063c"
+      tabindex="0"
+    >
+      Import
+    </h6>
+    <div
+      aria-labelledby="import-7804fa94-6151-4a64-8685-cdc3d845063c"
+      class="MuiBox-root css-taz3go"
+    >
+      <div
+        data-testid="import-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+      >
+        ImportTimeline
+      </div>
+    </div>
+  </div>
+</div>
+`;
