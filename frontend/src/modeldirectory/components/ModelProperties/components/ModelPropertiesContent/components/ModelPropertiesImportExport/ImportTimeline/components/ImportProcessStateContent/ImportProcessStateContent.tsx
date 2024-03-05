@@ -9,6 +9,7 @@ interface ImportProcessStateContentProps {
 const uniqueId = "333ab3d5-61a7-4169-8af9-01fe57ed5673";
 
 export const DATA_TEST_ID = {
+  IMPORT_PROCESS_STATE_CONTENT: `import-process-state-content-${uniqueId}`,
   IMPORT_STATUS_FIELD: `import-status-${uniqueId}`,
   IMPORT_DURATION_FIELD: `import-duration-${uniqueId}`,
 };
