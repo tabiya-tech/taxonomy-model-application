@@ -108,4 +108,14 @@ describe("getDurationBetweenDates", () => {
     // THEN expect the expected duration to be returned
     expect(result).toBe("1 second");
   });
+
+  test("return the expected failure message when the first date is after the second date", () => {
+    // GIVEN two dates
+    const givenFirstDate = new Date("2021-10-10");
+    const givenSecondDate = new Date("2021-10-09");
+
+    // WHEN getDurationBetweenDates is called with the given dates
+    // THEN expect an error to be thrown
+    expect(() => getDurationBetweenDates(givenFirstDate, givenSecondDate)).toThrowError("Invalid date range: First date must be before second date");
+  });
 });

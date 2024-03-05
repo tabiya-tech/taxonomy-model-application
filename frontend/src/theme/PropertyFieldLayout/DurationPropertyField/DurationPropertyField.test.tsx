@@ -10,7 +10,7 @@ jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", (
   return {
     __esModule: true,
     default: jest.fn().mockImplementation((props) => {
-      return <div data-testid={props["data-testid"]}> </div>;
+      return <div data-testid={props["data-testid"]}>Mock TextPropertyField</div>;
     }),
   };
 });
@@ -58,7 +58,7 @@ describe("DurationPropertyField", () => {
   test("renders with ongoing text when the second date is not provided", () => {
     // GIVEN a label
     const givenLabel = "Duration";
-    // AND a date which is the current date past 10 minutes
+    // AND a date which is before the current date
     const givenFirstDate = new Date(new Date().getTime() - 10 * 60 * 1000);
     // AND a fieldId
     const givenFieldId = "field-id";
@@ -96,4 +96,48 @@ describe("DurationPropertyField", () => {
       {}
     );
   });
+
+  test("renders with a message when the date range is invalid", () => {
+    // GIVEN a label
+    const givenLabel = "Duration";
+    // AND two dates where the second date is before the first date
+    const givenFirstDate = new Date("2021-10-20");
+    const givenSecondDate = new Date(givenFirstDate.getDate() - 1);
+    // AND a fieldId
+    const givenFieldId = "field-id";
+    // AND a data-testid
+    const givenDataTestId = "duration-property-field";
+
+    // AND getDurationBetweenDates will throw an error
+    const givenError = new Error("Invalid date range");
+    jest
+      .spyOn(require("./getDurationBetweenDates"), "getDurationBetweenDates")
+      .mockImplementation(() => {
+        throw givenError;
+      });
+
+    // WHEN the DurationPropertyField is rendered with the given label and dates
+    render(
+      <DurationPropertyField
+        label={givenLabel}
+        firstDate={givenFirstDate}
+        secondDate={givenSecondDate}
+        fieldId={givenFieldId}
+        data-testid={givenDataTestId}
+      />
+    );
+
+    // THEN expect an error to have been logged to the console
+    expect(console.error).toHaveBeenCalledWith(givenError);
+    // AND the TextPropertyField to have been rendered with the givenLabel and the expected error message
+    expect(TextPropertyField).toHaveBeenCalledWith(
+      {
+        label: givenLabel,
+        text: "Invalid date range",
+        fieldId: givenFieldId,
+        "data-testid": givenDataTestId,
+      },
+      {}
+    );
+  })
 });

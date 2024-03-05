@@ -16,4 +16,22 @@ type Story = StoryObj<typeof DurationPropertyField>;
 
 export const Shown: Story = {};
 
+export const Ongoing: Story = {
+  args: {
+    firstDate: (() => {
+      const date = new Date(); // Gets the current date
+      date.setDate(date.getDate() - 1); // Sets the date to one day before
+      return date;
+    })(),
+    secondDate: undefined,
+  },
+};
+
+export const InvalidDateRange = {
+  args: {
+    firstDate: new Date("2021-10-20"),
+    secondDate: new Date("2021-10-19"),
+  }
+}
+
 export default meta;

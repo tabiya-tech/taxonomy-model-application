@@ -11,7 +11,15 @@ interface DurationPropertyFieldProps {
 }
 
 const DurationPropertyField = (props: DurationPropertyFieldProps) => {
-  const text = getDurationBetweenDates(props.firstDate, props.secondDate || new Date()) + (!props.secondDate ? " (ongoing)" : "");
+  let duration;
+  let text;
+  try {
+    duration = getDurationBetweenDates(props.firstDate, props.secondDate ?? new Date())
+    text = duration + (!props.secondDate ? " (ongoing)" : "")
+  } catch (e) {
+    console.error(e);
+    text = "Invalid date range";
+  }
 
   return (
     <TextPropertyField

@@ -1,5 +1,8 @@
 export function getDurationBetweenDates(firstDate: Date, secondDate: Date): string {
-  const duration = secondDate.getTime() - firstDate.getTime();
+  const duration = getSafeDate(secondDate).getTime() - getSafeDate(firstDate).getTime();
+
+  if(duration < 0) throw new Error("Invalid date range: First date must be before second date");
+
   const days = Math.floor(duration / (1000 * 60 * 60 * 24));
   const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
@@ -25,4 +28,8 @@ export function getDurationBetweenDates(firstDate: Date, secondDate: Date): stri
 
 function pluralize(value: number, unit: string): string {
   return value === 1 ? unit : `${unit}s`;
+}
+
+function getSafeDate(date: Date | string | number): Date {
+  return date instanceof Date ? date : new Date(date);
 }
