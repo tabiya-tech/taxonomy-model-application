@@ -5,7 +5,8 @@ export interface PropertyFieldLayoutProps {
   title: string;
   "data-testid"?: string;
   children: React.ReactNode;
-  fieldId: string;
+  fieldId: string;  //This id must be unique
+  // and should be used to associate the title with the children through aria-labeledby
 }
 
 const uniqueId = "5abb0d55-4073-4f5b-8432-ee8c96aa4df2";
@@ -41,6 +42,7 @@ const PropertyFieldLayout = (props: Readonly<PropertyFieldLayoutProps>) => {
           flex: "1",
           overflowY: "clip",
         }}
+        aria-labelledby={props.fieldId}
       >
         {props.children}
       </Box>

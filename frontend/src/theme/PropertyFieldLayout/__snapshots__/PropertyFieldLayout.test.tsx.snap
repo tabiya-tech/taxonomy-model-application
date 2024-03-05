@@ -14,6 +14,7 @@ exports[`PropertyFieldLayout render tests should render with provided title 1`] 
     foo
   </h6>
   <div
+    aria-labelledby="field-id"
     class="MuiBox-root css-1vvwjbg"
   >
     <div>
