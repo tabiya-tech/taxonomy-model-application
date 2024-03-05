@@ -1,6 +1,6 @@
 import React from "react";
 
-import { IconButton, Tooltip } from "@mui/material";
+import {Box, IconButton, Tooltip} from "@mui/material";
 import {HelpRounded} from "@mui/icons-material";
 
 export interface HelpTipProps {
@@ -23,9 +23,9 @@ export const DATA_TEST_ID = {
 const HelpTip: React.FC<HelpTipProps> = (props: Readonly<HelpTipProps>) => {
   return (
     <Tooltip aria-label={"help"} describeChild title={
-      <React.Fragment>
+      <Box>
         {props.children}
-      </React.Fragment>
+      </Box>
     }>
       <IconButton data-testid={DATA_TEST_ID.HELP_ICON} color={"primary"} sx={{ padding: "5px"}}>
         <HelpRounded />
