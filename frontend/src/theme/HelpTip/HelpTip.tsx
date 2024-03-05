@@ -23,3 +23,5 @@ const HelpTip: React.FC<HelpTipProps> = (
 ) => {
   return <VisualMock text="HelpTip" />
 };
+
+export default HelpTip
