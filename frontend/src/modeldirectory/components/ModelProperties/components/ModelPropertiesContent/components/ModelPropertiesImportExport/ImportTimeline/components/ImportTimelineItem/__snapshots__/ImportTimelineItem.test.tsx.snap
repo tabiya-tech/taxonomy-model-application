@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportTimelineItem render tests should render with provided importProcessState 1`] = `
+<li
+  class="MuiTimelineItem-root MuiTimelineItem-positionRight css-ny8qih-MuiTimelineItem-root"
+  data-testid="import-timeline-item-920424ec-c21e-4673-a127-6c92451a38dc"
+>
+  <div
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-nqvo7u-MuiTypography-root-MuiTimelineOppositeContent-root"
+    data-testid="import-timeline-opposite-content-920424ec-c21e-4673-a127-6c92451a38dc"
+  >
+    <p
+      class="MuiTypography-root MuiTypography-body2 css-1mdkfbx-MuiTypography-root"
+      data-testid="import-timeline-opposite-content-created-at-920424ec-c21e-4673-a127-6c92451a38dc"
+    >
+      000000000000000000000001
+    </p>
+  </div>
+  <div
+    class="MuiTimelineSeparator-root css-1fe7e6p-MuiTimelineSeparator-root"
+    data-testid="import-timeline-separator-920424ec-c21e-4673-a127-6c92451a38dc"
+  >
+    <span
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledGrey css-1byw538-MuiTimelineDot-root"
+      data-testid="import-timeline-dot-920424ec-c21e-4673-a127-6c92451a38dc"
+    />
+    <span
+      class="MuiTimelineConnector-root css-qyshmk-MuiTimelineConnector-root"
+      data-testid="import-timeline-connector-920424ec-c21e-4673-a127-6c92451a38dc"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-p3xido-MuiTypography-root-MuiTimelineContent-root"
+    data-testid="import-timeline-content-920424ec-c21e-4673-a127-6c92451a38dc"
+  >
+    <div
+      data-testid="import-process-state-content-333ab3d5-61a7-4169-8af9-01fe57ed5673"
+    >
+      ImportProcessStateContent
+    </div>
+  </div>
+</li>
+`;
