@@ -209,3 +209,15 @@ export function getOneFakeExportProcessState(i: number): ModelInfoTypes.ExportPr
     timestamp: new Date(Date.now() - i * 1000 * 60 * 60 * 24),
   };
 }
+
+export function getOneFakeImportProcessState(i: number): ModelInfoTypes.ImportProcessState {
+  return {
+    id: getMockId(10000 + i),
+    status: getRandomImportStatus(i),
+    result: {
+      errored: i % 2 === 0,
+      parsingErrors: i % 2 === 0,
+      parsingWarnings: i % 2 === 0,
+    },
+  };
+}
