@@ -23,7 +23,6 @@ const TextPropertyField = (props: Readonly<TextPropertyFieldProps>) => {
         justifyContent="space-between"
         alignItems="center"
         data-testid={DATA_TEST_ID.TEXT_PROPERTY_FIELD_TEXT}
-        aria-labelledby={props.fieldId}
         role="text"
       >
         {props.text}
