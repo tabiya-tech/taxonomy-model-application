@@ -7,24 +7,20 @@ exports[`ModelPropertiesHistory should render correctly with the provided model 
 >
   <div
     data-testid="model-properties-created-date-08e457ca-63fa-4a92-b5fa-729a444ab827"
-    id="created-08e457ca-63fa-4a92-b5fa-729a444ab827"
   >
+    Mock FormattedDatePropertyField
     <span>
-      Date Created
-    </span>
-    <span>
-      Sat, Jun 28, 1914, 10:45 AM GMT+1
+      label:
+      Creation Date
     </span>
   </div>
   <div
     data-testid="model-properties-updated-date-08e457ca-63fa-4a92-b5fa-729a444ab827"
-    id="updated-08e457ca-63fa-4a92-b5fa-729a444ab827"
   >
+    Mock FormattedDatePropertyField
     <span>
-      Last Updated
-    </span>
-    <span>
-      Sat, Jun 28, 1914, 10:45 AM GMT+1
+      label:
+      Last Update
     </span>
   </div>
 </div>

@@ -29,3 +29,5 @@ const ImportProcessStateContent: React.FC<ImportProcessStateContentProps> = (
 ) => {
   return <VisualMock text="ImportProcessStateContent" />
 };
+
+export default ImportProcessStateContent;

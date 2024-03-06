@@ -3,17 +3,18 @@ import "src/_test_utilities/consoleMock";
 
 import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import { render, screen } from "src/_test_utilities/test-utils";
-import ModelPropertiesDescription, { DATA_TEST_ID } from "./ModelPropertiesDescription";
+import ModelPropertiesDescription, { DATA_TEST_ID, FIELD_ID, FIELD_LABEL_TEXT } from "./ModelPropertiesDescription";
+import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 
-//mock the TextPropertyField component
+// mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", () => {
-  return function ItemDetailsMock(props: { label: string; text: string; "data-testid": string; fieldId: string }) {
-    return (
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation((props) => (
       <div data-testid={props["data-testid"]} id={props.fieldId}>
-        <span>{props.label}</span>
-        <span>{props.text}</span>
+        Text Property Field Mock
       </div>
-    );
+    )),
   };
 });
 
@@ -34,12 +35,42 @@ describe("ModelPropertiesDescription", () => {
     // AND the name property to be shown
     const nameComponent = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_NAME);
     expect(nameComponent).toBeInTheDocument();
+    // AND the TextPropertyField component to be called with the correct props for the 'Name'
+    expect(TextPropertyField).toHaveBeenCalledWith(
+      {
+        label: FIELD_LABEL_TEXT.LABEL_NAME,
+        text: givenModel.name,
+        "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_NAME,
+        fieldId: FIELD_ID.NAME,
+      },
+      {}
+    );
     // AND locale property to be shown
     const localeComponent = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_LOCALE);
     expect(localeComponent).toBeInTheDocument();
+    // AND the TextPropertyField component to be called with the correct props for the 'Locale'
+    expect(TextPropertyField).toHaveBeenCalledWith(
+      {
+        label: FIELD_LABEL_TEXT.LABEL_LOCALE,
+        text: `${givenModel.locale.name}(${givenModel.locale.shortCode})`,
+        "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_LOCALE,
+        fieldId: FIELD_ID.LOCALE,
+      },
+      {}
+    );
     // AND the description property to be shown
     const descriptionItem = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION);
     expect(descriptionItem).toBeInTheDocument();
+    // AND the TextPropertyField component to be called with the correct props for the 'Description'
+    expect(TextPropertyField).toHaveBeenCalledWith(
+      {
+        label: FIELD_LABEL_TEXT.LABEL_DESCRIPTION,
+        text: givenModel.description,
+        "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION,
+        fieldId: FIELD_ID.DESCRIPTION,
+      },
+      {}
+    );
     // AND to match the snapshot
     expect(modelPropertiesDescriptionContainer).toMatchSnapshot();
   });
