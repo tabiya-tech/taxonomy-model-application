@@ -6,7 +6,7 @@ exports[`ModelDescriptionField render tests should render default state 1`] = `
   data-testid="model-desc-field-110643ab-593e-47dc-b398-ecc98518660e"
 >
   <div
-    class="MuiStack-root css-ri2h3u-MuiStack-root"
+    class="MuiStack-root css-gbnj3n-MuiStack-root"
   >
     <label
       class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1k0yz6l-MuiFormLabel-root"
@@ -16,7 +16,7 @@ exports[`ModelDescriptionField render tests should render default state 1`] = `
       Model Description
     </label>
     <div
-      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-6chre-MuiInputBase-root-MuiInput-root"
+      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-1skjrer-MuiInputBase-root-MuiInput-root"
       style="max-width: 100%; min-width: 100%; max-height: 20rem; min-height: 6rem;"
     >
       <textarea
@@ -32,7 +32,7 @@ exports[`ModelDescriptionField render tests should render default state 1`] = `
         aria-hidden="true"
         class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
         readonly=""
-        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
+        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
         tabindex="-1"
       />
     </div>
