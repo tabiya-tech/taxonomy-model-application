@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportProcessStateContent should render correctly with the provided props 1`] = `
+<div
+  class="MuiBox-root css-2rg0ju"
+  data-testid="import-process-state-content-333ab3d5-61a7-4169-8af9-01fe57ed5673"
+>
+  <div
+    data-testid="import-status-333ab3d5-61a7-4169-8af9-01fe57ed5673"
+    id="import-status-333ab3d5-61a7-4169-8af9-01fe57ed5673"
+  >
+    ImportStatusPropertyField Mock
+  </div>
+  <div
+    data-testid="import-duration-333ab3d5-61a7-4169-8af9-01fe57ed5673"
+    id="import-duration-333ab3d5-61a7-4169-8af9-01fe57ed5673"
+  >
+    Duration Property Field Mock
+  </div>
+</div>
+`;
