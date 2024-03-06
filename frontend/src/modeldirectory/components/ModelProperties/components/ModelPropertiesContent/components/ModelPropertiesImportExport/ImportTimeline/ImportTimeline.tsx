@@ -1,7 +1,7 @@
 import React from "react";
-import {VisualMock} from "src/_test_utilities/VisualMock";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-
+import { Timeline } from "@mui/lab";
+import ImportTimelineItem from "./components/ImportTimelineItem/ImportTimelineItem";
 interface ImportTimelineProps {
   importProcessState: ModelInfoTypes.ImportProcessState;
 }
@@ -18,10 +18,12 @@ export const DATA_TEST_ID = {
  * @constructor
  */
 
-const ImportTimeline: React.FC<ImportTimelineProps> = (
-  props: Readonly<ImportTimelineProps>
-) => {
-  return <VisualMock text="ImportTimeline" />
+const ImportTimeline: React.FC<ImportTimelineProps> = (props: Readonly<ImportTimelineProps>) => {
+  return (
+    <Timeline data-testid={DATA_TEST_ID.IMPORT_TIMELINE}>
+      <ImportTimelineItem importProcessState={props.importProcessState} />
+    </Timeline>
+  );
 };
 
 export default ImportTimeline;
