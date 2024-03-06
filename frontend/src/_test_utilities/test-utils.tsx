@@ -7,7 +7,6 @@ import applicationTheme, { ThemeMode } from "src/theme/applicationTheme/applicat
 import SnackbarProvider from "src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider } from "src/app/providers";
 
-
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <IsOnlineProvider>
@@ -22,5 +21,4 @@ const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">
   render(ui, { wrapper: AllTheProviders, ...options });
 
 export * from "@testing-library/react";
-
 export { customRender as render };
