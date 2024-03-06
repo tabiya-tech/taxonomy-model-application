@@ -4,6 +4,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import ImportTimeline from "./ImportTimeline/ImportTimeline";
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
+import ExportTimeline from "./ExportTimeline/ExportTimeline";
 
 export interface ModelPropertiesImportExportProps {
   model: ModelInfoTypes.ModelInfo;
@@ -17,6 +18,7 @@ export const DATA_TEST_ID = {
 
 export const FIELD_ID = {
   IMPORT_FIELD: `import-${uniqueId}`,
+  EXPORT_FIELD: `export-${uniqueId}`,
 };
 
 /**
@@ -37,6 +39,9 @@ const ModelPropertiesImportExport: React.FC<ModelPropertiesImportExportProps> = 
       gap={theme.tabiyaSpacing.md}
       data-testid={DATA_TEST_ID.IMPORT_EXPORT_TAB}
     >
+      <PropertyFieldLayout title="Export" fieldId={FIELD_ID.EXPORT_FIELD}>
+        <ExportTimeline exportProcessStates={props.model.exportProcessState} />
+      </PropertyFieldLayout>
       <PropertyFieldLayout title="Import" fieldId={FIELD_ID.IMPORT_FIELD}>
         <ImportTimeline importProcessState={props.model.importProcessState} />
       </PropertyFieldLayout>

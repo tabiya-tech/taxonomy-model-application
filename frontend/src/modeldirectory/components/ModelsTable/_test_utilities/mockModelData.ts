@@ -176,6 +176,14 @@ export function getRandomExportStatus(id: number) {
   return allStatuses[id % allStatuses.length];
 }
 
+export function getArrayOfFakeExportProcessStates(count: number): ModelInfoTypes.ExportProcessState[] {
+  const exportProcessStates: ModelInfoTypes.ExportProcessState[] = [];
+  for (let i = 0; i < count; i++) {
+    exportProcessStates.push(getOneFakeExportProcessState(i));
+  }
+  return exportProcessStates;
+}
+
 export function getOneFakeExportProcessState(i: number): ModelInfoTypes.ExportProcessState {
   return {
     id: getMockId(10000 + i),

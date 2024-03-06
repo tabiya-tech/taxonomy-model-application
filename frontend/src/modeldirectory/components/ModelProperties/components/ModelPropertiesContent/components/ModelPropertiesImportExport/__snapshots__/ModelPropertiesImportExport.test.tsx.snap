@@ -11,6 +11,28 @@ exports[`ModelPropertiesImportExport Should render import correctly with the pro
     <h6
       class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="export-7804fa94-6151-4a64-8685-cdc3d845063c"
+      tabindex="0"
+    >
+      Export
+    </h6>
+    <div
+      aria-labelledby="export-7804fa94-6151-4a64-8685-cdc3d845063c"
+      class="MuiBox-root css-taz3go"
+    >
+      <div
+        data-testid="export-timeline-a5bebb18-bfb7-4393-a6b4-83cbbfcf4926"
+      >
+        ExportTimeline
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiBox-root css-1ofqig9"
+  >
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="import-7804fa94-6151-4a64-8685-cdc3d845063c"
       tabindex="0"
     >
