@@ -1,3 +1,4 @@
+import React from "react";
 import { Meta, StoryObj } from "@storybook/react";
 import ImportStatusPropertyField, { uniqueId } from "./ImportStatusPropertyField";
 import { ImportProcessStateEnums } from "api-specifications/importProcessState/enums";
@@ -24,6 +25,23 @@ const meta: Meta<typeof ImportStatusPropertyField> = {
 export default meta;
 
 type Story = StoryObj<typeof ImportStatusPropertyField>;
+
+export const Show = {
+  render (_args: any) {
+    return (
+      <React.Fragment>
+        <ImportStatusPropertyField importProcessState={Pending.args?.importProcessState!} fieldId={id()} />
+        <ImportStatusPropertyField importProcessState={Running.args?.importProcessState!} fieldId={id()} />
+        <ImportStatusPropertyField importProcessState={Completed.args?.importProcessState!} fieldId={id()} />
+        <ImportStatusPropertyField importProcessState={CompletedWithCriticalErrors.args?.importProcessState!} fieldId={id()} />
+        <ImportStatusPropertyField importProcessState={CompletedWithParsingErrors.args?.importProcessState!} fieldId={id()} />
+        <ImportStatusPropertyField importProcessState={CompletedWithParsingWarnings.args?.importProcessState!} fieldId={id()} />
+        <ImportStatusPropertyField importProcessState={CompletedWithParsingErrors.args?.importProcessState!} fieldId={id()} />
+        <ImportStatusPropertyField importProcessState={CompletedWithParsingWarningsAndParsingErrors.args?.importProcessState!} fieldId={id()} />
+      </React.Fragment>
+     )
+  }
+}
 
 export const Pending: Story = {
   args: {
