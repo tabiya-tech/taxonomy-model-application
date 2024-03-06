@@ -14,6 +14,7 @@ exports[`dark theme mode call spacing function (responsive) 1`] = `"calc(clamp(2
 
 exports[`dark theme mode should return the dark theme 1`] = `
 Object {
+  "applyStyles": [Function],
   "breakpoints": Object {
     "between": [Function],
     "down": [Function],
@@ -594,6 +595,13 @@ Object {
       "style": [Function],
     },
     "order": Object {},
+    "outline": Object {
+      "themeKey": "borders",
+      "transform": [Function],
+    },
+    "outlineColor": Object {
+      "themeKey": "palette",
+    },
     "overflow": Object {},
     "p": Object {
       "style": [Function],
@@ -704,6 +712,7 @@ exports[`light theme mode call spacing function (responsive) 1`] = `"calc(clamp(
 
 exports[`light theme mode should return the light theme 1`] = `
 Object {
+  "applyStyles": [Function],
   "breakpoints": Object {
     "between": [Function],
     "down": [Function],
@@ -1284,6 +1293,13 @@ Object {
       "style": [Function],
     },
     "order": Object {},
+    "outline": Object {
+      "themeKey": "borders",
+      "transform": [Function],
+    },
+    "outlineColor": Object {
+      "themeKey": "palette",
+    },
     "overflow": Object {},
     "p": Object {
       "style": [Function],

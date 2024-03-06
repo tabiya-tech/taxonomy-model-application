@@ -6,7 +6,7 @@ exports[`ModelNameField render tests should render default state 1`] = `
   data-testid="model-name-field-d2bc4d5d-7760-450d-bac6-a8857affeb89"
 >
   <div
-    class="MuiStack-root css-ri2h3u-MuiStack-root"
+    class="MuiStack-root css-gbnj3n-MuiStack-root"
   >
     <label
       class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
@@ -23,7 +23,7 @@ exports[`ModelNameField render tests should render default state 1`] = `
       </span>
     </label>
     <div
-      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1mep40n-MuiInputBase-root-MuiInput-root"
+      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1wyjlvd-MuiInputBase-root-MuiInput-root"
     >
       <input
         aria-invalid="false"
