@@ -73,7 +73,7 @@ describe("Locale Selector Component actions tests only", () => {
     render(<ModelLocalSelectField locales={givenLocales} notifyModelLocaleChanged={givenNotifyChangeHandler} />);
 
     const dropdownElement = screen.getByTestId(DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);
-    const button = within(dropdownElement).getByRole("button");
+    const button = within(dropdownElement).getByRole("combobox");
     await userEvent.click(button);
 
     // THEN expect the dropdown to be open

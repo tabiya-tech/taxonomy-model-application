@@ -36,14 +36,14 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
         class="MuiDialogContent-root css-ypiqx9-MuiDialogContent-root"
       >
         <div
-          class="MuiStack-root css-14ikbhr-MuiStack-root"
+          class="MuiStack-root css-1aflh0e-MuiStack-root"
         >
           <div
             class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
             data-testid="model-name-field-d2bc4d5d-7760-450d-bac6-a8857affeb89"
           >
             <div
-              class="MuiStack-root css-ri2h3u-MuiStack-root"
+              class="MuiStack-root css-gbnj3n-MuiStack-root"
             >
               <label
                 class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
@@ -60,7 +60,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                 </span>
               </label>
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1mep40n-MuiInputBase-root-MuiInput-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1wyjlvd-MuiInputBase-root-MuiInput-root"
               >
                 <input
                   aria-invalid="false"
@@ -79,7 +79,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
             data-testid="model-locale-select-field-dfdbbef3-ec63-44f4-9945-a757d9c81269"
           >
             <div
-              class="MuiStack-root css-ri2h3u-MuiStack-root"
+              class="MuiStack-root css-gbnj3n-MuiStack-root"
             >
               <label
                 class="MuiFormLabel-root MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required css-1k0yz6l-MuiFormLabel-root"
@@ -96,15 +96,16 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                 </span>
               </label>
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl  css-3sxds7-MuiInputBase-root-MuiInput-root-MuiSelect-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl  css-4949pz-MuiInputBase-root-MuiInput-root-MuiSelect-root"
                 data-testid="model-locale-input-dropdown-dfdbbef3-ec63-44f4-9945-a757d9c81269"
               >
                 <div
+                  aria-controls=":r1:"
                   aria-expanded="false"
                   aria-haspopup="listbox"
                   aria-labelledby="dfdbbef3-ec63-44f4-9945-a757d9c81269"
                   class="MuiSelect-select MuiSelect-standard MuiInputBase-input MuiInput-input css-wrly8k-MuiSelect-select-MuiInputBase-input-MuiInput-input"
-                  role="button"
+                  role="combobox"
                   tabindex="0"
                 >
                   foo
@@ -139,7 +140,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
             data-testid="model-desc-field-110643ab-593e-47dc-b398-ecc98518660e"
           >
             <div
-              class="MuiStack-root css-ri2h3u-MuiStack-root"
+              class="MuiStack-root css-gbnj3n-MuiStack-root"
             >
               <label
                 class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1k0yz6l-MuiFormLabel-root"
@@ -149,7 +150,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                 Model Description
               </label>
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-6chre-MuiInputBase-root-MuiInput-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-1skjrer-MuiInputBase-root-MuiInput-root"
                 style="max-width: 100%; min-width: 100%; max-height: 20rem; min-height: 6rem;"
               >
                 <textarea
@@ -165,14 +166,14 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                   aria-hidden="true"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
                   readonly=""
-                  style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
+                  style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                   tabindex="-1"
                 />
               </div>
             </div>
           </div>
           <div
-            class="MuiStack-root css-ri2h3u-MuiStack-root"
+            class="MuiStack-root css-gbnj3n-MuiStack-root"
             data-testid="import-files-selection-e60583c2-9ce5-47e0-bb8f-d2a4349dde15"
           >
             <label
@@ -208,7 +209,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add ESCO Occupations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -254,7 +255,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Skill Hierarchy csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -300,7 +301,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Skill Groups csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -346,7 +347,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Skills csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -392,7 +393,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add ESCO Skill-To-Skill Relations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -438,7 +439,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add ISCO Groups csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -484,7 +485,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Local Occupations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -530,7 +531,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Localized Occupations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -576,7 +577,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Model Info csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -622,7 +623,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Occupation Hierarchy csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -668,7 +669,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Occupation Logs csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -714,7 +715,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Occupation Log Changes csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -760,7 +761,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                     />
                     <div
                       aria-label="Add Occupation-To-Skill Relations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-kwvzzz-MuiButtonBase-root-MuiChip-root"
+                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
                       data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                       role="button"
                       tabindex="0"
@@ -793,10 +794,10 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
         </div>
       </div>
       <div
-        class="MuiDialogActions-root MuiDialogActions-spacing css-hlj6pa-MuiDialogActions-root"
+        class="MuiDialogActions-root MuiDialogActions-spacing css-knqc4i-MuiDialogActions-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-disableElevation css-140m69p-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-140m69p-MuiButtonBase-root-MuiButton-root"
           data-testid="cancel-button-72be571e-b635-4c15-85c6-897dab60d59f"
           tabindex="0"
           type="button"
@@ -807,7 +808,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-disableElevation css-fwypri-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-fwypri-MuiButtonBase-root-MuiButton-root"
           data-testid="import-button-72be571e-b635-4c15-85c6-897dab60d59f"
           disabled=""
           tabindex="-1"

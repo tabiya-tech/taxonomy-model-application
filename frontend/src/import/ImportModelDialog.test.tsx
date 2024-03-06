@@ -61,7 +61,7 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
 
   // Selecting the locale
   const dropdownElement = screen.getByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);
-  const button = within(dropdownElement).getByRole("button");
+  const button = within(dropdownElement).getByRole("combobox");
   await userEvent.click(button);
   const dropdownList = screen.getAllByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_ITEM);
   const targetLocaleElement = dropdownList.find((item) => item.getAttribute("data-value") === inputData.locale.UUID);
