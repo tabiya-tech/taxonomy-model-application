@@ -7,6 +7,7 @@ import ModelPropertiesImportExport, {
   DATA_TEST_ID as MODEL_PROPERTIES_DATA_TEST_ID,
 } from "./ModelPropertiesImportExport";
 import ImportTimeline, { DATA_TEST_ID as IMPORT_TIMELINE_DATA_TEST_ID } from "./ImportTimeline/ImportTimeline";
+import ExportTimeline, { DATA_TEST_ID as EXPORT_TIMELINE_DATA_TEST_ID } from "./ExportTimeline/ExportTimeline";
 
 // mock the ImportTimeline component
 jest.mock(
@@ -28,6 +29,23 @@ jest.mock(
   }
 );
 
+jest.mock("src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/ExportTimeline", () => {
+  const actualExportTimeline = jest.requireActual(
+    "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/ExportTimeline"
+  );
+  const mockExportTimeline = jest
+    .fn()
+    .mockImplementation(() => (
+      <div data-testid={actualExportTimeline.DATA_TEST_ID.EXPORT_TIMELINE}>ExportTimeline</div>
+    ));
+  return {
+    ...actualExportTimeline,
+    __esModule: true,
+    default: mockExportTimeline,
+  };
+}
+);
+
 describe("ModelPropertiesImportExport", () => {
   test("Should render import correctly with the provided model props", () => {
     // GIVEN a model
@@ -42,9 +60,22 @@ describe("ModelPropertiesImportExport", () => {
     // AND the component to be shown
     const actualImportExportTab = screen.getByTestId(MODEL_PROPERTIES_DATA_TEST_ID.IMPORT_EXPORT_TAB);
     expect(actualImportExportTab).toBeInTheDocument();
-    // AND the title to be shown
-    const actualTitle = screen.getByText("Import");
-    expect(actualTitle).toBeInTheDocument();
+    // AND the export title to be shown
+    const actualExportTitle = screen.getByText("Export");
+    expect(actualExportTitle).toBeInTheDocument();
+    // AND the export timeline to be shown
+    const actualExportTimeline = screen.getByTestId(EXPORT_TIMELINE_DATA_TEST_ID.EXPORT_TIMELINE);
+    expect(actualExportTimeline).toBeInTheDocument();
+    // AND the export timeline to be called with the correct props
+    expect(ExportTimeline).toHaveBeenCalledWith(
+      {
+        exportProcessStates: givenModel.exportProcessState,
+      },
+      {}
+    );
+    // AND the import title to be shown
+    const actualImportTitle = screen.getByText("Import");
+    expect(actualImportTitle).toBeInTheDocument();
     // AND the import timeline to be shown
     const actualImportTimeline = screen.getByTestId(IMPORT_TIMELINE_DATA_TEST_ID.IMPORT_TIMELINE);
     expect(actualImportTimeline).toBeInTheDocument();
