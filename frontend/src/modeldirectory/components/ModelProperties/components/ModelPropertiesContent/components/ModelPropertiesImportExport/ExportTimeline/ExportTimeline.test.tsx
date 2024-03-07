@@ -1,10 +1,8 @@
 // mute chatty console
 import "src/_test_utilities/consoleMock";
 
-import {
-  getOneFakeExportProcessState
-} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
-import {render, screen} from "@testing-library/react";
+import { getOneFakeExportProcessState } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { render, screen } from "@testing-library/react";
 import ExportTimeline, { DATA_TEST_ID as EXPORT_TIMELINE_DATA_TEST_ID } from "./ExportTimeline";
 import ExportTimelineItem from "./components/ExportTimelineItem/ExportTimelineItem";
 
@@ -15,16 +13,16 @@ jest.mock("./components/ExportTimelineItem/ExportTimelineItem", () => {
     __esModule: true,
     ...actual,
     default: jest.fn().mockImplementation(() => {
-      return <div data-testid="timeline-item" />
-    })
-  }
+      return <div data-testid="timeline-item" />;
+    }),
+  };
 });
 
 describe("ExportTimeline", () => {
   test("renders correctly with some exportProcessStates", () => {
     // GIVEN N export process state
-    const givenExportProcessStates = []
-    for(let i = 0; i < 3; i++){
+    const givenExportProcessStates = [];
+    for (let i = 0; i < 3; i++) {
       givenExportProcessStates.push(getOneFakeExportProcessState(i));
     }
 
@@ -41,9 +39,9 @@ describe("ExportTimeline", () => {
     const timelineItems = screen.getAllByTestId("timeline-item");
     expect(timelineItems).toHaveLength(givenExportProcessStates.length);
     givenExportProcessStates.forEach((exportProcessState, index) => {
-      expect(ExportTimelineItem).toHaveBeenNthCalledWith(index + 1, {exportProcessState}, {})
+      expect(ExportTimelineItem).toHaveBeenNthCalledWith(index + 1, { exportProcessState }, {});
     });
     // AND to match the snapshot
     expect(timeline).toMatchSnapshot();
-  })
-})
+  });
+});
