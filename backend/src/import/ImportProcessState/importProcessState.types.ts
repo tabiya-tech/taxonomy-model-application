@@ -8,16 +8,19 @@ export interface IImportProcessStateDoc {
   modelId: mongoose.Types.ObjectId;
   status: ImportProcessStateApiSpecs.Enums.Status;
   result: ImportProcessStateApiSpecs.Types.Result;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
  * Describes how an import process state is returned from the API
  */
-export interface IImportProcessState extends Omit<IImportProcessStateDoc, "id" | "modelId"> {
+export interface IImportProcessState
+  extends Omit<IImportProcessStateDoc, "id" | "modelId" | "createdAt" | "updatedAt"> {
   id: string;
   modelId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**

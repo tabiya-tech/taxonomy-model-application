@@ -42,6 +42,8 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProce
     };
     downloadUrl: string;
     timestamp: Date;
+    createdAt: Date;
+    updatedAt: Date;
   }[];
   importProcessState: {
     id: string;
@@ -51,6 +53,8 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProce
       parsingErrors: boolean;
       parsingWarnings: boolean;
     };
+    createdAt?: Date;
+    updatedAt?: Date;
   };
   createdAt: Date;
   updatedAt: Date;

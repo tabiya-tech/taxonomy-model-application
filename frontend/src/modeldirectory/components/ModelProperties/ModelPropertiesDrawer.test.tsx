@@ -64,6 +64,8 @@ const testModel: ModelInfoTypes.ModelInfo = {
       parsingErrors: false,
       parsingWarnings: false,
     },
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   createdAt: new Date(),
   updatedAt: new Date(),

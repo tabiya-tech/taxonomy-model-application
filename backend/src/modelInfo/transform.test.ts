@@ -22,7 +22,15 @@ describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () 
       exportProcessState: givenObject.exportProcessState.map((exportProcessState) => ({
         ...exportProcessState,
         timestamp: exportProcessState.timestamp.toISOString(),
+        createdAt: exportProcessState.createdAt.toISOString(),
+        updatedAt: exportProcessState.updatedAt.toISOString(),
       })),
+      // AND the importProcessState as an object with the same properties
+      importProcessState: {
+        ...givenObject.importProcessState,
+        createdAt: givenObject.importProcessState.createdAt!.toISOString(),
+        updatedAt: givenObject.importProcessState.updatedAt!.toISOString(),
+      },
       // AND the path and tabiya path as based on the given base path
       path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.id}`,
       tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.UUID}`,

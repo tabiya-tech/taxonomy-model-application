@@ -16,6 +16,8 @@ export namespace ModelInfoTypes {
       parsingErrors: boolean;
       parsingWarnings: boolean;
     };
+    createdAt?: Date;
+    updatedAt?: Date;
   };
 
   export type ExportProcessState = {
@@ -28,6 +30,8 @@ export namespace ModelInfoTypes {
     };
     downloadUrl: string;
     timestamp: Date;
+    createdAt: Date;
+    updatedAt: Date;
   };
 
   export type ModelInfo = {

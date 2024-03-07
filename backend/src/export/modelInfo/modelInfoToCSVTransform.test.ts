@@ -19,6 +19,8 @@ const getMockModelInfo = (i: number): IModelInfo => {
       id: "",
       result: { errored: false, parsingErrors: false, parsingWarnings: false },
       status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
