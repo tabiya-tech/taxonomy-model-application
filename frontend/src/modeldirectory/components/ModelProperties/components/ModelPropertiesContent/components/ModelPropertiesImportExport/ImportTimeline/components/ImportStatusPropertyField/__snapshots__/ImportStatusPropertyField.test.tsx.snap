@@ -1,0 +1,244 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportStatusPropertyField Should Render correctly for Completed Successfully 1`] = `
+<div
+  class="MuiBox-root css-1t5r8n4"
+  data-testid="import-status-property-field"
+>
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeMedium css-1x9cg3q-MuiSvgIcon-root"
+    data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+    focusable="false"
+    role="img"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+    />
+    <title>
+      Completed succesfully
+    </title>
+  </svg>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+  >
+    Completed successfully!
+    <span
+      data-testid="help-tip-success-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+    >
+      The import process has completed successfully.
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ImportStatusPropertyField Should Render correctly for Completed With Critical Errors 1`] = `
+<div
+  class="MuiBox-root css-1t5r8n4"
+  data-testid="import-status-property-field"
+>
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+    data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+    focusable="false"
+    role="img"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+    />
+    <title>
+      Completed with error(s)
+    </title>
+  </svg>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+  >
+    Completed with critical errors
+    <span
+      data-testid="help-tip-error-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+    >
+      The import process could not start or complete due to a technical error. Please try again later or contact us if the problem persists.
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ImportStatusPropertyField Should Render correctly for Completed With Parsing Errors 1`] = `
+<div
+  class="MuiBox-root css-1t5r8n4"
+  data-testid="import-status-property-field"
+>
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+    data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+    focusable="false"
+    role="img"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+    />
+    <title>
+      Completed with parsing errors(s)
+    </title>
+  </svg>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+  >
+    Completed with parsing errors
+    <span
+      data-testid="help-tip-parsing-error-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+    >
+      The csv files have inconsistencies that could not be resolved. The model was created but is not consistent. Please review the csv files and try again.
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ImportStatusPropertyField Should Render correctly for Completed With Parsing Errors and Parsing Warnings 1`] = `
+<div
+  class="MuiBox-root css-1t5r8n4"
+  data-testid="import-status-property-field"
+>
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+    data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+    focusable="false"
+    role="img"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+    />
+    <title>
+      Completed with parsing errors(s)
+    </title>
+  </svg>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+  >
+    Completed with parsing errors
+     
+    <span>
+      <span
+        data-testid="help-tip-parsing-error-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+      >
+        The csv files have inconsistencies that could not be resolved. The model was created but is not consistent. Please review the csv files and try again.
+      </span>
+    </span>
+    and 
+    Completed with parsing warnings
+    <span>
+      <span
+        data-testid="help-tip-parsing-warning-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+      >
+        One or more rows or some field could not be imported, but the model was still created and is consistent. Please review the csv files and try again.
+      </span>
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ImportStatusPropertyField Should Render correctly for Completed With Parsing Warnings 1`] = `
+<div
+  class="MuiBox-root css-1t5r8n4"
+  data-testid="import-status-property-field"
+>
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+    data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+    focusable="false"
+    role="img"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+    />
+    <title>
+      Completed with parsing warning(s)
+    </title>
+  </svg>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+  >
+    Completed with parsing warnings
+    <span
+      data-testid="help-tip-parsing-warning-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+    >
+      One or more rows or some field could not be imported, but the model was still created and is consistent. Please review the csv files and try again.
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ImportStatusPropertyField Should Render correctly for Pending State 1`] = `
+<div
+  class="MuiBox-root css-1t5r8n4"
+  data-testid="import-status-property-field"
+>
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-14fk8m9-MuiSvgIcon-root"
+    data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+    focusable="false"
+    role="img"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"
+    />
+    <title>
+      Pending
+    </title>
+  </svg>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+  >
+    Pending...
+    <span
+      data-testid="help-tip-pending-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+    >
+      The import process has not yet started.
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ImportStatusPropertyField Should Render correctly for Running State 1`] = `
+<div
+  class="MuiBox-root css-1t5r8n4"
+  data-testid="import-status-property-field"
+>
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+    data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+    focusable="false"
+    role="img"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2z"
+    />
+    <title>
+      Running
+    </title>
+  </svg>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+  >
+    Running...
+    <span
+      data-testid="help-tip-running-d321d7cc-6396-43c8-bec9-70a04fdb3607"
+    >
+      The import process is running.
+    </span>
+  </p>
+</div>
+`;
