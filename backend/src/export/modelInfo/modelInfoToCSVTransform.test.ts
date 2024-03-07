@@ -33,8 +33,8 @@ const getMockModelInfo = (i: number): IModelInfo => {
     version: `version_${i}`,
     released: true,
     releaseNotes: `releaseNotes_${i}_${getTestString(10)}`,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(0),  // use a fixed date to make the snapshot stable
+    updatedAt: new Date( 1),  // use a fixed date to make the snapshot stable
   };
 };
 

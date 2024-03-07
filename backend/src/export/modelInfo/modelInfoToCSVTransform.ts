@@ -4,7 +4,17 @@ import { stringify } from "csv-stringify";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { Readable } from "node:stream";
 
-const modelInfoHeaders = ["UUIDHistory", "NAME", "LOCALE", "DESCRIPTION", "VERSION", "RELEASED", "RELEASENOTES"];
+const modelInfoHeaders = [
+  "UUIDHistory",
+  "NAME",
+  "LOCALE",
+  "DESCRIPTION",
+  "VERSION",
+  "RELEASED",
+  "RELEASENOTES",
+  "CREATEDAT",
+  "UPDATEDAT",
+];
 
 interface IModelInfoRow {
   UUIDHistory: string;
@@ -14,6 +24,8 @@ interface IModelInfoRow {
   VERSION: string;
   RELEASED: "TRUE" | "FALSE";
   RELEASENOTES: string;
+  CREATEDAT: string;
+  UPDATEDAT: string;
 }
 
 export const transformModelInfoSpecToCSVRow = (modelInfo: IModelInfo): IModelInfoRow => {
@@ -25,6 +37,8 @@ export const transformModelInfoSpecToCSVRow = (modelInfo: IModelInfo): IModelInf
     VERSION: modelInfo.version,
     RELEASED: modelInfo.released ? "TRUE" : "FALSE",
     RELEASENOTES: modelInfo.releaseNotes,
+    CREATEDAT: modelInfo.createdAt.toISOString(),
+    UPDATEDAT: modelInfo.updatedAt.toISOString(),
   };
 };
 

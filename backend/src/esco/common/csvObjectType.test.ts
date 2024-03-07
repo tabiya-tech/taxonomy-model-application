@@ -32,7 +32,7 @@ describe("getObjectTypeFromCSVObjectType", () => {
       // THEN the ObjectType should be returned
       expect(getObjectTypeFromCSVObjectType(givenCSVObjectType as string)).toBe(expectedObjectType);
       // irrespective of the case
-      expect(getObjectTypeFromCSVObjectType(givenCSVObjectType?.toUpperCase()  as string)).toBe(expectedObjectType);
+      expect(getObjectTypeFromCSVObjectType(givenCSVObjectType?.toUpperCase() as string)).toBe(expectedObjectType);
     }
   );
 });
@@ -71,7 +71,9 @@ describe("getRelationTypeFromCSVRelationType", () => {
       // THEN the RelationType should be returned
       expect(getRelationTypeFromCSVRelationType(givenCSVRelationType as string)).toBe(expectedRelationType);
       // irrespective of the case
-      expect(getRelationTypeFromCSVRelationType(givenCSVRelationType?.toUpperCase() as string)).toBe(expectedRelationType);
+      expect(getRelationTypeFromCSVRelationType(givenCSVRelationType?.toUpperCase() as string)).toBe(
+        expectedRelationType
+      );
     }
   );
 });
@@ -89,7 +91,9 @@ describe("getCSVRelationTypeFromRelationType", () => {
       // THEN the CSVRelationType should be returned
       expect(getCSVRelationTypeFromRelationType(givenRelationType as string)).toBe(expectedCSVRelationType);
       // irrespective of the case
-      expect(getCSVRelationTypeFromRelationType(givenRelationType?.toUpperCase() as string)).toBe(expectedCSVRelationType);
+      expect(getCSVRelationTypeFromRelationType(givenRelationType?.toUpperCase() as string)).toBe(
+        expectedCSVRelationType
+      );
     }
   );
 });
