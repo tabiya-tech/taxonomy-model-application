@@ -87,14 +87,16 @@ export const _baseResponseSchema = {
         type: "object",
         additionalProperties: false,
         properties: { ...JSON.parse(JSON.stringify(baseExportProcessStateProperties)) }, // deep copy the base exportProcessState properties
-        required: ["id", "status", "downloadUrl", "timestamp", "result"],
+        required: ["id", "status", "downloadUrl", "timestamp", "result", "createdAt", "updatedAt"],
       },
     },
     importProcessState: {
       description: "The import process state of the model.",
       type: "object",
       additionalProperties: false,
-      properties: { ...JSON.parse(JSON.stringify(baseImportProcessStateProperties)) }, // deep copy the base importProcessState properties
+      properties: {
+        ...JSON.parse(JSON.stringify(baseImportProcessStateProperties)),
+      }, // deep copy the base importProcessState properties
       required: ["id", "status", "result"],
     },
     createdAt: { type: "string", format: "date-time" },

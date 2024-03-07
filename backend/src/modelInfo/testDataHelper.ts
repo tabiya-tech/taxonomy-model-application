@@ -30,6 +30,8 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
         parsingErrors: false,
         parsingWarnings: false,
       },
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     exportProcessState: [
       {
@@ -42,6 +44,8 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
         },
         downloadUrl: "https://foo.bar/" + n,
         timestamp: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ],
     createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),

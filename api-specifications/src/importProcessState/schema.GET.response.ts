@@ -34,6 +34,8 @@ export const baseImportProcessStateProperties = {
     },
     required: ["errored", "parsingErrors", "parsingWarnings"],
   },
+  createdAt: { type: "string", format: "date-time" },
+  updatedAt: { type: "string", format: "date-time" },
 };
 
 const SchemaGETResponse: SchemaObject = {
@@ -49,8 +51,6 @@ const SchemaGETResponse: SchemaObject = {
       type: "string",
       pattern: RegExp_Str_ID,
     },
-    createdAt: { type: "string", format: "date-time" },
-    updatedAt: { type: "string", format: "date-time" },
     //Will also have additional properties like stats...
   },
   required: ["id", "modelId", "status", "result", "createdAt", "updatedAt"],

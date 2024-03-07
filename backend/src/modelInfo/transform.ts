@@ -18,8 +18,16 @@ export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.
     exportProcessState: data.exportProcessState.map((exportProcessState) => ({
       ...exportProcessState,
       timestamp: exportProcessState.timestamp.toISOString(),
+      createdAt: exportProcessState.createdAt.toISOString(),
+      updatedAt: exportProcessState.updatedAt.toISOString(),
     })),
-    importProcessState: data.importProcessState,
+    importProcessState: {
+      ...data.importProcessState,
+      // in the case that the model is created but not imported, the createdAt and updatedAt are undefined
+      // we have to check for that and respond accordingly
+      createdAt: data.importProcessState.createdAt ? data.importProcessState.createdAt.toISOString() : undefined,
+      updatedAt: data.importProcessState.updatedAt ? data.importProcessState.updatedAt.toISOString() : undefined,
+    },
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
   };

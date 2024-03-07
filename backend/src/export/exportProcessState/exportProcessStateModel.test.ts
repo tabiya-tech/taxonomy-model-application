@@ -40,6 +40,8 @@ describe("Test the definition of ExportProcessState Model", () => {
       },
       downloadUrl: "https://example.com",
       timestamp: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     // AND an ExportProcessState document based on the given object
     const givenExportStateDocument = new model(givenObject);

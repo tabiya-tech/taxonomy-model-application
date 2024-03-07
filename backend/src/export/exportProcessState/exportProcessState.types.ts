@@ -7,6 +7,8 @@ export interface IExportProcessStateDoc {
   result: ExportProcessStateApiSpecs.Types.Result;
   downloadUrl: string;
   timestamp: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IExportProcessState extends Omit<IExportProcessStateDoc, "modelId"> {
