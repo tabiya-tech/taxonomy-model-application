@@ -109,6 +109,9 @@ To view the documentation locally, run:
 ```
 yarn local-server:openapi
 ```
+## Import  Export CSV format documentation
+
+The import and export of the CSV format documentation can be found [here](/Import_Export_CSV_format.md)
 
 ## Contributing
 
