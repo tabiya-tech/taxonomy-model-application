@@ -62,7 +62,7 @@ const ImportStatusPropertyField: React.FC<ImportStatusPropertyFieldProps> = (
             Completed with
             <Box component={"span"} fontWeight={"bold"}> parsing errors</Box>
             <HelpTip>
-              The esv files have inconsistencies that could not be resolved. The model was created but is not consistent.
+              The csv files have inconsistencies that could not be resolved. The model was created but is not consistent.
               Please review the csv files and try again.
             </HelpTip>
           </Typography>
@@ -90,7 +90,7 @@ const ImportStatusPropertyField: React.FC<ImportStatusPropertyFieldProps> = (
             parsing errors
           </Box>
           <HelpTip>
-            The esv files have inconsistencies that could not be resolved. The model was created but is not consistent.
+            The csv files have inconsistencies that could not be resolved. The model was created but is not consistent.
             Please review the csv files and try again.
           </HelpTip>
           and
