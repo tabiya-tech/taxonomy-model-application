@@ -20,7 +20,7 @@ export const DATA_TEST_ID = {
 
 const ImportTimeline: React.FC<ImportTimelineProps> = (props: Readonly<ImportTimelineProps>) => {
   return (
-    <Timeline data-testid={DATA_TEST_ID.IMPORT_TIMELINE}>
+    <Timeline data-testid={DATA_TEST_ID.IMPORT_TIMELINE} sx={{ padding: 0}}>
       <ImportTimelineItem importProcessState={props.importProcessState} />
     </Timeline>
   );

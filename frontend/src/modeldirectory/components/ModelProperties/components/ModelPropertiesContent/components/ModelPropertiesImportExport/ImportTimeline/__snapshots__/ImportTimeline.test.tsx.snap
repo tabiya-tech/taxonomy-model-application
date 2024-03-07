@@ -2,7 +2,7 @@
 
 exports[`ImportTimeline renders correctly 1`] = `
 <ul
-  class="MuiTimeline-root MuiTimeline-positionRight css-55vwbm-MuiTimeline-root"
+  class="MuiTimeline-root MuiTimeline-positionRight css-urcpbk-MuiTimeline-root"
   data-testid="import-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
 >
   <div
