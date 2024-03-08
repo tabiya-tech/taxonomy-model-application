@@ -22,7 +22,7 @@ export const DATA_TEST_ID = {
 
 const HelpTip: React.FC<HelpTipProps> = (props: Readonly<HelpTipProps>) => {
   return (
-    <Tooltip aria-label={"help"} data-testid={props["data-testid"]} describeChild title={
+    <Tooltip aria-label={"help"} describeChild title={
       <Box>
         {props.children}
       </Box>
