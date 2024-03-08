@@ -76,7 +76,7 @@ jest.mock("src/theme/HelpTip/HelpTip", () => ({
 describe('ImportStatusPropertyField', () => {
   let id = uuid();
 
-  test.each(cases)(`Should Render correctly for $name`, (testCase) => {
+  test.each(cases)(`Should Render correctly for case: $name`, (testCase) => {
       // GIVEN the ImportStatusPropertyField component is rendered with a specific import state.
       const importProcessState: ImportProcessState = {
         id: uuid(),
