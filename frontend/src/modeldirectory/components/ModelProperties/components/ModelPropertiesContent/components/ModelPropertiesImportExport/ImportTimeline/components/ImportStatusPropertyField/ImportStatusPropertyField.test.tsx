@@ -26,7 +26,7 @@ jest.mock("src/theme/HelpTip/HelpTip", () => {
 describe('ImportStatusPropertyField', () => {
   let id = uuid();
 
-  it("Should Render correctly for Pending State", () => {
+  test("Should Render correctly for Pending State", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with pending import state.
     const importProcessState = States.Pending.args?.importProcessState!;
     // AND GIVEN a dataTestId
@@ -64,7 +64,7 @@ describe('ImportStatusPropertyField', () => {
     expect(statusField).toMatchSnapshot()
   })
 
-  it("Should Render correctly for Running State", () => {
+  test("Should Render correctly for Running State", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with running import state.
     const importProcessState = States.Running.args?.importProcessState!;
     // AND GIVEN a dataTestId
@@ -103,7 +103,7 @@ describe('ImportStatusPropertyField', () => {
     expect(statusField).toMatchSnapshot()
   })
 
-  it("Should Render correctly for Completed Successfully", () => {
+  test("Should Render correctly for Completed Successfully", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with completed successfully import state.
     const importProcessState = States.Completed.args?.importProcessState!;
     // AND GIVEN a dataTestId
@@ -142,7 +142,7 @@ describe('ImportStatusPropertyField', () => {
     expect(statusField).toMatchSnapshot()
   })
 
-  it("Should Render correctly for Completed With Critical Errors", () => {
+  test("Should Render correctly for Completed With Critical Errors", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with completed with critical errors import state.
     const importProcessState = States.CompletedWithCriticalErrors.args?.importProcessState!;
     // AND GIVEN a dataTestId
@@ -181,7 +181,7 @@ describe('ImportStatusPropertyField', () => {
     expect(statusField).toMatchSnapshot()
   })
 
-  it("Should Render correctly for Completed With Parsing Errors", () => {
+  test("Should Render correctly for Completed With Parsing Errors", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with completed with parsing errors import state.
     const importProcessState = States.CompletedWithParsingErrors.args?.importProcessState!;
     // AND GIVEN a dataTestId
@@ -220,7 +220,7 @@ describe('ImportStatusPropertyField', () => {
     expect(statusField).toMatchSnapshot()
   })
 
-  it("Should Render correctly for Completed With Parsing Warnings", () => {
+  test("Should Render correctly for Completed With Parsing Warnings", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with completed with parsing warnings import state.
     const importProcessState = States.CompletedWithParsingWarnings.args?.importProcessState!;
 // AND GIVEN a dataTestId
@@ -259,7 +259,7 @@ describe('ImportStatusPropertyField', () => {
     expect(statusField).toMatchSnapshot()
   })
 
-  it("Should Render correctly for Completed With Parsing Errors and Parsing Warnings", () => {
+  test("Should Render correctly for Completed With Parsing Errors and Parsing Warnings", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with completed with parsing errors and parsing warnings import state.
     const importProcessState = States.CompletedWithParsingWarningsAndParsingErrors.args?.importProcessState!;
     // AND GIVEN a dataTestId
@@ -304,7 +304,7 @@ describe('ImportStatusPropertyField', () => {
     expect(statusField).toMatchSnapshot()
   })
 
-  it("Should return unexpected result message when completed with an Invalid status", () => {
+  test("Should return unexpected result message when completed with an Invalid status", () => {
     // GIVEN the ImportStatusPropertyField component is rendered with completed with a case that won't exist
     const importProcessState: ModelInfoTypes.ImportProcessState = {
       id: uuid(),
