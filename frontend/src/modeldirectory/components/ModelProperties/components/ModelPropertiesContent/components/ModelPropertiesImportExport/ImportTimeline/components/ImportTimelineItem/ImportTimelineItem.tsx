@@ -10,7 +10,7 @@ import {
   TimelineSeparator,
 } from "@mui/lab";
 import ImportProcessStateContent from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ImportTimeline/components/ImportProcessStateContent/ImportProcessStateContent";
-import {formatDate} from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/userFriendlyDateFormat";
+import { formatDate } from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/userFriendlyDateFormat";
 
 interface ImportTimelineItemProps {
   importProcessState: ModelInfoTypes.ImportProcessState;
@@ -37,25 +37,34 @@ export const DATA_TEST_ID = {
 
 const ImportTimelineItem: React.FC<ImportTimelineItemProps> = (props: Readonly<ImportTimelineItemProps>) => {
   return (
-      <TimelineItem data-testid={DATA_TEST_ID.IMPORT_TIMELINE_ITEM}>
-        <TimelineOppositeContent data-testid={DATA_TEST_ID.IMPORT_TIMELINE_OPPOSITE_CONTENT} sx={{ maxWidth: "fit-content", flex: 0.5, padding: 0, paddingRight: (theme) => theme.tabiyaSpacing.md }}>
-          {
-            props.importProcessState.createdAt ? <Typography variant={"body1"} data-testid={DATA_TEST_ID.IMPORT_TIMELINE_OPPOSITE_CONTENT_TIMESTAMP} sx={{textAlign: "start"}}>
-                {formatDate(props.importProcessState.createdAt)}
-            </Typography> : <Typography variant={"body2"} data-testid={DATA_TEST_ID.FALLBACK_TEXT} sx={{textAlign: "start"}}>
-              {"Import has not started yet"}
-            </Typography>
-          }
-        </TimelineOppositeContent>
-        <TimelineSeparator data-testid={DATA_TEST_ID.IMPORT_TIMELINE_SEPARATOR}>
-          <TimelineDot data-testid={DATA_TEST_ID.IMPORT_TIMELINE_DOT} />
-          <TimelineConnector data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONNECTOR} />
-        </TimelineSeparator>
-        <TimelineContent data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONTENT}>
-          <ImportProcessStateContent importProcessState={props.importProcessState} />
-        </TimelineContent>
-      </TimelineItem>
-    );
+    <TimelineItem data-testid={DATA_TEST_ID.IMPORT_TIMELINE_ITEM}>
+      <TimelineOppositeContent
+        data-testid={DATA_TEST_ID.IMPORT_TIMELINE_OPPOSITE_CONTENT}
+        sx={{ maxWidth: "fit-content", flex: 0.5, padding: 0, paddingRight: (theme) => theme.tabiyaSpacing.md }}
+      >
+        {props.importProcessState.createdAt ? (
+          <Typography
+            variant={"body1"}
+            data-testid={DATA_TEST_ID.IMPORT_TIMELINE_OPPOSITE_CONTENT_TIMESTAMP}
+            sx={{ textAlign: "start" }}
+          >
+            {formatDate(props.importProcessState.createdAt)}
+          </Typography>
+        ) : (
+          <Typography variant={"body2"} data-testid={DATA_TEST_ID.FALLBACK_TEXT} sx={{ textAlign: "start" }}>
+            {"Import has not started yet"}
+          </Typography>
+        )}
+      </TimelineOppositeContent>
+      <TimelineSeparator data-testid={DATA_TEST_ID.IMPORT_TIMELINE_SEPARATOR}>
+        <TimelineDot data-testid={DATA_TEST_ID.IMPORT_TIMELINE_DOT} />
+        <TimelineConnector data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONNECTOR} />
+      </TimelineSeparator>
+      <TimelineContent data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONTENT}>
+        <ImportProcessStateContent importProcessState={props.importProcessState} />
+      </TimelineContent>
+    </TimelineItem>
+  );
 };
 
 export default ImportTimelineItem;

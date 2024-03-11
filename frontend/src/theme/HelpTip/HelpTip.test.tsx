@@ -19,15 +19,18 @@ describe("HelpTip component render tests", () => {
     const helpIconButton = screen.getByTestId(DATA_TEST_ID.HELP_ICON);
     expect(helpIconButton).toBeInTheDocument();
     // AND the MUI Tooltip should have been called with the correct props
-    expect(renderSpy).toHaveBeenCalledWith(expect.objectContaining({
-      title: expect.objectContaining({
-        props: expect.objectContaining({
-          children: givenChild,
+    expect(renderSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.objectContaining({
+          props: expect.objectContaining({
+            children: givenChild,
+          }),
         }),
+        "aria-label": "help",
+        describeChild: true,
       }),
-      "aria-label": "help",
-      describeChild: true,
-    }), null);
+      null
+    );
     // AND no errors or warnings should have occurred
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
@@ -37,7 +40,6 @@ describe("HelpTip component render tests", () => {
 });
 
 describe("HelpTip component interaction tests", () => {
-
   test("displays tooltip on hover or focus", async () => {
     // GIVEN the HelpTip component is rendered with specific children content
     const childrenContent = "This is a helpful tip";

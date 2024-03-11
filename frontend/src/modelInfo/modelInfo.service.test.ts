@@ -82,8 +82,12 @@ describe("ModelInfoService", () => {
           })),
           importProcessState: {
             ...givenModel.importProcessState,
-            createdAt: givenModel.importProcessState.createdAt ? new Date(givenModel.importProcessState.createdAt) : undefined,
-            updatedAt: givenModel.importProcessState.updatedAt ? new Date(givenModel.importProcessState.updatedAt) : undefined,
+            createdAt: givenModel.importProcessState.createdAt
+              ? new Date(givenModel.importProcessState.createdAt)
+              : undefined,
+            updatedAt: givenModel.importProcessState.updatedAt
+              ? new Date(givenModel.importProcessState.updatedAt)
+              : undefined,
           },
           createdAt: new Date(givenModel.createdAt),
           updatedAt: new Date(givenModel.updatedAt),
@@ -462,8 +466,12 @@ describe("ModelInfoService", () => {
         })),
         importProcessState: {
           ...givenResponseBody.importProcessState,
-          createdAt: givenResponseBody.importProcessState.createdAt ? new Date(givenResponseBody.importProcessState.createdAt) : undefined,
-          updatedAt: givenResponseBody.importProcessState.updatedAt ? new Date(givenResponseBody.importProcessState.updatedAt) : undefined,
+          createdAt: givenResponseBody.importProcessState.createdAt
+            ? new Date(givenResponseBody.importProcessState.createdAt)
+            : undefined,
+          updatedAt: givenResponseBody.importProcessState.updatedAt
+            ? new Date(givenResponseBody.importProcessState.updatedAt)
+            : undefined,
         },
         createdAt: new Date(givenResponseBody.createdAt),
         updatedAt: new Date(givenResponseBody.updatedAt),

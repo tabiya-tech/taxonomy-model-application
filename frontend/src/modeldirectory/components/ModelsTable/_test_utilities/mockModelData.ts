@@ -48,7 +48,7 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
       exportProcessState: [getOneFakeExportProcessState(i)],
-      importProcessState: getOneFakeImportProcessState(i)
+      importProcessState: getOneFakeImportProcessState(i),
     };
     models.push(model);
   }
@@ -80,7 +80,7 @@ export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.Mod
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
       exportProcessState: [getOneFakeExportProcessState(i)],
-      importProcessState: getOneFakeImportProcessState(i)
+      importProcessState: getOneFakeImportProcessState(i),
     };
     models.push(model);
   }
@@ -113,7 +113,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
       path: faker.internet.url(),
       tabiyaPath: faker.internet.url(),
       exportProcessState: [getOneFakeExportProcessState(i)],
-      importProcessState: getOneFakeImportProcessState(i)
+      importProcessState: getOneFakeImportProcessState(i),
     };
     models.push(model);
   }

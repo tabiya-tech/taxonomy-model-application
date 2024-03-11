@@ -4,9 +4,7 @@ import "src/_test_utilities/consoleMock";
 import ImportTimelineItem, { DATA_TEST_ID as IMPORT_TIMELINE_ITEM_DATA_TEST_ID } from "./ImportTimelineItem";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import {
-  fakeModel
-} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import ImportProcessStateContent, {
   DATA_TEST_ID as IMPROT_PROCESS_STATE_CONTENT_DATA_TEST_ID,
 } from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ImportTimeline/components/ImportProcessStateContent/ImportProcessStateContent";
@@ -89,7 +87,10 @@ describe("ImportTimelineItem", () => {
 
     test("should render with fallback text when importProcessState.createdAt is not provided", () => {
       // GIVEN an importProcessState without createdAt
-      const givenImportProcessState: ModelInfoTypes.ImportProcessState = { ...fakeModel.importProcessState, createdAt: undefined };
+      const givenImportProcessState: ModelInfoTypes.ImportProcessState = {
+        ...fakeModel.importProcessState,
+        createdAt: undefined,
+      };
       // WHEN the ImportTimelineItem component is rendered
       render(<ImportTimelineItem importProcessState={givenImportProcessState} />);
 
@@ -125,7 +126,9 @@ describe("ImportTimelineItem", () => {
       );
       expect(timelineOppositeContentComponent).toBeInTheDocument();
       // AND the fallback text to be displayed
-      const fallbackTextComponent = within(timelineOppositeContentComponent).getByTestId(IMPORT_TIMELINE_ITEM_DATA_TEST_ID.FALLBACK_TEXT);
+      const fallbackTextComponent = within(timelineOppositeContentComponent).getByTestId(
+        IMPORT_TIMELINE_ITEM_DATA_TEST_ID.FALLBACK_TEXT
+      );
       expect(fallbackTextComponent).toBeInTheDocument();
       // AND the component to match the snapshot
       expect(importTimelineItemComponent).toMatchSnapshot();

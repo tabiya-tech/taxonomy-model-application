@@ -17,7 +17,7 @@ type Story = StoryObj<typeof DurationPropertyField>;
 export const Shown: Story = {};
 
 const date = new Date(); // Gets the current date
-date.setDate(date.getDate() - 1);// Sets the date to one day before
+date.setDate(date.getDate() - 1); // Sets the date to one day before
 
 export const Ongoing: Story = {
   args: {

@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react";
 import ImportTimelineItem from "./ImportTimelineItem";
-import {fakeModel} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import { Timeline } from "@mui/lab";
 import React from "react";
 

@@ -133,5 +133,5 @@ describe("ImportProcessStateContent", () => {
       },
       {}
     );
-  })
+  });
 });

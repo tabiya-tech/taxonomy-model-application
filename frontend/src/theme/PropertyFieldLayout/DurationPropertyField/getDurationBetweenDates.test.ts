@@ -124,7 +124,7 @@ describe("getDurationBetweenDates", () => {
 
       // THEN expect the expected duration to be returned
       expect(result).toBe("0 seconds");
-    })
+    });
     test("should return the expected failure message when the first date is after the second date", () => {
       // GIVEN two dates
       const givenFirstDate = new Date("2021-10-10");
