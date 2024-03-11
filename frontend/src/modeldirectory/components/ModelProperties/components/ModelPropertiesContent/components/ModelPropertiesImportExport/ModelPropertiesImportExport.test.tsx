@@ -3,19 +3,27 @@ import "src/_test_utilities/consoleMock";
 
 import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import { render, screen } from "src/_test_utilities/test-utils";
-import ModelPropertiesImportExport, { DATA_TEST_ID as MODEL_PROPERTIES_DATA_TEST_ID } from "./ModelPropertiesImportExport";
-import ImportTimeline, { DATA_TEST_ID as IMPORT_TIMELINE_DATA_TEST_ID} from "./ImportTimeline/ImportTimeline";
+import ModelPropertiesImportExport, {
+  DATA_TEST_ID as MODEL_PROPERTIES_DATA_TEST_ID,
+} from "./ModelPropertiesImportExport";
+import ImportTimeline, { DATA_TEST_ID as IMPORT_TIMELINE_DATA_TEST_ID } from "./ImportTimeline/ImportTimeline";
 
 // mock the ImportTimeline component
 jest.mock(
   "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ImportTimeline/ImportTimeline",
   () => {
-    const actualImportTimeline = jest.requireActual("src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ImportTimeline/ImportTimeline");
-    const mockImportTimeline = jest.fn().mockImplementation(() => <div data-testid={actualImportTimeline.DATA_TEST_ID.IMPORT_TIMELINE}>ImportTimeline</div>);
+    const actualImportTimeline = jest.requireActual(
+      "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ImportTimeline/ImportTimeline"
+    );
+    const mockImportTimeline = jest
+      .fn()
+      .mockImplementation(() => (
+        <div data-testid={actualImportTimeline.DATA_TEST_ID.IMPORT_TIMELINE}>ImportTimeline</div>
+      ));
     return {
       ...actualImportTimeline,
       __esModule: true,
-      default: mockImportTimeline
+      default: mockImportTimeline,
     };
   }
 );

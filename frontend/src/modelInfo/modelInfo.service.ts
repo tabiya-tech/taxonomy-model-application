@@ -218,8 +218,12 @@ export default class ModelInfoService {
       }),
       importProcessState: {
         ...payloadItem.importProcessState,
-        createdAt: payloadItem.importProcessState.createdAt ? new Date(payloadItem.importProcessState.createdAt) : undefined,
-        updatedAt: payloadItem.importProcessState.updatedAt ? new Date(payloadItem.importProcessState.updatedAt) : undefined,
+        createdAt: payloadItem.importProcessState.createdAt
+          ? new Date(payloadItem.importProcessState.createdAt)
+          : undefined,
+        updatedAt: payloadItem.importProcessState.updatedAt
+          ? new Date(payloadItem.importProcessState.updatedAt)
+          : undefined,
       },
       createdAt: new Date(payloadItem.createdAt),
       updatedAt: new Date(payloadItem.updatedAt),

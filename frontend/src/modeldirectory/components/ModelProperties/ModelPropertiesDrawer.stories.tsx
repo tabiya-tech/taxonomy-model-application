@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react";
 import ModelPropertiesDrawer from "./ModelPropertiesDrawer";
-import {fakeModel} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ModelPropertiesDrawer> = {
   title: "ModelDirectory/ModelProperties/ModelPropertiesDrawer",

@@ -38,9 +38,7 @@ const ModelPropertiesImportExport: React.FC<ModelPropertiesImportExportProps> = 
       data-testid={DATA_TEST_ID.IMPORT_EXPORT_TAB}
     >
       <PropertyFieldLayout title="Import" fieldId={FIELD_ID.IMPORT_FIELD}>
-        <ImportTimeline
-          importProcessState={props.model.importProcessState}
-        />
+        <ImportTimeline importProcessState={props.model.importProcessState} />
       </PropertyFieldLayout>
     </Box>
   );

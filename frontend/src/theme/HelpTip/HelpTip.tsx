@@ -1,7 +1,7 @@
 import React from "react";
 
-import {Box, IconButton, Tooltip} from "@mui/material";
-import {HelpRounded} from "@mui/icons-material";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import { HelpRounded } from "@mui/icons-material";
 
 export interface HelpTipProps {
   children?: React.ReactNode;
@@ -22,12 +22,8 @@ export const DATA_TEST_ID = {
 
 const HelpTip: React.FC<HelpTipProps> = (props: Readonly<HelpTipProps>) => {
   return (
-    <Tooltip aria-label={"help"} data-testid={props["data-testid"]} describeChild title={
-      <Box>
-        {props.children}
-      </Box>
-    }>
-      <IconButton data-testid={DATA_TEST_ID.HELP_ICON} color={"primary"} sx={{ padding: "5px"}}>
+    <Tooltip aria-label={"help"} data-testid={props["data-testid"]} describeChild title={<Box>{props.children}</Box>}>
+      <IconButton data-testid={DATA_TEST_ID.HELP_ICON} color={"primary"} sx={{ padding: "5px" }}>
         <HelpRounded />
       </IconButton>
     </Tooltip>

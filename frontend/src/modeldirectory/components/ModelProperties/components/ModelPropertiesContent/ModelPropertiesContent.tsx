@@ -57,7 +57,7 @@ function ModelPropertiesContent(props: Readonly<ModelPropertiesContentProps>) {
       id: MODEL_PROPERTIES_TAB_ID.TAB_ID_IMPORT_EXPORT,
       label: MODEL_PROPERTIES_TAB_LABEL.TAB_LABEL_IMPORT_EXPORT,
       panel: <ModelPropertiesImportExport model={props.model} />,
-    }
+    },
   ];
 
   return (

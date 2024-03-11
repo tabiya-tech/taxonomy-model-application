@@ -63,12 +63,12 @@ export const Pending: Story = {
       result: {
         errored: false,
         parsingWarnings: false,
-        parsingErrors: false
-      }
+        parsingErrors: false,
+      },
     },
-    fieldId: uniqueId
-  }
-}
+    fieldId: uniqueId,
+  },
+};
 
 export const Running: Story = {
   args: {
@@ -78,12 +78,12 @@ export const Running: Story = {
       result: {
         errored: false,
         parsingWarnings: false,
-        parsingErrors: false
-      }
+        parsingErrors: false,
+      },
     },
-    fieldId: uniqueId
-  }
-}
+    fieldId: uniqueId,
+  },
+};
 
 export const Completed: Story = {
   args: {
@@ -93,12 +93,12 @@ export const Completed: Story = {
       result: {
         errored: false,
         parsingWarnings: false,
-        parsingErrors: false
-      }
+        parsingErrors: false,
+      },
     },
-    fieldId: uniqueId
-  }
-}
+    fieldId: uniqueId,
+  },
+};
 
 export const CompletedWithCriticalErrors: Story = {
   args: {
@@ -108,13 +108,12 @@ export const CompletedWithCriticalErrors: Story = {
       result: {
         errored: true,
         parsingWarnings: false,
-        parsingErrors: false
-      }
+        parsingErrors: false,
+      },
     },
-    fieldId: uniqueId
-  }
-}
-
+    fieldId: uniqueId,
+  },
+};
 
 export const CompletedWithParsingErrors: Story = {
   args: {
@@ -124,12 +123,12 @@ export const CompletedWithParsingErrors: Story = {
       result: {
         errored: false,
         parsingWarnings: false,
-        parsingErrors: true
-      }
+        parsingErrors: true,
+      },
     },
-    fieldId: uniqueId
-  }
-}
+    fieldId: uniqueId,
+  },
+};
 
 export const CompletedWithParsingWarnings: Story = {
   args: {
@@ -139,12 +138,12 @@ export const CompletedWithParsingWarnings: Story = {
       result: {
         errored: false,
         parsingWarnings: true,
-        parsingErrors: false
-      }
+        parsingErrors: false,
+      },
     },
-    fieldId: uniqueId
-  }
-}
+    fieldId: uniqueId,
+  },
+};
 
 export const CompletedWithParsingWarningsAndParsingErrors: Story = {
   args: {
@@ -154,9 +153,9 @@ export const CompletedWithParsingWarningsAndParsingErrors: Story = {
       result: {
         errored: false,
         parsingWarnings: true,
-        parsingErrors: true
-      }
+        parsingErrors: true,
+      },
     },
-    fieldId: uniqueId
-  }
-}
+    fieldId: uniqueId,
+  },
+};

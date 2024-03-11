@@ -315,7 +315,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Pending 1`]
         class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
-        Pending...
+        Pending
       </p>
     </div>
   </div>
@@ -364,7 +364,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Running 1`]
         class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
-        Running...
+        Running
       </p>
     </div>
   </div>

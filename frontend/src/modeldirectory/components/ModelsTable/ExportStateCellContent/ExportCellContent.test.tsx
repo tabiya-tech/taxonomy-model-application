@@ -84,7 +84,7 @@ describe("ExportStateCellContent", () => {
         downloadUrl: randomUUID(),
         timestamp: new Date(timestamp),
         createdAt: new Date(timestamp),
-        updatedAt: new Date(new Date(timestamp).getTime() + 1000)
+        updatedAt: new Date(new Date(timestamp).getTime() + 1000),
       };
     }
 

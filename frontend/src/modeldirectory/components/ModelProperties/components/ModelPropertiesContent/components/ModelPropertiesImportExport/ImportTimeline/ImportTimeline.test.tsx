@@ -5,7 +5,7 @@ import { getOneRandomModelMaxLength } from "src/modeldirectory/components/Models
 import { render, screen } from "@testing-library/react";
 import ImportTimeline, { DATA_TEST_ID as TIMELINE_DATA_TEST_ID } from "./ImportTimeline";
 import ImportTimelineItem, {
-  DATA_TEST_ID as TIMELINE_ITEM_DATA_TEST_ID
+  DATA_TEST_ID as TIMELINE_ITEM_DATA_TEST_ID,
 } from "./components/ImportTimelineItem/ImportTimelineItem";
 import * as React from "react";
 

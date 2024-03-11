@@ -35,7 +35,7 @@ export const HELP_TIP_TEXT = {
   PARSING_ERROR:
     "The csv files have inconsistencies that could not be resolved. The model was created but is not consistent. Please review the csv files and try again.",
   PARSING_WARNING:
-    "One or more rows or some field could not be imported, but the model was still created and is consistent. Please review the csv files and try again.",
+    "One or more rows or some fields could not be imported, but the model was still created and is consistent. Please review the csv files and try again.",
 };
 
 const Bold = ({ children }: PropsWithChildren) => (
@@ -44,25 +44,24 @@ const Bold = ({ children }: PropsWithChildren) => (
   </Box>
 );
 
-
 const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProcessState }>) => {
   const { status, result } = props.importProcessState;
   switch (status) {
     case ImportProcessStateEnums.Enums.Status.PENDING:
       return (
         <Typography data-testid={DATA_TEST_ID.MESSAGE}>
-          Pending...
+          Pending
           <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PENDING}>{HELP_TIP_TEXT.PENDING}</HelpTip>
         </Typography>
-      )
+      );
 
     case ImportProcessStateEnums.Enums.Status.RUNNING:
       return (
         <Typography data-testid={DATA_TEST_ID.MESSAGE}>
-          Running...
+          Running
           <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_RUNNING}>{HELP_TIP_TEXT.RUNNING}</HelpTip>
         </Typography>
-      )
+      );
 
     case ImportProcessStateEnums.Enums.Status.COMPLETED:
       if (!result.errored && !result.parsingErrors && !result.parsingWarnings) {
@@ -71,7 +70,7 @@ const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProc
             Completed successfully
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_SUCCESS}>{HELP_TIP_TEXT.SUCCESS}</HelpTip>
           </Typography>
-        )
+        );
       }
       if (!result.errored && result.parsingErrors && !result.parsingWarnings) {
         return (
@@ -79,7 +78,7 @@ const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProc
             Completed with <Bold>parsing errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_ERROR}>{HELP_TIP_TEXT.PARSING_ERROR}</HelpTip>
           </Typography>
-        )
+        );
       }
       if (!result.errored && !result.parsingErrors && result.parsingWarnings) {
         return (
@@ -87,26 +86,25 @@ const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProc
             Completed with <Bold>parsing warnings</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_WARNING}>{HELP_TIP_TEXT.PARSING_WARNING}</HelpTip>
           </Typography>
-        )
+        );
       }
       if (!result.errored && result.parsingErrors && result.parsingWarnings) {
         return (
           <Typography data-testid={DATA_TEST_ID.MESSAGE}>
             <span>Completed with</span>
             <Bold> parsing errors</Bold>
-            <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_WARNING}>{HELP_TIP_TEXT.PARSING_WARNING}</HelpTip>
+            <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_WARNING}>{HELP_TIP_TEXT.PARSING_ERROR}</HelpTip>
             and <Bold>parsing warnings</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_WARNING}>{HELP_TIP_TEXT.PARSING_WARNING}</HelpTip>
           </Typography>
-        )
-      }
-      else {
+        );
+      } else {
         return (
           <Typography data-testid={DATA_TEST_ID.MESSAGE}>
             Completed with <Bold>critical errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_ERROR}>{HELP_TIP_TEXT.ERROR}</HelpTip>
           </Typography>
-        )
+        );
       }
     default:
       return <Typography data-testid={DATA_TEST_ID.MESSAGE}>Completed with unexpected status {status}</Typography>;
@@ -126,15 +124,12 @@ const ImportStatusPropertyField: React.FC<ImportStatusPropertyFieldProps> = (
 
   return (
     <PropertyFieldLayout title="Status" data-testid={props["data-testid"]} fieldId={props.fieldId}>
-      <Box
-        display="flex"
-        flexDirection="row"
-        alignItems="start"
-        gap={theme.spacing(1)}
-      >
-        <Box sx={{
-          padding: theme.spacing(0.5),
-        }}>
+      <Box display="flex" flexDirection="row" alignItems="start" gap={theme.spacing(1)}>
+        <Box
+          sx={{
+            padding: theme.spacing(0.5),
+          }}
+        >
           <ImportProcessStateIcon
             data-testid={DATA_TEST_ID.PROCCESS_STATUS_ICON}
             importProcessState={props.importProcessState}

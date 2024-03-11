@@ -5,7 +5,7 @@ export interface PropertyFieldLayoutProps {
   title: string;
   "data-testid"?: string;
   children: React.ReactNode;
-  fieldId: string;  //This id must be unique
+  fieldId: string; //This id must be unique
   // and should be used to associate the title with the children through aria-labeledby
 }
 
