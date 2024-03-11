@@ -44,6 +44,15 @@ To develop this application locally, follow these steps:
 
    After running the above command, the `postinstall` script in the [package.json](package.json) will also run, and it will build and link the [api-specifications](/api-specifications/readme.md) dependency.
 
+## Running
+
+This backend is not designed for local development, you can't run it locally,
+
+>It is specifically designed for deployment on [AWS Lambda](https://aws.amazon.com/lambda/), utilizing [plumni](https://www.pulumi.com) for its construction. It is composed of cloud functions, which are not designed for local execution. This architecture choice emphasizes the backend's alignment with cloud-based environments, making it unsuitable for local development or API testing throught the REST Client apps such as postman.
+
+_For more information check the IaC [README](iac)_
+
+
 ## Testing
 ### Unit Tests
 To run the unit test cases for the application, execute the following command:
