@@ -46,9 +46,9 @@ To develop this application locally, follow these steps:
 
 ## Running
 
-This backend is not designed for local development, you can't run it locally,
+The backend project can't be run locally.
 
->It is specifically designed for deployment on [AWS Lambda](https://aws.amazon.com/lambda/), utilizing [plumni](https://www.pulumi.com) for its construction. It is composed of cloud functions, which are not designed for local execution. This architecture choice emphasizes the backend's alignment with cloud-based environments, making it unsuitable for local development or API testing throught the REST Client apps such as postman.
+>It is specifically designed for deployment on [AWS Lambda](https://aws.amazon.com/lambda/), utilizing [pulumi](https://www.pulumi.com) for its construction. It is composed of aws, Lambda functions, which are not designed for local execution. 
 
 _For more information check the IaC [README](iac)_
 
