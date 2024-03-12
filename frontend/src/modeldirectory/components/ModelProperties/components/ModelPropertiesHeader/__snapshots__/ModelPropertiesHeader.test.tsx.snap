@@ -48,7 +48,10 @@ exports[`ModelPropertiesHeader should render model properties header component 1
       class="MuiTypography-root MuiTypography-subtitle1 css-umxpai-MuiTypography-root"
       data-testid="model-name-a9f38045-7a8d-4226-88c6-8c9384516012"
     >
-      Model Name
+      1/1 - fysmros tcgcnjbbrrev
+       (
+      ETH
+      )
     </h6>
   </div>
 </div>

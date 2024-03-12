@@ -4,6 +4,8 @@ import "src/_test_utilities/consoleMock";
 import { render, screen } from "src/_test_utilities/test-utils";
 import ModelPropertiesHeader, { DATA_TEST_ID } from "./ModelPropertiesHeader";
 import userEvent from "@testing-library/user-event";
+import { fakeModel, getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { within } from "@testing-library/react";
 
 describe("ModelPropertiesHeader", () => {
   beforeEach(() => {
@@ -12,20 +14,30 @@ describe("ModelPropertiesHeader", () => {
   });
 
   test("should render model properties header component", () => {
-    // GIVEN the title and notifyOnClose callback function
-    const givenName = "Model Name";
+    // GIVEN a model
+    const givenModel = fakeModel;
+    // AND a notifyOnClose callback function
     const givenNotifyOnCloseCallback = jest.fn();
 
     // WHEN ModelPropertiesHeader component is rendered
-    render(<ModelPropertiesHeader name={givenName} notifyOnClose={givenNotifyOnCloseCallback} />);
+    render(<ModelPropertiesHeader model={givenModel} notifyOnClose={givenNotifyOnCloseCallback} />);
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
-    // AND specific elements to be present in the document
-    expect(screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER)).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER_TITLE)).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER_CLOSE_BUTTON)).toBeInTheDocument();
+    // AND the header to be displayed
+    const headerElement = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER);
+    expect(headerElement).toBeInTheDocument();
+    // AND the title to be displayed in the header
+    const titleElement = within(headerElement).getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER_TITLE);
+    expect(titleElement).toBeInTheDocument();
+    // AND the close icon button to be displayed in the header
+    const closeButtonElement = within(headerElement).getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER_CLOSE_BUTTON);
+    expect(closeButtonElement).toBeInTheDocument();
+    // AND the model name to be displayed in the header and be properly formatted: "model name (locale short code)"
+    const modelNameElement = within(headerElement).getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_MODEL_NAME);
+    expect(modelNameElement).toBeInTheDocument();
+    expect(modelNameElement).toHaveTextContent(`${givenModel.name} (${givenModel.locale.shortCode})`);
     // AND to match the snapshot
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER)).toMatchSnapshot();
   });
@@ -34,7 +46,7 @@ describe("ModelPropertiesHeader", () => {
     // GIVEN notifyOnClose callback function
     const givenNotifyOnCloseCallback = jest.fn();
     // AND the ModelPropertiesHeader component is rendered
-    render(<ModelPropertiesHeader name="Model Name" notifyOnClose={givenNotifyOnCloseCallback} />);
+    render(<ModelPropertiesHeader model={getOneFakeModel(1)} notifyOnClose={givenNotifyOnCloseCallback} />);
 
     // WHEN the close icon button is clicked
     await userEvent.click(screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER_CLOSE_BUTTON));
@@ -50,7 +62,7 @@ describe("ModelPropertiesHeader", () => {
       throw givenError;
     });
     // AND the ModelPropertiesHeader component is rendered with the given notifyOnClose callback
-    render(<ModelPropertiesHeader name="Model Name" notifyOnClose={givenNotifyOnCloseCallback} />);
+    render(<ModelPropertiesHeader model={getOneFakeModel(1)} notifyOnClose={givenNotifyOnCloseCallback} />);
 
     // WHEN the close icon button is clicked
     await userEvent.click(screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER_CLOSE_BUTTON));
@@ -62,7 +74,7 @@ describe("ModelPropertiesHeader", () => {
   test("should catch the error and log it when the parent's notifyOnClose was not given", async () => {
     // GIVEN the ModelPropertiesHeader component is rendered without a notifyOnClose callback
     // @ts-ignore
-    render(<ModelPropertiesHeader name="Model Name" />);
+    render(<ModelPropertiesHeader model={getOneFakeModel(1)} notifyOnClose={null} />);
 
     // WHEN the close icon button is clicked
     await userEvent.click(screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_HEADER_CLOSE_BUTTON));

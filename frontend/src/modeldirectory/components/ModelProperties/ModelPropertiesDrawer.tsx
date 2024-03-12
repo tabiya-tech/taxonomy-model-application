@@ -54,12 +54,7 @@ function ModelPropertiesDrawer(props: Readonly<ModelPropertiesDrawerProps>) {
     >
       <div style={{ height: "100%", width: "100%" }}>
         <ContentLayout
-          headerComponent={
-            <ModelPropertiesHeader
-              notifyOnClose={handleDismiss}
-              name={props.model !== null ? `${props.model?.name} (${props.model?.locale.shortCode})` : "Missing model"}
-            />
-          }
+          headerComponent={<ModelPropertiesHeader notifyOnClose={handleDismiss} model={props.model!} />}
           mainComponent={props.model !== null ? <ModelPropertiesContent model={props.model} /> : <></>}
         />
       </div>
