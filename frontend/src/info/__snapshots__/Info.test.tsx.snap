@@ -19,7 +19,7 @@ exports[`Testing Info component it should show frontend and backend info success
           class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
         >
           <h2
-            class="MuiTypography-root MuiTypography-h2 css-1a5e95o-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h2 css-2jbldj-MuiTypography-root"
           >
             Info
           </h2>

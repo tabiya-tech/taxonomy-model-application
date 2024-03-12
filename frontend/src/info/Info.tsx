@@ -2,9 +2,9 @@ import React, { useEffect, useState, useMemo, useContext } from "react";
 import { InfoProps } from "./info.types";
 import InfoService from "./info.service";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
-import ContentTitle from "src/theme/ContentTitle";
 import { IsOnlineContext } from "src/app/providers";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
+import HeaderTitle from "src/theme/HeaderTitle/HeaderTitle";
 
 const uniqueId = "37d307ae-4f1e-4d8d-bafe-fd642f8af4dc";
 export const DATA_TEST_ID = {
@@ -71,7 +71,7 @@ const Info = () => {
 export default Info;
 
 const ApplicationInfoHeader = () => {
-  return <ContentTitle text="Info" />;
+  return <HeaderTitle>Info</HeaderTitle>;
 };
 
 const ApplicationInfoMain = (props: { versions: InfoProps[] }) => {
