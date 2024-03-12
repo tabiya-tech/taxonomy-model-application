@@ -39,7 +39,7 @@ const ExportTimelineItem: React.FC<ExportTimelineItemProps> = (props) => {
         data-testid={DATA_TEST_ID.EXPORT_TIMELINE_OPPOSITE_CONTENT}
         sx={{ maxWidth: "fit-content", flex: 0.5, padding: 0, paddingRight: (theme) => theme.tabiyaSpacing.md }}
       >
-        <Typography variant={"body2"} data-testid={DATA_TEST_ID.EXPORT_TIMELINE_OPPOSITE_CONTENT_CREATED_AT}>
+        <Typography variant={"body1"} data-testid={DATA_TEST_ID.EXPORT_TIMELINE_OPPOSITE_CONTENT_CREATED_AT}>
           {formatDate(props.exportProcessState.createdAt)}
         </Typography>
       </TimelineOppositeContent>

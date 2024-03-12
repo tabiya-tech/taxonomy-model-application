@@ -10,7 +10,7 @@ exports[`ExportTimelineItem renders correctly with the provided exportProcessSta
     data-testid="export-timeline-opposite-content-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
   >
     <p
-      class="MuiTypography-root MuiTypography-body2 css-1mdkfbx-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
       data-testid="export-timeline-opposite-content-created-at-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
     >
       foo-date-user-friendly-formatted

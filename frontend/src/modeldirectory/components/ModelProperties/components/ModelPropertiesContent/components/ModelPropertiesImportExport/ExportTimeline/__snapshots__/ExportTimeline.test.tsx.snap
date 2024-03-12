@@ -2,7 +2,7 @@
 
 exports[`ExportTimeline renders correctly with some exportProcessStates 1`] = `
 <ul
-  class="MuiTimeline-root MuiTimeline-positionRight css-55vwbm-MuiTimeline-root"
+  class="MuiTimeline-root MuiTimeline-positionRight css-urcpbk-MuiTimeline-root"
   data-testid="export-timeline-a5bebb18-bfb7-4393-a6b4-83cbbfcf4926"
 >
   <div

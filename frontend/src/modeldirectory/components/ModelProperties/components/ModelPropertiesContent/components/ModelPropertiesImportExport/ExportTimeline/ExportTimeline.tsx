@@ -17,7 +17,7 @@ export const DATA_TEST_ID = {
  */
 const ExportTimeline: React.FC<ExportTimelineProps> = (props) => {
   return (
-    <Timeline data-testid={DATA_TEST_ID.EXPORT_TIMELINE}>
+    <Timeline data-testid={DATA_TEST_ID.EXPORT_TIMELINE} sx={{ padding: 0 }}>
       {props.exportProcessStates.map((exportProcessState) => (
         <ExportTimelineItem exportProcessState={exportProcessState} key={exportProcessState.id} />
       ))}
