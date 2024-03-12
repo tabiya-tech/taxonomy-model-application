@@ -2,6 +2,7 @@ import React from "react";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { Timeline } from "@mui/lab";
 import ExportTimelineItem from "./components/ExportTimelineItem/ExportTimelineItem";
+import { Typography } from "@mui/material";
 
 interface ExportTimelineProps {
   exportProcessStates: ModelInfoTypes.ExportProcessState[];
@@ -18,9 +19,13 @@ export const DATA_TEST_ID = {
 const ExportTimeline: React.FC<ExportTimelineProps> = (props) => {
   return (
     <Timeline data-testid={DATA_TEST_ID.EXPORT_TIMELINE} sx={{ padding: 0 }}>
-      {props.exportProcessStates.map((exportProcessState) => (
-        <ExportTimelineItem exportProcessState={exportProcessState} key={exportProcessState.id} />
-      ))}
+      {props.exportProcessStates.length ? (
+        props.exportProcessStates.map((exportProcessState) => (
+          <ExportTimelineItem exportProcessState={exportProcessState} key={exportProcessState.id} />
+        ))
+      ) : (
+        <Typography>This model has not been exported yet.</Typography>
+      )}
     </Timeline>
   );
 };

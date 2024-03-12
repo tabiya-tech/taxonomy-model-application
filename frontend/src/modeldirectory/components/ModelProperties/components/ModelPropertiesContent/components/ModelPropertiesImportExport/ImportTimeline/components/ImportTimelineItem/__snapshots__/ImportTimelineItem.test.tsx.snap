@@ -6,7 +6,7 @@ exports[`ImportTimelineItem render tests should render with fallback text when i
   data-testid="import-timeline-item-920424ec-c21e-4673-a127-6c92451a38dc"
 >
   <div
-    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-fpd4zn-MuiTypography-root-MuiTimelineOppositeContent-root"
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-1jlt6h8-MuiTypography-root-MuiTimelineOppositeContent-root"
     data-testid="import-timeline-opposite-content-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <p
@@ -21,11 +21,11 @@ exports[`ImportTimelineItem render tests should render with fallback text when i
     data-testid="import-timeline-separator-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledGrey css-1byw538-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
       data-testid="import-timeline-dot-920424ec-c21e-4673-a127-6c92451a38dc"
     />
     <span
-      class="MuiTimelineConnector-root css-qyshmk-MuiTimelineConnector-root"
+      class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
       data-testid="import-timeline-connector-920424ec-c21e-4673-a127-6c92451a38dc"
     />
   </div>
@@ -48,7 +48,7 @@ exports[`ImportTimelineItem render tests should render with provided importProce
   data-testid="import-timeline-item-920424ec-c21e-4673-a127-6c92451a38dc"
 >
   <div
-    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-fpd4zn-MuiTypography-root-MuiTimelineOppositeContent-root"
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-1jlt6h8-MuiTypography-root-MuiTimelineOppositeContent-root"
     data-testid="import-timeline-opposite-content-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <p
@@ -63,11 +63,11 @@ exports[`ImportTimelineItem render tests should render with provided importProce
     data-testid="import-timeline-separator-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledGrey css-1byw538-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
       data-testid="import-timeline-dot-920424ec-c21e-4673-a127-6c92451a38dc"
     />
     <span
-      class="MuiTimelineConnector-root css-qyshmk-MuiTimelineConnector-root"
+      class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
       data-testid="import-timeline-connector-920424ec-c21e-4673-a127-6c92451a38dc"
     />
   </div>
