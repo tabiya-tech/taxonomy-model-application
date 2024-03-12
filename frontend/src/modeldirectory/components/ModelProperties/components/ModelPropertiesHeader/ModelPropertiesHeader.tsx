@@ -3,9 +3,10 @@ import { Box, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import HeaderTitle from "src/theme/HeaderTitle/HeaderTitle";
 import PrimaryIconButton from "src/theme/PrimaryIconButton/PrimaryIconButton";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 
 export interface ModelPropertiesHeaderProps {
-  name: string;
+  model: ModelInfoTypes.ModelInfo;
   notifyOnClose: () => void;
 }
 
@@ -61,7 +62,7 @@ const ModelPropertiesHeader: React.FC<ModelPropertiesHeaderProps> = (props: Read
         }}
       >
         <Typography variant="subtitle1" data-testid={DATA_TEST_ID.MODEL_PROPERTIES_MODEL_NAME}>
-          {props.name}
+          {props.model.name} ({props.model.locale.shortCode})
         </Typography>
       </Box>
     </Box>

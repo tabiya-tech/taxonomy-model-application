@@ -77,27 +77,31 @@ describe("ModelPropertiesDrawer component render tests", () => {
   });
 
   test("should render the drawer when 'isOpen' is true", () => {
-    // GIVEN the ModelPropertiesDrawer is called with the 'isOpen' prop as true
+    // GIVEN that a model is provided
+    // AND a notifyOnClose callback function
+    const notifyOnClose = jest.fn();
     // WHEN the ModelPropertiesDrawer component is rendered
-    render(<ModelPropertiesDrawer model={testModel} isOpen={true} notifyOnClose={jest.fn()} />);
-    // THEN the drawer should be in the document
+    render(<ModelPropertiesDrawer model={testModel} isOpen={true} notifyOnClose={notifyOnClose} />);
+
+    // THEN expect the drawer to be in the displayed
     const modelPropertiesDrawerComponent = screen.getByTestId(
       MODEL_PROPERTIES_DRAWER_DATA_TEST_ID.MODEL_PROPERTIES_DRAWER
     );
     expect(modelPropertiesDrawerComponent).toBeInTheDocument();
-    // AND the header should be in the document
+    // AND the header to be displayed with the correct information
     const modelPropertiesHeaderComponent = screen.getByTestId(
       MODEL_PROPERTIES_HEADER_DATA_TEST_ID.MODEL_PROPERTIES_HEADER
     );
     expect(modelPropertiesHeaderComponent).toBeInTheDocument();
-    // AND the content should be in the document
+    expect(ModelPropertiesHeader).toHaveBeenCalledWith({ model: testModel, notifyOnClose: expect.any(Function) }, {});
+    // AND the content to be displayed
     const modelPropertiesContentComponent = screen.getByTestId(
       MODEL_PROPERTIES_CONTENT_DATA_TEST_ID.MODEL_PROPERTIES_CONTENT
     );
     expect(modelPropertiesContentComponent).toBeInTheDocument();
-    // AND it should match the snapshot
+    // AND the snapshot to match
     expect(modelPropertiesDrawerComponent).toMatchSnapshot();
-    // AND no errors are logged to the console
+    // AND no errors or warnings to have occurred
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
   });
@@ -111,27 +115,6 @@ describe("ModelPropertiesDrawer component render tests", () => {
       MODEL_PROPERTIES_DRAWER_DATA_TEST_ID.MODEL_PROPERTIES_DRAWER
     );
     expect(modelPropertiesDrawerComponent).not.toBeInTheDocument();
-    // AND no errors are logged to the console
-    expect(console.error).not.toHaveBeenCalled();
-    expect(console.warn).not.toHaveBeenCalled();
-  });
-
-  test("should call the header component with the appropriate props", () => {
-    // GIVEN the ModelPropertiesDrawer is called with the 'isOpen' prop as true
-    // WHEN the ModelPropertiesDrawer component is rendered
-    render(<ModelPropertiesDrawer model={testModel} isOpen={true} notifyOnClose={jest.fn()} />);
-    // THEN the header should have been called with the expected props
-    const modelPropertiesHeaderComponent = screen.getByTestId(
-      MODEL_PROPERTIES_HEADER_DATA_TEST_ID.MODEL_PROPERTIES_HEADER
-    );
-    expect(modelPropertiesHeaderComponent).toBeInTheDocument();
-    expect(ModelPropertiesHeader).toHaveBeenCalledWith(
-      {
-        name: `${testModel.name} (${testModel.locale.shortCode})`,
-        notifyOnClose: expect.any(Function),
-      },
-      {}
-    );
     // AND no errors are logged to the console
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
