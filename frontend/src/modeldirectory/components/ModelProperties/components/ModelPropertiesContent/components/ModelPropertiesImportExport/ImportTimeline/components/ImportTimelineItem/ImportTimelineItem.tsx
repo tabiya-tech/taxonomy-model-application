@@ -40,7 +40,7 @@ const ImportTimelineItem: React.FC<ImportTimelineItemProps> = (props: Readonly<I
     <TimelineItem data-testid={DATA_TEST_ID.IMPORT_TIMELINE_ITEM}>
       <TimelineOppositeContent
         data-testid={DATA_TEST_ID.IMPORT_TIMELINE_OPPOSITE_CONTENT}
-        sx={{ maxWidth: "fit-content", flex: 0.5, padding: 0, paddingRight: (theme) => theme.tabiyaSpacing.md }}
+        sx={{ maxWidth: "35%", padding: 0, paddingRight: (theme) => theme.tabiyaSpacing.md }}
       >
         {props.importProcessState.createdAt ? (
           <Typography
@@ -57,8 +57,8 @@ const ImportTimelineItem: React.FC<ImportTimelineItemProps> = (props: Readonly<I
         )}
       </TimelineOppositeContent>
       <TimelineSeparator data-testid={DATA_TEST_ID.IMPORT_TIMELINE_SEPARATOR}>
-        <TimelineDot data-testid={DATA_TEST_ID.IMPORT_TIMELINE_DOT} />
-        <TimelineConnector data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONNECTOR} />
+        <TimelineDot data-testid={DATA_TEST_ID.IMPORT_TIMELINE_DOT} color={"primary"} sx={{ margin: 0}}/>
+        <TimelineConnector data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONNECTOR} sx={{backgroundColor: (theme) => theme.palette.primary.main}} />
       </TimelineSeparator>
       <TimelineContent data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONTENT}>
         <ImportProcessStateContent importProcessState={props.importProcessState} />

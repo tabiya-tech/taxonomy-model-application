@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ExportTimelineItem renders correctly with the provided exportProcessState 1`] = `
+exports[`ExportTimelineItem renders correctly when the exportProcessState doesnt have a downloadUrl 1`] = `
 <li
   class="MuiTimelineItem-root MuiTimelineItem-positionRight css-ny8qih-MuiTimelineItem-root"
   data-testid="export-timeline-item-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
 >
   <div
-    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-fpd4zn-MuiTypography-root-MuiTimelineOppositeContent-root"
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-189t2ml-MuiTypography-root-MuiTimelineOppositeContent-root"
     data-testid="export-timeline-opposite-content-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
   >
     <p
-      class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body1 css-ghakyl-MuiTypography-root"
       data-testid="export-timeline-opposite-content-created-at-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
     >
       foo-date-user-friendly-formatted
@@ -21,11 +21,81 @@ exports[`ExportTimelineItem renders correctly with the provided exportProcessSta
     data-testid="export-timeline-separator-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledGrey css-1byw538-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
       data-testid="export-timeline-dot-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
     />
     <span
-      class="MuiTimelineConnector-root css-qyshmk-MuiTimelineConnector-root"
+      class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+      data-testid="export-timeline-connector-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-p3xido-MuiTypography-root-MuiTimelineContent-root"
+    data-testid="export-timeline-content-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+  >
+    <div
+      data-testid="export-process-state-content"
+    >
+      ExportProcessStateContent
+    </div>
+  </div>
+</li>
+`;
+
+exports[`ExportTimelineItem renders correctly with the provided exportProcessState 1`] = `
+<li
+  class="MuiTimelineItem-root MuiTimelineItem-positionRight css-ny8qih-MuiTimelineItem-root"
+  data-testid="export-timeline-item-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+>
+  <div
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-189t2ml-MuiTypography-root-MuiTimelineOppositeContent-root"
+    data-testid="export-timeline-opposite-content-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+  >
+    <p
+      class="MuiTypography-root MuiTypography-body1 css-ghakyl-MuiTypography-root"
+      data-testid="export-timeline-opposite-content-created-at-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+    >
+      foo-date-user-friendly-formatted
+    </p>
+    <a
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-aqwr9w-MuiButtonBase-root-MuiIconButton-root"
+      data-testid="download-model-button-1623572c-456c-419e-9201-3c4971406fe1"
+      download="https://www.example.com/"
+      href="https://www.example.com/"
+      tabindex="0"
+      title="Download"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-dy5dri-MuiSvgIcon-root"
+        data-testid="FileDownloadIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
+        />
+      </svg>
+      <span
+        class="MuiTypography-root MuiTypography-caption css-1w1i5dg-MuiTypography-root"
+      >
+        Download
+      </span>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </a>
+  </div>
+  <div
+    class="MuiTimelineSeparator-root css-1fe7e6p-MuiTimelineSeparator-root"
+    data-testid="export-timeline-separator-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+  >
+    <span
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
+      data-testid="export-timeline-dot-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+    />
+    <span
+      class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
       data-testid="export-timeline-connector-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
     />
   </div>

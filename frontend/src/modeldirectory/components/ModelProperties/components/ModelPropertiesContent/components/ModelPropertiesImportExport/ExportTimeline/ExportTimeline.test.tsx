@@ -44,4 +44,20 @@ describe("ExportTimeline", () => {
     // AND to match the snapshot
     expect(timeline).toMatchSnapshot();
   });
+  test("renders correctly with no exportProcessStates", () => {
+    // WHEN the ImportTimeline component is rendered with no import process state
+    render(<ExportTimeline exportProcessStates={[]} />);
+
+    // THEN expect no errors or warnings to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the timeline to be shown
+    const timeline = screen.getByTestId(EXPORT_TIMELINE_DATA_TEST_ID.EXPORT_TIMELINE);
+    expect(timeline).toBeInTheDocument();
+    // AND the no exportProcessStates message to be shown
+    const noExportProcessStatesMessage = screen.getByText("This model has not been exported yet.");
+    expect(noExportProcessStatesMessage).toBeInTheDocument();
+    // AND to match the snapshot
+    expect(timeline).toMatchSnapshot();
+  });
 });
