@@ -7,7 +7,6 @@ import {
   testSchemaWithValidObject,
   testStringField,
   testTimestampField,
-  testUUIDArray,
   testUUIDField,
   testURIField,
   testArraySchemaFailureWithValidObject,
@@ -19,6 +18,9 @@ import {
   getStdTimestampFieldTestCases,
   getStdURIFieldTestCases,
   getStdEnumTestCases,
+  getStdUUIDTestCases,
+  getStdNonEmptyStringTestCases,
+  getStdStringTestCases,
 } from "_test_utilities/stdSchemaTestCases";
 import ModelInfoAPISpecs from "./index";
 import { getTestString } from "_test_utilities/specialCharacters";
@@ -67,10 +69,19 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+
+  const givenmodelHistory = {
+    id: getMockId(1),
+    UUID: randomUUID(),
+    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+    localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+  };
+
   const givenValidModelInfoGETResponse = {
     id: getMockId(1),
     UUID: randomUUID(),
-    UUIDHistory: [randomUUID()],
+    modelHistory: [givenmodelHistory],
     path: "https://path/to/tabiya",
     tabiyaPath: "https://path/to/tabiya",
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -203,15 +214,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
       );
     });
 
-    describe("Test validation of 'UUIDHistory'", () => {
-      testUUIDArray<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "UUIDHistory",
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload],
-        false
-      );
-    });
-
     describe("Test validation of 'locale'", () => {
       const validLocale = {
         name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -219,6 +221,186 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       };
       testRefSchemaField("locale", givenSchema, validLocale, LocaleAPISpecs.Schemas.Payload);
+    });
+
+    describe("Test validation of 'modelHistory'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'modelHistory'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/modelHistory", "type", "must be array")],
+        [CaseType.Failure, "empty string", "", constructSchemaError("/modelHistory", "type", "must be array")],
+        [
+          CaseType.Failure,
+          "an array of strings",
+          ["foo", "bar"],
+          [
+            constructSchemaError("/modelHistory/0", "type", "must be object"),
+            constructSchemaError("/modelHistory/1", "type", "must be object"),
+          ],
+        ],
+        [
+          CaseType.Failure,
+          "an valid modelHistory object",
+          {
+            UUID: randomUUID(),
+            name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+            version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+            localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+          },
+          constructSchemaError("/modelHistory", "type", "must be array"),
+        ],
+        [
+          CaseType.Success,
+          "an array of valid modelHistory objects",
+          [
+            {
+              UUID: randomUUID(),
+              name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+              version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+              localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+            },
+          ],
+          undefined,
+        ],
+      ])("(%s) Validate 'modelHistory' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        // GIVEN an object with the given value
+        const givenObject = {
+          modelHistory: givenValue,
+        };
+        // THEN expect the object to validate accordingly
+        assertCaseForProperty("modelHistory", givenObject, givenSchema, caseType, failureMessages, [
+          LocaleAPISpecs.Schemas.Payload,
+        ]);
+      });
+    });
+
+    describe("Test validation of modelHistory fields", () => {
+      describe("Test validation of 'modelHistory/id'", () => {
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdObjectIdTestCases("/modelHistory/0/id").filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
+          "(%s) Validate 'id' when it is %s",
+          (caseType, _description, givenValue, failureMessages) => {
+            //   GIVEN an object with the given value
+            const givenObject = {
+              modelHistory: [
+                {
+                  id: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty("/modelHistory/0/id", givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
+          }
+        );
+      });
+
+      describe("Test validation of 'modelHistory/UUID'", () => {
+        test.each([...getStdUUIDTestCases("/modelHistory/0/UUID")])(
+          `(%s) Validate 'UUID' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            const givenObject = {
+              modelHistory: [
+                {
+                  UUID: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty("/modelHistory/0/UUID", givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
+          }
+        );
+      });
+
+      describe("Test validation of 'modelHistory/name'", () => {
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdNonEmptyStringTestCases(
+          "/modelHistory/0/name",
+          ModelInfoConstants.NAME_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
+          `(%s) Validate 'name' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            const givenObject = {
+              modelHistory: [
+                {
+                  name: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty("/modelHistory/0/name", givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
+          }
+        );
+      });
+
+      describe("Test validation of 'modelHistory/version'", () => {
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdStringTestCases(
+          "/modelHistory/0/version",
+          ModelInfoConstants.VERSION_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
+          `(%s) Validate 'version' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            //@ts-ignore
+            const givenObject = {
+              modelHistory: [
+                {
+                  version: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty("/modelHistory/0/version", givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
+          }
+        );
+      });
+
+      describe("Test validation of 'modelHistory/localeShortCode'", () => {
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdNonEmptyStringTestCases(
+          "/modelHistory/0/localeShortCode",
+          LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
+          "(%s) Validate 'localeShortCode' when it is %s",
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            const givenObject = {
+              modelHistory: [
+                {
+                  localeShortCode: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/modelHistory/0/localeShortCode",
+              givenObject,
+              givenSchema,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
+      });
     });
 
     describe("Test validation of 'exportProcessState'", () => {
@@ -536,59 +718,45 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
           // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
           // in this case, since the createdAt field can be undefined we filter out the "undefined" case
           // and override it with our own case
-          ...(getStdTimestampFieldTestCases("/importProcessState/createdAt").filter(testCase => testCase[1] !== "undefined")),
+          ...getStdTimestampFieldTestCases("/importProcessState/createdAt").filter(
+            (testCase) => testCase[1] !== "undefined"
+          ),
           [CaseType.Success, "undefined", undefined, undefined],
-        ])(
-          `(%s) Validate createdAt when it is %s`,
-          (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
-            const givenObject = {
-              importProcessState: {
-                createdAt: givenValue,
-              },
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
-              "/importProcessState/createdAt",
-              givenObject,
-              givenSchema,
-              caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
-            );
-          }
-        );
+        ])(`(%s) Validate createdAt when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+          // GIVEN an object with the given value
+          const givenObject = {
+            importProcessState: {
+              createdAt: givenValue,
+            },
+          };
+          // THEN expect the object to validate accordingly
+          assertCaseForProperty("/importProcessState/createdAt", givenObject, givenSchema, caseType, failureMessages, [
+            LocaleAPISpecs.Schemas.Payload,
+          ]);
+        });
       });
 
       describe("Test validation of 'importProcessState/updatedAt'", () => {
-        test.each(
-          [
-            // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
-            // in this case, since the updatedAt field can be undefined, we filter out the "undefined" case
-            // and override them with our own cases
-            ...(getStdTimestampFieldTestCases("/importProcessState/updatedAt").filter(testCase => testCase[1] !== "undefined")),
-            [CaseType.Success, "undefined", undefined, undefined]
-          ]
-        )(
-          `(%s) Validate createdAt when it is %s`,
-          (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
-            const givenObject = {
-              importProcessState: {
-                updatedAt: givenValue,
-              },
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
-              "/importProcessState/updatedAt",
-              givenObject,
-              givenSchema,
-              caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
-            );
-          }
-        );
+        test.each([
+          // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
+          // in this case, since the updatedAt field can be undefined, we filter out the "undefined" case
+          // and override them with our own cases
+          ...getStdTimestampFieldTestCases("/importProcessState/updatedAt").filter(
+            (testCase) => testCase[1] !== "undefined"
+          ),
+          [CaseType.Success, "undefined", undefined, undefined],
+        ])(`(%s) Validate createdAt when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+          // GIVEN an object with the given value
+          const givenObject = {
+            importProcessState: {
+              updatedAt: givenValue,
+            },
+          };
+          // THEN expect the object to validate accordingly
+          assertCaseForProperty("/importProcessState/updatedAt", givenObject, givenSchema, caseType, failureMessages, [
+            LocaleAPISpecs.Schemas.Payload,
+          ]);
+        });
       });
     });
   });

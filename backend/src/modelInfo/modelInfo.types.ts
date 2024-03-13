@@ -29,9 +29,10 @@ export interface IModelInfoDoc {
 /**
  * Describes how a model info is returned from the API
  */
-export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProcessState" | "exportProcessState"> {
+export interface IModelInfo extends Omit<IModelInfoDoc, "importProcessState" | "UUIDHistory"> {
   id: string;
   name: string;
+  UUIDHistory: string[];
   exportProcessState: {
     id: string;
     status: ExportProcessStateApiSpecs.Enums.Status;
@@ -64,3 +65,15 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProce
  * Describe how a new model info is created with the API
  */
 export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "description" | "UUIDHistory">;
+
+/**
+ * Describes how a reference to a model is returned from the API
+ */
+
+export interface IModelInfoReference {
+  id: string | null;
+  UUID: string;
+  name: string | null;
+  localeShortCode: string | null;
+  version: string | null;
+}

@@ -8,11 +8,9 @@ import {
   TimelineOppositeContent,
   TimelineSeparator,
 } from "@mui/lab";
-import {Typography, useTheme} from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 import ExportProcessStateContent from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/components/ExportProcessStateContent/ExportProcessStateContent";
-import {
-  formatDate
-} from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/userFriendlyDateFormat";
+import { formatDate } from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/userFriendlyDateFormat";
 import DownloadModelButton from "src/modeldirectory/components/DownloadModelButton/DownloadModelButton";
 
 interface ExportTimelineItemProps {
@@ -45,18 +43,23 @@ const ExportTimelineItem: React.FC<ExportTimelineItemProps> = (props) => {
         gap={theme.tabiyaSpacing.md}
         sx={{ maxWidth: "35%", padding: 0, paddingRight: theme.tabiyaSpacing.md }}
       >
-        <Typography variant={"body1"} data-testid={DATA_TEST_ID.EXPORT_TIMELINE_OPPOSITE_CONTENT_CREATED_AT} sx={{ textAlign: "start" }}>
+        <Typography
+          variant={"body1"}
+          data-testid={DATA_TEST_ID.EXPORT_TIMELINE_OPPOSITE_CONTENT_CREATED_AT}
+          sx={{ textAlign: "start" }}
+        >
           {formatDate(props.exportProcessState.createdAt)}
         </Typography>
-        {
-          props.exportProcessState.downloadUrl && (
-            <DownloadModelButton downloadUrl={props.exportProcessState.downloadUrl} />
-          )
-        }
+        {props.exportProcessState.downloadUrl && (
+          <DownloadModelButton downloadUrl={props.exportProcessState.downloadUrl} />
+        )}
       </TimelineOppositeContent>
       <TimelineSeparator data-testid={DATA_TEST_ID.EXPORT_TIMELINE_SEPARATOR}>
-        <TimelineDot data-testid={DATA_TEST_ID.EXPORT_TIMELINE_DOT} color={"primary"} sx={{ margin: 0}}/>
-        <TimelineConnector data-testid={DATA_TEST_ID.EXPORT_TIMELINE_CONNECTOR} sx={{backgroundColor: theme.palette.primary.main}} />
+        <TimelineDot data-testid={DATA_TEST_ID.EXPORT_TIMELINE_DOT} color={"primary"} sx={{ margin: 0 }} />
+        <TimelineConnector
+          data-testid={DATA_TEST_ID.EXPORT_TIMELINE_CONNECTOR}
+          sx={{ backgroundColor: theme.palette.primary.main }}
+        />
       </TimelineSeparator>
       <TimelineContent data-testid={DATA_TEST_ID.EXPORT_TIMELINE_CONTENT}>
         <ExportProcessStateContent exportProcessState={props.exportProcessState} />

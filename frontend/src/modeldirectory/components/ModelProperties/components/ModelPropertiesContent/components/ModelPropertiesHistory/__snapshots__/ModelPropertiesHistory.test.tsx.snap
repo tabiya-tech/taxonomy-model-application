@@ -23,5 +23,27 @@ exports[`ModelPropertiesHistory should render correctly with the provided model 
       Last Update
     </span>
   </div>
+  <div
+    class="MuiBox-root css-1ofqig9"
+  >
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="uuid-history-08e457ca-63fa-4a92-b5fa-729a444ab827"
+      tabindex="0"
+    >
+      Model History
+    </h6>
+    <div
+      aria-labelledby="uuid-history-08e457ca-63fa-4a92-b5fa-729a444ab827"
+      class="MuiBox-root css-taz3go"
+    >
+      <div
+        data-testid="uuid-history-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+      >
+        Mock UUIDHistoryTimeline
+      </div>
+    </div>
+  </div>
 </div>
 `;

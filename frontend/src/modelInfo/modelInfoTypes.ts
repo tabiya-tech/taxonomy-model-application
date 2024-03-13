@@ -34,10 +34,18 @@ export namespace ModelInfoTypes {
     updatedAt: Date;
   };
 
+  export type ModelHistory = {
+    id: string | null;
+    UUID: string;
+    name: string | null;
+    version: string | null;
+    localeShortCode: string | null;
+  };
+
   export type ModelInfo = {
     id: string;
     UUID: string;
-    UUIDHistory: string[];
+    modelHistory: ModelHistory[];
     released: boolean;
     releaseNotes: string;
     version: string;
