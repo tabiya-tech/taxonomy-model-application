@@ -43,8 +43,44 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "UUIDHistory": {
                 "description": "The UUIDs history of the model.",
                 "items": {
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                  "type": "string",
+                  "additionalProperties": false,
+                  "properties": {
+                    "UUID": {
+                      "description": "The UUID of the model.",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "id": {
+                      "description": "The identifier of the specific model.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": "string",
+                    },
+                    "localeShortCode": {
+                      "description": "The short code of the locale",
+                      "maxLength": 3,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                    "name": {
+                      "description": "The name of the model.",
+                      "maxLength": 256,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                    "version": {
+                      "description": "The version of the model.",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "UUID",
+                    "name",
+                    "version",
+                    "localeShortCode",
+                  ],
+                  "type": "object",
                 },
                 "minItems": 1,
                 "type": "array",
@@ -323,8 +359,44 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "UUIDHistory": {
               "description": "The UUIDs history of the model.",
               "items": {
-                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                "type": "string",
+                "additionalProperties": false,
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the model.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The identifier of the specific model.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "localeShortCode": {
+                    "description": "The short code of the locale",
+                    "maxLength": 3,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "name": {
+                    "description": "The name of the model.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "version": {
+                    "description": "The version of the model.",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "name",
+                  "version",
+                  "localeShortCode",
+                ],
+                "type": "object",
               },
               "minItems": 1,
               "type": "array",

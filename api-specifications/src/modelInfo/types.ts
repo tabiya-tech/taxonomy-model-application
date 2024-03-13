@@ -3,10 +3,19 @@ import ImportProcessState from "../importProcessState";
 import ExportProcessState from "../exportProcessState";
 // Have a common supertype for all the responses to inherit from
 // These types are hidden because they should only be referenced through the index.
-interface IModelInfoResponse extends IModelInfoRequest {
+interface IModelInfoResponse {
   id: string;
   UUID: string;
-  UUIDHistory: string[];
+  UUIDHistory: {
+    id: string,
+    UUID: string;
+    name: string;
+    version: string;
+    localeShortCode: string;
+  }[];
+  name: string;
+  description: string;
+  locale: Locale.Types.Payload;
   path: string;
   tabiyaPath: string;
   released: boolean;
