@@ -29,21 +29,23 @@ jest.mock(
   }
 );
 
-jest.mock("src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/ExportTimeline", () => {
-  const actualExportTimeline = jest.requireActual(
-    "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/ExportTimeline"
-  );
-  const mockExportTimeline = jest
-    .fn()
-    .mockImplementation(() => (
-      <div data-testid={actualExportTimeline.DATA_TEST_ID.EXPORT_TIMELINE}>ExportTimeline</div>
-    ));
-  return {
-    ...actualExportTimeline,
-    __esModule: true,
-    default: mockExportTimeline,
-  };
-}
+jest.mock(
+  "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/ExportTimeline",
+  () => {
+    const actualExportTimeline = jest.requireActual(
+      "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/ExportTimeline"
+    );
+    const mockExportTimeline = jest
+      .fn()
+      .mockImplementation(() => (
+        <div data-testid={actualExportTimeline.DATA_TEST_ID.EXPORT_TIMELINE}>ExportTimeline</div>
+      ));
+    return {
+      ...actualExportTimeline,
+      __esModule: true,
+      default: mockExportTimeline,
+    };
+  }
 );
 
 describe("ModelPropertiesImportExport", () => {

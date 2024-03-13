@@ -43,14 +43,14 @@ const ExportProcessStateContent: React.FC<ExportProcessStateContentProps> = (
     >
       <ExportStatusPropertyField
         exportProcessState={props.exportProcessState}
-        fieldId={FIELD_ID.EXPORT_STATUS_FIELD+"-"+props.exportProcessState.id}
+        fieldId={FIELD_ID.EXPORT_STATUS_FIELD + "-" + props.exportProcessState.id}
         data-testid={DATA_TEST_ID.EXPORT_STATUS_FIELD}
       />
       <DurationPropertyField
         label="Duration"
         firstDate={props.exportProcessState.createdAt}
         secondDate={props.exportProcessState.updatedAt}
-        fieldId={FIELD_ID.EXPORT_DURATION_FIELD+"-"+props.exportProcessState.id}
+        fieldId={FIELD_ID.EXPORT_DURATION_FIELD + "-" + props.exportProcessState.id}
         data-testid={DATA_TEST_ID.EXPORT_DURATION_FIELD}
       />
     </Box>

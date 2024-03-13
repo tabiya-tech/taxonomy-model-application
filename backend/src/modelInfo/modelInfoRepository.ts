@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { IModelInfo, IModelInfoDoc, INewModelInfoSpec } from "./modelInfo.types";
+import { IModelInfo, IModelInfoDoc, IModelInfoReference, INewModelInfoSpec } from "./modelInfo.types";
 import { populateImportProcessStateOptions } from "./populateImportProcessStateOptions";
 import { populateExportProcessStateOptions } from "./populateExportProcessStateOptions";
 
@@ -41,6 +41,14 @@ export interface IModelRepository {
    * Rejects with an error if the operation fails.
    */
   getModels(): Promise<IModelInfo[]>;
+
+  /**
+   * Get UUIDHistory for a model.
+   *
+   * @return {Promise<IModelInfoReference[]>} - A promise that resolves to an array with the UUIDHistory for the model. if the model does not exist it returns an empty array
+   * @param uuids - The UUIDs to resolve, if the uuid does not exist we return an object with that uuid, and null for the rest of the fields
+   */
+  getHistory(uuids: string[]): Promise<IModelInfoReference[]>;
 }
 
 export class ModelRepository implements IModelRepository {
@@ -114,6 +122,52 @@ export class ModelRepository implements IModelRepository {
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {
       const err = new Error("ModelInfoRepository.getModels: getModels failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async getHistory(uuids: string[]): Promise<IModelInfoReference[]> {
+    try {
+      // Turns out mongoose adds the $in operator automatically, and fails for string fields if we try to use $in
+      const modelsFromDb = await this.Model.find(
+        { UUID: uuids },
+        {
+          UUID: 1,
+          name: 1,
+          version: 1,
+          locale: 1,
+          _id: 1,
+        }
+      ).exec();
+
+      // Create a map of UUIDs to models for easy lookup
+      const modelsMap = new Map(modelsFromDb.map((model) => [model.UUID, model]));
+
+      return uuids.map((uuid) => {
+        const model = modelsMap.get(uuid);
+        if (model) {
+          return {
+            id: model._id.toString(),
+            UUID: model.UUID,
+            name: model.name,
+            version: model.version,
+            localeShortCode: model.locale.shortCode,
+          };
+        } else {
+          // Return null values for UUIDs not found in the database
+          return {
+            id: null,
+            UUID: uuid,
+            name: null,
+            version: null,
+            localeShortCode: null,
+          };
+        }
+      });
+    } catch (e) {
+      // Handle any errors
+      const err = new Error("ModelInfoRepository.getUUIDHistory: getUUIDHistory failed", { cause: e });
       console.error(err);
       throw err;
     }

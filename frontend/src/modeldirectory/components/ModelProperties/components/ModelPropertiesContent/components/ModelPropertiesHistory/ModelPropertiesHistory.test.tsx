@@ -5,6 +5,7 @@ import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utili
 import { render, screen } from "src/_test_utilities/test-utils";
 import ModelPropertiesHistory, { DATA_TEST_ID, FIELD_LABEL_TEXT } from "./ModelPropertiesHistory";
 import FormattedDatePropertyField from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDatePropertyField";
+import { DATA_TEST_ID as UUIDHistoryTimelineDataTestId } from "./UUIDHistoryTimeline/ModelHistoryTimeline";
 import * as React from "react";
 //mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDatePropertyField", () => {
@@ -23,6 +24,18 @@ jest.mock("src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDat
   return {
     __esModule: true,
     default: mockFormattedDatePropertyField,
+  };
+});
+
+//mock the ModelHistoryTimeline component
+jest.mock("./UUIDHistoryTimeline/ModelHistoryTimeline", () => {
+  const actual = jest.requireActual("./UUIDHistoryTimeline/ModelHistoryTimeline");
+  return {
+    __esModule: true,
+    ...actual,
+    default: jest.fn().mockImplementation(() => {
+      return <div data-testid={actual.DATA_TEST_ID.UUID_HISTORY_TIMELINE}>Mock UUIDHistoryTimeline</div>;
+    }),
   };
 });
 describe("ModelPropertiesHistory", () => {
@@ -67,6 +80,16 @@ describe("ModelPropertiesHistory", () => {
         date: givenModel.updatedAt,
         label: FIELD_LABEL_TEXT.LAST_UPDATE,
         fieldId: expect.any(String),
+      },
+      {}
+    );
+    // AND the ModelHistoryTimeline to be shown
+    const actualUUIDHistoryTimeline = screen.getByTestId(UUIDHistoryTimelineDataTestId.UUID_HISTORY_TIMELINE);
+    expect(actualUUIDHistoryTimeline).toBeInTheDocument();
+    // AND it was called with the model's modelHistory property
+    expect(require("./UUIDHistoryTimeline/ModelHistoryTimeline").default).toHaveBeenCalledWith(
+      {
+        UUIDHistoryDetails: givenModel.modelHistory,
       },
       {}
     );

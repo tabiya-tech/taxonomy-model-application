@@ -108,7 +108,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const actualNewModel = await repository.create(givenNewModelInfoSpec);
 
       // THEN expect the new modelInfo to be created with the specific attributes
-      const expectedNewModelInfo: IModelInfo = {
+      const expectedNewModelInfo = {
         ...givenNewModelInfoSpec,
         id: expect.any(String),
         UUID: expect.any(String),
@@ -142,7 +142,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const actualNewModel = await repository.create(givenNewModelInfoSpec);
 
       // THEN expect the new modelInfo to be created with the specific attributes
-      const expectedNewModelInfo: IModelInfo = {
+      const expectedNewModelInfo = {
         ...givenNewModelInfoSpec,
         id: expect.any(String),
         UUID: expect.any(String),
@@ -336,6 +336,70 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup((repository) => {
       return repository.modelInfo.getModels();
+    });
+  });
+
+  describe("Test getHistory()", () => {
+    test("should return the detailed UUIDHistory of a model", async () => {
+      // GIVEN a model exists in the database
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // AND a target model with the given model in its uuid history
+      const givenTargetModel = await repository.create(getNewModelInfoSpec());
+      // AND the target has its own UUID in its UUIDHistory
+      // AND the target has the given model in its UUIDHistory
+      // AND the target model has a random UUID in its UUIDHistory
+      // AND the target model has a uuid that is not the current UUID of a model even if it exists in its history array
+      givenTargetModel.UUIDHistory = [
+        givenTargetModel.UUID,
+        givenExistingModel.UUID,
+        randomUUID(),
+        givenExistingModel.UUIDHistory[givenExistingModel.UUIDHistory.length - 1],
+      ];
+
+      // WHEN we retrieve the UUIDHistory of the model
+      const actualUUIDHistory = await repository.getHistory(givenTargetModel.UUIDHistory);
+
+      // THEN expect the UUIDHistory to have the details for the target model and the given model
+      const expectedUUIDHistory = [
+        // the UUID of the target itself model
+        {
+          id: givenTargetModel.id,
+          UUID: givenTargetModel.UUID,
+          name: givenTargetModel.name,
+          localeShortCode: givenTargetModel.locale.shortCode,
+          version: givenTargetModel.version,
+        },
+        // the UUID of the given model
+        {
+          id: givenExistingModel.id,
+          UUID: givenExistingModel.UUID,
+          name: givenExistingModel.name,
+          localeShortCode: givenExistingModel.locale.shortCode,
+          version: givenExistingModel.version,
+        },
+        // AND the randomUUID
+        {
+          id: null,
+          UUID: givenTargetModel.UUIDHistory[2],
+          name: null,
+          localeShortCode: null,
+          version: null,
+        },
+        // AND the last UUID in the history of the given model
+        {
+          id: null,
+          UUID: givenExistingModel.UUIDHistory[givenExistingModel.UUIDHistory.length - 1],
+          name: null,
+          localeShortCode: null,
+          version: null,
+        },
+      ];
+      expect(actualUUIDHistory).toEqual(expectedUUIDHistory); // order matters
+    });
+
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.getHistory([randomUUID()]);
     });
   });
 

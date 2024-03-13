@@ -97,12 +97,15 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
     locale: payload.locale,
     UUIDHistory: payload.UUIDHistory,
   };
-  let newModelInfo: IModelInfo;
+
   try {
-    newModelInfo = await getRepositoryRegistry().modelInfo.create(newModelInfoSpec);
-    return responseJSON(StatusCodes.CREATED, transform(newModelInfo, getResourcesBaseUrl()));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+    const [newModelInfo, uuidHistoryDetails] = await Promise.all([
+      await getRepositoryRegistry().modelInfo.create(newModelInfoSpec),
+      await getRepositoryRegistry().modelInfo.getHistory(newModelInfoSpec.UUIDHistory),
+    ]);
+
+    return responseJSON(StatusCodes.CREATED, transform(newModelInfo, getResourcesBaseUrl(), uuidHistoryDetails));
+  } catch (error: unknown) {
     //
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
     return errorResponse(
@@ -145,10 +148,33 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
 async function getModelInfo(event: APIGatewayProxyEvent) {
   try {
     const models: IModelInfo[] = await getRepositoryRegistry().modelInfo.getModels();
-    return responseJSON(
-      StatusCodes.OK,
-      models.map((model) => transform(model, getResourcesBaseUrl()))
-    );
+    const modelsMap = new Map(models.map((model) => [model.UUID, model]));
+
+    // map through the models and get the UUIDHistory details without hitting the DB again
+    const modelsWithDetails = models.map((model) => {
+      const uuidHistoryDetails = model.UUIDHistory.map((uuid: string) => {
+        const modelInfo = modelsMap.get(uuid);
+        if (modelInfo) {
+          return {
+            id: modelInfo.id,
+            UUID: modelInfo.UUID,
+            name: modelInfo.name,
+            version: modelInfo.version,
+            localeShortCode: modelInfo.locale.shortCode,
+          };
+        } else {
+          return {
+            id: null,
+            UUID: uuid,
+            name: null,
+            version: null,
+            localeShortCode: null,
+          };
+        }
+      });
+      return transform(model, getResourcesBaseUrl(), uuidHistoryDetails);
+    });
+    return responseJSON(StatusCodes.OK, modelsWithDetails);
   } catch (error: unknown) {
     //
     // Do not show the error message to the user as it can contain sensitive information such as DB connection string
