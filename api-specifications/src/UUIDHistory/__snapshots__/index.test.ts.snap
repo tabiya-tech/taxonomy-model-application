@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the UUIDHistory module The export module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "LOCALE_SHORTCODE_MAX_LENGTH": 3,
+    "NAME_MAX_LENGTH": 256,
+    "VERSION_MAX_LENGTH": 256,
+  },
+  "Enums": {
+    "GET": {
+      "Request": {
+        "ErrorCodes": {
+          "MODEL_COULD_NOT_VALIDATE": "MODEL_COULD_NOT_VALIDATE",
+        },
+      },
+      "Response": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_RETRIEVE_UUID_HISTORY": "DB_FAILED_TO_RETRIEVE_UUID_HISTORY",
+        },
+      },
+    },
+  },
+  "Schemas": {
+    "GET": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/UUIDHistoryRequestSchemaGET",
+          "additionalProperties": false,
+          "properties": {
+            "modelId": {
+              "description": "The identifier of the specific model.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+          },
+          "required": [
+            "modelId",
+          ],
+          "type": "object",
+        },
+      },
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/UUIHistoryResponseSchemaGET",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "UUID": {
+                "description": "The UUID of the model.",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "localeShortCode": {
+                "description": "The short code of the locale.",
+                "maxLength": 3,
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "modelId": {
+                "description": "The identifier of the specific model.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+              "name": {
+                "description": "The name of the model.",
+                "maxLength": 256,
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "version": {
+                "description": "The version of the model.",
+                "maxLength": 256,
+                "type": "string",
+              },
+            },
+            "required": [
+              "modelId",
+              "UUID",
+              "name",
+              "version",
+              "localeShortCode",
+            ],
+            "type": "object",
+          },
+          "type": "array",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;
