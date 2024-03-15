@@ -831,59 +831,45 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
           // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
           // in this case, since the createdAt field can be undefined we filter out the "undefined" case
           // and override it with our own case
-          ...(getStdTimestampFieldTestCases("/importProcessState/createdAt").filter(testCase => testCase[1] !== "undefined")),
+          ...getStdTimestampFieldTestCases("/importProcessState/createdAt").filter(
+            (testCase) => testCase[1] !== "undefined"
+          ),
           [CaseType.Success, "undefined", undefined, undefined],
-        ])(
-          `(%s) Validate createdAt when it is %s`,
-          (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
-            const givenObject = {
-              importProcessState: {
-                createdAt: givenValue,
-              },
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
-              "/importProcessState/createdAt",
-              givenObject,
-              givenSchema,
-              caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
-            );
-          }
-        );
+        ])(`(%s) Validate createdAt when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+          // GIVEN an object with the given value
+          const givenObject = {
+            importProcessState: {
+              createdAt: givenValue,
+            },
+          };
+          // THEN expect the object to validate accordingly
+          assertCaseForProperty("/importProcessState/createdAt", givenObject, givenSchema, caseType, failureMessages, [
+            LocaleAPISpecs.Schemas.Payload,
+          ]);
+        });
       });
 
       describe("Test validation of 'importProcessState/updatedAt'", () => {
-        test.each(
-          [
-            // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
-            // in this case, since the updatedAt field can be undefined, we filter out the "undefined" case
-            // and override them with our own cases
-            ...(getStdTimestampFieldTestCases("/importProcessState/updatedAt").filter(testCase => testCase[1] !== "undefined")),
-            [CaseType.Success, "undefined", undefined, undefined]
-          ]
-        )(
-          `(%s) Validate createdAt when it is %s`,
-          (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
-            const givenObject = {
-              importProcessState: {
-                updatedAt: givenValue,
-              },
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
-              "/importProcessState/updatedAt",
-              givenObject,
-              givenSchema,
-              caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
-            );
-          }
-        );
+        test.each([
+          // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
+          // in this case, since the updatedAt field can be undefined, we filter out the "undefined" case
+          // and override them with our own cases
+          ...getStdTimestampFieldTestCases("/importProcessState/updatedAt").filter(
+            (testCase) => testCase[1] !== "undefined"
+          ),
+          [CaseType.Success, "undefined", undefined, undefined],
+        ])(`(%s) Validate createdAt when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+          // GIVEN an object with the given value
+          const givenObject = {
+            importProcessState: {
+              updatedAt: givenValue,
+            },
+          };
+          // THEN expect the object to validate accordingly
+          assertCaseForProperty("/importProcessState/updatedAt", givenObject, givenSchema, caseType, failureMessages, [
+            LocaleAPISpecs.Schemas.Payload,
+          ]);
+        });
       });
     });
   });
