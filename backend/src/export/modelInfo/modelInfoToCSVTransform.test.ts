@@ -24,7 +24,15 @@ const getMockModelInfo = (i: number): IModelInfo => {
     },
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
-    UUIDHistory: [`uuid_1`, `uuid_2`],
+    UUIDHistory: [
+      {
+        id: getMockStringId(1000 + i),
+        UUID: `uuid_${i}`,
+        name: `name_${i}_${getTestString(10)}`,
+        version: `version_${i}_${getTestString(10)}`,
+        localeShortCode: `shortCode_${i}_${getTestString(10)}`,
+      },
+    ],
     name: `name_${i}_${getTestString(10)}`,
     locale: {
       UUID: `localeUUID_${i}`,
@@ -35,8 +43,8 @@ const getMockModelInfo = (i: number): IModelInfo => {
     version: `version_${i}`,
     released: true,
     releaseNotes: `releaseNotes_${i}_${getTestString(10)}`,
-    createdAt: new Date(0),  // use a fixed date to make the snapshot stable
-    updatedAt: new Date( 1),  // use a fixed date to make the snapshot stable
+    createdAt: new Date(0), // use a fixed date to make the snapshot stable
+    updatedAt: new Date(1), // use a fixed date to make the snapshot stable
   };
 };
 
@@ -90,11 +98,43 @@ describe("ModelInfosDocToCsvTransform", () => {
 
   test.each([
     ["is empty", []],
-    ["has one item", [`uuid_1`]],
-    ["has multiple items", [`uuid_1`, `uuid_2`]],
+    [
+      "has one item",
+      [
+        {
+          id: getMockStringId(1000),
+          UUID: `uuid_1`,
+          name: `name_1`,
+          version: `version_1`,
+          localeShortCode: `shortCode_1`,
+        },
+      ],
+    ],
+    [
+      "has multiple items",
+      [
+        {
+          id: getMockStringId(1000),
+          UUID: `uuid_1`,
+          name: `name_1`,
+          version: `version_1`,
+          localeShortCode: `shortCode_1`,
+        },
+        {
+          id: getMockStringId(1001),
+          UUID: `uuid_2`,
+          name: `name_2`,
+          version: `version_2`,
+          localeShortCode: `shortCode_2`,
+        },
+      ],
+    ],
   ])(
     `should correctly transform ModelInfo data to CSV when UUIDHistory %s`,
-    async (_description: string, givenUUIDHistory: string[]) => {
+    async (
+      _description: string,
+      givenUUIDHistory: { id: string; UUID: string; name: string; version: string; localeShortCode: string }[]
+    ) => {
       // GIVEN findAll returns a stream of ModelInfos
       const givenModelInfo = getMockModelInfo(2);
       givenModelInfo.UUIDHistory = givenUUIDHistory;

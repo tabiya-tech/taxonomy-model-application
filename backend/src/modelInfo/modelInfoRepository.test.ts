@@ -108,7 +108,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const actualNewModel = await repository.create(givenNewModelInfoSpec);
 
       // THEN expect the new modelInfo to be created with the specific attributes
-      const expectedNewModelInfo: IModelInfo = {
+      const expectedNewModelInfo = {
         ...givenNewModelInfoSpec,
         id: expect.any(String),
         UUID: expect.any(String),
@@ -142,7 +142,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const actualNewModel = await repository.create(givenNewModelInfoSpec);
 
       // THEN expect the new modelInfo to be created with the specific attributes
-      const expectedNewModelInfo: IModelInfo = {
+      const expectedNewModelInfo = {
         ...givenNewModelInfoSpec,
         id: expect.any(String),
         UUID: expect.any(String),
