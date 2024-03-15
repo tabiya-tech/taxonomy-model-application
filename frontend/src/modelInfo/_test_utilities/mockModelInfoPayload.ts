@@ -49,7 +49,15 @@ export namespace GET {
       return {
         id: getMockId(i),
         UUID: uuidv4(),
-        UUIDHistory: [uuidv4()],
+        UUIDHistory: [
+          {
+            id: getMockId(1000 + i),
+            UUID: uuidv4(),
+            name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+            version: getRandomString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+            localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+          },
+        ],
         name: `${i + 1}/${count} - ${getRandomLorem(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH)}`.slice(
           0,
           ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
@@ -114,7 +122,15 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
   return {
     id: getMockId(_id),
     UUID: uuidv4(),
-    UUIDHistory: [uuidv4()],
+    UUIDHistory: [
+      {
+        id: getMockId(1000 + _id),
+        UUID: uuidv4(),
+        name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        version: getRandomString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+        localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+      },
+    ],
     name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: uuidv4(),

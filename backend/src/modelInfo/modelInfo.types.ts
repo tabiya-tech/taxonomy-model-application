@@ -29,9 +29,16 @@ export interface IModelInfoDoc {
 /**
  * Describes how a model info is returned from the API
  */
-export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProcessState" | "exportProcessState"> {
+export interface IModelInfo extends Omit<IModelInfoDoc, "importProcessState" | "UUIDHistory"> {
   id: string;
   name: string;
+  UUIDHistory: {
+    id: string;
+    UUID: string;
+    name: string;
+    version: string;
+    localeShortCode: string;
+  }[];
   exportProcessState: {
     id: string;
     status: ExportProcessStateApiSpecs.Enums.Status;
