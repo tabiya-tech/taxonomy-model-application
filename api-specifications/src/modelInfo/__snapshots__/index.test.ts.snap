@@ -43,46 +43,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "UUIDHistory": {
                 "description": "The UUIDs history of the model.",
                 "items": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "UUID": {
-                      "description": "The UUID of the model.",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                      "type": "string",
-                    },
-                    "id": {
-                      "description": "The identifier of the specific model.",
-                      "pattern": "^[0-9a-f]{24}$",
-                      "type": "string",
-                    },
-                    "localeShortCode": {
-                      "description": "The short code of the locale",
-                      "maxLength": 3,
-                      "pattern": "\\S",
-                      "type": "string",
-                    },
-                    "name": {
-                      "description": "The name of the model.",
-                      "maxLength": 256,
-                      "pattern": "\\S",
-                      "type": "string",
-                    },
-                    "version": {
-                      "description": "The version of the model.",
-                      "maxLength": 256,
-                      "type": "string",
-                    },
-                  },
-                  "required": [
-                    "id",
-                    "UUID",
-                    "name",
-                    "version",
-                    "localeShortCode",
-                  ],
-                  "type": "object",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string",
                 },
-                "minItems": 1,
+                "minItems": 0,
                 "type": "array",
               },
               "createdAt": {
@@ -245,6 +209,63 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "locale": {
                 "$ref": "/components/schemas/LocaleSchema",
               },
+              "modelHistory": {
+                "description": "The history of the model based on its UUIDHistory.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "UUID": {
+                      "description": "The UUID of the model.",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "id": {
+                      "description": "The identifier of the specific model.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": [
+                        "string",
+                        "null",
+                      ],
+                    },
+                    "localeShortCode": {
+                      "description": "The short code of the locale",
+                      "maxLength": 3,
+                      "pattern": "\\S",
+                      "type": [
+                        "string",
+                        "null",
+                      ],
+                    },
+                    "name": {
+                      "description": "The name of the model.",
+                      "maxLength": 256,
+                      "pattern": "\\S",
+                      "type": [
+                        "string",
+                        "null",
+                      ],
+                    },
+                    "version": {
+                      "description": "The version of the model.",
+                      "maxLength": 256,
+                      "type": [
+                        "string",
+                        "null",
+                      ],
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "UUID",
+                    "name",
+                    "version",
+                    "localeShortCode",
+                  ],
+                  "type": "object",
+                },
+                "minItems": 1,
+                "type": "array",
+              },
               "name": {
                 "description": "The name of the model",
                 "maxLength": 256,
@@ -299,7 +320,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "importProcessState",
               "createdAt",
               "updatedAt",
-              "UUIDHistory",
+              "modelHistory",
             ],
             "type": "object",
           },
@@ -359,46 +380,10 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "UUIDHistory": {
               "description": "The UUIDs history of the model.",
               "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "UUID": {
-                    "description": "The UUID of the model.",
-                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                    "type": "string",
-                  },
-                  "id": {
-                    "description": "The identifier of the specific model.",
-                    "pattern": "^[0-9a-f]{24}$",
-                    "type": "string",
-                  },
-                  "localeShortCode": {
-                    "description": "The short code of the locale",
-                    "maxLength": 3,
-                    "pattern": "\\S",
-                    "type": "string",
-                  },
-                  "name": {
-                    "description": "The name of the model.",
-                    "maxLength": 256,
-                    "pattern": "\\S",
-                    "type": "string",
-                  },
-                  "version": {
-                    "description": "The version of the model.",
-                    "maxLength": 256,
-                    "type": "string",
-                  },
-                },
-                "required": [
-                  "id",
-                  "UUID",
-                  "name",
-                  "version",
-                  "localeShortCode",
-                ],
-                "type": "object",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
               },
-              "minItems": 1,
+              "minItems": 0,
               "type": "array",
             },
             "createdAt": {
@@ -561,6 +546,63 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "locale": {
               "$ref": "/components/schemas/LocaleSchema",
             },
+            "modelHistory": {
+              "description": "The history of the model based on its UUIDHistory.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the model.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The identifier of the specific model.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "localeShortCode": {
+                    "description": "The short code of the locale",
+                    "maxLength": 3,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "name": {
+                    "description": "The name of the model.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "version": {
+                    "description": "The version of the model.",
+                    "maxLength": 256,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "name",
+                  "version",
+                  "localeShortCode",
+                ],
+                "type": "object",
+              },
+              "minItems": 1,
+              "type": "array",
+            },
             "name": {
               "description": "The name of the model",
               "maxLength": 256,
@@ -615,7 +657,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "importProcessState",
             "createdAt",
             "updatedAt",
-            "UUIDHistory",
+            "modelHistory",
           ],
           "type": "object",
         },

@@ -103,8 +103,8 @@ export const _baseResponseSchema = {
     createdAt: { type: "string", format: "date-time" },
     updatedAt: { type: "string", format: "date-time" },
     ...JSON.parse(JSON.stringify(_baseProperties)), // deep copy the base properties
-    UUIDHistory: {
-      description: "The UUIDs history of the model.",
+    modelHistory: {
+      description: "The history of the model based on its UUIDHistory.",
       type: "array",
       minItems: 1,
       items: {
@@ -113,7 +113,7 @@ export const _baseResponseSchema = {
         properties: {
           id: {
             description: "The identifier of the specific model.",
-            type: "string",
+            type: ["string", "null"],
             pattern: RegExp_Str_ID,
           },
           UUID: {
@@ -123,18 +123,18 @@ export const _baseResponseSchema = {
           },
           name: {
             description: "The name of the model.",
-            type: "string",
+            type: ["string", "null"],
             pattern: RegExp_Str_NotEmptyString,
             maxLength: ModelInfoConstants.NAME_MAX_LENGTH,
           },
           version: {
             description: "The version of the model.",
-            type: "string",
+            type: ["string", "null"],
             maxLength: ModelInfoConstants.VERSION_MAX_LENGTH,
           },
           localeShortCode: {
             description: "The short code of the locale",
-            type: "string",
+            type: ["string", "null"],
             pattern: RegExp_Str_NotEmptyString,
             maxLength: LocaleConstants.LOCALE_SHORTCODE_MAX_LENGTH,
           },
@@ -158,6 +158,6 @@ export const _baseResponseSchema = {
     "importProcessState",
     "createdAt",
     "updatedAt",
-    "UUIDHistory",
+    "modelHistory",
   ],
 };
