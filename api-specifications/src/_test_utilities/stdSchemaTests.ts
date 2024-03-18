@@ -1,19 +1,22 @@
 import Ajv, { SchemaObject } from "ajv";
 import addFormats from "ajv-formats";
-import { getTestString, WHITESPACE } from "./specialCharacters";
+import { WHITESPACE } from "./specialCharacters";
 import {
   assertCaseForProperty,
   assertCaseForRefProperty,
   CaseType,
   constructSchemaError,
 } from "./assertCaseForProperty";
-import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4 } from "../regex";
+import { RegExp_Str_UUIDv4 } from "../regex";
 import { randomUUID } from "crypto";
 import {
   getStdEnumTestCases,
+  getStdNonEmptyStringTestCases,
   getStdObjectIdTestCases,
+  getStdStringTestCases,
   getStdTimestampFieldTestCases,
   getStdURIFieldTestCases,
+  getStdUUIDTestCases,
 } from "./stdSchemaTestCases";
 
 let ajvInstance: Ajv;
@@ -147,43 +150,18 @@ export function testNonEmptyStringField<T>(
   givenSchema: SchemaObject,
   dependencies: SchemaObject[] = []
 ) {
-  test.each([
-    [
-      CaseType.Failure,
-      "undefined",
-      undefined,
-      constructSchemaError("", "required", `must have required property '${fieldName}'`),
-    ],
-    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be string")],
-    [
-      CaseType.Failure,
-      "empty",
-      "",
-      constructSchemaError(`/${fieldName}`, "pattern", `must match pattern "${RegExp_Str_NotEmptyString}"`),
-    ],
-    [
-      CaseType.Failure,
-      `Too long ${fieldName}`,
-      getTestString(maxLength + 1),
-      constructSchemaError(`/${fieldName}`, "maxLength", `must NOT have more than ${maxLength} characters`),
-    ],
-    [
-      CaseType.Failure,
-      "only whitespace characters",
-      WHITESPACE,
-      constructSchemaError(`/${fieldName}`, "pattern", `must match pattern "${RegExp_Str_NotEmptyString}"`),
-    ],
-    [CaseType.Success, "a valid string", "foo", undefined],
-    [CaseType.Success, "the longest", getTestString(maxLength), undefined],
-  ])(`(%s) Validate ${fieldName} when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-    // GIVEN an object with the given value
-    //@ts-ignore
-    const givenObject: T = {
-      [fieldName]: givenValue,
-    };
-    // THEN expect the object to validate accordingly
-    assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
-  });
+  test.each(getStdNonEmptyStringTestCases(fieldName, maxLength))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
 }
 
 export function testStringField<T>(
@@ -192,33 +170,18 @@ export function testStringField<T>(
   givenSchema: SchemaObject,
   dependencies: SchemaObject[] = []
 ) {
-  test.each([
-    [
-      CaseType.Failure,
-      "undefined",
-      undefined,
-      constructSchemaError("", "required", `must have required property '${fieldName}'`),
-    ],
-    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be string")],
-    [
-      CaseType.Failure,
-      `Too long ${fieldName}`,
-      getTestString(maxLength + 1),
-      constructSchemaError(`/${fieldName}`, "maxLength", `must NOT have more than ${maxLength} characters`),
-    ],
-    [CaseType.Success, "empty", "", undefined],
-    [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-    [CaseType.Success, "one character", "a", undefined],
-    [CaseType.Success, "the longest", getTestString(maxLength), undefined],
-  ])(`(%s) Validate ${fieldName} when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-    // GIVEN an object with the given value
-    //@ts-ignore
-    const givenObject: T = {
-      [fieldName]: givenValue,
-    };
-    // THEN expect the object to validate accordingly
-    assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
-  });
+  test.each(getStdStringTestCases(fieldName, maxLength))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
 }
 
 export function testBooleanField(fieldName: string, givenSchema: SchemaObject, dependencies: SchemaObject[] = []) {
@@ -250,42 +213,18 @@ export function testBooleanField(fieldName: string, givenSchema: SchemaObject, d
 }
 
 export function testUUIDField<T>(fieldName: string, givenSchema: SchemaObject, dependencies: SchemaObject[] = []) {
-  test.each([
-    [
-      CaseType.Failure,
-      "undefined",
-      undefined,
-      constructSchemaError("", "required", `must have required property '${fieldName}'`),
-    ],
-    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be string")],
-    [
-      CaseType.Failure,
-      "empty",
-      "",
-      constructSchemaError(`/${fieldName}`, "pattern", `must match pattern "${RegExp_Str_UUIDv4}"`),
-    ],
-    [
-      CaseType.Failure,
-      "only whitespace characters",
-      WHITESPACE,
-      constructSchemaError(`/${fieldName}`, "pattern", `must match pattern "${RegExp_Str_UUIDv4}"`),
-    ],
-    [
-      CaseType.Failure,
-      "not a UUID v4",
-      "foo",
-      constructSchemaError(`/${fieldName}`, "pattern", `must match pattern "${RegExp_Str_UUIDv4}"`),
-    ],
-    [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-  ])(`(%s) Validate ${fieldName} when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-    // GIVEN an object with the given value
-    //@ts-ignore
-    const givenObject: T = {
-      [fieldName]: givenValue,
-    };
-    // THEN expect the object to validate accordingly
-    assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
-  });
+  test.each(getStdUUIDTestCases(fieldName))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
 }
 
 export function testUUIDArray<T>(

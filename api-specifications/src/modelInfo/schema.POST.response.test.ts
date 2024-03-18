@@ -17,18 +17,20 @@ import ModelInfoConstants from "./constants";
 import LocaleAPISpecs from "locale";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
-import { getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/specialCharacters";
 import { ExportProcessState } from "exportProcessState/enums";
 import ImportProcessState from "importProcessState";
 import ExportProcessStateAPISpecs from "exportProcessState";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import {
   getStdEnumTestCases,
+  getStdNonEmptyStringTestCases,
   getStdObjectIdTestCases,
+  getStdStringTestCases,
   getStdTimestampFieldTestCases,
   getStdURIFieldTestCases,
+  getStdUUIDTestCases,
 } from "_test_utilities/stdSchemaTestCases";
-import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4 } from "../regex";
 
 describe("Test ModelInfoAPISpecs Schema validity", () => {
   // WHEN the ModelInfoAPISpecs.Schemas.POST.Request.Schema.Payload schema
@@ -276,252 +278,114 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
       });
     });
 
-    describe("Test validation of modelHistory fields", () => {
-      describe("Test validation of 'modelHistory/id'", () => {
-        test.each([
-          [
-            CaseType.Failure,
-            "undefined",
-            undefined,
-            constructSchemaError("/modelHistory/0", "required", `must have required property 'id'`),
-          ],
-          [
-            CaseType.Failure,
-            "only whitespace characters",
-            WHITESPACE,
-            constructSchemaError("/modelHistory/0/id", "pattern", 'must match pattern "^[0-9a-f]{24}$"'),
-          ],
-          [
-            CaseType.Failure,
-            "random string",
-            "foo",
-            constructSchemaError("/modelHistory/0/id", "pattern", 'must match pattern "^[0-9a-f]{24}$"'),
-          ],
-          [CaseType.Success, "null", null, undefined],
-          [CaseType.Success, "a valid id", getMockId(1), undefined],
-        ])("(%s) Validate 'id' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-          //   GIVEN an object with the given value
-          const givenObject = {
-            modelHistory: [
-              {
-                id: givenValue,
-              },
-            ],
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "/modelHistory/0/id",
-            givenObject,
-            ModelInfoAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
-          );
-        });
+    describe("Test validation of UUIDHistory fields", () => {
+      describe("Test validation of 'UUIDHistory/id'", () => {
+        test.each([...getStdObjectIdTestCases("/UUIDHistory/0/id")])(
+          "(%s) Validate 'id' when it is %s",
+          (caseType, _description, givenValue, failureMessages) => {
+            //   GIVEN an object with the given value
+            const givenObject = {
+              UUIDHistory: [
+                {
+                  id: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/UUIDHistory/0/id",
+              givenObject,
+              ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
       });
 
-      describe("Test validation of 'modelHistory/UUID'", () => {
-        test.each([
-          [
-            CaseType.Failure,
-            "undefined",
-            undefined,
-            constructSchemaError("/modelHistory/0", "required", "must have required property 'UUID'"),
-          ],
-          [CaseType.Failure, "null", null, constructSchemaError("/modelHistory/0/UUID", "type", "must be string")],
-          [
-            CaseType.Failure,
-            "empty",
-            "",
-            constructSchemaError("/modelHistory/0/UUID", "pattern", `must match pattern "${RegExp_Str_UUIDv4}"`),
-          ],
-          [
-            CaseType.Failure,
-            "only whitespace characters",
-            WHITESPACE,
-            constructSchemaError("/modelHistory/0/UUID", "pattern", `must match pattern "${RegExp_Str_UUIDv4}"`),
-          ],
-          [
-            CaseType.Failure,
-            "not a UUID v4",
-            "foo",
-            constructSchemaError("/modelHistory/0/UUID", "pattern", `must match pattern "${RegExp_Str_UUIDv4}"`),
-          ],
-          [CaseType.Success, "Valid UUID", randomUUID(), undefined],
-        ])(`(%s) Validate 'UUID' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          const givenObject = {
-            modelHistory: [
-              {
-                UUID: givenValue,
-              },
-            ],
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "/modelHistory/0/UUID",
-            givenObject,
-            ModelInfoAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
-          );
-        });
+      describe("Test validation of 'UUIDHistory/UUID'", () => {
+        test.each([...getStdUUIDTestCases("/UUIDHistory/0/UUID")])(
+          `(%s) Validate 'UUID' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            const givenObject = {
+              UUIDHistory: [
+                {
+                  UUID: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/UUIDHistory/0/UUID",
+              givenObject,
+              ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
       });
 
-      describe("Test validation of 'modelHistory/name'", () => {
-        test.each([
-          [
-            CaseType.Failure,
-            "undefined",
-            undefined,
-            constructSchemaError("/modelHistory/0", "required", `must have required property 'name'`),
-          ],
-          [
-            CaseType.Failure,
-            "empty",
-            "",
-            constructSchemaError(
-              "/modelHistory/0/name",
-              "pattern",
-              `must match pattern "${RegExp_Str_NotEmptyString}"`
-            ),
-          ],
-          [
-            CaseType.Failure,
-            `Too long name`,
-            getTestString(ModelInfoConstants.NAME_MAX_LENGTH + 1),
-            constructSchemaError(
-              "/modelHistory/0/name",
-              "maxLength",
-              `must NOT have more than ${ModelInfoConstants.NAME_MAX_LENGTH} characters`
-            ),
-          ],
-          [
-            CaseType.Failure,
-            "only whitespace characters",
-            WHITESPACE,
-            constructSchemaError(
-              "/modelHistory/0/name",
-              "pattern",
-              `must match pattern "${RegExp_Str_NotEmptyString}"`
-            ),
-          ],
-          [CaseType.Success, "null", null, undefined],
-          [CaseType.Success, "a valid string", "foo", undefined],
-          [CaseType.Success, "the longest", getTestString(ModelInfoConstants.NAME_MAX_LENGTH), undefined],
-        ])(`(%s) Validate 'name' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          const givenObject = {
-            modelHistory: [
-              {
-                name: givenValue,
-              },
-            ],
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "/modelHistory/0/name",
-            givenObject,
-            ModelInfoAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
-          );
-        });
+      describe("Test validation of 'UUIDHistory/name'", () => {
+        test.each([...getStdNonEmptyStringTestCases("/UUIDHistory/0/name", ModelInfoConstants.NAME_MAX_LENGTH)])(
+          `(%s) Validate 'name' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            const givenObject = {
+              UUIDHistory: [
+                {
+                  name: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/UUIDHistory/0/name",
+              givenObject,
+              ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
       });
 
-      describe("Test validation of 'modelHistory/version'", () => {
-        test.each([
-          [
-            CaseType.Failure,
-            "undefined",
-            undefined,
-            constructSchemaError("/modelHistory/0", "required", `must have required property 'version'`),
-          ],
-          [
-            CaseType.Failure,
-            `Too long version`,
-            getTestString(ModelInfoConstants.VERSION_MAX_LENGTH + 1),
-            constructSchemaError(
-              "/modelHistory/0/version",
-              "maxLength",
-              `must NOT have more than ${ModelInfoConstants.VERSION_MAX_LENGTH} characters`
-            ),
-          ],
-          [CaseType.Success, "null", null, undefined],
-          [CaseType.Success, "empty", "", undefined],
-          [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-          [CaseType.Success, "one character", "a", undefined],
-          [CaseType.Success, "the longest", getTestString(ModelInfoConstants.VERSION_MAX_LENGTH), undefined],
-        ])(`(%s) Validate 'version' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          //@ts-ignore
-          const givenObject = {
-            modelHistory: [
-              {
-                version: givenValue,
-              },
-            ],
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "/modelHistory/0/version",
-            givenObject,
-            ModelInfoAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
-          );
-        });
+      describe("Test validation of 'UUIDHistory/version'", () => {
+        test.each([...getStdStringTestCases("/UUIDHistory/0/version", ModelInfoConstants.VERSION_MAX_LENGTH)])(
+          `(%s) Validate 'version' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            //@ts-ignore
+            const givenObject = {
+              UUIDHistory: [
+                {
+                  version: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/UUIDHistory/0/version",
+              givenObject,
+              ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
       });
 
       describe("Test validation of 'modelHistory/localeShortCode'", () => {
         test.each([
-          [
-            CaseType.Failure,
-            "undefined",
-            undefined,
-            constructSchemaError("/modelHistory/0", "required", `must have required property 'localeShortCode'`),
-          ],
-          [
-            CaseType.Failure,
-            "empty",
-            "",
-            constructSchemaError(
-              "/modelHistory/0/localeShortCode",
-              "pattern",
-              `must match pattern "${RegExp_Str_NotEmptyString}"`
-            ),
-          ],
-          [
-            CaseType.Failure,
-            `Too long locale shortCode`,
-            getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH + 1),
-            constructSchemaError(
-              "/modelHistory/0/localeShortCode",
-              "maxLength",
-              `must NOT have more than ${LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH} characters`
-            ),
-          ],
-          [
-            CaseType.Failure,
-            "only whitespace characters",
-            WHITESPACE,
-            constructSchemaError(
-              "/modelHistory/0/localeShortCode",
-              "pattern",
-              `must match pattern "${RegExp_Str_NotEmptyString}"`
-            ),
-          ],
-          [CaseType.Success, "null", null, undefined],
-          [CaseType.Success, "a valid string", "foo", undefined],
-          [
-            CaseType.Success,
-            "the longest",
-            getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-            undefined,
-          ],
+          ...getStdNonEmptyStringTestCases(
+            "/UUIDHistory/0/localeShortCode",
+            LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
+          ),
         ])(`(%s) Validate 'localeShortCode' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
           // GIVEN an object with the given value
           const givenObject = {

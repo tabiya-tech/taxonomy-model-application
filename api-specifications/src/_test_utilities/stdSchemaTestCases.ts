@@ -1,6 +1,7 @@
 import { CaseType, constructSchemaError, SchemaError } from "./assertCaseForProperty";
 import { getTestString, WHITESPACE } from "./specialCharacters";
 import { getMockId } from "./mockMongoId";
+import { randomUUID } from "crypto";
 
 export function getStdTimestampFieldTestCases(
   instancePath: string
@@ -198,5 +199,130 @@ export function getStdEnumTestCases(
     ],
     // @ts-ignore
     ...validEnum.map((value) => [CaseType.Success, value, value, undefined]),
+  ];
+}
+
+export function getStdUUIDTestCases(
+  instancePath: string
+): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
+  const canonicalPropertyPath = instancePath.startsWith("/") ? instancePath : "/" + instancePath;
+  // extract the property name and the parent path
+  const propertyName = canonicalPropertyPath.substring(
+    canonicalPropertyPath.lastIndexOf("/") + 1,
+    canonicalPropertyPath.length
+  );
+  const canonicalParentPath = canonicalPropertyPath.substring(0, canonicalPropertyPath.lastIndexOf("/"));
+  const canonicalChildPath = `${canonicalParentPath}/${propertyName}`;
+
+  return [
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
+    [
+      CaseType.Failure,
+      "empty",
+      "",
+      constructSchemaError(
+        canonicalChildPath,
+        "pattern",
+        'must match pattern "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"'
+      ),
+    ],
+    [
+      CaseType.Failure,
+      "only whitespace characters",
+      WHITESPACE,
+      constructSchemaError(
+        canonicalChildPath,
+        "pattern",
+        'must match pattern "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"'
+      ),
+    ],
+    [
+      CaseType.Failure,
+      "not a UUID v4",
+      "foo",
+      constructSchemaError(
+        canonicalChildPath,
+        "pattern",
+        'must match pattern "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"'
+      ),
+    ],
+    [CaseType.Success, "Valid UUID", randomUUID(), undefined],
+  ];
+}
+
+export function getStdNonEmptyStringTestCases(
+  instancePath: string,
+  maxLength: number
+): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
+  const canonicalPropertyPath = instancePath.startsWith("/") ? instancePath : "/" + instancePath;
+  // extract the property name and the parent path
+  const propertyName = canonicalPropertyPath.substring(
+    canonicalPropertyPath.lastIndexOf("/") + 1,
+    canonicalPropertyPath.length
+  );
+  const canonicalParentPath = canonicalPropertyPath.substring(0, canonicalPropertyPath.lastIndexOf("/"));
+  const canonicalChildPath = `${canonicalParentPath}/${propertyName}`;
+  return [
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
+    [CaseType.Failure, "empty", "", constructSchemaError(canonicalChildPath, "pattern", 'must match pattern "\\S"')],
+    [
+      CaseType.Failure,
+      `Too long ${propertyName}`,
+      getTestString(maxLength + 1),
+      constructSchemaError(canonicalChildPath, "maxLength", `must NOT have more than ${maxLength} characters`),
+    ],
+    [
+      CaseType.Failure,
+      "only whitespace characters",
+      WHITESPACE,
+      constructSchemaError(canonicalChildPath, "pattern", 'must match pattern "\\S"'),
+    ],
+    [CaseType.Success, "a valid string", "foo", undefined],
+    [CaseType.Success, "the longest", getTestString(maxLength), undefined],
+  ];
+}
+
+export function getStdStringTestCases(
+  instancePath: string,
+  maxLength: number
+): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
+  const canonicalPropertyPath = instancePath.startsWith("/") ? instancePath : "/" + instancePath;
+  // extract the property name and the parent path
+  const propertyName = canonicalPropertyPath.substring(
+    canonicalPropertyPath.lastIndexOf("/") + 1,
+    canonicalPropertyPath.length
+  );
+  const canonicalParentPath = canonicalPropertyPath.substring(0, canonicalPropertyPath.lastIndexOf("/"));
+  const canonicalChildPath = `${canonicalParentPath}/${propertyName}`;
+  return [
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
+    [
+      CaseType.Failure,
+      `Too long ${propertyName}`,
+      getTestString(maxLength + 1),
+      constructSchemaError(canonicalChildPath, "maxLength", `must NOT have more than ${maxLength} characters`),
+    ],
+    [CaseType.Success, "empty", "", undefined],
+    [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+    [CaseType.Success, "one character", "a", undefined],
+    [CaseType.Success, "the longest", getTestString(maxLength), undefined],
   ];
 }
