@@ -7,7 +7,7 @@ interface IModelInfoResponse {
   id: string;
   UUID: string;
   UUIDHistory: {
-    id: string,
+    id: string;
     UUID: string;
     name: string;
     version: string;
