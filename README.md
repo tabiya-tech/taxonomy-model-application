@@ -37,7 +37,7 @@ There is a more detailed architecture diagram in the [IaC Readme](iac/README.md)
 ## Database Schema
 The image below shows an overview of the Database Schema of the Taxonomy Model App.
 
-![Tabiya Database Schema](https://lucid.app/publicSegments/view/a15e98c0-2a4b-4298-b19d-d468ea8107ef/image.png)
+![Tabiya Database Schema](https://lucid.app/publicSegments/view/7435b2f5-cdcc-4fcc-8db1-6cf15438d2ed/image.png)
 
 ## Why Contribute?
 
