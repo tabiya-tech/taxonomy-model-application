@@ -1,13 +1,14 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { getByTestId, render, screen, fireEvent, within } from "src/_test_utilities/test-utils";
+import { getByTestId, render, screen, fireEvent, within, waitFor } from "src/_test_utilities/test-utils";
 import ImportModelDialog, { DATA_TEST_ID, ImportData, ImportModelDialogProps } from "./ImportModelDialog";
 import { DATA_TEST_ID as MODEL_NAME_FIELD_DATA_TEST_ID } from "src/import/components/ModelNameField";
 import { DATA_TEST_ID as MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID } from "src/import/components/ModelLocalSelectField";
 import { DATA_TEST_ID as MODEL_DESCRIPTION_FIELD_DATA_TEST_ID } from "src/import/components/ModelDescriptionField";
 import { DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID } from "src/import/components/ImportFilesSelection";
 import { DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID } from "src/import/components/FileEntry";
+import { DATA_TEST_ID as MODEL_INFO_DATA_TEST_ID } from "src/import/components/ModelInfoFileEntry";
 import ImportAPISpecs from "api-specifications/import";
 import { clickDebouncedButton, typeDebouncedInput } from "src/_test_utilities/userEventFakeTimer";
 import { ImportFiles } from "./ImportFiles.type";
@@ -15,6 +16,11 @@ import { isSpecified } from "src/utils/isUnspecified";
 import userEvent from "@testing-library/user-event";
 import { unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
+
+// mock the parseSelectedModelInfoFile function
+jest.mock("src/import/components/parseSelectedModelInfoFile", () => {
+  return jest.fn().mockResolvedValue(["foo", "bar"]);
+});
 
 const notifyOnCloseMock = jest.fn();
 const testProps: ImportModelDialogProps = {
@@ -43,6 +49,7 @@ function getImportDataTestValues(): ImportData {
       acc[fileType] = new File([fileType], fileType, { type: "text/plain" });
       return acc;
     }, {} as ImportFiles),
+    UUIDHistory: ["foo", "bar"],
   };
 }
 
@@ -75,6 +82,16 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
       fireEvent.change(element, { target: { files: [inputData.selectedFiles[elementFileType]] } });
     }
   });
+
+  // Select the UUID history
+  if (inputData.UUIDHistory.length > 0) {
+    const UUIDHistoryElement = screen.getByTestId(MODEL_INFO_DATA_TEST_ID.FILE_INPUT);
+    const elementFileType = UUIDHistoryElement.getAttribute("data-filetype");
+    // pass a valid csv file to the UUIDHistoryElement
+    fireEvent.change(UUIDHistoryElement, {
+      target: { files: [new File(inputData.UUIDHistory, elementFileType as string, { type: "text/csv" })] },
+    });
+  }
 }
 
 beforeEach(() => {
@@ -243,14 +260,17 @@ describe("ImportModel dialog action tests", () => {
     fireEvent.click(importButton);
 
     // THEN the notifyOnClose is called with event name IMPORT and the data the user entered
-    expect(notifyOnCloseMock).toHaveBeenCalledWith({
-      name: "IMPORT",
-      importData: {
-        name: givenData.name,
-        description: givenData.description,
-        locale: givenData.locale,
-        selectedFiles: givenData.selectedFiles,
-      },
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: {
+          name: givenData.name,
+          description: givenData.description,
+          locale: givenData.locale,
+          selectedFiles: givenData.selectedFiles,
+          UUIDHistory: givenData.UUIDHistory,
+        },
+      });
     });
   });
 
@@ -296,6 +316,7 @@ describe("ImportModel dialog action tests", () => {
         description: givenData.description,
         locale: givenData.locale,
         selectedFiles: expectedFiles,
+        UUIDHistory: givenData.UUIDHistory,
       },
     });
   });

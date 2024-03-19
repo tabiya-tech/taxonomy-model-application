@@ -3,9 +3,7 @@ import "src/_test_utilities/consoleMock";
 
 import { render, screen } from "src/_test_utilities/test-utils";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import {
-  fakeModel
-} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import ExportTimelineItem, { DATA_TEST_ID } from "./ExportTimelineItem";
 import { within } from "@testing-library/react";
 import ExportProcessStateContent from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ExportTimeline/components/ExportProcessStateContent/ExportProcessStateContent";
@@ -79,7 +77,6 @@ describe("ExportTimelineItem", () => {
   });
 
   test("renders correctly when the exportProcessState doesnt have a downloadUrl", () => {
-
     // GIVEN an exportProcessState without a downloadUrl
     const givenExportProcessState: ModelInfoTypes.ExportProcessState = fakeModel.exportProcessState[0];
     givenExportProcessState.downloadUrl = "";

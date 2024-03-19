@@ -35,6 +35,7 @@ import { getUserFriendlyErrorMessage, ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
 import { ErrorCodes } from "src/error/errorCodes";
 import ModelPropertiesDrawer from "./components/ModelProperties/ModelPropertiesDrawer";
+import { randomUUID } from "crypto";
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
@@ -186,7 +187,9 @@ function getTestImportData(): ImportData {
     name: "South Africa",
     shortCode: "ZA",
   };
-  return { name, description, locale, selectedFiles };
+  // and the UUID history
+  const UUIDHistory = [randomUUID()];
+  return { name, description, locale, selectedFiles, UUIDHistory };
 }
 
 describe("ModelDirectory", () => {
@@ -995,7 +998,8 @@ describe("ModelDirectory", () => {
         givenImportData.name,
         givenImportData.description,
         givenImportData.locale,
-        givenImportData.selectedFiles
+        givenImportData.selectedFiles,
+        givenImportData.UUIDHistory
       );
 
       // AND expect the ModelsTable to have been called with the new model
@@ -1078,7 +1082,8 @@ describe("ModelDirectory", () => {
         givenImportData.name,
         givenImportData.description,
         givenImportData.locale,
-        givenImportData.selectedFiles
+        givenImportData.selectedFiles,
+        givenImportData.UUIDHistory
       );
 
       // AND the backdrop was eventually hidden
@@ -1137,7 +1142,8 @@ describe("ModelDirectory", () => {
         givenImportData.name,
         givenImportData.description,
         givenImportData.locale,
-        givenImportData.selectedFiles
+        givenImportData.selectedFiles,
+        givenImportData.UUIDHistory
       );
 
       // AND the backdrop will eventually be hidden
