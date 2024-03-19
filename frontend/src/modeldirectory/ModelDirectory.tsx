@@ -149,7 +149,8 @@ const ModelDirectory = () => {
           importData.name,
           importData.description,
           importData.locale,
-          importData.selectedFiles
+          importData.selectedFiles,
+          importData.UUIDHistory
         )) as any;
         enqueueSnackbar(`The model '${importData.name}' import has started.`, {
           variant: "success",

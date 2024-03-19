@@ -22,6 +22,7 @@ export interface ImportData {
   description: string;
   locale: LocaleAPISpecs.Types.Payload;
   selectedFiles: ImportFiles;
+  UUIDHistory: string[];
 }
 
 export type CloseEvent = { name: "CANCEL" | "IMPORT"; importData?: ImportData };
@@ -52,6 +53,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     description: "",
     locale: {} as any,
     selectedFiles: {},
+    UUIDHistory: [],
   });
 
   const handleNameChange = (newName: string) => {
@@ -66,6 +68,10 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
 
   const handleDescriptionChange = (newDescription: string) => {
     data.current.description = newDescription;
+  };
+
+  const handleUUIDHistoryChange = (newUUIDHistory: string[]) => {
+    data.current.UUIDHistory = newUUIDHistory;
   };
 
   const handleSelectedFileChange = (fileType: ImportAPISpecs.Constants.ImportFileTypes, file: File | null) => {
@@ -104,7 +110,10 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
           <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />
-          <ImportFilesSelection notifySelectedFileChange={handleSelectedFileChange} />
+          <ImportFilesSelection
+            notifySelectedFileChange={handleSelectedFileChange}
+            notifyUUIDHistoryChange={handleUUIDHistoryChange}
+          />
         </Stack>
       </DialogContent>
       <DialogActions>

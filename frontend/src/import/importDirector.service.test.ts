@@ -79,6 +79,7 @@ describe("Test the import director service", () => {
       UUID: randomUUID(),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     };
+    const givenUUIDHistory = [randomUUID(), randomUUID()];
     // AND a api server url
     const apiServerUrl = "https://somedomain/path/to/api";
     // AND some files
@@ -91,7 +92,13 @@ describe("Test the import director service", () => {
 
     // WHEN the directImport() is called with the given arguments (name, description, locale, files)
     const manager = new ImportDirectorService(apiServerUrl);
-    const actualModel = await manager.directImport(givenName, givenDescription, givenLocale, givenFiles);
+    const actualModel = await manager.directImport(
+      givenName,
+      givenDescription,
+      givenLocale,
+      givenFiles,
+      givenUUIDHistory
+    );
 
     // #### MODEL SERVICE ####
     // THEN the model service is instantiated with the given api server url
@@ -101,7 +108,7 @@ describe("Test the import director service", () => {
       name: givenName,
       description: givenDescription,
       locale: givenLocale,
-      UUIDHistory: [],
+      UUIDHistory: givenUUIDHistory,
     });
 
     // #### PRESIGNED SERVICE ####

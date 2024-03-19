@@ -18,12 +18,13 @@ export default class ImportDirectorService {
     name: string,
     description: string,
     locale: LocaleAPISpecs.Types.Payload,
-    files: ImportFiles
+    files: ImportFiles,
+    UUIDHistory: string[]
   ): Promise<ModelInfoTypes.ModelInfo> {
     const modelService = new ModelInfoService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
     const [newModel, presigned] = await Promise.all([
-      modelService.createModel({ name, description, locale, UUIDHistory: [] }),
+      modelService.createModel({ name, description, locale, UUIDHistory }),
       presignedService.getPresignedPost(),
     ]);
 
