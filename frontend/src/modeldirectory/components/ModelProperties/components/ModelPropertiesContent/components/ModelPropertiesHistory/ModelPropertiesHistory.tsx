@@ -3,6 +3,8 @@ import { useTheme } from "@mui/material";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import Box from "@mui/material/Box";
 import FormattedDatePropertyField from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDatePropertyField";
+import UUIDHistoryTimeline from "./UUIDHistoryTimeline/UUIDHistoryTimeline";
+import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
 
 export interface ModelPropertiesHistoryProps {
   model: ModelInfoTypes.ModelInfo;
@@ -19,6 +21,7 @@ export const DATA_TEST_ID = {
 const FIELD_ID = {
   DATE_CREATED: `created-${uniqueId}`,
   LAST_UPDATED: `updated-${uniqueId}`,
+  UUID_HISTORY_FIELD: `uuid-history-${uniqueId}`,
 };
 
 export const FIELD_LABEL_TEXT = {
@@ -57,6 +60,9 @@ const ModelPropertiesHistory: React.FC<ModelPropertiesHistoryProps> = (
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_UPDATED_DATE}
         fieldId={FIELD_ID.LAST_UPDATED}
       />
+      <PropertyFieldLayout title="Model History" fieldId={FIELD_ID.UUID_HISTORY_FIELD}>
+        <UUIDHistoryTimeline UUIDHistoryDetails={props.model.modelHistory} />
+      </PropertyFieldLayout>
     </Box>
   );
 };
