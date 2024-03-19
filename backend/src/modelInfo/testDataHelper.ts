@@ -11,15 +11,7 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
   return {
     id: getMockStringId(n),
     UUID: randomUUID(),
-    UUIDHistory: [
-      {
-        id: getMockStringId(100000 + n),
-        UUID: randomUUID(),
-        name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-        version: getRandomString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-        localeShortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-      },
-    ],
+    UUIDHistory: [randomUUID()],
     name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     locale: {
       UUID: randomUUID(),

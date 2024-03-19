@@ -1,5 +1,6 @@
 import React from "react";
-import { IUUIDHistoryDetails } from "./UUIDHistory.types";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+
 import {
   Timeline,
   TimelineConnector,
@@ -12,7 +13,7 @@ import {
 import { Typography } from "@mui/material";
 
 interface UUIDHistoryTimelineProps {
-  UUIDHistoryDetails: IUUIDHistoryDetails[];
+  UUIDHistoryDetails: ModelInfoTypes.UUIDHistory[];
 }
 
 const uniqueId = "48d564f1-fe4b-4c2f-bfc4-023cde28397f";

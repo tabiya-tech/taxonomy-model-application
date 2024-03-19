@@ -24,7 +24,7 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
-      UUIDHistory: [
+      modelHistory: [
         {
           id: getMockId(1000 + i),
           UUID: uuidv4(),
@@ -69,7 +69,7 @@ export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.Mod
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
-      UUIDHistory: [
+      modelHistory: [
         {
           id: getMockId(1000 + i),
           UUID: uuidv4(),
@@ -113,7 +113,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
     const model: ModelInfoTypes.ModelInfo = {
       id: getMockId(i),
       UUID: uuidv4(),
-      UUIDHistory: [
+      modelHistory: [
         {
           id: getMockId(1000 + i),
           UUID: uuidv4(),
@@ -146,7 +146,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
 
 export const fakeModel: ModelInfoTypes.ModelInfo = {
   UUID: "8d914eab-6f7d-4183-accc-a09f99887b39",
-  UUIDHistory: [
+  modelHistory: [
     {
       id: "000000000000000000000001",
       UUID: "8d914eab-6f7d-4183-accc-a09f99887b39",

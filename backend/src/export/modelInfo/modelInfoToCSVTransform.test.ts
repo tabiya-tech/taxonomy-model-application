@@ -24,15 +24,7 @@ const getMockModelInfo = (i: number): IModelInfo => {
     },
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
-    UUIDHistory: [
-      {
-        id: getMockStringId(1000 + i),
-        UUID: `uuid_${i}`,
-        name: `name_${i}_${getTestString(10)}`,
-        version: `version_${i}_${getTestString(10)}`,
-        localeShortCode: `shortCode_${i}_${getTestString(10)}`,
-      },
-    ],
+    UUIDHistory: [`uuid_1`, `uuid_2`],
     name: `name_${i}_${getTestString(10)}`,
     locale: {
       UUID: `localeUUID_${i}`,
@@ -55,6 +47,7 @@ function setupModelInfoRepositoryMock(findByIdFn: () => IModelInfo | null) {
     getModelById: jest.fn().mockImplementationOnce(findByIdFn),
     getModels: jest.fn(),
     getModelByUUID: jest.fn(),
+    getHistory: jest.fn(),
   };
   ModelInfoRepository.mockReturnValue(mockModelInfoRepository);
 }
@@ -98,43 +91,11 @@ describe("ModelInfosDocToCsvTransform", () => {
 
   test.each([
     ["is empty", []],
-    [
-      "has one item",
-      [
-        {
-          id: getMockStringId(1000),
-          UUID: `uuid_1`,
-          name: `name_1`,
-          version: `version_1`,
-          localeShortCode: `shortCode_1`,
-        },
-      ],
-    ],
-    [
-      "has multiple items",
-      [
-        {
-          id: getMockStringId(1000),
-          UUID: `uuid_1`,
-          name: `name_1`,
-          version: `version_1`,
-          localeShortCode: `shortCode_1`,
-        },
-        {
-          id: getMockStringId(1001),
-          UUID: `uuid_2`,
-          name: `name_2`,
-          version: `version_2`,
-          localeShortCode: `shortCode_2`,
-        },
-      ],
-    ],
+    ["has one item", [`uuid_1`]],
+    ["has multiple items", [`uuid_1`, `uuid_2`]],
   ])(
     `should correctly transform ModelInfo data to CSV when UUIDHistory %s`,
-    async (
-      _description: string,
-      givenUUIDHistory: { id: string; UUID: string; name: string; version: string; localeShortCode: string }[]
-    ) => {
+    async (_description: string, givenUUIDHistory: string[]) => {
       // GIVEN findAll returns a stream of ModelInfos
       const givenModelInfo = getMockModelInfo(2);
       givenModelInfo.UUIDHistory = givenUUIDHistory;

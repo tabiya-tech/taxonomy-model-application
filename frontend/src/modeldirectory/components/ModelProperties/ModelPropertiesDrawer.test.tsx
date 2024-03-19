@@ -44,7 +44,7 @@ const testModel: ModelInfoTypes.ModelInfo = {
   description: "",
   id: "",
   UUID: "",
-  UUIDHistory: [],
+  modelHistory: [],
   released: false,
   releaseNotes: "",
   version: "",

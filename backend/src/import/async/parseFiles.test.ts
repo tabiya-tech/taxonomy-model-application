@@ -186,6 +186,7 @@ describe("Test the main async handler", () => {
       }),
       getModelByUUID: jest.fn().mockResolvedValue(null),
       getModels: jest.fn().mockResolvedValue([]),
+      getHistory: jest.fn().mockResolvedValue([]),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -383,6 +384,7 @@ describe("Test the main async handler", () => {
         }),
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue([]),
+        getHistory: jest.fn().mockResolvedValue(null),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
