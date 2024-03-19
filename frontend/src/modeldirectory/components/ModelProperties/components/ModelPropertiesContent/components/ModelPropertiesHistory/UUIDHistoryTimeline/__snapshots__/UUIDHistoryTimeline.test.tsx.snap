@@ -147,3 +147,46 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
   </li>
 </ul>
 `;
+
+exports[`UUIDHistoryTimeline renders correctly when the UUIDHistoryDetails have unresolved details 1`] = `
+<ul
+  class="MuiTimeline-root MuiTimeline-positionRight css-6l1m71-MuiTimeline-root"
+  data-testid="uuid-history-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+>
+  <li
+    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-1ak9pa5-MuiTimelineItem-root"
+    data-testid="uuid-history-timeline-item-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+  >
+    <div
+      class="MuiTimelineSeparator-root css-1fe7e6p-MuiTimelineSeparator-root"
+      data-testid="uuid-history-timeline-separator-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+    >
+      <span
+        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1qwwwv0-MuiTimelineDot-root"
+        data-testid="uuid-history-timeline-dot-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+      />
+      <span
+        class="MuiTimelineConnector-root css-iplxxw-MuiTimelineConnector-root"
+        data-testid="uuid-history-timeline-connector-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+      />
+    </div>
+    <div
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1oky1fk-MuiTypography-root-MuiTimelineContent-root"
+      data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+    >
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1v2d8t3-MuiTypography-root"
+      >
+        12345678900: (details not available)
+      </p>
+    </div>
+  </li>
+</ul>
+`;
+
+exports[`UUIDHistoryTimeline renders correctly with no UUIDHistoryDetails 1`] = `
+<ul
+  class="MuiTimeline-root MuiTimeline-positionRight css-6l1m71-MuiTimeline-root"
+  data-testid="uuid-history-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
+/>
+`;

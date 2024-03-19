@@ -31,6 +31,7 @@ const UUIDHistoryTimeline: React.FC<UUIDHistoryTimelineProps> = (props) => {
     <Timeline
       data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE}
       sx={{
+        // padding: 0,
         [`& .${timelineItemClasses.root}:before`]: {
           flex: 0,
           padding: 0,
@@ -57,7 +58,7 @@ const UUIDHistoryTimeline: React.FC<UUIDHistoryTimelineProps> = (props) => {
             sx={{ display: "flex", flexDirection: "column", justifyContent: "center" }}
           >
             <Typography variant="body1" sx={{ textAlign: "start" }}>
-              {`${UUIDHistory.name} ${UUIDHistory.version} (${UUIDHistory.localeShortCode})`}
+              {(UUIDHistory.id) ? `${UUIDHistory.name} ${UUIDHistory.version} (${UUIDHistory.localeShortCode})` : `${UUIDHistory.UUID}: (details not available)`}
             </Typography>
           </TimelineContent>
         </TimelineItem>
