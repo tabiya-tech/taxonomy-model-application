@@ -5,10 +5,8 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import ExportProcessStateContent, { FIELD_ID, DATA_TEST_ID } from "./ExportProcessStateContent";
 import ExportStatusPropertyField from "../ExportStatusPropertyField/ExportStatusPropertyField";
 import DurationPropertyField from "src/theme/PropertyFieldLayout/DurationPropertyField/DurationPropertyField";
-import {ModelInfoTypes} from "src/modelInfo/modelInfoTypes";
-import {
-  fakeModel,
-} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 
 // mock the ExportStatusPropertyField component
 jest.mock(
@@ -58,7 +56,7 @@ describe("ExportProcessStateContent", () => {
     expect(ExportStatusPropertyField).toHaveBeenCalledWith(
       {
         exportProcessState: givenExportProcessState,
-        fieldId: FIELD_ID.EXPORT_STATUS_FIELD+"-"+givenExportProcessState.id,
+        fieldId: FIELD_ID.EXPORT_STATUS_FIELD + "-" + givenExportProcessState.id,
         "data-testid": DATA_TEST_ID.EXPORT_STATUS_FIELD,
       },
       {}
@@ -72,7 +70,7 @@ describe("ExportProcessStateContent", () => {
         label: "Duration",
         firstDate: givenExportProcessState.createdAt,
         secondDate: givenExportProcessState.updatedAt,
-        fieldId: FIELD_ID.EXPORT_DURATION_FIELD+"-"+givenExportProcessState.id,
+        fieldId: FIELD_ID.EXPORT_DURATION_FIELD + "-" + givenExportProcessState.id,
         "data-testid": DATA_TEST_ID.EXPORT_DURATION_FIELD,
       },
       {}

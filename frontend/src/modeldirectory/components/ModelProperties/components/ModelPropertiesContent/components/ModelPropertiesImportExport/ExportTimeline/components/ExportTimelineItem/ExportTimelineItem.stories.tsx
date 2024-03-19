@@ -1,9 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react";
-import {
-  fakeModel,
-} from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import ExportTimelineItem from "./ExportTimelineItem";
-import {Timeline} from "@mui/lab";
+import { Timeline } from "@mui/lab";
 
 const meta: Meta<typeof ExportTimelineItem> = {
   title:

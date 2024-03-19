@@ -49,7 +49,7 @@ export namespace GET {
       return {
         id: getMockId(i),
         UUID: uuidv4(),
-        UUIDHistory: [
+        modelHistory: [
           {
             id: getMockId(1000 + i),
             UUID: uuidv4(),
@@ -122,7 +122,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
   return {
     id: getMockId(_id),
     UUID: uuidv4(),
-    UUIDHistory: [
+    modelHistory: [
       {
         id: getMockId(1000 + _id),
         UUID: uuidv4(),

@@ -6,12 +6,12 @@ import ExportProcessState from "../exportProcessState";
 interface IModelInfoResponse {
   id: string;
   UUID: string;
-  UUIDHistory: {
-    id: string;
+  modelHistory: {
+    id: string | null;
     UUID: string;
-    name: string;
-    version: string;
-    localeShortCode: string;
+    name: string | null;
+    version: string | null;
+    localeShortCode: string | null;
   }[];
   name: string;
   description: string;

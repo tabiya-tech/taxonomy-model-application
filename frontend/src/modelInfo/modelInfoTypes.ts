@@ -35,17 +35,17 @@ export namespace ModelInfoTypes {
   };
 
   export type UUIDHistory = {
-    id: string;
+    id: string | null;
     UUID: string;
-    name: string;
-    version: string;
-    localeShortCode: string;
+    name: string | null;
+    version: string | null;
+    localeShortCode: string | null;
   };
 
   export type ModelInfo = {
     id: string;
     UUID: string;
-    UUIDHistory: UUIDHistory[];
+    modelHistory: UUIDHistory[];
     released: boolean;
     releaseNotes: string;
     version: string;
