@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import { routerPaths } from "src/app/routerConfig";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AuthContext, UserRole, UserRoleContextValue } from "../providers";
 
 const uniqueId = "65b0785e-14d9-43a3-b260-869983312406";
