@@ -38,6 +38,7 @@ describe("Test for model handler", () => {
         },
         description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
         UUIDHistory: [randomUUID()],
+        language: getRandomString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
       };
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST,
@@ -90,6 +91,7 @@ describe("Test for model handler", () => {
         },
         description: "some text",
         UUIDHistory: [randomUUID()],
+        language: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       };
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST,

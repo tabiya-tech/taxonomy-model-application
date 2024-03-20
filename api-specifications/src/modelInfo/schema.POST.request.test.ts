@@ -33,6 +33,7 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.POST.Request.Payloa
       UUID: randomUUID(),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    language: getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
   };
 
   // WHEN the object is validated
@@ -88,6 +89,15 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.POST.Request.Payloa
       testUUIDArray<ModelInfoAPISpecs.Types.POST.Request.Payload>(
         "UUIDHistory",
         ModelInfoAPISpecs.Schemas.POST.Request.Payload,
+        [LocaleAPISpecs.Schemas.Payload]
+      );
+    });
+
+    describe("Test validation of 'language'", () => {
+      testNonEmptyStringField<ModelInfoAPISpecs.Types.POST.Response.Payload>(
+        "language",
+        ModelInfoConstants.LANGUAGE_MAX_LENGTH,
+        ModelInfoAPISpecs.Schemas.POST.Response.Payload,
         [LocaleAPISpecs.Schemas.Payload]
       );
     });

@@ -96,6 +96,7 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
     description: payload.description,
     locale: payload.locale,
     UUIDHistory: payload.UUIDHistory,
+    language: payload.language,
   };
   let newModelInfo: IModelInfo;
   try {

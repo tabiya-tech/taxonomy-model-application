@@ -4,6 +4,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
 {
   "Constants": {
     "DESCRIPTION_MAX_LENGTH": 4000,
+    "LANGUAGE_MAX_LENGTH": 256,
     "MAX_PAYLOAD_LENGTH": 6000,
     "MAX_URI_LENGTH": 4096,
     "NAME_MAX_LENGTH": 256,
@@ -206,6 +207,12 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 ],
                 "type": "object",
               },
+              "language": {
+                "description": "The language of the model",
+                "maxLength": 256,
+                "pattern": "\\S",
+                "type": "string",
+              },
               "locale": {
                 "$ref": "/components/schemas/LocaleSchema",
               },
@@ -264,6 +271,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "createdAt",
               "updatedAt",
               "UUIDHistory",
+              "language",
             ],
             "type": "object",
           },
@@ -291,6 +299,12 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "maxLength": 4000,
               "type": "string",
             },
+            "language": {
+              "description": "The language of the model",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
             "locale": {
               "$ref": "/components/schemas/LocaleSchema",
             },
@@ -306,6 +320,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "description",
             "locale",
             "UUIDHistory",
+            "language",
           ],
           "type": "object",
         },
@@ -486,6 +501,12 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               ],
               "type": "object",
             },
+            "language": {
+              "description": "The language of the model",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
             "locale": {
               "$ref": "/components/schemas/LocaleSchema",
             },
@@ -544,6 +565,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "createdAt",
             "updatedAt",
             "UUIDHistory",
+            "language",
           ],
           "type": "object",
         },

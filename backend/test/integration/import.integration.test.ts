@@ -104,6 +104,7 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
           UUID: randomUUID(),
           shortCode: "en",
         },
+        language: "english",
       });
 
       const importIdToDBIdMap: Map<string, string> = new Map<string, string>();

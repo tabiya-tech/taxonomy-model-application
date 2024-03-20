@@ -86,6 +86,14 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         ref: "ImportProcessState",
         required: true,
       },
+      language: {
+        type: String,
+        required: true,
+        maxlength: [
+          ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH,
+          `Language must be at most ${ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH} chars long`,
+        ],
+      }
     },
     {
       timestamps: true,

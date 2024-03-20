@@ -134,6 +134,7 @@ async function doImport(dataFolder: string): Promise<IModelInfo> {
       UUID: randomUUID(),
       shortCode: "en",
     },
+    language: "english",
   });
   const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
   await parseISCOGroupsFromFile(newModel.id, `${dataFolder}/isco_groups.csv`, importIdToDBIdMap);

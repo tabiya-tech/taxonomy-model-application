@@ -22,6 +22,7 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
     released: false,
     releaseNotes: getRandomString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     version: getRandomString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+    language: getRandomString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
     importProcessState: {
       id: getMockStringId(100000 + n),
       status: ImportProcessStateAPISpecs.Enums.Status.PENDING,

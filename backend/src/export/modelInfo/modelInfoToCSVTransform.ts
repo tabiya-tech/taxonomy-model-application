@@ -8,6 +8,7 @@ const modelInfoHeaders = [
   "UUIDHistory",
   "NAME",
   "LOCALE",
+  "LANGUAGE",
   "DESCRIPTION",
   "VERSION",
   "RELEASED",
@@ -20,6 +21,7 @@ interface IModelInfoRow {
   UUIDHistory: string;
   NAME: string;
   LOCALE: string;
+  LANGUAGE: string;
   DESCRIPTION: string;
   VERSION: string;
   RELEASED: "TRUE" | "FALSE";
@@ -33,6 +35,7 @@ export const transformModelInfoSpecToCSVRow = (modelInfo: IModelInfo): IModelInf
     UUIDHistory: modelInfo.UUIDHistory.join("\n"),
     NAME: modelInfo.name,
     LOCALE: modelInfo.locale.shortCode,
+    LANGUAGE: modelInfo.language,
     DESCRIPTION: modelInfo.description,
     VERSION: modelInfo.version,
     RELEASED: modelInfo.released ? "TRUE" : "FALSE",

@@ -13,6 +13,7 @@ export function transform(data: IModelInfo, baseURL: string): ModelInfoAPISpecs.
     released: data.released,
     releaseNotes: data.releaseNotes,
     locale: data.locale,
+    language: data.language,
     path: `${baseURL}${Routes.MODELS_ROUTE}/${data.id}`,
     tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.UUID}`,
     exportProcessState: data.exportProcessState.map((exportProcessState) => ({

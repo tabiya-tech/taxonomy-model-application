@@ -32,6 +32,7 @@ async function createModelInDB() {
     },
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
     UUIDHistory: [randomUUID()],
+    language: getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
   });
 }
 
@@ -129,6 +130,7 @@ describe("Test for model handler with a DB", () => {
       },
       description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       UUIDHistory: [randomUUID()],
+      language: getRandomString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
     };
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,

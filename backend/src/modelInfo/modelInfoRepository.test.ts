@@ -40,6 +40,7 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    language: getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH)
   };
 }
 

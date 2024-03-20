@@ -35,6 +35,12 @@ export const _baseProperties: any = {
       pattern: RegExp_Str_UUIDv4,
     },
   },
+  language: {
+    description: "The language of the model",
+    type: "string",
+    maxLength: ModelInfoConstants.LANGUAGE_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString
+  }
 };
 
 export const _baseResponseSchema = {
@@ -123,5 +129,6 @@ export const _baseResponseSchema = {
     "createdAt",
     "updatedAt",
     "UUIDHistory",
+    "language",
   ],
 };

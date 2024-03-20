@@ -45,6 +45,7 @@ interface IModelInfoRequest {
   description: string;
   locale: Locale.Types.Payload;
   UUIDHistory: string[];
+  language: string;
 }
 
 namespace ModelInfoTypes {

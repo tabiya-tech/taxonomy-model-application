@@ -24,6 +24,7 @@ export interface IModelInfoDoc {
   releaseNotes: string;
   version: string;
   importProcessState: mongoose.Types.ObjectId;
+  language: string;
 }
 
 /**
@@ -63,4 +64,4 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "modelId" | "importProce
 /**
  * Describe how a new model info is created with the API
  */
-export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "description" | "UUIDHistory">;
+export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "description" | "UUIDHistory" | "language">;

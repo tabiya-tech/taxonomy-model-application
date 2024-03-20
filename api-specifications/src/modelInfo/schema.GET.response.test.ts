@@ -83,6 +83,7 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+    language: getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
     exportProcessState: [givenExportProcessState],
     importProcessState: givenImportProcessState,
     createdAt: new Date().toISOString(),
@@ -219,6 +220,15 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       };
       testRefSchemaField("locale", givenSchema, validLocale, LocaleAPISpecs.Schemas.Payload);
+    });
+
+    describe("Test validation of 'language'", () => {
+      testNonEmptyStringField<ModelInfoAPISpecs.Types.POST.Response.Payload>(
+        "language",
+        ModelInfoConstants.LANGUAGE_MAX_LENGTH,
+        ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+        [LocaleAPISpecs.Schemas.Payload]
+      );
     });
 
     describe("Test validation of 'exportProcessState'", () => {

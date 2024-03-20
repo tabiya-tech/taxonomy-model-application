@@ -49,6 +49,7 @@ describe("Test the definition of the ModelInfo Model", () => {
         releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
         version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
         importProcessState: getMockObjectId(2),
+        language: getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
       },
     ],
     [
@@ -67,6 +68,7 @@ describe("Test the definition of the ModelInfo Model", () => {
         releaseNotes: "",
         importProcessState: getMockObjectId(2),
         version: "",
+        language: getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH),
       },
     ],
   ])("Successfully validate the modelInfo with %s", async (description, givenObject: IModelInfoDoc) => {
@@ -253,6 +255,32 @@ describe("Test the definition of the ModelInfo Model", () => {
             assertCaseForProperty<IModelInfoDoc>({
               model: ModelInfoModel,
               propertyNames: "released",
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+            });
+          }
+        );
+      });
+
+      describe("Test validation of 'language'", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "empty string", "", "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "Too long string",
+            getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH + 1),
+            `Language must be at most ${ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH} chars long`,
+          ],
+          [CaseType.Success, "Valid string", getTestString(ModelInfoAPISpecs.Constants.LANGUAGE_MAX_LENGTH), undefined],
+        ])(
+          "(%s) Validate 'language' when it is %s",
+          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IModelInfoDoc>({
+              model: ModelInfoModel,
+              propertyNames: "language",
               caseType,
               testValue: value,
               expectedFailureMessage,

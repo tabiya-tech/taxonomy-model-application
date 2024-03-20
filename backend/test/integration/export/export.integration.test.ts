@@ -118,6 +118,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       },
       description: "",
       UUIDHistory: [randomUUID()],
+      language: "english",
     });
 
     // AND occupationISCOGroups exist for that model
