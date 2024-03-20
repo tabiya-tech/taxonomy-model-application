@@ -35,6 +35,8 @@ import { getUserFriendlyErrorMessage, ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
 import { ErrorCodes } from "src/error/errorCodes";
 import ModelPropertiesDrawer from "./components/ModelProperties/ModelPropertiesDrawer";
+import { languageEnum } from "../import/components/ModelLanguageSelectField";
+
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
@@ -186,7 +188,11 @@ function getTestImportData(): ImportData {
     name: "South Africa",
     shortCode: "ZA",
   };
-  return { name, description, locale, selectedFiles };
+
+  // The language
+  const language: languageEnum = languageEnum.ENGLISH;
+
+  return { name, description, locale, selectedFiles, language };
 }
 
 describe("ModelDirectory", () => {

@@ -9,6 +9,7 @@ import { ImportFiles } from "./ImportFiles.type";
 import ModelLocalSelectField from "./components/ModelLocalSelectField";
 import LocaleAPISpecs from "api-specifications/locale";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
+import ModelLanguageSelectField, { languageEnum } from "./components/ModelLanguageSelectField";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f";
 export const DATA_TEST_ID = {
@@ -21,6 +22,7 @@ export interface ImportData {
   name: string;
   description: string;
   locale: LocaleAPISpecs.Types.Payload;
+  language: languageEnum;
   selectedFiles: ImportFiles;
 }
 
@@ -29,6 +31,7 @@ export type CloseEvent = { name: "CANCEL" | "IMPORT"; importData?: ImportData };
 export interface ImportModelDialogProps {
   isOpen: boolean; // if true, the dialog is open/shown
   availableLocales: LocaleAPISpecs.Types.Payload[];
+  languages: languageEnum[];
   notifyOnClose: (event: CloseEvent) => void; // callback function to notify the parent component when the dialog should close
 }
 
@@ -51,6 +54,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     name: "",
     description: "",
     locale: {} as any,
+    language: {} as any,
     selectedFiles: {},
   });
 
@@ -61,6 +65,11 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
 
   const handleLocaleChange = (newLocale: LocaleAPISpecs.Types.Payload) => {
     data.current.locale = { ...newLocale };
+    validateData();
+  };
+
+  const handleLanguageChange = (newLanguage: languageEnum) => {
+    data.current.language = newLanguage;
     validateData();
   };
 
@@ -83,7 +92,8 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     const invalid: boolean =
       currentData.name.length === 0 ||
       Object.keys(currentData.selectedFiles).length === 0 ||
-      currentData.locale === undefined;
+      currentData.locale === undefined ||
+      currentData.language === undefined;
     setIsImportButtonDisabled(invalid);
   };
 
@@ -103,6 +113,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         <Stack margin={theme.tabiyaSpacing.xs} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
+          <ModelLanguageSelectField languages={props.languages} notifyModelLanguageChanged={handleLanguageChange} />
           <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />
           <ImportFilesSelection notifySelectedFileChange={handleSelectedFileChange} />
         </Stack>

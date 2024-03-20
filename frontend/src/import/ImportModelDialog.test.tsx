@@ -1,13 +1,17 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { getByTestId, render, screen, fireEvent, within } from "src/_test_utilities/test-utils";
+import { fireEvent, getByTestId, render, screen, within } from "src/_test_utilities/test-utils";
 import ImportModelDialog, { DATA_TEST_ID, ImportData, ImportModelDialogProps } from "./ImportModelDialog";
 import { DATA_TEST_ID as MODEL_NAME_FIELD_DATA_TEST_ID } from "src/import/components/ModelNameField";
 import { DATA_TEST_ID as MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID } from "src/import/components/ModelLocalSelectField";
 import { DATA_TEST_ID as MODEL_DESCRIPTION_FIELD_DATA_TEST_ID } from "src/import/components/ModelDescriptionField";
 import { DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID } from "src/import/components/ImportFilesSelection";
 import { DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID } from "src/import/components/FileEntry";
+import {
+  languageEnum,
+  DATA_TEST_ID as MODEL_LANGUAGE_SELECT_FIELD_DATA_TEST_ID,
+} from "src/import/components/ModelLanguageSelectField";
 import ImportAPISpecs from "api-specifications/import";
 import { clickDebouncedButton, typeDebouncedInput } from "src/_test_utilities/userEventFakeTimer";
 import { ImportFiles } from "./ImportFiles.type";
@@ -31,6 +35,7 @@ const testProps: ImportModelDialogProps = {
       UUID: "bar",
     },
   ],
+  languages: [languageEnum.ENGLISH, languageEnum.FRENCH],
   notifyOnClose: notifyOnCloseMock,
 };
 
@@ -39,6 +44,7 @@ function getImportDataTestValues(): ImportData {
     name: "foo model name",
     description: "foo model description",
     locale: testProps.availableLocales[1],
+    language: testProps.languages[1],
     selectedFiles: Object.values(ImportAPISpecs.Constants.ImportFileTypes).reduce((acc, fileType) => {
       acc[fileType] = new File([fileType], fileType, { type: "text/plain" });
       return acc;
@@ -60,12 +66,24 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
   }
 
   // Selecting the locale
-  const dropdownElement = screen.getByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);
-  const button = within(dropdownElement).getByRole("combobox");
-  await userEvent.click(button);
-  const dropdownList = screen.getAllByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_ITEM);
-  const targetLocaleElement = dropdownList.find((item) => item.getAttribute("data-value") === inputData.locale.UUID);
+  const localeDropdownElement = screen.getByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_DROPDOWN);
+  const localeButton = within(localeDropdownElement).getByRole("combobox");
+  await userEvent.click(localeButton);
+  const localeDropdownList = screen.getAllByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_ITEM);
+  const targetLocaleElement = localeDropdownList.find(
+    (item) => item.getAttribute("data-value") === inputData.locale.UUID
+  );
   await userEvent.click(targetLocaleElement as HTMLElement);
+
+  // Select the language
+  const languageDropdownElement = screen.getByTestId(MODEL_LANGUAGE_SELECT_FIELD_DATA_TEST_ID.MODEL_LANGUAGE_DROPDOWN);
+  const languageButton = within(languageDropdownElement).getByRole("combobox");
+  await userEvent.click(languageButton);
+  const languageDropdownList = screen.getAllByTestId(MODEL_LANGUAGE_SELECT_FIELD_DATA_TEST_ID.MODEL_LANGUAGE_ITEM);
+  const targetLanguageElement = languageDropdownList.find(
+    (language) => language.getAttribute("data-value") === inputData.language
+  );
+  await userEvent.click(targetLanguageElement as HTMLElement);
 
   // Select the import files
   const importFilesSelectionElement: HTMLInputElement[] = screen.getAllByTestId(FILE_ENTRY_DATA_TEST_ID.FILE_INPUT);
@@ -109,6 +127,11 @@ describe("ImportModel dialog render tests", () => {
     // AND expect the Model Locale field to exist
     const modelLocaleElement = screen.getByTestId(MODEL_LOCALE_SELECT_FIELD_DATA_TEST_ID.MODEL_LOCALE_SELECT_FIELD);
     expect(modelLocaleElement).toBeInTheDocument();
+    // AND expect the Model Language field to exist
+    const modelLanguageElement = screen.getByTestId(
+      MODEL_LANGUAGE_SELECT_FIELD_DATA_TEST_ID.MODEL_LANGUAGE_SELECT_FIELD
+    );
+    expect(modelLanguageElement).toBeInTheDocument();
     // AND expect the Model Description field to exist
     const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESCRIPTION_FIELD);
     expect(modelDescriptionElement).toBeInTheDocument();
@@ -149,6 +172,16 @@ describe("ImportModel dialog render tests", () => {
       data.locale = undefined as any;
       return data;
     }],
+    */
+    /* This test cannot be done, as the user cannot select an empty language, unless there are no languages in which case there is something wrong already with the code.
+    [
+      "language is missing",
+      () => {
+        const data = getImportDataTestValues();
+        data.language = undefined as any;
+        return data;
+      },
+    ],
     */
     [
       "selectedFiles are missing",
@@ -249,6 +282,7 @@ describe("ImportModel dialog action tests", () => {
         name: givenData.name,
         description: givenData.description,
         locale: givenData.locale,
+        language: givenData.language,
         selectedFiles: givenData.selectedFiles,
       },
     });
@@ -295,6 +329,7 @@ describe("ImportModel dialog action tests", () => {
         name: givenData.name,
         description: givenData.description,
         locale: givenData.locale,
+        language: givenData.language,
         selectedFiles: expectedFiles,
       },
     });

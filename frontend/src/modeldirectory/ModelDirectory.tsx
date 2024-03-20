@@ -16,6 +16,7 @@ import ExportService from "src/export/export.service";
 import ModelPropertiesDrawer, {
   CloseEvent as DrawerCloseEvent,
 } from "./components/ModelProperties/ModelPropertiesDrawer";
+import { languageEnum } from "../import/components/ModelLanguageSelectField";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -41,6 +42,8 @@ export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
     UUID: "1df3d395-2a3d-4334-8fec-9d990bc8e3e4",
   },
 ];
+
+export const languages: languageEnum[] = [languageEnum.ENGLISH, languageEnum.FRENCH];
 
 const ModelDirectory = () => {
   const [isImportDlgOpen, setIsImportDlgOpen] = React.useState(false);
@@ -212,6 +215,7 @@ const ModelDirectory = () => {
           <ImportModelDialog
             isOpen={isImportDlgOpen}
             availableLocales={availableLocales}
+            languages={languages}
             notifyOnClose={handleOnImportDialogClose}
           />
         )}

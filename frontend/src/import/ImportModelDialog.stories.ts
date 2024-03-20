@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import ImportModelDialog from "./ImportModelDialog";
+import { languageEnum } from "./components/ModelLanguageSelectField";
 
 const meta: Meta<typeof ImportModelDialog> = {
   title: "Import/ImportModelDialog",
@@ -27,5 +28,6 @@ export const Shown: Story = {
         UUID: "1df3d395-2a3d-4334-8fec-9d990bc8e3e4",
       },
     ],
+    languages: [languageEnum.ENGLISH, languageEnum.FRENCH],
   },
 };
