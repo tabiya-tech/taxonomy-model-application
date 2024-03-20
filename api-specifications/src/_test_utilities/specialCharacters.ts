@@ -8,3 +8,7 @@ export function getTestString(length: number, prefix: string = ""): string {
     .slice(0, length)
     .padEnd(length, THREE_BYTE_UTF8_CHAR);
 }
+
+export function getAny<T>(items: T[]) {
+  return items[Math.floor(Math.random() * items.length)];
+}

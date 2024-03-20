@@ -1,3 +1,5 @@
+import ModelInfoEnums from "./enums";
+
 namespace ModelInfoConstants {
   export const NAME_MAX_LENGTH = 256;
   export const DESCRIPTION_MAX_LENGTH = 4000;
@@ -5,6 +7,7 @@ namespace ModelInfoConstants {
   export const VERSION_MAX_LENGTH = 256;
   export const MAX_PAYLOAD_LENGTH = 6000;
   export const MAX_URI_LENGTH = 4096;
+  export const Languages: ModelInfoEnums.Language[] = Object.values(ModelInfoEnums.Language);
 }
 
 export default ModelInfoConstants;

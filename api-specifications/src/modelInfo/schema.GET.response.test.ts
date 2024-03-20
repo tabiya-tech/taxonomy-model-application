@@ -21,7 +21,7 @@ import {
   getStdEnumTestCases,
 } from "_test_utilities/stdSchemaTestCases";
 import ModelInfoAPISpecs from "./index";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getAny, getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import LocaleAPISpecs from "locale";
@@ -83,6 +83,7 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+    language: getAny(ModelInfoConstants.Languages),
     exportProcessState: [givenExportProcessState],
     importProcessState: givenImportProcessState,
     createdAt: new Date().toISOString(),
@@ -200,6 +201,14 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         ModelInfoConstants.DESCRIPTION_MAX_LENGTH,
         givenSchema,
         [LocaleAPISpecs.Schemas.Payload]
+      );
+    });
+
+    describe("Test validation of 'language'", () => {
+      testEnumField(
+        "language",
+        givenSchema,
+        ModelInfoConstants.Languages,
       );
     });
 

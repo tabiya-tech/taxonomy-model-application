@@ -1,4 +1,9 @@
 namespace ModelInfoEnums {
+  export enum Language {
+    EN = "en",
+    FR = "fr",
+  }
+
   export namespace GET {
     export namespace Response {
       export enum ErrorCodes {

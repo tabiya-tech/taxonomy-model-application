@@ -1,6 +1,7 @@
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
 import ExportProcessState from "../exportProcessState";
+import ModelInfoEnums from "./enums";
 // Have a common supertype for all the responses to inherit from
 // These types are hidden because they should only be referenced through the index.
 interface IModelInfoResponse extends IModelInfoRequest {
@@ -10,6 +11,7 @@ interface IModelInfoResponse extends IModelInfoRequest {
   path: string;
   tabiyaPath: string;
   released: boolean;
+  language: ModelInfoEnums.Language
   releaseNotes: string;
   version: string;
   exportProcessState: {
@@ -44,6 +46,7 @@ interface IModelInfoRequest {
   name: string;
   description: string;
   locale: Locale.Types.Payload;
+  language: ModelInfoEnums.Language;
   UUIDHistory: string[];
 }
 

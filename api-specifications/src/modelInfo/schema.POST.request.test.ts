@@ -1,4 +1,5 @@
 import {
+  testEnumField,
   testNonEmptyStringField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
@@ -8,7 +9,7 @@ import {
 } from "_test_utilities/stdSchemaTests";
 import ModelInfoAPISpecs from "./index";
 import ModelInfoConstants from "./constants";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getAny, getTestString } from "_test_utilities/specialCharacters";
 import { randomUUID } from "crypto";
 import LocaleAPISpecs from "locale";
 
@@ -28,6 +29,7 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.POST.Request.Payloa
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     description: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     UUIDHistory: [randomUUID()],
+    language: getAny(ModelInfoConstants.Languages),
     locale: {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
@@ -80,6 +82,15 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.POST.Request.Payloa
         "description",
         ModelInfoConstants.DESCRIPTION_MAX_LENGTH,
         ModelInfoAPISpecs.Schemas.POST.Request.Payload,
+        [LocaleAPISpecs.Schemas.Payload]
+      );
+    });
+
+    describe("Test validation of 'language'", () => {
+      testEnumField(
+        "language",
+        ModelInfoAPISpecs.Schemas.POST.Request.Payload,
+        Object.values(ModelInfoConstants.Languages),
         [LocaleAPISpecs.Schemas.Payload]
       );
     });

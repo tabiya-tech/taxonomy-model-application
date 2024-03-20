@@ -18,7 +18,7 @@ import ModelInfoConstants from "./constants";
 import LocaleAPISpecs from "locale";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getAny, getTestString } from "_test_utilities/specialCharacters";
 import { ExportProcessState } from "exportProcessState/enums";
 import ImportProcessState from "importProcessState";
 import ExportProcessStateAPISpecs from "exportProcessState";
@@ -84,6 +84,7 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
     exportProcessState: [givenExportProcessState],
     importProcessState: givenImportProcessState,
+    language: getAny(ModelInfoConstants.Languages),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -189,6 +190,16 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
         "description",
         ModelInfoConstants.DESCRIPTION_MAX_LENGTH,
         ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+        [LocaleAPISpecs.Schemas.Payload]
+      );
+    });
+
+
+    describe("Test validation of 'language'", () => {
+      testEnumField(
+        "language",
+        ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+        Object.values(ModelInfoConstants.Languages),
         [LocaleAPISpecs.Schemas.Payload]
       );
     });

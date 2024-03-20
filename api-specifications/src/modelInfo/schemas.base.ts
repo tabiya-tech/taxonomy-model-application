@@ -26,6 +26,11 @@ export const _baseProperties: any = {
   locale: {
     $ref: `${Locale.Schemas.Payload.$id}`,
   },
+  language: {
+    description: "The language of the model",
+    type: "string",
+    enum: ModelInfoConstants.Languages
+  },
   UUIDHistory: {
     description: "The UUIDs history of the model.",
     type: "array",
@@ -79,6 +84,11 @@ export const _baseResponseSchema = {
       type: "string",
       maxLength: ModelInfoConstants.VERSION_MAX_LENGTH,
     },
+    language: {
+      description: "The language of the model",
+      type: "string",
+      enum: ModelInfoConstants.Languages
+    },
     exportProcessState: {
       description: "The export process state of the model.",
       type: "array",
@@ -110,6 +120,7 @@ export const _baseResponseSchema = {
   required: [
     "name",
     "description",
+    "language",
     "locale",
     "id",
     "UUID",
