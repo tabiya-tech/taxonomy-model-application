@@ -6,6 +6,7 @@ import {setupAsyncImportApi} from "./asyncImport";
 import {setupSwaggerBucket, setupRedocBucket} from "./openapiBuckets";
 import {setupDownloadBucket, setupDownloadBucketWritePolicy} from "./downloadBucket";
 import {setupAsyncExportApi} from "./asyncExport";
+import {setupCognito, setupUserGroups} from "./cognito";
 
 export const environment = pulumi.getStack();
 export const domainName = `${environment}.tabiya.tech`;
@@ -15,6 +16,17 @@ export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 export const currentRegion = pulumi.output(aws.getRegion()).name;
 
 const allowedOrigins = [`https://${domainName}`];
+
+/**
+ * setup cognito
+ */
+
+const userPool = setupCognito(environment);
+
+/**
+ * Setup User Groups
+ */
+setupUserGroups(userPool);
 
 /**
  * Setup Download Bucket
