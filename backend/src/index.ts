@@ -2,7 +2,7 @@ import { Handler, APIGatewayProxyEvent } from "aws-lambda";
 import { handler as InfoHandler } from "applicationInfo";
 import { handler as ModelHandler } from "modelInfo";
 import { handler as ImportHandler } from "import";
-import { STD_ERRORS_RESPONSES } from "server/httpUtils";
+import {responseJSON, StatusCodes, STD_ERRORS_RESPONSES} from "server/httpUtils";
 import { handler as presignedHandler } from "presigned";
 import { handler as ExportHandler } from "export";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
@@ -33,6 +33,13 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return ImportHandler(event);
   } else if (event.path === Routes.EXPORT_ROUTE) {
     return ExportHandler(event);
+  } else if (event.path === Routes.AUTH_CHECK_ROUTE) {
+    return  responseJSON(
+      StatusCodes.OK,
+      {
+        authContext: event.requestContext.authorizer,
+      }
+    );
   }
   return STD_ERRORS_RESPONSES.NOT_FOUND;
 };
