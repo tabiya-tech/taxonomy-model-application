@@ -278,14 +278,16 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
       });
     });
 
-    describe("Test validation of UUIDHistory fields", () => {
-      describe("Test validation of 'UUIDHistory/id'", () => {
-        test.each([...getStdObjectIdTestCases("/UUIDHistory/0/id")])(
+    describe("Test validation of modelHistory fields", () => {
+      describe("Test validation of 'modelHistory/id'", () => {
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdObjectIdTestCases("/modelHistory/0/id").filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
           "(%s) Validate 'id' when it is %s",
           (caseType, _description, givenValue, failureMessages) => {
             //   GIVEN an object with the given value
             const givenObject = {
-              UUIDHistory: [
+              modelHistory: [
                 {
                   id: givenValue,
                 },
@@ -293,7 +295,7 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
             };
             // THEN expect the object to validate accordingly
             assertCaseForProperty(
-              "/UUIDHistory/0/id",
+              "/modelHistory/0/id",
               givenObject,
               ModelInfoAPISpecs.Schemas.POST.Response.Payload,
               caseType,
@@ -304,13 +306,13 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
         );
       });
 
-      describe("Test validation of 'UUIDHistory/UUID'", () => {
-        test.each([...getStdUUIDTestCases("/UUIDHistory/0/UUID")])(
+      describe("Test validation of 'modelHistory/UUID'", () => {
+        test.each([...getStdUUIDTestCases("/modelHistory/0/UUID")])(
           `(%s) Validate 'UUID' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
             // GIVEN an object with the given value
             const givenObject = {
-              UUIDHistory: [
+              modelHistory: [
                 {
                   UUID: givenValue,
                 },
@@ -318,7 +320,7 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
             };
             // THEN expect the object to validate accordingly
             assertCaseForProperty(
-              "/UUIDHistory/0/UUID",
+              "/modelHistory/0/UUID",
               givenObject,
               ModelInfoAPISpecs.Schemas.POST.Response.Payload,
               caseType,
@@ -329,13 +331,18 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
         );
       });
 
-      describe("Test validation of 'UUIDHistory/name'", () => {
-        test.each([...getStdNonEmptyStringTestCases("/UUIDHistory/0/name", ModelInfoConstants.NAME_MAX_LENGTH)])(
+      describe("Test validation of 'modelHistory/name'", () => {
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdNonEmptyStringTestCases(
+          "/modelHistory/0/name",
+          ModelInfoConstants.NAME_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
           `(%s) Validate 'name' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
             // GIVEN an object with the given value
             const givenObject = {
-              UUIDHistory: [
+              modelHistory: [
                 {
                   name: givenValue,
                 },
@@ -343,7 +350,7 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
             };
             // THEN expect the object to validate accordingly
             assertCaseForProperty(
-              "/UUIDHistory/0/name",
+              "/modelHistory/0/name",
               givenObject,
               ModelInfoAPISpecs.Schemas.POST.Response.Payload,
               caseType,
@@ -354,14 +361,19 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
         );
       });
 
-      describe("Test validation of 'UUIDHistory/version'", () => {
-        test.each([...getStdStringTestCases("/UUIDHistory/0/version", ModelInfoConstants.VERSION_MAX_LENGTH)])(
+      describe("Test validation of 'modelHistory/version'", () => {
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdStringTestCases(
+          "/modelHistory/0/version",
+          ModelInfoConstants.VERSION_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
           `(%s) Validate 'version' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
             // GIVEN an object with the given value
             //@ts-ignore
             const givenObject = {
-              UUIDHistory: [
+              modelHistory: [
                 {
                   version: givenValue,
                 },
@@ -369,7 +381,7 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
             };
             // THEN expect the object to validate accordingly
             assertCaseForProperty(
-              "/UUIDHistory/0/version",
+              "/modelHistory/0/version",
               givenObject,
               ModelInfoAPISpecs.Schemas.POST.Response.Payload,
               caseType,
@@ -381,30 +393,33 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
       });
 
       describe("Test validation of 'modelHistory/localeShortCode'", () => {
-        test.each([
-          ...getStdNonEmptyStringTestCases(
-            "/UUIDHistory/0/localeShortCode",
-            LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-          ),
-        ])(`(%s) Validate 'localeShortCode' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          const givenObject = {
-            modelHistory: [
-              {
-                localeShortCode: givenValue,
-              },
-            ],
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "/modelHistory/0/localeShortCode",
-            givenObject,
-            ModelInfoAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
-          );
-        });
+        // filter out the null case since the field can be null, and then replace it with our own case
+        const testCases = getStdNonEmptyStringTestCases(
+          "/modelHistory/0/localeShortCode",
+          LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "null");
+        test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
+          `(%s) Validate 'localeShortCode' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with the given value
+            const givenObject = {
+              modelHistory: [
+                {
+                  localeShortCode: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/modelHistory/0/localeShortCode",
+              givenObject,
+              ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
       });
     });
 
