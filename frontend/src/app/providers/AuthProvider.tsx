@@ -1,7 +1,8 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, {createContext, useEffect, useState} from "react";
 import { useCookies } from "react-cookie";
 import { useLocation } from "react-router-dom";
 import { Backdrop } from "../../theme/Backdrop/Backdrop";
+import { jwtDecode } from "jwt-decode";
 
 // interface ILocale {
 //   UUID: string;
@@ -19,11 +20,11 @@ import { Backdrop } from "../../theme/Backdrop/Backdrop";
 // };
 
 export enum UserRole {
-  Admin = "ADMIN",
-  ModelManager = "MODEL_MANAGER",
-  ReadOnlyUser = "READ_ONLY_USER",
-  RegisteredUser = "REGISTERED_USER",
-  AnonymousUser = "ANONYMOUS_USER",
+  Admin = "admins-group",
+  ModelManager = "model-managers-group",
+  ReadOnlyUser = "read-only-users-group",
+  RegisteredUser = "registered-users-group",
+  AnonymousUser = "",
 }
 
 type AuthProviderProps = {
@@ -36,12 +37,13 @@ export type UserRoleContextValue = {
   identityToken: string;
   userRole: UserRole;
   setCookie: (name: "authCookie", value: string, options?: any) => void;
+  logout: () => void;
 };
 
 function getCodeQueryParam() {
   const location = window.location;
   const searchParams = new URLSearchParams(location.search);
-  return searchParams.get("code") || "";
+  return searchParams.get("code") ?? "";
 }
 
 function getLocation() {
@@ -73,12 +75,36 @@ function exchangeCodeWithTokens(auth_code: string) {
       throw error;
     });
 }
+
+const refreshAccessToken = (refreshToken: string) => {
+  const encodedRefreshToken = encodeURIComponent(refreshToken);
+  const encodedClientId = encodeURIComponent("77lkf19od35ss9r6kk4nn23kq7");
+  const encodedClientSecret = encodeURIComponent("ncf1kt2jnpp45o5c9tjpo3ju1ip84b8a4f9dhbveuqmlteqjidt");
+  const url = `https://auth.dev.tabiya.tech/oauth2/token?refresh_token=${encodedRefreshToken}&grant_type=refresh_token&client_id=${encodedClientId}`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Basic ${btoa(`${encodedClientId}:${encodedClientSecret}`)}`,
+  };
+
+  return fetch(url, {
+    method: "POST",
+    headers: headers,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Response Data:", data);
+      return data; // Return the data for further use if needed
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      throw error;
+    });
+}
 export const AuthContext = createContext<UserRoleContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [cookies, setCookie] = useCookies(["authCookie"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["authCookie", "accessToken", "refreshToken", "identityToken"]);
   const [userRole, setUserRole] = useState<UserRole>(UserRole.AnonymousUser);
-  //const [code, setCode] = useState<string>(getCodeQueryParam());
   const [negotiating, setNegotiating] = useState<boolean>(false);
 
   const location = useLocation();
@@ -91,7 +117,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setNegotiating(true);
       exchangeCodeWithTokens(code)
         .then((data) => {
-          // get user role from token
+          const { access_token, refresh_token, id_token } = data;
+          setCookie("accessToken", access_token);
+          setCookie("refreshToken", refresh_token);
+          setCookie("identityToken", id_token);
+          const decodedToken = jwtDecode(id_token);
+          console.log("Decoded Token:", decodedToken);
+          // @ts-ignore
+          setUserRole(decodedToken["cognito:groups"][0]);
           setNegotiating(false);
         })
         .catch((error) => {
@@ -104,14 +137,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const authCookie = cookies.authCookie;
     setUserRole(authCookie);
-  }, [cookies.authCookie, location]);
+  }, [cookies.authCookie, location, setCookie]);
+  
+  //periodically check if the access token is expired and refresh it
+  useEffect(() => {
+    const accessToken = cookies.accessToken;
+    const refreshToken = cookies.refreshToken;
+    const interval = setInterval(() => {
+      if (accessToken) {
+        const decodedToken = jwtDecode(accessToken);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken && decodedToken.exp && decodedToken.exp < currentTime) {
+          console.log("Access Token Expired. Refreshing ...");
+          refreshAccessToken(refreshToken)
+            .then((data: { access_token: any; refresh_token: any; id_token: any }) => {
+              const { access_token, refresh_token, id_token } = data;
+              setCookie("accessToken", access_token);
+              setCookie("refreshToken", refresh_token);
+              setCookie("identityToken", id_token);
+              const decodedToken = jwtDecode(id_token);
+              console.log("Decoded Token:", decodedToken);
+              // @ts-ignore
+              setUserRole(UserRole[decodedToken["cognito:groups"][0]]);
+              // @ts-ignore
+              console.log("user role:", UserRole[decodedToken["cognito:groups"][0]]);
+            })
+            .catch((error: any) => {
+              console.error("Error:", error);
+            });
+        } else {
+          console.log("Access Token is still valid");
+          console.log("user role:", userRole);
+        }
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [cookies.accessToken, cookies.refreshToken, setCookie, userRole]);
+
+  // Handles user logout, clears cookies, and resets application state.
+  const logout = () => {
+    removeCookie("authCookie", { path: "/" });
+    removeCookie("accessToken", { path: "/" });
+    removeCookie("refreshToken", { path: "/" });
+    setUserRole(UserRole.AnonymousUser);
+    window.open(
+      "https://auth.dev.tabiya.tech/logout?client_id=77lkf19od35ss9r6kk4nn23kq7&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=http%3A%2F%2Flocalhost%3A3000/",
+      "_self"
+    );
+  };
+
 
   const authContextValue: UserRoleContextValue = {
-    accessToken: "",
-    refreshToken: "",
-    identityToken: "",
+    accessToken: cookies.accessToken,
+    refreshToken: cookies.refreshToken,
+    identityToken: cookies.identityToken,
     userRole,
     setCookie,
+    logout,
   };
 
   return (

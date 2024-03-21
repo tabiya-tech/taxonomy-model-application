@@ -1,10 +1,10 @@
-import { Box, IconButton, Menu, MenuItem } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import {Box, IconButton, Menu, MenuItem} from "@mui/material";
+import {NavLink} from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
-import { routerPaths } from "src/app/routerConfig";
+import {routerPaths} from "src/app/routerConfig";
 import * as React from "react";
-import { useState } from "react";
-import { AuthContext, UserRole, UserRoleContextValue } from "../providers";
+import {useState} from "react";
+import {AuthContext, UserRole, UserRoleContextValue} from "../providers";
 
 const uniqueId = "65b0785e-14d9-43a3-b260-869983312406";
 export const DATA_TEST_ID = {
@@ -15,7 +15,7 @@ export const DATA_TEST_ID = {
 };
 const AppHeader = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const { userRole, setCookie } = React.useContext(AuthContext) as UserRoleContextValue;
+  const { userRole, setCookie, logout } = React.useContext(AuthContext) as UserRoleContextValue;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -45,7 +45,6 @@ const AppHeader = () => {
       "_self"
     );
   };
-
   return (
     <Box
       display="flex"
@@ -62,7 +61,7 @@ const AppHeader = () => {
           <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} />
         </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-          <MenuItem onClick={handleLogin}>Login</MenuItem>
+          {userRole === UserRole.AnonymousUser ? <MenuItem onClick={handleLogin}>Login</MenuItem> : <MenuItem onClick={logout}>Logout</MenuItem>}
           <MenuItem onClick={handleUser}>User</MenuItem>
           <MenuItem onClick={handleModelManager}>Model Manager</MenuItem>
           <MenuItem onClick={handleAdmin}>Admin</MenuItem>
