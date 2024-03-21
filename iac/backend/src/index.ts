@@ -26,7 +26,7 @@ const userPool = setupCognito(environment);
 /**
  * Setup User Groups
  */
-setupUserGroups(userPool);
+// setupUserGroups(userPool);
 
 /**
  * Setup Download Bucket
@@ -83,7 +83,7 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   async_import_lambda_function_arn: asyncImportLambdaFunction.arn,
   async_export_lambda_function_arn: asyncExportLambdaFunction.arn,
   async_lambda_function_region: currentRegion
-});
+}, userPool);
 
 export const backendRestApi = {
   restApiArn: restApi.arn,

@@ -3,6 +3,7 @@ import * as pulumi from "@pulumi/pulumi";
 import {asset, Output} from "@pulumi/pulumi";
 import {RestApi, Stage} from "@pulumi/aws/apigateway";
 import {randomUUID} from "crypto";
+import {UserPool} from "@pulumi/aws/cognito";
 
 const buildFolderPath = "../../backend/build/rest";
 
@@ -24,7 +25,7 @@ export function setupBackendRESTApi(environment: string, config: {
   async_import_lambda_function_arn: Output<string>,
   async_export_lambda_function_arn: Output<string>,
   async_lambda_function_region: Output<string>,
-}): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
+}, userPool: UserPool): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
   /**
    * Lambda for api
    */
@@ -162,15 +163,27 @@ export function setupBackendRESTApi(environment: string, config: {
   });
 
   /**
+   * setup cognito authorizer
+   */
+  const authorizer = new aws.apigateway.Authorizer("model-api-authorizer", {
+    restApi: restApi.id,
+    name: "model-api-authorizer",
+    type: "COGNITO_USER_POOLS",
+    identitySource: "method.request.header.Authorization",
+    providerArns: [userPool.arn],
+  });
+
+  /**
    * setup method ANY
    */
     // Create a new API Gateway method
   const anyApiMethod = new aws.apigateway.Method("model-api-method", {
-      authorization: "NONE",
+      authorization: "COGNITO_USER_POOLS",
+      authorizerId: authorizer.id,
       httpMethod: "ANY",
       resourceId: apiResource.id,
       restApi: restApi.id,
-    }, {dependsOn: [apiResource, restApi]});
+    }, {dependsOn: [apiResource, restApi, authorizer]});
 
   // Create a new Lambda proxy integration
   const lambdaAnyIntegration = new aws.apigateway.Integration("model-api-integration", {
