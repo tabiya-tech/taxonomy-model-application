@@ -229,7 +229,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                     },
                     "localeShortCode": {
                       "description": "The short code of the locale",
-                      "maxLength": 3,
+                      "maxLength": 20,
                       "pattern": "\\S",
                       "type": [
                         "string",
@@ -566,7 +566,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                   },
                   "localeShortCode": {
                     "description": "The short code of the locale",
-                    "maxLength": 3,
+                    "maxLength": 20,
                     "pattern": "\\S",
                     "type": [
                       "string",
