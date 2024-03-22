@@ -18,7 +18,7 @@ import "@fontsource/roboto/700.css";
 */
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
-import {IsOnlineProvider} from "../src/app/providers";
+import {AuthProvider,IsOnlineProvider} from "../src/app/providers";
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
@@ -53,13 +53,15 @@ export const decorators = [
     <Router>
       <CssBaseline />
       <IsOnlineProvider>
-        <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
-          <CustomSnackbarProvider>
-            <div style={{ height: "100vh" }}>
-              <Story />
-            </div>
-          </CustomSnackbarProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+            <CustomSnackbarProvider>
+              <div style={{ height: "100vh" }}>
+                <Story />
+              </div>
+            </CustomSnackbarProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </IsOnlineProvider>
     </Router>
   ),

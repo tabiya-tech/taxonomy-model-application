@@ -1,7 +1,10 @@
-import { Box } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import {Box, IconButton, Menu, MenuItem} from "@mui/material";
+import {NavLink} from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
-import { routerPaths } from "src/app/routerConfig";
+import {routerPaths} from "src/app/routerConfig";
+import * as React from "react";
+import {useState} from "react";
+import {AuthContext, UserRole, UserRoleContextValue} from "../providers";
 
 const uniqueId = "65b0785e-14d9-43a3-b260-869983312406";
 export const DATA_TEST_ID = {
@@ -11,6 +14,37 @@ export const DATA_TEST_ID = {
   APP_HEADER_ICON_USER: `app-header-icon-user-${uniqueId}`,
 };
 const AppHeader = () => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const { userRole, setCookie, logout } = React.useContext(AuthContext) as UserRoleContextValue;
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleUser = () => {
+    setCookie("authCookie", UserRole.ReadOnlyUser);
+    setAnchorEl(null);
+  };
+
+  const handleModelManager = () => {
+    setCookie("authCookie", UserRole.ModelManager);
+    setAnchorEl(null);
+  };
+
+  const handleAdmin = () => {
+    setCookie("authCookie", UserRole.Admin);
+    setAnchorEl(null);
+  };
+  const handleLogin = () => {
+    window.open(
+      "https://auth.dev.tabiya.tech/login?client_id=77lkf19od35ss9r6kk4nn23kq7&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=http%3A%2F%2Flocalhost%3A3000/",
+      "_self"
+    );
+  };
   return (
     <Box
       display="flex"
@@ -21,7 +55,18 @@ const AppHeader = () => {
       <NavLink style={{ lineHeight: 0 }} to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
         <img src="/logo.svg" alt="Tabiya" height={"30px"} data-testid={DATA_TEST_ID.APP_HEADER_LOGO} />
       </NavLink>
-      <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} />
+      <Box display="flex" alignItems="center" gap={2}>
+        {userRole === UserRole.Admin ? "Admin" : userRole === UserRole.ReadOnlyUser ? "User" : "Model Manager"}
+        <IconButton onClick={handleClick}>
+          <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} />
+        </IconButton>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+          {userRole === UserRole.AnonymousUser ? <MenuItem onClick={handleLogin}>Login</MenuItem> : <MenuItem onClick={logout}>Logout</MenuItem>}
+          <MenuItem onClick={handleUser}>User</MenuItem>
+          <MenuItem onClick={handleModelManager}>Model Manager</MenuItem>
+          <MenuItem onClick={handleAdmin}>Admin</MenuItem>
+        </Menu>
+      </Box>
     </Box>
   );
 };

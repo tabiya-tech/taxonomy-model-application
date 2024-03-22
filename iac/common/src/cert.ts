@@ -9,6 +9,7 @@ export function setupCert(domainName: string, dns: Zone): aws.acm.Certificate {
 
   const cert = new aws.acm.Certificate("cert", {
     domainName: domainName,
+    subjectAlternativeNames: [`*.${domainName}`],
     tags: {
       Environment: "dev",
     },
