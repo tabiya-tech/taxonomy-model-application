@@ -171,7 +171,10 @@ export function setupBackendRESTApi(environment: string, config: {
     type: "COGNITO_USER_POOLS",
     identitySource: "method.request.header.Authorization",
     providerArns: [userPool.arn],
-    identityValidationExpression: '^Bearer.*'
+    identityValidationExpression: '^Bearer.*',
+    // Allow unauthenticated requests
+    authorizerResultTtlInSeconds: 0,
+
   });
 
   /**
