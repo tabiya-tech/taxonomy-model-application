@@ -3,7 +3,7 @@
 exports[`Test the locale module The locale module matches the snapshot 1`] = `
 {
   "Constants": {
-    "LOCALE_SHORTCODE_MAX_LENGTH": 3,
+    "LOCALE_SHORTCODE_MAX_LENGTH": 20,
     "NAME_MAX_LENGTH": 256,
   },
   "Schemas": {
@@ -24,7 +24,7 @@ exports[`Test the locale module The locale module matches the snapshot 1`] = `
         },
         "shortCode": {
           "description": "The short code of the locale",
-          "maxLength": 3,
+          "maxLength": 20,
           "pattern": "\\S",
           "type": "string",
         },
