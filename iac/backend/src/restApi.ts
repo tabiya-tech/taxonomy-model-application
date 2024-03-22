@@ -101,7 +101,7 @@ export function setupBackendRESTApi(environment: string, config: {
     policyArn: asyncExportLambdaInvokePolicy.arn,
     role: lambdaRole.name,
   });
-    
+
   // Build the source code archive
   let fileArchive = new asset.FileArchive(buildFolderPath);
 
@@ -183,11 +183,11 @@ export function setupBackendRESTApi(environment: string, config: {
     // Create a new API Gateway method
   const anyApiMethod = new aws.apigateway.Method("model-api-method", {
       authorization: "COGNITO_USER_POOLS",
-      authorizerId: authorizer.id,
+      // authorizerId: authorizer.id,
       httpMethod: "ANY",
       resourceId: apiResource.id,
       restApi: restApi.id,
-    }, {dependsOn: [apiResource, restApi, authorizer]});
+    }, {dependsOn: [apiResource, restApi]});
 
   // Create a new Lambda proxy integration
   const lambdaAnyIntegration = new aws.apigateway.Integration("model-api-integration", {
