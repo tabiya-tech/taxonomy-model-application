@@ -39,9 +39,15 @@ export const HELP_TIP_TEXT = {
 };
 
 const Bold = ({ children }: PropsWithChildren) => (
-  <Box component="span" fontWeight="bold">
+  <Box component="span" fontWeight="bold" paddingLeft={(theme) => theme.spacing(0.5)}>
     {children}
   </Box>
+);
+
+const TypographyComponent = ({ children }: PropsWithChildren) => (
+  <Typography display="flex" alignItems="center" flexWrap="wrap" data-testid={DATA_TEST_ID.MESSAGE}>
+    {children}
+  </Typography>
 );
 
 const Message = (props: Readonly<{ exportProcessState: ModelInfoTypes.ExportProcessState }>) => {
@@ -50,65 +56,65 @@ const Message = (props: Readonly<{ exportProcessState: ModelInfoTypes.ExportProc
   switch (status) {
     case ExportProcessStateEnums.Status.PENDING:
       return (
-        <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+        <TypographyComponent>
           Pending
           <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PENDING}>{HELP_TIP_TEXT.PENDING}</HelpTip>
-        </Typography>
+        </TypographyComponent>
       );
     case ExportProcessStateEnums.Status.RUNNING:
       return (
-        <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+        <TypographyComponent>
           Running
           <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_RUNNING}>{HELP_TIP_TEXT.RUNNING}</HelpTip>
-        </Typography>
+        </TypographyComponent>
       );
 
     case ExportProcessStateEnums.Status.COMPLETED:
       if (!result.errored && !result.exportErrors && !result.exportWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed successfully
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_SUCCESS}>{HELP_TIP_TEXT.SUCCESS}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
 
       if (!result.errored && result.exportErrors && !result.exportWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed with <Bold>export errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_EXPORT_ERROR}>{HELP_TIP_TEXT.EXPORT_ERROR}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
       if (!result.errored && !result.exportErrors && result.exportWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed with <Bold>export warnings</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_EXPORT_WARNING}>{HELP_TIP_TEXT.EXPORT_WARNING}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
       if (!result.errored && result.exportErrors && result.exportWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             <span>Completed with</span>
             <Bold> export errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_EXPORT_ERROR}>{HELP_TIP_TEXT.EXPORT_ERROR}</HelpTip>
             and <Bold>export warnings</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_EXPORT_WARNING}>{HELP_TIP_TEXT.EXPORT_WARNING}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       } else {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed with <Bold>critical errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_ERROR}>{HELP_TIP_TEXT.ERROR}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
     default:
-      return <Typography data-testid={DATA_TEST_ID.MESSAGE}>Completed with unexpected status {status}</Typography>;
+      return <TypographyComponent>Completed with unexpected status {status}</TypographyComponent>;
   }
 };
 
@@ -126,16 +132,10 @@ const ExportStatusPropertyField: React.FC<ExportStatusPropertyFieldProps> = (
   return (
     <PropertyFieldLayout title="Status" fieldId={props.fieldId} data-testid={props["data-testid"]}>
       <Box display="flex" flexDirection="row" alignItems="center" gap={theme.spacing(1)}>
-        <Box
-          sx={{
-            padding: theme.spacing(0.5),
-          }}
-        >
-          <ExportProcessStateIcon
-            exportProcessState={props.exportProcessState}
-            data-tested={DATA_TEST_ID.PROCESS_STATUS_ICON}
-          />
-        </Box>
+        <ExportProcessStateIcon
+          exportProcessState={props.exportProcessState}
+          data-tested={DATA_TEST_ID.PROCESS_STATUS_ICON}
+        />
         <Message exportProcessState={props.exportProcessState} />
       </Box>
     </PropertyFieldLayout>

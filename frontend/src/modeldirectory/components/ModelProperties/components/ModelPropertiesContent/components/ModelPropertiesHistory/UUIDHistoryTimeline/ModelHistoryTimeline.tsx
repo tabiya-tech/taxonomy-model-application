@@ -31,7 +31,6 @@ const ModelHistoryTimeline: React.FC<UUIDHistoryTimelineProps> = (props) => {
     <Timeline
       data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE}
       sx={{
-        // padding: 0,
         [`& .${timelineItemClasses.root}:before`]: {
           flex: 0,
           padding: 0,
@@ -42,9 +41,7 @@ const ModelHistoryTimeline: React.FC<UUIDHistoryTimelineProps> = (props) => {
         <TimelineItem
           data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_ITEM}
           key={UUIDHistory.UUID}
-          sx={{
-            minHeight: 0,
-          }}
+          sx={{ minHeight: (theme) => theme.spacing(5) }}
         >
           <TimelineSeparator data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_SEPARATOR}>
             <TimelineDot data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_DOT} color="primary" sx={{ margin: 0 }} />
@@ -53,12 +50,12 @@ const ModelHistoryTimeline: React.FC<UUIDHistoryTimelineProps> = (props) => {
               sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
             />
           </TimelineSeparator>
-          <TimelineContent
-            data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_CONTENT}
-            sx={{ display: "flex", flexDirection: "column", justifyContent: "center" }}
-          >
-            <Typography variant="body1" sx={{ textAlign: "start" }}>
-              {UUIDHistory.id === null || UUIDHistory.name === null || UUIDHistory.version === null || UUIDHistory.localeShortCode === null
+          <TimelineContent data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_CONTENT} sx={{ paddingTop: 0 }}>
+            <Typography variant="body1">
+              {UUIDHistory.id === null ||
+              UUIDHistory.name === null ||
+              UUIDHistory.version === null ||
+              UUIDHistory.localeShortCode === null
                 ? `${UUIDHistory.UUID}: (details not available)`
                 : `${UUIDHistory.name} ${UUIDHistory.version} (${UUIDHistory.localeShortCode})`}
             </Typography>
