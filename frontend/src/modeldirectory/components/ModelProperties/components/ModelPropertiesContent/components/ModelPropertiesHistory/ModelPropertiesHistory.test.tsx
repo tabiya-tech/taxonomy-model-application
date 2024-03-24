@@ -3,10 +3,17 @@ import "src/_test_utilities/consoleMock";
 
 import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 import { render, screen } from "src/_test_utilities/test-utils";
-import ModelPropertiesHistory, { DATA_TEST_ID, FIELD_LABEL_TEXT } from "./ModelPropertiesHistory";
+import ModelPropertiesHistory, {
+  DATA_TEST_ID,
+  FIELD_ID,
+  FIELD_LABEL_TEXT,
+  HELP_TIP_TEXT,
+} from "./ModelPropertiesHistory";
 import FormattedDatePropertyField from "src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDatePropertyField";
+import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
 import { DATA_TEST_ID as UUIDHistoryTimelineDataTestId } from "./UUIDHistoryTimeline/ModelHistoryTimeline";
 import * as React from "react";
+
 //mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDatePropertyField", () => {
   const mockFormattedDatePropertyField = jest
@@ -38,6 +45,12 @@ jest.mock("./UUIDHistoryTimeline/ModelHistoryTimeline", () => {
     }),
   };
 });
+
+// mock the propertyFieldLayout component
+jest.mock("src/theme/PropertyFieldLayout/PropertyFieldLayout", () => {
+  return jest.fn().mockImplementation(({ children }) => <div>{children}</div>);
+});
+
 describe("ModelPropertiesHistory", () => {
   afterEach(() => {
     jest.restoreAllMocks();
@@ -80,6 +93,16 @@ describe("ModelPropertiesHistory", () => {
         date: givenModel.updatedAt,
         label: FIELD_LABEL_TEXT.LAST_UPDATE,
         fieldId: expect.any(String),
+      },
+      {}
+    );
+    // AND the PropertyFieldLayout to be called with the correct props
+    expect(PropertyFieldLayout).toHaveBeenCalledWith(
+      {
+        title: "Model History",
+        helpTipMessage: HELP_TIP_TEXT.MODEL_HISTORY,
+        fieldId: FIELD_ID.UUID_HISTORY_FIELD,
+        children: expect.anything(),
       },
       {}
     );

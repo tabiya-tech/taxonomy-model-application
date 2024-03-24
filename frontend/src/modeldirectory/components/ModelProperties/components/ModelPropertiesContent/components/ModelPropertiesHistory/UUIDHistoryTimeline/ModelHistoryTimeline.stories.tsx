@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react";
 import ModelHistoryTimeline from "./ModelHistoryTimeline";
 import {
   getFakeUUIDHistoryDetailsArray,
-  getFakeUUIDHistoryDetailsArrayWithUnresolvedUUIDS
+  getFakeUUIDHistoryDetailsArrayWithUnresolvedUUIDS,
 } from "./_test_utilities/mockData";
+import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ModelHistoryTimeline> = {
   title:
@@ -31,7 +32,16 @@ export const ShownWithUnresolvedUUIDS: Story = {
 
 export const ShownWithMixedResolvedAndUnresolvedUUIDS: Story = {
   args: {
-    UUIDHistoryDetails: [...getFakeUUIDHistoryDetailsArrayWithUnresolvedUUIDS(3), ...getFakeUUIDHistoryDetailsArray(3)].sort(() => 0.5 - Math.random()),
+    UUIDHistoryDetails: [
+      ...getFakeUUIDHistoryDetailsArrayWithUnresolvedUUIDS(3),
+      ...getFakeUUIDHistoryDetailsArray(3),
+    ].sort(() => 0.5 - Math.random()),
+  },
+};
+
+export const ShownWithLongModelName: Story = {
+  args: {
+    UUIDHistoryDetails: getOneFakeModel(1).modelHistory,
   },
 };
 

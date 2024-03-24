@@ -44,8 +44,10 @@ describe("parseSelectedModelInfoFile tests", () => {
     const testFileName = "test.csv";
     const testFileContent = 'Name,UUIDHistory\nJohn Doe,"UUID1\nUUID2\nUUID3"';
     // AND GIVEN the parser will fail
-    jest.spyOn(require("papaparse"), "parse").mockImplementation(() => {
-      throw new Error("Error parsing the file");
+    jest.spyOn(require("papaparse"), "parse").mockImplementation((file, config: unknown) => {
+      const mockError = { message: "Mock error during parsing" };
+      // @ts-ignore
+      config.error(mockError);
     });
     // AND the file is read into a File object
     const file = new File([testFileContent], testFileName, { type: "text/csv" });

@@ -39,9 +39,15 @@ export const HELP_TIP_TEXT = {
 };
 
 const Bold = ({ children }: PropsWithChildren) => (
-  <Box component="span" fontWeight="bold">
+  <Box component="span" fontWeight="bold" paddingLeft={(theme) => theme.spacing(0.5)}>
     {children}
   </Box>
+);
+
+const TypographyComponent = ({ children }: PropsWithChildren) => (
+  <Typography display="flex" alignItems="center" flexWrap="wrap" data-testid={DATA_TEST_ID.MESSAGE}>
+    {children}
+  </Typography>
 );
 
 const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProcessState }>) => {
@@ -49,65 +55,65 @@ const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProc
   switch (status) {
     case ImportProcessStateEnums.Enums.Status.PENDING:
       return (
-        <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+        <TypographyComponent>
           Pending
           <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PENDING}>{HELP_TIP_TEXT.PENDING}</HelpTip>
-        </Typography>
+        </TypographyComponent>
       );
 
     case ImportProcessStateEnums.Enums.Status.RUNNING:
       return (
-        <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+        <TypographyComponent>
           Running
           <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_RUNNING}>{HELP_TIP_TEXT.RUNNING}</HelpTip>
-        </Typography>
+        </TypographyComponent>
       );
 
     case ImportProcessStateEnums.Enums.Status.COMPLETED:
       if (!result.errored && !result.parsingErrors && !result.parsingWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed successfully
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_SUCCESS}>{HELP_TIP_TEXT.SUCCESS}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
       if (!result.errored && result.parsingErrors && !result.parsingWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed with <Bold>parsing errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_ERROR}>{HELP_TIP_TEXT.PARSING_ERROR}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
       if (!result.errored && !result.parsingErrors && result.parsingWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed with <Bold>parsing warnings</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_WARNING}>{HELP_TIP_TEXT.PARSING_WARNING}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
       if (!result.errored && result.parsingErrors && result.parsingWarnings) {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             <span>Completed with</span>
             <Bold> parsing errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_WARNING}>{HELP_TIP_TEXT.PARSING_ERROR}</HelpTip>
             and <Bold>parsing warnings</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PARSING_WARNING}>{HELP_TIP_TEXT.PARSING_WARNING}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       } else {
         return (
-          <Typography data-testid={DATA_TEST_ID.MESSAGE}>
+          <TypographyComponent>
             Completed with <Bold>critical errors</Bold>
             <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_ERROR}>{HELP_TIP_TEXT.ERROR}</HelpTip>
-          </Typography>
+          </TypographyComponent>
         );
       }
     default:
-      return <Typography data-testid={DATA_TEST_ID.MESSAGE}>Completed with unexpected status {status}</Typography>;
+      return <TypographyComponent>Completed with unexpected status {status}</TypographyComponent>;
   }
 };
 
@@ -124,17 +130,11 @@ const ImportStatusPropertyField: React.FC<ImportStatusPropertyFieldProps> = (
 
   return (
     <PropertyFieldLayout title="Status" data-testid={props["data-testid"]} fieldId={props.fieldId}>
-      <Box display="flex" flexDirection="row" alignItems="start" gap={theme.spacing(1)}>
-        <Box
-          sx={{
-            padding: theme.spacing(0.5),
-          }}
-        >
-          <ImportProcessStateIcon
-            data-testid={DATA_TEST_ID.PROCCESS_STATUS_ICON}
-            importProcessState={props.importProcessState}
-          />
-        </Box>
+      <Box display="flex" flexDirection="row" alignItems="center" gap={theme.spacing(1)}>
+        <ImportProcessStateIcon
+          data-testid={DATA_TEST_ID.PROCCESS_STATUS_ICON}
+          importProcessState={props.importProcessState}
+        />
         <Message importProcessState={props.importProcessState} />
       </Box>
     </PropertyFieldLayout>
