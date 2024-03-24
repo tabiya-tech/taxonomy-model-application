@@ -5,14 +5,18 @@ exports[`ReleasedPropertyField should render with provided 'Not Released' status
   class="MuiBox-root css-1ofqig9"
   data-testid="released-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Released Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Released Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -50,14 +54,18 @@ exports[`ReleasedPropertyField should render with provided 'Released' status 1`]
   class="MuiBox-root css-1ofqig9"
   data-testid="released-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Released Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Released Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"

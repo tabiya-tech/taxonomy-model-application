@@ -5,14 +5,18 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
   class="MuiBox-root css-1ofqig9"
   data-testid="export-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -20,31 +24,27 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     <div
       class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+        data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
-          data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
-          />
-          <title>
-            Export failed
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+        <title>
+          Export failed
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed with 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           critical errors
         </span>
@@ -64,14 +64,18 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
   class="MuiBox-root css-1ofqig9"
   data-testid="export-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -79,33 +83,29 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     <div
       class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+        data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
-          data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
-          />
-          <title>
-            Exported completed with errors
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+        <title>
+          Exported completed with errors
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         <span>
           Completed with
         </span>
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
            export errors
         </span>
@@ -116,7 +116,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </span>
         and 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           export warnings
         </span>
@@ -136,14 +136,18 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
   class="MuiBox-root css-1ofqig9"
   data-testid="export-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -151,31 +155,27 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     <div
       class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+        data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
-          data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
-          />
-          <title>
-            Exported completed with errors
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+        <title>
+          Exported completed with errors
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed with 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           export errors
         </span>
@@ -195,14 +195,18 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
   class="MuiBox-root css-1ofqig9"
   data-testid="export-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -210,31 +214,27 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     <div
       class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+        data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
-          data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
-          />
-          <title>
-            Export completed with warnings
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+        <title>
+          Export completed with warnings
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed with 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           export warnings
         </span>
@@ -254,14 +254,18 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
   class="MuiBox-root css-1ofqig9"
   data-testid="export-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -269,26 +273,22 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     <div
       class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeMedium css-1x9cg3q-MuiSvgIcon-root"
+        data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeMedium css-1x9cg3q-MuiSvgIcon-root"
-          data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
-          />
-          <title>
-            Export was successful
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+        <title>
+          Export was successful
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed successfully
@@ -308,14 +308,18 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
   class="MuiBox-root css-1ofqig9"
   data-testid="export-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -323,26 +327,22 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     <div
       class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
+        data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorDisabled MuiSvgIcon-fontSizeMedium css-1xle09y-MuiSvgIcon-root"
-          data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
-          />
-          <title>
-            Pending
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+        <title>
+          Pending
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Pending
@@ -362,14 +362,18 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
   class="MuiBox-root css-1ofqig9"
   data-testid="export-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
@@ -377,26 +381,22 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     <div
       class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+        data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
-          data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
-          />
-          <title>
-            Export in progress
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+        <title>
+          Export in progress
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Running
