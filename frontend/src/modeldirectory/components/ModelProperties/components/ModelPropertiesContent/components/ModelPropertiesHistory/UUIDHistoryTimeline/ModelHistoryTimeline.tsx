@@ -58,7 +58,10 @@ const ModelHistoryTimeline: React.FC<UUIDHistoryTimelineProps> = (props) => {
             sx={{ display: "flex", flexDirection: "column", justifyContent: "center" }}
           >
             <Typography variant="body1" sx={{ textAlign: "start" }}>
-              {UUIDHistory.id === null || UUIDHistory.name === null || UUIDHistory.version === null || UUIDHistory.localeShortCode === null
+              {UUIDHistory.id === null ||
+              UUIDHistory.name === null ||
+              UUIDHistory.version === null ||
+              UUIDHistory.localeShortCode === null
                 ? `${UUIDHistory.UUID}: (details not available)`
                 : `${UUIDHistory.name} ${UUIDHistory.version} (${UUIDHistory.localeShortCode})`}
             </Typography>
