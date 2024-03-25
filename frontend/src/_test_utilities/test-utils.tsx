@@ -6,14 +6,17 @@ import { ThemeProvider } from "@mui/material";
 import applicationTheme, { ThemeMode } from "src/theme/applicationTheme/applicationTheme";
 import SnackbarProvider from "src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider } from "src/app/providers";
+import {AuthProvider} from "../app/providers/AuthProvider";
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <IsOnlineProvider>
-      <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
-        <SnackbarProvider>{children}</SnackbarProvider>
-      </ThemeProvider>
-    </IsOnlineProvider>
+    <AuthProvider>
+      <IsOnlineProvider>
+        <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+          <SnackbarProvider>{children}</SnackbarProvider>
+        </ThemeProvider>
+      </IsOnlineProvider>
+    </AuthProvider>
   );
 };
 
