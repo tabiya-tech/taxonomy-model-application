@@ -2,12 +2,18 @@
 import "src/_test_utilities/consoleMock";
 
 import PropertyFieldLayout, { DATA_TEST_ID } from "./PropertyFieldLayout";
-import { screen, within } from "@testing-library/react";
-import { render } from "src/_test_utilities/test-utils";
+import { render, screen, within } from "src/_test_utilities/test-utils";
+
+// mock the HelpTip component
+jest.mock("../HelpTip/HelpTip", () => {
+  return jest
+    .fn()
+    .mockImplementation(({ children, "data-testid": testId }) => <div data-testid={testId}>{children}</div>);
+});
 
 describe("PropertyFieldLayout", () => {
   describe("render tests", () => {
-    test("should render with provided title", () => {
+    test("should render with provided title and helpTip message when provided", () => {
       // GIVEN an item with a title and a child component
       const givenTitle = "foo";
       const givenChildText = "bar";
@@ -16,9 +22,17 @@ describe("PropertyFieldLayout", () => {
       const givenDataTestId = "item-details";
       // AND a unique fieldId
       const givenFieldId = "field-id";
+      // AND a helpTip message
+      const givenHelpTipMessage = "baz";
+
       // WHEN the component is rendered
       render(
-        <PropertyFieldLayout title={givenTitle} data-testid={givenDataTestId} fieldId={givenFieldId}>
+        <PropertyFieldLayout
+          title={givenTitle}
+          helpTipMessage={givenHelpTipMessage}
+          data-testid={givenDataTestId}
+          fieldId={givenFieldId}
+        >
           {givenChildren}
         </PropertyFieldLayout>
       );
@@ -33,6 +47,11 @@ describe("PropertyFieldLayout", () => {
       const titleElement = within(propertyFieldLayoutComponent).getByTestId(DATA_TEST_ID.ITEM_TITLE);
       expect(titleElement).toBeInTheDocument();
       expect(titleElement).toHaveTextContent(givenTitle);
+      // AND the given item's helpTip message to be displayed
+      const helpTipElement = within(propertyFieldLayoutComponent).getByTestId(DATA_TEST_ID.HELP_TIP);
+      expect(helpTipElement).toBeInTheDocument();
+      expect(helpTipElement).toHaveTextContent(givenHelpTipMessage);
+
       // AND the given item's children to be displayed
       const childrenElement = within(propertyFieldLayoutComponent).getByText(givenChildText);
       expect(childrenElement).toBeInTheDocument();
