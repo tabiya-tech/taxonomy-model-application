@@ -6,7 +6,7 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
   data-testid="uuid-history-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
 >
   <li
-    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-1ak9pa5-MuiTimelineItem-root"
+    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-480fjc-MuiTimelineItem-root"
     data-testid="uuid-history-timeline-item-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
   >
     <div
@@ -23,18 +23,18 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1oky1fk-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1ajrifw-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1v2d8t3-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
       >
         Model0 V1.1.0 (ZA)
       </p>
     </div>
   </li>
   <li
-    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-1ak9pa5-MuiTimelineItem-root"
+    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-480fjc-MuiTimelineItem-root"
     data-testid="uuid-history-timeline-item-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
   >
     <div
@@ -51,18 +51,18 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1oky1fk-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1ajrifw-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1v2d8t3-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
       >
         Model1 V1.1.1 (ZA)
       </p>
     </div>
   </li>
   <li
-    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-1ak9pa5-MuiTimelineItem-root"
+    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-480fjc-MuiTimelineItem-root"
     data-testid="uuid-history-timeline-item-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
   >
     <div
@@ -79,18 +79,18 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1oky1fk-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1ajrifw-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1v2d8t3-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
       >
         Model2 V1.1.2 (ZA)
       </p>
     </div>
   </li>
   <li
-    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-1ak9pa5-MuiTimelineItem-root"
+    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-480fjc-MuiTimelineItem-root"
     data-testid="uuid-history-timeline-item-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
   >
     <div
@@ -107,18 +107,18 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1oky1fk-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1ajrifw-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1v2d8t3-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
       >
         Model3 V1.1.3 (ZA)
       </p>
     </div>
   </li>
   <li
-    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-1ak9pa5-MuiTimelineItem-root"
+    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-480fjc-MuiTimelineItem-root"
     data-testid="uuid-history-timeline-item-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
   >
     <div
@@ -135,11 +135,11 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1oky1fk-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1ajrifw-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1v2d8t3-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
       >
         Model4 V1.1.4 (ZA)
       </p>
@@ -154,7 +154,7 @@ exports[`UUIDHistoryTimeline renders correctly when the UUIDHistoryDetails have 
   data-testid="uuid-history-timeline-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
 >
   <li
-    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-1ak9pa5-MuiTimelineItem-root"
+    class="MuiTimelineItem-root MuiTimelineItem-positionRight MuiTimelineItem-missingOppositeContent css-480fjc-MuiTimelineItem-root"
     data-testid="uuid-history-timeline-item-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
   >
     <div
@@ -171,11 +171,11 @@ exports[`UUIDHistoryTimeline renders correctly when the UUIDHistoryDetails have 
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1oky1fk-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1ajrifw-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1v2d8t3-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
       >
         e26aca13-aa00-4346-9e83-edaf593143780: (details not available)
       </p>
