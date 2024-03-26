@@ -5,41 +5,41 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed 1
   class="MuiBox-root css-1ofqig9"
   data-testid="import-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
   >
     <div
-      class="MuiBox-root css-1ky5obt"
+      class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeMedium css-1x9cg3q-MuiSvgIcon-root"
+        data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeMedium css-1x9cg3q-MuiSvgIcon-root"
-          data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-          />
-          <title>
-            Completed succesfully
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+        />
+        <title>
+          Completed succesfully
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed successfully
@@ -54,46 +54,46 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
   class="MuiBox-root css-1ofqig9"
   data-testid="import-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
   >
     <div
-      class="MuiBox-root css-1ky5obt"
+      class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
+        data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-13bdyef-MuiSvgIcon-root"
-          data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
-          />
-          <title>
-            Completed with error(s)
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+        />
+        <title>
+          Completed with error(s)
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed with 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           critical errors
         </span>
@@ -108,46 +108,46 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
   class="MuiBox-root css-1ofqig9"
   data-testid="import-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
   >
     <div
-      class="MuiBox-root css-1ky5obt"
+      class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+        data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
-          data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
-          />
-          <title>
-            Completed with parsing errors(s)
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+        />
+        <title>
+          Completed with parsing errors(s)
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed with 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           parsing errors
         </span>
@@ -162,54 +162,54 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
   class="MuiBox-root css-1ofqig9"
   data-testid="import-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
   >
     <div
-      class="MuiBox-root css-1ky5obt"
+      class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+        data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
-          data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
-          />
-          <title>
-            Completed with parsing errors(s)
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+        />
+        <title>
+          Completed with parsing errors(s)
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         <span>
           Completed with
         </span>
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
            parsing errors
         </span>
         and 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           parsing warnings
         </span>
@@ -224,46 +224,46 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
   class="MuiBox-root css-1ofqig9"
   data-testid="import-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
   >
     <div
-      class="MuiBox-root css-1ky5obt"
+      class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
+        data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorWarning MuiSvgIcon-fontSizeMedium css-h6esa3-MuiSvgIcon-root"
-          data-testid="icon-status-failed-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
-          />
-          <title>
-            Completed with parsing warning(s)
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+        />
+        <title>
+          Completed with parsing warning(s)
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed with 
         <span
-          class="MuiBox-root css-1vg6q84"
+          class="MuiBox-root css-dnqt5d"
         >
           parsing warnings
         </span>
@@ -278,41 +278,41 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Pending 1`]
   class="MuiBox-root css-1ofqig9"
   data-testid="import-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
   >
     <div
-      class="MuiBox-root css-1ky5obt"
+      class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-14fk8m9-MuiSvgIcon-root"
+        data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-14fk8m9-MuiSvgIcon-root"
-          data-testid="icon-status-pending-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"
-          />
-          <title>
-            Pending
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"
+        />
+        <title>
+          Pending
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Pending
@@ -327,41 +327,41 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Running 1`]
   class="MuiBox-root css-1ofqig9"
   data-testid="import-status-details"
 >
-  <h6
-    class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
-    data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
-    id="field-id"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-70qvj9"
   >
-    Status
-  </h6>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
+      id="field-id"
+      tabindex="0"
+    >
+      Status
+    </h6>
+  </div>
   <div
     aria-labelledby="field-id"
     class="MuiBox-root css-taz3go"
   >
     <div
-      class="MuiBox-root css-1ky5obt"
+      class="MuiBox-root css-1t5r8n4"
     >
-      <div
-        class="MuiBox-root css-l87w0h"
+      <svg
+        class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
+        data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
+        focusable="false"
+        role="img"
+        viewBox="0 0 24 24"
       >
-        <svg
-          class="MuiSvgIcon-root MuiSvgIcon-colorInfo MuiSvgIcon-fontSizeMedium css-1wn4sen-MuiSvgIcon-root"
-          data-testid="icon-status-running-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
-          focusable="false"
-          role="img"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2z"
-          />
-          <title>
-            Running
-          </title>
-        </svg>
-      </div>
+        <path
+          d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2z"
+        />
+        <title>
+          Running
+        </title>
+      </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Running
