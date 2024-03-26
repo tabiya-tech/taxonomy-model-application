@@ -6,6 +6,22 @@ on:
       version-info:
         description: 'The frontend version info'
         value: ${{ jobs.build.outputs.version-info }}
+    inputs:
+      environment:
+        required: true
+        type: string
+      target-domain-name:
+        required: true
+        type: string
+      frontend-url:
+        required: true
+        type: string
+      backend-url:
+        required: true
+        type: string
+      auth-url:
+        required: true
+        type: string
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +36,13 @@ jobs:
           node-version: 20.x
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
+      - name: Echo inputs
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Target Domain Name: ${{ inputs.target-domain-name }}"
+          echo "Frontend URL: ${{ inputs.frontend-url }}"
+          echo "Backend URL: ${{ inputs.backend-url }}"
+          echo "Auth URL: ${{ inputs.auth-url }}"
       - name: Install dependencies
         run: yarn install
         working-directory: frontend

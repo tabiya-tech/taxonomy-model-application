@@ -7,11 +7,12 @@ on:
   #  types: [ opened, synchronize, reopened ]
 
 jobs:
+  # Environment Configuration
   setup-env-config:
     uses: ./.github/workflows/setup-env-config.yml
     secrets: inherit
-    outputs:
-
+    with:
+      target-environment: dev
   # API Specifications
   build-api-specs:
     uses: ./.github/workflows/build-api-specs.yml
@@ -43,6 +44,12 @@ jobs:
     uses: ./.github/workflows/build-frontend.yml
     needs: [ build-api-specs, setup-env-config ]
     secrets: inherit
+    with:
+      environment: ${{ inputs.target-environment }}
+      target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
+      frontend-url: ${{ needs.setup-env-config.outputs.frontend-url }}
+      backend-url: ${{ needs.setup-env-config.outputs.backend-url }}
+      auth-url: ${{ needs.setup-env-config.outputs.auth-url }}
   deploy-frontend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build-frontend ]

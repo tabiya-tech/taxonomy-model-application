@@ -22,4 +22,4 @@ jobs:
       auth-url: https://auth.${{ inputs.target-environment }}.${{ env.target-domain }}
     steps:
       - name: Logging
-        uses: echo "${{ inputs.target-environment }} environment setup"
+        run: echo "${{ inputs.target-environment }} environment setup"
