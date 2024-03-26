@@ -7,6 +7,11 @@ on:
   #  types: [ opened, synchronize, reopened ]
 
 jobs:
+  setup-env-config:
+    uses: ./.github/workflows/setup-env-config.yml
+    secrets: inherit
+    with:
+      target-environment: dev
   # API Specifications
   build-api-specs:
     uses: ./.github/workflows/build-api-specs.yml
@@ -14,7 +19,7 @@ jobs:
   # Backend
   build-backend:
     uses: ./.github/workflows/build-backend.yml
-    needs: [ build-api-specs ]
+    needs: [ build-api-specs, setup-env-config ]
     secrets: inherit
   deploy-backend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
@@ -36,7 +41,7 @@ jobs:
   # Frontend
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
-    needs: [ build-api-specs ]
+    needs: [ build-api-specs, setup-env-config ]
     secrets: inherit
   deploy-frontend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
