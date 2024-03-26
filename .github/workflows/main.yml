@@ -45,11 +45,12 @@ jobs:
     needs: [ build-api-specs, setup-env-config ]
     secrets: inherit
     with:
-      environment: ${{ inputs.target-environment }}
       target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
       frontend-url: ${{ needs.setup-env-config.outputs.frontend-url }}
       backend-url: ${{ needs.setup-env-config.outputs.backend-url }}
       auth-url: ${{ needs.setup-env-config.outputs.auth-url }}
+      cognito-client-id: ${{ needs.setup-env-config.outputs.cognito-client-id }}
+      cognito-client-secret: ${{ needs.setup-env-config.outputs.cognito-client-secret }}
   deploy-frontend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build-frontend ]

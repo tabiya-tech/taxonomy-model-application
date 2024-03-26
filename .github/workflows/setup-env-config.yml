@@ -1,25 +1,45 @@
 name: Set up Environment COnfig
 
+
+env:
+  target-domain: tabiya.tech
+
 on:
   workflow_call:
     inputs:
       target-environment:
         required: true
         type: string
-
-env:
-  target-domain: tabiya.tech
+    outputs:
+      target-domain-name:
+        description: "The target domain name"
+        value: ${{ jobs.setup.outputs.target-domain-name }}
+      frontend-url:
+        description: "The frontend url"
+        value: ${{ jobs.setup.outputs.frontend-url }}
+      backend-url:
+        description: "The backend url"
+        value: ${{ jobs.setup.outputs.backend-url }}
+      auth-url:
+        description: "The auth url"
+        value: ${{ jobs.setup.outputs.auth-url }}
+      cognito-client-id:
+        description: "The cognito client id"
+        value: ${{ vars.COGNITO_CLIENT_ID }}
+      cognito-client-secret:
+        description: "The cognito client secret"
+        value: ${{ vars.COGNITO_CLIENT_SECRET }}
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
-      environment: ${{ inputs.target-environment }}
-      target-domain-name: ${{ env.target-name }}-${{ inputs.target-environment }}.${{ env.target-domain }}
+      target-domain-name: ${{ env.target-domain }}
       frontend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}
       backend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}/api/
       auth-url: https://auth.${{ inputs.target-environment }}.${{ env.target-domain }}
     steps:
       - name: Logging
-        run: echo "${{ inputs.target-environment }} environment setup"
+        run: | 
+          echo "${{ inputs.target-environment }} environment setup"
