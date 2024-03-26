@@ -28,6 +28,6 @@ jobs:
         with:
           work-dir: iac/setup
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-backend/${{ inputs.target-environment }}
+          stack-name: tabiya-tech/taxonomy-model-application-setup/${{ inputs.target-environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
