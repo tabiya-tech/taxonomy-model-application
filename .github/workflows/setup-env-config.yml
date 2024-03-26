@@ -6,28 +6,20 @@ on:
       target-environment:
         required: true
         type: string
+
+env:
+  target-domain: tabiya.tech
+
 jobs:
   setup:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
+    outputs:
+      environment: ${{ inputs.target-environment }}
+      target-domain-name: ${{ env.target-name }}-${{ inputs.target-environment }}.${{ env.target-domain }}
+      frontend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}
+      backend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}/api/
+      auth-url: https://auth.${{ inputs.target-environment }}.${{ env.target-domain }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.x
-          cache: 'yarn'
-          cache-dependency-path: iac/yarn.lock
-      - name: Install dependencies ${{ inputs.target-environment }}
-        run: yarn install && echo ${{ secrets.PULUMI_ACCESS_TOKEN }}
-        working-directory: iac
-      - name: Set up Environment Config
-        id: pulumi
-        uses: pulumi/actions@v4
-        with:
-          work-dir: iac/setup
-          command: up
-          stack-name: tabiya-tech/taxonomy-model-application-setup/${{ inputs.target-environment }}
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      - name: Logging
+        uses: echo "${{ inputs.target-environment }} environment setup"

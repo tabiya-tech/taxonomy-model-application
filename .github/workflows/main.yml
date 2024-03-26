@@ -10,8 +10,8 @@ jobs:
   setup-env-config:
     uses: ./.github/workflows/setup-env-config.yml
     secrets: inherit
-    with:
-      target-environment: dev
+    outputs:
+
   # API Specifications
   build-api-specs:
     uses: ./.github/workflows/build-api-specs.yml
