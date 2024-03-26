@@ -3,8 +3,7 @@ import * as pulumi from "@pulumi/pulumi";
 import {setupFrontendBucket} from "./frontendBucket";
 
 
-const environment = pulumi.getStack();
-const domainName = `${environment}.tabiya.tech`
+const domainName = process.env.DOMAIN_NAME!
 
 /**
  * Setup Frontend

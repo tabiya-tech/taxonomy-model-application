@@ -8,7 +8,7 @@ import {setupDownloadBucket, setupDownloadBucketWritePolicy} from "./downloadBuc
 import {setupAsyncExportApi} from "./asyncExport";
 
 export const environment = pulumi.getStack();
-export const domainName = `${environment}.tabiya.tech`;
+export const domainName = process.env.DOMAIN_NAME!
 export const publicApiRootPath = "/api";
 export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 

@@ -3,7 +3,7 @@ import * as aws from "@pulumi/aws";
 
 // Stack name based record in Production Account
 const environment = pulumi.getStack();
-const tabiyaDomainName = "tabiya.tech";
+const tabiyaDomainName = process.env.TABIYA_DOMAIN_NAME!;
 
 const commonStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-common/${environment}`);
 
@@ -28,5 +28,3 @@ export const subdomainRecord = new aws.route53.Record(`${environment}-subdomain-
   zoneId: parentHostedZone.then(zr => zr.zoneId) // Zone ID for tabiya.tech
 
 }, { protect: false });
-
-

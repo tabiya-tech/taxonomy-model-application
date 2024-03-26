@@ -7,9 +7,6 @@ on:
         description: 'The frontend version info'
         value: ${{ jobs.build.outputs.version-info }}
     inputs:
-      target-domain-name:
-        required: true
-        type: string
       frontend-url:
         required: true
         type: string

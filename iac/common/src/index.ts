@@ -7,7 +7,7 @@ import {setupCert} from "./cert";
 export const environment = pulumi.getStack();
 
 const  subdomain = environment
-export const domainName = `${subdomain}.tabiya.tech`
+export const domainName = process.env.DOMAIN_NAME!
 
 /**
  *  ROUTE 53

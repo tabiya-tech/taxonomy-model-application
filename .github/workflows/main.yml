@@ -30,8 +30,11 @@ jobs:
     with:
       target-environment: dev
       version-info: ${{ needs.build-backend.outputs.version-info }}
+      target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
+      cognito-client-id: ${{ needs.setup-env-config.outputs.cognito-client-id }}
+      cognito-client-secret: ${{ needs.setup-env-config.outputs.cognito-client-secret }}
   smoke-test-backend:
-    needs: [ build-backend, deploy-backend]
+    needs: [ build-backend, deploy-backend ]
     uses: ./.github/workflows/smoke-test-version.yml
     secrets: inherit
     with:
@@ -45,7 +48,6 @@ jobs:
     needs: [ build-api-specs, setup-env-config ]
     secrets: inherit
     with:
-      target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
       frontend-url: ${{ needs.setup-env-config.outputs.frontend-url }}
       backend-url: ${{ needs.setup-env-config.outputs.backend-url }}
       auth-url: ${{ needs.setup-env-config.outputs.auth-url }}
@@ -59,8 +61,9 @@ jobs:
     with:
       target-environment: dev
       version-info: ${{ needs.build-frontend.outputs.version-info }}
+      target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
   smoke-test-frontend:
-    needs: [ build-frontend, deploy-frontend]
+    needs: [ build-frontend, deploy-frontend ]
     uses: ./.github/workflows/smoke-test-version.yml
     secrets: inherit
     with:
@@ -82,16 +85,19 @@ jobs:
       target-environment: dev
       frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
       backend-version-info: ${{ needs.build-backend.outputs.version-info }}
+      target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
   #  Update the parent Nameserver with the subdomain
   deploy-nameserver:
-     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-     needs: [ deploy-common ]
-     uses: ./.github/workflows/deploy-nameserver.yml
-     secrets: inherit
-     with:
-       target-environment: dev
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
+    needs: [ deploy-common ]
+    uses: ./.github/workflows/deploy-nameserver.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
+      base-domain-name: ${{ needs.setup-env-config.outputs.base-domain-name }}
   smoke-test-frontend-cdn:
-    needs: [ build-frontend, deploy-common, deploy-nameserver]
+    needs: [ build-frontend, deploy-common, deploy-nameserver ]
     uses: ./.github/workflows/smoke-test-version.yml
     secrets: inherit
     with:

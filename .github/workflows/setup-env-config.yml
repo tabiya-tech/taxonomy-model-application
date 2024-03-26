@@ -11,6 +11,9 @@ on:
         required: true
         type: string
     outputs:
+      base-domain-name:
+        description: "The base domain name / tabiya domain name"
+        value: ${{ jobs.setup.outputs.base-domain-name }}
       target-domain-name:
         description: "The target domain name"
         value: ${{ jobs.setup.outputs.target-domain-name }}
@@ -25,21 +28,24 @@ on:
         value: ${{ jobs.setup.outputs.auth-url }}
       cognito-client-id:
         description: "The cognito client id"
-        value: ${{ vars.COGNITO_CLIENT_ID }}
+        value: ${{ jobs.setup.outputs.cognito-client-id }}
       cognito-client-secret:
         description: "The cognito client secret"
-        value: ${{ vars.COGNITO_CLIENT_SECRET }}
+        value: ${{ jobs.setup.outputs.cognito-client-secret }}
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
-      target-domain-name: ${{ env.target-domain }}
+      base-domain-name: ${{ env.target-domain }}
+      target-domain-name: ${{ inputs.target-environment }}.${{ env.target-domain }}
       frontend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}
       backend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}/api/
       auth-url: https://auth.${{ inputs.target-environment }}.${{ env.target-domain }}
+      cognito-client-id: ${{ vars.COGNITO_CLIENT_ID }}
+      cognito-client-secret: ${{ vars.COGNITO_CLIENT_SECRET }}
     steps:
       - name: Logging
         run: | 
-          echo "${{ inputs.target-environment }} environment setup"
+          echo "Finished setting up ${{ inputs.target-environment }} environment configuration ${{ vars.COGNITO_CLIENT_ID }} ${{ vars.COGNITO_CLIENT_SECRET }}"
