@@ -20,7 +20,7 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: iac/yarn.lock
       - name: Install dependencies ${{ inputs.target-environment }}
-        run: yarn install && echo
+        run: yarn install && echo ${{ secrets.PULUMI_ACCESS_TOKEN }}
         working-directory: iac
       - name: Set up Environment Config
         id: pulumi
