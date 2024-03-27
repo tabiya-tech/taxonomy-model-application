@@ -25,7 +25,7 @@ jobs:
     secrets: inherit
   deploy-backend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ build-backend ]
+    needs: [ build-backend, setup-env-config ]
     uses: ./.github/workflows/deploy-backend.yml
     secrets: inherit
     with:
@@ -53,7 +53,7 @@ jobs:
       cognito-client-secret: ${{ vars.COGNITO_CLIENT_SECRET }}
   deploy-frontend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ build-frontend ]
+    needs: [ build-frontend, setup-env-config ]
     uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
     with:
@@ -95,7 +95,7 @@ jobs:
       target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
       base-domain-name: ${{ needs.setup-env-config.outputs.base-domain-name }}
   smoke-test-frontend-cdn:
-    needs: [ build-frontend, deploy-common, deploy-nameserver ]
+    needs: [ build-frontend, setup-env-config, deploy-common, deploy-nameserver ]
     uses: ./.github/workflows/smoke-test-version.yml
     secrets: inherit
     with:
