@@ -6,6 +6,22 @@ on:
       version-info:
         description: 'The frontend version info'
         value: ${{ jobs.build.outputs.version-info }}
+    inputs:
+      frontend-url:
+        required: true
+        type: string
+      backend-url:
+        required: true
+        type: string
+      auth-url:
+        required: true
+        type: string
+      cognito-client-id:
+        required: true
+        type: string
+      cognito-client-secret:
+        required: true
+        type: string
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +36,12 @@ jobs:
           node-version: 20.x
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
+      - name: Build .env file
+        run: |
+            echo "REACT_APP_BACKEND_URL=${{ inputs.backend-url }}" > frontend/.env
+            echo "REACT_APP_AUTH_URL=${{ inputs.auth-url }}" >> frontend/.env
+            echo "REACT_APP_COGNITO_CLIENT_ID=${{ inputs.cognito-client-id }}" >> frontend/.env
+            echo "REACT_APP_COGNITO_CLIENT_SECRET=${{ inputs.cognito-client-secret }}" >> frontend/.env
       - name: Install dependencies
         run: yarn install
         working-directory: frontend

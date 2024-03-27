@@ -9,6 +9,9 @@ on:
       version-info:
         required: true
         type: string
+      target-domain-name:
+        required: true
+        type: string
     outputs:
       frontendBucketWebsiteURLBase:
         description: "The frontend bucket url"
@@ -54,3 +57,4 @@ jobs:
           stack-name: tabiya-tech/taxonomy-model-application-frontend/${{ inputs.target-environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DOMAIN_NAME: ${{ inputs.target-domain-name }}
