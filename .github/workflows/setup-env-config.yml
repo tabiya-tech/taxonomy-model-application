@@ -1,0 +1,42 @@
+name: Set up Environment COnfig
+
+
+env:
+  target-domain: tabiya.tech
+
+on:
+  workflow_call:
+    inputs:
+      target-environment:
+        required: true
+        type: string
+    outputs:
+      base-domain-name:
+        description: "The base domain name / tabiya domain name"
+        value: ${{ jobs.setup.outputs.base-domain-name }}
+      target-domain-name:
+        value: ${{ jobs.setup.outputs.target-domain-name }}
+      frontend-url:
+        description: "The frontend url in the target environment"
+        value: ${{ jobs.setup.outputs.frontend-url }}
+      backend-url:
+        description: "The backend url in the target environment, including the base path /api"
+        value: ${{ jobs.setup.outputs.backend-url }}
+      auth-url:
+        description: "The mapped base url for auth service in the target environment"
+        value: ${{ jobs.setup.outputs.auth-url }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
+    outputs:
+      base-domain-name: ${{ env.target-domain }}
+      target-domain-name: ${{ inputs.target-environment }}.${{ env.target-domain }}
+      frontend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}
+      backend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}/api
+      auth-url: https://auth.${{ inputs.target-environment }}.${{ env.target-domain }}
+    steps:
+      - name: Logging
+        run: | 
+          echo "Finished setting up ${{ inputs.target-environment }} environment configuration"

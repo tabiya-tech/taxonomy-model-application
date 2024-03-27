@@ -3,8 +3,10 @@ import * as pulumi from "@pulumi/pulumi";
 import {setupFrontendBucket} from "./frontendBucket";
 
 
-const environment = pulumi.getStack();
-const domainName = `${environment}.tabiya.tech`
+const domainName = process.env.DOMAIN_NAME!
+
+pulumi.log.info(`Using domain name : ${domainName}`);
+if(!domainName) throw new Error("environment variable DOMAIN_NAME is required")
 
 /**
  * Setup Frontend
