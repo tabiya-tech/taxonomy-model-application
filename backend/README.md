@@ -118,6 +118,12 @@ To view the documentation locally, run:
 ```
 yarn local-server:openapi
 ```
+
+## Database Schema
+The image below shows an overview of the Database Schema of the Taxonomy Model App.
+
+![Tabiya Database Schema](https://lucid.app/publicSegments/view/7435b2f5-cdcc-4fcc-8db1-6cf15438d2ed/image.png)
+
 ## Import  Export CSV format documentation
 
 The import and export of the CSV format documentation can be found [here](/Import_Export_CSV_format.md)
