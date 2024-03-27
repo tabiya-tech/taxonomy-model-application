@@ -22,15 +22,15 @@ export type AuthContextValue = {
   hasRole: (role: TabiyaUserRole) => boolean;
 };
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const authContextDefaultValue: AuthContextValue = {
+  user: null,
+  login: () => {},
+  logout: () => {},
+  hasRole: () => false,
+};
+
+export const AuthContext = createContext<AuthContextValue>(authContextDefaultValue);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const authContextValue: AuthContextValue = {
-    user: null,
-    login: () => {},
-    logout: () => {},
-    hasRole: () => false,
-  };
-
-  return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={authContextDefaultValue}>{children}</AuthContext.Provider>;
 };

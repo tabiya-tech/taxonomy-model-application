@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import { routerPaths } from "src/app/routerConfig";
@@ -17,8 +17,8 @@ export const DATA_TEST_ID = {
   APP_HEADER_AUTH_BUTTON: `app-header-auth-button-${uniqueId}`,
 };
 export const MENU_ITEM_ID = {
-  LOGIN: "login",
-  LOGOUT: "logout",
+  LOGIN: `login-${uniqueId}`,
+  LOGOUT: `logout-${uniqueId}`,
 };
 export const MENU_ITEM_TEXT = {
   LOGIN: "Login",
@@ -26,30 +26,28 @@ export const MENU_ITEM_TEXT = {
 };
 
 const AppHeader = () => {
-  const theme = useTheme();
-
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const authContext = useContext(AuthContext) as AuthContextValue;
+  const { login, logout, user } = useContext(AuthContext) as AuthContextValue;
   const [contextMenuItems, setContextMenuItems] = useState<MenuItemConfig[]>([]);
 
   useEffect(() => {
-    const loginLogoutItem = authContext.user
+    const loginLogoutItem = user
       ? {
           id: MENU_ITEM_ID.LOGOUT,
           text: MENU_ITEM_TEXT.LOGOUT,
           icon: <LogoutOutlined />,
           disabled: false,
-          action: authContext.logout,
+          action: logout,
         }
       : {
           id: MENU_ITEM_ID.LOGIN,
           text: MENU_ITEM_TEXT.LOGIN,
           icon: <LoginOutlined />,
           disabled: false,
-          action: authContext.login,
+          action: login,
         };
     setContextMenuItems([loginLogoutItem]);
-  }, [authContext]);
+  }, [login, logout, user]);
 
   return (
     <Box
@@ -61,15 +59,12 @@ const AppHeader = () => {
       <NavLink style={{ lineHeight: 0 }} to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
         <img src="/logo.svg" alt="Tabiya" height={"30px"} data-testid={DATA_TEST_ID.APP_HEADER_LOGO} />
       </NavLink>
-      <Box display="flex" alignItems="center" gap={theme.tabiyaSpacing.sm}>
-        <Typography variant="body1">{authContext.user?.username}</Typography>
-        <IconButton
-          onClick={(event) => setAnchorEl(event.currentTarget)}
-          data-testid={DATA_TEST_ID.APP_HEADER_AUTH_BUTTON}
-        >
-          <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} titleAccess="Auth" />
-        </IconButton>
-      </Box>
+      <IconButton
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        data-testid={DATA_TEST_ID.APP_HEADER_AUTH_BUTTON}
+      >
+        <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} titleAccess="Auth" />
+      </IconButton>
       <ContextMenu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
