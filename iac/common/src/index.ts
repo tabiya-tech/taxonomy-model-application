@@ -6,8 +6,13 @@ import {setupCert} from "./cert";
 
 export const environment = pulumi.getStack();
 
+const baseDomainName = process.env.BASE_DOMAIN_NAME!;
+
+pulumi.log.info(`Using base domain name : ${baseDomainName}`);
+if(!baseDomainName) throw new Error("environment variable BASE_DOMAIN_NAME is required")
+
 const  subdomain = environment
-export const domainName = `${subdomain}.tabiya.tech`
+export const domainName = `${subdomain}.${baseDomainName}`;
 
 /**
  *  ROUTE 53

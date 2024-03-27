@@ -2,3 +2,4 @@
 /node_modules/
 /.scannerwork/
 /iac/node_modules/
+.env
