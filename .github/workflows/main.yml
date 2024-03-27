@@ -78,7 +78,7 @@ jobs:
   # Common Infrastructure
   deploy-common:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend ]
+    needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend, setup-env-config ]
     uses: ./.github/workflows/deploy-common.yml
     secrets: inherit
     with:
@@ -89,7 +89,7 @@ jobs:
   #  Update the parent Nameserver with the subdomain
   deploy-nameserver:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ deploy-common ]
+    needs: [ deploy-common, setup-env-config ]
     uses: ./.github/workflows/deploy-nameserver.yml
     secrets: inherit
     with:

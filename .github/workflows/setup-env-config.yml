@@ -41,7 +41,7 @@ jobs:
       base-domain-name: ${{ env.target-domain }}
       target-domain-name: ${{ inputs.target-environment }}.${{ env.target-domain }}
       frontend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}
-      backend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}/api/
+      backend-url: https://${{ inputs.target-environment }}.${{ env.target-domain }}/api
       auth-url: https://auth.${{ inputs.target-environment }}.${{ env.target-domain }}
       cognito-client-id: ${{ vars.COGNITO_CLIENT_ID }}
       cognito-client-secret: ${{ vars.COGNITO_CLIENT_SECRET }}
