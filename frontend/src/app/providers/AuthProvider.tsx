@@ -26,11 +26,15 @@ export type UserRoleContextValue = {
 export const AuthContext = createContext<UserRoleContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const hasRole = (role: TabiyaUserRole | null) => {
+    return role === TabiyaUserRole.ModelManager;
+  };
+
   const authContextValue: UserRoleContextValue = {
     user: null,
     login: () => {},
     logout: () => {},
-    hasRole: () => false,
+    hasRole,
   };
 
   return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;

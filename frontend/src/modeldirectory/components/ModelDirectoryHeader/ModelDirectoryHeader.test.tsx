@@ -5,6 +5,8 @@ import ModelDirectoryHeader, { DATA_TEST_ID } from "./ModelDirectoryHeader";
 import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
+import { AuthContext } from "src/app/providers/AuthProvider";
+import { TabiyaUserRole, UserRoleContextValue } from "src/app/providers/AuthProvider";
 
 describe("ModelDirectoryHeader", () => {
   beforeEach(() => {
@@ -51,5 +53,45 @@ describe("ModelDirectoryHeader", () => {
 
     // THEN expect the onModelImport callback to be triggered once
     expect(givenOnModelImportCallback).toHaveBeenCalledTimes(1);
+  });
+
+  test("should render import button only when user have model manager role", () => {
+    // GIVEN a model manager user
+    const givenUser: UserRoleContextValue = {
+      user: { firstName: "John", lastName: "Doe", roles: [TabiyaUserRole.ModelManager] },
+      login: () => undefined,
+      logout: () => undefined,
+      hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
+    };
+
+    // WHEN a ModelDirectoryHeader component is rendered
+    render(
+      <AuthContext.Provider value={givenUser}>
+        <ModelDirectoryHeader onModelImport={() => undefined} />
+      </AuthContext.Provider>
+    );
+
+    // THEN expect the import button to be present in the document
+    expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
+  });
+
+  test("should not render import button when user does not have model manager role", () => {
+    // GIVEN a non-model manager user
+    const givenUser: UserRoleContextValue = {
+      user: { firstName: "John", lastName: "Doe", roles: [TabiyaUserRole.AnonymousUser] },
+      login: () => undefined,
+      logout: () => undefined,
+      hasRole: (role: TabiyaUserRole) => role !== TabiyaUserRole.ModelManager,
+    };
+
+    // WHEN a ModelDirectoryHeader component is rendered
+    render(
+      <AuthContext.Provider value={givenUser}>
+        <ModelDirectoryHeader onModelImport={() => undefined} />
+      </AuthContext.Provider>
+    );
+
+    // THEN expect the import button to not be present in the document
+    expect(screen.queryByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).not.toBeInTheDocument();
   });
 });
