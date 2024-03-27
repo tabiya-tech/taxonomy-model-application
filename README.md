@@ -34,11 +34,6 @@ The image below shows a high level overview of the solution architecture of the 
 
 There is a more detailed architecture diagram in the [IaC Readme](iac/README.md).
 
-## Database Schema
-The image below shows an overview of the Database Schema of the Taxonomy Model App.
-
-![Tabiya Database Schema](https://lucid.app/publicSegments/view/7435b2f5-cdcc-4fcc-8db1-6cf15438d2ed/image.png)
-
 ## Why Contribute?
 
 - **Make an Impact:** Your contributions will directly improve the user experience and functionality of our platform.
