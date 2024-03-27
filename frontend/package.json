@@ -62,6 +62,7 @@
     "ajv-formats": "~2.1.1",
     "create-react-app": "^5.0.1",
     "framer-motion": "^11.0.5",
+    "jwt-decode": "^4.0.0",
     "lodash.debounce": "^4.0.8",
     "notistack": "^3.0.1",
     "p-limit": "^4.0.0",
