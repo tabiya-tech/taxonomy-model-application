@@ -26,7 +26,9 @@ export const authContextDefaultValue: AuthContextValue = {
   user: null,
   login: () => {},
   logout: () => {},
-  hasRole: () => false,
+  hasRole: (role: TabiyaUserRole | null) => {
+    return role === TabiyaUserRole.ModelManager;
+  },
 };
 
 export const AuthContext = createContext<AuthContextValue>(authContextDefaultValue);
