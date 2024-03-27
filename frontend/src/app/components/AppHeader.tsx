@@ -1,7 +1,12 @@
-import { Box } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import { routerPaths } from "src/app/routerConfig";
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "src/app/providers/AuthProvider";
+import ContextMenu from "src/theme/ContextMenu/ContextMenu";
+import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
+import { LoginOutlined, LogoutOutlined } from "@mui/icons-material";
 
 const uniqueId = "65b0785e-14d9-43a3-b260-869983312406";
 export const DATA_TEST_ID = {
@@ -9,8 +14,41 @@ export const DATA_TEST_ID = {
   APP_HEADER_LOGO: `app-header-logo-${uniqueId}`,
   APP_HEADER_LOGO_LINK: `app-header-logo-link-${uniqueId}`,
   APP_HEADER_ICON_USER: `app-header-icon-user-${uniqueId}`,
+  APP_HEADER_AUTH_BUTTON: `app-header-auth-button-${uniqueId}`,
 };
+export const MENU_ITEM_ID = {
+  LOGIN: "login",
+  LOGOUT: "logout",
+};
+export const MENU_ITEM_TEXT = {
+  LOGIN: "Login",
+  LOGOUT: "Logout",
+};
+
 const AppHeader = () => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const authContext = useContext(AuthContext);
+  const [contextMenuItems, setContextMenuItems] = useState<MenuItemConfig[]>([]);
+
+  useEffect(() => {
+    const loginLogoutItem = authContext.user
+      ? {
+          id: MENU_ITEM_ID.LOGOUT,
+          text: MENU_ITEM_TEXT.LOGOUT,
+          icon: <LogoutOutlined />,
+          disabled: false,
+          action: authContext.logout,
+        }
+      : {
+          id: MENU_ITEM_ID.LOGIN,
+          text: MENU_ITEM_TEXT.LOGIN,
+          icon: <LoginOutlined />,
+          disabled: false,
+          action: authContext.login,
+        };
+    setContextMenuItems([loginLogoutItem]);
+  }, [authContext]);
+
   return (
     <Box
       display="flex"
@@ -21,7 +59,18 @@ const AppHeader = () => {
       <NavLink style={{ lineHeight: 0 }} to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
         <img src="/logo.svg" alt="Tabiya" height={"30px"} data-testid={DATA_TEST_ID.APP_HEADER_LOGO} />
       </NavLink>
-      <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} />
+      <IconButton
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        data-testid={DATA_TEST_ID.APP_HEADER_AUTH_BUTTON}
+      >
+        <PermIdentityIcon data-testid={DATA_TEST_ID.APP_HEADER_ICON_USER} titleAccess="Auth" />
+      </IconButton>
+      <ContextMenu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        notifyOnClose={() => setAnchorEl(null)}
+        items={contextMenuItems}
+      />
     </Box>
   );
 };
