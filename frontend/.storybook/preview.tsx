@@ -18,7 +18,9 @@ import "@fontsource/roboto/700.css";
 */
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
-import {IsOnlineProvider} from "../src/app/providers";
+import { IsOnlineProvider } from "../src/app/providers";
+import { AuthProvider } from "../src/app/providers/AuthProvider";
+
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
@@ -42,7 +44,7 @@ const preview: Preview = {
       // but this does not work well because it reports false positives and false negatives.
       // The same selector is used in the `a11y` parameter in the `preview.tsx` file.
       element: '#storybook-root:not([aria-hidden="true"]), body > div[role="presentation"]',
-    }
+    },
   },
 };
 
@@ -52,15 +54,17 @@ export const decorators = [
   (Story) => (
     <Router>
       <CssBaseline />
-      <IsOnlineProvider>
-        <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
-          <CustomSnackbarProvider>
-            <div style={{ height: "100vh" }}>
-              <Story />
-            </div>
-          </CustomSnackbarProvider>
-        </ThemeProvider>
-      </IsOnlineProvider>
+      <AuthProvider>
+        <IsOnlineProvider>
+          <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+            <CustomSnackbarProvider>
+              <div style={{ height: "100vh" }}>
+                <Story />
+              </div>
+            </CustomSnackbarProvider>
+          </ThemeProvider>
+        </IsOnlineProvider>
+      </AuthProvider>
     </Router>
   ),
 ];
