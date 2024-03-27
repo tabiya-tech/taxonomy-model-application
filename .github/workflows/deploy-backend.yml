@@ -6,6 +6,9 @@ on:
       target-environment:
         required: true
         type: string
+      target-domain-name:
+        required: true
+        type: string
       version-info:
         required: true
         type: string
@@ -59,3 +62,4 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          DOMAIN_NAME: ${{ inputs.target-domain-name }}

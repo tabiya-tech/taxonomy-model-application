@@ -3,7 +3,10 @@ import * as aws from "@pulumi/aws";
 
 // Stack name based record in Production Account
 const environment = pulumi.getStack();
-const tabiyaDomainName = "tabiya.tech";
+const baseDomainName = process.env.BASE_DOMAIN_NAME!;
+
+pulumi.log.info(`Using base domain name : ${baseDomainName}`);
+if(!baseDomainName) throw new Error("environment variable BASE_DOMAIN_NAME is required")
 
 const commonStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-common/${environment}`);
 
@@ -18,7 +21,7 @@ pulumi.all([subDNS]).apply(([subDNS]) => {
   pulumi.log.info(`subDNS: ${JSON.stringify(subDNS)}`);
 });
 
-const parentHostedZone = aws.route53.getZone({ name: tabiyaDomainName, privateZone: false });
+const parentHostedZone = aws.route53.getZone({ name: baseDomainName, privateZone: false });
 export const subdomainRecord = new aws.route53.Record(`${environment}-subdomain-record`, {
   allowOverwrite: true,
   name: subDNS.domainName,
@@ -28,5 +31,3 @@ export const subdomainRecord = new aws.route53.Record(`${environment}-subdomain-
   zoneId: parentHostedZone.then(zr => zr.zoneId) // Zone ID for tabiya.tech
 
 }, { protect: false });
-
-

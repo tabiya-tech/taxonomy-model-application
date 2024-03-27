@@ -6,6 +6,19 @@ on:
       version-info:
         description: 'The frontend version info'
         value: ${{ jobs.build.outputs.version-info }}
+    inputs:
+      backend-url:
+        required: true
+        type: string
+      auth-url:
+        required: true
+        type: string
+      cognito-client-id:
+        required: true
+        type: string
+      cognito-client-secret:
+        required: true
+        type: string
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +33,16 @@ jobs:
           node-version: 20.x
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
+      - name: Build env.json file
+        run: |
+            touch frontend/public/data/env.json
+            echo "{" > frontend/public/data/env.json
+            echo "\"BACKEND_URL\":\"${{ inputs.backend-url }}\"," >> frontend/public/data/env.json
+            echo "\"AUTH_URL\":\"${{ inputs.auth-url }}\"," >> frontend/public/data/env.json
+            echo "\"COGNITO_CLIENT_ID\":\"${{ inputs.cognito-client-id }}\"," >> frontend/public/data/env.json
+            echo "\"COGNITO_CLIENT_SECRET\":\"${{ inputs.cognito-client-secret }}\"," >> frontend/public/data/env.json
+            echo "}" >> frontend/public/data/env.json
+            cat frontend/public/data/env.json
       - name: Install dependencies
         run: yarn install
         working-directory: frontend
