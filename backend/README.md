@@ -126,7 +126,7 @@ The image below shows an overview of the Database Schema of the Taxonomy Model A
 
 ## Import  Export CSV format documentation
 
-The import and export of the CSV format documentation can be found [here](/Import_Export_CSV_format.md)
+The import and export of the CSV format documentation can be found [here](Import_Export_CSV_format.md)
 
 ## Contributing
 
