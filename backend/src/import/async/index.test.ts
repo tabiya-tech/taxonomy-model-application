@@ -38,6 +38,7 @@ const getMockImportEvent = (): ImportAPISpecs.Types.POST.Request.Payload => {
       // ADD additional file types here
     },
     modelId: getMockStringId(1),
+    isOriginalESCOModel: false,
   };
 };
 

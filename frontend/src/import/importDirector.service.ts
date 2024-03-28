@@ -19,7 +19,8 @@ export default class ImportDirectorService {
     description: string,
     locale: LocaleAPISpecs.Types.Payload,
     files: ImportFiles,
-    UUIDHistory: string[]
+    UUIDHistory: string[],
+    isOriginalESCOModel: boolean
   ): Promise<ModelInfoTypes.ModelInfo> {
     const modelService = new ModelInfoService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
@@ -38,7 +39,7 @@ export default class ImportDirectorService {
       filesPaths[fileType as ImportAPISpecs.Constants.ImportFileTypes] = `${presigned.folder}/${file?.name}`;
     });
     const importService = new ImportService(this.apiServerUrl);
-    await importService.import(newModel.id, filesPaths);
+    await importService.import(newModel.id, filesPaths, isOriginalESCOModel);
     return newModel;
   }
 }

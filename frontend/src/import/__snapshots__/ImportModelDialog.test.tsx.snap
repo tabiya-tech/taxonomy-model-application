@@ -172,6 +172,52 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
               </div>
             </div>
           </div>
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd Mui-required css-1us57sh-MuiFormControlLabel-root"
+            data-testid="import-original-esco-checkbox-label-72be571e-b635-4c15-85c6-897dab60d59f"
+          >
+            <span
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-koselh-MuiButtonBase-root-MuiCheckbox-root"
+              data-testid="import-original-esco-checkbox-72be571e-b635-4c15-85c6-897dab60d59f"
+            >
+              <input
+                class="PrivateSwitchBase-input css-1m9pwf3"
+                data-indeterminate="false"
+                required=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+                data-testid="CheckBoxOutlineBlankIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                />
+              </svg>
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </span>
+            <div
+              class="MuiStack-root css-10hyoxo-MuiStack-root"
+            >
+              <span
+                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-3ahvbo-MuiTypography-root"
+              >
+                I'm importing a base ESCO model
+              </span>
+              <span
+                aria-hidden="true"
+                class="MuiFormControlLabel-asterisk css-4oz16r-MuiFormControlLabel-asterisk"
+              >
+                 
+                *
+              </span>
+            </div>
+          </label>
           <div
             class="MuiStack-root css-gbnj3n-MuiStack-root"
             data-testid="import-files-selection-e60583c2-9ce5-47e0-bb8f-d2a4349dde15"
