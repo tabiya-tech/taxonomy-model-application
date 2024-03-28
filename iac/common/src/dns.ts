@@ -7,6 +7,13 @@ export function setupDNS(domainName: string): Zone {
     name: domainName,
   });
 
+  new aws.route53.Record("auth-cname-record", {
+    name: "auth",
+    type: "CNAME",
+    zoneId: hostedZone.zoneId,
+    records: ["d2adpmhk9okuod.cloudfront.net"],
+    ttl: 300, // Adjust TTL as needed
+  });
   return hostedZone;
-};
+}
 
