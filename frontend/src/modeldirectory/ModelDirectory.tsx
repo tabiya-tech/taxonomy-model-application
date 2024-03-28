@@ -40,6 +40,11 @@ export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
     shortCode: "ETH",
     UUID: "1df3d395-2a3d-4334-8fec-9d990bc8e3e4",
   },
+  {
+    name: "Europe",
+    shortCode: "EU-en",
+    UUID: "7a480890-2293-49ef-9f18-0ffd1b99fc5a",
+  },
 ];
 
 const ModelDirectory = () => {
