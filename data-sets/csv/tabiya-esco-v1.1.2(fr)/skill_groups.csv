@@ -1,0 +1,1951 @@
+ORIGINURI,ID,UUIDHISTORY,CODE,PREFERREDLABEL,ALTLABELS,DESCRIPTION,SCOPENOTE
+http://data.europa.eu/esco/isced-f/00,key_620,"7638a765-d364-44fe-b75e-5a777ae9ff00
+6d7c039b-1aea-49c0-93ec-a43ed4a6a727
+d4d4e095-b603-4be6-b3b8-4f1330a3f19e",,programmes et certifications génériques,,,
+http://data.europa.eu/esco/isced-f/000,key_621,"d48d9f1d-79bc-4533-bdc1-3db6309d23df
+6f5e2c5d-c205-481b-a4ee-7338d259e48e
+ed5520dc-1721-49e4-a8de-fbae36ba7e5e",,programmes et certifications génériques non définis,,,
+http://data.europa.eu/esco/isced-f/0000,key_622,"4d4faefc-8882-4854-a46c-f82b29f75b4e
+0db19db0-9e89-429f-81b7-7c9dd3254522
+d679e2f9-ebc4-4c2b-800f-1732ea94c74b",,programmes et certifications génériques non définis,,,
+http://data.europa.eu/esco/isced-f/001,key_623,"72b209a1-9c8a-4f40-808d-d09d0047c9ed
+a7fbac3f-fd33-47dc-b8f4-43138805f268
+705aa849-cf24-4219-84c6-3f7a90a8c58c",,programmes et certifications de base,,,
+http://data.europa.eu/esco/isced-f/0011,key_624,"09e831d8-35be-43c1-a2fb-d1df76047ed0
+70bae3da-59bb-4394-9a2e-b2a3587d98d0
+b4b07d7c-6ef2-4aae-ae12-f52636da59af",,programmes et certifications de base,,,
+http://data.europa.eu/esco/isced-f/002,key_625,"9f3ba58d-1e57-4328-9fab-e901aba206fc
+9f65abdc-b152-4d96-8517-76d12e89f3c7
+181996d3-f1b8-4c64-81f5-d4029ec35594",,compétences en lecture et en calcul,,,
+http://data.europa.eu/esco/isced-f/0021,key_626,"8a1c7b03-c0d9-4160-94c0-69ebbe984fd2
+de2068ef-5cd0-479e-8840-bc381e856d0c
+e9d59046-6dc8-4e8e-ba10-46c81807d262",,alphabétisation et apprentissage du calcul,,,
+http://data.europa.eu/esco/isced-f/003,key_627,"21f6e242-4422-4c2b-8074-5a13f56c61f1
+b246c983-5455-4271-bfee-93bd07c3e4f1
+386fe5b7-05dc-4bc7-9cc6-f325db7747fd",,compétences personnelles,,,
+http://data.europa.eu/esco/isced-f/0031,key_628,"de3a40c8-8ec2-4c17-9bc1-f21f824f32a9
+870fc453-9fbb-4e53-9cee-701b52d1b755
+3643ac30-9091-4606-9623-73c024ed3c8c",,compétences et développement personnels,,,
+http://data.europa.eu/esco/isced-f/009,key_629,"3bec0a2f-9940-4a04-a1d6-e58e1066afad
+7426a236-9e0d-4d5f-9344-8e2c2ffaf5d9
+0c0e05e2-1de6-436d-9e94-2eb8a96b2102",,programmes et certifications génériques non classé ailleurs,,,
+http://data.europa.eu/esco/isced-f/0099,key_630,"a5fe2f5d-ce1b-423b-a6d5-875e6359f93b
+61db2c46-dc76-4d15-ada0-686a2cd7da00
+53058baa-8baf-4604-a7d1-1e5b5f13ca15",,programmes et certifications génériques non classé ailleurs,,,
+http://data.europa.eu/esco/isced-f/01,key_631,"06d18fe7-6c60-4043-a100-3fe2e87cda82
+aeea932a-27e5-43c5-9575-8facd6fd9dff
+a29c613c-58c4-43a3-ac90-ca75578f4c28",,éducation,,,
+http://data.europa.eu/esco/isced-f/011,key_632,"f183fe4f-65de-4028-ac2e-a9d9b29c4045
+4235a26f-d575-4212-a090-5c6cbb19a27a
+59fa4acd-d66c-4e00-9a29-c484322e3092",,éducation,,,
+http://data.europa.eu/esco/isced-f/0110,key_633,"0427c075-76f4-4e49-a15d-ca5666d67a10
+47342943-9894-4cd7-8e75-5203b7133ac5
+748364a7-39b0-450f-afc0-4904b36246e8",,éducation non définie,,,
+http://data.europa.eu/esco/isced-f/0111,key_634,"a9b0d179-6a60-4847-8042-e29733fd02d3
+7afe0c18-65ca-4b4f-99ad-653a3aece008
+5a770859-6f7b-40dd-b5a8-2b87320cdc0b",,sciences de l’éducation,,,
+http://data.europa.eu/esco/isced-f/0112,key_635,"b1d7e056-9b68-4cf8-81ee-260139ca6df3
+b50926ea-f8ec-4f49-9f38-a09ce2f0e00a
+97f5a5d4-ba04-4fce-9a21-f4d5295782a8",,formation des enseignants au niveau préscolaire,,,
+http://data.europa.eu/esco/isced-f/0113,key_636,"b2ddd43f-bd3f-4f3e-83f1-90fc8efd05d5
+9f6865c1-6af1-4414-8f31-bc0b9555e126
+b6a11a69-41de-4b3d-b2c2-0991c19ef4a2",,formation des enseignants sans spécialisation,,,
+http://data.europa.eu/esco/isced-f/0114,key_637,"13779d98-b2ec-45ae-ac05-735f30e871e0
+a5670a3d-eb47-4fbf-84be-1e02c17bba68
+df961861-53a1-4e89-b57d-b80ddc5fd5fe",,formation des enseignants avec spécialisation,,,
+http://data.europa.eu/esco/isced-f/0119,key_638,"7f3940b3-93c9-4af1-bb6c-ca28467f2f82
+7aa9fb8d-e9fa-4168-8e27-918c0a6ee1d2
+61ec0849-50b6-4301-bdb4-c8b1603a6b57",,éducation non classée ailleurs,,,
+http://data.europa.eu/esco/isced-f/018,key_639,"2da5e7db-a023-4045-b6bf-ff3079364492
+002b2269-d2ca-49b2-bb0e-800673489ddb
+cd989d12-934f-453c-8118-94ebe065c990",,programmes interdisciplinaires et certifications impliquant l'éducation,,,
+http://data.europa.eu/esco/isced-f/0188,key_640,"5d549f37-f885-4b40-8346-b1259492807f
+e11ef01d-623c-485d-b26d-241ca8478c0b
+4d5023ba-5dcf-483a-a82e-28c8df0d0b13",,programmes interdisciplinaires et certifications impliquant l'éducation,,,
+http://data.europa.eu/esco/isced-f/02,key_641,"0fad086a-35dd-42d3-a800-bc374175c9fb
+8bc3e340-6624-4598-8e55-da95df6980fe
+44c9e9f6-d706-4680-8cb1-97ba8da82f15",,lettres et arts,,,
+http://data.europa.eu/esco/isced-f/020,key_642,"fd223839-87e6-467e-84cc-d8abe6fc6448
+0e8c3be9-8302-4db7-a77b-6c90398a7831
+909df210-f5d6-4449-9b42-3b7b2da20b17",,lettres et arts non définis,,,
+http://data.europa.eu/esco/isced-f/0200,key_643,"f20e5fd4-f8ea-4777-9e39-0d7dd520495b
+5353fd6e-8a9a-4378-9038-45842bbbbfb3
+19cc51e9-7f57-40b9-8db4-c4c5bb151e4c",,lettres et arts non définis,,,
+http://data.europa.eu/esco/isced-f/021,key_644,"69148e10-ced7-4e5e-8b41-2ad5a25831ae
+4433f625-4ba7-411a-abb1-94ee2f37d2f3
+b4cd9f5d-fff2-4e6f-94cc-ce476445a2d4",,arts,,,
+http://data.europa.eu/esco/isced-f/0210,key_645,"15b17ae3-489c-4e7c-aa46-a212c28c35bf
+e4db7332-bbc1-4748-b766-8deffe7f8711
+ce8e393b-d0f5-4f83-9d1d-9b46d522e952",,arts non définis,,,
+http://data.europa.eu/esco/isced-f/0211,key_646,"c67de9ec-0e3f-41c4-902b-4a9380e28d35
+2d6b504f-dc5f-4b51-9e34-e5a11ec9080e
+69552437-2356-4fd8-bda0-3897961493a3",,techniques audiovisuelles et production multimédia,,,
+http://data.europa.eu/esco/isced-f/0212,key_647,"4e2cd6db-0864-4d67-b63d-d24b2670fe42
+f52293ac-0cbf-4320-98d9-648c92fa2cf2
+0bb7fb7f-2d37-440f-a0ea-e1ac88e0c356",,"stylisme, décoration et design industriel",,,
+http://data.europa.eu/esco/isced-f/0213,key_648,"93925b9e-ec2d-4635-ab5e-8906f7c832f4
+b98b424e-1b9a-4173-beee-b510e0ffa0d9
+dcbc52f8-c7fd-4838-9d51-894175f3c18e",,beaux-arts,,,
+http://data.europa.eu/esco/isced-f/0214,key_649,"a7de46e1-aaa6-4bea-b90c-1fe73dc6ace9
+5279c41e-12e9-4377-9d37-7a6540c72c50
+9ba01d3b-55da-4221-a457-70e88f4074cc",,artisanat,,,
+http://data.europa.eu/esco/isced-f/0215,key_650,"b4d351e4-89d9-461a-bc0e-79c0305f0231
+bf8ffa54-d18a-4266-9ee9-a92cfaf02f0b
+02de8bef-52d3-4184-878c-84846273e6f1",,"musique, théâtre, danse, cirque",,,
+http://data.europa.eu/esco/isced-f/0219,key_651,"f6f21a07-6523-413d-a260-8168993657f8
+bc04d1fe-c9c9-4c16-8480-fb54354ea2de
+f528f6e6-a500-4e5d-a701-0d64fd157e04",,arts non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/022,key_652,"f478790b-a69c-410c-8bbc-22eeb157d70f
+3d2b9910-5d5a-4fe6-bd86-ac4e839c1dfb
+69cad414-b2fe-40d5-a94b-059f973ef658",,lettres (à l’exception des langues),,,
+http://data.europa.eu/esco/isced-f/0220,key_653,"77b16172-be00-4be2-b21a-265103257f0d
+ada84f78-e0e4-4ea4-b8f3-47390b20a881
+cfe8577d-89df-4897-b47d-0f32de638aea",,lettres (à l’exception des langues) non définis,,,
+http://data.europa.eu/esco/isced-f/0221,key_654,"d69cd7f2-2e88-4568-bb22-dcacec376cd2
+bdab0866-626d-416c-85f9-14384f0704ac
+e8a01f5a-923a-4d7e-ba6e-c66a7d90a16f",,religion et théologie,,,
+http://data.europa.eu/esco/isced-f/0222,key_655,"4b1f576a-8163-46f9-929a-ed7b19032fcb
+453f49f3-220f-45d9-ae70-86bc18afab26
+61831eef-b8fd-4342-878d-5ba0abab4f03",,histoire et archéologie,,,
+http://data.europa.eu/esco/isced-f/0223,key_656,"068b79a4-90cc-4384-ac7e-187f26af23eb
+0409e6d8-a694-4ec0-9a50-eeb69dd6e022
+97e701b3-e8b4-4329-9ac2-ed00a1b32c45",,philosophie et morale,,,
+http://data.europa.eu/esco/isced-f/0228,key_657,"47fc85b8-1b4a-4f70-ab7e-4bd63da0bf3a
+a26afdbf-f3a7-4a51-a82d-943dc0bc67d7
+bedb5a1f-6531-4003-bfe4-fb9cac20f1cf",,programmes interdisciplinaires et certifications impliquant les lettres,,,
+http://data.europa.eu/esco/isced-f/0229,key_658,"78b9dcb3-c280-4ad7-840f-b66018c8e5de
+429fecd8-5383-421a-94fa-9df690ca9102
+c126f890-d177-4f4c-a455-48af5a80235a",,lettres (à l’exception des langues) non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/023,key_659,"5a94a02b-0fb6-447f-9b83-6dc7ce7e8d2a
+f3054b55-cbb5-489b-b0b9-9225c69d7832
+6a9e256b-ba9d-4305-8c07-f35662c55529",,langues,,,
+http://data.europa.eu/esco/isced-f/0230,key_660,"27295a80-cd0f-4193-92b7-6a571e047223
+e5321e63-8371-41c9-a55d-8bdb9c4bd8d2
+148fb66b-3a5a-40a0-b16b-950abcec010b",,langues non définies,,,
+http://data.europa.eu/esco/isced-f/0231,key_661,"93cd228f-1e90-433e-98bc-c41d089dc016
+664d6d1b-5d45-4934-bb07-78e29e0e9f7d
+e9f612b0-a097-44d4-a585-c681df726179",,acquisition d’une langue,,,
+http://data.europa.eu/esco/isced-f/0232,key_662,"30be89a4-bf12-4ea7-ab1f-67227b22d5d4
+2318aab6-0fd9-403b-8241-93d8f651bcfd
+d0cd89f5-76f9-46fa-9d05-d0a50e68d544",,littérature et linguistique,,,
+http://data.europa.eu/esco/isced-f/0239,key_663,"0a29c67d-b922-4387-8b15-425fcbd65e05
+92df7fb0-de31-400b-87bd-c6e052506fbb
+73ab4ef4-53eb-499f-8646-f763260cfdab",,langues non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/028,key_664,"4990b45b-41a8-4150-8579-199e4c26817f
+c5457b5d-7ecc-4277-bd8e-4988c09ee5a8
+3ac0dafa-2aa3-41b6-9575-d08759b85e37",,programmes interdisciplinaires et certifications impliquant les arts et les lettres,,,
+http://data.europa.eu/esco/isced-f/0288,key_665,"f61d0323-5c18-4500-98dc-092bcc9d3036
+50094f6a-04c0-437a-9180-7f34aa1696ba
+0d8c45c9-230a-4ee4-9bc4-db090e5f221d",,programmes interdisciplinaires et certifications impliquant les arts et les lettres,,,
+http://data.europa.eu/esco/isced-f/029,key_666,"d4d74367-2192-44ab-87ea-a24660d4cb05
+b534f26b-3be9-4006-8a23-5e5603697370
+8d8a94a6-4f75-4aff-98a7-8a7da0e59145",,arts et lettres non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/0299,key_667,"a68742f9-ebdd-449e-ae3c-e800fecc0f3f
+484f2a56-aa88-4e50-9917-07f3974a163c
+d9050d04-ff8c-44b8-b100-87b9074a7c3e",,arts et lettres non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/03,key_668,"0f85b7d4-e7e1-4a24-890d-c0ec58cf1609
+230663d8-54ec-4a1b-bb5e-7fcc156fff3b
+b64743ba-56a8-4005-82d4-c7e001154c84",,"sciences sociales, journalisme et information",,,
+http://data.europa.eu/esco/isced-f/030,key_669,"e0d36d51-270f-4bf6-b783-e7fbbd56166e
+057cf6f7-12bb-46da-9f64-79fbaa62bb2c
+4c7704e7-b754-403b-896e-1919901f557f",,"sciences sociales, journalisme et information non définis",,,
+http://data.europa.eu/esco/isced-f/0300,key_670,"9655453b-a8f5-48f1-9478-0e6495f22f08
+fd6b9eb8-1167-4d04-a667-94beb7f64b6e
+82246bb8-2d5d-4231-819d-65a013523858",,"sciences sociales, journalisme et information non définis",,,
+http://data.europa.eu/esco/isced-f/031,key_671,"a3cac8c2-69b2-4eba-b20b-cc2e67c17813
+7159ad75-4eca-43a6-a4c2-8155411acc3a
+acb4a9e2-3a9c-4856-aaa7-68d38c32d7a4",,sciences sociales et du comportement,,,
+http://data.europa.eu/esco/isced-f/0310,key_672,"cf8eb769-71a9-4373-b6c0-36c506f94e88
+64d5c600-337d-4200-9597-e0a3d2ea6769
+317a5207-0082-4662-b20f-674e7150b026",,sciences sociales et du comportement non définies,,,
+http://data.europa.eu/esco/isced-f/0311,key_673,"7b965c8e-5df9-498c-bf0f-75849d4d2b62
+de6aa263-2843-43e8-b074-9e2ee079cf57
+3a6a02d5-39df-453c-a42d-1849afdb03f5",,économie,,,
+http://data.europa.eu/esco/isced-f/0312,key_674,"1ff0c214-d288-4d78-bb71-a08d24843ffa
+afbad2f2-7591-489c-b875-e7b4a6809afd
+64e38f83-5cf7-498b-a14d-b42838394202",,sciences politiques et éducation civique,,,
+http://data.europa.eu/esco/isced-f/0313,key_675,"efa0b213-c70f-4c37-bdd6-41730cf47ebe
+a90bb1ca-d453-4005-ab11-6cad5f2aa8ea
+f301fac8-7f28-40c2-86cb-594b47f258db",,psychologie,,,
+http://data.europa.eu/esco/isced-f/0314,key_676,"41b71acd-fc1d-4ee0-a17f-0bd6167fa707
+4fa246f2-5270-4743-8570-6f62fac397f6
+e813a331-1daa-4f0d-be33-ad724aa9f1d4",,sociologie et études culturelles,,,
+http://data.europa.eu/esco/isced-f/0319,key_677,"919291b8-9fb4-4a51-9253-05fb8e13ee77
+9da6f5e2-611d-4471-a36b-caf0ff7195b3
+c3926ac5-574a-4bae-aa7b-e870ff7857b1",,sciences sociales et du comportement non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/032,key_678,"51c5b1f4-2e2b-4b1d-afd7-e99777e50943
+61d4ef09-a273-4207-b87b-c2d3d9b4b3e0
+8aff78ba-8ac5-40d7-8ee8-7c0a3b560ddb",,journalisme et information,,,
+http://data.europa.eu/esco/isced-f/0320,key_679,"0801d29a-3d7f-4fab-9593-32b446e9e2a6
+1a95f1d3-3d1f-47f5-a7ff-fa5c4fa6121d
+ff4688dd-4f7c-40ba-9f46-bd46f8afd146",,journalisme et information non définis,,,
+http://data.europa.eu/esco/isced-f/0321,key_680,"8fc7d500-b74c-4e1f-96e3-915fb4f76d4f
+abc385a2-f75b-435d-8d6a-f275b41dad78
+02dba9e2-0848-4293-9a20-2cc3b5a0d872",,journalism and reporting,,,
+http://data.europa.eu/esco/isced-f/0322,key_681,"ca2e9d38-cc49-4465-987a-986c7a51f4eb
+479da7ec-43e2-4e0d-a2e3-4d1bc389bfc0
+28679124-db7e-4ea6-969a-6210a759874c",,"library, information and archival studies",,,
+http://data.europa.eu/esco/isced-f/0329,key_682,"1591db9f-a82e-405c-b731-9cc84766570c
+ce51998d-1acf-48e7-8416-ab223e983aba
+56260fe4-2779-4056-9c9e-742bd55a8eb1",,journalisme et information non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/038,key_683,"c04797e9-c8fb-4cff-bb18-0dd212ea80cd
+de3b00fe-81bd-43e7-891a-1fbbfab7ae7c
+ad79965e-3b89-4bf8-be43-393873624f51",,"programmes interdisciplinaires et certifications impliquant les sciences sociales, le journalisme et l'information",,,
+http://data.europa.eu/esco/isced-f/0388,key_684,"e353b27b-2151-4f3b-bfd6-2b371bfcc0b6
+ebd8938a-2247-44ba-ad1d-698739944a18
+eb7e3825-1cda-415a-a851-52914daa2b0c",,"programmes interdisciplinaires et certifications impliquant les sciences sociales, le journalisme et l'information",,,
+http://data.europa.eu/esco/isced-f/039,key_685,"4d5c5e99-e034-4718-b218-2ea32020afe6
+055c6434-d8ec-4e08-9d02-a25dc0083ef8
+c4b11aa8-fac5-46f2-a913-2b0f62359cb4",,"sciences sociales, journalisme et information non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/0399,key_686,"951803ae-b8ca-4a64-a337-b760050dd4a8
+277163ca-1e97-42a4-a888-17fea206d902
+259a74fe-d42e-4757-9e26-a94d43518522",,"sciences sociales, journalisme et information non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/04,key_687,"18fd21f6-cec4-401e-8c5c-ecfa335b32bb
+e5f6f7bf-6732-4910-bbf9-7d5d67006cb9
+84774dbd-ae6d-4aa0-8b16-c58e1a98ba01",,"commerce, administration et droit",,,
+http://data.europa.eu/esco/isced-f/040,key_688,"95be97d8-75b6-4e2c-963a-392ce0908299
+1c23f483-b2f4-4343-ac44-e979162a974a
+e06bad40-7eb8-4257-98e3-af9ae23a20c1",,"commerce, administration et droit non définis",,,
+http://data.europa.eu/esco/isced-f/0400,key_689,"a1f50ecd-3ba2-41f6-a93d-6d4b433c0373
+519f1041-e467-4641-97a2-928118c71e77
+c7d88303-287d-4fe4-9d9b-d1a3ffd564f2",,"commerce, administration et droit non définis",,,
+http://data.europa.eu/esco/isced-f/041,key_690,"a457027e-6ba3-4663-851c-2a67fe964922
+4f9c2335-9054-48b7-9983-ff122c9d0700
+8b3a0f34-c6d6-4e47-a64b-341f0f9247e6",,commerce et administration,,,
+http://data.europa.eu/esco/isced-f/0410,key_691,"6716ec4f-9307-47fb-8ba6-a8f1bb1e0d3a
+a3c4ee32-16e4-43a4-bdb9-861d56a9b562
+4217456c-be3a-4a1c-b6e1-7c1d364bf4e7",,commerce et administration non définis,,,
+http://data.europa.eu/esco/isced-f/0411,key_692,"65fd54e5-8ef9-4886-9cfa-f4b4c9c9edf5
+09bd9b63-aae8-445e-8371-c47d302f5af1
+ae41f328-3104-494b-bd1d-0b06b615e008",,comptabilité et fiscalité,,,
+http://data.europa.eu/esco/isced-f/0412,key_693,"541d5d97-a2b8-4cad-855a-3400b54e2785
+568f6269-b544-495a-9bca-b175f80a053b
+f4d8c0c9-14f6-42c7-a80c-51730aa38691",,"finance, banque et assurances",,,
+http://data.europa.eu/esco/isced-f/0413,key_694,"f9b6ed1b-fb1b-47dd-b112-5e550a3a15ea
+9aaa99f4-d19b-4042-a645-f375a7c49506
+a0c8360b-e40e-4383-92cb-6c0ce4fb9e8d",,gestion et administration,,,
+http://data.europa.eu/esco/isced-f/0414,key_695,"10e5061d-245f-41cf-830c-207944435da4
+5a426edb-4475-4352-9bbd-1ec3cd79ae25
+d4d379fd-fd82-4103-8545-1755c80f4499",,marketing et publicité,,,
+http://data.europa.eu/esco/isced-f/0415,key_696,"ea289cec-5867-4e57-abbe-81f229ea36bd
+76fb2917-f12a-40cd-9479-2b431171baa2
+38991a6d-57a5-479c-893c-f31ac368aacb",,travail de secrétariat et de bureau,,,
+http://data.europa.eu/esco/isced-f/0416,key_697,"6c8b9e03-edfb-47bf-9726-81f2d668e00f
+895dfab6-8bc0-4d15-8bc2-33da5db7616c
+dc2180e7-ae93-49ae-96c7-b3e21a180c78",,vente en gros et au détail,,,
+http://data.europa.eu/esco/isced-f/0417,key_698,"ff7c8bce-0f25-4923-9eda-38951a9af974
+65b1f7d4-5e7e-4e94-a818-b23ad3c267f7
+e6dd1322-5aea-4e67-9b21-d3e534444f06",,compétences professionnelles,,,
+http://data.europa.eu/esco/isced-f/0419,key_699,"736ecdcb-3054-4a63-a907-a221679716b1
+91eec490-a7d8-4b66-b1da-1f5497bd368b
+c592b90e-d788-4224-860f-bb781d5fe94a",,commerce et administration non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/042,key_700,"87d068e9-2ae4-4f85-bae7-92e896894983
+f95fe291-9907-4f43-9039-bdbb45acfa68
+93833897-a5c1-44b4-a5a8-6eb97d0917f3",,droit,,,
+http://data.europa.eu/esco/isced-f/0421,key_701,"98c24ee5-167b-48c1-98d7-2fb2bd15a359
+27bb0249-9f4c-4dce-b424-58a251971407
+836856fe-e8e8-45ca-bc3a-566edaf76da0",,droit,,,
+http://data.europa.eu/esco/isced-f/048,key_702,"a766ea97-547b-49e1-a6c8-dd757543d526
+88d5a267-979f-4c86-8661-54b31dd2e8a3
+387d1c9c-492b-4639-a20b-1079ad196ff5",,"programmes interdisciplinaires et certifications impliquant le commerce, l'administration et le droit",,,
+http://data.europa.eu/esco/isced-f/0488,key_703,"8e6b14cb-342b-434b-aa99-79fa8df3063f
+46877aa4-f9e5-42d9-a28b-89146a8c419d
+1b37ab8e-781b-4a02-8b37-7d4b562f4061",,"programmes interdisciplinaires et certifications impliquant le commerce, l'administration et le droit",,,
+http://data.europa.eu/esco/isced-f/049,key_704,"3b720923-e6e0-4a0e-bb11-8dec2e552bfc
+8cceb766-a10f-443a-aa67-0ed67ce6eb69
+169b19df-dbc7-4353-9f67-50ef8bca4267",,"commerce, administration et droit non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/0499,key_705,"9f801333-cde0-4378-b461-b87fdbf2c39f
+51a5fbaf-b177-4c53-9a69-6e5e04be0bb5
+9f0c232b-bead-461f-9ff0-0e648a8e49b0",,"commerce, administration et droit non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/05,key_706,"7e34b2d6-8017-432f-b9b6-db5e44b58638
+adb26cff-999e-4bbb-aefc-6186e77b5e15
+2bdf1a14-9103-43df-b2af-21927033cd6d",,"sciences naturelles, mathématiques et statistiques",,,
+http://data.europa.eu/esco/isced-f/050,key_707,"2f3e5a30-2083-4505-95a4-4eb837556da6
+10f4d120-340e-4039-9a34-b6585693924d
+d8808ac0-52e3-4ea6-aff6-b7ff2d2e4368",,"sciences naturelles, mathématiques et statistiques non définis",,,
+http://data.europa.eu/esco/isced-f/0500,key_708,"8d6480c4-b6d1-4cfb-9446-222712198aed
+b93d117d-8a1d-4c1f-92f2-5be54a36c0dc
+20722480-7509-494b-bfdc-ffaebf7f90d1",,"sciences naturelles, mathématiques et statistiques non définis",,,
+http://data.europa.eu/esco/isced-f/051,key_709,"a56ba719-b2bb-412a-9e04-6964455b8b8e
+a6a6b704-a913-4b82-84bd-c120258c79f9
+e94ccc00-b9a8-4b6f-a551-e21fb3063a65",,sciences biologiques et apparentées,,,
+http://data.europa.eu/esco/isced-f/0510,key_710,"fb7b09bb-9454-4c24-b798-95f79fd6cd5d
+7382684f-5ac0-4906-beb1-3a9a796abdde
+12bfb6b0-e7ca-452f-89f1-f2c236663508",,sciences biologiques et apparentées non définis,,,
+http://data.europa.eu/esco/isced-f/0511,key_711,"d02438df-4e51-410e-9a13-0d8322b05225
+e9c1d15c-4059-4c4c-89b1-4ac8b15314b9
+6cdd9458-34ee-495d-87f3-0c2d5421a287",,biologie,,,
+http://data.europa.eu/esco/isced-f/0512,key_712,"2e8f58c7-9523-45d0-bca9-9d97a60c1448
+a4975c7b-5127-49d2-8349-e8fe59f8b95b
+80404726-0bb0-4f57-92f1-5cc98b3a6589",,biochimie,,,
+http://data.europa.eu/esco/isced-f/0519,key_713,"7ecdd648-8f20-48e9-abb2-91602c325c75
+7264a520-156e-4ca0-bd86-fb2c8cdccfa3
+d85a28a8-0a9f-4c70-8223-6a5fbac3f465",,sciences biologiques et apparentées non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/052,key_714,"6a8facd2-d3eb-4a7c-80c4-f217b6e59549
+e0f62656-93ab-4021-9021-1397a1ac1724
+e4c58f81-6115-4012-8f7b-3a563e119a17",,environnement,,,
+http://data.europa.eu/esco/isced-f/0520,key_715,"60db72fa-a3d5-434d-8990-46bfef3bbc1d
+7c42dd46-c753-4aaa-9e8b-035577cf9047
+eedd2a93-6510-40bd-b452-4b621e181d13",,environnement non défini,,,
+http://data.europa.eu/esco/isced-f/0521,key_716,"892cfe20-3530-4084-8116-189aa5afe36e
+673116a7-c233-43fe-ab14-f5ef3e8959cb
+d882845c-0c95-4b42-a984-459080ac8a3f",,sciences environnementales,,,
+http://data.europa.eu/esco/isced-f/0522,key_717,"c7f39cfc-2b22-43bd-8150-f5252ec54822
+f122a9af-c257-4d9f-8a67-b4beb37aa830
+3a898cb1-2fd1-49c1-a2c7-789d0644c3f6",,environnements naturels et faune et flore,,,
+http://data.europa.eu/esco/isced-f/0529,key_718,"5d44ec39-f2a0-4fe1-859f-b6bb70fd0736
+f19cd062-57ad-4e4b-a20b-7adfd5fd0fe2
+89395142-4302-471b-bd65-d3c7fd5fd14e",,environnement non classé ailleurs,,,
+http://data.europa.eu/esco/isced-f/053,key_719,"24a2c77a-d37e-47cf-b448-13195cb84ec2
+008212fd-96ad-4950-89f6-440701cf6223
+246e004b-9d4d-47fc-b411-557173ebe667",,sciences physiques,,,
+http://data.europa.eu/esco/isced-f/0530,key_720,"0761da98-a7cc-49a0-91c4-4f180e44b211
+e0abb276-de9c-40a3-ae74-515ad5652d53
+369a1591-8a5c-4311-a171-6df241244962",,sciences physiques non définies,,,
+http://data.europa.eu/esco/isced-f/0531,key_721,"64222679-d8ca-4e0a-bc41-1873ac7ec42d
+10c033cf-f9a5-4e3d-a538-8db84a0c15a4
+b97515be-771f-4e84-888f-ed49056a9ff8",,chimie,,,
+http://data.europa.eu/esco/isced-f/0532,key_722,"cd3b64ae-86da-459b-92ca-f649579a0f86
+ba8164c1-5796-42d6-9082-9f54251df104
+9b0acaa7-9d91-4397-8a78-cd6d992b46fa",,sciences de la terre,,,
+http://data.europa.eu/esco/isced-f/0533,key_723,"592f4a8e-0f08-4997-a826-19e1af48e089
+dd0eae08-e020-4870-b437-7c9cbc02afab
+cac819b2-9740-4d9c-936b-3ee91865d55f",,physique,,,
+http://data.europa.eu/esco/isced-f/0539,key_724,"ebf2d6eb-79b9-45cc-b301-06eb78c330f2
+776b27d5-00be-4a99-9e38-e3cd97adb05d
+a6cec12e-80aa-4838-be0c-9cd66d5d9765",,sciences physiques non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/054,key_725,"6194adf4-c247-4af2-ac27-76c50e0c4ede
+99914071-8dd9-48bd-bc01-f0d825fe91e0
+cecdc481-3867-4040-9eb1-deced186c95c",,mathématiques et statistiques,,,
+http://data.europa.eu/esco/isced-f/0540,key_726,"9d1585c2-ef42-48ae-829e-a6761c7095c1
+87a0dd0f-b30a-4bc7-8f46-a22bd5437deb
+5b710d4f-76db-4930-b453-906b31f12895",,mathématiques et statistiques non définis,,,
+http://data.europa.eu/esco/isced-f/0541,key_727,"e206948f-9047-484c-973b-cc2f08cf17bc
+7bd79824-7326-4b00-99b4-eeaf139417c6
+e2ad182a-2b32-4478-ace7-142d4afebf1c",,mathématiques,,,
+http://data.europa.eu/esco/isced-f/0542,key_728,"09f70105-a9b3-40bc-ba3a-c407720832fd
+2479265e-53a2-4e3a-8520-a7257bbc8b16
+f6eaa181-94de-48ea-a20c-909cf62413d4",,statistiques,,,
+http://data.europa.eu/esco/isced-f/058,key_729,"1da18318-e406-4996-8fff-a81bb7d2400e
+3df93c48-c28e-4355-8871-ae0c0fad3338
+5c75dc91-9ee6-4e48-8e2d-b9258cafd5fd",,"programmes interdisciplinaires et certifications impliquant les sciences naturelles, mathématiques et statistiques",,,
+http://data.europa.eu/esco/isced-f/0588,key_730,"b4239f95-b8a6-4f1d-968f-1cd94597de1f
+a8994c1b-af82-44bb-b3d6-7f7fa07ce5aa
+1945181d-533b-4e06-8d5e-1008ecb3642e",,"programmes interdisciplinaires et certifications impliquant les sciences naturelles, mathématiques et statistiques",,,
+http://data.europa.eu/esco/isced-f/059,key_731,"7ba7fc9a-745d-45ed-9c27-507a691f09db
+9d199f3a-04a6-4a55-938e-a69471e3080e
+fff987be-3368-4bee-8558-b3953e6f757f",,"sciences naturelles, mathématiques et statistiques non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/0599,key_732,"75e71b93-2577-45e1-a5a2-194f261f8713
+6cc668cb-325a-4f7e-8a65-ed5935567688
+5878e841-86d4-4abb-a775-f4a4f3f5dcf5",,"sciences naturelles, mathématiques et statistiques non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/06,key_733,"e736dda1-4e15-4c1a-a9de-fd7cafb81575
+10b2c497-7ffc-4a95-b4d6-c5b781bc0a27
+f2752dea-32f9-42b8-b74c-7e4793df980a",,technologies de l’information et de la communication (tic),,,
+http://data.europa.eu/esco/isced-f/061,key_734,"69000334-6e93-4c51-a3bc-6fa6cd015eaa
+be783f97-0e6c-4310-acf5-6d25813c3963
+7a4e1425-a8c8-48e4-a374-6a133599804b",,technologies de l’information et de la communication (tic),,,
+http://data.europa.eu/esco/isced-f/0610,key_735,"a29a6f53-58c7-4d76-9abc-b1ccb1e4a9f0
+4bca71d9-1459-4591-ade5-eae187b3c07d
+3d4d178e-83b1-44b4-a05d-c20053f58f01",,technologies de l’information et de la communication (tic) non définis,,,
+http://data.europa.eu/esco/isced-f/0611,key_736,"4f0f7a57-e6ba-4768-963b-555fa7097b7f
+beecd850-bdf5-42e2-9024-54688f16d14c
+30108c3d-63f2-41f2-95ca-6a4d93232c05",,utilisation d’un ordinateur,,,
+http://data.europa.eu/esco/isced-f/0612,key_737,"1918e247-c87e-444b-a02b-7b3ea5991440
+25337593-578d-451a-9646-dea8c3db3f21
+97dd58e5-c52c-44b0-9376-896f63122d21",,conception et administration de bases de données et de réseau,,,
+http://data.europa.eu/esco/isced-f/0613,key_738,"e8e94f72-54dd-49a0-9e1a-a1c50d4f274c
+933fd778-707d-4852-bb87-bf60eda0b3c8
+fd10b084-4b7d-4529-94dc-fce358e7bef0",,développement et analyse de logiciels et d’applications,,,
+http://data.europa.eu/esco/isced-f/0619,key_739,"57625359-3cea-4052-b69d-8e6eebe0413d
+8e5c0cbf-ad30-44be-bbd8-68342c581a54
+17b89905-aff7-47f9-9fdd-bed018cb35b5",,technologies de l’information et de la communication (tic) non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/068,key_740,"5b18a510-2642-4878-87c7-34504c89fe6f
+2839b42b-8143-4d2d-981a-01b98404dd27
+480a9a4c-2374-46a0-9be3-1a9a337dd2e1",,programmes interdisciplinaires et certifications impliquant les technologies de l’information et de la communication (tic),,,
+http://data.europa.eu/esco/isced-f/0688,key_741,"b44af4b6-c03a-49a2-a2fb-56364a348014
+3dc23622-05f3-499d-8133-732b4ef84f80
+2299b474-b9c7-4e29-b97e-1aa58871570a",,programmes interdisciplinaires et certifications impliquant les technologies de l’information et de la communication (tic),,,
+http://data.europa.eu/esco/isced-f/07,key_742,"f3e15696-efcc-4c79-aa56-20447e5bb4e7
+94f38935-17db-46ed-8b31-a8666684fd28
+131d8ad4-5701-4ad2-bfea-c6921d6ca2e2",,"ingénierie, industries de transformation et construction",,,
+http://data.europa.eu/esco/isced-f/070,key_743,"0b9cba7c-444f-4340-ad79-896ef7223c0c
+ed61e4c4-724f-4ecd-ad9f-64f2e5a8fb24
+cd822121-7a17-4136-8aaf-57f7c5944563",,"ingénierie, industries de transformation et construction non définis",,,
+http://data.europa.eu/esco/isced-f/0700,key_744,"9ea20784-f81c-4dcf-88cf-c0a22a06a637
+9e815a58-2c22-4444-8a84-91e6547f6f72
+6e348883-b160-4bd1-8fc3-ad5ffadf4edb",,"ingénierie, industries de transformation et construction non définis",,,
+http://data.europa.eu/esco/isced-f/071,key_745,"5b1942ef-eb58-42a4-9e88-108ded78656e
+e7c18589-2644-4654-b29e-e72a7aa30d83
+ead1005c-d151-4d36-b9ec-78bc02625727",,ingénierie et techniques apparentées,,,
+http://data.europa.eu/esco/isced-f/0710,key_746,"cf39c604-490e-470f-9eb0-7786b4354756
+3bbe18ee-f02f-4621-840d-f34057883b1e
+3e4e0394-9e36-4f63-8ff5-fc10f91e1303",,ingénierie et techniques apparentées non définis,,,
+http://data.europa.eu/esco/isced-f/0711,key_747,"372a851c-1e0b-463f-b783-e4942fba3c7b
+b16d3744-1596-44cc-b378-7a2ce5a0c08d
+423357e1-2501-43f3-aa1b-a95b6a3d2101",,ingénierie chimique et processus,,,
+http://data.europa.eu/esco/isced-f/0712,key_748,"d0918e7d-bb8e-49b7-b39c-5fddedc18d88
+38485ff6-f233-46d8-8d59-39750713cfd2
+4e623bff-a9c7-484b-be44-a6bcaba809cc",,technologie de la protection de l’environnement,,,
+http://data.europa.eu/esco/isced-f/0713,key_749,"95390ade-46e9-4dcd-9db5-4db587e744f8
+173d860a-aae5-407f-ae09-fd5ea885593b
+ef87efb7-2f75-481c-a127-97be0fb0b545",,électricité et énergie,,,
+http://data.europa.eu/esco/isced-f/0714,key_750,"94aace93-2d93-49a9-8487-7ee6773170b0
+236c7b5b-4d4b-477d-a322-e779de9f6ffd
+9e6badb1-210f-48de-bd42-198ceb9b70ed",,électronique et automatisation,,,
+http://data.europa.eu/esco/isced-f/0715,key_751,"a0bad7c6-d0e5-4f83-b435-326062939d40
+c8ce3d5b-19bb-4cec-9d4c-1bac0d368417
+25613eef-f8b1-48bc-a2bd-32c05c5d023a",,mécanique et techniques apparentées,,,
+http://data.europa.eu/esco/isced-f/0716,key_752,"9d57698b-c994-4800-bdac-eb45945d3230
+30df1363-13fe-410d-b23f-99631003798d
+b0c46a1b-86bf-47b9-b3a5-7bfd5e4c6203",,"véhicules à moteur, bateaux et aéronefs",,,
+http://data.europa.eu/esco/isced-f/0719,key_753,"f726e657-bc52-454f-9d5b-2588b98c0f95
+ad88a9fd-6a00-41ad-81f8-0a6e719acc47
+d157d726-72d2-4a75-b197-99ab1debe053",,ingénierie et techniques apparentées non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/072,key_754,"5d3b6a27-b1d9-440f-bb3d-770ba23adfc0
+b2be9d09-0709-4d45-8c44-2625008fbb16
+d7273304-c6fe-4ff7-85a5-ab98eca11b93",,industries de transformation et de traitement,,,
+http://data.europa.eu/esco/isced-f/0720,key_755,"b035e381-7572-4096-89b9-6174f6601b1d
+7900a926-b14b-46e6-b40e-e362ee9d8ca6
+7e2a535b-6bc3-4d4e-bb8c-5ed8ffe7ec08",,industries de transformation et de traitement non définis,,,
+http://data.europa.eu/esco/isced-f/0721,key_756,"94fc1080-2017-430f-976e-d35b6296793e
+9e454861-d273-49d0-b7a3-507d9f97a40f
+294c564d-56eb-4170-8fd6-aa2459c6e4ae",,traitement des aliments,,,
+http://data.europa.eu/esco/isced-f/0722,key_757,"46d47859-eeae-4abc-a475-43fc2ca11589
+7efae0a9-ef97-4533-bc41-c6658bb48d1b
+7c2bf940-3234-4d43-957d-0faaebc72e47",,"matériaux (verre, papier, plastique et bois)",,,
+http://data.europa.eu/esco/isced-f/0723,key_758,"1a0d4f1f-664c-4bc7-994a-6e6458739409
+b10abc65-93f1-4820-bfee-77050f4d7ec3
+4a80cf99-e4ec-4129-a56f-216c430cb9cc",,"textiles (vêtements, chaussures et cuir)",,,
+http://data.europa.eu/esco/isced-f/0724,key_759,"09cd0230-6db9-457f-93c7-289cf51328c0
+290e6cf9-ccc7-40a7-b12b-d631d1164cf8
+271648b2-1579-4835-a3a4-9482f2028f9a",,exploitation minière et extraction,,,
+http://data.europa.eu/esco/isced-f/0729,key_760,"94b75f40-e63c-4046-8eed-052152b4c3fa
+7aa2f0a4-1635-4355-bcef-86a2d09ef884
+e9849f51-2651-4eec-b350-33d0bc4a32c1",,industries de transformation et de traitement non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/073,key_761,"96dfb35c-58f3-4240-9045-8c0c1ab1d486
+4943bd30-19ac-4318-99cc-00536e1c84eb
+3fa6c69f-9d73-4245-82be-40d6c43e40ff",,architecture et bâtiment,,,
+http://data.europa.eu/esco/isced-f/0730,key_762,"8768bbae-1def-4207-bf8b-73106b545317
+7d09b556-ef77-4756-84b6-b74f7a75e414
+6d71a1de-230c-4a92-b6ce-f1cb7c35636b",,architecture et bâtiment non définis,,,
+http://data.europa.eu/esco/isced-f/0731,key_763,"d39a91db-3895-4f4d-a3af-93cc0df15d5c
+c80e6e78-18c1-4493-87f5-1f5bcb85d727
+6ecf38ad-5a73-495b-ba74-7a581285c016",,architecture et urbanisme,,,
+http://data.europa.eu/esco/isced-f/0732,key_764,"7ac9080d-76aa-4a2e-897c-f0e9f76a1749
+afa3d1b6-e20d-4cfa-8a66-bffc187787f5
+8b322893-e381-4d0a-a9ee-d7547b22e9df",,construction et génie civil,,,
+http://data.europa.eu/esco/isced-f/078,key_765,"c415b33e-32ae-4c83-8b10-e0cd3ed5f6d1
+36b3f57c-bd1e-4b48-8dda-30b672c03f95
+dccc82c4-5a80-4d3d-b100-2b308226b6c7",,"programmes interdisciplinaires et certifications impliquant l'ingénierie, les industries de transformation et la construction",,,
+http://data.europa.eu/esco/isced-f/0788,key_766,"fc353718-b5db-4c48-91a5-09cf1f900660
+98e85a47-9bdb-4415-81f0-0fef907f4e38
+d432b377-b154-4f02-9746-eaeb46b4ea9d",,"programmes interdisciplinaires et certifications impliquant l'ingénierie, les industries de transformation et la construction",,,
+http://data.europa.eu/esco/isced-f/079,key_767,"c12f6d14-9d0c-419c-9ecb-efee8dcf7e90
+ea6d7ccf-8972-42b4-8b05-889da2ff93bf
+ca4db069-a75f-4821-a5b0-67abf1036921",,"ingénierie, industries de transformation et construction non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/0799,key_768,"266d3ca2-9fd4-4dcb-82cd-a120bbd90c24
+cfa1511c-afc7-4223-b66d-360e296ab995
+47d84a82-ecb9-4dc7-897e-10f5d9e52476",,"ingénierie, industries de transformation et construction non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/08,key_769,"332f4791-5fea-4674-bf18-19068020cb6f
+19b7375a-ab0f-4862-b4d1-e2fb39848431
+f27fd787-68f1-4679-a657-41d363237e01",,"agriculture, sylviculture et halieutique et sciences vétérinaires",,,
+http://data.europa.eu/esco/isced-f/080,key_770,"6cf5f7bc-b952-4fce-b4c5-690916d85494
+42e02e2b-dc8a-4716-881e-a63028b6bad5
+8e5da37d-1705-4d59-9d69-b4adcb8b30ea",,"agriculture, sylviculture et halieutique et sciences vétérinaires non définis",,,
+http://data.europa.eu/esco/isced-f/0800,key_771,"b20122f1-51a0-493d-be7b-1a0288f7f8b5
+4041566c-6c8f-49a9-86ca-a0b1a205b9bd
+accbd5af-79b6-48b3-aac5-95c0f4a6bb44",,"agriculture, sylviculture et halieutique et sciences vétérinaires non définis",,,
+http://data.europa.eu/esco/isced-f/081,key_772,"bf746b8b-192f-460a-9966-8d468f3c33de
+8b5e7c80-7dd3-40b2-bf84-ad9706c8f9b9
+90a2b8f8-1fc2-46cf-93d1-665547095ecb",,agriculture,,,
+http://data.europa.eu/esco/isced-f/0810,key_773,"833bedd8-f842-4ab3-a284-33482a47d2b5
+939f8832-9f3d-4455-98a3-185f5f077711
+e6559f93-40e7-4948-8b5d-3dcef0c16272",,agriculture non définie,,,
+http://data.europa.eu/esco/isced-f/0811,key_774,"ed6bf798-549b-4c97-a3e3-bd1de3d47424
+d0b336d7-2890-4335-92c0-9c63dfe4f5a6
+868506c3-5eb4-4570-8189-db6945d6451c",,culture et élevage,,,
+http://data.europa.eu/esco/isced-f/0812,key_775,"949ddd43-3b08-4713-9cac-6e54ed316f3f
+202f371e-a455-418f-9bca-64e9adf6d507
+3ae65798-8e7a-403e-89d0-79e0004bd98e",,horticulture,,,
+http://data.europa.eu/esco/isced-f/0819,key_776,"6a7a0263-fe85-470c-b405-9d85f60df2ce
+55ede011-3329-42c3-8c07-9094a7937f5f
+f5316b07-c694-421c-a7ce-d770adb6e78b",,agriculture non classé ailleurs,,,
+http://data.europa.eu/esco/isced-f/082,key_777,"db3ad28f-426f-4908-b864-4f9471054130
+b64bd351-f043-4213-ba31-e90f0fadd8aa
+ce4706e0-a45f-4a02-adc0-ade20b84170e",,sylviculture,,,
+http://data.europa.eu/esco/isced-f/0821,key_778,"b727f73c-bb7c-4cce-b7c2-fa1ce345cebf
+84e004c6-b708-478e-b052-57008fbdeacb
+2f9850ba-fe07-4b48-ab64-4088f1516bb5",,sylviculture,,,
+http://data.europa.eu/esco/isced-f/083,key_779,"8088be0b-8185-4a95-af67-ed0226bd7303
+25b30631-f715-4209-9264-5ecb66885da8
+c318db9b-04ac-4037-a78f-53d0653b55ea",,halieutique,,,
+http://data.europa.eu/esco/isced-f/0831,key_780,"64832495-363d-4c22-a75d-249c8f44b3b0
+856e5646-8127-4a3e-97dd-6194b8a63736
+a20303a2-c38e-43b0-b4e7-c271ba542d6b",,halieutique,,,
+http://data.europa.eu/esco/isced-f/084,key_781,"763f05b1-dda1-4e9f-bb3c-92f17ba13423
+899f441f-791d-43dc-80e0-ba6cf1ba9424
+ee2cd131-b737-4a12-bf7f-e140a3fbaf11",,sciences vétérinaires,,,
+http://data.europa.eu/esco/isced-f/0841,key_782,"2399426c-e92d-4820-8b7a-3550182d959c
+ab6c1e1f-656b-4a47-bc5a-ee467ae22705
+f248ec6d-3346-4f31-b366-8bd7a98b5014",,sciences vétérinaires,,,
+http://data.europa.eu/esco/isced-f/088,key_783,"8d307d73-aba5-41a6-b06f-ccf0ab431304
+b990616d-9c7b-468f-bcdc-6f3a203a3b83
+25cdfc91-3be9-422f-a151-7233a2bfcdc6",,"programmes interdisciplinaires et certifications impliquant l'agriculture, la sylviculture et l'halieutique et les sciences vétérinaires",,,
+http://data.europa.eu/esco/isced-f/0888,key_784,"4e9c9b25-76ff-4411-9c25-3ec53977b3e9
+921baf40-6e46-43bc-9f1a-5ace5c05b641
+3cc7d845-eebc-4285-81e1-0ad72732c75c",,"programmes interdisciplinaires et certifications impliquant l'agriculture, la sylviculture et l'halieutique et les sciences vétérinaires",,,
+http://data.europa.eu/esco/isced-f/089,key_785,"c52c9a16-6b33-4a2a-bd98-ac2051a3892c
+781ffc92-50ad-4020-9c8c-d9f04e5d3b23
+096ce43a-3816-4aa2-94d2-603d8e450eae",,"agriculture, sylviculture et halieutique et sciences vétérinaires non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/0899,key_786,"f7573758-3aef-4a38-ac0d-7afaecd3d8f3
+eea6c96a-4e69-406f-8445-aa4769638dba
+55e0ac39-06aa-4b08-948e-8b660d90d057",,"agriculture, sylviculture et halieutique et sciences vétérinaires non classés ailleurs",,,
+http://data.europa.eu/esco/isced-f/09,key_787,"0a14fc0b-4280-4ac1-b2e8-68beaa395092
+7fd88669-6d11-4eb5-b85a-fddd2f3d063e
+1dcc09a9-adeb-4ef4-ba51-119400d99e9e",,santé et protection sociales,,,
+http://data.europa.eu/esco/isced-f/090,key_788,"87297bf6-3f4d-4992-ad59-63cedbfa0964
+9050b56d-f498-4923-8b27-1d3f2576ec29
+f1eb286a-7585-48b6-81d8-d343f569feeb",,santé et protection sociales non définis,,,
+http://data.europa.eu/esco/isced-f/0900,key_789,"581ec3d3-8dda-46dd-9867-d2c1004da0ea
+4b44bb4a-6f4b-4079-8d55-a5cd2b38772c
+6b83e4e6-89f0-492e-bb42-cac9d3d6d247",,santé et protection sociales non définis,,,
+http://data.europa.eu/esco/isced-f/091,key_790,"89daef06-ff05-4d54-880f-c7c743ab790e
+b221fb80-90c7-4e1a-aef4-dc2781ec0345
+8382bbac-13e2-45bb-9d8d-02bd3ede47b2",,santé,,,
+http://data.europa.eu/esco/isced-f/0910,key_791,"6904c3a8-b092-4539-b1c3-cc945c5925f8
+505840e5-4b54-4048-9e1f-afe7c21279c5
+30033f87-2a61-4f85-93e7-02f10bad528b",,santé non définie,,,
+http://data.europa.eu/esco/isced-f/0911,key_792,"83b1bb28-9739-4495-8496-bd20700a9c55
+34bafe2e-ce9a-4a92-aad9-cc692e3b6b48
+7e1be990-f15b-43bb-bbed-44ae85e1605a",,études dentaires,,,
+http://data.europa.eu/esco/isced-f/0912,key_793,"5bcc2d39-39fe-41e1-b054-aabec3cc7e65
+3e3f0db9-0ce4-4abd-88e1-b4debf7f3636
+ed41b1fd-373e-4c29-b66c-f7e3ee5f06ca",,médecine,,,
+http://data.europa.eu/esco/isced-f/0913,key_794,"ffdfe22b-4da7-4404-9200-75afafd5548b
+5ce60c79-2664-4f9e-aebc-bc8afafea5e5
+97cc286a-11f7-4909-a326-523bda01b06b",,soins infirmiers et formation de sages-femmes,,,
+http://data.europa.eu/esco/isced-f/0914,key_795,"0b33126a-61dd-4692-988f-3703b40a4cc0
+7d91b310-63f0-4a65-898a-b963d2ceba12
+c3c64cb7-f69b-484d-b5f7-1ff43afd8d66",,diagnostic médical et technologie de traitement,,,
+http://data.europa.eu/esco/isced-f/0915,key_796,"720ca5f8-716c-4e30-9ba2-4b261501d9e5
+a6a8c65c-bea8-4f70-a937-9de04662ac83
+d0b1dff6-be7b-4f12-afc9-4a4c6f57455a",,thérapie et rééducation,,,
+http://data.europa.eu/esco/isced-f/0916,key_797,"aab51f55-e125-4279-8074-cd7ad70f5905
+c70eb60e-a17e-4b68-a1da-520e2314100f
+48ccfae5-d98b-46a1-a04f-db34da61b9e5",,pharmacie,,,
+http://data.europa.eu/esco/isced-f/0917,key_798,"a28d6ff0-efec-4f8a-8e44-ce877fd4e5ed
+751ca7de-52fc-427d-8a35-086dacec4c21
+2ea9ee2d-c1c3-405f-89a8-34ba73cd7673",,médecine et thérapies traditionnelles et complémentaires,,,
+http://data.europa.eu/esco/isced-f/0919,key_799,"9b27261f-7bb8-4ef1-9faa-3619e9c6425a
+3d150f41-d6d0-4eea-b574-7186a79bf8e0
+7fed589f-1801-4718-8ca0-f4a0ead00bc0",,santé non classée ailleurs,,,
+http://data.europa.eu/esco/isced-f/092,key_800,"5641151e-1d75-4c45-9320-5737c08cbb10
+70c6719b-42af-4233-8f4f-1f2c8d0b8993
+c83d78e2-50a3-4cc7-b4fa-f41d25646611",,protection sociale,,,
+http://data.europa.eu/esco/isced-f/0920,key_801,"99d688a4-a899-44f7-be86-6feee54b98c9
+c7952c7a-a58f-454c-9ebe-6f5326d86ec5
+7e5fe0c7-9083-4f64-8f16-7e901998a2a7",,protection sociale non définie,,,
+http://data.europa.eu/esco/isced-f/0921,key_802,"254e87b3-34fa-46ed-b906-9506ab8836b5
+e5ffe838-1a47-478e-858d-457bfef3afaf
+e93ab6d9-4c76-449b-8434-493bce82ea53",,soins gérontologiques et aux adultes handicapés,,,
+http://data.europa.eu/esco/isced-f/0922,key_803,"0a4bc578-87e4-4aa5-a12d-6c84ad0e8110
+811d59c5-8d25-4fea-b61c-bbe19cf76b2e
+931b47ac-a3c4-4be9-a2c6-11a2e5a3eb6c",,soins aux enfants et à la jeunesse,,,
+http://data.europa.eu/esco/isced-f/0923,key_804,"42457a68-9eed-4080-8fb9-0102edc8a927
+98273f9c-2ae2-4ee9-abd0-a31bbb0cf647
+3a641d97-0bfe-4028-9658-c472659e1315",,travail social et orientation,,,
+http://data.europa.eu/esco/isced-f/0929,key_805,"10e3846d-f907-4dad-a3e8-b835cee64f4e
+08d55e26-cf1e-4d5d-9ff7-15ec629e83d0
+edc31870-aee2-49a6-b02d-5548778db6a8",,protection sociale non classée ailleurs,,,
+http://data.europa.eu/esco/isced-f/098,key_806,"33a19aed-1f1a-4005-b410-7df7f26da0dc
+7c74ee16-1170-4997-86b3-8b557bd78154
+e6679d9b-2885-4d0d-b549-e2ad42929ade",,programmes interdisciplinaires et certifications impliquant la santé et la protection sociales,,,
+http://data.europa.eu/esco/isced-f/0988,key_807,"8a6ba0bf-a99e-441f-b604-d66df688cee3
+619cae93-c61a-4547-9bec-62244e370449
+08f7b047-357a-45a5-a16b-a85313defce3",,programmes interdisciplinaires et certifications impliquant la santé et la protection sociales,,,
+http://data.europa.eu/esco/isced-f/099,key_808,"5f0fcfa2-374c-455b-83a7-3b9578a12dda
+027a5684-0918-4544-b9c0-3e30d1af2514
+4626114a-f95d-4a36-91db-291e2b90f73c",,santé et protection sociales non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/0999,key_809,"92b5131c-d783-4a33-9532-358a7c2147cc
+acd89535-2f03-4b59-8c9a-2ecee47b186f
+c3d08424-36e3-4fc8-9792-6fa068536680",,santé et protection sociales non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/10,key_810,"1ed5f953-1001-471e-b2b0-eb94704a0146
+28a61a18-fa46-444b-84cc-1d522ec1cf21
+53364132-f451-44c9-9b7c-d6d801f9b681",,services,,,
+http://data.europa.eu/esco/isced-f/100,key_811,"55afdce4-14e7-439b-81f9-f6aad8789f71
+29128ada-788a-4a1f-8eb6-3fdc500829a8
+a3a738f8-12cb-4925-b39b-d1569159fa69",,services non définis,,,
+http://data.europa.eu/esco/isced-f/1000,key_812,"81f3f67c-be8b-49d3-9b35-6a0138bd0225
+dbd3b6f2-1285-47cb-8629-6d442dea45db
+155a8241-c307-4a05-aae1-04d93cd75ce6",,services non définis,,,
+http://data.europa.eu/esco/isced-f/101,key_813,"186ba0c4-0e41-4bf8-a191-4ec94a95c922
+1de7c303-0b81-4c67-bb16-ce4e1b84ad2f
+c54b092d-ce6b-40a3-b882-2ef2eb078d53",,services aux particuliers,,,
+http://data.europa.eu/esco/isced-f/1010,key_814,"28c78362-9b10-4af4-8d3b-26d4d64356b7
+b7668d70-44f5-46e9-abd2-d7ed1c917bf9
+1cd1810a-4add-4dcf-a036-5a4f427be6c4",,services aux particuliers non définis,,,
+http://data.europa.eu/esco/isced-f/1011,key_815,"a2eacefc-1a5c-4cde-89cc-02900dfa26ce
+f68c2431-39a1-44c7-ab3c-5528eec693de
+321f0595-fba6-45c1-b396-316b26b562c4",,services domestiques,,,
+http://data.europa.eu/esco/isced-f/1012,key_816,"39c9db4f-390b-44d0-a730-864eff01ca1e
+038171ad-0cf1-41a8-97cd-4c0680d83c66
+10b5bcc8-a235-4817-a2a8-4333b2418d6b",,services de soins de beauté et de coiffure,,,
+http://data.europa.eu/esco/isced-f/1013,key_817,"00dfb505-db4f-4e5c-89cb-111de871239b
+414f8bbc-f064-4d8e-8c6c-60e510c02fc9
+0a353726-8e78-4997-a308-bf5daa8b458c",,hôtellerie et services de restauration,,,
+http://data.europa.eu/esco/isced-f/1014,key_818,"ffb7ba97-339e-43dd-bf74-350eea174159
+12878797-672b-428c-b183-8a625562eaac
+6575ac4e-d4a4-4764-9366-105beff42ea8",,sports,,,
+http://data.europa.eu/esco/isced-f/1015,key_819,"3e902b4c-c01f-47ec-8405-d1ed3699586c
+f5aa838e-01d4-4860-ac98-10974a58bec6
+6b87fa54-d80a-456d-9449-6e9077832abe",,"voyage, tourisme et loisirs",,,
+http://data.europa.eu/esco/isced-f/1019,key_820,"b47a731f-4913-4244-8f1a-01471de0af26
+e1d94893-a87b-416b-82d9-87dde5e260f3
+e7788c78-ef80-4ef5-b71e-4a4e8a8b6509",,services aux particuliers non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/102,key_821,"06b9dcdc-9eed-4803-afab-50aa6cc6a77b
+c14f6419-6449-4fb4-9e43-ba2bc4544c0b
+2a7c47dd-ac6e-4e99-b00e-eb243c653229",,hygiène et services de santé au travail,,,
+http://data.europa.eu/esco/isced-f/1020,key_822,"c47bda0a-f9c5-44b6-adfc-9f224e5fbf23
+a47308c4-a925-45cb-815a-85c8581a4325
+4fdc8b0a-f81b-4481-93c1-04d94ce902b5",,hygiène et services de santé au travail non définis,,,
+http://data.europa.eu/esco/isced-f/1021,key_823,"afa3fa12-f13b-4ec6-8309-095765b89e5e
+80022579-343c-4bac-afb8-3bc2f27840b4
+ba110c17-4a4a-4c5c-bab4-c0b210f78489",,salubrité publique,,,
+http://data.europa.eu/esco/isced-f/1022,key_824,"c3c27d86-0798-43d6-8e8f-3b23e9dec3c4
+d60a7810-8087-45df-92d4-d18584f91ef7
+abb63e9d-7708-44c4-a849-6b1a7a015d8a",,santé et sécurité au travail,,,
+http://data.europa.eu/esco/isced-f/1029,key_825,"60dc80c9-f53c-4461-af7b-86ff34725055
+2600c636-a758-44f7-afea-bd339a3c7805
+b9725e20-ab2d-4c93-bc73-39ea994e61ea",,hygiène et services de santé au travail non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/103,key_826,"cfc43e56-ae09-4111-be0b-13b7c6739c6b
+8f78343d-2488-45c6-8f28-70480eecc7ae
+e2f75059-fe96-4b0a-8e2c-17a5007b4370",,services de sûreté,,,
+http://data.europa.eu/esco/isced-f/1030,key_827,"8a47c395-8b31-4800-8da0-3a8e37bf2dbf
+0e709a8e-d959-4aa9-be56-079fe3f4675c
+dd553995-e982-4867-8626-6788093509ae",,services de sûreté non définis,,,
+http://data.europa.eu/esco/isced-f/1031,key_828,"e46ab212-9f4c-4b91-bc58-579f154dc825
+6c220260-405e-49bd-999b-369cbde89b4b
+dbcdff46-ffe7-48a0-8c5b-d7c64c38c408",,sécurité militaire et défense,,,
+http://data.europa.eu/esco/isced-f/1032,key_829,"ae25d2be-0c7d-401d-a95a-abdeea8cb0ae
+a901658d-bd14-49ba-b766-d9eb464e5dd1
+bd5a8f78-1501-4fd6-a36d-fb5a71b45054",,protection des biens et des personnes,,,
+http://data.europa.eu/esco/isced-f/1039,key_830,"2e1bb48e-4160-4d15-83ec-7837a6615df4
+92e0bfc9-d798-46bc-871d-5dcefced45a3
+64f9178a-63b1-4a9a-9727-c01e5728970b",,services de sûreté non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/104,key_831,"1758caa0-e708-444d-9077-415d7e699280
+f9e2d2b5-c6fc-4408-bbc1-54966e9f34be
+59fde712-e800-4e6b-91c2-4c256f3f6e87",,services de transport,,,
+http://data.europa.eu/esco/isced-f/1041,key_832,"f210d8a3-3df4-41c6-97ac-77dfaf92dfa4
+d4cd7add-50b7-4e53-a63c-fdd9c62f73b2
+0ff25c5b-6a2a-4628-9888-ada911d6c7c7",,services de transport,,,
+http://data.europa.eu/esco/isced-f/108,key_833,"4d7c220a-a9d3-4cd2-b557-098bbd2a1024
+078e0f99-b69e-4b70-8f19-87f4f9456c85
+a8e26d93-f80e-41c8-a32c-9f27d49b1204",,programmes interdisciplinaires et certifications impliquant les services,,,
+http://data.europa.eu/esco/isced-f/1088,key_834,"e7171db4-3c81-45ed-a52c-e40550003321
+2b0c5fac-f9b2-4748-b0b6-a85094e598cc
+20e2bfce-e70a-43bf-a6a7-53983af57691",,programmes interdisciplinaires et certifications impliquant les services,,,
+http://data.europa.eu/esco/isced-f/109,key_835,"ceedaa61-8f0a-4689-adba-49a24b323150
+3bc73c11-e910-4e03-ac84-e755aaaf31db
+6b7fd2b8-44f2-47f1-ae2c-a3c9f612caa2",,services non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/1099,key_836,"e9fec0d3-94d9-44ae-a8a2-3b33f04537f1
+b32c5799-31b2-4cb2-ad10-a4bda4e76de9
+fc8d4865-c8aa-4722-805a-1be9e03342c1",,services non classés ailleurs,,,
+http://data.europa.eu/esco/isced-f/99,key_837,"6cbb3971-c719-4b94-8556-09073f44bc75
+46fadaf0-9129-4076-ba7b-15ca3a3f1fab
+6afa265d-930d-4cd0-a931-978564c36fc9",,domaine inconnu,,,
+http://data.europa.eu/esco/isced-f/999,key_838,"d54ea244-d8fc-4fad-8cfd-0f4806bfdcd0
+c45016c4-596b-4ea9-aba8-52ed0c9d68a6
+96322665-0650-4c19-a2bd-79ef4e876450",,domaine inconnu,,,
+http://data.europa.eu/esco/isced-f/9999,key_839,"04c5ab64-d004-4c5e-9d52-b14cddb5f8ee
+ca74bb32-d635-4ae8-9b2b-3f4e840bb4e6
+e44383f7-531f-40be-b08d-0ff0fbabdc84",,domaine inconnu,,,
+http://data.europa.eu/esco/skill/00d5d1d2-c521-4c58-9df5-2939c0ce9adb,key_840,"5a85d1f9-c063-4d93-9fa9-27f33513f129
+faa05a2d-d632-4c06-82c0-19aa0090cffe
+fa6b9c98-1fbb-43e6-8763-ea5ff0d56ebe",S3.4.2,accompagner et accueillir des personnes,,,
+http://data.europa.eu/esco/skill/0101f8a4-4243-4e67-813b-3e2a6274f7e2,key_841,"e0ea4acd-3d2d-4f91-9237-b7f0c2701827
+715acc28-94c2-46d1-9e40-a81611d1ac6b
+42145a04-e9a5-4429-a608-7dfe6d971df5",S2.9,suivre l’évolution dans un domaine d’expertise,,,
+http://data.europa.eu/esco/skill/021a23e1-907e-4627-b05a-555f889cbb65,key_842,"2834158c-8a76-4e85-b024-ebcf3853730d
+8be66cd5-043f-4cdb-b688-5e3705bda1ef
+49cfe2f6-d3f1-47ae-8239-4007330e921b",T3,aptitudes et compétences liées à la gestion de soi,,"Aptitudes et compétences exigeant des individus qu’ils comprennent et contrôlent leurs propres capacités et limites et utilisent cette conscience de soi pour gérer des activités dans divers contextes. Il s’agit notamment de la capacité d’agir de manière réfléchie et responsable, d’accepter les critiques, de s’adapter au changement et de saisir les possibilités de développement personnel et professionnel.
+  ",
+http://data.europa.eu/esco/skill/02208098-ee91-4df0-8581-5c1a04d8fe0a,key_843,"1322fa6c-37a6-4d01-a3c2-8f3c84ff367e
+ebecd838-c16e-4f30-9a66-2de422a7e8e2
+bb100c90-7b00-43ab-94a8-ee5ff09f70cd",S8.7,"installer, entretenir et réparer des équipements mécaniques",,,
+http://data.europa.eu/esco/skill/036afa6e-cdde-4b38-a53a-8e7910a840e1,key_844,"3e409b9a-8da9-4956-bafa-7aab462affce
+d2ef50fb-3106-43c5-b6e1-2b1d664a3f6d
+8b08979c-d2b6-420b-b32c-380ec0cb5629",T4.3,collaborer au sein d’équipes et de réseaux,,"Soutenir ou former un groupe pour œuvrer à la réalisation d’un objectif commun d’une manière qui témoigne de la compréhension et du respect des fonctions et des compétences des autres.
+  ",
+http://data.europa.eu/esco/skill/03961960-e729-4768-ab0a-49886132f17a,key_845,"e17e0af3-df70-4a93-af0e-e5f44778048d
+42ceca36-0b8e-4db9-a7d9-3ec2235a21e7
+67dd763e-917f-4567-9232-e55208e9ed6e",S1.15.1,utiliser des langues étrangères,,,
+http://data.europa.eu/esco/skill/03e0b95b-67d1-457a-b3f7-06c407cf6bec,key_846,"52e1cb47-d9ab-4645-93b6-ca5fadc9c164
+69d6afe4-0f21-49d0-b1c5-227d9259e7ee
+504b6ec8-97ad-45b1-a01b-df61bac9bb15",S6,manipuler et déplacer,,,
+http://data.europa.eu/esco/skill/03efa398-a1cc-4589-9c10-84bf10f8d42d,key_847,"b32d2d01-9baf-4da9-b65f-8fbf9974cd14
+a5819eb8-c793-4ff6-85bb-bca7ddc81b5e
+543043fc-bf9e-4ad8-b416-0cded0829098",S8.7.0,"installer, entretenir et réparer des équipements mécaniques",,,
+http://data.europa.eu/esco/skill/048812ba-45ff-4801-b04f-b20c03432809,key_848,"e8e53652-0afc-4360-9f42-7961658135c6
+af69c6ae-fb4e-4884-ba69-ffc92fdb1fbc
+f7ef7926-bb57-4890-ac5c-3c50bde08051",S3.3,protéger et mettre en œuvre,,,
+http://data.europa.eu/esco/skill/04a13491-b58c-4d33-8b59-8fad0d55fe9e,key_849,"9630f9f0-56f8-4e69-b353-610c12bb91b8
+a6383ea5-80ba-4269-afa8-3195f5645774
+cf1a67bc-d7fb-4e4b-a78d-fa2b892e26ee",T,aptitudes et compétences transversales,,,
+http://data.europa.eu/esco/skill/062a9fde-cd91-44f9-9a2f-9e2bc3b281fd,key_850,"e4390916-f200-44ab-8cee-e8f925b2b082
+ecfbe2a7-94ba-4a70-892f-84428c02d815
+dd17d07a-7cd8-407e-a9d5-adc33532cf0b",S1.5.5,prodiguer des conseils relatifs à des questions environnementales,,,
+http://data.europa.eu/esco/skill/06769591-b8cf-46b2-b1d3-6602b1cf440e,key_851,"45684953-fbd0-4a71-95ab-4a428968cae6
+72a68164-52c4-4556-9584-2ee1007d5046
+1d832938-d9c4-4872-91a4-944e8674e2a7",S8.4.6,exploiter des machines de traitement du bois et de fabrication de papier,,,
+http://data.europa.eu/esco/skill/06fdd94c-292d-49e3-9c78-bbcbc2088232,key_852,"c143723d-4d33-4c75-99ba-27ba907f18b6
+13c1dc1f-7fc7-4b98-921b-8ec883bd9d99
+eecf1ed0-396b-4319-ae0a-daba12265b1a",S2.2.5,tenir des registres opérationnels,,,
+http://data.europa.eu/esco/skill/0779d482-4154-4fbb-9a22-d9fd89c39d67,key_853,"00e86d94-fb7d-4fb1-9ccc-0ce46edaf173
+a3f3d8a8-8d99-4c85-83f1-63d1d552525b
+610d2cbf-4ce0-4d53-90ec-af38979b6dd6",S4.2.0,"organiser, planifier et programmer des travaux et activités",,,
+http://data.europa.eu/esco/skill/07f47dea-587c-40c0-990a-6c092cc3e6a4,key_854,"776c9b83-44fd-4e54-875c-536c58467373
+f20eed34-1da5-4156-82b7-2f89fc63fbe1
+2dea50c2-952a-4a14-8f2e-5c7cc7dfa342",S1.7.1,s’entretenir avec des personnes pour connaître leurs opinions,,,
+http://data.europa.eu/esco/skill/08104c27-d4b2-4d40-ae97-dde65e71712f,key_855,"41515294-ffb8-4e5f-8f6c-96a3416e5399
+4169f988-d1de-42b9-88d0-816dbeaa796e
+8f9a4426-b2bb-4811-8793-1f11df203f7e",S1.5.9,prodiguer des conseils relatifs à la santé et la sécurité,,,
+http://data.europa.eu/esco/skill/0a295163-3e17-47ad-99ac-2b507ce30adb,key_856,"af6d7563-4758-4470-a5e0-23bbe34d2622
+3be1d0c3-0e87-4270-9953-c0057d8f9c0a
+6be77472-91cf-4e77-9c48-95548fa261ba",S1.11,concevoir des systèmes et des produits,,,
+http://data.europa.eu/esco/skill/0a2d70ee-d435-4965-9e96-702b2fb65740,key_857,"0727fb49-54ed-404c-8dfd-29b86abea069
+12b39f42-63f6-4972-b97b-35e6229f5927
+47c72b68-4d4a-4597-b76b-6e10142b0ee8",S2,compétences en matière d’information,,,
+http://data.europa.eu/esco/skill/0a400212-8693-4b1f-b0ca-d1f82c321916,key_858,"2b239ec3-5d3c-43de-8f21-45f79ab44582
+79228cc1-3130-43f7-a1a5-4745c0b2a7be
+52a98e03-423f-4d43-b86f-b5319bf644f4",S3.2.0,fournir une assistance médicale ou des traitements médicaux,,,
+http://data.europa.eu/esco/skill/0a4c5823-8b09-4e6b-95b4-8036ef3b9c4c,key_859,"52a8b5cd-0dd8-4584-a12e-812f3443e3f8
+d1988f9c-a566-463a-a6fa-ed6df1a348eb
+fb01ae57-71b7-4c62-992e-e16b90b4f02d",S1.2.4,défendre des besoins individuels ou collectifs,,,
+http://data.europa.eu/esco/skill/0a88a13f-693a-4dde-b44c-22e6f98fabc6,key_860,"84022b4a-c2d5-435d-908c-fd211d7591e6
+d7ae8325-8e17-4683-800e-a99f5a4623cb
+154bd2a2-0890-4834-b893-866bd7bc2639",S8.6.4,exploiter des équipements de communication,,,
+http://data.europa.eu/esco/skill/0ac31705-79ff-4409-a818-c9d0a6388e84,key_861,"342e3d0d-9b45-4aa4-9a62-70bf1d93b1e9
+039375a0-38ae-4d60-91f3-b7d71a8b3a09
+98737d0b-a1ca-4c50-90a8-92feae67b9fd",S3.1.0,apporter des conseils,,,
+http://data.europa.eu/esco/skill/0b3930a2-8a13-4932-8a09-4c72ec8af464,key_862,"e8880e41-5ccd-438b-9192-c3435ddcd34c
+6bf67121-a976-468a-b9be-cb449eaf46da
+e578fc62-1693-490e-b052-50b2770666c0",S2.8.10,contrôler la qualité des marchandises,,,
+http://data.europa.eu/esco/skill/0b8d15c9-7b4f-4163-b863-fe5b756d3e7f,key_863,"0e60047d-6aed-4058-96b5-c8f9f5d11405
+3d85a9c3-3013-4088-9d2b-d1b50195b447
+2c7cee7f-a16a-4746-bc63-66529f663de0",S8.7.1,réparer et installer des équipements mécaniques,,,
+http://data.europa.eu/esco/skill/0b9968af-72de-470a-98e1-2d19577443fb,key_864,"dd2cc796-7553-4655-92e0-8d123583be59
+89bafd5f-99cf-4312-92e2-c863e466c0ce
+d0d36dd6-251f-4b77-8de5-608a1dbb948c",S5.2.3,résoudre des problèmes informatiques,,,
+http://data.europa.eu/esco/skill/0c92c33c-2859-4705-87ae-4fdd71d0f8f6,key_865,"0791b653-4201-42bf-a432-7df58a9b9f1e
+a69066af-96a1-440b-b3d6-e17d294cdbf2
+c283cc5e-f3d0-42c9-be3f-88c76f1c165d",S1.15.0,utiliser plus d’une langue,,,
+http://data.europa.eu/esco/skill/0d80a782-99ff-4f49-abbe-c72524c6f390,key_866,"2c0af1c0-1d3d-4afd-a508-031696ccf166
+f4c83305-6610-4834-84a7-f0bd2d52d0ec
+f2b35fa6-3bab-4e0c-a005-6b41a8596a7c",S1.1.1,négocier et gérer contrats et conventions,,,
+http://data.europa.eu/esco/skill/0e0a44a8-654c-4e85-986a-fb4386114838,key_867,"832d127e-1250-4205-aecb-9b1b8adebd4b
+f02b1c21-5712-4428-9dfa-181d11963e62
+68d666d1-2193-4182-b3b2-c4c80644c229",S2.8.4,contrôler la sûreté ou la sécurité,,,
+http://data.europa.eu/esco/skill/0edd863d-b02d-4714-a1a2-835d6dd23c55,key_868,"3bba5329-14ff-42b9-b9a9-564e83b6c873
+64ca5912-d286-42d2-9eb6-e23096e36d73
+b635780a-0d1d-4424-9a5f-587813c63d89",S7.2.3,installer des matériaux d’isolation,,,
+http://data.europa.eu/esco/skill/0f804e14-001d-4ec0-b3f7-eb6a23ad43cb,key_869,"7610832c-ad53-4507-ac24-b2d55a276dd4
+ff985175-b1ed-4dd0-9ccf-a8bd3fcf8564
+d904706e-d2b5-47ed-8859-f3c7963747f9",S1.1.0,négocier,,,
+http://data.europa.eu/esco/skill/0f8f9438-8529-41b8-bb7a-4d91121e3192,key_870,"d87b0b6e-c03e-4fee-a790-98cc73500b7b
+5c8d2a8b-49cf-4acf-840d-dfcbd3408618
+15c17bd1-5460-40f1-9d55-f934490022db",S6.6.2,fabriquer des schémas et des canevas,,,
+http://data.europa.eu/esco/skill/1034004c-0347-4765-8794-b65d2c92b379,key_871,"b90fb4a0-bb88-496e-bf9e-effddebfb4c2
+12b2eb74-106b-426f-a547-d30c448c4087
+b83a3a54-144c-4c4f-87bd-4600f9236a0f",S2.2.0,documenter et enregistrer des informations,,,
+http://data.europa.eu/esco/skill/103af23e-d56c-47ab-b991-55c94dcdef50,key_872,"141501c5-1792-48f0-8cc0-4d37de03defa
+2f1d3a9d-3c88-41e7-9c8c-25727a6684a2
+2ee1aa89-059a-4aee-81bd-a61fc04363b9",S1.5.0,conseiller et consulter,,,
+http://data.europa.eu/esco/skill/1072f444-8a7d-41c1-aa6f-d536f20d94bf,key_873,"629ede88-5938-4f2c-a179-ff3b8a28a38a
+6c01563d-8843-4889-8cb9-2110f6ceceae
+9ede4613-2618-4659-827f-de511380b2d9",S1.13.2,faire de l’écriture artistique et créative,,,
+http://data.europa.eu/esco/skill/119a2f5c-3c3e-4b0d-9813-06a553c8860c,key_874,"593e924b-63c4-4608-8bf3-43a59d149b5f
+548f5737-d4f8-4fad-b962-bf2c41d7417a
+488138e5-625f-410c-9a8c-7790928b8acb",S3.4.4,fournir une assistance générale aux personnes,,,
+http://data.europa.eu/esco/skill/12022223-8c30-418a-8f83-658396c9fec2,key_875,"7cad943b-d095-454e-aa86-897bca6b8183
+d1fbe206-961e-4acf-8937-b522b40c5fc0
+ff7a25c8-b6a2-4174-9def-a1abee45a9d8",T5,aptitudes et compétences physiques et manuelles,,"Aptitudes et compétences liées à la capacité d’exécuter des tâches et des activités nécessitant de la dextérité manuelle, de l’agilité ou de la force physique. Il s’agit notamment d’effectuer des tâches et des activités dans des environnements exigeants ou dangereux nécessitant de l’endurance ou de la résistance. Ces tâches et activités peuvent être réalisées à la main, avec d’autres interventions physiques directes, ou à l’aide d’équipements, d’outils ou de technologies (tels que des appareils TIC, des machines, des outils d’artisanat ou des instruments de musique) qui nécessitent un guidage, l’exécution de mouvements ou l’application d’une force.
+  ",
+http://data.europa.eu/esco/skill/13d301d0-98cb-414f-a8f9-a3f059228133,key_876,"82224afc-db3e-482f-b161-83cecae48085
+22ddfbe2-925d-48e1-b0ff-d0a5c67c04b9
+ba3ea9d9-5cf4-4fd9-83d2-9e715b78d32e",T2.3,traiter des problèmes,,"Élaborer et mettre en œuvre des solutions aux problèmes pratiques, opérationnels ou conceptuels qui se posent lors de l’exécution de tâches, dans un large éventail de contextes.
+  ",
+http://data.europa.eu/esco/skill/14c41899-0224-4cbc-bd8c-e946ada2da87,key_877,"8bea93a3-cb21-4219-921a-cee79f9f89ef
+59f058f2-bde5-4a97-b396-f38dcfa45b11
+d6fae37d-85e3-428a-8684-1530c93b23b6",T3.1,travailler de manière efficace,,"Atteindre les objectifs de manière indépendante et optimale sur le plan du temps, des efforts ou des coûts.
+  ",
+http://data.europa.eu/esco/skill/151bd6ca-74be-47bb-9dab-9c7387114006,key_878,"599bfed8-0504-486c-9278-64290460ce25
+83ee5bef-bcf4-40dd-87b9-553e4386c942
+b1303fc3-d6dd-409d-bc0c-3ac0ba3296c4",S8.4.2,exploiter des machines de traitement et de finition des métaux,,,
+http://data.europa.eu/esco/skill/15dfca7a-5dde-4199-bad3-c00600387258,key_879,"f1daf158-b743-4b28-8ee7-141e539d562b
+118c367e-1752-4d6c-b78e-54df964868d7
+b262c942-ba4d-473c-b3f9-611bd769eeed",S6.13,manipuler et éliminer des déchets et des matières dangereuses,,,
+http://data.europa.eu/esco/skill/15fa3879-ac0e-46e6-ae36-609bae9c19c3,key_880,"6cc153c0-618f-4d36-88d2-c262cfa8ec83
+836996ad-86ce-452b-abd1-32c2a8d4e04a
+ba80526e-5427-4b8c-9ee7-c82a61d135e0",S2.8.2,contrôler des activités opérationnelles,,,
+http://data.europa.eu/esco/skill/164510d1-1216-4dc0-b9d1-a7f6af19e469,key_881,"00f08621-1a42-4080-be48-8acdcca86f60
+9b7e2e6f-9d52-452b-9e93-8567134069f9
+f83368f2-e29b-4f7e-93d3-a3c6e54d6c0a",S4.1.7,élaborer des plans d’intervention d’urgence,,,
+http://data.europa.eu/esco/skill/173fbafb-d2e0-4b89-be1c-548b1cc47160,key_882,"1bdb3b22-f4c8-4b4b-a572-338c8d2d389f
+84aab62d-a839-4642-8d3c-0cb698fc7f79
+f721f4f1-9f16-406c-98da-33ce3e3323a9",S1.8.6,assister et soutenir des collaborateurs,,,
+http://data.europa.eu/esco/skill/185c56ee-098f-46a1-af87-56337085da6f,key_883,"0be35bec-0d80-4056-b472-4d48a54b21e6
+666e2a48-e3de-4037-984c-d182106b7fbd
+40233966-fade-4316-a47b-4894987bf650",S5.2.2,protéger des dispositifs tic,,,
+http://data.europa.eu/esco/skill/1893b4bc-0eb2-41de-96e3-9c8f1f1eac41,key_884,"fd471319-e880-4f22-8ca2-be7732fbd653
+2aec5be9-3209-4f28-9cc0-985440583298
+d6f668bd-be26-474c-956a-5b1d11821324",S2.8.9,inspecter la sécurité et la qualité des denrées alimentaires,,,
+http://data.europa.eu/esco/skill/18da3b88-1cd5-4ef3-83d6-664e52afdaba,key_885,"4ce89a0e-0ba3-46c5-9e6a-7fd49df9f655
+eafd279c-e638-499b-a193-2216b4c8e534
+1dd3d710-fe58-481c-8810-b424f6746629",S7.1,construire et réparer des structures,,,
+http://data.europa.eu/esco/skill/18f2a44e-28ef-4ae3-8ea2-347e33bd9a4b,key_886,"2f50d37c-57e9-43bb-abf1-54c7490597cb
+56274fd3-a62c-4416-b206-c8fd7bb69441
+9e5b1fc6-c4d6-4b4e-9ffd-c2ce29a2e62b",S8.5.0,exploiter des machines destinées à la fabrication de produits,,,
+http://data.europa.eu/esco/skill/190f64e1-b7b6-4c53-b20b-80f9215ef6ca,key_887,"fe27e9a1-8970-4f1e-98f2-670288d967a0
+a316459c-638d-4786-91d4-00363fdc5152
+7f04d0ce-75be-4f07-83ee-96c4ae908d03",S4.2.3,"diriger, superviser et coordonner des projets",,,
+http://data.europa.eu/esco/skill/193af349-b20e-4277-94bf-b184e92b8d6a,key_888,"1d658dd1-0421-4a92-8a94-6cf00821acb5
+8cf26e4d-8ced-4c1f-8db3-89491b079b50
+84d0e35c-beb0-4abe-8917-f2d2b141243f",S4.3.1,gérer des budgets ou des finances,,,
+http://data.europa.eu/esco/skill/19990cb0-e9d5-41c7-9638-88700b47271e,key_889,"39434466-43da-4c2f-9b1c-3fc766d9e067
+451ea7a9-a807-48de-90eb-592e337d4cdc
+e27cdf8d-dad8-4e1e-b1a8-5185eb6255a7",S8.1.1,exploiter des équipements de terrassement,,,
+http://data.europa.eu/esco/skill/1bb32451-7ca4-4fa2-a2c0-2083c426d76c,key_890,"5cf93670-3bf5-454b-bbc2-0306a252f41b
+b62b2ab2-5895-4ad6-a0bc-c27110eccd15
+190a871f-5544-481b-8727-0fbf0dc443ca",S3.5.2,servir des aliments et des boissons,,,
+http://data.europa.eu/esco/skill/1bc1cf2a-a7f6-4769-a13b-cc26a2214498,key_891,"da48c9b1-37ac-4d8b-8830-b78bfcfacde2
+971eb21a-ed3b-4e50-bc66-53e33882f78d
+f44afd53-babc-4f5a-8e45-b2f944fe9e1c",S2.2.3,"préparer de la documentation relative aux contrats, aux demandes ou aux permis",,,
+http://data.europa.eu/esco/skill/1cc5ff0b-afaa-4993-9de7-ab0d77b6cca2,key_892,"9eec8832-4ee8-4bec-a057-fb63f1e90297
+337f26ba-bab4-48aa-ab61-5c612de65547
+76ecba9a-d622-4765-8baa-6a0ec1d678e2",S6.2,déplacer et lever,,,
+http://data.europa.eu/esco/skill/1d4be2e3-ac64-426f-838d-1e7cb8600927,key_893,"21800629-2620-405f-8c22-6de550e73104
+d9b9456f-bc64-48e7-90c1-ddbd206e5e1f
+a6c96b1f-bd5b-4320-af78-bd9faaf1f17d",S4.0.0,aptitudes à la gestion,,,
+http://data.europa.eu/esco/skill/1d9e5893-d6b2-47b1-80ba-5f1cdcbf5e9a,key_894,"c82e5c93-d351-4f91-811b-a1e504eac94c
+c76c8ed9-2f07-4736-9fd4-e77129139be7
+7221434d-9871-47c3-9e1a-2500890d38cf",S6.6,"fabriquer des moules, des moulages, des modèles et des motifs",,,
+http://data.europa.eu/esco/skill/1e95cef2-9c35-4f9f-b6a9-cb458c3e5379,key_895,"aea8505a-b5a9-43f7-a125-f80c115c4103
+7396636d-6290-4393-9355-0d3bc5cccedb
+786f2ec4-c328-4e5c-9c14-90f21f07f7d5",S2.8,"surveiller, inspecter et tester",,,
+http://data.europa.eu/esco/skill/1f2950c0-ef1e-44b4-9a55-125ccd7b78af,key_896,"987c75cc-44ac-4eab-8f4d-744fc4398b4c
+40ad1883-9dc4-41bd-90e8-4c90f461dba0
+31baf3e2-c647-44db-a808-0736c087c638",S2.7.0,analyser et évaluer des informations et des données,,,
+http://data.europa.eu/esco/skill/20136935-e6a1-417b-81df-9b94d4c2c371,key_897,"b682dbba-2215-4475-b767-eef7de53d1c2
+f27d7af7-c182-476b-8dd5-183a807c3668
+f8e3ac7b-75a7-41ba-ac37-81e2177fa77e",S2.2.7,signaler des incidents et des défectuosités,,,
+http://data.europa.eu/esco/skill/2198d7a0-6eca-4795-b877-98a19064e61a,key_898,"826f7e3f-aee2-44d0-800f-19ada6731718
+586f7c91-e224-4526-8ecb-a662e45d3576
+e1af2c5f-27dc-415b-b646-b13697820ce3",S8.4,exploiter des machines pour l’extraction et le traitement des matières premières,,,
+http://data.europa.eu/esco/skill/2258cde2-a95b-4b2c-b105-59e84b0a364b,key_899,"17b607b0-e9e8-4894-8b0a-db965430a5ae
+48752c24-3528-4a9b-9d12-5e30b04087fa
+6c6da8b1-ce3e-4d68-972c-28070d5ae319",S4.3.2,assurer la gestion et l’administration des ressources humaines,,,
+http://data.europa.eu/esco/skill/22d15a65-7262-4a6d-b981-53671b95ad29,key_900,"a5a480c5-fc6a-4d24-a120-afbad3cfac90
+b1e1d8b9-a497-426f-948d-4c3c39e5050b
+ed9f2b63-02f1-4b85-8a48-f3df52a27fa2",S6.12.0,laver et entretenir des textiles et des vêtements,,,
+http://data.europa.eu/esco/skill/23cfb269-eec1-4011-8e57-c86203ce9fd7,key_901,"aee40f3a-7671-4f08-a983-327cfe56ac0e
+94f890f5-db44-4269-8cad-51324e8fdb18
+7a802c76-6b6c-4878-82a2-792d18bb4141",S1.8.3,fournir un retour d’information,,,
+http://data.europa.eu/esco/skill/23d7bd85-d8d5-4455-b64d-3b0998f2425d,key_902,"335f68a4-e056-4c7e-a81a-7ad5254cc3c0
+a4c6ee5b-b841-4a89-95df-1ba7a7942b5a
+4e78e5fc-fc72-4f36-80f2-74a756abb6ed",S2.5.1,mesurer des dimensions et des propriétés connexes,,,
+http://data.europa.eu/esco/skill/243eb885-07c7-4b77-ab9c-827551d83dc4,key_903,"46ba1b54-05f2-4155-b8f2-909fc2e14443
+5dc35897-0132-4a44-bce3-10dcbbeb99eb
+d6dbabad-9253-45bb-9ee1-18ee38eefa8d",S5,travailler avec des ordinateurs,,,
+http://data.europa.eu/esco/skill/2486154b-e3fd-4938-8316-029f62afdcb9,key_904,"301f6900-3edc-411c-b6c7-ffd6f86fabf9
+835c3c2a-4fc6-4f9a-8f84-2438dea543ae
+9c701f4e-8a98-4f4e-a1b7-f1856adeec57",S3.0,assister et apporter des soins,,,
+http://data.europa.eu/esco/skill/24a39c1b-b8cc-4210-8b74-b388a90e8f59,key_905,"1dc92e61-82e6-4909-afbc-57b0b7394bab
+33c4b886-61b4-48fc-ab91-cc7bb47a6d0f
+0022f5f2-bda5-4e6f-af63-90806483ab4c",S7.1.6,joindre des pièces en recourant aux techniques de soudage ou de brasage,,,
+http://data.europa.eu/esco/skill/24aa32e7-5b7c-42fd-b045-11f0c3d9b6e3,key_906,"7ae6f384-a539-4625-a093-2fe89c2167ab
+242bcad9-dd85-4e03-8c77-db6bc1d542e9
+ab77c043-7e14-4d7e-b488-9b5c57cf7252",S5.2.0,mettre en place et protéger des systèmes informatiques,,,
+http://data.europa.eu/esco/skill/24ad2ffb-dece-4704-8155-63ea9428d038,key_907,"8eae14c4-7d4a-4d54-92c7-07c5bbdbcd2a
+393f5b8b-1b05-4d4a-a153-81d144e7ffff
+09e38108-8b51-4d3e-984d-68d8b9f6b617",S1.5,conseiller et consulter,,,
+http://data.europa.eu/esco/skill/258fea29-09db-4918-8235-0d7d529cd31c,key_908,"9cbdf4c2-3f89-4ffe-9952-826cf199d501
+508e0e79-b828-4ca0-bc7e-ce01435c8efd
+8e8550c0-3fb7-4a7e-a733-9231645bb021",S5.5.1,rechercher et filtrer des données numériques et les parcourir,,,
+http://data.europa.eu/esco/skill/28d2ab6c-38a2-476e-85fe-7982fd242943,key_909,"da972a24-f930-4bd7-a1f0-42539ab9d1c1
+868ac318-cf91-4259-bec0-d5b0a6a22112
+9a0ca08c-b42a-40fd-9c00-fb8a3d92a2d2",S5.5,accéder à des données numériques et les analyser,,,
+http://data.europa.eu/esco/skill/29dcc31e-a8d6-4a62-b3c1-2de81e966e39,key_910,"c61c5586-aecf-44f4-82cd-b2427acb0c76
+4a2f2b55-ab66-4033-b227-384b4215423c
+15c695c2-cb46-43f5-8038-1201fca8ca76",S2.4.1,rassembler des informations à partir de sources physiques ou électroniques,,,
+http://data.europa.eu/esco/skill/29fbde52-e525-4653-96d0-acd59ccb28d8,key_911,"1eec195c-915d-4e57-a264-b0a1bebb1e85
+c3672ee1-536b-4793-86d4-201858e74dd8
+0f2edd6d-906f-4b20-b740-c955a27ccce4",S3.1.3,aider des personnes à accéder à des services,,,
+http://data.europa.eu/esco/skill/2ad2ee1c-afc9-402f-91ab-c9c0911b209d,key_912,"b9305433-c414-4bba-b19a-0a1f30070d66
+244e24ef-2542-4494-877e-0cd8db19ff1c
+fa9c5fdb-d49e-4f5b-a826-6d41108e09a8",S6.5.1,fabriquer des instruments ou des bijoux de précision,,,
+http://data.europa.eu/esco/skill/2ae39fc8-0f1b-4284-9e73-3f2739471f63,key_913,"1747ae84-175f-4461-9a08-72fa6efc590e
+7a33a971-c85b-49c0-9e86-1cab42bef2d0
+77f096fa-8e9e-4ebd-abca-c7208ef9b846",S7,construire,,,
+http://data.europa.eu/esco/skill/2b2c3254-7f6c-47e2-84f1-aece946fbfae,key_914,"a6718fc9-f9e1-4895-8612-a494aa7a9be9
+16900869-315f-4101-9ab4-4db16184b789
+79b1d59d-56fd-42b4-8da6-fd11945ed245",T3.3,maintenir une attitude positive,,"Surmonter l’adversité, faire preuve de résilience et trouver des moyens de résoudre ou de gérer les effets des épreuves de la vie.
+  ",
+http://data.europa.eu/esco/skill/2b6e15f5-dfa0-4e7c-9687-5665b07e56a4,key_915,"2102e7e2-7412-4717-8068-75450bd9904f
+b0c91bf5-a1fa-4e82-8610-43632bdc0df6
+a9500b58-9e63-4262-918e-893587d90941",S3.3.6,protéger la vie privée et les données à caractère personnel,,,
+http://data.europa.eu/esco/skill/2b8a86c4-d063-44d5-863f-a9659024cefe,key_916,"3c231e43-f3f9-4665-9491-6631e0627f57
+4f419643-6f4c-4130-8979-1640c13deb6c
+7a510b2f-f72c-4d71-a62f-d53e9a8012d5",S8.5,exploiter des machines destinées à la fabrication de produits,,,
+http://data.europa.eu/esco/skill/2bf2c727-ee42-4fc5-a4d7-2cd62b880433,key_917,"3b85ac48-2dcc-4b9d-9d92-0ade72a00a20
+b066cb10-bbb5-40ba-b75f-1480a0c6ad54
+c9bda3cd-de35-4316-b535-2042ef82ee59",S6.11.0,nettoyer,,,
+http://data.europa.eu/esco/skill/2c7252b7-59b8-40eb-ac7c-17f78a94f7e7,key_918,"e6bb9806-0104-4e2a-9bed-6cf05c57ab4d
+88443c8a-b0dd-44e8-8536-64b3a2974b1d
+b89dfb32-39ad-4fab-a9c7-b5ca9a2d8ed1",S7.2.0,installer une infrastructure intérieure ou extérieure,,,
+http://data.europa.eu/esco/skill/2d02d98c-20c4-4b46-bf44-e5f85a3f03ed,key_919,"1a49d39d-e95b-470b-994f-e8b0d19015d0
+f792fdd2-67a6-4ced-b1f5-cff892cfcd88
+04d29667-d4fc-41b5-8fa8-9b216ee4246c",S4.6,construire et développer des équipes,,,
+http://data.europa.eu/esco/skill/2f661409-3e56-46ab-95d7-6ec7786fc1c0,key_920,"62b46d32-148b-4c7e-9d83-727b08a3a95b
+a4f0f2e5-2ff3-4bf8-aea3-af0bdc991225
+aa1f60b9-b311-4f16-9ab5-a14e7d5c5b36",S1.13,écrire et composer,,,
+http://data.europa.eu/esco/skill/30b280e7-2468-440b-a78f-f1e7f515d60a,key_921,"fe4bdc98-2a08-4313-bad9-0d99ef309f17
+aaa9cb5f-0d8d-437a-8ad8-fab6b5f4469e
+1afb9c62-18f3-4060-9c9b-7bb171acfd35",S6.2.4,"positionner des matériaux, des outils ou de l’équipement",,,
+http://data.europa.eu/esco/skill/31397e38-43b9-43ba-943f-192b834e6b54,key_922,"87ac117a-2d99-476a-9fc9-834c4284c05a
+01d09360-d8c7-42eb-af8b-6a76fbde44e1
+926c1eaa-3378-4bb1-9456-c8387f0473f8",S1.7.0,obtenir des informations verbalement,,,
+http://data.europa.eu/esco/skill/316df5b7-31c4-4f4e-ae69-aad1b873b995,key_923,"d82de0b5-b4ad-4b73-8142-1e79be2d91ea
+d9d9512d-cbf2-4763-9a86-f7a13c1e6f0f
+3fe08e50-d3bb-46eb-bdbf-272723a0c934",S2.1.3,interpréter des documents et des schémas techniques,,,
+http://data.europa.eu/esco/skill/323b3684-86ec-40fa-81b4-bc52694ef168,key_924,"76daa02b-bb06-49f2-8fd3-4d979364e2f4
+ea4dad9e-3446-4bb4-be64-645430e1cd78
+323871e4-be89-40a9-8e2c-b318382828a3",S1.1,négocier,,,
+http://data.europa.eu/esco/skill/325a3d29-a235-4182-9128-782c0f4b2dcc,key_925,"7b227eee-c26d-42e1-9f95-1b268afc3efb
+df1e3585-029b-4b3b-a0d0-b97dec07aa28
+8142958a-b340-4874-bdb3-d3e07ff25869",S2.2,documenter et enregistrer des informations,,,
+http://data.europa.eu/esco/skill/32c017fd-28ab-4051-bf68-74de952c2f77,key_926,"3edb247c-1610-4277-8127-3e02f87bb5ac
+fa32a21d-7848-4ccf-9acc-7cabff310d37
+e096ae82-4aed-4a03-a590-6550e8bd361e",S2.3.0,gérer des informations,,,
+http://data.europa.eu/esco/skill/32c854c1-6f1f-4f1c-8e4c-368a68a10db3,key_927,"041b36b6-9898-4e3d-ab81-93bd3f6eefe1
+1341e247-47ae-49cb-a7d7-3252f09e26cd
+9e48263c-b7f0-4c76-82ef-b6d1c4c29c1b",S1.11.3,élaborer des recettes ou des menus,,,
+http://data.europa.eu/esco/skill/335228d2-297d-4e0e-a6ee-bc6a8dc110d9,key_928,"5580e9b7-9b44-4f3b-a394-592a8c8ae02b
+3529e0f5-0560-471e-a81c-056c0d383825
+39c4b0fe-3304-4f38-8b9b-8edff947c42d",S,aptitudes,,,
+http://data.europa.eu/esco/skill/335be43a-3267-400e-b5cb-c9e234dc7544,key_929,"d593b7d5-45e7-4920-9c69-13d6a48ab352
+96a8102d-c38f-49d7-8ed5-7f6128d40ce7
+66d9727b-1f9f-4081-8a91-12d6f96f17e0",S1.3.1,enseigner des matières universitaires ou professionnelles,,,
+http://data.europa.eu/esco/skill/3374fb57-056f-49e0-9fc5-000465e13794,key_930,"abb63c40-8aa1-4090-8107-fc563db3106c
+39c61273-e314-4659-94da-2727b35328b7
+65e7165a-7090-4bb1-9bd3-05b055f8342e",S1.3.2,former aux procédures de sécurité,,,
+http://data.europa.eu/esco/skill/3399045f-8078-4066-8b46-475b49b260ab,key_931,"5c85f340-74d8-4699-96ad-a5fa97520820
+c2edc75c-ca52-449b-99b4-80dae70c6447
+03674929-5465-4bea-969e-8402e40bd588",T1.3,travailler avec des appareils et applications numériques,,"Effectuer des tâches numériques simples telles que l’utilisation de matériel informatique déjà configuré, la recherche d’informations sur l’internet, l’utilisation de logiciels standard pour communiquer ou collaborer avec d’autres personnes ou créer et éditer des contenus simples, et la sélection de mesures standard de protection des appareils, des données à caractère personnel et de la vie privée dans les environnements numériques.
+  ",
+http://data.europa.eu/esco/skill/34691a8a-ec8e-4eaa-b6e7-f4dbf144c644,key_932,"e8df2cd2-4678-404f-9f72-942fbe4139b7
+7a65d827-0046-4954-8cbe-40667167d1eb
+d543bfa5-4e03-4294-b1a4-74785561f5b2",S1.5.2,prodiguer des conseils dans le domaine financier,,,
+http://data.europa.eu/esco/skill/347aa7ee-b640-41cc-ae7c-3c5eafda9fda,key_933,"3d837f9c-cb0d-41dd-a49f-1c6aa81be20a
+4971b299-cbb5-48f3-924a-9d2f6de1603d
+f6736aeb-6f7a-4685-be68-bd5ee946d34a",S2.5.0,mesurer des propriétés physiques,,,
+http://data.europa.eu/esco/skill/35045957-e9e4-44b1-801a-9a49f6efaece,key_934,"ff72b7de-1c07-4b96-95e3-2c438720a708
+d26a1cd4-1d52-43a2-8dab-f2f782a45e38
+2d346085-7c29-40db-b1c8-b09109057bcc",S6.1.2,marquer des matériaux ou des objets pour leur identification,,,
+http://data.europa.eu/esco/skill/35dc2a23-cdc3-4291-930f-927ba2911949,key_935,"534c58be-a4d6-4211-8e28-b0d5d09351a4
+192f3db6-e074-488b-b55d-445c4d2d1f13
+225cd843-e7e8-401b-8a4c-fd7b910311fe",S3.3.7,assurer le respect de la législation,,,
+http://data.europa.eu/esco/skill/36c9717b-e53a-4d16-b7df-b6555eff43f8,key_936,"ec2b4bc6-4f05-4de2-aabf-2ebaacf0b16e
+1db5c40b-41bb-4cdd-9a82-67c7327efdb7
+7c863400-74a4-461d-9d49-5faaa17262a4",S8.3.0,exploiter des véhicules nautiques à moteur,,,
+http://data.europa.eu/esco/skill/37272760-957a-4c34-b4f3-780ee285334d,key_937,"67180e8f-f97e-46fc-997b-510d3b649074
+4666888d-a4b0-41d0-87f3-425bf2e563c2
+55304a64-8d3c-46e8-bd46-4aed8d4116da",S4.1.2,"élaborer des plans financiers, commerciaux ou marketing",,,
+http://data.europa.eu/esco/skill/3753e796-121e-46a3-9c27-dee31ce92c80,key_938,"8aa01716-eef2-4dbf-8bb5-22062d2b018e
+cd5d16dd-3e88-4e10-9539-093d021128b4
+4176134d-52bb-465d-b710-4169d9676e3b",S2.7,analyser et évaluer des informations et des données,,,
+http://data.europa.eu/esco/skill/37f2f637-1f54-4ea1-b677-5ca6cac24993,key_939,"396420c1-39d3-439c-80c4-7bf2cfd6079f
+6873c175-cf4d-44c7-92ad-3999fcc9e6c7
+1dc190e1-3b1e-49e5-a648-6d68c0fe5b29",S6.5.2,fabriquer des dispositifs médicaux et prothétiques,,,
+http://data.europa.eu/esco/skill/3926ec7d-64cd-4410-8283-493a1afdd57b,key_940,"b246360b-7114-4411-9b37-a6fa386072b7
+27c46564-3378-4f2c-8da9-33492381a545
+7fef85ce-62cc-4b38-877c-d110a0f8b337",S3.2.3,mettre à disposition des thérapies physiques,,,
+http://data.europa.eu/esco/skill/39499028-35bf-4d69-9275-fb98902ed88b,key_941,"b7c2768b-e39a-4b4c-86fe-a775cbe9cc55
+fd369652-adcb-4697-ab8e-578b48ce8b63
+043e9f28-a023-47b8-9eb5-fcabb9f490b6",S5.0.0,travailler avec des ordinateurs,,,
+http://data.europa.eu/esco/skill/395e42b8-f637-4e7e-96d8-9c1976c05d92,key_942,"456ae39f-63fb-434c-aab5-7fc19e0bd269
+9d2cc348-9123-47f3-b1b5-50efabe772dd
+df81c32c-1bda-4e1a-9fb2-5508d3b863e1",S1.14.2,réaliser des activités artistiques ou culturelles,,,
+http://data.europa.eu/esco/skill/39d83364-c86f-4942-96d1-e5df582face9,key_943,"31f8d8bf-de16-4245-bf52-28aa6402924d
+16d0654b-9ca4-4736-9bea-71538f06eff7
+18f5e4df-f593-42a3-a1a7-39b1b083704c",S8.5.7,"exploiter des équipements de formage des métaux, des matières plastiques ou du caoutchouc",,,
+http://data.europa.eu/esco/skill/39fa260c-4f85-48e3-83ce-e292e696c233,key_944,"8d70ac18-5660-44a0-81f2-8b0aa1ae1c34
+607308d2-3813-42c2-88b7-b590403f648c
+66caacde-8019-46a3-87ed-0b3a4329fadc",S1.11.2,concevoir des systèmes ou équipements électriques ou électroniques,,,
+http://data.europa.eu/esco/skill/3afcf547-cefc-493a-8abb-aaa8b7088e4f,key_945,"cf992834-120d-4612-bc1b-f0afc9124a35
+ddc6f4df-d1b2-439c-b832-4941f5005667
+40d79f33-8e4d-4452-8282-2c819b79e239",S6.9.4,"chasser, piéger et abattre des animaux",,,
+http://data.europa.eu/esco/skill/3b86c15f-3f66-4e50-abf5-544f2a942a0b,key_946,"cd8b8663-4d76-4a59-8377-9cbe960fd72d
+2cb31fe7-dc1c-4a28-ac09-e4207fe1dc02
+bf94abba-db63-4ef4-87fd-6333aca673e6",S6.11.3,nettoyer des espaces extérieurs,,,
+http://data.europa.eu/esco/skill/3bf93195-5239-4f73-94a6-349be598d462,key_947,"9cc8e7b6-5883-4a92-9cb6-68b61a846acf
+8f33f6be-945c-4c90-bec7-15c0dd12b591
+408ce1b2-99c9-412a-8597-b58de66cdfc3",S1.14.0,donner des spectacles et divertir,,,
+http://data.europa.eu/esco/skill/3d54fec5-d9cb-45a0-bf8d-ffaf3790a5bb,key_948,"f5557286-c6ab-4f51-9a95-469f42deee11
+0c26eee9-f9ff-412b-b429-e44f4d3fbf3a
+61ba0292-4e31-4d7f-8138-48f72bdba88c",T6.1,mettre en application des aptitudes et des compétences liées à la santé,,"Apporter des soins pour le bien-être mental et physique de soi et d’autrui et respecter des normes sanitaires de base, y compris en matière d’hygiène. Obtenir et utiliser des informations sur la santé, et trouver et consulter les services et agences qui proposent des soins de santé et des conseils. Gérer les effets négatifs des maladies chroniques.
+  ",
+http://data.europa.eu/esco/skill/3eacdaa9-fe4a-49ba-a085-c798097cf8d4,key_949,"8f679ad6-ec89-4759-af17-4aefbb153aae
+072dc06a-f9da-4002-a455-5565f60a0081
+932169a3-70df-4522-b181-1c350b3824f0",S6.5.8,fabriquer des produits à base de tabac,,,
+http://data.europa.eu/esco/skill/3eef7ff2-3ade-41d4-b084-2bd2a3949e1c,key_950,"8f4ab6d3-66b2-41c2-a216-74e37f9c3c1f
+e9e48752-9a39-4ee6-8cdb-d9cb5a50ab1c
+089424e7-caa9-47c1-9351-d84580a8e609",S2.7.1,évaluer des terrains ou des biens immobiliers,,,
+http://data.europa.eu/esco/skill/3f1f77a5-9c2d-4b71-afb3-0328d8cbb05e,key_951,"0ebb18c5-5c50-481e-a02b-efdf148c93c6
+c8d1a458-74c4-40e8-8b1a-5616cc6e5781
+fb5dc82a-9c10-4110-8190-701f8711000b",S8.4.0,exploiter des machines pour l’extraction et le traitement des matières premières,,,
+http://data.europa.eu/esco/skill/3f641516-9846-4a7f-a7f4-e1274eef6688,key_952,"40bd8740-0d1e-408a-9612-4ae86d41bab7
+4f830d4b-234b-4802-bd54-33b986dbba5c
+131cde37-6a0f-4ddb-9ed1-849a7a5647c4",S1.4,présenter des informations,,,
+http://data.europa.eu/esco/skill/418e58f5-c50c-4147-baa0-83aeb43b796a,key_953,"f7742422-c3a4-41e6-8418-8e5f51a15e3e
+1e6bb139-9d44-4dec-a980-a276452012fe
+693e2375-46dc-405a-acaa-722ab40095ef",S8.5.1,exploiter des machines de peinture ou de revêtement,,,
+http://data.europa.eu/esco/skill/424cce4d-71c9-47d9-93d6-4068403139f0,key_954,"bdcc68da-d054-4706-814b-8582bd65fc71
+1fe4996f-2df6-4367-bd03-a25cb5f8a42c
+e7091dd5-2249-4f7a-bd23-17ea0b79ecd9",S6.7.2,façonner des matériaux afin de créer des produits,,,
+http://data.europa.eu/esco/skill/42f18b92-1c20-46ed-bde0-9bc64ff1e475,key_955,"1cf054bb-a9b4-4098-9cb8-dc8d6fe4644b
+e4b6280f-50b8-4fd9-b3ce-90a237ec4ab4
+95e2b870-be66-4343-8df1-972eca1b7290",S6.9.5,nourrir et toiletter des animaux,,,
+http://data.europa.eu/esco/skill/4364e0cd-66ad-4f0c-b96d-0ea6796067cb,key_956,"63bfedb2-124f-49ec-ac2b-597d5bb080b9
+75616971-bf3e-4594-9c66-dda9355a89b8
+be32e7ac-4084-472e-a9d5-8286afc4d21f",S6.4,s’occuper de plantes et de cultures,,,
+http://data.europa.eu/esco/skill/43f425aa-f45d-4bb4-a200-6f82fa211b66,key_957,"8aff165a-b011-4b6c-b5df-f21b44cd712f
+4e9841d0-998e-47a6-b225-92fa72a6c866
+64cde5a3-2cf3-4a92-b723-3b6ef0d14706",L1,Langues,,,
+http://data.europa.eu/esco/skill/446a36a5-2376-439f-b46b-4a214ba0acdf,key_958,"6104f1ee-7a27-49c4-9df7-e6653b02c8a8
+d0c086b5-2a51-49b9-bfd8-8b91a248f7e1
+3131a464-fc47-4eac-a48e-a1d8afb07ed1",S5.6.2,"utiliser des logiciels de traitement de texte, de publication et de présentation",,,
+http://data.europa.eu/esco/skill/44c81158-f789-41ad-a988-e8af0884a443,key_959,"18917756-9254-4707-a197-43a0c4e10e09
+82e3a4d2-d4b0-4424-a332-37f24034b3b1
+0ca2e365-0605-4636-ae3e-51ceb746cfeb",S8.9.0,exploiter des aéronefs,,,
+http://data.europa.eu/esco/skill/44ff6716-7d71-4a16-821b-61d10e9e290d,key_960,"0ddf8c5d-1c68-4824-b0cc-1e7349cd40ff
+6f0e9e8c-e480-4fd5-b249-6cd6f74f00e0
+c0135a94-581f-47d9-afde-c153475b4b36",T6.6,mettre en application des connaissances générales,,"Accéder aux connaissances de base liées à la science, à la technologie et à l’ingénierie, aux sciences humaines et sociales et à la philosophie, à l’éthique et à la religion, et les mettre en application.
+  ",
+http://data.europa.eu/esco/skill/45ce91d6-574f-445e-a3d5-741f89bddb56,key_961,"deb0af7c-9f63-4c88-a8c1-050c8e8a171a
+ee81aa84-9b94-473f-9daa-beed0a7b038f
+efb11be1-c2f9-4d29-b754-f35faef03b0f",S8.7.2,assurer la maintenance de l’équipement et de l’outillage mécaniques,,,
+http://data.europa.eu/esco/skill/462f8805-3c0b-43c6-8bef-592b87939763,key_962,"a95f5598-d100-4377-bc6e-9a5306138ca9
+a02e1ba1-b087-4370-be0b-e2c010c1bbb6
+523eeddc-9194-42ea-ab54-cf5214e98b7f",S6.3,transformer et mélanger des matériaux,,,
+http://data.europa.eu/esco/skill/4781b6b1-07bc-44be-8c2d-de0fa5db4250,key_963,"6013cbc3-b9e1-484a-aa7b-7e2084edd2ad
+0e0c8e42-b8ca-409d-9f88-e07438dcf9a1
+5826fb2a-a6af-4ef9-a849-a083824a7274",S1.14.3,mener des activités liées aux jeux,,,
+http://data.europa.eu/esco/skill/47aa582a-3edb-45b5-9ef4-e87813ea327c,key_964,"760651f8-d50e-425d-8a8e-c2c491e530e0
+aace8db9-7b6b-4f95-bd3d-a2a16f6249af
+28dbacfd-db22-437e-aee3-a1d670ddbdec",S2.8.11,tester des véhicules,,,
+http://data.europa.eu/esco/skill/47b0d855-ea3c-45e9-8dcf-0e12e62261c4,key_965,"09157f17-8aad-4a5e-abd4-e014dcca46eb
+35a96112-1a6c-499c-9317-0ddd2dd1748d
+da92e322-cdee-4f17-85b7-94a0dc960102",S2.6.0,calculer et estimer,,,
+http://data.europa.eu/esco/skill/480a0b1b-aae9-4b39-9a4f-1c2b8ddcbc46,key_966,"84d811a1-95ed-45f3-9246-70decdfb0ef4
+63eeb58f-5e9e-4c91-9097-ca14e58d6098
+4c45cb66-361f-4e50-b7f1-8b9bab487733",S6.6.1,fabriquer des moules et des moulages de production,,,
+http://data.europa.eu/esco/skill/485b2e3b-f883-46d8-901f-ab521d4f8e58,key_967,"d7b00e6e-3b71-40b6-9b49-4763a800a1eb
+ca79448d-7ca2-4086-928f-a587fe6a46e1
+261a28c8-7279-44a1-87e7-64d1aca38896",S6.1.1,trier des matériaux ou des produits,,,
+http://data.europa.eu/esco/skill/494b8057-daf5-46a0-b33b-416e0115c30a,key_968,"c623d7d1-3c50-4401-a6cb-295446aa6f93
+7243c847-a6d1-4b47-8287-2d072458d54d
+09bcf7cc-835c-4862-91fd-1bc58010aad3",S5.7.0,utiliser des outils numériques pour contrôler des machines,,,
+http://data.europa.eu/esco/skill/4bbdc5eb-b710-4b76-816d-04926f7ac4a1,key_969,"f48f66a1-48fa-456d-a507-982a2652941d
+aa947e2f-efa9-4b41-9a31-cf8a8ccec341
+9f8467d3-706f-4bcf-88e8-2aa5e25c2458",S3.2.4,mettre à disposition des thérapies psychologiques et professionnelles,,,
+http://data.europa.eu/esco/skill/4d6a48ae-352e-4823-bc3a-3f3e9e2cae86,key_970,"a59b8c75-119c-4040-8b7a-42322ccb89b8
+772594e0-0a85-4dde-a4db-73197b3740c5
+e977d1f0-929c-4ba7-a1c1-401a6d79f641",S5.5.0,accéder à des données numériques et les analyser,,,
+http://data.europa.eu/esco/skill/4d7fb3eb-554a-4cf1-a576-bf6e153bdba2,key_971,"936989ba-ea72-49b0-b01c-d60107af46a0
+e4f88eaa-b00d-485d-a902-e05bae33b130
+dcb07093-d007-4966-a1e7-f8e93dcf3303",S8.6,utiliser des instruments et des équipements de précision,,,
+http://data.europa.eu/esco/skill/4ef78abc-e983-4cc7-84a1-52532a0159dc,key_972,"63ffc385-c3ce-43a7-bfac-12a27cb19f62
+c6738392-3316-4d3b-97d3-fdb15090b58c
+f7889455-5681-46d5-8e8e-55acac7f39e7",T6,aptitudes et compétences de la vie courante,,"Aptitudes et compétences liées à la capacité de traiter et d’utiliser des connaissances et des informations qui revêtent une importance transversale et facilitent la citoyenneté active. Ces aptitudes et compétences relèvent des domaines de la santé, de l’environnement, de l’engagement civique, de la culture, du budget et de l’application de connaissances générales.
+  ",
+http://data.europa.eu/esco/skill/4feed491-dc09-4218-814a-0146e13ef4fe,key_973,"d575586c-55c4-4e04-966b-42abc5af4497
+2876e012-bec0-42c7-a873-8dd139619d0e
+f0f083a8-e3d6-440a-8e0c-ae31f6491d75",S1.9.0,résoudre des problèmes,,,
+http://data.europa.eu/esco/skill/50e42de7-4a5c-4f94-b160-765f547d840c,key_974,"4dfd59ce-641d-45fb-86ad-83aeda6c8966
+830e24a2-866e-4525-94fe-ab9f7f3cd7e1
+b938b7e5-b912-495e-be8c-6a6897f3323d",S3.2.6,installer des dispositifs d’assistance,,,
+http://data.europa.eu/esco/skill/51ffd92f-7ff4-4c38-83d4-7350fcfd6968,key_975,"be707fe0-f1d8-4913-b368-6eaa0a9da636
+5a06046a-70bd-427a-9e98-e56a15b1baa9
+7f9bab2a-5286-4a94-9546-c6a648722c6c",S6.7.3,lisser des surfaces d’objets ou d’équipements,,,
+http://data.europa.eu/esco/skill/528c2f16-139f-4a5b-8880-a6f02ed33f2a,key_976,"b3ded7b2-431d-404b-bb84-466ebf0206ae
+00ca448d-387e-467a-9632-d45b2b0377db
+9bd9fc6a-66a0-47b3-946c-973cd6dfecf9",S6.5.6,fabriquer des vêtements et des produits textiles,,,
+http://data.europa.eu/esco/skill/548c3fbe-9eb1-4035-bc54-027fd5bc5315,key_977,"875c6039-3da9-4078-8b8a-d0ff5a771551
+fce21dab-6d36-411d-8e6e-35106406f537
+5f6afe49-5939-4e63-b2fd-7429989a09f9",S1.8,travailler avec des tiers,,,
+http://data.europa.eu/esco/skill/54f7432d-a8b6-4ed4-a50e-9ec882320595,key_978,"aa281674-f0a9-4122-8115-117ea6eba701
+3bd962eb-e926-4b68-91cf-2321b15cd703
+f7a5077a-8b4e-4621-af4c-22e98dfb1e09",S2.8.0,"surveiller, inspecter et tester",,,
+http://data.europa.eu/esco/skill/552c4f35-a2d1-49c2-8fda-afe26695c44a,key_979,"6f9a2d62-2658-4ab4-b2dc-3401c90cc0e2
+99f558db-6003-4430-8276-32cddba501a0
+3863e8ac-bec0-4e74-bd8f-a165890e9169",T4,aptitudes et compétences sociales et de communication,,"Aptitudes et compétences liées à la capacité d’interagir positivement et de façon productive avec d’autres personnes. Il s’agit notamment de communiquer des idées de manière efficace et empathique, de coordonner ses propres objectifs et actes avec ceux des autres, d’agir de manière structurée en fonction de valeurs, d’assurer le bien-être et la progression des autres, et de faire preuve de leadership.
+  ",
+http://data.europa.eu/esco/skill/56c3ea4b-7cea-44da-969c-c21b07a55030,key_980,"3c4d11b1-3d91-4d0f-b277-6c07fb697845
+6ced4ddf-c962-41f2-87b1-3f142b18868b
+3a7d3213-22b3-448b-ad3f-2d70d0269810",S6.12,laver et entretenir des textiles et des vêtements,,,
+http://data.europa.eu/esco/skill/57216e88-a0d3-4b8c-af6c-b8232b4f48c2,key_981,"2686dc9b-ae2a-43ef-be6a-1179b74cae86
+e7f8cf60-f898-4d3a-9998-8c8b72100d77
+e0a29336-ed12-4466-9981-3901b7dffb0b",S6.7.4,utiliser des outils à main de précision,,,
+http://data.europa.eu/esco/skill/5770f630-9b25-49f3-9d37-e93ec1799749,key_982,"6b8950d1-006e-4c0c-84c0-82b26ea8455b
+b92b2950-defa-43f5-92a3-2b008d078d07
+44eac28f-28f8-4747-92c5-6c25ff8aee45",S1.3,enseigner et former,,,
+http://data.europa.eu/esco/skill/577ce84f-0d21-4f25-8307-99c53f6f8437,key_983,"69b2b1bc-6260-4316-9657-fc8c21000e3f
+392926fe-69ed-4303-bc5c-92db454af358
+cbb5183a-cae1-4cda-b304-c055e84905d1",S6.2.0,déplacer et lever,,,
+http://data.europa.eu/esco/skill/57a45369-afc1-4f5a-b157-6f18de506bab,key_984,"d16022ec-1b2e-4dac-90d9-19b83b361bc3
+c3343be2-fba4-4e10-936f-424c464f087b
+e3349425-e85f-467e-b30e-f0f657b59ada",S7.0,construire,,,
+http://data.europa.eu/esco/skill/57e6af87-8a6b-4ecb-88e5-7c80b582ddd7,key_985,"c42d5e80-eead-47ab-911d-3b31a8bad459
+edc581e6-500d-47a9-99a6-142dba166bbe
+eebe42be-a947-4a7e-83d0-6d54c67cc008",S8.6.0,utiliser des instruments et des équipements de précision,,,
+http://data.europa.eu/esco/skill/583b1fb5-be8d-41f0-aa81-0b6bef4793c2,key_986,"0767af3a-a82a-4a27-9956-89ad30363c73
+b3595f22-9be0-42fe-9d54-8f06f24d24b3
+1c33efdf-29aa-462d-be18-8808319a6700",S7.2.2,installer des équipements ou systèmes de plomberie ou de canalisation,,,
+http://data.europa.eu/esco/skill/587e1cd6-a376-4c8f-8369-187c128d72a3,key_987,"6338c713-1998-436c-8ab4-8b504779bd92
+ef13ad95-32ba-49c9-94fb-4797c241b721
+4ea47d12-185d-4ce0-894d-5c20228b4cbc",S2.4,traiter des informations,,,
+http://data.europa.eu/esco/skill/58bd927f-e4cc-4b61-a679-cb91b3f8075a,key_988,"802f7b80-0267-480a-bbb0-e8f6ae74e6ee
+6fb48666-8928-409c-a6b2-8d2d85886fdd
+de3e22d2-fcfb-4c51-81ed-12e6433bcf44",S1.8.5,suivre des instructions et des procédures,,,
+http://data.europa.eu/esco/skill/58beed15-8cf0-4bea-a24a-ad595768bba6,key_989,"85a1faa4-0e46-4553-b780-e53537c2da0e
+f3e9b698-a33e-4f83-ac60-402821652354
+332f9969-7c59-4220-b145-08e8036998ba",S7.1.0,construire et réparer des structures,,,
+http://data.europa.eu/esco/skill/58edb789-d085-4e7d-8b6e-b70913bebfca,key_990,"5e59594f-8f84-4c68-97a5-b1c987d44ba3
+3a54d607-2d83-4b6c-9f66-67985c8bf93d
+29b94835-50bb-408f-8196-31935c2f93f6",S7.1.7,installer et monter des éléments de construction,,,
+http://data.europa.eu/esco/skill/592525ab-b517-4c55-8c65-17e0f5d99205,key_991,"9b4b98cd-ca2a-4263-9455-d260adcda17a
+4ebac612-7f62-4300-8932-46759fcd3706
+9d05b634-a873-4f0e-9abe-d276e3065d65",S6.5.3,assembler des produits électriques et électroniques,,,
+http://data.europa.eu/esco/skill/59c46f34-bffd-4859-adf4-3839c2a73821,key_992,"d63ed8a4-e59a-489b-92f3-fb09a3a48b15
+da391838-d35a-4bde-ac81-32958ef2db2f
+baf38078-1122-4caa-92f9-38bd6c7e2b79",S7.0.0,construire,,,
+http://data.europa.eu/esco/skill/5bcec244-3efe-45ac-8891-0ab4a91e9c48,key_993,"0612d064-255f-47ac-a796-433651930e16
+471c5be7-76dc-49e3-9b40-56f73ad48ed1
+d690051a-454d-4226-acd1-d20868a52e75",S3.3.1,se conformer aux procédures en matière de santé et de sécurité,,,
+http://data.europa.eu/esco/skill/5c26881e-2759-4a38-b136-5e0f6071b524,key_994,"1fade489-e2d6-4876-8ef1-841740944702
+1d92223f-432e-44af-8859-cd940ac9b020
+afc97c94-a5ac-4e85-86c4-2ed22c64c5d7",S4.2,"organiser, planifier et programmer des travaux et activités",,,
+http://data.europa.eu/esco/skill/5c2d5780-23ed-4372-bb8d-c1846ee404ae,key_995,"7bd35fee-db43-4ed2-bad6-c65ca7ddbd17
+d0116507-bb39-4f52-ade0-5a96c9ea8e78
+1eee5552-42a5-43a1-81ac-efd287dd13df",S2.8.3,contrôler des ressources et des activités financières et économiques,,,
+http://data.europa.eu/esco/skill/5d1d2d04-5510-4918-a437-7f57d570483a,key_996,"6c8bb846-7133-4cd7-bd24-19df1a8a3537
+5c9d6ba5-2f02-48c8-818a-9259ef3d5d6a
+9dcf1721-211f-4973-8e91-1d79a7515032",S7.1.5,installer des toitures,,,
+http://data.europa.eu/esco/skill/5dbb69d2-9e1b-4e0f-b8c0-0bac709729cf,key_997,"8e83d9ec-58bf-4049-8b47-19cf4bdc7103
+c61e45c7-11b5-4fc5-99d5-c972db4b8dc2
+1f413c13-3308-4170-91f8-bc33665bca1b",S2.5.2,peser,,,
+http://data.europa.eu/esco/skill/5ea47148-5289-49f2-80f8-bb1f54b37de0,key_998,"3000593a-242e-40a7-86ca-c8f52e64e307
+027a611f-2e49-41b4-8b24-eb6611eabbcc
+3fd2997e-a13f-4b18-8158-c805a244f324",S7.3.3,appliquer des solutions ou revêtements de protection ou de décoration,,,
+http://data.europa.eu/esco/skill/5f92ff3e-288b-44aa-864d-5ebb1adb7925,key_999,"5c2835f1-40d2-43e2-a366-21132dea19cc
+45fd3714-e053-4d82-8f0c-094c896ecf7e
+e7373243-b101-4054-8ed7-56eb0d7113cf",S3.6.4,mettre en forme des cheveux et leur appliquer des traitements de beauté,,,
+http://data.europa.eu/esco/skill/6107b01a-3dac-4a03-ac9c-1044e4af0307,key_1000,"f219e71f-4faf-4b7a-b91f-6b2c27ce744b
+5366bd68-02a0-4d72-81e0-4013df9cee5b
+57161a97-d6c3-43a9-b11b-a3c8e35ba597",S3.1,apporter des conseils,,,
+http://data.europa.eu/esco/skill/6115ff80-3d84-4e87-8e2b-6ede7ee004b4,key_1001,"05a38add-64d7-4958-a9fb-e4fbf4534239
+55bbbdc6-3d30-4b23-821f-4fb61ed0c1d4
+c4ef5917-1f42-4fb8-9d30-31747ec9ebdc",T6.4,mettre en application des aptitudes et des compétences culturelles,,"Exprimer et interpréter de manière créative des idées, des expériences et des émotions. Adopter une ouverture à l’apprentissage des différentes expressions culturelles et artistiques.
+  ",
+http://data.europa.eu/esco/skill/61d1dab2-6007-4b7c-9380-cd88207fa30f,key_1002,"973287d0-e8f9-46cb-ab63-9bd86c7a577e
+a31d0d1d-8bad-48ae-9942-afca3e957533
+e3f9c7bd-f55d-457f-9b36-427ab3ebeacc",S6.13.2,éliminer des déchets ou débris non dangereux,,,
+http://data.europa.eu/esco/skill/62023d5b-22ea-442e-ac46-39eb83c986fb,key_1003,"95efba0a-19bf-4f83-b7aa-cbe998337f91
+c0352737-d8f4-49d1-9123-c794fbdc5fec
+af6637d2-d654-40d6-ba8e-0b2b25ecdc75",S6.5.5,monter du mobilier,,,
+http://data.europa.eu/esco/skill/62afcfdd-a2a6-4143-bafb-59c77e15a01c,key_1004,"b8f1ef6f-75c3-445c-9940-ea1765de4b11
+c2b30f3f-7739-4853-9466-ec428f091f2c
+44f85225-3dc7-4077-87b2-eafb13d501da",S1.5.3,prodiguer des conseils concernant des produits et services,,,
+http://data.europa.eu/esco/skill/64acded2-d944-4f85-a703-cfe9375f706a,key_1005,"bf933675-82e6-45b8-afe5-44b9d0c84229
+8187cbfb-c8c6-441c-9b74-bd0aad43b630
+d71758d1-4436-454b-aa65-63057a8f0d45",S8.1.2,exploiter des équipements agricoles ou sylvicoles,,,
+http://data.europa.eu/esco/skill/64aeee4d-3791-4448-8ed8-9b49ad04f2fb,key_1006,"cd8ce480-4e54-4c03-9300-62d7e4dca450
+fb7842a4-e249-4ecc-b631-302256373c9b
+110aa684-1957-42be-8c10-dd28abd3d09b",S1.15.2,traduire et interpréter,,,
+http://data.europa.eu/esco/skill/663d82aa-4c0d-46bc-90f5-03770f068bb1,key_1007,"d90b8a1c-55d1-4e77-aa84-6ce916ac7214
+a212aeb3-72ad-49a3-b171-3e9838ef2c05
+bb29fa6d-9c55-4f6d-a226-e9058aeb4845",S8.2,conduire des véhicules,,,
+http://data.europa.eu/esco/skill/663e753c-2fc4-4bf6-9a06-a6ab2d705238,key_1008,"c9c0f214-7e72-4e7d-a886-cb9789ae1b92
+1bca85c6-7efc-46e2-ac0c-5bf8497d94cb
+df6f31bf-beb8-4692-ad59-ef06be15cd26",S1.6.3,acheter des biens ou des services,,,
+http://data.europa.eu/esco/skill/66fdc34c-2326-4baa-b8ff-7a1d1015fe3a,key_1009,"63bd33b6-9442-42a3-92c1-5577fd874af0
+94fa35f2-9d28-4ebd-be8a-392f668ad05e
+1a2578ad-848e-4e1d-b90c-8cc063f9b311",T2.2,planifier et organiser,,"Diriger des activités et des tâches, établir des calendriers et coordonner les activités de groupes et de personnes afin de réaliser les objectifs dans les délais impartis et dans les limites du budget.
+  ",
+http://data.europa.eu/esco/skill/682bb7ca-dbe9-4c33-9c7a-1ae56e28516e,key_1010,"df6f5cd3-b96e-4dfa-a0f0-2430aeb7fe62
+9fd9b5b2-9b53-4d68-a739-ea4e8754b98d
+f930119c-b7c7-47ad-a1d1-ba1110206979",S6.2.1,charger et décharger des marchandises et des matériaux,,,
+http://data.europa.eu/esco/skill/6889a21c-837b-49a2-be61-bb6010ab63f4,key_1011,"641c92b7-bf86-464d-b1c9-91eedcee7d58
+1ca58bae-d1e8-4413-96a9-9103d9515da9
+c22e265c-73be-4398-95a2-2f5a54066078",S1.7,obtenir des informations verbalement,,,
+http://data.europa.eu/esco/skill/6a7fc30d-af16-4cc5-a957-29d174bdb61c,key_1012,"3fcfd43f-ea6a-4631-a4a1-68b7396fbbd0
+a63c30bd-b32f-4c75-8cb1-edefb944fb71
+1ce43109-963b-46c2-99d4-51380c24d4f3",S5.5.2,"gérer, collecter et stocker des données numériques",,,
+http://data.europa.eu/esco/skill/6c4fa8c8-e9e1-49b5-897f-6b61fe649488,key_1013,"34be560c-598b-4551-8ba2-e0725132cf53
+ff4d5944-f756-4192-9e69-1d426e752651
+8a8fddfc-6252-4315-b344-910a699b51e3",S1.3.3,former aux procédures opérationnelles,,,
+http://data.europa.eu/esco/skill/6c6957bf-cf1f-4483-9c7e-1655f251b01a,key_1014,"2835861c-51db-47ac-9d6d-56367656daa4
+7aee35ad-72c2-481b-a47e-1dd3f2fa553a
+df8b7d39-e505-4540-88d1-c8487e5d8c8f",T6.5,mettre en application des aptitudes et compétences entrepreneuriales et financières,,"Gérer ses propres finances et ressources et celles d’autres personnes. Faire preuve de persévérance, d’ouverture aux chances à saisir et aux risques, de capacité à mobiliser des ressources et de volonté de tirer des enseignements de l’expérience.
+  ",
+http://data.europa.eu/esco/skill/6d0cad66-82dd-4854-a03a-68232942c68d,key_1015,"122c03a4-059b-4ae0-a931-01a81efc0442
+88ff4b90-21d5-4838-9713-ab160c21647c
+12267d6c-70ca-41b7-be3c-3cc44acdcd27",S7.1.2,installer des éléments en bois et en métal,,,
+http://data.europa.eu/esco/skill/6d535249-ac7c-4e44-8ada-09305c3a3900,key_1016,"512c7aad-f53b-413e-a4ef-a073e8c8ac39
+fa4f0199-49b7-4fe1-bbdf-f5b12ce0c4ec
+72f78a1b-d86a-4d79-b19b-44ddb0d66099",S6.6.0,"fabriquer des moules, des moulages, des modèles et des motifs",,,
+http://data.europa.eu/esco/skill/6e62e776-fbfa-486c-a6df-58cd239c86fe,key_1017,"1b25906a-8564-4b1b-b78b-2f8542575506
+ed5fb458-62f1-4cf0-8ff1-ffb5f0296030
+e21225fc-df19-41ef-be1b-ba15e8c0d22c",S1.13.3,faire de l’écriture technique ou académique,,,
+http://data.europa.eu/esco/skill/6ee936b0-4e0c-4e04-97c7-1f4ee9230d67,key_1018,"6a801118-da5d-4fe9-96c4-436646252c72
+3a012fff-b177-4cf7-950f-8ebb35fe3510
+f020253a-e05c-4447-82bd-777648b45045",S4.1.0,développer des objectifs et des stratégies,,,
+http://data.europa.eu/esco/skill/6f142deb-03a9-4cd7-94ce-e0f023ae2169,key_1019,"e48c7d0e-7175-4820-9a5a-9b826c128cac
+6dc1196a-2a53-4139-a6c1-5224f55cf627
+0ca0d1a4-1971-4beb-bad0-8728e044cf32",T4.1,communiquer,,"Exprimer et échanger des informations, des idées, des concepts, des pensées et des sentiments, et résoudre des désaccords dans des contextes formels et informels, en utilisant des systèmes communs de mots, de signes et de règles.
+  ",
+http://data.europa.eu/esco/skill/6f89dcbe-4315-4533-8801-3aadf9190b86,key_1020,"87bae19c-a021-469c-8e26-8c8122819e1a
+dd768f6d-6448-4a29-a920-04aa403ab586
+ffb2fd3a-5bcb-46e9-bea9-0f7d68c20417",S4.1,développer des objectifs et des stratégies,,,
+http://data.europa.eu/esco/skill/70ac2c90-656a-4fa3-886c-5b9305db2087,key_1021,"4ac0f8c5-7555-4a12-892d-7086209c69d9
+91fd9be9-e0e3-4141-a6a5-8e13c81c6410
+f96eb5ea-14d4-4bce-ae23-9bc2184f19fc",S2.4.0,traiter des informations,,,
+http://data.europa.eu/esco/skill/7194cdea-bca7-4c4a-8d49-3cb54b89d5a0,key_1022,"2a2fb49b-f104-43a3-bbf7-1114dd56f88f
+5fd115e3-add5-4e38-b5b7-f40ae984c0d0
+a2382753-dafb-4e21-b0a7-192d675541b5",S6.9.7,fournir une thérapie ou un traitement vétérinaire aux animaux,,,
+http://data.europa.eu/esco/skill/72fe5d9f-4ec8-4fc4-b1d3-0dd83be0aa1a,key_1023,"75205465-b5da-4cdf-93a9-46fe2a7affcb
+d0d122de-4726-4390-96d0-4162631c4794
+60f03b0f-076f-4f80-b87a-44c5571da44e",S6.7.1,couper des matériaux et percer des trous,,,
+http://data.europa.eu/esco/skill/73dba04a-7c18-439f-8757-b5f60532ba74,key_1024,"1db086cb-231f-412d-9839-edd3ad9b9515
+3ca5fda4-3d91-41c7-ab33-9ddbe31bbe8d
+59c9ef7a-9f09-4909-b353-aa361e3c7d4a",S4.7,recruter et embaucher,,,
+http://data.europa.eu/esco/skill/73e602a0-f80f-4f56-8e21-3db4fd08709d,key_1025,"3d70f663-9290-42e4-99fc-01f4debae75f
+efbb4553-e4c0-4d43-be82-1e26e1c222ed
+8fd28dd8-bd89-465b-b478-8a5a7cea8365",S3.2.1,"fournir des soins médicaux, dentaires et infirmiers",,,
+http://data.europa.eu/esco/skill/74052f13-4cae-4600-a4d3-8103004683f3,key_1026,"77d0ad9f-83fb-4bb2-8d2d-c72a9fdaa57a
+54f06661-4eab-47da-809f-79092a0287c0
+c5f48565-d606-4833-8cdb-0dc286b50a68",S6.7.0,utiliser des outils manuels,,,
+http://data.europa.eu/esco/skill/74b7938e-f667-48ff-a26d-faed294ac6c9,key_1027,"c2eeb591-8ca9-4ebe-b96f-712d69c4fb8d
+ea2a8c8b-0b15-4e99-974a-337aeffd2aa4
+c8df05c5-99c5-4076-9afc-ccc75a05702f",S6.6.3,fabriquer des modèles,,,
+http://data.europa.eu/esco/skill/75c1ab73-5b00-48a0-818e-93487ebdd7e1,key_1028,"3470fef3-ebf8-4ccf-b5f7-7a60268abb5f
+73bac7b8-ce44-46d8-aeb9-e57be68b5fd2
+7cc48f53-13d4-4152-8b3c-1e9998ac2c0c",S5.2,mettre en place et protéger des systèmes informatiques,,,
+http://data.europa.eu/esco/skill/762f3830-baa8-4a7e-a5de-b49037d80885,key_1029,"ff50d0c4-1639-4a49-99ad-0b51300c7a05
+68285632-de55-4b99-9eab-e5cce906aca7
+e0342d0c-18f4-4e56-8c36-128ac2ecc52e",S6.4.0,s’occuper de plantes et de cultures,,,
+http://data.europa.eu/esco/skill/775be776-b6ce-4322-a96f-11b2df84ce07,key_1030,"c1b19926-3de8-479b-9ff6-e76ab7f5ca13
+45babdb4-96f7-4fac-b632-f733ccfcf7dc
+593dafaa-8a75-484f-9759-e59805f30d34",S1.12.0,"créer des matériaux artistiques, visuels et instructifs",,,
+http://data.europa.eu/esco/skill/77a2918f-5969-4545-a632-d3e6a853b2c5,key_1031,"6d6cfa5c-2312-4e65-bdd0-deaef8d47940
+1c6beb6c-ce64-4b31-bc87-44cbb2f362c6
+b591f9d7-c3ed-4ece-a598-1b0e1cc4793c",S6.9.6,dresser des animaux,,,
+http://data.europa.eu/esco/skill/77e41477-4ecf-425b-8163-b18a5a54e593,key_1032,"426b890d-5177-4594-a612-428bc351e2eb
+d47526e0-4e30-4e56-8000-7418cb1c6129
+fa7ee7fe-374a-4647-9949-e25057732eb9",S4.7.0,recruter et embaucher,,,
+http://data.europa.eu/esco/skill/77ee8fad-188f-44cf-88ba-4e495a52d604,key_1033,"eec5d6b9-9a53-4c29-87fd-78a23032085a
+07877d59-9318-4323-b399-e6891fbe8ce9
+4fe22a67-f0d5-49c0-ab28-558cc3ffcf44",S3.6.2,apporter une aide aux soins personnels,,,
+http://data.europa.eu/esco/skill/79f3d574-fcf2-445e-a087-cc774f19b861,key_1034,"7206e048-173c-461b-a6b5-2b385cca6a17
+4ce380d1-8d1c-4e50-ab91-13c2e8c27064
+a6effe7f-2904-4e0e-aa72-cc5df4841bc8",S8.4.3,exploiter des systèmes ou des équipements de pompage,,,
+http://data.europa.eu/esco/skill/7a00c77c-4a1c-4fd6-a83f-004bda65d81a,key_1035,"29795784-7ce7-4806-a3d5-d5846ec971f9
+cfe06fd1-f9ab-477a-8540-27f6f4ff7073
+67a7f9ad-815c-4501-9455-0cadd32884ed",S4.8,superviser des personnes,,,
+http://data.europa.eu/esco/skill/7a163630-7536-4748-a259-aa820d3be44b,key_1036,"8728d422-1ceb-413f-945e-9c4dbda3e167
+8cdeaf10-9129-4763-af25-7181de9d6ca9
+50d50f69-9776-4718-987f-99055ebd7185",S3.2,fournir une assistance médicale ou des traitements médicaux,,,
+http://data.europa.eu/esco/skill/7a8c9402-0550-4966-9ff6-0d65b0f6b1fb,key_1037,"8257932c-6d06-4c79-936d-3b36d1386a2d
+f55854ed-833e-490b-a941-1fe0beacbeef
+4dcfac10-e77c-4dc3-986c-0213b91f62eb",S6.11.1,"nettoyer des outils, des équipements, des pièces à usiner et des véhicules",,,
+http://data.europa.eu/esco/skill/7b942071-f688-4600-8d9f-ad4c0306abc7,key_1038,"fc09ae9f-8c3c-46da-856d-fefc00c78e37
+7c53fcb1-ff04-4a13-873c-0d2362d8d8ab
+20410a17-144f-429b-ae34-f82777faa721",S8.8,"installer, entretenir et réparer des équipements électriques, électroniques et de précision",,,
+http://data.europa.eu/esco/skill/7ca69606-5ffc-4668-ae53-713c1f1612e6,key_1039,"3df5de75-3296-4465-a366-e53fe493a224
+e9541aca-32c1-4a32-a79b-7f63ff97907a
+5d68f276-db6d-4c90-800c-73872a06d667",S8.6.3,exploiter des équipements scientifiques et de laboratoire,,,
+http://data.europa.eu/esco/skill/7de7e3f6-d222-4f08-b3f0-e2deff7ef798,key_1040,"af03c14e-156e-45a5-b3f2-daedd4c08100
+3c1c4fac-7ea4-47a5-b846-708d3648be0b
+0c5ef44b-809d-4ab0-96a8-07c14c7de434",S3.4.0,fournir des informations et une assistance au public et aux clients,,,
+http://data.europa.eu/esco/skill/7e0b93e0-0de7-4607-b07f-27a6828d3ff0,key_1041,"a6716f13-ee8f-4a5b-bbcc-76b43f2ba00c
+7ac2b79c-f6a6-43cd-980b-11ca6e206966
+773469f7-bf54-4c56-a75a-5a568f5361a9",S4.1.6,élaborer des programmes éducatifs,,,
+http://data.europa.eu/esco/skill/7e153e1d-2b12-43ad-89f3-0cf82ebc4a30,key_1042,"df22a091-2927-4905-93cc-a55df5b81ac3
+ec5559e8-2980-4ca5-bdfe-9d4dfc3a6cd6
+f1078bdf-4862-493b-af89-9e247c6f30f0",S2.7.5,réaliser l’analyse et la gestion des risques,,,
+http://data.europa.eu/esco/skill/7eafec38-621a-4b6e-9298-bfe70ec0b253,key_1043,"dc104bf6-7569-434c-b275-8697f7415e37
+f416e1ed-39fc-4609-8f5f-63da7b271be8
+eee800ea-8819-4ad4-92d1-656ca14a821d",S2.1.1,réaliser des études universitaires ou de marché,,,
+http://data.europa.eu/esco/skill/7ec00c15-c9bb-4b74-9b8b-681424e9ea2c,key_1044,"d9eb9c09-c652-48de-ab7e-34fee03868c8
+630f3014-3f15-4beb-a3f6-ceef38e4426c
+15e0bc7c-7d57-4270-81c7-c03cf5034e37",S8.5.2,exploiter des machines d’emballage,,,
+http://data.europa.eu/esco/skill/802deca0-b880-4d1a-b366-e13b27621baf,key_1045,"c0ec76b5-2ea8-4976-b19a-a021695b28df
+a183ae9b-1e34-4550-9ba9-91732bf91eef
+e7051ee9-e5dc-42c5-a718-b414cd1d02e1",S3.3.3,respecter les procédures opérationnelles,,,
+http://data.europa.eu/esco/skill/8064ae65-5d1b-44e1-9aaf-246a4285a9a6,key_1046,"c10e3988-ab60-49ac-85ea-4dd4c9fbc75a
+3cb21e10-591c-496e-b26b-ee3136c0ab2e
+5775cc8f-bdbc-4248-99ac-feaf7319cbe4",S3.3.2,se conformer aux lois et aux normes en matière de protection de l’environnement,,,
+http://data.europa.eu/esco/skill/8066edda-60e7-4e41-966b-4be09b049ab3,key_1047,"721e361c-d6cb-416a-88ff-8d5665a45563
+17dee175-961c-4633-af40-c202508b642d
+c0af4b46-056f-4b5a-9982-55fe1c52170d",S6.3.3,préparer des matériaux industriels pour la transformation ou l’utilisation,,,
+http://data.europa.eu/esco/skill/80cf002a-6586-4db7-9c9a-88325a9a5e1b,key_1048,"589d6f6e-ff1b-47cc-b1c2-32d9036afe53
+400e421b-f86c-4a92-8b97-77878a8a3704
+552affaf-aad9-4e4d-9fd7-c7e240f35ff5",T6.2,mettre en application des aptitudes et des compétences liées à l’environnement,,"Réfléchir à l’incidence à court et à long terme des comportements individuels sur l’environnement physique et social, et adopter un travail et un mode de vie durables. Reconnaître la responsabilité individuelle et collective de la protection et de la restauration de l’environnement local et mondial, et motiver les autres.
+  ",
+http://data.europa.eu/esco/skill/81d95361-e7dd-4f75-a243-d646a7dd6a28,key_1049,"570001f8-9b73-46d3-aed0-aeb03e3c5236
+99a817d7-4618-46e8-8fa3-e83ffde58dd7
+d7dad6f1-989b-41f3-af9d-4e9e8f6b9501",S7.3.0,finaliser des structures intérieures ou extérieures,,,
+http://data.europa.eu/esco/skill/81f29457-6d0d-4f46-9e0a-7295c7c6f090,key_1050,"aa4fb7a1-c6e0-4d70-a84e-b0706abea935
+7d11cb44-6383-4299-86f0-1085d437502a
+e2b2fb76-692e-4bda-a448-9a48e36aacac",S1.1.3,répondre aux plaintes,,,
+http://data.europa.eu/esco/skill/821ecf8f-3c2a-4b89-a9f1-b2aa7fb0b625,key_1051,"fe658444-d392-4685-95cc-0b5621d4ced2
+ee546d49-6e16-49b9-be77-b969e05a02e6
+c64173f7-90ff-4271-a737-81a6257fcb1b",S6.11,nettoyer,,,
+http://data.europa.eu/esco/skill/82463bb1-85d1-4e99-a4ce-08508fc3b2a3,key_1052,"ea123819-1e1b-44b8-a032-7f5a98a1ba55
+6c12d769-768a-4075-9f5a-e378a5ba9e9a
+89959ba0-c8ea-4fb9-9444-698f9232032c",T4.2,aider d’autres personnes,,"Guider ou aider des personnes moins expérimentées ou moins bien informées, et apporter un soutien aux personnes en difficulté.
+  ",
+http://data.europa.eu/esco/skill/8267ecb5-c976-4b6a-809b-4ceecb954967,key_1053,"00efda52-0031-46b4-b32b-cf900e19cb69
+b1109b38-659a-42c5-94f3-51e2a8c37127
+7530b797-2536-40fb-a5dc-def572992988",T2,capacités et compétences de réflexion,,"Aptitudes et compétences liées à la capacité d’appliquer les processus mentaux de collecte, de conceptualisation, d’analyse, de synthèse et d’évaluation des informations recueillies ou générées à partir de l’observation, de l’expérience, de la réflexion, du raisonnement ou de la communication. Il s’agit notamment de la capacité à évaluer et utiliser des informations de différents types pour planifier des activités, atteindre des objectifs, résoudre des problèmes, traiter des problématiques et exécuter des tâches complexes de manière routinière et novatrice.
+  ",
+http://data.europa.eu/esco/skill/827de17d-3fc1-4ba5-b4e0-850c51e750c8,key_1054,"7a96d3d2-a4c8-4535-ae29-562c22ed58ce
+f60a2bc5-8d25-4676-9f08-3f6694ab2bee
+87689a83-5c66-4130-8c5d-591b466a2496",S6.5.0,assembler et fabriquer des produits,,,
+http://data.europa.eu/esco/skill/82c084ea-15e9-4d55-98dc-ede0f767baee,key_1055,"22d58f62-9974-4887-8b66-e06fe73eda79
+65eba4ec-ca19-4835-bb8c-e8369818dc49
+f34a42f7-f550-4271-b1af-a6d716f7c2aa",S2.0,compétences en matière d’information,,,
+http://data.europa.eu/esco/skill/8369011d-de43-4800-bcce-be12e19828a5,key_1056,"e66a4acc-70da-4148-b07f-71a7eb26b612
+79bb2762-ae07-4b23-af11-52e59dc7cc2c
+7b897604-3541-4cf9-8e77-95f5f7026557",S1.8.4,accepter un retour d’information,,,
+http://data.europa.eu/esco/skill/8427894f-2622-4b97-9366-72234a5fab50,key_1057,"2ccc2d65-0dc1-4d47-b141-076015d60e9d
+069f8551-5738-4d58-9f82-af357e2973c4
+714f0bdd-4b50-4645-ae0c-7876ae9b7fe1",S8.3,exploiter des véhicules nautiques à moteur,,,
+http://data.europa.eu/esco/skill/842ebeb2-d252-4bde-98fe-e0463f7009db,key_1058,"5d4c64ef-3303-44d5-aeb5-ca1ce325b8e0
+306d8ece-8ec5-421c-957a-4b46326d67d6
+b5bf866f-d625-421d-8558-31ccd9b184a9",S5.7,utiliser des outils numériques pour contrôler des machines,,,
+http://data.europa.eu/esco/skill/848c0306-8cbe-4693-a275-d99807c0173c,key_1059,"e63417f6-b3c4-4265-9393-c619d8111cd4
+9aeadd0b-a705-40c6-8559-c36bd438c883
+35828b2b-68ab-42a6-81cc-a62d2299d14a",S1.2.0,mettre en contact et en réseau,,,
+http://data.europa.eu/esco/skill/85b379e7-e0b7-48b8-baa7-631f50a7cdd5,key_1060,"c6a8961e-4952-46c6-8c5a-febe1855a726
+87ed864e-dc61-4c22-90a0-63a3b51b26fc
+f6d1bdc5-8830-48a6-a124-21ea6067574e",S1.0,"communication, collaboration et créativité",,,
+http://data.europa.eu/esco/skill/869fc2ce-478f-4420-8766-e1f02cec4fb2,key_1061,"f0b6a562-8125-41ce-b196-dc053487f8ab
+78d08559-fbaa-4f72-8725-2543ca5d06a5
+1bf58359-6cb7-440c-8722-67e90d9143ea",S4,aptitudes à la gestion,,,
+http://data.europa.eu/esco/skill/872c0ddb-f056-4f51-afac-fc3d6fae0f5b,key_1062,"64379913-0332-4166-9b0a-ca2341ea033c
+f663b706-b452-4804-802c-fc3875269b98
+aeb59473-d4c4-43c7-bf2b-cf53f025cbd9",S8.6.1,exploiter du matériel médical,,,
+http://data.europa.eu/esco/skill/87dff904-fb74-4d59-972e-1c2387579d94,key_1063,"55e23142-c34b-4983-9d28-84847f885dcb
+1ca07ff5-9bfb-4465-afba-03048d57e298
+1035ea8a-f706-4187-a3ac-9ebb6ba3d09d",S4.2.1,diriger des activités opérationnelles,,,
+http://data.europa.eu/esco/skill/8826b057-0e80-4e3d-9efc-1e179d597f40,key_1064,"0b531815-64a2-4b32-bdea-cbf45f57b86a
+15d24ca6-c689-4672-b5c5-1df120f060b2
+4c908b77-0f86-48d4-988c-de94cdf6837c",S3.6.1,aider des personnes dans leur mobilité,,,
+http://data.europa.eu/esco/skill/883eab8c-d8a6-4e8b-9b11-7d9001e172ab,key_1065,"9c00fbd4-4e78-492b-b0d7-b2f63daaf471
+c50f8397-d5dd-4ccb-83bc-e468f76b43d2
+ed831719-8175-494a-a507-322aca39eee6",S1.11.0,concevoir des systèmes et des produits,,,
+http://data.europa.eu/esco/skill/888f286e-272f-4e54-8a3b-9fa391870618,key_1066,"c13bd738-4a5f-45e5-9dcd-34c29eab3046
+1a2cfe4b-7d50-489f-a047-4a20afe2dae3
+779bbfac-455c-4f66-8713-2806679e2dd6",S6.4.2,"planter, tailler et récolter des arbres, des cultures et d’autres plantes",,,
+http://data.europa.eu/esco/skill/8984a92c-416e-498f-abd3-a9dd819e5c03,key_1067,"70d55cb7-4566-4630-8aeb-b84fed9817c6
+ce8c2099-8ee7-487d-a215-d668c0100098
+58f4d94d-998d-4f5b-a19b-2fb36b0f560b",S7.3.4,installer des revêtements de sol et de mur,,,
+http://data.europa.eu/esco/skill/89f8435a-ebc1-42b6-bf5c-496999e99776,key_1068,"db8fe964-c809-40a3-918b-7817363241e2
+a3c0a168-0765-4e52-8bb6-ce49d1a6a9e5
+abab8882-e020-406f-b022-aff04f8a63a0",S3.5.1,préparer des aliments et des boissons,,,
+http://data.europa.eu/esco/skill/8a3b45dc-8299-4b67-99db-6542daf79ac3,key_1069,"e83b8d68-335c-4606-b0bf-2ada73d3fc4d
+6cb23545-ae77-4acc-83b5-00199afb2129
+709714c2-fe64-4efa-b697-4695fd108bdf",S1.2.3,développer des relations ou des réseaux professionnels,,,
+http://data.europa.eu/esco/skill/8a57f720-70b3-41de-877c-7d723977dc88,key_1070,"bdb2a518-c19f-4e1b-9153-4b34f5e02ce9
+eea58e11-c9d9-4303-818f-a5aebd9fbc1a
+72ace1ab-7caa-43a7-a41e-714257b7beb9",S2.5,mesurer des propriétés physiques,,,
+http://data.europa.eu/esco/skill/8bbdf1f1-e943-45fc-af2f-1446cbd88245,key_1071,"c176848a-7330-4d9a-b336-80a4bd8a87c9
+add379f5-d0a6-4897-b75f-3892bd13d608
+e9aa0bd2-2662-4469-9a02-5e64a5da8ed7",S1.15,utiliser plus d’une langue,,,
+http://data.europa.eu/esco/skill/8bde58aa-9d5b-422b-801c-ff9186dd648e,key_1072,"5f7b5884-e687-4fc8-a1ed-987a78a45f50
+bf6005e4-d94d-41b0-ac86-e3ad9808fe84
+2c05b017-09e7-40c7-923e-a521b03f6c48",S6.13.1,manipuler et éliminer des matériaux dangereux,,,
+http://data.europa.eu/esco/skill/8bf9699c-f964-4e4b-ac3d-55aface09cbc,key_1073,"1cae040c-b778-420d-93a7-3726176c1b7a
+ff5b7ae0-2eae-46da-9433-c9f7b6c03454
+b5873a13-fef9-4896-a327-e654ef6ea8e0",S8.4.4,exploiter des équipements de production ou de distribution d’énergie,,,
+http://data.europa.eu/esco/skill/8c298a9b-e9ea-4396-897d-9aba982df6a0,key_1074,"a27ffc93-3c76-4f1e-99b1-cea97357dc0d
+f3da831f-cf1c-43ec-9cc1-3a542c9d760a
+546a149f-4aee-47b8-88d6-1e18ed6e7801",S1.5.8,prodiguer des conseils relatifs à des questions d’ordre éducatif ou professionnel,,,
+http://data.europa.eu/esco/skill/8d80f33a-ab38-429b-a4ed-3b1a6f8f3b4a,key_1075,"4f11008c-a0fd-40c3-8f00-0e5f6549fb2a
+b316e22d-a418-4446-837b-a432bfa909c3
+e30ff0e4-4903-43fe-8f05-e572c728e27c",S8.5.5,exploiter des machines de mélange et de séparation,,,
+http://data.europa.eu/esco/skill/8da6cd59-61e1-43c4-8dfc-bc69d283ccc7,key_1076,"58740cad-f5cb-4df3-8fa2-b27b8b2c7827
+f4aa6b71-7d3e-457f-97e7-41f0bb99093a
+ee586b69-6327-4b98-896b-781988f468e7",S6.1.3,emballer des objets,,,
+http://data.europa.eu/esco/skill/8ddcb295-707e-459c-ba6a-66ffb37835c5,key_1077,"f66ee100-c86a-4d13-91c0-cca8c204afae
+e5697bc9-4ff6-4df3-91f6-74903f0b70a2
+af503904-5309-4b99-9ffc-6b329351a55f",S8.6.2,exploiter des équipements audiovisuels,,,
+http://data.europa.eu/esco/skill/8e77453d-3665-4d00-b887-2e9adb29cd15,key_1078,"920870c4-9ce0-4615-b0fe-6b6ca437c428
+44424092-3ae9-4311-bb0f-9587c8082c28
+8ab3ab75-a0fb-4d24-91f6-9bdaa9394055",S8.2.3,exploiter des véhicules ferroviaires,,,
+http://data.europa.eu/esco/skill/8eb65708-6a1c-4a11-8b51-ed9331962142,key_1079,"1c7f2efb-f53c-4488-8f4f-8cdc8d9d5531
+0cdd7edd-28c4-49a9-b177-dad648e97e73
+a3143eef-ced0-460a-89ed-d73b199bc442",S7.1.8,installer et monter un équipement de gréage,,,
+http://data.europa.eu/esco/skill/8ed41305-4abf-4b54-9f8f-0e043d26feba,key_1080,"4dbebaa1-1da5-4ddd-aa19-2a10d70eebfd
+4529d24d-d3c9-4a5c-a005-b6b20a4bd18b
+73f9be84-4283-43bf-99eb-bd6926a7b7c4",S4.1.4,élaborer des politiques et de la législation,,,
+http://data.europa.eu/esco/skill/8f9f8b20-ff26-4392-b04f-695dcde5b90a,key_1081,"0d25d2f1-bc3c-4749-9cd5-d113dcd60640
+a25a8969-2940-41dd-a0b9-929fbad22ee6
+1b0294f5-b35b-40d8-a78e-809174c34b55",S1.4.2,présenter des informations liées à la recherche ou à la technique,,,
+http://data.europa.eu/esco/skill/8fde007e-ea4c-48c2-84c5-752834acd31d,key_1082,"71df607f-1016-490d-808f-b0b5477e5c48
+716c0f17-7d0c-4888-bc4c-fa4cac0f33ae
+8ccadf6d-8e73-4ade-aa18-ee8ddaa666b7",S2.1.0,"mener à bien des études, des investigations et des examens",,,
+http://data.europa.eu/esco/skill/906211b3-afed-4a2b-b5e1-33f2885fee85,key_1083,"74ca1b3d-4fd4-4430-806a-1c99f319ee96
+d18ecf09-588a-4bd2-975c-1e23f6affced
+5ee4623f-35b1-41b9-8b23-9a9edae19f26",S4.4.3,réaliser des tâches de bureau et administratives,,,
+http://data.europa.eu/esco/skill/91860993-1a8b-4473-91f3-600aa1924bd0,key_1084,"0c843d98-a1c8-4cfd-a058-04d633b14f3d
+1caaf450-181d-4db4-bddf-0db61cf3eb85
+f480c062-6160-4a06-83c5-227a2aa7e865",T3.2,adopter une approche proactive,,"Assumer des responsabilités en matière de gestion des activités et adopter une approche prospective pour anticiper les problèmes, mais aussi mettre au jour les possibilités.
+  ",
+http://data.europa.eu/esco/skill/91b0b918-942e-4661-b88c-70b9396529e5,key_1085,"ea94c6c0-c90c-470b-9171-474a535319bc
+6e8910b2-83d3-4234-9c21-db71dfb64c48
+674adf11-2643-4e98-ab18-b52b69476b50",S1.8.0,travailler avec des tiers,,,
+http://data.europa.eu/esco/skill/925af2b5-2f4d-4cce-92cc-79e1ff887c7d,key_1086,"d1b6c3bb-7bc1-4f4f-ae69-70bdc5b2eb1a
+115e8326-53ac-4ba3-80c2-0e9bb499aaf8
+6799dde4-cf1c-4a34-bf60-bb43e20c9e6d",T4.5,respecter un code de conduite éthique,,"Mener des activités sur le lieu de travail conformément aux principes acceptés du bien et du mal, notamment en ce qui concerne l’équité, la transparence et l’impartialité des pratiques de travail et la conduite envers d’autres personnes.
+  ",
+http://data.europa.eu/esco/skill/92fc9726-5b5e-439e-a33c-06a8c63fbb9a,key_1087,"26e4fd9d-ad23-4e5c-a845-1337b9e4cdcc
+6cc78a79-d8db-4864-839f-3146adc29e3d
+c2c6dea6-a808-4c2a-b13a-3864b0837051",S4.3.0,attribuer et contrôler des ressources,,,
+http://data.europa.eu/esco/skill/95bf4552-6d5b-41dc-b990-53ace372f705,key_1088,"d4364813-0ddf-402d-8096-ef48b2f61e6e
+e6e2e554-7128-4f2a-a0fe-d0eab95501f4
+a1630ce8-0fc1-43d3-80ad-9c254873082e",S2.2.6,"documenter des conceptions, procédures, problèmes ou activités techniques",,,
+http://data.europa.eu/esco/skill/969845ce-6895-44a8-a3d2-b8c2d8b5de21,key_1089,"f7ede738-5d4e-4ca1-a633-a3afcc45b487
+4e6753d7-27fe-4552-ae2b-f3c141469577
+5d2a652d-591d-434c-b059-c7440961d7ba",S3.6.3,s’occuper d’enfants,,,
+http://data.europa.eu/esco/skill/97ff8a90-ec21-4f13-9b58-22cc9fc47221,key_1090,"f0cecd9c-d155-4ab7-addc-bcd69ccb1310
+9bc8aaf0-3188-4875-ad2e-89dd6f267125
+46d71344-42b5-4058-b0bd-527401eb5be9",S7.1.1,installer des matériaux structurels de maçonnerie,,,
+http://data.europa.eu/esco/skill/9827c329-3492-4e8d-852c-da0894228ff6,key_1091,"571f09b3-211e-42c4-8725-14151b9158ec
+ee4a5e64-9abd-42f6-ab5e-4adeacbeecce
+29d0518c-63bb-4574-b52f-12fa79abccbd",S4.3,attribuer et contrôler des ressources,,,
+http://data.europa.eu/esco/skill/98fb499f-9155-412d-a8a0-95ba97126fec,key_1092,"fdfb1f4f-6be6-4246-8ff4-5f0d0e92d3c7
+1974ab36-dca3-4f00-84ad-6baed7a62e85
+4b862f04-9a5b-424b-b53d-804472f5025e",S5.6.1,utiliser des outils numériques de collaboration et de productivité,,,
+http://data.europa.eu/esco/skill/9a540c0f-81c0-4687-a14b-e9196d9af6c0,key_1093,"f812f2d8-d0b6-43e1-9c4e-abe95bd4ea62
+0d0bedb9-129b-48d6-bc5c-4cdd50fc909d
+fa7f381e-f8fa-4620-a918-ae1ee1a3c290",S1.8.2,donner des instructions,,,
+http://data.europa.eu/esco/skill/9adca63b-9c75-4804-8dab-d62872540a10,key_1094,"ed8263db-f56f-43a2-9582-b90eb902a01a
+4a1ec169-df83-4654-912e-653ee5846e8a
+c6d24ee2-35d1-43b6-98cf-2ace3f6ab96b",T1.1,maîtriser des langues,,"Communiquer, lire, écrire, parler et écouter dans la langue maternelle ou dans une langue étrangère.
+  ",
+http://data.europa.eu/esco/skill/9b8bb484-dcba-49af-8ae0-cfe8b6e9ed45,key_1095,"d8541f58-9cfa-4a62-b4fd-95bdb2c513b4
+a771673f-21cd-465f-b35b-9724e7f8b3c4
+98dd66f4-3a7a-4741-b34b-0cfca65bd230",S8,travailler avec des machines et de l’équipement spécialisé,,,
+http://data.europa.eu/esco/skill/9bdf8a77-8524-43da-bac6-d15d22e1b7ed,key_1096,"a45c870f-caea-4dde-8578-1f88b623806e
+71a04ee4-1e1e-43c9-859f-bd187b312534
+64cdd9f6-c344-46d4-92d9-0eb183f29ea9",S2.4.2,saisir et transformer des informations,,,
+http://data.europa.eu/esco/skill/9c17f73f-345c-4c55-8b59-47b445941b7b,key_1097,"e50c41a1-cf96-4659-a730-1908dd91575c
+9f016663-985e-4aaf-8baf-008585e6039c
+ad3e7110-ec54-4eac-a64f-b83c9c94cb22",S1.1.2,assurer la médiation et le règlement de différends,,,
+http://data.europa.eu/esco/skill/9d0d6866-cd91-490b-9e3a-d0914ad95a2e,key_1098,"7a0f9c3d-cf19-4ac0-a250-3e80682da0a7
+d814a491-2f6d-4d5b-b06a-01ff0b9f8be8
+5920cb6b-c088-4a2e-b841-69c5574d99f6",S6.9.0,manipuler des animaux,,,
+http://data.europa.eu/esco/skill/9f6f5c32-2770-4257-bd66-adc29442ff20,key_1099,"a11c8c12-e6de-4ca9-8eef-88c1c1ced97f
+ecb28f5b-e5e4-449b-b5e3-4ecf865a420b
+ba41c89e-4b0a-41f0-940b-f00f119783af",S7.2,installer une infrastructure intérieure ou extérieure,,,
+http://data.europa.eu/esco/skill/a0ad9ea8-9620-4aba-a836-cbdd16e12880,key_1100,"f0eda144-1a26-4b90-8d7e-c3f454db6dec
+94e13da6-2f9a-4718-8982-e4e7d575ba6d
+14ba06d8-8191-49f0-8f99-2dae5ad252c2",S8.5.3,"exploiter des machines pour la fabrication et le traitement des textiles, des fourrures et des articles en cuir",,,
+http://data.europa.eu/esco/skill/a19c5139-1250-4a60-9c31-a3243cca06cc,key_1101,"8f03a0f5-1dcd-4aab-9360-960e96b08954
+c4d3ec3b-745b-4d74-bbf1-db51fe38dd46
+f3cba0ae-19f5-4d85-b74d-ce21c7bfe404",S1.2.1,communiquer avec les collègues et les clients,,,
+http://data.europa.eu/esco/skill/a4cf0e8a-54f6-4fd5-8650-1c82ea86cfd2,key_1102,"b2b3e0be-5294-4063-8e88-c5102908bc68
+488c69c0-21d1-4d90-acc3-7d1f301a5e1b
+23e6e1e6-4692-4f9b-b0b2-f586be1b3e15",S8.0.0,travailler avec des machines et de l’équipement spécialisé,,,
+http://data.europa.eu/esco/skill/a5524d0d-38e5-4cfc-96c4-46c3c6df3dd1,key_1103,"5b776c91-7984-49b3-a156-38ab2b16d585
+45120f63-20af-4350-a4c6-b99822e5881b
+50f5b5c9-94e2-44fc-ab15-8af28e4ea63b",S8.1.0,exploiter des matériels et engins mobiles,,,
+http://data.europa.eu/esco/skill/a556a3db-cd48-42a5-825c-f95f6f5ccbfe,key_1104,"86d699e9-e326-4a3f-a407-a4cd1c5b8039
+a836dad0-89e2-41f3-93b5-f8984ab841da
+be927008-0427-4ef0-ac76-55e53af00e3b",S1.12.1,créer des affichages visuels et des décorations,,,
+http://data.europa.eu/esco/skill/a60b664f-bb07-4dd1-8dfa-134a0827f8da,key_1105,"6d70b874-8b95-49b3-b7b7-6194cf22e1f7
+64866503-f85d-4003-b24f-9a6dcb2af671
+b617d018-e613-44f3-a310-de8e8059baec",S8.1.3,exploiter des équipements de levage ou de déplacement,,,
+http://data.europa.eu/esco/skill/a6b0802f-4c20-4123-8a84-d6c8631fedb1,key_1106,"cd40d504-490b-4d75-9a42-e1775f5a0f08
+6837f734-3757-4137-9a40-ee2e3cc6d3b3
+f968ca15-b6c1-46d0-a816-a944428db151",S8.8.0,"installer, entretenir et réparer des équipements électriques, électroniques et de précision",,,
+http://data.europa.eu/esco/skill/a6c3bda0-c759-495e-b2c5-062b3abe2097,key_1107,"8968a15a-6c13-4438-84a9-a27a38741a29
+6b6535ca-d2e6-4b58-9c8f-f68e232f1278
+c23c9fcb-39fb-482e-86ff-fdb95f7eea0a",S1.9.2,mettre en œuvre de nouvelles procédures ou de nouveaux processus,,,
+http://data.europa.eu/esco/skill/a7065828-10aa-4aba-b7d4-f23a30df5060,key_1108,"74988f3e-4d9a-4e99-869a-9e7c19be1bde
+41d46003-aa7a-4846-b294-655a0d2861aa
+fab95eef-cf8f-4463-aad7-2f0f927f5fe9",S8.8.1,"installer et réparer des équipements électriques, électroniques et de précision",,,
+http://data.europa.eu/esco/skill/a7956044-f468-4bc1-a83c-a8821b903a09,key_1109,"c45d2f46-1d3d-49f7-b1e1-4ba35a973c34
+6e20e2b3-a4e5-47bd-baf8-807aa945fad8
+e2225ce4-6afd-45e7-8e35-bb98c3ca6758",S8.5.8,"exploiter des machines à découper, meuler et lisser",,,
+http://data.europa.eu/esco/skill/a8c3186b-c791-4d57-8f4f-4d12c7a5c6a7,key_1110,"7d2c6477-7a7f-4c67-bc74-d54e144789c5
+d1aca8a3-5c22-42f5-841d-dc64b4cb8506
+129f2b6c-5de2-4959-8085-777280b58419",S5.1.0,programmer des systèmes informatiques,,,
+http://data.europa.eu/esco/skill/a96b31dd-d72a-4c89-8947-524f14a16f82,key_1111,"83922484-c1cf-43cd-91ed-c75ae0835a98
+28a52a54-938d-4e81-8b74-b8fac58c9d5f
+50b9110f-e84a-4de4-9fcb-759fb83ceee0",S8.4.1,"exploiter des machines d’extraction, de forage et de transformation de minéraux",,,
+http://data.europa.eu/esco/skill/a9703c5e-7fef-40d8-8fed-e5b31cc76818,key_1112,"322c975a-39fb-450c-acb0-0c8240f694a6
+1a7a7102-f944-422c-8330-321375fc1d9f
+aa312bf2-f823-4d89-8a00-e93c4c976706",S8.7.3,assurer l’entretien des machines mécaniques,,,
+http://data.europa.eu/esco/skill/aab9f44d-fe0e-46d8-a470-11ce82a64846,key_1113,"82b32002-1cbd-463a-90aa-80c2e7cb1fc6
+908f14f9-a815-4816-944a-9a79e24b4a13
+a444ef41-9209-436a-be11-5d96f2604a2f",S4.8.1,superviser une équipe ou un groupe,,,
+http://data.europa.eu/esco/skill/ab877a24-335d-4676-b366-c5c06651481a,key_1114,"360532e6-7834-430c-b187-74168acb5d62
+9abcac7e-651f-43ac-910e-3bdbcac05a85
+8154cb0b-f8a2-4fb1-8b1a-629a6c72eb69",S1.0.0,"communication, collaboration et créativité",,,
+http://data.europa.eu/esco/skill/ab99d9a7-62eb-407b-92f2-bf7992a82004,key_1115,"057e1945-993c-4797-a000-5b53fda9c2ae
+b5801082-3e66-413c-a76d-f42e03350edc
+36f0628c-52ce-4d58-8641-cbdf6e9029c8",S1.12.3,créer des œuvres ou des performances artistiques,,,
+http://data.europa.eu/esco/skill/ac88053e-c9b5-43cf-ace1-f506bcfdc8cb,key_1116,"110abe6f-341a-4f01-a298-0b86c4182442
+0ef3b82d-04b1-4160-9a14-e9565d59ad3d
+72e9b94c-24ff-40bd-8e06-6fa8350159d6",S1.14,donner des spectacles et divertir,,,
+http://data.europa.eu/esco/skill/aca5081a-ceb0-4028-9cc5-1daafd4f86f9,key_1117,"f589bbd6-8b17-442b-a13f-383e3a33a503
+678d5f38-9778-4d32-a4df-eaeb68cbb785
+6e42e1ab-5b58-48bb-93c1-296066843412",S1.9.1,mettre au point des solutions,,,
+http://data.europa.eu/esco/skill/ad326fa7-f2e9-4421-8426-bc0c2e167143,key_1118,"3540907b-2795-46c2-8956-a519b4ed15e1
+8bafc8c1-882b-4044-864b-994ecc84de1b
+855b13ad-4340-4ec4-8461-35fdc4121a1a",S1.4.3,soumettre des informations dans le cadre de procédures judiciaires,,,
+http://data.europa.eu/esco/skill/af84405b-896d-4ed3-9462-077ea9a2a188,key_1119,"ded34b5d-758d-49f2-a9e4-148e9ab03ce8
+ed2a8e7c-a98d-4885-8c03-a594784da771
+a8fc43d3-0ef2-47af-8f36-43ec997ed7b1",S1.2.5,collaborer et assurer la liaison,,,
+http://data.europa.eu/esco/skill/afe3d82e-4a40-4aa4-a4e9-a6097c4a391e,key_1120,"b4308429-50b3-416a-ac29-949e05140b66
+58a61e10-10f4-4935-9790-b75057e6298e
+b41a23f6-2c15-44cd-a845-b50f107c287a",S1.13.0,écrire et composer,,,
+http://data.europa.eu/esco/skill/b036eb5c-6a48-45b9-b2c6-f42f9e336204,key_1121,"9392ea11-9ebb-4113-b0ec-915ebc827fd8
+c4816020-3b8e-4d0a-ade5-8e8edd524539
+10e3fa86-2cef-417f-84ba-c4ae6cf3e429",S1.5.7,prodiguer des conseils relatifs à des questions commerciales ou opérationnelles,,,
+http://data.europa.eu/esco/skill/b1115b14-fa16-4c1e-be6c-91fd49a1808b,key_1122,"d108b8c2-2c6d-47c0-981d-2f033b9e26b2
+1436ea45-d8e2-4f65-9ad9-f886aad80128
+831b9ed0-121c-4280-b19f-46c1361c868a",S5.6.3,utiliser des outils de conception et de dessin assistés par ordinateur,,,
+http://data.europa.eu/esco/skill/b2c688b0-9106-466d-8b88-eafdfe608e7d,key_1123,"a0ca9c38-4dc3-4be9-a0ae-d17d0eef9695
+8e7b61d8-7202-4c49-81a1-ad3f65030769
+da168c13-470e-4e64-be38-7078e94da90d",S1.11.4,concevoir des structures ou des installations,,,
+http://data.europa.eu/esco/skill/b309d4f5-56f5-41c6-b712-92d1ed85b965,key_1124,"e6daf63f-b4c7-4db9-a3b5-b0902f1859bb
+1832737a-b854-46eb-861e-bb558b3c16bf
+8d84dc5f-f2e3-4c08-9bfd-f5e072a13b38",S4.4.0,mener à bien des activités administratives,,,
+http://data.europa.eu/esco/skill/b32ef8a5-e3f7-40ef-8b40-913c003e1f4e,key_1125,"6e37f827-1b7f-40c2-b8d7-ac727866e406
+9c7a2001-de9c-45de-a19e-53412e8090c5
+0f9e4a93-c18d-4654-a00c-e5d2ab13e4e2",S2.2.1,"préparer des documents financiers, des pièces comptables, des rapports ou des budgets financiers",,,
+http://data.europa.eu/esco/skill/b590d4e5-7c62-4b4a-abc2-c270b482e0ce,key_1126,"e2502936-b947-4c08-b20b-0cca249b40bf
+d5909588-493f-4ad1-bbcb-841632e9bdf7
+010d53be-ff57-4473-89c8-61390c93fa63",S1.11.1,concevoir des systèmes ou applications tic,,,
+http://data.europa.eu/esco/skill/b593afe4-4179-4a83-9f05-21c8d32d8113,key_1127,"77605a88-dca2-4ec3-9db6-88db9a91552a
+8c2dc876-91dd-4c63-a6da-6419322175e7
+48a8b21f-9953-4ec1-82af-13d76006180e",S3.5.0,préparer et servir des aliments et des boissons,,,
+http://data.europa.eu/esco/skill/b76cd1e5-d5e7-464a-b7bb-4164d3616452,key_1128,"f68da348-84ba-4364-9a74-522912f0aea8
+77bbdb13-7f9d-43c7-9cf4-cd358f73cd4d
+29de5e0f-6d35-48e8-8564-d4df5ddb40e6",S1.2,mettre en contact et en réseau,,,
+http://data.europa.eu/esco/skill/b7c82b1b-cff9-4641-a62f-e4e28395eade,key_1129,"497bbcb4-e275-4aaa-aa90-ae5560ae320f
+00bae969-59dd-4884-8a3a-e6adb23a6026
+c4e81b97-0bba-4ce1-9f35-e7305a3f088d",S6.4.1,cultiver des terres et des cultures,,,
+http://data.europa.eu/esco/skill/b7e752ec-7b2e-46e6-ac24-8b1233609c31,key_1130,"936a4e79-3c68-4e7c-8a2e-bdb99730df37
+2292ff76-8385-448d-a2cb-be900376cf49
+eb25c0a3-5a3b-4b31-af1e-8cd45119eff5",S4.5.0,diriger et motiver,,,
+http://data.europa.eu/esco/skill/b82b2bad-41dd-40af-8242-e7d59a2ce786,key_1131,"0e671c4f-e3f0-474e-b500-3891a63ae09b
+527e7ef6-8e61-4e23-bae3-44cf6031f75e
+73bc579a-c61e-440e-968d-8cee6e040be9",S6.7.5,"marteler, clouer et riveter",,,
+http://data.europa.eu/esco/skill/b84813aa-6c44-4d58-a240-556c2060fb4e,key_1132,"2de45fb5-1414-4906-bcfe-252d38597c11
+78f96ab9-dfa0-46a6-a583-22a08b70dd8e
+bf09ac25-4280-4951-a633-5fd866a15234",S3.0.0,assister et apporter des soins,,,
+http://data.europa.eu/esco/skill/b85711bc-32d6-42af-ae0f-e2e566d0dfca,key_1133,"ed695a1c-a012-442a-b937-ecfcc3fe17d8
+b54c98c3-e9a8-4df2-bdef-ee1b2fbac3cb
+f7005826-ad97-41aa-9d28-b246c669f0f1",S3.5,préparer et servir des aliments et des boissons,,,
+http://data.europa.eu/esco/skill/b85caa4a-f04b-4331-80df-11404fd71225,key_1134,"96bce09b-1b83-48f3-9a90-3c794a5c69b8
+3701f658-cf59-43ad-b04a-01aba5e1e733
+51210710-0b1d-4e1c-85e8-8c9a2bcd676a",S7.2.1,"installer des équipements de chauffage, de ventilation et d’air conditionné",,,
+http://data.europa.eu/esco/skill/b88bddd4-210e-405f-bbdf-729bb66605a0,key_1135,"6981c9fe-8bcf-4917-ba0f-abe8825eb404
+51d7e553-8544-4338-bcb1-261ff1f5ea57
+a22d2779-764a-487a-80e3-105e3693e133",S3.2.5,"prescrire et commander des tests, traitements ou dispositifs médicaux",,,
+http://data.europa.eu/esco/skill/b8e142fe-e508-42b1-b037-efebcefac3a7,key_1136,"7e498254-a508-477d-924f-197096522535
+e153a36c-6033-4af8-a438-8ed3824f2343
+95a9de54-6ec6-4ea8-b4fa-a49a348af659",S6.5,assembler et fabriquer des produits,,,
+http://data.europa.eu/esco/skill/b917784a-d7c9-437c-be6e-0de41067fa62,key_1137,"05bc3d61-23db-42b9-a25e-78cbbef2089e
+0e17c2b9-c8f3-48c4-b28f-4ee98913954f
+891bd110-25f1-4cdb-aa6f-e4dc155d8aaa",S2.6.3,estimer les besoins en ressources,,,
+http://data.europa.eu/esco/skill/b94686e3-cce5-47a2-a8d8-402a0d0ed44e,key_1138,"5fd1eca0-f9d3-4b1a-835e-b478e5ab34b2
+ae259958-d078-4b69-8a65-68d9dbf65346
+6a3162d3-f1fa-471d-8206-e0b03aec4078",T1,aptitudes et compétences de base,,"Aptitudes et compétences qui sont à la base de l’interaction avec les autres et du développement et de l’apprentissage personnels. Il s’agit notamment de la capacité de comprendre, de parler, de lire et d’écrire une ou plusieurs langues, de travailler avec des chiffres et des mesures et d’utiliser des appareils et applications numériques.
+  ",
+http://data.europa.eu/esco/skill/b975836b-d9b9-4724-88da-9a82b856e74b,key_1139,"a64444b2-0f00-4f79-9a61-c205a3e31e41
+9fce9b76-7c0c-41ed-81d2-e7e3569e3af0
+032ca901-0560-4cd7-8dfe-560da2d82d8f",S2.2.2,enregistrer des informations juridiques,,,
+http://data.europa.eu/esco/skill/b99283cd-b908-4100-baa5-112692ac22b8,key_1140,"8d55acc1-d1f4-4410-ab8e-19bb53c871cc
+e55d2b41-e4e8-4f03-a308-0a3a5c5231a9
+b6cd8fe7-6770-404e-8e1f-8fcd782c49d1",S1.6,"promouvoir, vendre et acheter",,,
+http://data.europa.eu/esco/skill/ba1f6201-b206-4459-b178-706db34a851d,key_1141,"a77cfd15-b887-4715-9cb5-7f29353503c7
+fb8659c4-6b39-494b-a5d5-1fd16085f163
+c250aa7e-249c-44b8-84ae-78873da16cc2",S2.7.2,analyser des données scientifiques et médicales,,,
+http://data.europa.eu/esco/skill/bb99a123-88be-42a2-8758-f5a18e06ccc6,key_1142,"036f6bdf-e4cf-431e-9c58-a2ce153e8704
+cbd969af-b932-4d9f-93cc-a7b96ef85513
+ab076d4c-fbaf-4c3b-8a68-b769d912d131",S4.9,prendre des décisions,,,
+http://data.europa.eu/esco/skill/bd1242ec-6dd5-4c7d-bf79-8de6be3b3815,key_1143,"7e026fd1-bef5-42b5-8a0d-a72ba4722a44
+844bd0e4-9eb1-42f3-9b50-8f2533fabf45
+fa41eb52-bea8-493e-a275-a7b34d11d8a4",S6.5.4,assembler des produits mécaniques,,,
+http://data.europa.eu/esco/skill/bdf2aa76-360d-429d-a967-bdb691f241fa,key_1144,"f4e5bd7d-27d5-4940-b23e-3c0a8621ac6d
+2e242d59-d9c3-439e-a9b0-f00987a92774
+1128873f-bcd7-41f1-b72a-5e46507e69d2",S8.4.7,"exploiter des fours, des fournaises et des équipements de séchage",,,
+http://data.europa.eu/esco/skill/be7443ff-0747-43b8-8720-8e87fd34e692,key_1145,"4fdf5867-e0b5-424d-813d-6b8c5da0b915
+a6d8719f-3417-42dd-bf7d-77aefc330018
+a2829e09-41a8-4821-b711-ea65a41193e5",S1.9,résoudre des problèmes,,,
+http://data.europa.eu/esco/skill/bf4196e4-839c-4f5f-b13b-eeed07ede160,key_1146,"7414292c-92df-430b-86d5-e02712214a08
+c051ce3c-098f-45c5-89c6-e52986cca614
+bbaae410-77a1-4074-aa2a-5459ac4fa318",S8.6.5,exploiter des équipements industriels de précision,,,
+http://data.europa.eu/esco/skill/bf4822d3-1f66-499d-afc9-151a9ba33e58,key_1147,"57cc420f-ca7e-4028-a2e6-5d81232a0689
+ec01e456-8590-427d-a399-ea4550680222
+1a6ed8e3-cd85-4fc9-8259-f6b212c8b1e9",S6.3.1,préparer des mélanger ou des solutions,,,
+http://data.europa.eu/esco/skill/bffa732b-12ab-4214-a4b3-498598820b1c,key_1148,"7f9330e2-5afc-4323-a4e9-dfd119218fb7
+3fdfb71b-69f2-4c67-830b-d102878255b7
+800ba811-e791-484d-bb84-6fbf8be926f4",S4.8.2,attribuer du travail à des tiers,,,
+http://data.europa.eu/esco/skill/c098d6c1-dfee-4b02-8ce5-c6d80c98e18b,key_1149,"f045f0b3-d8b1-4e81-9c87-c3055426ad8b
+315f2704-7b7d-4be4-9e78-a081ef9cce8b
+a2e96ebc-912d-4366-84f1-627734ad74ad",S6.3.0,transformer et mélanger des matériaux,,,
+http://data.europa.eu/esco/skill/c1a13ee0-b00d-4cfa-a22c-20d284e398b0,key_1150,"3f861119-c9eb-4ec7-9e09-6ced528fae78
+e9eb86fb-d64b-42b4-98a6-c13fcb2f9ef0
+7dd83b2c-731a-44dc-bb7e-91fd9e1a48ab",S4.0,aptitudes à la gestion,,,
+http://data.europa.eu/esco/skill/c1bd0ed6-053c-4703-981e-eaec5e57de18,key_1151,"e7e32635-aca7-473e-ba02-ae84bbf268f5
+86ea259c-e646-4b0e-8d33-67daa2530aa8
+a07255a6-bb85-4a39-8560-07ab7d6e595e",S2.2.4,gérer ou préparer de la documentation médicale,,,
+http://data.europa.eu/esco/skill/c206d301-14b0-4bea-8028-a3749303a512,key_1152,"4dd3c05a-763e-4473-8df5-f1558684c90c
+150e9fc1-0c84-4c56-85e5-b9d383c1a36a
+c4dfff73-8c53-4de3-88fc-8627b33d4b57",S4.8.3,suivre et évaluer les performances de personnes,,,
+http://data.europa.eu/esco/skill/c20ac175-3aab-4aaa-9b9e-784c2dfb59cd,key_1153,"d34a88fb-36e6-466d-89e1-fbc9711eb71f
+986a4a0d-1d03-4384-a446-6c3de488b322
+b0ffb294-7f20-40a2-b8f2-92704edf866c",S4.4.2,exécuter des transactions financières,,,
+http://data.europa.eu/esco/skill/c23e0a2f-f04b-45bc-b0dd-20571f6b502c,key_1154,"d51bfa45-cb31-4fe2-ad82-1b16abd1e4bf
+6cb3d216-83a2-4eae-b88b-7150efbf0052
+feb2412d-42fd-42d3-b501-519591376341",S4.1.3,élaborer des politiques et procédures opérationnelles,,,
+http://data.europa.eu/esco/skill/c34b06c4-d164-4e49-a784-89d47de42ec2,key_1155,"af4574ee-df62-4e95-a434-6e2d080f3318
+82d19ba2-9718-4762-9eb7-fc9059d7698c
+457af1cd-fa52-4c8b-9279-cb6d5ccb6b65",S1.11.5,"concevoir des matériaux, systèmes ou produits industriels",,,
+http://data.europa.eu/esco/skill/c4376e35-add7-43a0-8b2e-f5741f0df8fe,key_1156,"57988a4e-af05-44e0-89bb-b7fa322a3d9d
+f66b9388-3f17-4021-bf84-13ce5a29921f
+e8cc5d26-7254-4e59-ac8a-869d55ea6dfd",S2.1.4,effectuer des enquêtes médico-légales et policières,,,
+http://data.europa.eu/esco/skill/c46fcb45-5c14-4ffa-abed-5a43f104bb22,key_1157,"6e9e701c-cf19-471d-862c-c03396d6fd98
+c3f0063c-14c6-4287-b0bd-6c257ea08d5f
+e18a95cc-bd2e-4e7c-8a31-52298644956d",K,connaissances,,,
+http://data.europa.eu/esco/skill/c53a55a1-8b2b-4d2c-b12d-626742a3833a,key_1158,"84a0a0df-93fb-448b-8c1b-bb61208160b5
+52e4c725-4544-4216-ac09-ee6e83afc614
+665c1d09-e15c-4d3a-9751-7d121eb1e5e4",S5.6.4,utiliser des outils numériques pour le traitement du son et des images,,,
+http://data.europa.eu/esco/skill/c54a0a94-9d45-4697-b7cb-f7eaef839031,key_1159,"fa1a026a-d251-47fb-a9ab-0fe232feadb4
+84c8ef56-c71b-4aa1-b1e4-6ed1054c8feb
+f66d72b5-f830-4045-941a-4c08808ac7b1",S8.2.1,conduire des véhicules lourds,,,
+http://data.europa.eu/esco/skill/c57c0294-9940-4626-8954-08055bc242ba,key_1160,"7a3a1f6a-2d52-40c3-81b4-b70e052370e9
+3402f335-8274-4f8a-9750-ee6ce935872a
+16030751-f7f8-485b-b48e-95ce056713d8",S4.8.0,superviser des personnes,,,
+http://data.europa.eu/esco/skill/c5b71c57-6f78-4c54-b332-ec75848f1095,key_1161,"ded11d41-c62d-492d-90b5-b4ea1d5bb983
+cc4af3a9-fc3d-47c9-9879-a42a6b56ba0a
+cadc98e8-08f0-4a4e-85d8-d6002f8d3ffd",S2.1,"mener à bien des études, des investigations et des examens",,,
+http://data.europa.eu/esco/skill/c5ff50d7-97d3-401e-90ac-e5ae756a52de,key_1162,"410b2408-6aa4-45ac-b08b-2606e0fa7104
+5689fd56-a1be-4027-9e1a-7332af5077fe
+a81069bd-70be-4488-90a5-c58159f395a0",S2.8.6,surveiller les conditions sanitaires des êtres humains et des animaux,,,
+http://data.europa.eu/esco/skill/c73521be-c039-4e22-b037-3b01b3f6f9d9,key_1163,"4b94e21f-6ec5-4d9a-b5c0-10a10d6ea9c8
+f6d16db4-479f-476f-be11-aea55afa0d9b
+299a86cb-974a-47c7-ab16-30e9d5869e58",S3,assister et apporter des soins,,,
+http://data.europa.eu/esco/skill/c75655c3-ed29-441e-b403-4dd65bc891a5,key_1164,"9262edeb-eb26-4972-af59-16fbdb24e285
+0f1db6d2-8736-4fb6-9f87-f1157e2a51d9
+ecfda3fa-0d31-4a00-9ddd-c3ba1418ecd2",S1.5.4,prodiguer des conseils dans le domaine médical,,,
+http://data.europa.eu/esco/skill/c7f96545-46c4-451a-b284-014f4baed5ed,key_1165,"31788896-af4c-4dc7-8145-de12d4cc12e2
+a3a68f59-3daa-4e4f-859c-6680bbceba70
+77f4fc50-decd-4ad1-97db-fbcb23fad329",S4.9.0,prendre des décisions,,,
+http://data.europa.eu/esco/skill/c85f95ae-34fb-487b-b3d5-10803eee619d,key_1166,"fba52863-7a07-48cf-9ac5-bcbe2c3acc2c
+c1f03b26-499b-468f-af5c-6bd6c8d08e65
+2535190f-3781-4056-8c32-c06e3c039e99",S1.12,"créer des matériaux artistiques, visuels et instructifs",,,
+http://data.europa.eu/esco/skill/c8f4aad2-ea23-49a2-9708-a6049c2d28ce,key_1167,"3c039e13-9eba-474e-84a5-39d492e5e3b3
+e54e14af-a5e3-4b5f-ad15-89ddc3249d45
+a13a1593-d7fc-420e-8535-91db9306d712",S8.6.6,utiliser des instruments de mesure de précision,,,
+http://data.europa.eu/esco/skill/ca5b2cf4-0f3e-4c47-b496-12d812a7e5d9,key_1168,"4f9daa4f-ed7d-4e34-adac-b00e18eba786
+fd0614bf-3291-47af-ab32-a050d40f32f7
+fc66d048-dbd5-4615-aa09-b131a27fcfcd",S6.0.0,manipuler et déplacer,,,
+http://data.europa.eu/esco/skill/cab71b2a-4b65-4e98-a7a9-0b20c39fc248,key_1169,"6f99f8f8-88e2-43d2-95f0-c209b1c2a12d
+a40ee596-a132-449f-8533-4bf509d46692
+c10a1879-b266-4635-8bd5-dbaeda133501",S8.0,travailler avec des machines et de l’équipement spécialisé,,,
+http://data.europa.eu/esco/skill/cacc62f3-2df4-4cc3-9d5d-0d014db56bd9,key_1170,"da5a3255-4806-49f3-929e-93da71f2ad23
+639fca43-5014-4ba6-a8d8-f2e092525ccc
+3684b435-5f2d-4acd-813c-281aa6304904",S5.6,"utiliser des outils numériques pour la collaboration, la création de contenu et la résolution de problèmes",,,
+http://data.europa.eu/esco/skill/caede8f1-6658-4d78-9eb4-2ad2c7ebf09b,key_1171,"1c42e4c1-d22a-48cd-b27d-4e6ab0635733
+22aeb381-b473-4542-a07d-ea4809187df5
+d0ebdae6-ddaf-49fe-ad26-3b271e2ef9e9",S1.3.0,enseigner et former,,,
+http://data.europa.eu/esco/skill/cbe1b24e-00f3-4b17-94e9-1fcd34a11c3e,key_1172,"eb397371-e752-40c9-b9ca-d9701077388a
+45646f20-6181-4980-8302-55acba370a74
+e3847bcd-6f28-4d2c-a3f9-6222f3b1e395",S4.1.1,identifier des opportunités,,,
+http://data.europa.eu/esco/skill/ccb6db6a-8538-431c-b740-5f241bdb71cf,key_1173,"6794dc69-ebca-430b-bac3-dc632625c356
+9ba20258-b57d-4f5f-880a-376789e73f34
+8769562d-637d-4d18-bf30-88154c5a133f",T5.1,manipuler et contrôler des objets et équipements,,"Déplacer ou soulever des objets, ou utiliser des équipements, des outils ou des technologies avec précision.
+  ",
+http://data.europa.eu/esco/skill/cd9c487e-09ad-4b82-854b-118feb01f2ed,key_1174,"d5ce70c5-7945-477a-b506-c8be4ff90b88
+b6f03f11-2655-481d-a41c-b821d3a0bf14
+f66cccef-c796-429b-ae5d-7f3e91f3cbe7",S2.0.0,compétences en matière d’information,,,
+http://data.europa.eu/esco/skill/cdb2aecd-9dca-48fd-8d56-f0aace3ab5a9,key_1175,"81986a80-524b-449d-aefb-5c86d70157d7
+5019cb45-dfd0-437c-803d-a41bef14fd49
+0de5da1d-50ae-4bea-be17-a71998765588",S1.4.1,présenter des informations générales,,,
+http://data.europa.eu/esco/skill/ce17a874-b476-491d-a7a7-5f05d32ad542,key_1176,"738aabc2-4650-4b38-9088-2805c11a6b7c
+8ca5435c-5bda-4369-8ab9-b01856fa7cac
+e06c2ab1-ce36-4fe6-815b-6f1733c9669a",S4.5,diriger et motiver,,,
+http://data.europa.eu/esco/skill/ceca8bbe-cd58-49b4-8ef4-9a34a5ac0f75,key_1177,"28cdb847-d83c-4159-8c0a-898a6a612363
+64501c95-6112-4641-b236-d600b107309e
+4255d859-1f7b-4847-9d70-75cdf16d0215",S8.5.4,exploiter des machines de traitement des aliments,,,
+http://data.europa.eu/esco/skill/cfd5ab8f-ef8a-4877-8243-ddf17ac74604,key_1178,"64e87614-3ee0-45fa-a667-39a9bf80b32f
+148e0f32-0017-47b5-8aee-4e32333f8a17
+5d8ac91f-1b91-49b5-bdc1-2a7ab04c1b84",S4.2.2,planifier des événements et des programmes,,,
+http://data.europa.eu/esco/skill/d12a1be6-d916-436d-8274-ad97b5f24415,key_1179,"fb1426d3-dadf-4a21-af07-69e28111623e
+12e42b85-c2e2-4b36-b7e3-0d79d8b11c97
+eff5de04-eb3a-49a4-a16e-ee1faea88b55",S1.13.1,composer de la musique,,,
+http://data.europa.eu/esco/skill/d1815c8a-7755-4fe3-bacf-68bb0b6a0b55,key_1180,"c842dfdd-2e34-4470-bffa-077669c64a29
+96d80e2a-d5b3-475f-ba6f-7692be5d005e
+ad6d3f06-8f49-408c-980e-693db9e0d827",S1.12.2,mettre au point du matériel d’instruction ou promotionnel,,,
+http://data.europa.eu/esco/skill/d23b21ca-2ef5-4b5e-b37e-a5311dc2e292,key_1181,"6d62a6b8-7f1f-49aa-948f-75000e3810a7
+aa45ef98-ce70-4035-b9ff-1910a336e9fb
+b19ff2e3-f96b-4ef9-b96f-64242d1aa76e",S6.7,utiliser des outils manuels,,,
+http://data.europa.eu/esco/skill/d2e8f452-ac19-4eed-b984-8f55d2a5b763,key_1182,"eb6a7b11-de6b-4a8d-93f8-3a5211837eaf
+23cb1315-96f1-442d-b831-b6590801618e
+2c80977d-5f4c-4be8-8a6d-80d19a090d1e",S2.8.8,tester et analyser des substances,,,
+http://data.europa.eu/esco/skill/d3b2c894-33fb-47c4-aff0-27935a082bf6,key_1183,"09b54c24-2555-46ce-94b4-b4bfd9c96bbf
+bb3ff2c2-d41f-4404-8e62-6b36301bd5e6
+b67164da-2322-4865-93e4-c64a65fbcc61",S8.4.5,"exploiter des équipements ou systèmes de traitement de pétrole, de produits chimiques ou d’eau",,,
+http://data.europa.eu/esco/skill/d46193e0-be7d-4a90-91cc-4caba78e19d0,key_1184,"2fa52ee2-486b-42da-8f23-4893c48d6c59
+7b9feefb-78bc-43f3-bf34-f075bc41ff01
+241a741a-703c-4d67-90f4-72f2d8dfdb95",S1.7.2,s’adresser à des tiers afin d’identifier leurs besoins,,,
+http://data.europa.eu/esco/skill/d519fadd-85bf-475f-bf14-c53a0290687d,key_1185,"62237e2e-449d-473e-84a6-069b93a7c686
+30707824-d81e-4f71-9f8e-c3a150cbe6ca
+0447753e-6c53-466d-8be0-d360ea0d7787",S2.8.5,surveiller les conditions environnementales,,,
+http://data.europa.eu/esco/skill/d54970ba-d9f2-41ec-a852-bbd1e5796823,key_1186,"74fc4a72-c3f2-4d0d-85ff-fa5b9a0f10f5
+6feef8f5-1afb-425c-9b3d-efe139a5c0a7
+87e37e3a-a785-43ac-993f-c1d6859932bc",S3.4.1,fournir des informations au public et aux clients,,,
+http://data.europa.eu/esco/skill/d5f302db-adff-4bae-b7d4-37293b397193,key_1187,"d4d3b9da-92b1-438d-bf7a-c3173fbbdf60
+588ddc23-33b3-45a2-a2e8-906086128380
+da4cb67c-5ec4-4371-b21b-a1080e610f00",S7.3,finaliser des structures intérieures ou extérieures,,,
+http://data.europa.eu/esco/skill/d69e45d3-1f3f-4e6a-8933-82e949277811,key_1188,"a4a3e3c9-b926-471d-a5c7-7a1f70c1a7d5
+db411a8c-b467-4c30-9a3c-7acea82dc827
+0eed4243-4a4d-47a7-a805-da24d181013f",S6.11.2,nettoyer les intérieurs et les extérieurs de bâtiments,,,
+http://data.europa.eu/esco/skill/d6a8a2a4-4e21-4ea6-b267-b5c63e687cfd,key_1189,"98df6cde-b467-4443-80e7-9d22efdc5c6e
+3c3061c9-d85d-483e-ab61-a617be566493
+9defd2b4-62b4-4a8e-8dd1-1b2a9273630d",S3.1.1,"prodiguer des conseils relatifs à des questions personnelles, familiales ou sociales",,,
+http://data.europa.eu/esco/skill/d6c8dacb-b0c0-4544-b0b7-69b24df41ba1,key_1190,"84c18bc2-f0a3-41b3-8af6-e65f76646dd9
+e5f5d1f3-85dd-4811-98cc-813e99ea026e
+383f2a8c-e9c3-4123-8f6b-306f08075437",S4.2.4,gérer des activités de transport et de logistique,,,
+http://data.europa.eu/esco/skill/d6e4373a-ef2c-4b64-9dc6-4140846f6609,key_1191,"4719451c-3d51-4448-955a-1195fbe1f126
+97c702c5-89c6-41d5-98fb-6fb35d208522
+2f104fb9-eaa0-4cbb-9bf3-939792a0296d",S5.1,programmer des systèmes informatiques,,,
+http://data.europa.eu/esco/skill/d6e97b91-b75d-45f5-8566-667798957b0f,key_1192,"a7eea9d4-a563-4475-87eb-264f7ea94cd8
+6f13849c-d6af-4198-9006-5a6cd1052817
+e4f8b3df-e270-44d0-9669-c024f8f0db33",T6.3,mettre en application des aptitudes et des compétences civiques,,"Interagir avec les citoyens et nouer des relations dans des communautés, en évaluant les informations et leurs sources, en réfléchissant à ses propres idées, valeurs et fonctions, et en reconnaissant et respectant les idées, les valeurs et les fonctions des autres.
+  ",
+http://data.europa.eu/esco/skill/d700aa7a-0ed8-4967-a32c-4cb6075ab3b9,key_1193,"b45a757e-f925-40c8-b528-95fd468acb76
+196241e9-f0e4-4f8f-af43-445cbd6c6c3a
+bdf79853-0ccf-426a-b068-2ab052aaa8cc",S2.1.2,diagnostiquer des maladies,,,
+http://data.europa.eu/esco/skill/d7d2a468-587b-4a03-a305-e0a399ba69e6,key_1194,"1d278ce3-03c0-4817-958a-b94973414f4e
+db1de80f-8d6d-4e1c-b259-a9320507d047
+56c0c5e4-89ac-4b25-b458-20eab702cea1",S1.7.3,écouter et poser des questions,,,
+http://data.europa.eu/esco/skill/d94e1143-3a3a-4f6a-a881-df93bf56cf23,key_1195,"0bff7769-a6f6-45c9-bf63-2c55184c0aa1
+5b97c59f-e8fd-4c77-bce9-78570968bb4c
+5ea7fb86-e2e7-4cd1-a4c6-95770db8cebd",S2.7.3,analyser des données financières et économiques,,,
+http://data.europa.eu/esco/skill/d9b1387a-7cad-4b77-8481-7798a3b41714,key_1196,"4638b9a7-8637-4521-a151-69725ba048a1
+6d9cefc7-4d90-479e-af41-19a323eec148
+7408ae93-fe2a-46d8-807b-bcb0eb06838d",S8.9,exploiter des aéronefs,,,
+http://data.europa.eu/esco/skill/d9be4ab0-f7d9-4b27-bd01-6cf1d43d1865,key_1197,"56f6fd59-d7c5-4a1e-a451-6cae7addf6e3
+48859278-95f1-4925-b0f5-f503cbeb8697
+afe4a898-bb7d-42fd-9706-f0a5863e76cb",S7.1.4,installer des composants en béton,,,
+http://data.europa.eu/esco/skill/da230865-9d2a-42d9-a42e-37d89753109e,key_1198,"ebdc5952-4656-4e77-8ace-9ec69d73d50e
+78b4e55e-f5d1-483b-9faf-65828394acf4
+3479c95b-3a11-43e6-845b-a6fc8c8c2319",S7.3.1,appliquer des matériaux pour combler des trous dans des surfaces,,,
+http://data.europa.eu/esco/skill/da94d48b-5036-48e1-ad96-d85cba6ed29c,key_1199,"9d99687a-55fe-41b5-8677-82c0bf29a66e
+32e5154d-995e-4c1e-b0ca-17597feea3ef
+6e4ed316-7a35-411c-8cb2-d7ae9764f09b",S8.1,exploiter des matériels et engins mobiles,,,
+http://data.europa.eu/esco/skill/db54693e-bcb0-4dae-8885-a43d510fb71f,key_1200,"b3f3053f-edb8-4ab5-b402-df6e55b606c1
+352ed7fb-5121-44fb-8270-1c10bff19e8a
+68bbbb57-099c-4738-8e56-a645f0b2a910",S4.1.5,élaborer des programmes de santé,,,
+http://data.europa.eu/esco/skill/dbbbe31a-9b8c-4459-a830-84363648f52c,key_1201,"a8680686-a74c-4f45-8ec5-d9a871247984
+c17e1b69-357e-4e10-81c1-bf0850ccd1ac
+d5261a30-c320-4f12-969c-aa14c9194427",S8.2.2,conduire des véhicules légers,,,
+http://data.europa.eu/esco/skill/dc06de9f-dd3a-4f28-b58f-b01b5ae72ab8,key_1202,"17afa7f2-8d88-406c-a951-d3d066aed960
+b85df2c9-4769-40e2-8ab3-797933fb8f9f
+8555fd2c-0c77-4bc5-b652-5c53604f2d92",S1,"communication, collaboration et créativité",,,
+http://data.europa.eu/esco/skill/dcb9c446-bb08-44de-89b6-851ac2903eaf,key_1203,"1c551a6d-13e6-4123-878f-fcf07d50bc43
+13229d39-1abf-4c32-bf27-ff1ebeb2c9cc
+05335bfd-12a8-4f02-b129-930eadb5838e",S8.5.6,exploiter des équipements d’impression et de production photographique,,,
+http://data.europa.eu/esco/skill/dddd229b-61e1-480d-80d6-d9d9ee9b5f54,key_1204,"042f7979-2c01-4f53-8fb4-f03eff85ea4e
+99c71c7c-ba72-45f4-b312-be9d324e166a
+5e64cd3a-4755-44c3-96b4-6e09f75ce8f6",S2.3,gérer des informations,,,
+http://data.europa.eu/esco/skill/de884168-32e7-4500-a227-3f0966f962b6,key_1205,"8888b82a-9523-4676-932f-febbd226945f
+d2661958-9c3f-4677-a107-bc204cc4774e
+a6ec1c8f-023f-4d8a-9fa7-6eb41dac3b85",S1.4.0,présenter des informations,,,
+http://data.europa.eu/esco/skill/dfae80db-cf29-41e1-a48c-2bee901afff1,key_1206,"09d793dd-f9f0-4bd9-b76a-c7b1c6cee9b1
+03d1e290-4c95-472b-b9dd-ed6bbe4b17f8
+4fa938c2-6002-44c5-9be3-1bb773e55815",S4.6.0,construire et développer des équipes,,,
+http://data.europa.eu/esco/skill/e001ce62-78e7-4821-a7df-a08457c295ab,key_1207,"0a529739-31bd-4a04-9990-fc8bd1c1080c
+e74e15e2-c875-4939-ae88-013a277efd3b
+d6057c69-b896-4ecd-99de-555ed2900b8f",S3.2.2,accomplir des procédures chirurgicales,,,
+http://data.europa.eu/esco/skill/e06f2d35-a160-46c2-89f1-9cae9c93c8b8,key_1208,"18455244-5d62-4fa0-bac6-457ca6ff7187
+7d7c5dd0-d5cd-4886-a55e-bd334129c266
+e656c48d-c5a2-4e8d-a2b6-a2ecc16d1be6",S1.6.1,vendre des biens ou des services,,,
+http://data.europa.eu/esco/skill/e173eaf8-c99b-405a-b0ac-0e02ce3c268d,key_1209,"f0380a43-8f45-467e-b229-b9a2629f31e8
+e461b8c1-71e0-4f41-b4c2-93a381fd6c41
+79f193af-44f6-4f15-899c-9e0aa55d29c8",S2.6,calculer et estimer,,,
+http://data.europa.eu/esco/skill/e1746275-6d4e-4b02-b526-eeebf3052b6d,key_1210,"2e177115-874b-483f-8e81-5dc71d2c42f8
+4c1beed5-2249-47d6-bd4f-1111f36d071b
+72220365-29ca-4f5a-9928-03e66c6ecaef",S3.4,fournir des informations et une assistance au public et aux clients,,,
+http://data.europa.eu/esco/skill/e2a5e046-3357-493e-bbdc-8d0ef82005cc,key_1211,"4ac39bb9-208a-473e-b2ae-890ad51c37ee
+da6f0b4e-a0dd-49b5-ad78-98214c5c2553
+55305dc5-b895-4bc6-8083-a246191d48b4",S2.9.0,suivre l’évolution dans un domaine d’expertise,,,
+http://data.europa.eu/esco/skill/e2bdf081-333a-414f-b8ac-93c76290f167,key_1212,"95f571c0-9ba9-4f41-895b-76c0ea004bbf
+d7b38512-5dd1-4421-9225-0c55d3e150a8
+4aa08081-4bf4-4ada-b649-4096087eefee",S1.3.5,encadrer et assurer le mentorat,,,
+http://data.europa.eu/esco/skill/e35a5936-091d-4e87-bafe-f264e55bd656,key_1213,"62e2068f-99b6-4a8e-97b4-12d17e3e63a1
+174467cc-029e-4f4d-be28-1dfe8a0d6f25
+42fade44-a890-44ff-81f0-ca432944e304",L,compétences et connaissances linguistiques,,,
+http://data.europa.eu/esco/skill/e434e71a-f068-44ed-8059-d1af9eb592d7,key_1214,"b9bb9880-10b8-4b05-9ccd-059dfd2254b0
+d7baf01e-a256-483c-8b4c-8894cbc88247
+b46a2721-9ed0-4f89-a4c9-09593a65ad89",L2,Langues classiques,,,
+http://data.europa.eu/esco/skill/e4da156d-a6c4-4b29-935b-eff9c9553cf1,key_1215,"bf96dcc8-92ee-49ce-961e-f03152684719
+2c4f4cf1-9e44-411c-982b-6863ff6ef2a1
+222ba74b-3826-460f-be3f-102aa889daff",S1.8.1,travailler en équipes,,,
+http://data.europa.eu/esco/skill/e52389a2-1a05-45b0-8db3-4bda0f0c0b48,key_1216,"ea449704-308e-4855-a252-74d265c83958
+e279ac13-e643-4d71-ad2c-16b4cf10b78a
+cded48f7-aa10-4f8e-a105-eb18ea5a61f6",T5.2,réagir en fonction des circonstances physiques,,"Réagir et s’adapter à des conditions physiques changeantes ou dangereuses.
+  ",
+http://data.europa.eu/esco/skill/e52cd6e7-f8dc-4f6f-b988-5554423f53fb,key_1217,"718b5480-cd7b-4071-8eff-a56f8b546a91
+3c0689dc-cd26-42d7-944f-d03023d09a13
+64a800cb-9fcc-4503-8788-d7c417164d63",S6.9.2,élever et soigner des animaux aquatiques,,,
+http://data.europa.eu/esco/skill/e5419bb1-38c7-458a-b263-b7e73e02bc7e,key_1218,"555bac4b-f3c1-4574-9470-5c170f8e1b8f
+ee98d41e-dc25-40d7-a53b-8e394efb42d3
+8675a558-344c-419b-b61e-3e68e5241d39",S6.9,manipuler des animaux,,,
+http://data.europa.eu/esco/skill/e5e3b8d7-a96d-41f4-acb6-563b0f7f2994,key_1219,"eca2f510-7e50-4414-9f4a-08472432d083
+24cf705e-9f50-4e9c-b52b-50f0b4f218e8
+4a130fc0-2832-42a6-bb22-fcbab474a45e",S6.1.0,trier et emballer des marchandises et des matériaux,,,
+http://data.europa.eu/esco/skill/e67fd42d-25f1-4124-b0be-3b1e3bfdd70c,key_1220,"7b4f285a-fdea-4fa0-871e-7e515b5c1b3e
+6d61bdb3-714b-46ee-8daf-6131cc246ae7
+55186216-b9f0-406d-bb32-bdcd4df09c12",S3.3.4,vérifier les identités et la documentation,,,
+http://data.europa.eu/esco/skill/e6e784d0-38a2-4f0c-9fe9-d985a3269fd9,key_1221,"ba140b23-08c1-4b0e-9ba1-da8563c5416d
+3d50152f-0551-40fe-aa84-0b8720c56fe0
+80e0f787-cc43-4a09-a937-cbb167ba99e6",S7.3.2,appliquer des revêtements texturés ou de maçonnerie,,,
+http://data.europa.eu/esco/skill/e6eeb84c-ad99-42e2-b883-e6ce338aef59,key_1222,"ec2ebe64-6145-442e-b26f-abb6cade32e0
+37970675-2e89-4de0-ade4-9bf361d3cffb
+9a35f798-79c1-44be-9605-b218a56fdbbc",S4.2.5,planifier des opérations et des processus de production,,,
+http://data.europa.eu/esco/skill/e7a48651-3f68-4762-bf93-57cc1af47016,key_1223,"2dab8bbe-fa98-4b1d-9d09-a7d8278c51fa
+64cfa22e-7880-4348-8d6e-ed545f680b5b
+cca75768-7d6c-428c-868a-efbb759ccbd4",S3.6,apporter des soins personnels généraux,,,
+http://data.europa.eu/esco/skill/e84d080a-ff6d-41a7-b7b9-133e97c7bf00,key_1224,"c046a143-9eb4-46eb-a4c1-ebe9d3f94aa3
+387cd9d7-cf4a-42aa-b522-2b66f4ee29f0
+bd22cd8a-d537-4311-8b8a-d51fed86f7cf",T2.4,penser de manière créative et innovante,,"Générer de nouvelles idées ou combiner les idées existantes pour mettre au point des solutions innovantes.
+  ",
+http://data.europa.eu/esco/skill/e852a2ed-c32e-4a39-bc4c-65a78ffe6bf2,key_1225,"505e28b2-2584-4635-8af2-eecdf790b378
+2bc7f0f6-d5aa-4f1c-9d83-aae0b5991dd2
+76606632-93aa-4574-a0b4-50f1433fe609",S6.2.2,"déplacer ou lever des matériaux, des équipements ou des fournitures",,,
+http://data.europa.eu/esco/skill/e963cf1f-dc3c-48b2-a0fa-274f5e7f50f6,key_1226,"1ad85c5b-b5ae-499c-846e-f2254b6301af
+e85eb5f3-7462-4578-8bdd-282baead882d
+dea5b8d0-83ef-48a3-a63a-7d53d15d454c",S6.2.3,stocker des marchandises et des matériaux,,,
+http://data.europa.eu/esco/skill/e9eb9c23-c1f4-4ce9-83c9-2f6a211cc536,key_1227,"962b2bd9-e088-4e63-baf7-5f4d08199e1b
+1de0ffdd-331a-49cb-b8d3-6b33210bea0e
+ed3c1623-83ea-402e-989f-559e8b93303e",S3.3.5,maintenir et mettre en œuvre la sécurité physique,,,
+http://data.europa.eu/esco/skill/eb6cc4ba-4bb8-4348-9a3b-dc419558f66a,key_1228,"3f7133b5-35eb-49f1-bf90-909d5e9013ca
+f96c9db1-03b4-42c1-8839-748219f0f2c2
+d77699bd-1130-4df0-b538-7cf51ffdd444",S1.5.6,prodiguer des conseils en matière de conception ou d’utilisation de technologies,,,
+http://data.europa.eu/esco/skill/ec0401f1-f690-46be-934b-f6f5611085f5,key_1229,"ee562cf6-3dc5-4363-bc46-e7014e68abcc
+6bbf108d-9719-4caa-a62a-38014348aaba
+b4919d18-86f2-4711-9dd2-f111590389d8",S8.8.2,"assurer la maintenance d’équipements électriques, électroniques et de précision",,,
+http://data.europa.eu/esco/skill/ec528c47-65f4-4187-9dc1-5a8889f84a06,key_1230,"94a081c9-9470-4939-8591-6d56fe41e7e7
+b18bf48b-b243-4eca-88fd-24aa470b28a8
+76b76da0-6993-4675-a726-ac34a1fddf46",S2.7.4,analyser des opérations commerciales,,,
+http://data.europa.eu/esco/skill/edc72cfe-78a8-4531-b00f-92992a0bb8cb,key_1231,"6bb4ab30-ef3f-4997-b9eb-258a7f66f5a7
+a1577ea6-244a-4906-bff8-89cb14310f2f
+06a1cd06-be1f-40a5-a95d-251a7460b127",T1.2,travailler avec des chiffres et des mesures,,"Appliquer des contenus, des informations, des idées et des processus numériques et mathématiques pour répondre aux exigences de base de l’apprentissage et du travail; il s’agit notamment de comprendre des chiffres, des schémas, la forme et l’espace, ainsi que le langage, les symboles, les procédures et les modes de pensée mathématiques utilisés pour atteindre des objectifs concrets.
+  ",
+http://data.europa.eu/esco/skill/edcfd6ef-1a42-4e0a-97e2-2a2d61cac181,key_1232,"dc5bc8fa-7ccf-496d-989d-b796dedfad19
+01f3a059-b233-46e9-ba68-5b9af28629cf
+eb59a8ae-56b4-4061-bc7a-f2a17e2074fd",S6.9.1,élever et soigner des animaux,,,
+http://data.europa.eu/esco/skill/ee2576c0-1af5-44b5-8c0c-2002541d1ccc,key_1233,"bcf771ff-c9e9-4bf3-810d-a9b3c7734531
+c2e4b8b5-6ac9-49cb-8a3c-93c69bef46ca
+97a7d85d-3cbe-46d8-9b7f-0452ff22c6ea",S1.3.4,former aux thèmes relevant du domaine sanitaire ou médical,,,
+http://data.europa.eu/esco/skill/efb60300-0d55-4b2c-8038-8409587a4727,key_1234,"f607ae08-9612-45df-a98a-da0fcdc8a26a
+92e2c01b-6ae9-4d74-a71e-62e6f215505a
+534f3b7f-710a-42f2-9ec6-01bd6d872b06",S1.6.2,"promouvoir des biens, des services, ou des programmes",,,
+http://data.europa.eu/esco/skill/efbb3d3b-a41c-4e0a-90a8-8e611eb1db9f,key_1235,"c5f08c6b-5a32-4c2b-8fef-e99bec11d810
+3f9c2a54-fe70-496d-b831-7cc8c06eb836
+e472243b-c97b-4356-be1b-9cc75309f647",S1.5.1,"prodiguer des conseils relatifs à des questions juridiques, réglementaires ou procédurales",,,
+http://data.europa.eu/esco/skill/f0f8ceea-304e-42e8-80cf-ff1535eb7068,key_1236,"53f2e1a1-35cc-4691-acda-96358a7dec17
+a95d920d-0a59-4bb7-9bc0-afd870974482
+6717fbb6-6b2e-4d53-b434-14c3c1d3b49e",S6.9.3,faire migrer et élever des animaux,,,
+http://data.europa.eu/esco/skill/f1612d7a-0338-4b0f-a2a4-86b5168e2596,key_1237,"d9d3b9ac-5a26-45d7-9459-11ce62d4b07e
+7e98470f-8df7-40e9-a7e4-06141a568c0f
+894ee3a2-fb32-49b6-adfd-02d5d19a15ac",S6.3.6,collecter et préparer des spécimens ou des matériaux à tester,,,
+http://data.europa.eu/esco/skill/f2840c73-9693-4cc0-8dc1-c44942263d5d,key_1238,"9751d84d-1add-4873-ae85-4ceb633dea36
+4211bc70-d31e-4efc-aba3-c640d120fc0a
+4c631bfa-1f8b-4b26-a065-716f8fe37b6a",S6.1,trier et emballer des marchandises et des matériaux,,,
+http://data.europa.eu/esco/skill/f289347f-a76d-4d03-a648-74b53ed1e636,key_1239,"63a2e968-d109-4c93-b462-023927e2889a
+e4ca0eff-60b4-4dda-bf14-2cd48ebb8690
+e7c384ab-d4a6-47da-8a1a-7d9d9f5ddf67",S6.5.7,fabriquer des denrées alimentaires et des produits connexes,,,
+http://data.europa.eu/esco/skill/f2cf57fe-d4cb-4b4a-831d-73171cc73909,key_1240,"c3b11895-c9dc-4615-9f9e-633dcbc6afca
+dc215509-2617-40d2-82ad-c2b311a3eae1
+959aaa8d-8b24-4fd3-9944-c3d3f937ed34",S2.7.6,"évaluer des systèmes, programmes, équipements et produits",,,
+http://data.europa.eu/esco/skill/f306bf2a-271d-4059-ba7b-e83849cb8960,key_1241,"62867dbd-a9ed-444e-92d0-421750d15c0c
+9b0c05cf-0532-4e1e-ac8a-34c24863c59e
+e956d621-1395-43d6-a416-911e417d6080",S4.4,mener à bien des activités administratives,,,
+http://data.europa.eu/esco/skill/f4346da3-f6b2-4389-8a67-7c443b7e1609,key_1242,"77e71647-24d5-4734-942d-65a9f4c3ed80
+a6d6e5c6-4253-4f30-9fed-889d701e93b0
+0aafa119-1a91-4b48-b94a-1f493deb8efd",S1.14.1,pratiquer des sports,,,
+http://data.europa.eu/esco/skill/f5328159-dfe9-4f25-b8e7-a03fb0d3a991,key_1243,"0161d6ba-892c-450a-aba0-27a73e3c513f
+691272e7-6477-4f65-ab35-5f715e6d569f
+e3ec1b15-8054-4fa7-a1d1-f6b3daa96010",S5.0,travailler avec des ordinateurs,,,
+http://data.europa.eu/esco/skill/f55fac09-92a2-4a88-9a96-ee9fb5b18519,key_1244,"b403972d-f1af-446b-b16c-ed777caf6332
+e48caee8-6f65-4bb4-86c8-d3ba933f0b42
+ef1dc77f-4293-4253-a0d4-60c0b79ed813",S2.6.2,déterminer les valeurs de biens ou de services,,,
+http://data.europa.eu/esco/skill/f5c9eef3-0495-4747-9519-d71a58d252bd,key_1245,"75293f75-954c-4bc6-a0a7-6b00eed94899
+a22a188f-804b-42a3-ab84-6d4afd5c5588
+75289d50-c9db-49fc-a984-81e47a594c59",T3.4,démontrer une volonté d’apprendre,,"Faire preuve d’une attitude positive à l’égard de demandes nouvelles et exigeantes et prendre des mesures pour tirer les leçons des difficultés rencontrées.
+  ",
+http://data.europa.eu/esco/skill/f5f15f9c-6334-4728-8dc5-3a20a00dfc37,key_1246,"a115a477-a0b4-4799-a436-a0c2b0c077d8
+14840e07-0801-4558-8773-871a6db3997e
+a28272f6-845b-4291-9604-56a4a6a678b0",S2.6.1,effectuer des calculs,,,
+http://data.europa.eu/esco/skill/f73c2c9e-b097-4fcb-95d1-659ea0bd54a3,key_1247,"32fa3371-78d9-431f-a914-aa2e9d481648
+76d943a4-d3d6-449f-b044-943ff72add72
+fd0cf965-009f-489a-83fa-e044a20c08b7",S4.3.3,allouer et contrôler des ressources physiques,,,
+http://data.europa.eu/esco/skill/f774131e-8f2d-43b6-8c20-7fe35fa0f0bd,key_1248,"759b440f-39b0-4252-a4d4-c8692cccfc14
+29f4ad9a-8507-4825-9045-3e5c10f055c1
+138f219f-f079-479e-9bdc-40c041025c35",S5.6.0,"utiliser des outils numériques pour la collaboration, la création de contenu et la résolution de problèmes",,,
+http://data.europa.eu/esco/skill/f7c70392-a261-42e9-86a6-fccf3709ac81,key_1249,"8399e682-56d1-46fe-a469-8e3a1a2683fd
+0de04cb2-e82a-4909-99c8-0eaef04f8131
+afdf699a-e9f6-4a71-850d-515c4381f169",S8.2.0,conduire des véhicules,,,
+http://data.europa.eu/esco/skill/f7fc7bf8-f41d-44af-81e3-09b88e9779e6,key_1250,"eb3b85aa-6019-48a6-b0f9-2ab77b72e668
+26348ce9-cae6-4e39-9705-d233c7459f75
+0694d903-037d-47b8-b690-5ab47cc9c7ec",S2.8.1,tester des systèmes ou des équipements électriques et mécaniques,,,
+http://data.europa.eu/esco/skill/f839b1da-78b6-4466-86f4-a5798821ea20,key_1251,"8d5335a3-9bcc-40e9-a6b7-f2b1b61268c1
+e9e616b4-a70d-49e2-94d7-8f7c51895ba2
+15b582f0-dffa-4ef2-b5e9-e7ee3aaffb30",S5.2.1,mettre en place des systèmes informatiques,,,
+http://data.europa.eu/esco/skill/f8c676de-c871-424f-9a65-77059d07910a,key_1252,"52c6f06e-90cb-41df-8127-0cb93ee5ab34
+ec02c9bc-c8d3-4f5b-ad6d-fcfb672da6f0
+8219239f-8b6f-4c0c-a3f3-006640cb3494",S6.13.0,manipuler et éliminer des déchets et des matières dangereuses,,,
+http://data.europa.eu/esco/skill/f9db77be-eb63-4937-a0d0-b581733e7d2a,key_1253,"667a2679-ee39-4d54-8ddc-a180a91077e0
+5f991217-f182-43e6-a37f-3bd7f5837184
+57e4aaa0-ef7a-4a31-b956-ac0d9944825f",S3.1.2,apporter un soutien pour résoudre des problèmes,,,
+http://data.europa.eu/esco/skill/fb01d224-882a-4346-99e2-bfd56f52d09c,key_1254,"29b65d7b-30bc-4181-a19c-e24c58f806a9
+11d47342-6ad7-4cfb-8b37-bbbdd4835495
+4fb04e21-3171-4ead-b81f-b19aad607a7b",S1.6.0,"promouvoir, vendre et acheter",,,
+http://data.europa.eu/esco/skill/fbb861f7-2386-4d17-84f7-6e340a8e6cd9,key_1255,"6cb7c40d-7bb3-435f-80a6-cfc1dbed55fd
+fbe89012-e8c2-429f-898d-21040ab02ef0
+ace6f55a-28ea-43c3-ae1f-5d6d3cc788e9",S3.6.0,apporter des soins personnels,,,
+http://data.europa.eu/esco/skill/fe317a4c-e4e0-45ee-8b0d-204a68014f9e,key_1256,"ea8746d9-f300-4a99-abec-b8b7c7bd597b
+53b6656a-3512-476c-a66c-a9e1f60fddfe
+c503d9cc-339d-4e64-8725-0a25c7b183f3",S3.3.0,protéger et mettre en œuvre,,,
+http://data.europa.eu/esco/skill/fe5eabaa-63f6-4c44-b405-fc3ded8d56cb,key_1257,"87505322-d10d-437c-b2c0-ce6f15ff4130
+94f59607-8eb2-41fb-bc5a-6ed1641c14da
+0d62885f-0791-4943-99df-859ca659136e",T4.4,diriger d’autres personnes,,"Guider, diriger et motiver d’autres personnes.
+  ",
+http://data.europa.eu/esco/skill/ff565308-8f29-4f1d-a342-9a29bd8b7446,key_1258,"38dbaa23-a08d-4b15-b7c7-7c8d80839814
+e8404e71-fa46-4910-bf9b-58e673fef48a
+be041345-5bb2-4f53-a48a-691d21c078cd",S6.0,manipuler et déplacer,,,
+http://data.europa.eu/esco/skill/fff1d675-c36a-4c12-9cd4-407f21ccd06a,key_1259,"c83d20a3-a6a5-40f1-a521-1bff252ccffe
+b48ed747-8535-42f1-ab6c-f65d0b0d283f
+f9bc606e-fc72-4c9b-92d1-2553b8625e6c",T2.1,"traiter des informations, idées et concepts",,"Évaluer, saisir, enregistrer, transcrire et mettre à jour des données au moyen de systèmes d’information électroniques ou manuels.
+  ",
