@@ -3,6 +3,7 @@ import { getMockId } from "_test_utilities/mockMongoId";
 import { WHITESPACE } from "_test_utilities/specialCharacters";
 import { RegExp_Str_NotEmptyString } from "regex";
 import {
+  testBooleanField,
   testObjectIdField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
@@ -34,6 +35,7 @@ describe("Validate JSON against the Import Schema", () => {
       OCCUPATION_LOGS: "folder/file11",
       OCCUPATION_LOG_CHANGES: "folder/file12",
     },
+    isOriginalESCOModel: true,
   };
 
   describe("Successful validation of Import", () => {
@@ -55,6 +57,7 @@ describe("Validate JSON against the Import Schema", () => {
             filePaths: {
               [value]: "folder/file6",
             },
+            isOriginalESCOModel: true,
           };
 
           // WHEN the object is validated
@@ -187,6 +190,10 @@ describe("Validate JSON against the Import Schema", () => {
           }
         );
       });
+    });
+
+    describe("Test validation of 'isOriginalESCOModel'", () => {
+      testBooleanField("isOriginalESCOModel", ImportAPISpecs.Schemas.POST.Request.Payload);
     });
   });
 });

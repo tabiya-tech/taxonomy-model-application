@@ -169,6 +169,10 @@ exports[`Test the import module The import module matches the snapshot 1`] = `
               ],
               "type": "object",
             },
+            "isOriginalESCOModel": {
+              "description": "Flag indicating if the model is an original ESCO model.",
+              "type": "boolean",
+            },
             "modelId": {
               "description": "The identifier of the model for importing the files to.",
               "pattern": "^[0-9a-f]{24}$",
@@ -178,6 +182,7 @@ exports[`Test the import module The import module matches the snapshot 1`] = `
           "required": [
             "modelId",
             "filePaths",
+            "isOriginalESCOModel",
           ],
           "type": "object",
         },

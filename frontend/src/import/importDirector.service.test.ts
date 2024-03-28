@@ -80,6 +80,7 @@ describe("Test the import director service", () => {
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     };
     const givenUUIDHistory = [randomUUID(), randomUUID()];
+    const givenOriginalESCOModel = true;
     // AND a api server url
     const apiServerUrl = "https://somedomain/path/to/api";
     // AND some files
@@ -97,7 +98,8 @@ describe("Test the import director service", () => {
       givenDescription,
       givenLocale,
       givenFiles,
-      givenUUIDHistory
+      givenUUIDHistory,
+      givenOriginalESCOModel
     );
 
     // #### MODEL SERVICE ####
@@ -131,7 +133,7 @@ describe("Test the import director service", () => {
       ] = `${givenMockPresignedResponse.folder}/${file.name}`;
     });
     // THEN the import service is called with the given arguments (modelId, file paths)
-    expect(importService.import).toHaveBeenCalledWith(givenMockModel.id, givenFilesPaths);
+    expect(importService.import).toHaveBeenCalledWith(givenMockModel.id, givenFilesPaths, givenOriginalESCOModel);
     // AND the processing of the files is started
 
     // AND when the processing is finished

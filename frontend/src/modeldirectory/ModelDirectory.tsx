@@ -155,13 +155,14 @@ const ModelDirectory = () => {
       setIsBackDropShown(true);
       const importData = event.importData as ImportData;
       try {
-        const newModel = (await importDirectorService.directImport(
+        const newModel = await importDirectorService.directImport(
           importData.name,
           importData.description,
           importData.locale,
           importData.selectedFiles,
-          importData.UUIDHistory
-        )) as any;
+          importData.UUIDHistory,
+          importData.isOriginalESCOModel
+        );
         enqueueSnackbar(`The model '${importData.name}' import has started.`, {
           variant: "success",
         });

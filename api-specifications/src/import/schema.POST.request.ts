@@ -35,8 +35,12 @@ export const SchemaPOSTRequest: SchemaObject = {
         };
       }),
     },
+    isOriginalESCOModel: {
+      description: "Flag indicating if the model is an original ESCO model.",
+      type: "boolean",
+    },
   },
-  required: ["modelId", "filePaths"],
+  required: ["modelId", "filePaths", "isOriginalESCOModel"],
 };
 
 export default SchemaPOSTRequest;

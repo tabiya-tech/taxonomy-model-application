@@ -189,7 +189,9 @@ function getTestImportData(): ImportData {
   };
   // and the UUID history
   const UUIDHistory = [randomUUID()];
-  return { name, description, locale, selectedFiles, UUIDHistory };
+  // and the isOriginalESCOModel
+  const isOriginalESCOModel = false;
+  return { name, description, locale, selectedFiles, UUIDHistory, isOriginalESCOModel };
 }
 
 describe("ModelDirectory", () => {
@@ -999,7 +1001,8 @@ describe("ModelDirectory", () => {
         givenImportData.description,
         givenImportData.locale,
         givenImportData.selectedFiles,
-        givenImportData.UUIDHistory
+        givenImportData.UUIDHistory,
+        givenImportData.isOriginalESCOModel
       );
 
       // AND expect the ModelsTable to have been called with the new model
@@ -1083,7 +1086,8 @@ describe("ModelDirectory", () => {
         givenImportData.description,
         givenImportData.locale,
         givenImportData.selectedFiles,
-        givenImportData.UUIDHistory
+        givenImportData.UUIDHistory,
+        givenImportData.isOriginalESCOModel
       );
 
       // AND the backdrop was eventually hidden
@@ -1143,7 +1147,8 @@ describe("ModelDirectory", () => {
         givenImportData.description,
         givenImportData.locale,
         givenImportData.selectedFiles,
-        givenImportData.UUIDHistory
+        givenImportData.UUIDHistory,
+        givenImportData.isOriginalESCOModel
       );
 
       // AND the backdrop will eventually be hidden

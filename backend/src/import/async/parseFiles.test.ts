@@ -156,7 +156,7 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
-
+import { RemoveGeneratedUUID } from "import/removeGeneratedUUIDs/removeGeneratedUUID";
 // ##############
 
 describe("Test the main async handler", () => {
@@ -164,7 +164,7 @@ describe("Test the main async handler", () => {
     jest.spyOn(errorLogger, "logError");
     jest.spyOn(errorLogger, "logWarning");
   });
-  beforeEach(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
@@ -214,6 +214,7 @@ describe("Test the main async handler", () => {
         // ADD additional file types here
       },
       modelId: givenModelId,
+      isOriginalESCOModel: false,
     };
 
     // WHEN the handler is invoked with the given event param
@@ -414,6 +415,7 @@ describe("Test the main async handler", () => {
           // ADD additional file types here
         },
         modelId: givenModelId,
+        isOriginalESCOModel: false,
       };
       // AND the parser will cause the importLogger to log an error or a warning
       setupTestcaseCallBack();
@@ -427,6 +429,110 @@ describe("Test the main async handler", () => {
         // AND expect the importProcessState to have been updated with the expected import result
         result: expectedResult,
       });
+    });
+    test("should call the removeGeneratedUUID function when the model is an original ESCO model", async () => {
+      // GIVEN the model to import into with a given modelId and a given importProcessStateId
+      const givenModelId = getMockStringId(1);
+      const givenImportProcessStateId = getMockStringId(2);
+      const givenModel = {
+        id: givenModelId,
+        importProcessState: {
+          id: givenImportProcessStateId,
+        },
+        UUIDHistory: ["uuid1", "uuid2"],
+      };
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(givenModel),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue([]),
+        getHistory: jest.fn().mockResolvedValue(null),
+      };
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+      // AND an occupation repository
+      const givenOccupationRepositoryMock = {
+        Model: undefined as never,
+        updateMany: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+        createMany: jest.fn(),
+        findById: jest.fn(),
+        findAll: jest.fn(),
+      };
+      jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
+      // AND a skill repository
+      const givenSkillRepositoryMock = {
+        Model: undefined as never,
+        updateMany: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+        createMany: jest.fn(),
+        findById: jest.fn(),
+        findAll: jest.fn(),
+      };
+      jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(givenSkillRepositoryMock);
+
+      // AND a skillGroup repository
+      const givenSkillGroupRepositoryMock = {
+        Model: undefined as never,
+        updateMany: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+        createMany: jest.fn(),
+        findById: jest.fn(),
+        findAll: jest.fn(),
+      };
+      jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
+
+      // AND an iscoGroup repository
+      const givenISCOGroupRepositoryMock = {
+        Model: undefined as never,
+        updateMany: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+        createMany: jest.fn(),
+        findById: jest.fn(),
+        findAll: jest.fn(),
+      };
+      jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(givenISCOGroupRepositoryMock);
+
+      // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
+      // AND the importProcessState will be successfully updated
+      const givenImportProcessStateRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue(null),
+        upsert: jest.fn().mockResolvedValue(null),
+      };
+      jest
+        .spyOn(getRepositoryRegistry(), "importProcessState", "get")
+        .mockReturnValue(givenImportProcessStateRepositoryMock);
+      // AND an Import event
+      const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
+        filePaths: {
+          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY]: "path/to/OCCUPATION_HIERARCHY.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_HIERARCHY]: "path/to/ESCO_SKILL_HIERARCHY.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_SKILL_RELATIONS]:
+            "path/to/ESCO_SKILL_SKILL_RELATIONS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATIONS]:
+            "path/to/OCCUPATION_SKILL_RELATIONS.csv",
+          // ADD additional file types here
+        },
+        modelId: givenModelId,
+        isOriginalESCOModel: true,
+      };
+      // AND the parser will cause the importLogger to log an error or a warning
+      jest.spyOn(errorLogger, "errorCount", "get").mockReturnValueOnce(0);
+      jest.spyOn(errorLogger, "warningCount", "get").mockReturnValueOnce(0);
+      // AND the removeGeneratedUUID function
+      jest
+        .spyOn(RemoveGeneratedUUID.prototype, "removeUUIDFromHistory")
+        .mockImplementationOnce(() => Promise.resolve());
+      // WHEN the handler is invoked with the given event param
+      await parseFiles(givenEvent);
+      // THEN expect the removeGeneratedUUID function to have been called
+      expect(RemoveGeneratedUUID.prototype.removeUUIDFromHistory).toHaveBeenCalledWith(givenModelId);
     });
   });
 });

@@ -20,6 +20,12 @@ jest.mock("@aws-sdk/client-lambda", () => {
   };
 });
 
+jest.mock("import/removeGeneratedUUIDs/removeGeneratedUUID", () => {
+  return {
+    removeGeneratedUUIDs: jest.fn(),
+  };
+});
+
 describe("Test lambda_invokeAsyncImport()  ", () => {
   test("should return the ACCEPTED status", async () => {
     // GIVEN an Import
@@ -29,6 +35,7 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to//ESCO_SKILL.csv",
       },
       modelId: "foo",
+      isOriginalESCOModel: false,
     };
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";
@@ -67,6 +74,7 @@ describe("Test lambda_invokeAsyncImport()  ", () => {
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILL.csv",
       },
       modelId: "foo",
+      isOriginalESCOModel: false,
     };
     // AND some lambda function arn will be return by the  configuration
     const givenConfigAsyncLambdaFunctionArn = "arn:aws:lambda:foo:bar:baz";

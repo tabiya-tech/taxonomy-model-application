@@ -3,6 +3,7 @@ import ImportConstants from "./constants";
 export interface IImportRequest {
   modelId: string;
   filePaths: ImportTypes.POST.Request.ImportFilePaths;
+  isOriginalESCOModel: boolean;
 }
 
 namespace ImportTypes {

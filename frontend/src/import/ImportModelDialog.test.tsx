@@ -50,6 +50,7 @@ function getImportDataTestValues(): ImportData {
       return acc;
     }, {} as ImportFiles),
     UUIDHistory: ["foo", "bar"],
+    isOriginalESCOModel: false,
   };
 }
 
@@ -92,6 +93,11 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
       target: { files: [new File(inputData.UUIDHistory, elementFileType as string, { type: "text/csv" })] },
     });
   }
+  // Select the Original ESCO checkbox
+  const originalESCOCheckboxElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX);
+  if (inputData.isOriginalESCOModel) {
+    fireEvent.change(originalESCOCheckboxElement, { target: { checked: true } });
+  }
 }
 
 beforeEach(() => {
@@ -120,6 +126,12 @@ describe("ImportModel dialog render tests", () => {
     // AND expect the Cancel button to exist
     const cancelButtonElement = screen.getByTestId(DATA_TEST_ID.CANCEL_BUTTON);
     expect(cancelButtonElement).toBeInTheDocument();
+    // AND expect the Checkbox to exist
+    const originalESCOCheckboxElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX);
+    expect(originalESCOCheckboxElement).toBeInTheDocument();
+    // AND expect the Checkbox label to exist
+    const originalESCOCheckboxLabelElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL);
+    expect(originalESCOCheckboxLabelElement).toBeInTheDocument();
     // AND expect the Model Name field to exist
     const modelNameElement = screen.getByTestId(MODEL_NAME_FIELD_DATA_TEST_ID.MODEL_NAME_FIELD);
     expect(modelNameElement).toBeInTheDocument();
@@ -269,6 +281,7 @@ describe("ImportModel dialog action tests", () => {
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
+          isOriginalESCOModel: givenData.isOriginalESCOModel,
         },
       });
     });
@@ -317,6 +330,7 @@ describe("ImportModel dialog action tests", () => {
         locale: givenData.locale,
         selectedFiles: expectedFiles,
         UUIDHistory: givenData.UUIDHistory,
+        isOriginalESCOModel: givenData.isOriginalESCOModel,
       },
     });
   });

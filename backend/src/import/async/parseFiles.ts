@@ -13,6 +13,7 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
+import { RemoveGeneratedUUID } from "import/removeGeneratedUUIDs/removeGeneratedUUID";
 
 const getPresignedUrls = async (
   filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths
@@ -38,7 +39,7 @@ const getPresignedUrls = async (
  * These errors should be caught and processed by the calling function to manage retries, cleanup operations, or state updates as necessary.
  */
 
-export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payload) => {
+export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<void> => {
   const modelId = event.modelId;
   // Get the model to import into
   const importProcessStateId = ((await getRepositoryRegistry().modelInfo.getModelById(event.modelId)) as IModelInfo)
@@ -113,6 +114,16 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
       importIdToDBIdMap
     );
     console.info(`Processed ${JSON.stringify(stats)} Occupation to skill relation entries`);
+  }
+
+  if (event.isOriginalESCOModel) {
+    await new RemoveGeneratedUUID(
+      getRepositoryRegistry().occupation.Model,
+      getRepositoryRegistry().skill.Model,
+      getRepositoryRegistry().skillGroup.Model,
+      getRepositoryRegistry().ISCOGroup.Model,
+      getRepositoryRegistry().modelInfo.Model
+    ).removeUUIDFromHistory(modelId);
   }
 
   // Set the import process status to COMPLETED

@@ -14,6 +14,12 @@ import {
 } from "_test_utilities/stdRESTHandlerTests";
 import { getTestString } from "_test_utilities/specialCharacters";
 
+jest.mock("import/removeGeneratedUUIDs/removeGeneratedUUID", () => {
+  return {
+    removeGeneratedUUIDs: jest.fn(),
+  };
+});
+
 describe("test for trigger ImportHandler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -36,6 +42,7 @@ describe("test for trigger ImportHandler", () => {
       const givenPayload: ImportAPISpecs.Types.POST.Request.Payload = {
         modelId: getMockStringId(2),
         filePaths: givenFilePaths,
+        isOriginalESCOModel: false,
       };
       expect(Object.keys(givenPayload.filePaths).length).toBeGreaterThanOrEqual(1);
 

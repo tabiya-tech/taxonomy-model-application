@@ -41,12 +41,13 @@ describe("Test the service", () => {
     const givenApiServerUrl = "/path/to/api";
     const givenModelId = getMockId(1);
     const givenFilePaths = mockFilePaths;
+    const givenIsOriginalESCOModel = true;
     // AND the upload of the files will succeed
     const fetchSpy = setupFetchSpy(StatusCodes.ACCEPTED, undefined, "");
 
     // WHEN calling the import method with the given arguments (modelId, filePaths)
     const importService = new ImportService(givenApiServerUrl);
-    await importService.import(givenModelId, givenFilePaths);
+    await importService.import(givenModelId, givenFilePaths, givenIsOriginalESCOModel);
 
     // THEN Expect to make a POST request
     // AND the headers
@@ -54,6 +55,7 @@ describe("Test the service", () => {
     const expectedPayload: ImportAPISpecs.Types.POST.Request.Payload = {
       modelId: givenModelId,
       filePaths: givenFilePaths,
+      isOriginalESCOModel: givenIsOriginalESCOModel,
     };
     const expectedJSONPayload = JSON.stringify(expectedPayload);
     expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/import`, {
@@ -75,13 +77,14 @@ describe("Test the service", () => {
     const givenApiServerUrl = "/path/to/api";
     const givenModelId = getMockId(1);
     const givenFilePaths = mockFilePaths;
+    const givenIsOriginalESCOModel = true;
     // AND the fetch of some of the files will fail with some error.
     const givenError = new Error("some error");
     jest.spyOn(window, "fetch").mockRejectedValue(givenError);
 
     // WHEN calling the import method with the given arguments (modelId, filePaths)
     const importService = new ImportService(givenApiServerUrl);
-    const importPromise = importService.import(givenModelId, givenFilePaths);
+    const importPromise = importService.import(givenModelId, givenFilePaths, givenIsOriginalESCOModel);
 
     // THEN Expect to reject with an error
     const expectedError = {
@@ -107,13 +110,14 @@ describe("Test the service", () => {
     const givenApiServerUrl = getMockId(1);
     const givenModelId = "modelId";
     const givenFilePaths = mockFilePaths;
+    const givenIsOriginalESCOModel = true;
     // AND the fetch of some of the files will respond with a status code other than 204.
     const givenFailureStatusCode = StatusCodes.BAD_REQUEST;
     setupFetchSpy(givenFailureStatusCode, undefined, "");
 
     // WHEN calling the import method with the given arguments (modelId, filePaths)
     const importService = new ImportService(givenApiServerUrl);
-    const importPromise = importService.import(givenModelId, givenFilePaths);
+    const importPromise = importService.import(givenModelId, givenFilePaths, givenIsOriginalESCOModel);
 
     // THEN Expect to reject with an error
     const expectedError = {

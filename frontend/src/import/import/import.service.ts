@@ -12,7 +12,11 @@ export default class ImportService {
     this.importEndpointUrl = `${apiServerUrl}/import`;
   }
 
-  async import(modelId: string, filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths) {
+  async import(
+    modelId: string,
+    filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths,
+    isOriginalESCOModel: boolean
+  ): Promise<void> {
     const errorFactory = getServiceErrorFactory("ImportService", "import", "POST", this.importEndpointUrl);
 
     let responseStatus: number;
@@ -20,6 +24,7 @@ export default class ImportService {
       const importRequest: ImportAPISpecs.Types.POST.Request.Payload = {
         modelId: modelId,
         filePaths: filePaths,
+        isOriginalESCOModel: isOriginalESCOModel,
       };
       const response = await fetch(this.importEndpointUrl, {
         method: "POST",

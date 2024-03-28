@@ -1,5 +1,15 @@
 import React, { KeyboardEvent, useRef } from "react";
-import { Stack, Dialog, DialogActions, DialogContent, DialogTitle, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Stack,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
 import ModelDescriptionField from "./components/ModelDescriptionField";
@@ -13,6 +23,8 @@ import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f";
 export const DATA_TEST_ID = {
   IMPORT_MODEL_DIALOG: `import-model-dialog-${uniqueId}`,
+  IMPORT_ORIGINAL_ESCO_CHECKBOX: `import-original-esco-checkbox-${uniqueId}`,
+  IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL: `import-original-esco-checkbox-label-${uniqueId}`,
   IMPORT_BUTTON: `import-button-${uniqueId}`,
   CANCEL_BUTTON: `cancel-button-${uniqueId}`,
 };
@@ -23,6 +35,7 @@ export interface ImportData {
   locale: LocaleAPISpecs.Types.Payload;
   selectedFiles: ImportFiles;
   UUIDHistory: string[];
+  isOriginalESCOModel: boolean;
 }
 
 export type CloseEvent = { name: "CANCEL" | "IMPORT"; importData?: ImportData };
@@ -54,6 +67,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     locale: {} as any,
     selectedFiles: {},
     UUIDHistory: [],
+    isOriginalESCOModel: false,
   });
 
   const handleNameChange = (newName: string) => {
@@ -72,6 +86,10 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
 
   const handleUUIDHistoryChange = (newUUIDHistory: string[]) => {
     data.current.UUIDHistory = newUUIDHistory;
+  };
+
+  const handleOriginalESCOChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    data.current.isOriginalESCOModel = event.target.checked;
   };
 
   const handleSelectedFileChange = (fileType: ImportAPISpecs.Constants.ImportFileTypes, file: File | null) => {
@@ -110,6 +128,23 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
           <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />
+          <FormControlLabel
+            data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL}
+            required
+            control={
+              <Checkbox
+                onChange={handleOriginalESCOChange}
+                data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX}
+                sx={{
+                  color: theme.palette.primary.main,
+                  "&.Mui-checked": {
+                    color: theme.palette.primary.main,
+                  },
+                }}
+              />
+            }
+            label="I'm importing a base ESCO model"
+          />
           <ImportFilesSelection
             notifySelectedFileChange={handleSelectedFileChange}
             notifyUUIDHistoryChange={handleUUIDHistoryChange}
