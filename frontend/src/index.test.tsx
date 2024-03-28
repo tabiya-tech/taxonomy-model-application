@@ -70,6 +70,18 @@ jest.mock("src/app/providers/index.tsx", () => {
   };
 });
 
+
+// mock auth provider
+jest.mock("src/app/providers/AuthProvider.tsx", () => {
+  const MockedAuthProvider = jest
+    .fn()
+    .mockImplementation(({ children }) => <div data-testid="auth-provider-id">{children}</div>);
+  return {
+    __esModule: true,
+    AuthProvider: MockedAuthProvider,
+  };
+});
+
 describe("test the application bootstrapping", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
@@ -100,6 +112,11 @@ describe("test the application bootstrapping", () => {
       // AND expect the snackbar provider to be in the DOM and to be a child of the theme provider
       const snackbarProviderElement = within(themeProviderElement).getByTestId("snackbar-provider-id");
       expect(snackbarProviderElement).toBeInTheDocument();
+
+
+      // AND expect the auth provider to be in the DOM and to be a child of the theme provider
+      const authProviderElement = within(themeProviderElement).getByTestId("auth-provider-id");
+      expect(authProviderElement).toBeInTheDocument();
 
       // AND expect the taxonomy app to be in the DOM and to be a child of the snackbar provider
       const taxonomyAppElement = within(snackbarProviderElement).getByTestId("tabiya-app-id");
