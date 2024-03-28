@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import ImportModelDialog, { ImportData, CloseEvent as ImportModelDialogCloseEvent } from "src/import/ImportModelDialog";
-import { ServiceError, getUserFriendlyErrorMessage } from "src/error/error";
+import ImportModelDialog, { CloseEvent as ImportModelDialogCloseEvent, ImportData } from "src/import/ImportModelDialog";
+import { getUserFriendlyErrorMessage, ServiceError } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { writeServiceErrorToLog } from "src/error/logger";
@@ -44,6 +44,11 @@ export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
     name: "Europe",
     shortCode: "EU-en",
     UUID: "7a480890-2293-49ef-9f18-0ffd1b99fc5a",
+  },
+  {
+    name: "Europe (French)",
+    shortCode: "EU-fr",
+    UUID: "bf73fccb-39a1-4eba-b5a1-845ae55ba86e",
   },
 ];
 
