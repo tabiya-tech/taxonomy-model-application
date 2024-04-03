@@ -14,7 +14,7 @@ import {
 } from "_test_utilities/stdRESTHandlerTests";
 import { getTestString } from "_test_utilities/specialCharacters";
 
-jest.mock("import/removeGeneratedUUIDs/removeGeneratedUUID", () => {
+jest.mock("import/removeGeneratedUUID/removeGeneratedUUID", () => {
   return {
     removeGeneratedUUIDs: jest.fn(),
   };

@@ -20,7 +20,7 @@ jest.mock("@aws-sdk/client-lambda", () => {
   };
 });
 
-jest.mock("import/removeGeneratedUUIDs/removeGeneratedUUID", () => {
+jest.mock("import/removeGeneratedUUID/removeGeneratedUUID", () => {
   return {
     removeGeneratedUUIDs: jest.fn(),
   };

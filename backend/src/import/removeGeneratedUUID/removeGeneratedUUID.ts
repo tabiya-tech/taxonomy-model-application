@@ -42,23 +42,32 @@ export class RemoveGeneratedUUID implements ICleanupUUIDHistory {
     }
 
     try {
-      // first find the model
+      // First find the model
       const model = await this.ModelInfoModel.findById(new mongoose.Types.ObjectId(modelId)).exec();
       if (!model) {
         throw new Error("Model not found");
       }
-      // Remove the first UUID from the history for the model
+      // Remove the first UUID from the history for the model and update the UUID field
       model.UUIDHistory.shift();
+      model.UUID = model.UUIDHistory[0];
 
-      const updateOperation = { $pop: { UUIDHistory: -1 } };
       const entityFilter = { modelId: { $eq: modelId } };
-      // Perform bulk updates for each entity in parallel
+      const updatePipeline = [
+        {
+          $set: {
+            UUIDHistory: { $slice: ["$UUIDHistory", 1, {$size: "$UUIDHistory"}] }, // Removes the first element
+            UUID: { $arrayElemAt: ["$UUIDHistory", 1] }, // Sets UUID to the first element of the updated UUIDHistory
+          }
+        }
+      ];
+
+      // Perform bulk updates for each entity in parallel, including the model save operation
       await Promise.all([
-        model.save(), // Save the model with the updated UUID history
-        this.OccupationModel.updateMany(entityFilter, updateOperation).exec(),
-        this.SkillModel.updateMany(entityFilter, updateOperation).exec(),
-        this.SkillGroupModel.updateMany(entityFilter, updateOperation).exec(),
-        this.ISCOGroupModel.updateMany(entityFilter, updateOperation).exec(),
+        model.save(), // Save the model with the updated UUID history and UUID field
+        this.OccupationModel.updateMany(entityFilter, updatePipeline).exec(),
+        this.SkillModel.updateMany(entityFilter, updatePipeline).exec(),
+        this.SkillGroupModel.updateMany(entityFilter, updatePipeline).exec(),
+        this.ISCOGroupModel.updateMany(entityFilter, updatePipeline).exec(),
       ]);
     } catch (error) {
       console.error(new Error("Error occurred during cleanup:", { cause: error }));

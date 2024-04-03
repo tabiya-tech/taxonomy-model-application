@@ -173,7 +173,7 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
             </div>
           </div>
           <label
-            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd Mui-required css-1us57sh-MuiFormControlLabel-root"
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-1us57sh-MuiFormControlLabel-root"
             data-testid="import-original-esco-checkbox-label-72be571e-b635-4c15-85c6-897dab60d59f"
           >
             <span
@@ -183,7 +183,6 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
               <input
                 class="PrivateSwitchBase-input css-1m9pwf3"
                 data-indeterminate="false"
-                required=""
                 type="checkbox"
               />
               <svg
@@ -201,22 +200,11 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
             </span>
-            <div
-              class="MuiStack-root css-10hyoxo-MuiStack-root"
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-3ahvbo-MuiTypography-root"
             >
-              <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-3ahvbo-MuiTypography-root"
-              >
-                I'm importing a base ESCO model
-              </span>
-              <span
-                aria-hidden="true"
-                class="MuiFormControlLabel-asterisk css-4oz16r-MuiFormControlLabel-asterisk"
-              >
-                 
-                *
-              </span>
-            </div>
+              I'm importing a base ESCO model
+            </span>
           </label>
           <div
             class="MuiStack-root css-gbnj3n-MuiStack-root"

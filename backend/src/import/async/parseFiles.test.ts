@@ -156,7 +156,7 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHierarchyParser";
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
-import { RemoveGeneratedUUID } from "import/removeGeneratedUUIDs/removeGeneratedUUID";
+import { RemoveGeneratedUUID } from "import/removeGeneratedUUID/removeGeneratedUUID";
 // ##############
 
 describe("Test the main async handler", () => {
