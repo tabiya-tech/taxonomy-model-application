@@ -50,7 +50,7 @@ function getImportDataTestValues(): ImportData {
       return acc;
     }, {} as ImportFiles),
     UUIDHistory: ["foo", "bar"],
-    isOriginalESCOModel: false,
+    isOriginalESCOModel: true,
   };
 }
 
@@ -96,7 +96,7 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
   // Select the Original ESCO checkbox
   const originalESCOCheckboxElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX);
   if (inputData.isOriginalESCOModel) {
-    fireEvent.change(originalESCOCheckboxElement, { target: { checked: true } });
+    fireEvent.click(originalESCOCheckboxElement);
   }
 }
 

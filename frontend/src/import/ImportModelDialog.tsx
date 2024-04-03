@@ -130,7 +130,6 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
           <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />
           <FormControlLabel
             data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL}
-            required
             control={
               <Checkbox
                 onChange={handleOriginalESCOChange}
