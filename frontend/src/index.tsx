@@ -7,7 +7,7 @@ import applicationTheme, { ThemeMode } from "./theme/applicationTheme/applicatio
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider } from "./app/providers";
-import { AuthProvider } from "./app/providers/AuthProvider";
+import { AuthProvider } from "./auth/AuthProvider";
 
 // Currently the fonts are downloaded from Google via the index.css
 // Fonts could be distributed with the app instead, by explicitly importing them here

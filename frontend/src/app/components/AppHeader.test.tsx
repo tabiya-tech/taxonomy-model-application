@@ -8,7 +8,7 @@ import { routerPaths } from "src/app/routerConfig";
 
 import { testNavigateToPath } from "src/_test_utilities/routeNavigation";
 import { act, fireEvent, waitFor, within } from "@testing-library/react";
-import { AuthContext, AuthContextValue, authContextDefaultValue } from "src/app/providers/AuthProvider";
+import { AuthContext, AuthContextValue, authContextDefaultValue } from "src/auth/AuthProvider";
 import ContextMenu from "src/theme/ContextMenu/ContextMenu";
 
 // mock the ContextMenu

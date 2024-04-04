@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import { routerPaths } from "src/app/routerConfig";
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext, AuthContextValue } from "src/app/providers/AuthProvider";
+import { AuthContext } from "src/auth/AuthProvider";
 import ContextMenu from "src/theme/ContextMenu/ContextMenu";
 import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
 import { LoginOutlined, LogoutOutlined } from "@mui/icons-material";
@@ -28,7 +28,7 @@ export const MENU_ITEM_TEXT = {
 
 const AppHeader = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const { login, logout, user } = useContext(AuthContext) as AuthContextValue;
+  const { login, logout, user } = useContext(AuthContext);
   const [contextMenuItems, setContextMenuItems] = useState<MenuItemConfig[]>([]);
 
   useEffect(() => {
