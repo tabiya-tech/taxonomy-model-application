@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 import AppHeader from "./AppHeader";
-import { AuthContext } from "src/app/providers/AuthProvider";
+import { AuthContext } from "src/auth/AuthProvider";
 import { action } from "@storybook/addon-actions";
 
 const meta: Meta<typeof AppHeader> = {

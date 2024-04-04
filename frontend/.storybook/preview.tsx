@@ -19,7 +19,7 @@ import "@fontsource/roboto/700.css";
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider } from "../src/app/providers";
-import { AuthProvider } from "../src/app/providers/AuthProvider";
+import { AuthProvider } from "../src/auth/AuthProvider";
 
 const preview: Preview = {
   parameters: {
