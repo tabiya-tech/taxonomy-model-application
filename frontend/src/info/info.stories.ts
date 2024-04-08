@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import Info from "./Info";
 import { faker } from "@faker-js/faker";
+import {getApiUrl} from "src/envService";
 
 const meta: Meta<typeof Info> = {
   title: "Application/Info",
@@ -18,7 +19,7 @@ export const Shown: Story = {
     docs: { disable: true },
     mockData: [
       {
-        url: "https://dev.tabiya.tech/api/info",
+        url: getApiUrl() + "/info",
         method: "GET",
         status: 200,
         response: getFakerVersion(),
@@ -39,7 +40,7 @@ export const ShownFetchIsSlow: Story = {
     docs: { disable: true },
     mockData: [
       {
-        url: "https://dev.tabiya.tech/api/info",
+        url: getApiUrl() + "/info",
         method: "GET",
         status: 200,
         delay: 5000,

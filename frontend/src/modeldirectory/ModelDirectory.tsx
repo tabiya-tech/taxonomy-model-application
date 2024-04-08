@@ -16,6 +16,7 @@ import ExportService from "src/export/export.service";
 import ModelPropertiesDrawer, {
   CloseEvent as DrawerCloseEvent,
 } from "./components/ModelProperties/ModelPropertiesDrawer";
+import {getApiUrl} from "src/envService";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -26,9 +27,9 @@ export const DATA_TEST_ID = {
 export const SNACKBAR_ID = {
   INTERNET_ERROR: `internet-error-${uniqueId}`,
 };
-const importDirectorService = new ImportDirectorService("https://dev.tabiya.tech/api");
-const modelInfoService = new ModelInfoService("https://dev.tabiya.tech/api");
-const exportService = new ExportService("https://dev.tabiya.tech/api");
+const importDirectorService = new ImportDirectorService(getApiUrl());
+const modelInfoService = new ModelInfoService(getApiUrl());
+const exportService = new ExportService(getApiUrl());
 export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
   {
     name: "South Africa",

@@ -3,6 +3,7 @@ import ModelDirectory from "./ModelDirectory";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import * as MockPayload from "src/modelInfo/_test_utilities/mockModelInfoPayload";
+import { getApiUrl } from "src/envService";
 
 // Make sure that the model is in a state that allows its actions to be performed. i.e export, download, etc.
 const modelWithSuccessfulStates = MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(1)[0];
@@ -37,41 +38,41 @@ const meta: Meta<typeof ModelDirectory> = {
     docs: { disable: false },
     mockData: [
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 200,
         response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(10),
       },
       {
-        url: "https://dev.tabiya.tech/api/export",
+        url: getApiUrl() + "/export",
         method: "POST",
         status: 202,
         response: {},
       },
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "POST",
         status: 201,
         response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
       },
       {
-        url: "https://dev.tabiya.tech/api/import",
+        url: getApiUrl() + "/import",
         method: "POST",
         status: 202,
         response: {},
       },
       {
-        url: "https://dev.tabiya.tech/api/presigned",
+        url: getApiUrl() + "/presigned",
         method: "POST",
         status: 204,
         response: {},
       },
       {
-        url: "https://dev.tabiya.tech/api/presigned",
+        url: getApiUrl() + "/presigned",
         method: "GET",
         status: 200,
         response: {
-          url: "https://dev.tabiya.tech/api/presigned",
+          url: getApiUrl() + "/presigned",
           fields: [
             {
               name: "key",
@@ -100,7 +101,7 @@ export const OneModel: Story = {
     mockData: [
       ...meta.parameters!.mockData,
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 200,
         response: [modelWithSuccessfulStates],
@@ -116,7 +117,7 @@ export const ModelsFetchFailed: Story = {
     mockData: [
       ...meta.parameters!.mockData,
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 500,
         response: {
@@ -136,7 +137,7 @@ export const ModelsFetchIsSlow: Story = {
     mockData: [
       ...meta.parameters!.mockData,
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 200,
         response: MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(3),
@@ -153,13 +154,13 @@ export const ImportNewModelWillFail: Story = {
     mockData: [
       ...meta.parameters!.mockData,
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 200,
         response: [modelWithSuccessfulStates],
       },
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "POST",
         status: 500,
         response: {
@@ -179,13 +180,13 @@ export const ImportNewModelWillDelay: Story = {
     mockData: [
       ...meta.parameters!.mockData,
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 200,
         response: [modelWithSuccessfulStates],
       },
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "POST",
         status: 201,
         response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
@@ -202,13 +203,13 @@ export const ExportModelWillFail: Story = {
     mockData: [
       ...meta.parameters!.mockData,
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 200,
         response: [modelWithSuccessfulStates],
       },
       {
-        url: "https://dev.tabiya.tech/api/export",
+        url: getApiUrl() + "/export",
         method: "POST",
         status: 500,
         response: {
@@ -228,13 +229,13 @@ export const ExportModelWillDelay: Story = {
     mockData: [
       ...meta.parameters!.mockData,
       {
-        url: "https://dev.tabiya.tech/api/models",
+        url: getApiUrl() + "/models",
         method: "GET",
         status: 200,
         response: [modelWithSuccessfulStates],
       },
       {
-        url: "https://dev.tabiya.tech/api/export",
+        url: getApiUrl() + "/export",
         method: "POST",
         status: 202,
         response: {},

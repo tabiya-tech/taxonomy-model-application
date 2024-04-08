@@ -1,6 +1,8 @@
+import {getApiUrl} from "src/envService";
+
 const infoURL = {
   frontend: "data/version.json",
-  backend: "https://dev.tabiya.tech/api/info",
+  backend: getApiUrl() + "/info",
 };
 
 export default infoURL;
