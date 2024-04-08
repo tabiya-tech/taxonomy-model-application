@@ -37,20 +37,25 @@ const ModelHistoryTimeline: React.FC<UUIDHistoryTimelineProps> = (props) => {
         },
       }}
     >
-      {props.UUIDHistoryDetails.map((UUIDHistory) => (
+      {props.UUIDHistoryDetails.map((UUIDHistory, index, array) => (
         <TimelineItem
           data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_ITEM}
           key={UUIDHistory.UUID}
           sx={{ minHeight: (theme) => theme.spacing(5) }}
         >
           <TimelineSeparator data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_SEPARATOR}>
-            <TimelineDot data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_DOT} color="primary" sx={{ margin: 0 }} />
-            <TimelineConnector
-              data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_CONNECTOR}
-              sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
-            />
+            <TimelineDot data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_DOT} color="primary" sx={{ margin: (theme) => theme.tabiyaSpacing.xs }} />
+            {index !== array.length - 1 && (
+              <TimelineConnector
+                data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_CONNECTOR}
+                sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
+              />
+            )}
           </TimelineSeparator>
-          <TimelineContent data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_CONTENT} sx={{ paddingTop: 0 }}>
+          <TimelineContent
+            data-testid={DATA_TEST_ID.UUID_HISTORY_TIMELINE_CONTENT}
+            sx={{ paddingTop: 0, paddingBottom: (theme) => theme.tabiyaSpacing.sm }}
+          >
             <Typography variant="body1">
               {UUIDHistory.id === null ||
               UUIDHistory.name === null ||

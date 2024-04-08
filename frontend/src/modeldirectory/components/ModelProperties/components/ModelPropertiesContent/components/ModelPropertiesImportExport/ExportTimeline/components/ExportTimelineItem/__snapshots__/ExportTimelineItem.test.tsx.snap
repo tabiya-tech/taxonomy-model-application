@@ -21,7 +21,7 @@ exports[`ExportTimelineItem renders correctly when the exportProcessState doesnt
     data-testid="export-timeline-separator-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
       data-testid="export-timeline-dot-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
     />
     <span
@@ -91,7 +91,7 @@ exports[`ExportTimelineItem renders correctly with the provided exportProcessSta
     data-testid="export-timeline-separator-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
       data-testid="export-timeline-dot-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
     />
     <span

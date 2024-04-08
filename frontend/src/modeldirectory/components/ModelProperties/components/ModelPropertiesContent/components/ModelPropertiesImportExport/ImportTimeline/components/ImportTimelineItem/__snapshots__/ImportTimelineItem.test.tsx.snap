@@ -21,7 +21,7 @@ exports[`ImportTimelineItem render tests should render with fallback text when i
     data-testid="import-timeline-separator-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
       data-testid="import-timeline-dot-920424ec-c21e-4673-a127-6c92451a38dc"
     />
     <span
@@ -63,7 +63,7 @@ exports[`ImportTimelineItem render tests should render with provided importProce
     data-testid="import-timeline-separator-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-d8mwxk-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
       data-testid="import-timeline-dot-920424ec-c21e-4673-a127-6c92451a38dc"
     />
     <span

@@ -57,7 +57,7 @@ const ImportTimelineItem: React.FC<ImportTimelineItemProps> = (props: Readonly<I
         )}
       </TimelineOppositeContent>
       <TimelineSeparator data-testid={DATA_TEST_ID.IMPORT_TIMELINE_SEPARATOR}>
-        <TimelineDot data-testid={DATA_TEST_ID.IMPORT_TIMELINE_DOT} color={"primary"} sx={{ margin: 0 }} />
+        <TimelineDot data-testid={DATA_TEST_ID.IMPORT_TIMELINE_DOT} color={"primary"} sx={{ margin: (theme) => theme.tabiyaSpacing.xs }} />
         <TimelineConnector
           data-testid={DATA_TEST_ID.IMPORT_TIMELINE_CONNECTOR}
           sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
