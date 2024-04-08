@@ -24,6 +24,11 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+      <!-- Load environment variables
+      This script has to be deferred to ensure that the environment variables are loaded before the React app is initialized
+      Otherwise, the environment variables will not be available in the React app and everything will break
+      -->
+      <script defer src="%PUBLIC_URL%/data/env.js"></script>
     <title>Taxonomy Model App</title>
   </head>
   <body id="body">

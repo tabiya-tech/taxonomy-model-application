@@ -26,3 +26,4 @@ yarn-debug.log*
 yarn-error.log*
 
 public/data/env.json
+public/data/env.js
