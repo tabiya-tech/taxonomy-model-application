@@ -168,6 +168,13 @@ jest.mock("src/error/error", () => {
 
 const mockedGetUserFriendlyErrorMessage = getUserFriendlyErrorMessage as jest.Mock;
 
+// mock the getAPIUrl method
+jest.mock("src/envService", () => {
+  return {
+    getApiUrl: jest.fn().mockReturnValue("https://foo/bar"),
+  };
+});
+
 function getTestImportData(): ImportData {
   // model name
   const name = "My Model";

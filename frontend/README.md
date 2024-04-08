@@ -43,6 +43,7 @@ To develop this application locally, follow these steps:
 
     After running the above command, the `postinstall` script in the [package.json](package.json) will also run, and it will build and link the [api-specifications](/api-specifications/readme.md) dependency.
 
+5. Make sure to set up a `env.js` file in the public/data directory. You can use the [`env.example.js`](public/data/env.example.js) file as a template. Please request the necessary environment variables from the project team.
 ## Running the development server locally
 
 After installing and setting up the project locally, run the development server with the following command:
