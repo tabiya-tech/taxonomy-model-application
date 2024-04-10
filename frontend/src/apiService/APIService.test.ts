@@ -56,12 +56,12 @@ test("fetchWithAuth should work without authToken", async () => {
   // THEN expect fetch to have been called without an Authorization header
   expect(global.fetch).toHaveBeenCalledWith(
     givenApiUrl,
-    expect.not.objectContaining({
+    expect.objectContaining({
       headers: {
         map:
           expect.any(Headers) &&
           expect.objectContaining({
-            authorization: expect.anything(),
+            authorization: `Bearer ANONYMOUS`,
           }),
       },
     })

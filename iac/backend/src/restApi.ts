@@ -24,6 +24,8 @@ export function setupBackendRESTApi(environment: string, config: {
   async_import_lambda_function_arn: Output<string>,
   async_export_lambda_function_arn: Output<string>,
   async_lambda_function_region: Output<string>,
+  authorizer_lambda_function_invoke_arn: Output<string>
+  authorizer_lambda_function_name: Output<string>
 }): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
   /**
    * Lambda for api
@@ -75,7 +77,7 @@ export function setupBackendRESTApi(environment: string, config: {
     }
   });
 
-  // Invoke async import lambda function policy
+  // Invoke async export lambda function policy
   const asyncExportLambdaInvokePolicy = new aws.iam.Policy("model-api-function-async-export-lambda-invoke-policy", {
     policy: {
       Version: "2012-10-17",
@@ -136,7 +138,7 @@ export function setupBackendRESTApi(environment: string, config: {
     retentionInDays:  LOG_RETENTION_IN_DAYS
   });
 
-  /**
+ /**
    *
    * API Gateway
    */
@@ -146,12 +148,20 @@ export function setupBackendRESTApi(environment: string, config: {
       description: "The taxonomy model api"
     });
 
-  // Add the necessary permissions to allow the API Gateway to invoke the Lambda function
+  // Add the necessary permissions to allow the API Gateway to invoke the model-api Lambda function
   new aws.lambda.Permission("model-api-permission", {
     action: "lambda:InvokeFunction",
     function: lambdaFunction.name,
     principal: "apigateway.amazonaws.com",
     sourceArn: pulumi.interpolate`${restApi.executionArn}/*/*/*`,
+  });
+
+  // Add the necessary permissions to allow the API Gateway to invoke the model-api-authorizer Lambda function
+  new aws.lambda.Permission("model-api-authorizer-permission", {
+    action: "lambda:InvokeFunction",
+    function: config.authorizer_lambda_function_name,
+    principal: "apigateway.amazonaws.com",
+    sourceArn: pulumi.interpolate`${restApi.executionArn}/*/*`,
   });
 
   // Create a new API Gateway resource
@@ -161,12 +171,23 @@ export function setupBackendRESTApi(environment: string, config: {
     restApi: restApi.id,
   });
 
+
+  // Create a new API Gateway authorizer
+  const apiAuthorizer = new aws.apigateway.Authorizer("model-api-authorizer", {
+    restApi: restApi,
+    name: "model-api-authorizer",
+    type: "TOKEN",
+    authorizerUri: config.authorizer_lambda_function_invoke_arn,
+    authorizerResultTtlInSeconds: 0,
+  });
+
   /**
    * setup method ANY
    */
     // Create a new API Gateway method
   const anyApiMethod = new aws.apigateway.Method("model-api-method", {
-      authorization: "NONE",
+      authorization: "CUSTOM",
+      authorizerId: apiAuthorizer.id,
       httpMethod: "ANY",
       resourceId: apiResource.id,
       restApi: restApi.id,

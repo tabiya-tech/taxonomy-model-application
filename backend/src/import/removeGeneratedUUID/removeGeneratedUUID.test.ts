@@ -6,7 +6,7 @@ import { Connection } from "mongoose";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getNewConnection } from "server/connection/newConnection";
-import {IModelInfo, INewModelInfoSpec} from "modelInfo/modelInfo.types";
+import { IModelInfo, INewModelInfoSpec } from "modelInfo/modelInfo.types";
 import { getTestString } from "_test_utilities/specialCharacters";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
@@ -19,10 +19,10 @@ import {
   getNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import {IOccupation} from "esco/occupations/occupation.types";
-import {ISkill} from "esco/skill/skills.types";
-import {IISCOGroup} from "esco/iscoGroup/ISCOGroup.types";
-import {ISkillGroup} from "esco/skillGroup/skillGroup.types";
+import { IOccupation } from "esco/occupations/occupation.types";
+import { ISkill } from "esco/skill/skills.types";
+import { IISCOGroup } from "esco/iscoGroup/ISCOGroup.types";
+import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 
 /**
  * Helper function to create an INewModelInfoSpec with random values
@@ -90,7 +90,7 @@ describe("RemoveGeneratedUUID", () => {
   });
 
   const checkOccupationFieldsNotChanged = (givenOccupation: IOccupation, actualOccupation: IOccupation) => {
-   // check every field except UUID and UUIDHistory
+    // check every field except UUID and UUIDHistory
     expect(actualOccupation.modelId).toEqual(givenOccupation.modelId);
     expect(actualOccupation.id).toEqual(givenOccupation.id);
     expect(actualOccupation.preferredLabel).toEqual(givenOccupation.preferredLabel);
