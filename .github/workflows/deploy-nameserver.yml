@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'yarn'
@@ -29,7 +29,7 @@ jobs:
         run: yarn install
         working-directory: iac
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_DNS_UPDATE_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_DNS_UPDATE_SECRET_ACCESS_KEY }}
@@ -38,7 +38,7 @@ jobs:
           role-session-name: MySessionName
       - name: Update Record on Parent Domain
         id: pulumi
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
         with:
           work-dir: iac/name-servers
           command: up
