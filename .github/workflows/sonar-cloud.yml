@@ -6,11 +6,11 @@ jobs:
   sonarcloud:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'yarn'
@@ -18,23 +18,23 @@ jobs:
       - name: Install sonar scanner
         run: yarn install
       - name: Cache Sonar Scanner packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           #todo use #~/.sonar/cache instead of ~/.sonar?
           path: ~/.sonar
           key: ${{ runner.os }}-sonar
       - name: Download frontend.lcov.info
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: frontend.lcov.info
           path: frontend/coverage/
       - name: Download backend.lcov.info
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend.lcov.info
           path: backend/coverage/
       - name: Download api-specifications.lcov.info
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: api-specifications.lcov.info
           path: api-specifications/coverage/
