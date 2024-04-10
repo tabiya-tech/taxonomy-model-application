@@ -1,14 +1,9 @@
 import React from "react";
-
-export enum TabiyaUserRole {
-  ModelManager = "model-managers",
-  AnonymousUser = "anonymous-users",
-  RegisteredUser = "registered-users",
-}
+import AuthAPISpecs from "api-specifications/auth";
 
 export type TabiyaUser = {
   username: string;
-  roles: TabiyaUserRole[];
+  roles: AuthAPISpecs.Enums.TabiyaRoles[];
 };
 
 export type AuthProviderProps = {
@@ -19,12 +14,12 @@ export type AuthContextValue = {
   user: TabiyaUser | null;
   login: () => void;
   logout: () => void;
-  hasRole: (role: TabiyaUserRole) => boolean;
+  hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => boolean;
 };
 
 export type TAccessTokenDetails = {
   username: string;
-  "cognito:groups": TabiyaUserRole[];
+  "cognito:groups": AuthAPISpecs.Enums.TabiyaRoles[];
 };
 
 /**

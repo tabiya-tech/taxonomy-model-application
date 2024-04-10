@@ -8,6 +8,7 @@ namespace ErrorConstants {
     TOO_LARGE_PAYLOAD = "TOO_LARGE_PAYLOAD",
     BAD_REQUEST = "BAD_REQUEST",
     INVALID_JSON_SCHEMA = "INVALID_JSON_SCHEMA",
+    FORBIDDEN = "FORBIDDEN",
   }
 
   export enum ReasonPhrases {
@@ -19,6 +20,7 @@ namespace ErrorConstants {
     TOO_LARGE_PAYLOAD = "Payload is too long",
     BAD_REQUEST = "Bad Request",
     INVALID_JSON_SCHEMA = "Invalid json schema",
+    FORBIDDEN = "Forbidden",
   }
 
   export const MAX_DETAILS_LENGTH = 4000;

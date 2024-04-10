@@ -73,7 +73,6 @@ export function setupAsyncExportApi(environment: string, config: {
 
   // Create log group with retention of days,
   // log group is assigned to the lambda function via the name of the log group (see https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html)
-  // @ts-ignore
   const asyncLogGroup = new aws.cloudwatch.LogGroup("async-export-log-group", {
     name: pulumi.interpolate`/aws/lambda/${asyncExportLambdaFunction.name}`,
     retentionInDays: LOG_RETENTION_IN_DAYS

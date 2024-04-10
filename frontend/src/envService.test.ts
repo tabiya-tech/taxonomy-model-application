@@ -1,6 +1,13 @@
 // silence chatty console
 import "src/_test_utilities/consoleMock";
-import { getEnv, getApiUrl, getLocalesUrl, getAuthUrl, getCognitoClientId, getCognitoClientSecretId } from "./envService";
+import {
+  getEnv,
+  getApiUrl,
+  getLocalesUrl,
+  getAuthUrl,
+  getCognitoClientId,
+  getCognitoClientSecretId,
+} from "./envService";
 
 test("getEnv should return the decoded environment variable value", () => {
   // GIVEN a key for an environment variable

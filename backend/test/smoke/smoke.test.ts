@@ -1,6 +1,6 @@
-import {SuperAgentTest} from 'supertest';
 import * as supertest from "supertest";
-import {StatusCodes} from "server/httpUtils";
+import { SuperAgentTest } from "supertest";
+import { StatusCodes } from "server/httpUtils";
 
 //  Output the environment variables for debugging purposes
 console.log(`E2E_RESOURCES_BASE_URL: ${process.env.E2E_RESOURCES_BASE_URL}`);
@@ -16,15 +16,21 @@ describe("Testing the deployment of the api", () => {
   });
 
   let request: SuperAgentTest;
-  test("GET /info should respond with the correct version", async () => {
+  test("GET /info should respond with the correct version for an anonymous request", async () => {
+    // GIVEN the expected version information
     const expectedVersion = JSON.parse(process.env.EXPECTED_VERSION_INFO as string);
     expect(expectedVersion).toBeDefined();
-    const response = await request.get('/info').timeout(5000);
+    // AND an authorization token with the value ANONYMOUS
+    const givenToken = "Bearer ANONYMOUS";
+    // WHEN a GET request is made to /info
+    const response = await request.get("/info").set("Authorization", givenToken).timeout(5000);
+
+    // THEN the response should be successful and contain the expected version information
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(response.body).toMatchObject({
       ...expectedVersion,
       path: `${resourcesBaseUrl}/info`,
-      database: "connected"
+      database: "connected",
     });
   });
 });

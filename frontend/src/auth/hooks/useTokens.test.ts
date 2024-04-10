@@ -188,7 +188,6 @@ describe("use Tokens hook tests", () => {
 
   test("should clear the correct timer timer upon unmounted", async () => {
     clearInterval.mockClear();
-
     const givenTimerNumber = 11;
 
     jest

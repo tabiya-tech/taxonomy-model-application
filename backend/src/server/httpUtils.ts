@@ -18,6 +18,7 @@ export enum StatusCodes {
   BAD_REQUEST = 400,
   METHOD_NOT_ALLOWED = 405,
   NOT_FOUND = 404,
+  FORBIDDEN = 403,
   UNSUPPORTED_MEDIA_TYPE = 415,
   TOO_LARGE_PAYLOAD = 413,
   OK = 200,
@@ -119,6 +120,12 @@ export const STD_ERRORS_RESPONSES = {
       ErrorAPISpecs.Constants.ReasonPhrases.TOO_LARGE_PAYLOAD,
       errorDetails
     ),
+  FORBIDDEN: errorResponse(
+    StatusCodes.FORBIDDEN,
+    ErrorAPISpecs.Constants.ErrorCodes.FORBIDDEN,
+    ErrorAPISpecs.Constants.ReasonPhrases.FORBIDDEN,
+    ""
+  ),
 };
 
 export function redactCredentialsFromURI(uri: string) {

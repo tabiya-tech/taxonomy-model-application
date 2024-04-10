@@ -33,7 +33,8 @@ export function testMethodsNotAllowed(
 }
 
 export function testRequestJSONMalformed(
-  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>
+  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>,
+  requiredRole?: string
 ) {
   test.each([
     ["is a malformed json", "{"],
@@ -46,6 +47,15 @@ export function testRequestJSONMalformed(
       body: givenPayload,
       headers: {
         "Content-Type": "application/json",
+      },
+      requestContext: {
+        authorizer: {
+          claims: {
+            user: JSON.stringify({
+              "cognito:groups": requiredRole ?? "",
+            }),
+          },
+        },
       },
     };
 
@@ -60,7 +70,8 @@ export function testRequestJSONMalformed(
 }
 
 export function testRequestJSONSchema(
-  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>
+  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>,
+  requiredRole?: string
 ) {
   test("POST should respond with the BAD_REQUEST if Request does not conform to schema", async () => {
     // GIVEN a payload that does not conform to schema & event
@@ -70,6 +81,15 @@ export function testRequestJSONSchema(
       body: JSON.stringify(givenBadPayload),
       headers: {
         "Content-Type": "application/json",
+      },
+      requestContext: {
+        authorizer: {
+          claims: {
+            user: JSON.stringify({
+              "cognito:groups": requiredRole ?? "",
+            }),
+          },
+        },
       },
     };
 
@@ -84,7 +104,8 @@ export function testRequestJSONSchema(
 }
 
 export function testUnsupportedMediaType(
-  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>
+  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>,
+  requiredRole?: string
 ) {
   test("POST should respond with UNSUPPORTED_MEDIA_TYPE if content type is invalid, ", async () => {
     // GIVEN any payload & an event that does not have 'Content-Type: application/json'
@@ -93,6 +114,15 @@ export function testUnsupportedMediaType(
       body: JSON.stringify({ foo: "foo" }),
       headers: {
         "Content-Type": "text/html", // <----- content type is invalid
+      },
+      requestContext: {
+        authorizer: {
+          claims: {
+            user: JSON.stringify({
+              "cognito:groups": requiredRole ?? "",
+            }),
+          },
+        },
       },
     };
 
@@ -108,7 +138,8 @@ export function testUnsupportedMediaType(
 export function testTooLargePayload(
   httpMethod: HTTP_VERBS,
   maxPayload: number,
-  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>
+  handler: (event: APIGatewayProxyEvent, context: Context, callback: Callback) => Promise<APIGatewayProxyResult>,
+  requiredRole?: string
 ) {
   test("POST should respond with TOO_LARGE_PAYLOAD if request body is too long", async () => {
     // GIVEN an event with a payload that is too long
@@ -118,6 +149,15 @@ export function testTooLargePayload(
       body: givenPayload,
       headers: {
         "Content-Type": "application/json",
+      },
+      requestContext: {
+        authorizer: {
+          claims: {
+            user: JSON.stringify({
+              "cognito:groups": requiredRole ?? "",
+            }),
+          },
+        },
       },
     };
 

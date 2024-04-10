@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { AuthContext, authContextDefaultValue, TabiyaUserRole } from "src/auth/AuthProvider";
+import { AuthContext, authContextDefaultValue } from "src/auth/AuthProvider";
 import { AUTH_URL, COGNITO_CLIENT_ID } from "src/auth/constants";
 import { renderHook } from "src/_test_utilities/test-utils";
 import { AuthPersistentStorage } from "src/auth/services/AuthPersistentStorage";
@@ -7,11 +7,13 @@ import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 
 import * as useAuthUserHook from "src/auth/hooks/useAuthUser";
 import * as useTokensHook from "src/auth/hooks/useTokens";
-import { defaultUseTokensResponse } from "src/auth/hooks/useTokens";
 import * as getCodeQueryParam from "src/auth/utils/getCodeQueryParam";
 import { AuthService } from "src/auth/services/AuthService";
 import { act, waitFor } from "@testing-library/react";
 import { mockLoggedInUser } from "src/_test_utilities/mockLoggedInUser";
+import { defaultUseTokensResponse } from "src/auth/hooks/useTokens";
+
+import AuthAPISpecs from "api-specifications/auth";
 
 jest.mock("src/auth/hooks/useAuthUser");
 jest.mock("src/auth/hooks/useTokens");
@@ -229,7 +231,7 @@ describe("AuthProvider module", () => {
       expect(givenAuthContextDefaultValue.hasRole).toBeDefined();
 
       // AND the default values should not have any roles
-      expect(givenAuthContextDefaultValue.hasRole(TabiyaUserRole.ModelManager)).toBeFalse();
+      expect(givenAuthContextDefaultValue.hasRole(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)).toBeFalse();
     });
   });
 });
