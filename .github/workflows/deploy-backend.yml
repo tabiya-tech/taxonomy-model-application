@@ -29,9 +29,9 @@ jobs:
       resourcesBaseUrl: ${{ steps.pulumi.outputs.resourcesBaseUrl }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'yarn'
@@ -48,7 +48,7 @@ jobs:
           role-duration-seconds: 1200
           role-session-name: MySessionName
       - name: Download backend.build.folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend.build.folder
           path: backend/build/
