@@ -16,7 +16,7 @@ import ExportService from "src/export/export.service";
 import ModelPropertiesDrawer, {
   CloseEvent as DrawerCloseEvent,
 } from "./components/ModelProperties/ModelPropertiesDrawer";
-import {getApiUrl} from "src/envService";
+import { getApiUrl } from "src/envService";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {

@@ -9,7 +9,7 @@ import { ServiceError } from "src/error/error";
 import { StatusCodes } from "http-status-codes/";
 import PresignedService from "./presigned.service";
 import addFormats from "ajv-formats";
-import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
+import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
 import PresignedAPISpecs from "api-specifications/presigned";
 
 const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
@@ -56,7 +56,7 @@ describe("Test the service", () => {
     const givenApiServerUrl = "/path/to/api";
     // AND the presigned REST API will respond with OK and some newly created presigned data
     const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = getPresignedMockResponse();
-    const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
+    const fetchSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the getPresignedPost function is called
     const service = new PresignedService(givenApiServerUrl);
@@ -110,7 +110,7 @@ describe("Test the service", () => {
       // GIVEN a api server url
       const givenApiServerUrl = "/path/to/api";
       // AND the REST API will respond with OK and some response that does conform to a JSON even if it states that it is application/json
-      setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
+      setupAPIServiceSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
       // WHEN the getPresignedPost function is called
       const service = new PresignedService(givenApiServerUrl);
@@ -141,7 +141,7 @@ describe("Test the service", () => {
     // AND the  REST API will respond with OK and some response
     // that conforms to the Presigned.Schema
     // but the content-type is not application/json;charset=UTF-8
-    setupFetchSpy(StatusCodes.OK, getPresignedMockResponse(), "");
+    setupAPIServiceSpy(StatusCodes.OK, getPresignedMockResponse(), "");
 
     // WHEN the getPresignedPost function is called
     const service = new PresignedService(givenApiServerUrl);
@@ -170,7 +170,7 @@ describe("Test the service", () => {
     const givenApiServerUrl = "/path/to/api";
     // AND the REST API will respond with NOT OK and some response body
     const givenResponse = { foo: "foo", bar: "bar" };
-    setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
+    setupAPIServiceSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the getPresignedPost function is called
     const service = new PresignedService(givenApiServerUrl);

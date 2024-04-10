@@ -1,6 +1,7 @@
 import { getServiceErrorFactory, ServiceErrorDetails } from "src/error/error";
 import { StatusCodes } from "http-status-codes";
 import { ErrorCodes } from "src/error/errorCodes";
+import { fetchWithAuth } from "src/apiService/APIService";
 
 export default class ExportService {
   readonly apiServerUrl: string;
@@ -16,7 +17,7 @@ export default class ExportService {
 
     let response;
     try {
-      response = await fetch(this.exportEndpointUrl, {
+      response = await fetchWithAuth(this.exportEndpointUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

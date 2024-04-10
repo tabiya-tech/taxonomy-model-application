@@ -2,6 +2,7 @@ import { getServiceErrorFactory, ServiceErrorDetails } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import ImportAPISpecs from "api-specifications/import";
 import { StatusCodes } from "http-status-codes";
+import { fetchWithAuth } from "src/apiService/APIService";
 
 export default class ImportService {
   readonly apiServerUrl: string;
@@ -26,7 +27,7 @@ export default class ImportService {
         filePaths: filePaths,
         isOriginalESCOModel: isOriginalESCOModel,
       };
-      const response = await fetch(this.importEndpointUrl, {
+      const response = await fetchWithAuth(this.importEndpointUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

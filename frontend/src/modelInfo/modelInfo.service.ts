@@ -6,6 +6,7 @@ import LocaleAPISpecs from "api-specifications/locale";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import Ajv, { ValidateFunction } from "ajv/dist/2020";
 import addFormats from "ajv-formats";
+import { fetchWithAuth } from "src/apiService/APIService";
 
 export type INewModelSpecification = ModelInfoAPISpecs.Types.POST.Request.Payload;
 const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
@@ -51,7 +52,7 @@ export default class ModelInfoService {
     let responseBody: string;
     const requestBody = JSON.stringify(newModelSpec);
     try {
-      response = await fetch(this.modelInfoEndpointUrl, {
+      response = await fetchWithAuth(this.modelInfoEndpointUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,7 +113,7 @@ export default class ModelInfoService {
     let response: Response;
     let responseBody: string;
     try {
-      response = await fetch(this.modelInfoEndpointUrl, {
+      response = await fetchWithAuth(this.modelInfoEndpointUrl, {
         method: "GET",
         headers: {},
       });
