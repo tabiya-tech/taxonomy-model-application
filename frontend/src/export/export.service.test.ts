@@ -1,5 +1,5 @@
 import ExportService from "./export.service";
-import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
+import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
 import { StatusCodes } from "http-status-codes";
 import { ServiceError } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
@@ -28,7 +28,7 @@ describe("Test exportModel service", () => {
     const givenApiServerUrl = "/path/to/api";
     // AND a model ID
     const givenModelId = "mockModelId";
-    const fetchSpy = setupFetchSpy(
+    const fetchSpy = setupAPIServiceSpy(
       StatusCodes.ACCEPTED,
       { message: "export started" },
       "application/json;charset=UTF-8"
@@ -51,7 +51,11 @@ describe("Test exportModel service", () => {
   test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH that contains information about the error", async () => {
     // GIVEN fetch rejects with some unknown error
     const givenFetchError = new Error();
-    jest.spyOn(window, "fetch").mockRejectedValue(givenFetchError);
+    jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
+      return new Promise(() => {
+        throw givenFetchError;
+      });
+    });
     // AND an API server URL
     const givenApiServerUrl = "/path/to/api";
     // AND a model ID
@@ -84,7 +88,7 @@ describe("Test exportModel service", () => {
     // AND a model ID
     const givenModelId = "mockModelId";
     // AND the export model REST API will respond with NOT CREATED
-    setupFetchSpy(StatusCodes.BAD_REQUEST, undefined, "application/json;charset=UTF-8");
+    setupAPIServiceSpy(StatusCodes.BAD_REQUEST, undefined, "application/json;charset=UTF-8");
 
     // WHEN the exportModel function is called with the given modelId
     const exportService = new ExportService(givenApiServerUrl);

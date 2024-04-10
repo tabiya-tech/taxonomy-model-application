@@ -7,12 +7,12 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import * as MockPayload from "./_test_utilities/mockModelInfoPayload";
 import { StatusCodes } from "http-status-codes";
-import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
 import { ServiceError } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { randomUUID } from "crypto";
 import Ajv from "ajv/dist/2020";
 import addFormats from "ajv-formats";
+import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
 
 function getNewModelSpecMockData(): INewModelSpecification {
   return {
@@ -53,18 +53,18 @@ describe("ModelInfoService", () => {
   });
 
   describe("getModels", () => {
-    test("getAllModels() should call the REST API at the correct URL, with GET and the correct headers and payload successfully", async () => {
+    test("getAllModels() should call the API Service at the correct URL, with GET and the correct headers and payload successfully", async () => {
       // AND the GET models REST API will respond with OK and some models
       const givenResponseBody: ModelInfoAPISpecs.Types.GET.Response.Payload =
         MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
-      const fetchSpy = setupFetchSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
+      const apiServiceSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called with the given arguments
       const service = new ModelInfoService(givenApiServerUrl);
       const actualModels = await service.getAllModels();
 
       // THEN expect it to make a GET request with correct headers and payload
-      expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
+      expect(apiServiceSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
         method: "GET",
         headers: {},
       });
@@ -100,7 +100,11 @@ describe("ModelInfoService", () => {
       const givenApiServerUrl = "/path/to/api";
       // AND fetch rejects with some unknown error
       const givenFetchError = new Error();
-      jest.spyOn(window, "fetch").mockRejectedValue(givenFetchError);
+      jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
+        return new Promise(() => {
+          throw givenFetchError;
+        });
+      });
 
       // WHEN calling getAllModels function
       const service = new ModelInfoService(givenApiServerUrl);
@@ -140,7 +144,7 @@ describe("ModelInfoService", () => {
         // GIVEN a api server url
         const givenApiServerUrl = "/path/to/api";
         // AND the GET models REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
-        setupFetchSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
+        setupAPIServiceSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
         // WHEN the getAllModels function is called
         const service = new ModelInfoService(givenApiServerUrl);
@@ -177,7 +181,7 @@ describe("ModelInfoService", () => {
       // AND the GET models REST API will respond with OK and some response that
       // that conforms to the modelInfoResponseSchemaGET
       // but the content-type is not application/json;charset=UTF-8
-      setupFetchSpy(StatusCodes.OK, MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(1), "");
+      setupAPIServiceSpy(StatusCodes.OK, MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(1), "");
 
       // WHEN the getAllModels function is called
       const service = new ModelInfoService(givenApiServerUrl);
@@ -213,7 +217,7 @@ describe("ModelInfoService", () => {
       const givenApiServerUrl = "/path/to/api";
       // AND the create model REST API will respond with NOT OK and some response body
       const givenResponse = { foo: "foo", bar: "bar" };
-      setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
+      setupAPIServiceSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called
       const service = new ModelInfoService(givenApiServerUrl);
@@ -432,7 +436,11 @@ describe("ModelInfoService", () => {
       // AND the create model REST API will respond with OK and some newly create model
       const givenResponseBody: ModelInfoAPISpecs.Types.POST.Response.Payload =
         MockPayload.POST.getPayloadWithOneRandomModelInfo();
-      const fetchSpy = setupFetchSpy(StatusCodes.CREATED, givenResponseBody, "application/json;charset=UTF-8");
+      const apiServiceSpy = setupAPIServiceSpy(
+        StatusCodes.CREATED,
+        givenResponseBody,
+        "application/json;charset=UTF-8"
+      );
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
       const service = new ModelInfoService(givenApiServerUrl);
@@ -441,13 +449,13 @@ describe("ModelInfoService", () => {
       // THEN expect it to make a POST request
       // AND the headers
       // AND the request payload to contain the given arguments (name, description, ...)
-      expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
+      expect(apiServiceSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(givenModelSpec),
       });
 
-      const payload = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      const payload = JSON.parse(apiServiceSpy.mock.calls[0][1].body);
 
       // AND the body conforms to the modelRequestSchema
       const validateRequest = ajv.compile(ModelInfoAPISpecs.Schemas.POST.Request.Payload);
@@ -481,7 +489,11 @@ describe("ModelInfoService", () => {
     test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
       // GIVEN fetch rejects with some unknown error
       const givenFetchError = new Error();
-      jest.spyOn(window, "fetch").mockRejectedValue(givenFetchError);
+      jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
+        return new Promise(() => {
+          throw givenFetchError;
+        });
+      });
 
       // WHEN calling create model function
       const service = new ModelInfoService("/path/to/foo");
@@ -513,7 +525,7 @@ describe("ModelInfoService", () => {
         // GIVEN a api server url
         const givenApiServerUrl = "/path/to/api";
         // AND the create model REST API will respond with OK and some response that does conform to the modelInfoResponseSchema even if it states that it is application/json
-        setupFetchSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
+        setupAPIServiceSpy(StatusCodes.CREATED, givenResponse, "application/json;charset=UTF-8");
 
         // WHEN the createModel function is called with the given arguments (name, description, ...)
         const service = new ModelInfoService(givenApiServerUrl);
@@ -544,7 +556,7 @@ describe("ModelInfoService", () => {
       // AND the create model REST API will respond with OK and some response
       // that conforms to the modelInfoResponseSchema
       // but the content-type is not application/json;charset=UTF-8
-      setupFetchSpy(StatusCodes.CREATED, MockPayload.POST.getPayloadWithOneRandomModelInfo(), "");
+      setupAPIServiceSpy(StatusCodes.CREATED, MockPayload.POST.getPayloadWithOneRandomModelInfo(), "");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
       const service = new ModelInfoService(givenApiServerUrl);
@@ -572,7 +584,7 @@ describe("ModelInfoService", () => {
       const givenApiServerUrl = "/path/to/api";
       // AND the create model REST API will respond with NOT OK and some response body
       const givenResponse = { foo: "foo", bar: "bar" };
-      setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
+      setupAPIServiceSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
 
       // WHEN the createModel function is called with the given arguments (name, description, ...)
       const service = new ModelInfoService(givenApiServerUrl);
