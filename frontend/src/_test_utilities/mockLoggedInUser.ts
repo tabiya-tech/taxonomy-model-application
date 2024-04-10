@@ -1,4 +1,5 @@
-import { AuthContextValue, TabiyaUser, TabiyaUserRole, authContextDefaultValue } from "src/auth/AuthProvider";
+import { AuthContextValue, TabiyaUser, authContextDefaultValue } from "src/auth/AuthProvider";
+import AuthAPISpecs from "api-specifications/auth";
 
 export function mockLoggedInUser(mockedValues: Partial<AuthContextValue>) {
   let user: TabiyaUser = mockedValues.user || { username: "foo", roles: [] };
@@ -6,7 +7,7 @@ export function mockLoggedInUser(mockedValues: Partial<AuthContextValue>) {
     ...authContextDefaultValue,
     user: user,
     setUser: (user: TabiyaUser) => null,
-    hasRole: (role: TabiyaUserRole) => user.roles.includes(role),
+    hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => user.roles.includes(role),
     updateUserByAccessToken: () => {},
     ...mockedValues,
   });

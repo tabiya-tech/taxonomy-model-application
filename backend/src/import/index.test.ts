@@ -13,10 +13,22 @@ import {
   testUnsupportedMediaType,
 } from "_test_utilities/stdRESTHandlerTests";
 import { getTestString } from "_test_utilities/specialCharacters";
+import AuthAPISpecs from "api-specifications/auth";
 
 jest.mock("import/removeGeneratedUUID/removeGeneratedUUID", () => {
   return {
     removeGeneratedUUIDs: jest.fn(),
+  };
+});
+
+jest.mock("auth/authenticator", () => {
+  return {
+    checkRole: jest.fn().mockImplementation(() => true),
+    RoleRequired: jest.fn().mockImplementation(() => {
+      return (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) => {
+        return descriptor;
+      };
+    }),
   };
 });
 
@@ -52,6 +64,15 @@ describe("test for trigger ImportHandler", () => {
         headers: {
           "Content-Type": "application/json; charset=utf-8",
         },
+        requestContext: {
+          authorizer: {
+            claims: {
+              user: JSON.stringify({
+                "cognito:groups": AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
+              }),
+            },
+          },
+        },
       } as never;
       // AND the lambda_invokeAsyncImport function will successfully handle the event and return a response
       const givenResponse = response(StatusCodes.ACCEPTED, {});
@@ -74,11 +95,16 @@ describe("test for trigger ImportHandler", () => {
     ImportHandler.handler
   );
 
-  testRequestJSONMalformed(ImportHandler.handler);
+  testRequestJSONMalformed(ImportHandler.handler, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
-  testRequestJSONSchema(ImportHandler.handler);
+  testRequestJSONSchema(ImportHandler.handler, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
-  testUnsupportedMediaType(ImportHandler.handler);
+  testUnsupportedMediaType(ImportHandler.handler, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
-  testTooLargePayload(HTTP_VERBS.POST, ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH, ImportHandler.handler);
+  testTooLargePayload(
+    HTTP_VERBS.POST,
+    ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH,
+    ImportHandler.handler,
+    AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER
+  );
 });

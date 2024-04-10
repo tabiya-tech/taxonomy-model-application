@@ -7,18 +7,8 @@ import ErrorAPISpecs from "api-specifications/error";
 
 import { ValidateFunction } from "ajv";
 import { lambda_invokeAsyncImport } from "./invokeAsyncImport";
-
-export const handler: (
-  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
-) => Promise<APIGatewayProxyResult> = async (
-  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
-) => {
-  //POST /triggerImport
-  if (event?.httpMethod === HTTP_VERBS.POST) {
-    return postTriggerImport(event);
-  }
-  return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
-};
+import { RoleRequired } from "auth/authenticator";
+import AuthAPISpecs from "api-specifications/auth";
 
 /**
  * @openapi
@@ -53,42 +43,53 @@ export const handler: (
  *           $ref: '#/components/responses/InternalServerErrorResponse'
  */
 
-async function postTriggerImport(event: APIGatewayProxyEvent) {
-  // @ts-ignore
-  if (!event.headers["Content-Type"]?.includes("application/json")) {
-    //  application/json;charset=UTF-8
-    return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
-  }
+class ImportHandler {
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER) // Applying role-based access control
+  async postTriggerImport(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+    if (!event.headers["Content-Type"]?.includes("application/json")) {
+      return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
+    }
 
-  // @ts-ignore
-  if (event.body?.length > ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
-    return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
-      `Expected maximum length is ${ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`
-    );
-  }
+    if (event.body?.length && event.body.length > ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
+      return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
+        `Expected maximum length is ${ImportAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`
+      );
+    }
 
-  let payload: ImportAPISpecs.Types.POST.Request.Payload;
-  try {
-    payload = JSON.parse(event.body as string);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return errorResponse(
-      StatusCodes.BAD_REQUEST,
-      ErrorAPISpecs.Constants.ErrorCodes.MALFORMED_BODY,
-      "Payload is malformed, it should be a valid model json",
-      error.message
-    );
-  }
+    let payload: ImportAPISpecs.Types.POST.Request.Payload;
+    try {
+      payload = JSON.parse(event.body as string);
+    } catch (error: unknown) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        ErrorAPISpecs.Constants.ErrorCodes.MALFORMED_BODY,
+        "Payload is malformed, it should be a valid model json",
+        // @ts-ignore
+        error.message
+      );
+    }
 
-  const validateFunction = ajvInstance.getSchema(
-    ImportAPISpecs.Schemas.POST.Request.Payload.$id as string
-  ) as ValidateFunction;
-  const isValid = validateFunction(payload);
-  if (!isValid) {
-    const errorDetail = ParseValidationError(validateFunction.errors);
-    return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
+    const validateFunction = ajvInstance.getSchema(
+      ImportAPISpecs.Schemas.POST.Request.Payload.$id as string
+    ) as ValidateFunction;
+    const isValid = validateFunction(payload);
+    if (!isValid) {
+      const errorDetail = ParseValidationError(validateFunction.errors);
+      return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
+    }
+
+    return lambda_invokeAsyncImport(payload);
   }
-  // We do not expect the lambda_invokeAsyncExport function to throw errors.
-  // It will handle any errors internally and return the appropriate error response.
-  return lambda_invokeAsyncImport(payload);
 }
+
+export const handler: (
+  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
+) => Promise<APIGatewayProxyResult> = async (
+  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
+) => {
+  //POST /triggerImport
+  if (event?.httpMethod === HTTP_VERBS.POST) {
+    return new ImportHandler().postTriggerImport(event);
+  }
+  return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
+};

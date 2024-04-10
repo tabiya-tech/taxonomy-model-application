@@ -8,6 +8,7 @@ import Import from "api-specifications/import";
 import APIError from "api-specifications/error";
 import Info from "api-specifications/info";
 import Export from "api-specifications/export";
+import Auth from "api-specifications/auth";
 
 /**
  *  In ajv the $ref is relative to the root of the schema, while in openapi the $ref is relative to the root of the document.
@@ -30,6 +31,7 @@ delete Import.Schemas.POST.Request.Payload.$id
 delete Info.Schemas.GET.Response.Payload.$id
 delete APIError.Schemas.Payload.$id
 delete Export.Schemas.POST.Request.Payload.$id
+delete Auth.Schemas.Request.Context.$id
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +103,7 @@ function getOpenAPISpecification(version: string, apiPaths: string[] = ['./src/*
           ImportSchema: Import.Schemas.POST.Request.Payload,
           ExportSchema: Export.Schemas.POST.Request.Payload,
           InfoSchema: Info.Schemas.GET.Response.Payload,
+          AuthContextSchema: Auth.Schemas.Request.Context,
         },
         securitySchemes: {
           api_key: {

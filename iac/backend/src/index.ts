@@ -3,15 +3,16 @@ import * as aws from "@pulumi/aws";
 import {getRestApiDomainName, getRestApiPath, setupBackendRESTApi} from "./restApi";
 import {setupUploadBucket, setupUploadBucketPolicy} from "./uploadBucket";
 import {setupAsyncImportApi} from "./asyncImport";
-import {setupSwaggerBucket, setupRedocBucket} from "./openapiBuckets";
+import {setupRedocBucket, setupSwaggerBucket} from "./openapiBuckets";
 import {setupDownloadBucket, setupDownloadBucketWritePolicy} from "./downloadBucket";
 import {setupAsyncExportApi} from "./asyncExport";
+import {setupAuthorizer} from "./authorizer";
 
 export const environment = pulumi.getStack();
-export const domainName = process.env.DOMAIN_NAME!
+export const domainName = process.env.DOMAIN_NAME!;
 
 pulumi.log.info(`Using domain name : ${domainName}`);
-if(!domainName) throw new Error("environment variable DOMAIN_NAME is required")
+if (!domainName) throw new Error("environment variable DOMAIN_NAME is required");
 
 export const publicApiRootPath = "/api";
 export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
@@ -63,6 +64,12 @@ const {asyncImportLambdaRole, asyncImportLambdaFunction} = setupAsyncImportApi(e
 });
 
 /**
+ * Setup Authorizer Lambda
+ */
+
+const {authorizerLambdaFunction} = setupAuthorizer();
+
+/**
  * Setup Backend Rest API
  */
 const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
@@ -74,13 +81,13 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   download_bucket_region: currentRegion,
   async_import_lambda_function_arn: asyncImportLambdaFunction.arn,
   async_export_lambda_function_arn: asyncExportLambdaFunction.arn,
-  async_lambda_function_region: currentRegion
+  async_lambda_function_region: currentRegion,
+  authorizer_lambda_function_invoke_arn: authorizerLambdaFunction.invokeArn,
+  authorizer_lambda_function_name: authorizerLambdaFunction.name,
 });
 
 export const backendRestApi = {
-  restApiArn: restApi.arn,
-  domainName: getRestApiDomainName(stage),
-  path: getRestApiPath(stage)
+  restApiArn: restApi.arn, domainName: getRestApiDomainName(stage), path: getRestApiPath(stage)
 };
 
 // this is the base URL for the backend REST API

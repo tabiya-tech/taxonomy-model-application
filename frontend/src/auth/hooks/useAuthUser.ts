@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { TabiyaUser, TabiyaUserRole, TAccessTokenDetails } from "src/auth/auth.types";
+import { TabiyaUser, TAccessTokenDetails } from "src/auth/auth.types";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
+import AuthAPISpecs from "api-specifications/auth";
 
 /**
  * A hook to manage the user state
@@ -17,13 +18,13 @@ export function useAuthUser() {
    * @returns boolean - If the user has the role
    * @param role - The role to check
    */
-  const hasRole = (role: TabiyaUserRole) => {
+  const hasRole = (role: AuthAPISpecs.Enums.TabiyaRoles) => {
     // if no user is set, then the user is anonymous
-    if (role === TabiyaUserRole.AnonymousUser) return user == null;
+    if (role === AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) return user == null;
     if (!user) return false;
 
     // any user is a registered user
-    if (role === TabiyaUserRole.RegisteredUser) return true;
+    if (role === AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER) return true;
 
     // check if the user has the role
     return user.roles.includes(role);

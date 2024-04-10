@@ -1,8 +1,9 @@
 import { useAuthUser } from "src/auth/hooks/useAuthUser";
 import * as jwtDecodeUtils from "jwt-decode";
-import { TabiyaUser, TabiyaUserRole } from "src/auth/auth.types";
+import { TabiyaUser } from "src/auth/auth.types";
 import { renderHook, act } from "src/_test_utilities/test-utils";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
+import AuthAPISpecs from "api-specifications/auth";
 
 const givenUser: TabiyaUser = {
   roles: [],
@@ -53,7 +54,7 @@ describe("useAuthUser hook tests", () => {
     const { result } = renderHook(() => useAuthUser());
 
     // WHEN: Checking for an anonymous user
-    const isAnonymous = result.current.hasRole(TabiyaUserRole.AnonymousUser);
+    const isAnonymous = result.current.hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS);
 
     // THEN: It should return true
     expect(isAnonymous).toBe(true);
@@ -69,7 +70,7 @@ describe("useAuthUser hook tests", () => {
     });
 
     // WHEN: Checking if the user is a registered user
-    const isRegistered = result.current.hasRole(TabiyaUserRole.RegisteredUser);
+    const isRegistered = result.current.hasRole(AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER);
 
     // THEN: It should return true
     expect(isRegistered).toBe(true);
@@ -81,8 +82,8 @@ describe("useAuthUser hook tests", () => {
     result.current.setUser(null);
 
     // WHEN: Checking for a role that is not AnonymousUser
-    const isAnonymous = result.current.hasRole(TabiyaUserRole.RegisteredUser);
-    const isModdelManager = result.current.hasRole(TabiyaUserRole.ModelManager);
+    const isAnonymous = result.current.hasRole(AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER);
+    const isModdelManager = result.current.hasRole(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
     // THEN: It should return false
     expect(isAnonymous).toBe(false);
@@ -94,14 +95,14 @@ describe("useAuthUser hook tests", () => {
     const { result } = renderHook(() => useAuthUser());
 
     // GIVEN: A user with a specific role is set
-    const testUser = { ...givenUser, roles: [TabiyaUserRole.ModelManager] };
+    const testUser = { ...givenUser, roles: [AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER] };
 
     act(() => {
       result.current.setUser(testUser);
     });
 
     // WHEN: Checking if the user has the Editor role
-    const hasEditorRole = result.current.hasRole(TabiyaUserRole.ModelManager);
+    const hasEditorRole = result.current.hasRole(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
     // THEN: It should return true
     expect(hasEditorRole).toBe(true);
@@ -120,7 +121,7 @@ describe("useAuthUser hook tests", () => {
     });
 
     // WHEN: Checking if the user has the anonymous role
-    const hasAdminRole = result.current.hasRole(TabiyaUserRole.AnonymousUser);
+    const hasAdminRole = result.current.hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS);
 
     // THEN: It should return false as the user does not have this role
     expect(hasAdminRole).toBe(false);
@@ -143,7 +144,7 @@ describe("useAuthUser hook tests", () => {
 
   describe("updateUserByAccessToken", () => {
     const userName = "test";
-    const userRoles = [TabiyaUserRole.ModelManager];
+    const userRoles = [AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER];
 
     const user = {
       username: userName,

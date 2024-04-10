@@ -5,6 +5,7 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
   "Constants": {
     "ErrorCodes": {
       "BAD_REQUEST": "BAD_REQUEST",
+      "FORBIDDEN": "FORBIDDEN",
       "INTERNAL_SERVER_ERROR": "INTERNAL_SERVER_ERROR",
       "INVALID_JSON_SCHEMA": "INVALID_JSON_SCHEMA",
       "MALFORMED_BODY": "MALFORMED_BODY",
@@ -17,6 +18,7 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
     "MAX_MESSAGE_LENGTH": 256,
     "ReasonPhrases": {
       "BAD_REQUEST": "Bad Request",
+      "FORBIDDEN": "Forbidden",
       "INTERNAL_SERVER_ERROR": "Internal Server Error",
       "INVALID_JSON_SCHEMA": "Invalid json schema",
       "MALFORMED_BODY": "Payload is malformed, it should be a valid model json",
@@ -47,6 +49,7 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
             "TOO_LARGE_PAYLOAD",
             "BAD_REQUEST",
             "INVALID_JSON_SCHEMA",
+            "FORBIDDEN",
             "FAILED_TO_TRIGGER_IMPORT",
             "FAILED_TO_TRIGGER_EXPORT",
             "DB_FAILED_TO_CREATE_MODEL",

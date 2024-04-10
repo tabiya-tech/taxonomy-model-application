@@ -55,10 +55,10 @@ export class RemoveGeneratedUUID implements ICleanupUUIDHistory {
       const updatePipeline = [
         {
           $set: {
-            UUIDHistory: { $slice: ["$UUIDHistory", 1, {$size: "$UUIDHistory"}] }, // Removes the first element
+            UUIDHistory: { $slice: ["$UUIDHistory", 1, { $size: "$UUIDHistory" }] }, // Removes the first element
             UUID: { $arrayElemAt: ["$UUIDHistory", 1] }, // Sets UUID to the first element of the updated UUIDHistory
-          }
-        }
+          },
+        },
       ];
 
       // Perform bulk updates for each entity in parallel, including the model save operation
