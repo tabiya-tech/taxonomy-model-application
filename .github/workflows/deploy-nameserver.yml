@@ -29,7 +29,7 @@ jobs:
         run: yarn install
         working-directory: iac
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_DNS_UPDATE_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_DNS_UPDATE_SECRET_ACCESS_KEY }}
@@ -38,7 +38,7 @@ jobs:
           role-session-name: MySessionName
       - name: Update Record on Parent Domain
         id: pulumi
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
         with:
           work-dir: iac/name-servers
           command: up

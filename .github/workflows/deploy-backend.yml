@@ -40,7 +40,7 @@ jobs:
         run: yarn install
         working-directory: iac
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -54,7 +54,7 @@ jobs:
           path: backend/build/
       - name: Deploy backend
         id: pulumi
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
         with:
           work-dir: iac/backend
           command: up
