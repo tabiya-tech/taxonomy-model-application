@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import ImportService from "./import.service";
 import { ServiceError } from "src/error/error";
 import ImportAPISpecs from "api-specifications/import";
-import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
+import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
 import { StatusCodes } from "http-status-codes/";
 import { ErrorCodes } from "src/error/errorCodes";
 import Ajv from "ajv/dist/2020";
@@ -43,7 +43,7 @@ describe("Test the service", () => {
     const givenFilePaths = mockFilePaths;
     const givenIsOriginalESCOModel = true;
     // AND the upload of the files will succeed
-    const fetchSpy = setupFetchSpy(StatusCodes.ACCEPTED, undefined, "");
+    const fetchSpy = setupAPIServiceSpy(StatusCodes.ACCEPTED, undefined, "");
 
     // WHEN calling the import method with the given arguments (modelId, filePaths)
     const importService = new ImportService(givenApiServerUrl);
@@ -80,7 +80,11 @@ describe("Test the service", () => {
     const givenIsOriginalESCOModel = true;
     // AND the fetch of some of the files will fail with some error.
     const givenError = new Error("some error");
-    jest.spyOn(window, "fetch").mockRejectedValue(givenError);
+    jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
+      return new Promise(() => {
+        throw givenError;
+      });
+    });
 
     // WHEN calling the import method with the given arguments (modelId, filePaths)
     const importService = new ImportService(givenApiServerUrl);
@@ -113,7 +117,7 @@ describe("Test the service", () => {
     const givenIsOriginalESCOModel = true;
     // AND the fetch of some of the files will respond with a status code other than 204.
     const givenFailureStatusCode = StatusCodes.BAD_REQUEST;
-    setupFetchSpy(givenFailureStatusCode, undefined, "");
+    setupAPIServiceSpy(givenFailureStatusCode, undefined, "");
 
     // WHEN calling the import method with the given arguments (modelId, filePaths)
     const importService = new ImportService(givenApiServerUrl);

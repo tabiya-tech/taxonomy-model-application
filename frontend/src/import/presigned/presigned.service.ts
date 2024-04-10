@@ -6,6 +6,7 @@ import { ErrorCodes } from "src/error/errorCodes";
 import { getServiceErrorFactory } from "src/error/error";
 
 import { StatusCodes } from "http-status-codes/";
+import { fetchWithAuth } from "src/apiService/APIService";
 
 const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
 addFormats(ajv); // To support the "date-time" format
@@ -37,7 +38,7 @@ export default class PresignedService {
     let response;
     let responseBody: string;
     try {
-      response = await fetch(this.presignedEndpointUrl, {
+      response = await fetchWithAuth(this.presignedEndpointUrl, {
         method: "GET",
       });
       responseBody = await response.text();
