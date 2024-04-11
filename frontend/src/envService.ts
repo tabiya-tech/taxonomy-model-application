@@ -18,6 +18,10 @@ export const getApiUrl = () => {
   return getEnv("BACKEND_URL");
 };
 
+export const getLocalesUrl = () => {
+  return getEnv("LOCALES_URL");
+};
+
 export const getAuthUrl = () => {
   return getEnv("AUTH_URL");
 };

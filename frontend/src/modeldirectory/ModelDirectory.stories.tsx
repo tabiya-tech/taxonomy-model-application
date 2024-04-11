@@ -3,7 +3,9 @@ import ModelDirectory from "./ModelDirectory";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import * as MockPayload from "src/modelInfo/_test_utilities/mockModelInfoPayload";
-import { getApiUrl } from "src/envService";
+import { getApiUrl, getLocalesUrl } from "src/envService";
+import { AuthContext, authContextDefaultValue } from "../auth/AuthProvider";
+import { getArrayOfFakeLocales } from "../locale/_test_utilities/mockLocales";
 
 // Make sure that the model is in a state that allows its actions to be performed. i.e export, download, etc.
 const modelWithSuccessfulStates = MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(1)[0];
@@ -29,8 +31,20 @@ modelWithSuccessfulStates.importProcessState = {
   },
 };
 
+const getUserWithModelManagerRole = (hasModelManagerRole: boolean) => ({
+  ...authContextDefaultValue,
+  hasRole: (role: string) => hasModelManagerRole,
+});
+
+const renderModelDirectory = (hasModelManagerRole: boolean) => (
+  <AuthContext.Provider value={getUserWithModelManagerRole(hasModelManagerRole)}>
+    <ModelDirectory />
+  </AuthContext.Provider>
+);
+
 const MODELS_URL = getApiUrl() + "/models";
 const EXPORT_URL = getApiUrl() + "/export";
+const LOCALES_URL = getLocalesUrl() + "/locales.json";
 
 const meta: Meta<typeof ModelDirectory> = {
   title: "ModelDirectory/ModelDirectory",
@@ -71,6 +85,12 @@ const meta: Meta<typeof ModelDirectory> = {
         response: {},
       },
       {
+        url: LOCALES_URL,
+        method: "GET",
+        status: 200,
+        response: getArrayOfFakeLocales(4),
+      },
+      {
         url: getApiUrl() + "/presigned",
         method: "GET",
         status: 200,
@@ -96,6 +116,12 @@ type Story = StoryObj<typeof ModelDirectory>;
 export const Shown: Story = {
   args: {},
 };
+
+export const ShownWithModelManagerRole: Story = () => {
+  return renderModelDirectory(true);
+};
+ShownWithModelManagerRole.args = {};
+ShownWithModelManagerRole.parameters = { mockData: [...meta.parameters!.mockData] };
 
 export const OneModel: Story = {
   args: {},
@@ -150,53 +176,55 @@ export const ModelsFetchIsSlow: Story = {
   },
 };
 
-export const ImportNewModelWillFail: Story = {
-  args: {},
-  parameters: {
-    docs: { disable: true },
-    mockData: [
-      ...meta.parameters!.mockData,
-      {
-        url: MODELS_URL,
-        method: "GET",
-        status: 200,
-        response: [modelWithSuccessfulStates],
+export const ImportNewModelWillFail: Story = () => {
+  return renderModelDirectory(true);
+};
+ImportNewModelWillFail.args = {};
+ImportNewModelWillFail.parameters = {
+  docs: { disable: true },
+  mockData: [
+    ...meta.parameters!.mockData,
+    {
+      url: MODELS_URL,
+      method: "GET",
+      status: 200,
+      response: [modelWithSuccessfulStates],
+    },
+    {
+      url: MODELS_URL,
+      method: "POST",
+      status: 500,
+      response: {
+        errorCode: "Some error code",
+        message: "Some error message",
+        details: "Some error details",
       },
-      {
-        url: MODELS_URL,
-        method: "POST",
-        status: 500,
-        response: {
-          errorCode: "Some error code",
-          message: "Some error message",
-          details: "Some error details",
-        },
-      },
-    ],
-  },
+    },
+  ],
 };
 
-export const ImportNewModelWillDelay: Story = {
-  args: {},
-  parameters: {
-    docs: { disable: true },
-    mockData: [
-      ...meta.parameters!.mockData,
-      {
-        url: MODELS_URL,
-        method: "GET",
-        status: 200,
-        response: [modelWithSuccessfulStates],
-      },
-      {
-        url: MODELS_URL,
-        method: "POST",
-        status: 201,
-        response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
-        delay: 5000,
-      },
-    ],
-  },
+export const ImportNewModelWillDelay: Story = () => {
+  return renderModelDirectory(true);
+};
+ImportNewModelWillDelay.args = {};
+ImportNewModelWillDelay.parameters = {
+  docs: { disable: true },
+  mockData: [
+    ...meta.parameters!.mockData,
+    {
+      url: MODELS_URL,
+      method: "GET",
+      status: 200,
+      response: [modelWithSuccessfulStates],
+    },
+    {
+      url: MODELS_URL,
+      method: "POST",
+      status: 201,
+      response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
+      delay: 5000,
+    },
+  ],
 };
 
 export const ExportModelWillFail: Story = {

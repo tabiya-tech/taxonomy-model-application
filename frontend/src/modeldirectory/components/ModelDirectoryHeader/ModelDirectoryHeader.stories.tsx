@@ -18,20 +18,27 @@ const getUserWithModelManagerRole = (hasModelManagerRole: boolean) => ({
   hasRole: (role: string) => hasModelManagerRole,
 });
 
+const renderModelDirectoryHeader = (args: ModelDirectoryHeaderProps, hasModelManagerRole: boolean) => (
+  <AuthContext.Provider value={getUserWithModelManagerRole(hasModelManagerRole)}>
+    <ModelDirectoryHeader {...args} />
+  </AuthContext.Provider>
+);
+
 export const Shown: Story = {
   args: {},
 };
 
-export const ShownWithModelManagerRole: Story = (args: ModelDirectoryHeaderProps) => (
-  <AuthContext.Provider value={getUserWithModelManagerRole(true)}>
-    <ModelDirectoryHeader {...args} />
-  </AuthContext.Provider>
-);
+export const ShownWithLoadingState: Story = (args: ModelDirectoryHeaderProps) => {
+  return renderModelDirectoryHeader(args, true);
+};
+ShownWithLoadingState.args = { isImportModelLoading: true };
+
+export const ShownWithModelManagerRole: Story = (args: ModelDirectoryHeaderProps) => {
+  return renderModelDirectoryHeader(args, true);
+};
 ShownWithModelManagerRole.args = {};
 
-export const ShownWithNonModelManagerRole: Story = (args: ModelDirectoryHeaderProps) => (
-  <AuthContext.Provider value={getUserWithModelManagerRole(false)}>
-    <ModelDirectoryHeader {...args} />
-  </AuthContext.Provider>
-);
+export const ShownWithNonModelManagerRole: Story = (args: ModelDirectoryHeaderProps) => {
+  return renderModelDirectoryHeader(args, false);
+};
 ShownWithNonModelManagerRole.args = {};

@@ -1,6 +1,6 @@
 // silence chatty console
 import "src/_test_utilities/consoleMock";
-import { getEnv, getApiUrl, getAuthUrl, getCognitoClientId, getCognitoClientSecretId } from "./envService";
+import { getEnv, getApiUrl, getLocalesUrl, getAuthUrl, getCognitoClientId, getCognitoClientSecretId } from "./envService";
 
 test("getEnv should return the decoded environment variable value", () => {
   // GIVEN a key for an environment variable
@@ -20,6 +20,7 @@ test("getEnv should return the decoded environment variable value", () => {
 
 describe.each([
   ["BACKEND_URL", getApiUrl],
+  ["LOCALES_URL", getLocalesUrl],
   ["AUTH_URL", getAuthUrl],
   ["COGNITO_CLIENT_ID", getCognitoClientId],
   ["COGNITO_CLIENT_SECRET", getCognitoClientSecretId],

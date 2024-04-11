@@ -16,6 +16,8 @@ describe("ModelDirectoryHeader", () => {
   test("should render model directory header component", () => {
     // GIVEN an onModelImport callback function
     const givenOnModelImportCallback = () => undefined;
+    // AND the import model loading state
+    const givenIsImportModelLoading = false;
 
     // AND a model manager user
     const givenUser: AuthContextValue = {
@@ -23,12 +25,15 @@ describe("ModelDirectoryHeader", () => {
       hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
     };
 
-    jest.spyOn(PrimaryButtonModule, "default"); //.mockImplementation(() => <div data-testid={"primary-button-test-id"}></div>);
+    jest.spyOn(PrimaryButtonModule, "default");
 
     // WHEN a ModelDirectoryHeader component is rendered
     render(
       <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />
+        <ModelDirectoryHeader
+          onModelImport={givenOnModelImportCallback}
+          isImportModelLoading={givenIsImportModelLoading}
+        />
       </AuthContext.Provider>
     );
 
@@ -41,11 +46,12 @@ describe("ModelDirectoryHeader", () => {
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toBeInTheDocument();
     // AND to match the snapshot
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toMatchSnapshot();
-    // AND the import button to be disabled when offline
+    // AND the import button to be disabled when offline and not loading
     expect(PrimaryButtonModule.default as jest.Mock).toHaveBeenCalledWith(
       expect.objectContaining({
         "data-testid": DATA_TEST_ID.IMPORT_MODEL_BUTTON,
         disableWhenOffline: true,
+        disabled: false,
       }),
       {}
     );
@@ -64,7 +70,7 @@ describe("ModelDirectoryHeader", () => {
     // WHEN a ModelDirectoryHeader component is rendered
     render(
       <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />
+        <ModelDirectoryHeader onModelImport={givenOnModelImportCallback} isImportModelLoading={false} />
       </AuthContext.Provider>
     );
 
@@ -85,7 +91,7 @@ describe("ModelDirectoryHeader", () => {
     // WHEN a ModelDirectoryHeader component is rendered
     render(
       <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader onModelImport={() => undefined} />
+        <ModelDirectoryHeader onModelImport={() => undefined} isImportModelLoading={false} />
       </AuthContext.Provider>
     );
 
@@ -103,11 +109,46 @@ describe("ModelDirectoryHeader", () => {
     // WHEN a ModelDirectoryHeader component is rendered
     render(
       <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader onModelImport={() => undefined} />
+        <ModelDirectoryHeader onModelImport={() => undefined} isImportModelLoading={false} />
       </AuthContext.Provider>
     );
 
     // THEN expect the import button to not be present in the document
     expect(screen.queryByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).not.toBeInTheDocument();
+  });
+
+  test("should render loading spinner and disable the button when import model is loading", () => {
+    // GIVEN a model manager user
+    const givenUser: AuthContextValue = {
+      ...authContextDefaultValue,
+      hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
+    };
+    // AND an onModelImport callback function
+    const givenOnModelImportCallback = jest.fn();
+    // AND the import model loading state
+    const givenIsImportModelLoading = true;
+
+    jest.spyOn(PrimaryButtonModule, "default");
+
+    // WHEN a ModelDirectoryHeader component is rendered
+    render(
+      <AuthContext.Provider value={givenUser}>
+        <ModelDirectoryHeader
+          onModelImport={givenOnModelImportCallback}
+          isImportModelLoading={givenIsImportModelLoading}
+        />
+      </AuthContext.Provider>
+    );
+
+    // THEN expect the loading spinner to be present in the document
+    expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toContainHTML("CircularProgress");
+    // AND the import button to be disabled
+    expect(PrimaryButtonModule.default as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        "data-testid": DATA_TEST_ID.IMPORT_MODEL_BUTTON,
+        disabled: true,
+      }),
+      {}
+    );
   });
 });
