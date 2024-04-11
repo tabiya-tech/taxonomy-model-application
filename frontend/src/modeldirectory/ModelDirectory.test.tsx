@@ -2,11 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import { act, render, screen, waitFor } from "src/_test_utilities/test-utils";
-import ModelDirectory, {
-  availableLocales,
-  DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID,
-  SNACKBAR_ID,
-} from "./ModelDirectory";
+import ModelDirectory, { DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID, SNACKBAR_ID } from "./ModelDirectory";
 import ImportModelDialog, {
   DATA_TEST_ID as IMPORT_DIALOG_DATA_TEST_ID,
   ImportData,
@@ -22,12 +18,14 @@ import ModelDirectoryHeader, {
 } from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import ExportService from "src/export/export.service";
+import LocalesService from "src/locale/locales.service";
 import ImportAPISpecs from "api-specifications/import";
 
 import {
   getArrayOfRandomModelsMaxLength,
   getOneRandomModelMaxLength,
 } from "./components/ModelsTable/_test_utilities/mockModelData";
+import { getArrayOfFakeLocales } from "src/locale/_test_utilities/mockLocales";
 import LocaleAPISpecs from "api-specifications/locale";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
@@ -36,6 +34,7 @@ import { writeServiceErrorToLog } from "src/error/logger";
 import { ErrorCodes } from "src/error/errorCodes";
 import ModelPropertiesDrawer from "./components/ModelProperties/ModelPropertiesDrawer";
 import { randomUUID } from "crypto";
+
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
@@ -52,6 +51,14 @@ jest.mock("src/import/importDirector.service", () => {
   const mockDirectorService = jest.fn(); // the constructor
   mockDirectorService.prototype.directImport = jest.fn(); // adding a mock method
   return mockDirectorService;
+});
+
+// mock the locales service
+jest.mock("src/locale/locales.service", () => {
+  // Mocking the ES5 class
+  const mockLocalesService = jest.fn(); // the constructor
+  mockLocalesService.prototype.getLocales = jest.fn(); // adding a mock method
+  return mockLocalesService;
 });
 
 // mock the snackbar
@@ -112,14 +119,14 @@ jest.mock("src/modeldirectory/components/ModelsTable/ModelsTable", () => {
 // mock the ModelDirectoryHeader
 jest.mock("src/modeldirectory/components/ModelDirectoryHeader/ModelDirectoryHeader", () => {
   const actual = jest.requireActual("src/modeldirectory/components/ModelDirectoryHeader/ModelDirectoryHeader");
-  const mockModelsTable = jest.fn().mockImplementation(() => {
+  const mockModelDirectoryHeader = jest.fn().mockImplementation(() => {
     return <div data-testid={actual.DATA_TEST_ID.MODEL_DIRECTORY_HEADER}>My Model Directory Header</div>;
   });
 
   return {
     ...actual,
     __esModule: true,
-    default: mockModelsTable,
+    default: mockModelDirectoryHeader,
   };
 });
 
@@ -207,6 +214,7 @@ describe("ModelDirectory", () => {
     jest.clearAllMocks();
     jest.useRealTimers();
     ModelInfoService.prototype.fetchAllModelsPeriodically = jest.fn();
+    LocalesService.prototype.getLocales = jest.fn();
   });
 
   afterEach(() => {
@@ -242,7 +250,11 @@ describe("ModelDirectory", () => {
       expect(modelDirectoryHeader).toBeInTheDocument();
 
       // AND the modelDirectoryHeader should receive the onModelImport callback
-      expect(ModelDirectoryHeader).toHaveBeenNthCalledWith(1, { onModelImport: expect.any(Function) }, {});
+      expect(ModelDirectoryHeader).toHaveBeenNthCalledWith(
+        1,
+        { onModelImport: expect.any(Function), isImportModelLoading: false },
+        {}
+      );
 
       // AND expect the ModelsTable to be visible
       const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
@@ -911,8 +923,10 @@ describe("ModelDirectory", () => {
   });
 
   describe("ModelDirectory.ImportDialog action tests", () => {
-    test("should show ImportDialog when import button is clicked", () => {
+    test("should show ImportDialog when import button is clicked", async () => {
       // GIVEN the ModelDirectory is rendered
+      const givenLocales = getArrayOfFakeLocales(4);
+      jest.spyOn(LocalesService.prototype, "getLocales").mockResolvedValue(givenLocales);
       render(<ModelDirectory />);
 
       // WHEN the user click the import button
@@ -921,20 +935,20 @@ describe("ModelDirectory", () => {
       });
 
       // THEN expect the ImportDialog to be visible
-      const importDialog = screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      const importDialog = await screen.findByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
       expect(importDialog).toBeVisible();
 
       // AND expect the import dialog to have been called with the correct props
       expect(ImportModelDialog).toHaveBeenCalledWith(
         expect.objectContaining({
-          availableLocales: availableLocales,
+          availableLocales: givenLocales,
           notifyOnClose: expect.any(Function),
         }),
         {}
       );
     });
 
-    test("should close ImportDialog and not import the model when cancel button is clicked", () => {
+    test("should close ImportDialog and not import the model when cancel button is clicked", async () => {
       // GIVEN the ModelDirectory is rendered
       render(<ModelDirectory />);
 
@@ -944,7 +958,8 @@ describe("ModelDirectory", () => {
       });
 
       // AND the ImportDialog is shown
-      expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
+      const importDialog = await screen.findByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      expect(importDialog).toBeVisible();
 
       // AND the user clicks on cancel
       act(() => {
@@ -976,7 +991,8 @@ describe("ModelDirectory", () => {
       });
 
       // AND the ImportDialog is shown
-      expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
+      const importDialog = await screen.findByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      expect(importDialog).toBeVisible();
 
       // WHEN the user has entered all the data required for the import
       const givenImportData = getTestImportData();
@@ -1061,7 +1077,8 @@ describe("ModelDirectory", () => {
       });
 
       // AND the ImportDialog is shown
-      expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
+      const importDialog = await screen.findByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      expect(importDialog).toBeVisible();
 
       // AND the user has entered all the data required for the import
       const givenImportData = getTestImportData();
@@ -1137,6 +1154,10 @@ describe("ModelDirectory", () => {
         (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
       });
 
+      // AND the ImportDialog is shown
+      const importDialog = await screen.findByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      expect(importDialog).toBeVisible();
+
       // AND the user has entered all the data required for the import
       const givenImportData = getTestImportData();
 
@@ -1196,7 +1217,8 @@ describe("ModelDirectory", () => {
       });
 
       // AND the ImportDialog is shown
-      expect(screen.getByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG)).toBeVisible();
+      const importDialog = await screen.findByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      expect(importDialog).toBeVisible();
 
       // AND the user has entered all the data required for the import
       const givenImportData = getTestImportData();
@@ -1224,6 +1246,55 @@ describe("ModelDirectory", () => {
           },
           expect.anything()
         );
+      });
+    });
+
+    test("should throw a ServiceError when the locales service fails", async () => {
+      // GIVEN the ModelDirectory is rendered
+      render(<ModelDirectory />);
+      const mockServiceError = new ServiceError(
+        "ServiceName",
+        "ServiceFunction",
+        "GET",
+        "/api/path",
+        500,
+        ErrorCodes.API_ERROR,
+        "Service Error Message"
+      );
+      LocalesService.prototype.getLocales = jest.fn().mockRejectedValueOnce(mockServiceError);
+
+      // WHEN the user clicks the import button
+      act(() => {
+        (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+      });
+
+      // THEN expect the ImportDialog to not be visible
+      const importDialog = screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      expect(importDialog).toBeNull();
+      // AND writeServiceErrorToLog to have been called
+      await waitFor(() => {
+        expect(writeServiceErrorToLog).toHaveBeenCalledWith(mockServiceError, console.error);
+      });
+    });
+
+    test("should throw an error when the locales service fails", async () => {
+      // GIVEN the ModelDirectory is rendered
+      render(<ModelDirectory />);
+      // AND the locales service will fail
+      const mockError = new Error("Locales service failed");
+      LocalesService.prototype.getLocales = jest.fn().mockRejectedValueOnce(mockError);
+
+      // WHEN the user clicks the import button
+      act(() => {
+        (ModelDirectoryHeader as jest.Mock).mock.lastCall[0].onModelImport();
+      });
+
+      // THEN expect the ImportDialog to not be visible
+      const importDialog = screen.queryByTestId(IMPORT_DIALOG_DATA_TEST_ID.IMPORT_MODEL_DIALOG);
+      expect(importDialog).toBeNull();
+      // AND the error to be thrown
+      await waitFor(() => {
+        expect(console.error).toHaveBeenCalledWith(mockError);
       });
     });
   });

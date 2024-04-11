@@ -8,6 +8,7 @@ import { Backdrop } from "src/theme/Backdrop/Backdrop";
 import ModelsTable from "./components/ModelsTable/ModelsTable";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
+import LocalesService from "src/locale/locales.service";
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
@@ -16,7 +17,7 @@ import ExportService from "src/export/export.service";
 import ModelPropertiesDrawer, {
   CloseEvent as DrawerCloseEvent,
 } from "./components/ModelProperties/ModelPropertiesDrawer";
-import { getApiUrl } from "src/envService";
+import { getApiUrl, getLocalesUrl } from "src/envService";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -30,28 +31,7 @@ export const SNACKBAR_ID = {
 const importDirectorService = new ImportDirectorService(getApiUrl());
 const modelInfoService = new ModelInfoService(getApiUrl());
 const exportService = new ExportService(getApiUrl());
-export const availableLocales: LocaleAPISpecs.Types.Payload[] = [
-  {
-    name: "South Africa",
-    shortCode: "ZA",
-    UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a",
-  },
-  {
-    name: "Ethiopia",
-    shortCode: "ETH",
-    UUID: "1df3d395-2a3d-4334-8fec-9d990bc8e3e4",
-  },
-  {
-    name: "Europe",
-    shortCode: "EU-en",
-    UUID: "7a480890-2293-49ef-9f18-0ffd1b99fc5a",
-  },
-  {
-    name: "Europe (French)",
-    shortCode: "EU-fr",
-    UUID: "bf73fccb-39a1-4eba-b5a1-845ae55ba86e",
-  },
-];
+const localesService = new LocalesService(getLocalesUrl());
 
 const ModelDirectory = () => {
   const [isImportDlgOpen, setIsImportDlgOpen] = React.useState(false);
@@ -63,12 +43,32 @@ const ModelDirectory = () => {
   const [drawerModel, setDrawerModel] = React.useState<ModelInfoTypes.ModelInfo | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
+  const [isImportModelLoading, setIsImportModelLoading] = React.useState(false);
+  const [locales, setLocales] = React.useState([] as LocaleAPISpecs.Types.Payload[]);
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const isOnline = useContext(IsOnlineContext);
 
   const showImportDialog = (b: boolean) => {
     setIsImportDlgOpen(b);
+  };
+
+  const handleOpenModelDialog = async () => {
+    setIsImportModelLoading(true);
+    try {
+      const data = await localesService.getLocales();
+      setLocales(data);
+      showImportDialog(true);
+    } catch (error) {
+      if (error instanceof ServiceError) {
+        writeServiceErrorToLog(error, console.error);
+      } else {
+        console.error(error);
+      }
+    } finally {
+      setIsImportModelLoading(false);
+    }
   };
 
   const handleNotifyOnShowModelDetails = (modelId: string) => {
@@ -211,7 +211,9 @@ const ModelDirectory = () => {
   return (
     <div style={{ width: "100%", height: "100%" }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
       <ContentLayout
-        headerComponent={<ModelDirectoryHeader onModelImport={() => showImportDialog(true)} />}
+        headerComponent={
+          <ModelDirectoryHeader onModelImport={handleOpenModelDialog} isImportModelLoading={isImportModelLoading} />
+        }
         mainComponent={
           <ModelsTable
             models={models}
@@ -224,7 +226,7 @@ const ModelDirectory = () => {
         {isImportDlgOpen && (
           <ImportModelDialog
             isOpen={isImportDlgOpen}
-            availableLocales={availableLocales}
+            availableLocales={locales}
             notifyOnClose={handleOnImportDialogClose}
           />
         )}

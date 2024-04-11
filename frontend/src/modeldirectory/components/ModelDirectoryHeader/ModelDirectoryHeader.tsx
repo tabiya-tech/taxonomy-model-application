@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import { AddCircleOutlined } from "@mui/icons-material";
 import { AuthContext, TabiyaUserRole } from "src/auth/AuthProvider";
@@ -13,10 +13,12 @@ export const DATA_TEST_ID = {
 
 export interface ModelDirectoryHeaderProps {
   onModelImport: () => void;
+  isImportModelLoading: boolean;
 }
 
 const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
   onModelImport,
+  isImportModelLoading,
 }: Readonly<ModelDirectoryHeaderProps>) => {
   const { hasRole } = React.useContext(AuthContext);
 
@@ -37,8 +39,11 @@ const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
         <PrimaryButton
           onClick={() => onModelImport()}
           data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}
-          startIcon={<AddCircleOutlined />}
+          startIcon={
+            isImportModelLoading ? <CircularProgress size={16} title="loading locales" /> : <AddCircleOutlined />
+          }
           disableWhenOffline={true}
+          disabled={isImportModelLoading}
         >
           Import Model
         </PrimaryButton>
