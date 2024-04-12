@@ -1,7 +1,7 @@
 
-import { useAuthUser } from './useAuthUser';
+import { useAuthUser } from 'src/auth/hooks/useAuthUser';
 import * as jwtDecodeUtils from "jwt-decode";
-import { TabiyaUser, TabiyaUserRole } from '../auth.types';
+import { TabiyaUser, TabiyaUserRole } from 'src/auth/auth.types';
 import { renderHook, act } from "src/_test_utilities/test-utils";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 
@@ -76,6 +76,21 @@ describe('useAuthUser hook tests', () => {
     expect(isRegistered).toBe(true);
   });
 
+  test("correctly returns false when the user is null and the role is not AnonymousUser", () => {
+    // GIVEN: The hook is used and no user is set
+    const { result } = renderHook(() => useAuthUser());
+    result.current.setUser(null)
+
+    // WHEN: Checking for a role that is not AnonymousUser
+    const isAnonymous = result.current.hasRole(TabiyaUserRole.RegisteredUser);
+    const isModdelManager = result.current.hasRole(TabiyaUserRole.ModelManager);
+
+    // THEN: It should return false
+    expect(isAnonymous).toBe(false);
+    // AND: It should return false for the ModelManager role
+    expect(isModdelManager).toBe(false);
+  })
+
   test('correctly identifies a user with a specific role', () => {
     const { result } = renderHook(() => useAuthUser());
 
@@ -113,7 +128,7 @@ describe('useAuthUser hook tests', () => {
     expect(hasAdminRole).toBe(false);
   });
 
-  test("Override the user", () => {
+  test("updating a new user to override the already existing user", () => {
     // GIVEN the hook is used
     const { result } = renderHook(() => useAuthUser());
 

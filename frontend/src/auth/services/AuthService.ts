@@ -1,7 +1,9 @@
 import { ErrorCodes } from "src/error/errorCodes";
 import { getServiceErrorFactory } from "src/error/error";
-import { TExchangeCodeResponse, TRefreshTokenResponse } from "../auth.types";
+import { TExchangeCodeResponse, TRefreshTokenResponse } from "src/auth/auth.types";
 import { AUTH_URL, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET } from "src/auth/constants";
+
+let isRefreshingTokens = false;
 
 /**
  * Service for handling authentication
@@ -70,16 +72,46 @@ export class AuthService {
   /**
    * Initiates the refreshing of tokens
    * @param refreshToken
-   * @param callback
+   * @param successCallback
+   * @param unauthorizedCallback
    */
-  async initiateRefreshTokens(refreshToken: string, callback: (data: any) => void) {
-    let data = await this.handleRefreshingTokens(refreshToken);
-    callback(data);
+  async initiateRefreshTokens(
+    refreshToken: string,
+    successCallback: (data: TRefreshTokenResponse) => void,
+    unauthorizedCallback: () => void
+  ) {
+
+
+    function handleEror (error: any) {
+      if(error.status >= 400 && error.status < 500) {
+        isRefreshingTokens = false;
+        unauthorizedCallback();
+      }
+    }
+
+    let data;
+    try {
+      data = await this.handleRefreshingTokens(refreshToken);
+      successCallback(data);
+      // Refresh when remaining 10% of the life-time
+    } catch (error) {
+      handleEror(error)
+      return;
+    }
+
+    const MARGIN = (data.expires_in * 1000) * 0.1;
 
     return setInterval( () => {
+      if(isRefreshingTokens) return;
+
+      isRefreshingTokens = true;
+
       this.handleRefreshingTokens(refreshToken).then((data) => {
-        callback(data)
+        isRefreshingTokens = false;
+        successCallback(data)
+      }).catch((error) => {
+        handleEror(error)
       })
-    }, data.expires_in * 1000)
+    }, (data.expires_in * 1000) - MARGIN)
   }
 }

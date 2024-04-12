@@ -1,19 +1,20 @@
 import { useContext } from "react";
-import { AuthContext } from "./AuthProvider";
-import { AUTH_URL, COGNITO_CLIENT_ID } from "./constants";
-import { renderHook, act } from "src/_test_utilities/test-utils";
-import { AuthPersistentStorage } from "./services/AuthPersistentStorage";
+import { AuthContext } from "src/auth/AuthProvider";
+import { AUTH_URL, COGNITO_CLIENT_ID } from "src/auth/constants";
+import { renderHook } from "src/_test_utilities/test-utils";
+import { AuthPersistentStorage } from "src/auth/services/AuthPersistentStorage";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 
-import * as useAuthUserHook from './hooks/useAuthUser';
-import * as useTokensHook from './hooks/useTokens';
-import * as getCodeQueryParam from "./utils/getCodeQueryParam";
-import { AuthService } from "./services/AuthService";
-import {waitFor} from "@testing-library/react";
+import * as useAuthUserHook from 'src/auth/hooks/useAuthUser';
+import * as useTokensHook from 'src/auth/hooks/useTokens';
+import * as getCodeQueryParam from "src/auth/utils/getCodeQueryParam";
+import { AuthService } from "src/auth/services/AuthService";
+import { act, waitFor } from "@testing-library/react";
+import {mockLoggedInUser} from "src/_test_utilities/mockLoggedInUser";
+import { defaultUseTokensResponse } from "src/auth/hooks/useTokens";
 
-
-jest.mock('./hooks/useAuthUser');
-jest.mock('./hooks/useTokens');
+jest.mock('src/auth/hooks/useAuthUser');
+jest.mock('src/auth/hooks/useTokens');
 
 // mock the snackbar
 jest.mock("src/theme/SnackbarProvider/SnackbarProvider", () => {
@@ -29,27 +30,17 @@ jest.mock("src/theme/SnackbarProvider/SnackbarProvider", () => {
 });
 
 const open = jest.spyOn(window, "open").mockReturnValue(null)
-const clearRefreshToken = jest.spyOn(AuthPersistentStorage, "clearRefreshToken")
+const clear = jest.spyOn(AuthPersistentStorage, "clear")
 const exchangeCodeWithTokens = jest.spyOn(AuthService.prototype, "exchangeCodeWithTokens")
 
 function defaultSetup(){
-  // @ts-ignore
-  useAuthUserHook.useAuthUser.mockReturnValue({
-    user: null,
-    hasRole: jest.fn(),
-    updateUserByAccessToken: jest.fn(),
-  });
+  mockLoggedInUser({ })
 
   // @ts-ignore
-  useTokensHook.useTokens.mockReturnValue({
-    accessToken: "foo",
-    identityToken: "foo",
-    refreshToken: "foo"
-  });
+  useTokensHook.useTokens.mockReturnValue(defaultUseTokensResponse);
 }
 
 const renderAuthContext = () =>  renderHook(() => useContext(AuthContext))
-
 
 describe("AuthProvider module", () => {
   beforeEach(() => {
@@ -61,221 +52,162 @@ describe("AuthProvider module", () => {
     jest.useRealTimers(); // Switch back to real timers after each test
   });
 
-  describe('AuthProvider Component tests', () => {
-    beforeAll(defaultSetup)
+  beforeAll(defaultSetup)
 
-    describe("Login functionality", () => {
-      test("should call the login url with the correct parameters", () => {
-        // GIVEN: The Auth Provider is rendered and auth context is accessed
-        const { result } = renderAuthContext()
+  describe("Login functionality", () => {
+    test("should call the login url with the correct parameters", () => {
+      // GIVEN: The Auth Provider is rendered and auth context is accessed
+      const { result } = renderAuthContext()
 
-        // WHEN the login function is called
-        result.current?.login()
+      // WHEN the login function is called
+      result.current?.login()
 
-        // THEN: The window should be redirected to the login url
-        // AND the url should contain the correct parameters
-        expect(open)
-          .toHaveBeenCalledWith(`${AUTH_URL}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=${encodeURIComponent(window.location.origin)}/`, `_self`)
-      })
+      // THEN: The window should be redirected to the login url
+      // AND the url should contain the correct parameters
+      expect(open)
+        .toHaveBeenCalledWith(`${AUTH_URL}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=${encodeURIComponent(window.location.origin)}/`, `_self`)
+    })
+  })
+
+  describe("Logout functionality", () => {
+    test("should redirect to the correct login url with the correct parameters", () => {
+      // GIVEN: The Auth Provider is rendered and auth context is accessed
+      const { result } = renderAuthContext()
+
+      // WHEN the logout function is called
+      act(() => result.current?.logout())
+
+      // THEN: The window should be redirected to the login url
+      expect(open).toHaveBeenCalled()
+      // AND the url should contain the correct parameters
+      expect(open)
+        .toHaveBeenCalledWith(`${AUTH_URL}/logout?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&logout_uri=${encodeURIComponent(window.location.origin)}/`, `_self`)
     })
 
-    describe("Logout functionality", () => {
-      test("should call the login url with the correct parameters", () => {
-        // GIVEN: The Auth Provider is rendered and auth context is accessed
-        const { result } = renderAuthContext()
+    test("it should clear the refresh token when the logout function is called",async  () => {
+      const clearTokens = jest.fn()
 
-        // WHEN the login function is called
-        result.current?.logout()
+      // @ts-ignore
+      useTokensHook.useTokens.mockReturnValue({ clearTokens });
 
-        // THEN: The window should be redirected to the login url
-        expect(open).toHaveBeenCalled()
-        // AND the url should contain the correct parameters
-        expect(open)
-          .toHaveBeenCalledWith(`${AUTH_URL}/logout?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=${encodeURIComponent(window.location.origin)}/`, `_self`)
-      })
+      // GIVEN the Auth Provider is rendered and auth context is accessed
+      const { result } = renderAuthContext()
 
-      test("it should clear the refresh token when the logout function is called", () => {
-        // GIVEN the Auth Provider is rendered and auth context is accessed
-        const { result } = renderAuthContext()
+      // AND the refresh token is set
+      AuthPersistentStorage.setRefreshToken("foo")
 
-        // AND the refresh token is set
-        AuthPersistentStorage.setRefreshToken("foo")
+      // WHEN the logout function is called
+      act(() => result.current?.logout())
 
-        // WHEN the logout function is called
-        result.current?.logout()
+      // THEN the refresh token should be cleared
+      expect(AuthPersistentStorage.getRefreshToken()).toBeNull()
 
-        // THEN the refresh token should be cleared
-        expect(AuthPersistentStorage.getRefreshToken()).toBeNull()
+      // AND the clear function should be called
+      expect(clear).toHaveBeenCalled()
 
-        // AND the clearRefreshToken function should be called
-        expect(clearRefreshToken).toHaveBeenCalled()
-      })
+      // AND clear tokens should be called
+      expect(clearTokens).toHaveBeenCalled()
     })
+  })
 
-    describe('AuthProvider - update user by access token', () => {
-      it('calls updateUserByAccessToken if accessToken exists and user is null', () => {
-        const mockUpdateUserByAccessToken = jest.fn();
-
-        // @ts-ignore
-        useAuthUserHook.useAuthUser.mockReturnValue({
-          user: null,
-          updateUserByAccessToken: mockUpdateUserByAccessToken,
-        });
-
-        // GIVEN: the access token exists and the user is null
-        // Mock the useTokens hook
-        const mockAccessToken = 'test-access-token';
-
-        // @ts-ignore
-        useTokensHook.useTokens.mockReturnValue({
-          accessToken: mockAccessToken,
-        });
-
-        // WHEN: the AuthProvider is rendered and the AuthContext is accessed
-        renderAuthContext()
-
-        // THEN updateUserByAccessToken should be called
-        expect(mockUpdateUserByAccessToken).toHaveBeenCalledWith(mockAccessToken);
-      });
-
-      it("should call the mockUpdateUserByAccessToken function when the access token changes again", () => {
-        const mockUpdateUserByAccessToken = jest.fn();
-
-        // @ts-ignore
-        useAuthUserHook.useAuthUser.mockReturnValue({
-          user: null,
-          updateUserByAccessToken: mockUpdateUserByAccessToken,
-        });
-
-        // GIVEN: the access token exists and the user is null
-        // Mock the useTokens hook
-        const mockAccessToken = 'test-access-token';
-
-        // @ts-ignore
-        useTokensHook.useTokens.mockReturnValue({
-          accessToken: mockAccessToken,
-        });
-
-        // WHEN: the AuthProvider is rendered and the AuthContext is accessed
-        const { rerender } = renderAuthContext()
-
-        // THEN updateUserByAccessToken should be called
-        expect(mockUpdateUserByAccessToken).toHaveBeenCalledWith(mockAccessToken);
-
-        // WHEN: the access token changes
-        const newMockAccessToken = 'new-test-access-token';
-
-        // @ts-ignore
-        useTokensHook.useTokens.mockReturnValue({
-          accessToken: newMockAccessToken,
-        });
-
-        rerender();
-
-        // THEN updateUserByAccessToken should be called with the new access token
-        expect(mockUpdateUserByAccessToken).toHaveBeenCalledWith(newMockAccessToken);
-      })
+  describe('AuthProvider - Authorization Code Exchange', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
     });
 
-    describe('AuthProvider - Authorization Code Exchange', () => {
-      afterEach(() => {
-        jest.clearAllMocks();
+    it('does not call exchangeCodeWithTokens if no code is present in URL', () => {
+      // GIVEN no code is present in the URL
+      const givenCode = "";
+      jest.spyOn(getCodeQueryParam, "getCodeQueryParam").mockReturnValue(givenCode);
+
+      // WHEN the AuthProvider is rendered
+      renderAuthContext()
+
+      // THEN exchangeCodeWithTokens should not be called
+      expect(exchangeCodeWithTokens).not.toHaveBeenCalled();
+    });
+
+    it('calls exchangeCodeWithTokens with code and updates tokens on success', async () => {
+      jest.spyOn(window.history, 'replaceState');
+
+
+      // GIVEN: a code is present in the URL
+      const mockCode = 'test-code';
+      jest.spyOn(getCodeQueryParam, "getCodeQueryParam").mockReturnValue(mockCode);
+
+      // AND exchangeCodeWithTokens resolves with mock token data
+      const mockTokenData = {
+        access_token: 'access-token',
+        id_token: 'id-token',
+        refresh_token: 'refresh-token',
+        expires_in: 3600
+      };
+
+      exchangeCodeWithTokens.mockResolvedValue(mockTokenData);
+
+      const mockSetAccessToken = jest.fn();
+      const mockSetIdentityToken = jest.fn();
+      const mockSetRefreshToken = jest.fn();
+      const mockSetIsAuthenticated = jest.fn();
+
+      // @ts-ignore
+      useTokensHook.useTokens.mockReturnValue({
+        setAccessToken: mockSetAccessToken,
+        setIdentityToken: mockSetIdentityToken,
+        setRefreshToken: mockSetRefreshToken,
+        setIsAuthenticated: mockSetIsAuthenticated,
       });
 
-      it('does not call exchangeCodeWithTokens if no code is present in URL', () => {
-        // GIVEN no code is present in the URL
-        const givenCode = "";
-        jest.spyOn(getCodeQueryParam, "getCodeQueryParam").mockReturnValue(givenCode);
+      const mockUpdateUserByAccessToken = jest.fn();
 
-        // WHEN the AuthProvider is rendered
-        renderAuthContext()
-
-        // THEN exchangeCodeWithTokens should not be called
-        expect(exchangeCodeWithTokens).not.toHaveBeenCalled();
+      // @ts-ignore
+      useAuthUserHook.useAuthUser.mockReturnValue({
+        updateUserByAccessToken: mockUpdateUserByAccessToken,
       });
 
-      it('calls exchangeCodeWithTokens with code and updates tokens on success', async () => {
-        jest.spyOn(window.history, 'replaceState');
+      // WHEN: the AuthProvider is rendered
+      renderAuthContext()
 
+      await Promise.resolve(); // Wait for all promises to resolve
 
-        // GIVEN: a code is present in the URL
-        const mockCode = 'test-code';
-        jest.spyOn(getCodeQueryParam, "getCodeQueryParam").mockReturnValue(mockCode);
+      // THEN exchangeCodeWithTokens should be called with the code
+      expect(exchangeCodeWithTokens).toHaveBeenCalledWith(mockCode);
 
-        // AND exchangeCodeWithTokens resolves with mock token data
-        const mockTokenData = {
-          access_token: 'access-token',
-          id_token: 'id-token',
-          refresh_token: 'refresh-token',
-          expires_in: 3600
-        };
+      // AND the tokens should be updated
+      await waitFor(() => expect(mockSetAccessToken).toHaveBeenCalledWith(mockTokenData.access_token));
 
-        exchangeCodeWithTokens.mockResolvedValue(mockTokenData);
+      // AND the refresh token should be updated
+      expect(mockSetRefreshToken).toHaveBeenCalledWith(mockTokenData.refresh_token);
 
-        const mockSetAccessToken = jest.fn();
-        const mockSetIdentityToken = jest.fn();
-        const mockSetRefreshToken = jest.fn();
+      // AND updateUserByAccessToken should be called
+      expect(mockUpdateUserByAccessToken).toHaveBeenCalledWith(mockTokenData.access_token);
 
-        // @ts-ignore
-        useTokensHook.useTokens.mockReturnValue({
-          setAccessToken: mockSetAccessToken,
-          setIdentityToken: mockSetIdentityToken,
-          setRefreshToken: mockSetRefreshToken,
-        });
+      // AND setIsAuthenticated should be called with true
+      expect(mockSetIsAuthenticated).toHaveBeenCalledWith(true);
 
-        const mockUpdateUserByAccessToken = jest.fn();
+      // AND the URL should be reset
+      expect(window.history.replaceState).toHaveBeenCalledWith({}, document.title, "/");
+    });
 
-        // @ts-ignore
-        useAuthUserHook.useAuthUser.mockReturnValue({
-          updateUserByAccessToken: mockUpdateUserByAccessToken,
-        });
+    it('logs an error when exchangeCodeWithTokens fails', async () => {
+      console.error = jest.fn(); // Mock console.error
 
-        // WHEN: the AuthProvider is rendered
-        renderAuthContext()
+      // GIVEN: a code is present in the URL
+      const mockCode = 'test-code';
+      jest.spyOn(getCodeQueryParam, "getCodeQueryParam").mockReturnValue(mockCode);
 
-        await act(async () => {
-          await Promise.resolve(); // Wait for all promises to resolve
+      // WHEN exchangeCodeWithTokens rejects with an error
+      const error = new Error('Token exchange failed');
+      exchangeCodeWithTokens.mockRejectedValue(error);
 
-          // THEN exchangeCodeWithTokens should be called with the code
-          expect(exchangeCodeWithTokens).toHaveBeenCalledWith(mockCode);
+      // AND: the AuthProvider is rendered
+      renderAuthContext();
 
-          // AND the tokens should be updated
-          expect(mockSetAccessToken).toHaveBeenCalledWith(mockTokenData.access_token);
-
-          // AND the identity token should be updated
-          expect(mockSetIdentityToken).toHaveBeenCalledWith(mockTokenData.id_token);
-
-          // AND the refresh token should be updated
-          expect(mockSetRefreshToken).toHaveBeenCalledWith(mockTokenData.refresh_token);
-
-          // AND updateUserByAccessToken should be called
-          expect(mockUpdateUserByAccessToken).toHaveBeenCalledWith(mockTokenData.access_token);
-
-          // AND the URL should be reset
-          expect(window.history.replaceState).toHaveBeenCalledWith({}, document.title, "/");
-        })
-      });
-
-      it('logs an error when exchangeCodeWithTokens fails', async () => {
-        console.error = jest.fn(); // Mock console.error
-
-        // GIVEN: a code is present in the URL
-        const mockCode = 'test-code';
-        jest.spyOn(getCodeQueryParam, "getCodeQueryParam").mockReturnValue(mockCode);
-
-        // WHEN exchangeCodeWithTokens rejects with an error
-        const error = new Error('Token exchange failed');
-        exchangeCodeWithTokens.mockRejectedValue(error);
-
-        // AND: the AuthProvider is rendered
-        renderAuthContext();
-
-        // THEN: the error should be logged
-        await waitFor(() => {
-          // AND a notification should be shown
-          expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith("Failed to exchange provided code with tokens", { variant: "error" })
-        })
-      });
+      // THEN: the error should be logged
+      await waitFor(() => {
+        // AND a notification should be shown
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith("Failed to exchange provided code with tokens", { variant: "error" })
+      })
     });
   });
 });

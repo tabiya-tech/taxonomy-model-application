@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { TabiyaUser, TabiyaUserRole, TAccessTokenDetails } from "../auth.types";
+import { TabiyaUser, TabiyaUserRole, TAccessTokenDetails } from "src/auth/auth.types";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 
 /**
  * A hook to manage the user state
+ * this hook was added to fullfill Single Responsability Principle, for now it is only used in authProvider
  * @returns TabiyaUser | null - The user
  */
 export function useAuthUser(){
@@ -52,11 +53,4 @@ export function useAuthUser(){
     setUser,
     updateUserByAccessToken
   }
-}
-
-export const useAuthUserDefault: ReturnType<typeof useAuthUser> = {
-  user: null,
-  hasRole: () => false,
-  setUser: () => {},
-  updateUserByAccessToken: () => {}
 }

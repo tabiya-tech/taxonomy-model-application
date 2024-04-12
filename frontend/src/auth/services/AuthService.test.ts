@@ -1,13 +1,13 @@
-import { AuthService } from "./AuthService";
+import { AuthService } from "src/auth/services/AuthService";
 import { StatusCodes } from "http-status-codes";
 import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
-import { AUTH_URL, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET } from "../constants";
+import { AUTH_URL, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET } from "src/auth/constants";
 
 jest.spyOn(global, "fetch");
 
 jest.useFakeTimers();
 
-const defaultHandleRefreshingTokensResponse = {
+const givenRefreshResponse = {
   access_token: "foo",
   id_token: "foo",
   expires_in: 3600
@@ -218,59 +218,87 @@ describe("AuthService class tests", () => {
   })
 
   describe("initiateRefreshTokens", () => {
-    const givenCallback = jest.fn();
+    const givenSuccessCallback = jest.fn();
+    const givenUnauthorizedCallback = jest.fn();
 
     it("should continue to call the handleRefreshingTokens with the refresh token", async() => {
-      const handleRefreshingTokens = jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(defaultHandleRefreshingTokensResponse)
+      const handleRefreshingTokens = jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(givenRefreshResponse)
 
       expect(handleRefreshingTokens).toHaveBeenCalledTimes(0);
-      expect(givenCallback).toHaveBeenCalledTimes(0);
+      expect(givenSuccessCallback).toHaveBeenCalledTimes(0);
 
       // GIVEN the refresh token is foo
       const givenRefreshToken = "foo"
 
       // WHEN initiateRefreshTokens is called with the refresh token
-      await authService.initiateRefreshTokens(givenRefreshToken, givenCallback);
+      await authService.initiateRefreshTokens(givenRefreshToken, givenSuccessCallback, givenUnauthorizedCallback);
 
       // AND it should call handleRefreshingTokens with the refresh token
       expect(handleRefreshingTokens).toHaveBeenCalledTimes(1);
-      expect(givenCallback).toHaveBeenCalledTimes(1);
+      expect(givenSuccessCallback).toHaveBeenCalledTimes(1);
 
-      const N = 2;
+      const N = 10;
 
       // WHEN the interval is called at Nth time
-      jest.advanceTimersByTime(N * (defaultHandleRefreshingTokensResponse.expires_in * 1000));
+      for(let i = 1; i < N; i++) {
+        jest.advanceTimersByTime(givenRefreshResponse.expires_in * 1000 - (givenRefreshResponse.expires_in * 1000) * 0.1);
 
-      // THEN it should call handleRefreshingTokens/callback with the refresh token
-      expect(handleRefreshingTokens).toHaveBeenCalledTimes(1+N); // 1 from the first call
+        await Promise.resolve()
 
-      await Promise.resolve()
+        // THEN it should call handleRefreshingTokens/callback with the refresh token
+        expect(handleRefreshingTokens).toHaveBeenCalledTimes(  1+i); // 1 from the first call
 
-      expect(givenCallback).toHaveBeenCalledTimes(1+N); // 1 from the first call
+        expect(givenSuccessCallback).toHaveBeenCalledTimes( 1+i); // 1 from the first cal
+      }
     })
 
-    it("should call handleRefreshingTokens with the refresh token", async() => {
-      const handleRefreshingTokensSpy = jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(defaultHandleRefreshingTokensResponse)
+    it("should not call handleRefreshingTokens when there is already refreshing in progress", async() => {
+      const handleRefreshingTokensSpy = jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(givenRefreshResponse)
+      handleRefreshingTokensSpy.mockClear()
 
       // GIVEN the refresh token is foo
       const refreshToken = "foo";
 
       // WHEN initiateRefreshTokens is called with the refresh token
-      await authService.initiateRefreshTokens(refreshToken, givenCallback);
+      await authService.initiateRefreshTokens(refreshToken, givenSuccessCallback, givenUnauthorizedCallback);
 
       // THEN handleRefreshingTokens should be called with the refresh token
       expect(handleRefreshingTokensSpy).toHaveBeenCalled();
       expect(handleRefreshingTokensSpy).toHaveBeenCalledWith(refreshToken);
+
+      const TIMES_ELAPSED = 3;
+
+      // WHEN the time elapses when the refreshing is in progress
+      jest.advanceTimersByTime(TIMES_ELAPSED * (givenRefreshResponse.expires_in * 1000 - (givenRefreshResponse.expires_in * 1000) * 0.1));
+
+      // THEN: the handleRefreshingTokens should not be called again
+      expect(handleRefreshingTokensSpy.mock.calls.length).toBeLessThan(TIMES_ELAPSED);
+    })
+
+    it("should call handleRefreshingTokens with the refresh token", async() => {
+      const handleRefreshingTokensSpy = jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(givenRefreshResponse)
+
+      // GIVEN the refresh token is foo
+      const refreshToken = "foo";
+
+      // WHEN initiateRefreshTokens is called with the refresh token
+      await authService.initiateRefreshTokens(refreshToken, givenSuccessCallback, givenUnauthorizedCallback);
+
+      // THEN handleRefreshingTokens should be called with the refresh token
+      expect(handleRefreshingTokensSpy).toHaveBeenCalled();
+      expect(handleRefreshingTokensSpy).toHaveBeenCalledWith(refreshToken);
+
+
     })
 
     it("Should return a timer when the refreshing is initiated", async() => {
-      jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(defaultHandleRefreshingTokensResponse)
+      jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(givenRefreshResponse)
 
       // GIVEN the refresh token is foo
       const givenRefreshToken = "foo"
 
       // WHEN initiateRefreshTokens is called with the refresh token
-      let timer = await authService.initiateRefreshTokens(givenRefreshToken, givenCallback);
+      let timer = await authService.initiateRefreshTokens(givenRefreshToken, givenSuccessCallback, givenUnauthorizedCallback);
 
       // THEN it should return a timer
       // @ts-ignore
@@ -278,31 +306,68 @@ describe("AuthService class tests", () => {
     })
 
     it("Should call the given callback with the response from handleRefreshingTokens", async() => {
-      jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(defaultHandleRefreshingTokensResponse)
+      jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(givenRefreshResponse)
 
       // GIVEN the refresh token is foo
       const givenRefreshToken = "foo"
 
       // WHEN initiateRefreshTokens is called with the refresh token
-      await authService.initiateRefreshTokens(givenRefreshToken, givenCallback);
+      await authService.initiateRefreshTokens(givenRefreshToken, givenSuccessCallback, givenUnauthorizedCallback);
 
       // THEN the callback should be called with the response from handleRefreshingTokens
-      expect(givenCallback).toHaveBeenCalledWith(defaultHandleRefreshingTokensResponse);
+      expect(givenSuccessCallback).toHaveBeenCalledWith(givenRefreshResponse);
     })
 
     it("should call setInterval with the correct number", async() => {
-      jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(defaultHandleRefreshingTokensResponse)
+      jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(givenRefreshResponse)
       const setIntervalSpy = jest.spyOn(global, "setInterval").mockImplementation(jest.fn())
 
       // GIVEN the refresh token is foo
       const givenRefreshToken = "foo"
 
       // WHEN initiateRefreshTokens is called with the refresh token
-      await authService.initiateRefreshTokens(givenRefreshToken, givenCallback);
+      await authService.initiateRefreshTokens(givenRefreshToken, givenSuccessCallback, givenUnauthorizedCallback);
 
-      // THEN it should call setInterval with the correct number
+      const MARGIN = (givenRefreshResponse.expires_in * 1000) * 0.1;
+
+      // THEN it should call setInterval with the correct number (expires_in * 1000) * 0.1
       // @ts-ignore
-      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), defaultHandleRefreshingTokensResponse.expires_in * 1000);
+      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), givenRefreshResponse.expires_in * 1000 - MARGIN);
+    })
+
+    it("should call the unauthorized callback when the handleRefreshingTokens throws an error", async() => {
+      jest.spyOn(authService, 'handleRefreshingTokens').mockRejectedValue({ status : 401 })
+
+      // GIVEN the refresh token is foo
+      const givenRefreshToken = "foo"
+
+      // WHEN initiateRefreshTokens is called with the refresh token
+      await authService.initiateRefreshTokens(givenRefreshToken, givenSuccessCallback, givenUnauthorizedCallback);
+
+      // THEN the callback should be called with the response from handleRefreshingTokens
+      expect(givenUnauthorizedCallback).toHaveBeenCalled();
+    })
+
+    it("should call unauthorized callback when the status is first 200 and then 401", async() => {
+      jest.spyOn(authService, 'handleRefreshingTokens').mockResolvedValue(givenRefreshResponse)
+
+      // GIVEN the refresh token is foo
+      const givenRefreshToken = "foo"
+
+      // WHEN initiateRefreshTokens is called with the refresh token
+      await authService.initiateRefreshTokens(givenRefreshToken, givenSuccessCallback, givenUnauthorizedCallback);
+
+      // THEN the callback should be called with the response from handleRefreshingTokens
+      expect(givenSuccessCallback).toHaveBeenCalled();
+
+      // WHEN the handleRefreshingTokens throws an error
+      jest.spyOn(authService, 'handleRefreshingTokens').mockRejectedValue({ status: 401 })
+
+      // AND the time elapses
+      jest.advanceTimersByTime(givenRefreshResponse.expires_in * 1000 - (givenRefreshResponse.expires_in * 1000) * 0.1);
+
+      // THEN it should call the unauthorized callback
+      expect(givenUnauthorizedCallback).toHaveBeenCalled();
     })
   })
 })

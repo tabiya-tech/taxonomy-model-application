@@ -1,4 +1,5 @@
 export const REFRESH_TOKEN_KEY = "refreshToken";
+export const AUTH_TOKEN_KEY = "authToken"
 
 /**
  * This class is used to store the tokens in the session storage.
@@ -28,6 +29,29 @@ export class AuthPersistentStorage {
    */
   static clearRefreshToken(): void {
     this.storage.removeItem(REFRESH_TOKEN_KEY)
+  }
+
+  /**
+   * Returns the auth token from the storage
+   * @returns string | null - The auth token
+   */
+  static getAuthToken(): string | null {
+    return this.storage.getItem(AUTH_TOKEN_KEY);
+  }
+
+  /**
+   * Clears the auth token from the storage
+   */
+  static clearAuthToken(): void {
+    this.storage.removeItem(AUTH_TOKEN_KEY)
+  }
+
+  /**
+   * Sets the auth token in the storage
+   * @param authToken
+   */
+  static setAuthToken(authToken: string): void {
+    this.storage.setItem(AUTH_TOKEN_KEY, authToken);
   }
 
   /**

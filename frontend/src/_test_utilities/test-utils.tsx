@@ -10,13 +10,13 @@ import { AuthProvider } from "src/auth/AuthProvider";
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <AuthProvider>
-      <IsOnlineProvider>
-        <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+    <IsOnlineProvider>
+      <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+        <AuthProvider>
           <SnackbarProvider>{children}</SnackbarProvider>
-        </ThemeProvider>
-      </IsOnlineProvider>
-    </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </IsOnlineProvider>
   );
 };
 

@@ -6,8 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import applicationTheme, { ThemeMode } from "./theme/applicationTheme/applicationTheme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
-import { IsOnlineProvider } from "./app/providers";
-import { AuthProvider } from "./auth/AuthProvider";
+import { IsOnlineProvider, AuthProvider } from "src/app/providers";
 
 // Currently the fonts are downloaded from Google via the index.css
 // Fonts could be distributed with the app instead, by explicitly importing them here
@@ -17,15 +16,15 @@ const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
   <React.StrictMode>
     <CssBaseline />
-    <AuthProvider>
       <IsOnlineProvider>
         <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
-          <SnackbarProvider>
-            <App />
-          </SnackbarProvider>
+          <AuthProvider>
+            <SnackbarProvider>
+              <App />
+            </SnackbarProvider>
+          </AuthProvider>
         </ThemeProvider>
       </IsOnlineProvider>
-    </AuthProvider>
   </React.StrictMode>
 );
 
