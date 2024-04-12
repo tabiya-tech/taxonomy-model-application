@@ -17,10 +17,22 @@ describe("ModelDirectoryHeader", () => {
     // GIVEN an onModelImport callback function
     const givenOnModelImportCallback = () => undefined;
 
+    // AND a model manager user
+    const givenUser: AuthContextValue = {
+      ...authContextDefaultValue,
+      hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
+    };
+
+
+
     jest.spyOn(PrimaryButtonModule, "default"); //.mockImplementation(() => <div data-testid={"primary-button-test-id"}></div>);
 
-    // WHEN a ModelDirectoryHeader component is rendered with the given callback
-    render(<ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />);
+    // WHEN a ModelDirectoryHeader component is rendered
+    render(
+      <AuthContext.Provider value={givenUser}>
+        <ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />
+      </AuthContext.Provider>
+    );
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
@@ -45,8 +57,19 @@ describe("ModelDirectoryHeader", () => {
     // GIVEN an onModelImport callback function
     const givenOnModelImportCallback = jest.fn();
 
-    // WHEN a ModelDirectoryHeader component is rendered with the given callback
-    render(<ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />);
+    // AND a model manager user
+    const givenUser: AuthContextValue = {
+      ...authContextDefaultValue,
+      hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
+    };
+
+    // WHEN a ModelDirectoryHeader component is rendered
+    render(
+      <AuthContext.Provider value={givenUser}>
+        <ModelDirectoryHeader onModelImport={givenOnModelImportCallback} />
+      </AuthContext.Provider>
+    );
+
     // AND the import button is clicked
     await userEvent.click(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON));
 

@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { render, screen, within } from "@testing-library/react"; //we don't have to import from test_utils since index already have everything
+import { render, screen, within } from "@testing-library/react";
 
 // mock the react-dom/client
 // Using jest.doMock() so that the render function can be accessed from within the mock
@@ -59,16 +59,23 @@ jest.mock("@mui/material", () => {
   };
 });
 
-// mock isOnlineProvider
+// mock isOnlineProvider, AuthProvider
 jest.mock("src/app/providers/index.tsx", () => {
   const mIsOnlineProvider = jest
     .fn()
     .mockImplementation(({ children }) => <div data-testid="isonline-provider-id">{children}</div>);
+
+
+  const mAuthProvider = jest
+    .fn()
+    .mockImplementation(({ children }) => <div data-testid="auth-provider-id">{children}</div>);
   return {
     __esModule: true,
     IsOnlineProvider: mIsOnlineProvider,
+    AuthProvider: mAuthProvider,
   };
 });
+
 
 describe("test the application bootstrapping", () => {
   beforeEach(() => {
@@ -100,6 +107,10 @@ describe("test the application bootstrapping", () => {
       // AND expect the snackbar provider to be in the DOM and to be a child of the theme provider
       const snackbarProviderElement = within(themeProviderElement).getByTestId("snackbar-provider-id");
       expect(snackbarProviderElement).toBeInTheDocument();
+
+      // AND expect the snackbar provider to be in the DOM and to be a child of the theme provider
+      const authProviderElement = within(themeProviderElement).getByTestId("auth-provider-id");
+      expect(authProviderElement).toBeInTheDocument();
 
       // AND expect the taxonomy app to be in the DOM and to be a child of the snackbar provider
       const taxonomyAppElement = within(snackbarProviderElement).getByTestId("tabiya-app-id");

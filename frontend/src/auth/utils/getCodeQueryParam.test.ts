@@ -1,4 +1,4 @@
-import { getCodeQueryParam } from "./getCodeQueryParam";
+import { getCodeQueryParam } from "src/auth/utils/getCodeQueryParam";
 
 describe('getCodeQueryParam function tests', () => {
   test("should return the code query param when it is set", () => {

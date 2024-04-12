@@ -7,7 +7,7 @@ export enum TabiyaUserRole {
 }
 
 export type TabiyaUser = {
-  userName: string;
+  username: string;
   roles: TabiyaUserRole[];
 };
 

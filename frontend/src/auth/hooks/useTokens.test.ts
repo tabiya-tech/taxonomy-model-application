@@ -1,99 +1,21 @@
-import { useTokens } from "./useTokens"
+import { useTokens } from "src/auth/hooks/useTokens"
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { AuthPersistentStorage } from "../services/AuthPersistentStorage";
-import { AuthService } from "../services/AuthService";
+import { AuthPersistentStorage } from "src/auth/services/AuthPersistentStorage";
+import { AuthService } from "src/auth/services/AuthService";
 
 const TOKEN_VALUE = "foo"
+const EXPIRES_IN = 3600;
 
 const clearInterval = jest.spyOn(global, 'clearInterval');
 
+const updateUserByAccessToken = jest.fn();
+const params = { updateUserByAccessToken }
+
 describe("use Tokens hook tests", () => {
-  describe('identityToken', () => {
-    test("it should return null when not set", () => {
-      // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
-
-      // WHEN no token is set
-
-      // THEN the identityToken should be null
-      expect(result.current.identityToken).toBe("");
-    })
-
-    test("it should return the identity token when set", () => {
-      // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
-
-      // WHEN an identity token is set
-      act(() => { result.current.setIdentityToken(TOKEN_VALUE) });
-
-      // THEN the identityToken should be set
-      expect(result.current.identityToken).toBe(TOKEN_VALUE);
-    })
-
-    test("when the identity token is updated", () => {
-      // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
-
-      // WHEN an identity token is set
-      act(() => { result.current.setIdentityToken(TOKEN_VALUE) });
-
-      // THEN the identityToken should be set
-      expect(result.current.identityToken).toBe(TOKEN_VALUE);
-
-      // WHEN the identity token is updated
-      act(() => { result.current.setIdentityToken("bar") });
-
-      // THEN the identityToken should be updated
-      expect(result.current.identityToken).toBe("bar");
-      expect(result.current.identityToken).not.toBe(TOKEN_VALUE);
-    })
-  });
-
-  describe('accessToken', () => {
-    test("it should return null when not set", () => {
-      // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
-
-      // WHEN no token is set
-
-      // THEN the access token should be null
-      expect(result.current.accessToken).toBe("");
-    })
-
-    test("it should return the access token when set", () => {
-      // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
-
-      // WHEN an access token is set
-      act(() => { result.current.setAccessToken(TOKEN_VALUE) });
-
-      // THEN the access token should be set
-      expect(result.current.accessToken).toBe(TOKEN_VALUE);
-    })
-
-    test("when the access token is updated", () => {
-      // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
-
-      // WHEN an access token is set
-      act(() => { result.current.setAccessToken(TOKEN_VALUE) });
-
-      // THEN the access should be set
-      expect(result.current.accessToken).toBe(TOKEN_VALUE);
-
-      // WHEN the access token is updated
-      act(() => { result.current.setAccessToken("bar") });
-
-      // THEN the access token should be updated
-      expect(result.current.accessToken).toBe("bar");
-      expect(result.current.accessToken).not.toBe(TOKEN_VALUE);
-    })
-  });
-
   describe('refreshToken', () => {
     test("it should return null when not set", () => {
       // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
+      const { result } = renderHook(() => useTokens(params));
 
       // WHEN no token is set
 
@@ -103,7 +25,7 @@ describe("use Tokens hook tests", () => {
 
     test("it should return the refresh token when set", () => {
       // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
+      const { result } = renderHook(() => useTokens(params));
 
       // WHEN refresh token is set
       act(() => { result.current.setRefreshToken(TOKEN_VALUE) });
@@ -114,7 +36,7 @@ describe("use Tokens hook tests", () => {
 
     test("when the refresh token is updated", () => {
       // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
+      const { result } = renderHook(() => useTokens(params));
 
       // WHEN refresh token is set
       act(() => { result.current.setRefreshToken(TOKEN_VALUE) });
@@ -134,7 +56,7 @@ describe("use Tokens hook tests", () => {
       const storageSetRefreshTokenFn = jest.spyOn(AuthPersistentStorage, 'setRefreshToken');
 
       // GIVEN: The hook is used in a component
-      const { result } = renderHook(() => useTokens());
+      const { result } = renderHook(() => useTokens(params));
 
       // WHEN refresh token is set
       act(() => { result.current.setRefreshToken(TOKEN_VALUE) });
@@ -144,6 +66,36 @@ describe("use Tokens hook tests", () => {
       expect(storageSetRefreshTokenFn).toHaveBeenCalledWith(TOKEN_VALUE);
     })
   });
+
+
+  describe("Clear all Tokens", () => {
+    test("It should call the AuthPersistentStorage.clear", () => {
+      const storageClearFn = jest.spyOn(AuthPersistentStorage, 'clear');
+
+      // GIVEN: The hook is used in a component
+      const { result } = renderHook(() => useTokens(params));
+
+      // WHEN clear all tokens is called
+      act(() => { result.current.clearTokens() });
+
+      // THEN the storage should be cleared
+      expect(storageClearFn).toHaveBeenCalled();
+    })
+
+    test("it should call the setRefreshToken with empty string", () => {
+      // GIVEN: The hook is used in a component
+      const { result } = renderHook(() => useTokens(params));
+      // AND the refresh token is set
+      act(() => { result.current.setRefreshToken(TOKEN_VALUE) });
+
+      // WHEN clear all tokens is called
+      act(() => { result.current.clearTokens() });
+
+      // THEN the refresh token should be set to empty string
+      expect(result.current.refreshToken).toBe("");
+    })
+  })
+
 
   describe('Refreshing of tokens', () => {
     beforeEach(() => {
@@ -166,24 +118,23 @@ describe("use Tokens hook tests", () => {
       AuthPersistentStorage.setRefreshToken(TOKEN_VALUE);
 
       // AND the hook is used in a component
-      const { result } = renderHook(() => useTokens());
+      const { result } = renderHook(() => useTokens(params));
 
       // WHEN the tokens refreshing process starts
       await waitFor(() => expect(result.current.isAuthenticating).toBe(true))
 
 
       // THEN the endpoint should be called with the refresh token
-      expect(initiateRefreshTokens).toHaveBeenCalledWith(TOKEN_VALUE, expect.any(Function));
+      expect(initiateRefreshTokens).toHaveBeenCalledWith(TOKEN_VALUE, expect.any(Function), expect.any(Function));
 
       // AND WHEN the callback is called
       const callback = initiateRefreshTokens.mock.calls[0][1];
       act(() => {
-        callback({ access_token: TOKEN_VALUE, id_token: TOKEN_VALUE, refresh_token: TOKEN_VALUE });
+        callback({ access_token: TOKEN_VALUE, id_token: TOKEN_VALUE, expires_in: EXPIRES_IN });
       })
 
-      // THEN the tokens should be updated
-      expect(result.current.accessToken).toBe(TOKEN_VALUE);
-      expect(result.current.identityToken).toBe(TOKEN_VALUE);
+      // THE updated user by access token should be called
+      expect(updateUserByAccessToken).toHaveBeenCalledWith(TOKEN_VALUE);
 
       // AND the refreshing should stop
       expect(result.current.isAuthenticating).toBe(false);
@@ -194,7 +145,7 @@ describe("use Tokens hook tests", () => {
     let initiateRefreshTokens = jest.spyOn(AuthService.prototype, 'initiateRefreshTokens')
 
     // GIVEN the hook is used in a component
-    const { result } = renderHook(() => useTokens());
+    const { result } = renderHook(() => useTokens(params));
 
     // WHEN the tokens refreshing process starts
     await waitFor(() => expect(result.current.isAuthenticating).toBe(false))
@@ -210,13 +161,13 @@ describe("use Tokens hook tests", () => {
     AuthPersistentStorage.setRefreshToken(TOKEN_VALUE);
 
     // AND the hook is used in a component
-    const { result, unmount } = renderHook(() => useTokens());
+    const { result, unmount } = renderHook(() => useTokens(params));
 
     // WHEN the tokens refreshing process starts
     await waitFor(() => expect(result.current.isAuthenticating).toBe(true))
 
     // THEN the endpoint should be called with the refresh token
-    expect(initiateRefreshTokens).toHaveBeenCalledWith(TOKEN_VALUE, expect.any(Function));
+    expect(initiateRefreshTokens).toHaveBeenCalledWith(TOKEN_VALUE, expect.any(Function), expect.any(Function));
 
     // WHEN the component is unmounted
     unmount();
@@ -232,7 +183,7 @@ describe("use Tokens hook tests", () => {
     AuthPersistentStorage.setRefreshToken(TOKEN_VALUE);
 
     // AND the hook is used in a component
-    const { result, unmount } = renderHook(() => useTokens());
+    const { result, unmount } = renderHook(() => useTokens(params));
 
     // WHEN the tokens refreshing process starts
     await waitFor(() => expect(result.current.isAuthenticating).toBe(true))
@@ -243,5 +194,52 @@ describe("use Tokens hook tests", () => {
     unmount();
 
     expect(clearInterval).toHaveBeenCalled()
+  })
+
+  test("on success, it should set the auth token in the storage", async() => {
+    let initiateRefreshTokens = jest.spyOn(AuthService.prototype, 'initiateRefreshTokens')
+
+    // GIVEN we have a refresh token in the storage.
+    AuthPersistentStorage.setRefreshToken(TOKEN_VALUE);
+    const givenAccessToken = TOKEN_VALUE+"-access";
+
+    // AND the hook is used in a component
+    const { result } = renderHook(() => useTokens(params));
+
+    // WHEN the tokens refreshing process starts
+    await waitFor(() => expect(result.current.isAuthenticating).toBe(true))
+
+
+    // WHEN the callback is called
+    const callback = initiateRefreshTokens.mock.calls[0][1];
+    act(() => {
+      callback({ access_token: givenAccessToken, id_token: TOKEN_VALUE, expires_in: EXPIRES_IN });
+    })
+
+    // THEN the auth token should be set
+    expect(AuthPersistentStorage.getAuthToken()).toBe(givenAccessToken);
+  })
+
+  test("on unauthorized, it should clear the storage", async() => {
+    let initiateRefreshTokens = jest.spyOn(AuthService.prototype, 'initiateRefreshTokens')
+
+    // GIVEN we have a refresh token in the storage.
+    AuthPersistentStorage.setRefreshToken(TOKEN_VALUE);
+
+    // AND the hook is used in a component
+    const { result } = renderHook(() => useTokens(params));
+
+    // WHEN the tokens refreshing process starts
+    await waitFor(() => expect(result.current.isAuthenticating).toBe(true))
+
+
+    // WHEN the anauthorized callback is called
+    const callback = initiateRefreshTokens.mock.calls[0][2];
+    act(() => {
+      callback();
+    })
+
+    // THEN the auth token should be set
+    expect(AuthPersistentStorage.getRefreshToken()).toBe(null);
   })
 })
