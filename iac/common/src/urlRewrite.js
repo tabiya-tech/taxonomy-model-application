@@ -9,6 +9,9 @@ function handler(event) {
   if (uri.startsWith('/app/')) {
     request.uri = uri.replace(/^\/app\//,'/');
   }
+  if (uri.startsWith('/locales/api/')) {
+    request.uri = uri.replace(/^\/locales\/api\//,'/');
+  }
   if (uri.startsWith('/api/')) {
     request.uri = uri.replace(/^\/api\//,'/');
   }

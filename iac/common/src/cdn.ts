@@ -42,6 +42,30 @@ enum OriginRequest_ManagedPolicies {
   AllViewerExceptHostHeader = "b689b0a8-53d0-40ab-baf2-68738e2966ac",
 }
 
+type Origins = {
+  frontendBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  },
+  backendRestApiOrigin: {
+    restApiArn: Output<string>,
+    domainName: Output<string>,
+    path: Output<string>
+  },
+  swaggerBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  },
+  redocBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  },
+  localesBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  },
+}
+
 function getFrontendNoCachingBehaviour(bucketArn: Output<string>, pathPattern: string[], urlRewriteFunction: Function) {
   return pathPattern.map(pathPattern => {
     return {
@@ -65,23 +89,7 @@ function getFrontendNoCachingBehaviour(bucketArn: Output<string>, pathPattern: s
 }
 
 export function setupCDN(
-  frontendBucketOrigin: {
-    arn: Output<string>,
-    websiteEndpoint: Output<string>
-  },
-  backendRestApiOrigin: {
-    restApiArn: Output<string>,
-    domainName: Output<string>,
-    path: Output<string>
-  },
-  swaggerBucketOrigin: {
-    arn: Output<string>,
-    websiteEndpoint: Output<string>
-  },
-  redocBucketOrigin: {
-    arn: Output<string>,
-    websiteEndpoint: Output<string>
-  },
+  origns: Origins,
   cert: Certificate,
   hostedZone: Zone,
   domainName: string
@@ -89,8 +97,10 @@ export function setupCDN(
   backendURLBase: Output<string>,
   frontendURLBase: Output<string>,
   swaggerURLBase: Output<string>,
-  redocURLBase: Output<string>
+  redocURLBase: Output<string>,
+  localesURLBase: Output<string>,
 } {
+  const { frontendBucketOrigin, backendRestApiOrigin, swaggerBucketOrigin, redocBucketOrigin, localesBucketOrigin } = origns;
 
   const urlRewriteFunction = new aws.cloudfront.Function("urlRewrite", {
     runtime: "cloudfront-js-1.0",
@@ -143,6 +153,16 @@ export function setupCDN(
           httpsPort: 443,
           originSslProtocols: ["TLSv1.2"],
         },
+      },
+      {
+        originId: localesBucketOrigin.arn,
+        domainName: localesBucketOrigin.websiteEndpoint,
+        customOriginConfig: {
+          originProtocolPolicy: "http-only",
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ["TLSv1.2"],
+        },
       }
     ],
     defaultCacheBehavior: {
@@ -189,6 +209,10 @@ export function setupCDN(
         swaggerBucketOrigin.arn,
         ["/api-doc/swagger/tabiya-api.json"],
         urlRewriteFunction),
+      ...getFrontendNoCachingBehaviour(
+        localesBucketOrigin.arn,
+        ["/locales/api/", "/locales/api/locales.json"],
+        urlRewriteFunction),
       //    for the REDOC api-doc/redoc
       ...getFrontendNoCachingBehaviour(
         redocBucketOrigin.arn,
@@ -201,6 +225,25 @@ export function setupCDN(
         cachedMethods: ["GET", "HEAD", "OPTIONS"],
         targetOriginId: frontendBucketOrigin.arn,
         pathPattern: "/app/*",
+        responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
+        cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
+        originRequestPolicyId: OriginRequest_ManagedPolicies.CORSS3Origin,
+        //defaultTtl: 86400,
+        functionAssociations: [
+          {
+            eventType: "viewer-request",
+            functionArn: urlRewriteFunction.arn,
+          }
+        ],
+        viewerProtocolPolicy: "redirect-to-https",
+      },
+      // LOCALES
+      {
+        compress: true,
+        allowedMethods: ["GET", "HEAD", "OPTIONS"],
+        cachedMethods: ["GET", "HEAD", "OPTIONS"],
+        targetOriginId: localesBucketOrigin.arn,
+        pathPattern: "/locales/api/*",
         responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
         cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
         originRequestPolicyId: OriginRequest_ManagedPolicies.CORSS3Origin,
@@ -304,7 +347,8 @@ export function setupCDN(
     backendURLBase: interpolate`https://${domainName}/api`,
     frontendURLBase: interpolate`https://${domainName}/app`,
     swaggerURLBase: interpolate`https://${domainName}/api-doc/swagger`,
-    redocURLBase: interpolate`https://${domainName}/api-doc/redoc`
+    redocURLBase: interpolate`https://${domainName}/api-doc/redoc`,
+    localesURLBase: interpolate`https://${domainName}/locales/api`
   };
 }
 

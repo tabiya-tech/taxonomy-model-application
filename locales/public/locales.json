@@ -1,0 +1,32 @@
+[
+  {
+    "name": "South Africa",
+    "shortCode": "ZA",
+    "UUID": "8e763c32-4c21-449c-94ee-7ddeb379369a"
+  },
+  {
+    "name": "Ethiopia",
+    "shortCode": "ETH",
+    "UUID": "1df3d395-2a3d-4334-8fec-9d990bc8e3e4"
+  },
+  {
+    "name": "Europe",
+    "shortCode": "EU-en",
+    "UUID": "7a480890-2293-49ef-9f18-0ffd1b99fc5a"
+  },
+  {
+    "name": "Europe (French)",
+    "shortCode": "EU-fr",
+    "UUID": "bf73fccb-39a1-4eba-b5a1-845ae55ba86e"
+  },
+  {
+    "name": "Rwanda",
+    "shortCode": "RW",
+    "UUID": "bf73fccb-39a1-4eba-b5a1-845ae55ba86f"
+  },
+  {
+    "name": "Rwanda (French)",
+    "shortCode": "RW-Fr",
+    "UUID": "bf73fccb-39a1-4eba-b5a1-845ae55ba86a"
+  }
+]

@@ -80,9 +80,26 @@ const frontendBucket = frontendStack.getOutput("frontendBucket").apply((t) => {
 }) as Output<{ arn: string, websiteEndpoint: string }>;
 
 /**
+ * Locales Stack
+ */
+const localesStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-locales/${environment}`);
+const localesBucket = localesStack.getOutput("localesBucket").apply((t) => {
+  return {
+    arn: t.arn,
+    websiteEndpoint: t.domainName
+  };
+}) as Output<{ arn: string, websiteEndpoint: string }>;
+
+/**
  *  Cloud Front
  */
-export const cdn = setupCDN(frontendBucket, backendRestApi, swaggerBucket, redocBucket, certificate, hostedZone, domainName);
+export const cdn = setupCDN({
+  frontendBucketOrigin: frontendBucket,
+  backendRestApiOrigin: backendRestApi,
+  swaggerBucketOrigin: swaggerBucket,
+  redocBucketOrigin: redocBucket,
+  localesBucketOrigin: localesBucket
+}, certificate, hostedZone, domainName);
 export const backendURLBase = cdn.backendURLBase;
 
 // The resources base URL is the base URL for accessing tabiya resources
