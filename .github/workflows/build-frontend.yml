@@ -7,7 +7,13 @@ on:
         description: 'The frontend version info'
         value: ${{ jobs.build.outputs.version-info }}
     inputs:
+      target-environment:
+        required: true
+        type: string
       backend-url:
+        required: true
+        type: string
+      locales-url:
         required: true
         type: string
       auth-url:
@@ -22,6 +28,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
     outputs:
       version-info: ${{ steps.setVersionInfo.outputs.version-info }}
     steps:
@@ -39,6 +46,7 @@ jobs:
         run: |
           echo "window.tabiyaConfig = {" > frontend/public/data/env.js
           echo "\"BACKEND_URL\": btoa(\"${{ inputs.backend-url }}\")," >> frontend/public/data/env.js
+          echo "\"LOCALES_URL\": btoa(\"${{ inputs.locales-url }}\")," >> frontend/public/data/env.js
           echo "\"AUTH_URL\": btoa(\"${{ inputs.auth-url }}\")," >> frontend/public/data/env.js
           echo "\"COGNITO_CLIENT_ID\": btoa(\"${{ inputs.cognito-client-id }}\")," >> frontend/public/data/env.js
           echo "\"COGNITO_CLIENT_SECRET\": btoa(\"${{ inputs.cognito-client-secret }}\")" >> frontend/public/data/env.js

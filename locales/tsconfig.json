@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "strict": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "outDir": "build",
+    "baseUrl": "src"
+  },
+  "files": ["node_modules/jest-extended/types/index.d.ts"],
+  "include": [
+    "tests/**/*.ts",
+    "public/locales.json"
+  ],
+  "exclude": [
+    "tests/**/__snapshots__/"
+  ]
+}
