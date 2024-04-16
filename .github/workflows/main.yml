@@ -18,6 +18,19 @@ jobs:
   build-api-specs:
     uses: ./.github/workflows/build-api-specs.yml
     secrets: inherit
+  build-locales:
+    needs: [ build-api-specs ]
+    uses: ./.github/workflows/build-locales.yml
+    secrets: inherit
+  # Locales
+  deploy-locales:
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
+    needs: [ setup-env-config, build-api-specs, build-locales ]
+    uses: ./.github/workflows/deploy-locales.yml
+    secrets: inherit
+    with:
+      target-environment: dev
+      target-domain-name: ${{ needs.setup-env-config.outputs.target-domain-name }}
   # Backend
   build-backend:
     uses: ./.github/workflows/build-backend.yml
@@ -76,7 +89,7 @@ jobs:
   # Common Infrastructure
   deploy-common:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend, setup-env-config ]
+    needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend, setup-env-config, deploy-locales ]
     uses: ./.github/workflows/deploy-common.yml
     secrets: inherit
     with:

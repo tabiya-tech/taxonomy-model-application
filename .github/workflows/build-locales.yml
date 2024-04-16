@@ -1,0 +1,46 @@
+name: Build Locales
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'yarn'
+          cache-dependency-path: locales/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: locales
+      - name: Lint
+        run: yarn run lint
+        working-directory: locales
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'yarn'
+          cache-dependency-path: locales/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: locales
+      - name: Test
+        run: yarn run test
+        working-directory: locales
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: locales.lcov.info
+          path: locales/coverage/lcov.info
+          retention-days: 1

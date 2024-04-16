@@ -36,6 +36,18 @@ function backend() {
   printSuccess ${project}
 }
 
+function locales() {
+  local project="locales"
+    printTitle ${project}
+  (cd locales/ && yarn || (printFormatError ${project}; exit 1) &&  yarn run test)
+  # if the previous command fails, exit this script with a non-zero error code
+  if [ $? -ne 0 ]; then
+    printError ${project}
+    exit 1
+  fi
+  printSuccess ${project}
+}
+
 function sonarcloud() {
   local project="sonarcloud"
     printTitle ${project}
@@ -86,7 +98,7 @@ function printFormatError() {
 
 PS3="Select what you want to build and test: "
 
-OPTIONS="All Api-Specifications Frontend Backend SonarCloud"
+OPTIONS="All Api-Specifications Frontend Backend SonarCloud Locales"
 select opt in $OPTIONS; do
   if [ "$REPLY" = "1" ]; then
       echo "******************" &&
@@ -106,6 +118,9 @@ select opt in $OPTIONS; do
   elif [ "$REPLY" = "5" ]; then
     sonarcloud
     exit $?
+  elif [ "$REPLY" = "6" ]; then
+      locales
+      exit $?
   else
     clear
     echo bad option

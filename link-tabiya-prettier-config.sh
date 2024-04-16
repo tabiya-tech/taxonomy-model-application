@@ -3,6 +3,7 @@ echo "LINKING TABIYA PRETTIER CONFIG FOR LINUX/MACOS"
 (cd backend && yarn unlink @tabiya/prettier-config) ;
 (cd frontend && yarn unlink @tabiya/prettier-config) ;
 (cd api-specifications && yarn unlink @tabiya/prettier-config) ;
+(cd locales && yarn unlink @tabiya/prettier-config) ;
 (cd @tabiya/prettier-config && yarn unlink) ;
 # Create a symbolic link to the config.
 (cd @tabiya/prettier-config && yarn link) &&
@@ -10,3 +11,4 @@ echo "LINKING TABIYA PRETTIER CONFIG FOR LINUX/MACOS"
 (cd backend && yarn link @tabiya/prettier-config) ;
 (cd frontend && yarn link @tabiya/prettier-config) ;
 (cd api-specifications && yarn link @tabiya/prettier-config) ;
+(cd locales && yarn link @tabiya/prettier-config) ;

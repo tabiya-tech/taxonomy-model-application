@@ -1,0 +1,3 @@
+name: taxonomy-model-application-locales
+runtime: nodejs
+description: The locales infrastructure for the taxonomy application
