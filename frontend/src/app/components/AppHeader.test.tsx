@@ -10,6 +10,7 @@ import { testNavigateToPath } from "src/_test_utilities/routeNavigation";
 import { act, fireEvent, waitFor, within } from "@testing-library/react";
 import { AuthContext, AuthContextValue, authContextDefaultValue } from "src/auth/AuthProvider";
 import ContextMenu from "src/theme/ContextMenu/ContextMenu";
+import { useMemo } from "react";
 
 // mock the ContextMenu
 jest.mock("src/theme/ContextMenu/ContextMenu", () => {
@@ -24,18 +25,18 @@ jest.mock("src/theme/ContextMenu/ContextMenu", () => {
   };
 });
 
-const GivenAppHeader = (state: Partial<AuthContextValue>) => (
-  <HashRouter>
-    <AuthContext.Provider
-      value={{
-        ...authContextDefaultValue,
-        ...state,
-      }}
-    >
-      <AppHeader />
-    </AuthContext.Provider>
-  </HashRouter>
-);
+const GivenAppHeader = (state: Partial<AuthContextValue>) => {
+  const value = useMemo(() => {
+    return { ...authContextDefaultValue, ...state };
+  }, [state]);
+  return (
+    <HashRouter>
+      <AuthContext.Provider value={value}>
+        <AppHeader />
+      </AuthContext.Provider>
+    </HashRouter>
+  );
+};
 
 describe("AppHeader", () => {
   beforeEach(() => {

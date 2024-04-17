@@ -23,8 +23,6 @@ describe("ModelDirectoryHeader", () => {
       hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
     };
 
-
-
     jest.spyOn(PrimaryButtonModule, "default"); //.mockImplementation(() => <div data-testid={"primary-button-test-id"}></div>);
 
     // WHEN a ModelDirectoryHeader component is rendered

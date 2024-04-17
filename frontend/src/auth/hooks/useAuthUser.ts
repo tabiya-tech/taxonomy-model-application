@@ -8,9 +8,9 @@ import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
  * this hook was added to fullfill Single Responsability Principle, for now it is only used in authProvider
  * @returns TabiyaUser | null - The user
  */
-export function useAuthUser(){
-  const [ user, setUser ] = useState<TabiyaUser | null>(null);
-  const { enqueueSnackbar } = useSnackbar()
+export function useAuthUser() {
+  const [user, setUser] = useState<TabiyaUser | null>(null);
+  const { enqueueSnackbar } = useSnackbar();
 
   /**
    * Checks if the user has the role provided
@@ -19,15 +19,15 @@ export function useAuthUser(){
    */
   const hasRole = (role: TabiyaUserRole) => {
     // if no user is set, then the user is anonymous
-    if(role === TabiyaUserRole.AnonymousUser) return user == null;
-    if(!user) return false
+    if (role === TabiyaUserRole.AnonymousUser) return user == null;
+    if (!user) return false;
 
     // any user is a registered user
-    if(role === TabiyaUserRole.RegisteredUser) return true;
+    if (role === TabiyaUserRole.RegisteredUser) return true;
 
     // check if the user has the role
     return user.roles.includes(role);
-  }
+  };
 
   /**
    * Updates the user by the access token
@@ -41,16 +41,16 @@ export function useAuthUser(){
       setUser({
         username: decodedIdentityToken["username"],
         roles: decodedIdentityToken["cognito:groups"],
-      })
+      });
     } catch (error) {
-      enqueueSnackbar("Invalid token", { variant: "error" })
+      enqueueSnackbar("Invalid token", { variant: "error" });
     }
-  }
+  };
 
   return {
     user,
     hasRole,
     setUser,
-    updateUserByAccessToken
-  }
+    updateUserByAccessToken,
+  };
 }

@@ -17,3 +17,15 @@ export const getEnv = (key: string) => {
 export const getApiUrl = () => {
   return getEnv("BACKEND_URL");
 };
+
+export const getAuthUrl = () => {
+  return getEnv("AUTH_URL");
+};
+
+export const getCognitoClientId = () => {
+  return getEnv("COGNITO_CLIENT_ID");
+};
+
+export const getCognitoClientSecretId = () => {
+  return getEnv("COGNITO_CLIENT_SECRET");
+};

@@ -1,25 +1,25 @@
-import { AuthPersistentStorage } from "src/auth/services/AuthPersistentStorage"
+import { AuthPersistentStorage } from "src/auth/services/AuthPersistentStorage";
 
 describe("AuthPersistentStorage class tests", () => {
   beforeEach(() => {
     AuthPersistentStorage.clear();
-  })
+  });
 
   afterAll(() => {
     AuthPersistentStorage.clear();
-  })
+  });
 
   describe("Refresh token tests", () => {
     test("return correct previously set token refresh token", () => {
       // GIVEN The refresh token is stored in the session storage
-      const givenRefreshToken = "foo"
-      AuthPersistentStorage.setRefreshToken(givenRefreshToken)
+      const givenRefreshToken = "foo";
+      AuthPersistentStorage.setRefreshToken(givenRefreshToken);
 
       // WHEN The refresh token is retrieved
-      const refreshToken = AuthPersistentStorage.getRefreshToken()
+      const refreshToken = AuthPersistentStorage.getRefreshToken();
 
       // THEN The refresh token should be returned
-      expect(refreshToken).toEqual(givenRefreshToken)
+      expect(refreshToken).toEqual(givenRefreshToken);
     });
 
     test("return null if refresh token is not set", () => {
@@ -27,49 +27,49 @@ describe("AuthPersistentStorage class tests", () => {
       // Nothing set
 
       // WHEN The refresh token is retrieved
-      const refreshToken = AuthPersistentStorage.getRefreshToken()
+      const refreshToken = AuthPersistentStorage.getRefreshToken();
 
       // THEN null should be returned
-      expect(refreshToken).toBeNull()
-    })
+      expect(refreshToken).toBeNull();
+    });
 
     test("clear refresh token", () => {
       // GIVEN The refresh token is stored in the session storage
-      const givenRefresh = "foo"
-      AuthPersistentStorage.setRefreshToken(givenRefresh)
+      const givenRefresh = "foo";
+      AuthPersistentStorage.setRefreshToken(givenRefresh);
 
       // WHEN The refresh token is cleared
-      AuthPersistentStorage.clearRefreshToken()
+      AuthPersistentStorage.clearRefreshToken();
 
       // THEN The refresh token should be cleared (null)
-      const refreshToken = AuthPersistentStorage.getRefreshToken()
-      expect(refreshToken).toBeNull()
-    })
+      const refreshToken = AuthPersistentStorage.getRefreshToken();
+      expect(refreshToken).toBeNull();
+    });
 
     test("set refresh token", () => {
       // GIVEN The refresh token is not stored in the session storage
-      const givenRefresh = "foo"
+      const givenRefresh = "foo";
 
       // WHEN The refresh token is set
-      AuthPersistentStorage.setRefreshToken(givenRefresh)
+      AuthPersistentStorage.setRefreshToken(givenRefresh);
 
       // THEN The refresh token should be stored
-      const refreshToken = AuthPersistentStorage.getRefreshToken()
-      expect(refreshToken).toEqual(givenRefresh)
-    })
-  })
+      const refreshToken = AuthPersistentStorage.getRefreshToken();
+      expect(refreshToken).toEqual(givenRefresh);
+    });
+  });
 
   describe("Auth token tests", () => {
     test("return correct previously set token auth token", () => {
       // GIVEN The auth token is stored in the session storage
-      const givenAuthToken = "foo"
-      AuthPersistentStorage.setAuthToken(givenAuthToken)
+      const givenAuthToken = "foo";
+      AuthPersistentStorage.setAuthToken(givenAuthToken);
 
       // WHEN The auth token is retrieved
-      const authToken = AuthPersistentStorage.getAuthToken()
+      const authToken = AuthPersistentStorage.getAuthToken();
 
       // THEN The auth token should be returned
-      expect(authToken).toEqual(givenAuthToken)
+      expect(authToken).toEqual(givenAuthToken);
     });
 
     test("return null if auth token is not set", () => {
@@ -77,49 +77,48 @@ describe("AuthPersistentStorage class tests", () => {
       // Nothing set
 
       // WHEN The auth token is retrieved
-      const authToken = AuthPersistentStorage.getAuthToken()
+      const authToken = AuthPersistentStorage.getAuthToken();
 
       // THEN null should be returned
-      expect(authToken).toBeNull()
-    })
+      expect(authToken).toBeNull();
+    });
 
     test("clear auth token", () => {
       // GIVEN The auth token is stored in the session storage
-      const givenAuthToken = "foo"
-      AuthPersistentStorage.setAuthToken(givenAuthToken)
+      const givenAuthToken = "foo";
+      AuthPersistentStorage.setAuthToken(givenAuthToken);
 
       // WHEN The auth token is cleared
-      AuthPersistentStorage.clearAuthToken()
+      AuthPersistentStorage.clearAuthToken();
 
       // THEN The auth token should be cleared (null)
-      const authToken = AuthPersistentStorage.getAuthToken()
-      expect(authToken).toBeNull()
-    })
+      const authToken = AuthPersistentStorage.getAuthToken();
+      expect(authToken).toBeNull();
+    });
 
     test("set auth token", () => {
       // GIVEN The auth token is not stored in the session storage
-      const givenAuthToken = "foo"
+      const givenAuthToken = "foo";
 
       // WHEN The auth token is set
-      AuthPersistentStorage.setAuthToken(givenAuthToken)
+      AuthPersistentStorage.setAuthToken(givenAuthToken);
 
       // THEN The auth token should be stored
-      const authToken = AuthPersistentStorage.getAuthToken()
-      expect(authToken).toEqual(givenAuthToken)
-    })
-  })
-
+      const authToken = AuthPersistentStorage.getAuthToken();
+      expect(authToken).toEqual(givenAuthToken);
+    });
+  });
 
   test("clear all tokens", () => {
     // GIVEN The refresh token is stored in the session storage
-    const givenRefresh = "foo"
-    AuthPersistentStorage.setRefreshToken(givenRefresh)
+    const givenRefresh = "foo";
+    AuthPersistentStorage.setRefreshToken(givenRefresh);
 
     // WHEN The refresh token is cleared
-    AuthPersistentStorage.clear()
+    AuthPersistentStorage.clear();
 
     // THEN The refresh token should be cleared (null)
-    const refreshToken = AuthPersistentStorage.getRefreshToken()
-    expect(refreshToken).toBeNull()
-  })
+    const refreshToken = AuthPersistentStorage.getRefreshToken();
+    expect(refreshToken).toBeNull();
+  });
 });

@@ -65,7 +65,6 @@ jest.mock("src/app/providers/index.tsx", () => {
     .fn()
     .mockImplementation(({ children }) => <div data-testid="isonline-provider-id">{children}</div>);
 
-
   const mAuthProvider = jest
     .fn()
     .mockImplementation(({ children }) => <div data-testid="auth-provider-id">{children}</div>);
@@ -75,7 +74,6 @@ jest.mock("src/app/providers/index.tsx", () => {
     AuthProvider: mAuthProvider,
   };
 });
-
 
 describe("test the application bootstrapping", () => {
   beforeEach(() => {

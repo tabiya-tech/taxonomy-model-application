@@ -23,9 +23,9 @@ export type AuthContextValue = {
 };
 
 export type TAccessTokenDetails = {
-  'username': string;
-  'cognito:groups': TabiyaUserRole[];
-}
+  username: string;
+  "cognito:groups": TabiyaUserRole[];
+};
 
 /**
  * The response from the cognito when refreshing the tokens
@@ -34,11 +34,11 @@ export type TRefreshTokenResponse = {
   expires_in: number;
   access_token: string;
   id_token: string;
-}
+};
 
 /**
  * The response from the cognito when exchanging the auth code with tokens
  */
 export type TExchangeCodeResponse = TRefreshTokenResponse & {
   refresh_token: string;
-}
+};
