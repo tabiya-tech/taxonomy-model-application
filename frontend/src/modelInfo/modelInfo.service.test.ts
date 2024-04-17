@@ -27,6 +27,12 @@ function getNewModelSpecMockData(): INewModelSpecification {
   };
 }
 
+const givenFetchFn = (givenFetchError: Error) => () => {
+  return new Promise(() => {
+    throw givenFetchError;
+  });
+};
+
 describe("ModelInfoService", () => {
   // GIVEN an api server url
   let givenApiServerUrl: string;
@@ -100,11 +106,9 @@ describe("ModelInfoService", () => {
       const givenApiServerUrl = "/path/to/api";
       // AND fetch rejects with some unknown error
       const givenFetchError = new Error();
-      jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
-        return new Promise(() => {
-          throw givenFetchError;
-        });
-      });
+      jest
+        .spyOn(require("src/apiService/APIService"), "fetchWithAuth")
+        .mockImplementationOnce(givenFetchFn(givenFetchError));
 
       // WHEN calling getAllModels function
       const service = new ModelInfoService(givenApiServerUrl);
@@ -489,11 +493,9 @@ describe("ModelInfoService", () => {
     test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
       // GIVEN fetch rejects with some unknown error
       const givenFetchError = new Error();
-      jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
-        return new Promise(() => {
-          throw givenFetchError;
-        });
-      });
+      jest
+        .spyOn(require("src/apiService/APIService"), "fetchWithAuth")
+        .mockImplementationOnce(givenFetchFn(givenFetchError));
 
       // WHEN calling create model function
       const service = new ModelInfoService("/path/to/foo");

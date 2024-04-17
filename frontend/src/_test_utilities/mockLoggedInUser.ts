@@ -1,6 +1,6 @@
 import { AuthContextValue, TabiyaUser, TabiyaUserRole, authContextDefaultValue } from "src/auth/AuthProvider";
 
-export function mockLoggedInUser(mockedValues: Partial<AuthContextValue>){
+export function mockLoggedInUser(mockedValues: Partial<AuthContextValue>) {
   let user: TabiyaUser = mockedValues.user || { username: "foo", roles: [] };
   jest.spyOn(require("src/auth/hooks/useAuthUser"), "useAuthUser").mockReturnValue({
     ...authContextDefaultValue,
@@ -8,6 +8,6 @@ export function mockLoggedInUser(mockedValues: Partial<AuthContextValue>){
     setUser: (user: TabiyaUser) => null,
     hasRole: (role: TabiyaUserRole) => user.roles.includes(role),
     updateUserByAccessToken: () => {},
-    ...mockedValues
+    ...mockedValues,
   });
 }

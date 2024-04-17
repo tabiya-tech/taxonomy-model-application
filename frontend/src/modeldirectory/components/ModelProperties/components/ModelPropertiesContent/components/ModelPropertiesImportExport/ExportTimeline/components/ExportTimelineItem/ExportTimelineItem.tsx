@@ -55,7 +55,11 @@ const ExportTimelineItem: React.FC<ExportTimelineItemProps> = (props) => {
         )}
       </TimelineOppositeContent>
       <TimelineSeparator data-testid={DATA_TEST_ID.EXPORT_TIMELINE_SEPARATOR}>
-        <TimelineDot data-testid={DATA_TEST_ID.EXPORT_TIMELINE_DOT} color={"primary"} sx={{ margin: (theme) => theme.tabiyaSpacing.xs }} />
+        <TimelineDot
+          data-testid={DATA_TEST_ID.EXPORT_TIMELINE_DOT}
+          color={"primary"}
+          sx={{ margin: (theme) => theme.tabiyaSpacing.xs }}
+        />
         <TimelineConnector
           data-testid={DATA_TEST_ID.EXPORT_TIMELINE_CONNECTOR}
           sx={{ backgroundColor: theme.palette.primary.main }}

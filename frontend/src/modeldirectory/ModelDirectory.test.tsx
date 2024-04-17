@@ -171,6 +171,7 @@ const mockedGetUserFriendlyErrorMessage = getUserFriendlyErrorMessage as jest.Mo
 // mock the getAPIUrl method
 jest.mock("src/envService", () => {
   return {
+    ...jest.requireActual("src/envService"),
     getApiUrl: jest.fn().mockReturnValue("https://foo/bar"),
   };
 });
