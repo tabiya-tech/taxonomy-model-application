@@ -23,7 +23,7 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
 const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
   render(ui, { wrapper: AllTheProviders, ...options });
 
-function customRenderHook<T>(hook: () => T, options?: Omit<RenderHookOptions<T>, "wrapper">){
+function customRenderHook<T>(hook: () => T, options?: Omit<RenderHookOptions<T>, "wrapper">) {
   return renderHook(hook, { wrapper: AllTheProviders, ...options });
 }
 

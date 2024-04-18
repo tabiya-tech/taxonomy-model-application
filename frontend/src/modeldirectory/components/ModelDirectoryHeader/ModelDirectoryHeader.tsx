@@ -2,7 +2,8 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import { AddCircleOutlined } from "@mui/icons-material";
-import { AuthContext, TabiyaUserRole } from "src/auth/AuthProvider";
+import { AuthContext } from "src/auth/AuthProvider";
+import AuthAPISpecs from "api-specifications/auth";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d78u";
 export const DATA_TEST_ID = {
@@ -33,7 +34,7 @@ const ModelDirectoryHeader: React.FC<ModelDirectoryHeaderProps> = ({
       <Typography variant="h2" data-testid={DATA_TEST_ID.MODEL_DIRECTORY_TITLE}>
         Model Directory
       </Typography>
-      {hasRole(TabiyaUserRole.ModelManager) && (
+      {hasRole(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER) && (
         <PrimaryButton
           onClick={() => onModelImport()}
           data-testid={DATA_TEST_ID.IMPORT_MODEL_BUTTON}

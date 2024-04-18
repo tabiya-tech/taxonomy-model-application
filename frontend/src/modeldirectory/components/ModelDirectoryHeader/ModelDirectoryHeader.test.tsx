@@ -5,7 +5,8 @@ import ModelDirectoryHeader, { DATA_TEST_ID } from "./ModelDirectoryHeader";
 import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
-import { AuthContext, authContextDefaultValue, TabiyaUserRole, AuthContextValue } from "src/auth/AuthProvider";
+import { AuthContext, authContextDefaultValue, AuthContextValue } from "src/auth/AuthProvider";
+import AuthAPISpecs from "api-specifications/auth";
 
 describe("ModelDirectoryHeader", () => {
   beforeEach(() => {
@@ -20,10 +21,8 @@ describe("ModelDirectoryHeader", () => {
     // AND a model manager user
     const givenUser: AuthContextValue = {
       ...authContextDefaultValue,
-      hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
+      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
     };
-
-
 
     jest.spyOn(PrimaryButtonModule, "default"); //.mockImplementation(() => <div data-testid={"primary-button-test-id"}></div>);
 
@@ -60,7 +59,7 @@ describe("ModelDirectoryHeader", () => {
     // AND a model manager user
     const givenUser: AuthContextValue = {
       ...authContextDefaultValue,
-      hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
+      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
     };
 
     // WHEN a ModelDirectoryHeader component is rendered
@@ -81,7 +80,7 @@ describe("ModelDirectoryHeader", () => {
     // GIVEN a model manager user
     const givenUser: AuthContextValue = {
       ...authContextDefaultValue,
-      hasRole: (role: TabiyaUserRole) => role === TabiyaUserRole.ModelManager,
+      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
     };
 
     // WHEN a ModelDirectoryHeader component is rendered
@@ -99,7 +98,7 @@ describe("ModelDirectoryHeader", () => {
     // GIVEN a non-model manager user
     const givenUser: AuthContextValue = {
       ...authContextDefaultValue,
-      hasRole: (role: TabiyaUserRole) => role !== TabiyaUserRole.ModelManager,
+      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role !== AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
     };
 
     // WHEN a ModelDirectoryHeader component is rendered

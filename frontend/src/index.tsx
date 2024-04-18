@@ -16,15 +16,15 @@ const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
   <React.StrictMode>
     <CssBaseline />
-      <IsOnlineProvider>
-        <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
-          <AuthProvider>
-            <SnackbarProvider>
-              <App />
-            </SnackbarProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </IsOnlineProvider>
+    <IsOnlineProvider>
+      <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
+        <AuthProvider>
+          <SnackbarProvider>
+            <App />
+          </SnackbarProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </IsOnlineProvider>
   </React.StrictMode>
 );
 

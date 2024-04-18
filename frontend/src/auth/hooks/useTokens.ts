@@ -1,11 +1,11 @@
-import {useCallback, useContext, useEffect, useState} from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { AuthPersistentStorage } from "../services/AuthPersistentStorage";
 import { AuthService } from "../services/AuthService";
 import { IsOnlineContext } from "../../app/providers";
 
 type TUseTokensParams = {
   updateUserByAccessToken: (accessToken: string) => void;
-}
+};
 
 /**
  * A hook to manage the tokens
@@ -21,10 +21,13 @@ export function useTokens({ updateUserByAccessToken }: TUseTokensParams) {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const _setAccessToken = useCallback((accessToken: string) => {
-    updateUserByAccessToken(accessToken);
-    AuthPersistentStorage.setAuthToken(accessToken);
-  }, [updateUserByAccessToken]);
+  const _setAccessToken = useCallback(
+    (accessToken: string) => {
+      updateUserByAccessToken(accessToken);
+      AuthPersistentStorage.setAuthToken(accessToken);
+    },
+    [updateUserByAccessToken]
+  );
 
   const handleRefreshToken = useCallback(async () => {
     if (isAuthenticated || isAuthenticating) return;
@@ -40,18 +43,22 @@ export function useTokens({ updateUserByAccessToken }: TUseTokensParams) {
         setRefreshToken((refreshToken || _refreshToken) as string);
       }
 
-      timer = await authService.initiateRefreshTokens(_refreshToken ?? refreshToken, (data) => {
-        const { access_token } = data;
+      timer = await authService.initiateRefreshTokens(
+        _refreshToken ?? refreshToken,
+        (data) => {
+          const { access_token } = data;
 
-        _setAccessToken(access_token);
-        setIsAuthenticating(false);
+          _setAccessToken(access_token);
+          setIsAuthenticating(false);
 
-        setIsAuthenticated(true);
-      }, () => {
-        setIsAuthenticating(false);
-        setIsAuthenticated(false);
-        AuthPersistentStorage.clear();
-      });
+          setIsAuthenticated(true);
+        },
+        () => {
+          setIsAuthenticating(false);
+          setIsAuthenticated(false);
+          AuthPersistentStorage.clear();
+        }
+      );
     }
 
     return timer;
@@ -90,7 +97,7 @@ export function useTokens({ updateUserByAccessToken }: TUseTokensParams) {
   };
 }
 
-export const defaultUseTokensResponse: ReturnType<typeof useTokens>  = {
+export const defaultUseTokensResponse: ReturnType<typeof useTokens> = {
   isAuthenticating: false,
   isAuthenticated: false,
   setIsAuthenticated: () => {},
@@ -98,4 +105,4 @@ export const defaultUseTokensResponse: ReturnType<typeof useTokens>  = {
   refreshToken: "",
   setRefreshToken: () => {},
   clearTokens: () => {},
-}
+};
