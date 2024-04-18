@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the auth module The auth module matches the snapshot 1`] = `
+{
+  "Enums": {
+    "TabiyaRoles": {
+      "ANONYMOUS": "anonymous",
+      "MODEL_MANAGER": "model-managers",
+      "REGISTERED_USER": "registered-users",
+    },
+  },
+  "Schemas": {
+    "Request": {
+      "Context": {
+        "$id": "/components/schemas/AuthResponseContextSchema",
+        "additionalProperties": true,
+        "properties": {
+          "roles": {
+            "description": "A comma-separated list of roles.",
+            "maxLength": 4096,
+            "type": "string",
+          },
+          "username": {
+            "description": "The username of the user.",
+            "maxLength": 256,
+            "pattern": "\\S",
+            "type": "string",
+          },
+        },
+        "required": [
+          "username",
+        ],
+        "type": "object",
+      },
+    },
+  },
+  "Types": {},
+}
+`;
