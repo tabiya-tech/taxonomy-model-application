@@ -90,6 +90,33 @@ export const testSchemaWithAdditionalProperties = (
   });
 };
 
+export const testSchemaSuccessWithAdditionalProperties = (
+  schemaName: string,
+  schema: SchemaObject,
+  validObject: object,
+  dependencies: SchemaObject[] = []
+) => {
+  test(`Schema ${schemaName} validates object with additional properties`, () => {
+    // GIVEN the object has an additional property
+    const givenObjectWithAdditionalProperties = { ...validObject, foo: "bar" };
+
+    ajvInstance.addSchema(schema, schema.$id);
+    dependencies?.forEach((dependency) => ajvInstance.addSchema(dependency, dependency.$id));
+    const validateFunction = ajvInstance.getSchema(schema.$id as string);
+
+    if (typeof validateFunction !== "function") {
+      throw new Error(`Schema with ID ${schema.$id} was not found in AJV instance.`);
+    }
+
+    // WHEN the object is validated
+    const isValid = validateFunction(givenObjectWithAdditionalProperties);
+
+    // THEN expect the object to validate
+    expect(isValid).toBe(true);
+    expect(validateFunction.errors).toBeNull();
+  });
+};
+
 export const testArraySchemaFailureWithValidObject = (
   schemaName: string,
   schema: SchemaObject,
