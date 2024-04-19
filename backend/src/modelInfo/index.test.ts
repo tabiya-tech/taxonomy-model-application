@@ -65,7 +65,7 @@ describe("Test for model handler", () => {
       ];
       const givenModelInfoRepositoryMock = {
         Model: undefined as never,
-        create: jest.fn().mockResolvedValue(givenModelInfo),
+        create: jest.fn().mockResolvedValue({...givenModelInfo, UUIDHistory: [...givenPayload.UUIDHistory, ...givenModelInfo.UUIDHistory]}),
         getModelById: jest.fn().mockResolvedValue(null),
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue([]),
@@ -79,7 +79,7 @@ describe("Test for model handler", () => {
       // THEN expect the handler to call the repository with the given payload
       expect(getRepositoryRegistry().modelInfo.create).toHaveBeenCalledWith(givenPayload);
       // AND expect the handler to call the getUUIDHistory method for the given model
-      expect(getRepositoryRegistry().modelInfo.getHistory).toHaveBeenCalledWith(givenPayload.UUIDHistory);
+      expect(getRepositoryRegistry().modelInfo.getHistory).toHaveBeenCalledWith([...givenPayload.UUIDHistory, ...givenModelInfo.UUIDHistory]);
       // AND respond with the CREATED status
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
       // AND the handler to return the correct headers
@@ -88,7 +88,7 @@ describe("Test for model handler", () => {
       });
       // AND the transformation function is called correctly
       expect(transformModule.transform).toHaveBeenCalledWith(
-        givenModelInfo,
+        {...givenModelInfo, UUIDHistory: [...givenPayload.UUIDHistory, ...givenModelInfo.UUIDHistory]},
         givenResourcesBaseUrl,
         givenUuidHistoryDetails
       );

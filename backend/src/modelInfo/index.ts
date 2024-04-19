@@ -99,10 +99,8 @@ async function postModelInfo(event: APIGatewayProxyEvent) {
   };
 
   try {
-    const [newModelInfo, uuidHistoryDetails] = await Promise.all([
-      await getRepositoryRegistry().modelInfo.create(newModelInfoSpec),
-      await getRepositoryRegistry().modelInfo.getHistory(newModelInfoSpec.UUIDHistory),
-    ]);
+    const newModelInfo = await getRepositoryRegistry().modelInfo.create(newModelInfoSpec);
+    const uuidHistoryDetails = await getRepositoryRegistry().modelInfo.getHistory(newModelInfo.UUIDHistory);
 
     return responseJSON(StatusCodes.CREATED, transform(newModelInfo, getResourcesBaseUrl(), uuidHistoryDetails));
   } catch (error: unknown) {
