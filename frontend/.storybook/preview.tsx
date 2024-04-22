@@ -19,6 +19,7 @@ import "@fontsource/roboto/700.css";
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider, AuthProvider } from "../src/app/providers";
+import { AuthContext, authContextDefaultValue } from "../src/auth/AuthProvider";
 
 const preview: Preview = {
   parameters: {
@@ -45,25 +46,48 @@ const preview: Preview = {
       element: '#storybook-root:not([aria-hidden="true"]), body > div[role="presentation"]',
     },
   },
+  globalTypes: {
+    userRole: {
+      name: "User Role",
+      description: "User role for preview",
+      defaultValue: "anonymous",
+      toolbar: {
+        icon: "user",
+        items: [
+          { value: "anonymous", title: "Anonymous" },
+          { value: "model-managers", title: "Model Manager" },
+          { value: "registered-users", title: "Registered User" },
+        ],
+      },
+    },
+  },
 };
 
 export default preview;
 
 export const decorators = [
-  (Story) => (
-    <Router>
-      <CssBaseline />
-      <AuthProvider>
+  (Story, context) => {
+    const userRole = context.globals.userRole;
+    const authContextValue = {
+      ...authContextDefaultValue,
+      user: userRole === "anonymous" ? null : { username: "John Doe", roles: [userRole] },
+      hasRole: (role: string) => role === userRole,
+    };
+    return (
+      <Router>
+        <CssBaseline />
         <IsOnlineProvider>
           <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
             <CustomSnackbarProvider>
-              <div style={{ height: "100vh" }}>
-                <Story />
-              </div>
+              <AuthContext.Provider value={authContextValue}>
+                <div style={{ height: "100vh" }}>
+                  <Story />
+                </div>
+              </AuthContext.Provider>
             </CustomSnackbarProvider>
           </ThemeProvider>
         </IsOnlineProvider>
-      </AuthProvider>
-    </Router>
-  ),
+      </Router>
+    );
+  },
 ];
