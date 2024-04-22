@@ -211,6 +211,25 @@ describe("use Tokens hook tests", () => {
     expect(clearInterval).toHaveBeenCalled();
   });
 
+  test("should not run clear interval if null is returnd by initiate refresh token", async () => {
+    clearInterval.mockClear();
+    // GIVEN null is returned by authprovider
+    const givenTimerNumber = null;
+
+    jest
+      .spyOn(AuthService.prototype, "initiateRefreshTokens")
+      .mockResolvedValue(givenTimerNumber as unknown as NodeJS.Timer);
+
+    // WHEN the hook is used in a component
+    const { unmount } = renderHook(() => useTokens(params));
+
+    // AND the component is unmounted
+    unmount();
+
+    // THEN the clear interval should not be called
+    expect(clearInterval).not.toHaveBeenCalled();
+  });
+
   test("on success, it should set the auth token in the storage", async () => {
     let initiateRefreshTokens = jest.spyOn(AuthService.prototype, "initiateRefreshTokens");
 
