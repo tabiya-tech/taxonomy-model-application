@@ -4,8 +4,7 @@ import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import * as MockPayload from "src/modelInfo/_test_utilities/mockModelInfoPayload";
 import { getApiUrl, getLocalesUrl } from "src/envService";
-import { AuthContext, authContextDefaultValue } from "../auth/AuthProvider";
-import { getArrayOfFakeLocales } from "../locale/_test_utilities/mockLocales";
+import { getArrayOfFakeLocales } from "src/locale/_test_utilities/mockLocales";
 
 // Make sure that the model is in a state that allows its actions to be performed. i.e export, download, etc.
 const modelWithSuccessfulStates = MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(1)[0];
@@ -30,17 +29,6 @@ modelWithSuccessfulStates.importProcessState = {
     parsingWarnings: false,
   },
 };
-
-const getUserWithModelManagerRole = (hasModelManagerRole: boolean) => ({
-  ...authContextDefaultValue,
-  hasRole: (role: string) => hasModelManagerRole,
-});
-
-const renderModelDirectory = (hasModelManagerRole: boolean) => (
-  <AuthContext.Provider value={getUserWithModelManagerRole(hasModelManagerRole)}>
-    <ModelDirectory />
-  </AuthContext.Provider>
-);
 
 const MODELS_URL = getApiUrl() + "/models";
 const EXPORT_URL = getApiUrl() + "/export";
@@ -117,12 +105,6 @@ export const Shown: Story = {
   args: {},
 };
 
-export const ShownWithModelManagerRole: Story = () => {
-  return renderModelDirectory(true);
-};
-ShownWithModelManagerRole.args = {};
-ShownWithModelManagerRole.parameters = { mockData: [...meta.parameters!.mockData] };
-
 export const OneModel: Story = {
   args: {},
   parameters: {
@@ -176,55 +158,53 @@ export const ModelsFetchIsSlow: Story = {
   },
 };
 
-export const ImportNewModelWillFail: Story = () => {
-  return renderModelDirectory(true);
-};
-ImportNewModelWillFail.args = {};
-ImportNewModelWillFail.parameters = {
-  docs: { disable: true },
-  mockData: [
-    ...meta.parameters!.mockData,
-    {
-      url: MODELS_URL,
-      method: "GET",
-      status: 200,
-      response: [modelWithSuccessfulStates],
-    },
-    {
-      url: MODELS_URL,
-      method: "POST",
-      status: 500,
-      response: {
-        errorCode: "Some error code",
-        message: "Some error message",
-        details: "Some error details",
+export const ImportNewModelWillFail: Story = {
+  args: {},
+  parameters: {
+    docs: { disable: true },
+    mockData: [
+      ...meta.parameters!.mockData,
+      {
+        url: MODELS_URL,
+        method: "GET",
+        status: 200,
+        response: [modelWithSuccessfulStates],
       },
-    },
-  ],
+      {
+        url: MODELS_URL,
+        method: "POST",
+        status: 500,
+        response: {
+          errorCode: "Some error code",
+          message: "Some error message",
+          details: "Some error details",
+        },
+      },
+    ],
+  },
 };
 
-export const ImportNewModelWillDelay: Story = () => {
-  return renderModelDirectory(true);
-};
-ImportNewModelWillDelay.args = {};
-ImportNewModelWillDelay.parameters = {
-  docs: { disable: true },
-  mockData: [
-    ...meta.parameters!.mockData,
-    {
-      url: MODELS_URL,
-      method: "GET",
-      status: 200,
-      response: [modelWithSuccessfulStates],
-    },
-    {
-      url: MODELS_URL,
-      method: "POST",
-      status: 201,
-      response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
-      delay: 5000,
-    },
-  ],
+export const ImportNewModelWillDelay: Story = {
+  args: {},
+  parameters: {
+    docs: { disable: true },
+    mockData: [
+      ...meta.parameters!.mockData,
+      {
+        url: MODELS_URL,
+        method: "GET",
+        status: 200,
+        response: [modelWithSuccessfulStates],
+      },
+      {
+        url: MODELS_URL,
+        method: "POST",
+        status: 201,
+        response: MockPayload.POST.getPayloadWithOneRandomModelInfo(),
+        delay: 5000,
+      },
+    ],
+  },
 };
 
 export const ExportModelWillFail: Story = {
