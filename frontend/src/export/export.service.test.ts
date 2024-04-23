@@ -1,8 +1,6 @@
 import ExportService from "./export.service";
 import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
 import { StatusCodes } from "http-status-codes";
-import { ServiceError } from "src/error/error";
-import { ErrorCodes } from "src/error/errorCodes";
 
 describe("Test exportModel service", () => {
   beforeEach(() => {
@@ -45,10 +43,14 @@ describe("Test exportModel service", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ modelId: givenModelId }),
+      expectedStatusCode: StatusCodes.ACCEPTED,
+      serviceName: "ExportService",
+      serviceFunction: "exportModel",
+      failureMessage: `Failed to export model with ID ${givenModelId}`,
     });
   });
 
-  test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH that contains information about the error", async () => {
+  test("on fail to fetch, it should reject with the error thrown by fetchWithAuth", async () => {
     // GIVEN fetch rejects with some unknown error
     const givenFetchError = new Error();
     jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
@@ -65,49 +67,7 @@ describe("Test exportModel service", () => {
     const exportService = new ExportService(givenApiServerUrl);
     const exportPromise = exportService.exportModel(givenModelId);
 
-    // THEN expected it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(
-        ExportService.name,
-        "exportModel",
-        "POST",
-        `${givenApiServerUrl}/export`,
-        0,
-        ErrorCodes.FAILED_TO_FETCH,
-        "",
-        ""
-      ),
-      details: expect.any(Error),
-    };
-    await expect(exportPromise).rejects.toMatchObject(expectedError);
-  });
-
-  test("on NOT 202, it should reject with an error ERROR_CODE.API_ERROR that contains information about the error", async () => {
-    // GIVEN a api server url
-    const givenApiServerUrl = "/path/to/api";
-    // AND a model ID
-    const givenModelId = "mockModelId";
-    // AND the export model REST API will respond with NOT CREATED
-    setupAPIServiceSpy(StatusCodes.BAD_REQUEST, undefined, "application/json;charset=UTF-8");
-
-    // WHEN the exportModel function is called with the given modelId
-    const exportService = new ExportService(givenApiServerUrl);
-    const exportPromise = exportService.exportModel(givenModelId);
-
-    // THEN expected it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(
-        ExportService.name,
-        "exportModel",
-        "POST",
-        `${givenApiServerUrl}/export`,
-        0,
-        ErrorCodes.API_ERROR,
-        ""
-      ),
-      statusCode: expect.any(Number),
-      message: expect.any(String),
-    };
-    await expect(exportPromise).rejects.toMatchObject(expectedError);
+    // THEN expected it to reject with the same error thrown by fetchWithAuth
+    await expect(exportPromise).rejects.toMatchObject(givenFetchError);
   });
 });

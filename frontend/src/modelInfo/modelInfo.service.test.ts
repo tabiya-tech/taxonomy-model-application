@@ -73,6 +73,11 @@ describe("ModelInfoService", () => {
       expect(apiServiceSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models`, {
         method: "GET",
         headers: {},
+        expectedStatusCode: StatusCodes.OK,
+        serviceName: ModelInfoService.name,
+        serviceFunction: "getAllModels",
+        failureMessage: "Failed to fetch all models",
+        expectedContentType: "application/json",
       });
 
       // AND expect it to return all the model the response contains
@@ -101,41 +106,25 @@ describe("ModelInfoService", () => {
       });
     });
 
-    test("on fail to fetch, getAllModels() should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
+    test("on fail to fetch, getAllModels() should reject with the error thrown by fetchWithAuth", async () => {
       // GIVEN a api server url
       const givenApiServerUrl = "/path/to/api";
       // AND fetch rejects with some unknown error
       const givenFetchError = new Error();
-      jest
-        .spyOn(require("src/apiService/APIService"), "fetchWithAuth")
-        .mockImplementationOnce(givenFetchFn(givenFetchError));
+      jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockRejectedValueOnce(givenFetchError);
 
       // WHEN calling getAllModels function
       const service = new ModelInfoService(givenApiServerUrl);
 
       // THEN expected it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(
-          ModelInfoService.name,
-          "getAllModels",
-          "GET",
-          `${givenApiServerUrl}/models`,
-          0,
-          ErrorCodes.FAILED_TO_FETCH,
-          "",
-          givenFetchError
-        ),
-        message: expect.any(String),
-      };
       let error;
       try {
         await service.getAllModels();
       } catch (err) {
         error = err;
       }
-      expect(error).toBeInstanceOf(ServiceError);
-      // AND expect error to be service error
-      expect(error).toMatchObject(expectedError);
+      // AND expect the service to throw the error that the fetchWithAuth function throws
+      expect(error).toMatchObject(givenFetchError);
     });
 
     test.each([
@@ -178,79 +167,6 @@ describe("ModelInfoService", () => {
         expect(error).toBeInstanceOf(ServiceError);
       }
     );
-
-    test("on 200, getAllModels() should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
-      // GIVEN a api server url
-      const givenApiServerUrl = "/path/to/api";
-      // AND the GET models REST API will respond with OK and some response that
-      // that conforms to the modelInfoResponseSchemaGET
-      // but the content-type is not application/json;charset=UTF-8
-      setupAPIServiceSpy(StatusCodes.OK, MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(1), "");
-
-      // WHEN the getAllModels function is called
-      const service = new ModelInfoService(givenApiServerUrl);
-
-      // THEN expect it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(
-          ModelInfoService.name,
-          "getAllModels",
-          "GET",
-          `${givenApiServerUrl}/models`,
-          StatusCodes.OK,
-          ErrorCodes.INVALID_RESPONSE_HEADER,
-          "",
-          ""
-        ),
-        message: expect.any(String),
-        details: expect.anything(),
-      };
-      let error;
-      try {
-        await service.getAllModels();
-      } catch (err) {
-        error = err;
-      }
-      expect(error).toMatchObject(expectedError);
-      // AND expect error to be service error
-      expect(error).toBeInstanceOf(ServiceError);
-    });
-
-    test("on NOT 200, getAllModels() should reject with an error ERROR_CODE.API_ERROR that contains the body of the response", async () => {
-      // GIVEN a api server url
-      const givenApiServerUrl = "/path/to/api";
-      // AND the create model REST API will respond with NOT OK and some response body
-      const givenResponse = { foo: "foo", bar: "bar" };
-      setupAPIServiceSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
-
-      // WHEN the getAllModels function is called
-      const service = new ModelInfoService(givenApiServerUrl);
-      // THEN expect it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(
-          ModelInfoService.name,
-          "getAllModels",
-          "GET",
-          `${givenApiServerUrl}/models`,
-          0,
-          ErrorCodes.API_ERROR,
-          "",
-          givenResponse
-        ),
-        statusCode: expect.any(Number),
-        message: expect.any(String),
-        details: givenResponse,
-      };
-      let error;
-      try {
-        await service.getAllModels();
-      } catch (err) {
-        error = err;
-      }
-      expect(error).toMatchObject(expectedError);
-      // AND expect error to be service error
-      expect(error).toBeInstanceOf(ServiceError);
-    });
   });
 
   describe("fetchAllModelsPeriodically", () => {
@@ -457,6 +373,11 @@ describe("ModelInfoService", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(givenModelSpec),
+        expectedStatusCode: StatusCodes.CREATED,
+        serviceName: ModelInfoService.name,
+        serviceFunction: "createModel",
+        failureMessage: "Failed to create a new model",
+        expectedContentType: "application/json",
       });
 
       const payload = JSON.parse(apiServiceSpy.mock.calls[0][1].body);
@@ -490,7 +411,7 @@ describe("ModelInfoService", () => {
       });
     });
 
-    test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
+    test("on fail to fetch, it should reject with the error thrown by fetchWithAuth", async () => {
       // GIVEN fetch rejects with some unknown error
       const givenFetchError = new Error();
       jest
@@ -500,21 +421,8 @@ describe("ModelInfoService", () => {
       // WHEN calling create model function
       const service = new ModelInfoService("/path/to/foo");
 
-      // THEN expected it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(
-          ModelInfoService.name,
-          "createModel",
-          "POST",
-          "/path/to/foo/models",
-          0,
-          ErrorCodes.FAILED_TO_FETCH,
-          "",
-          ""
-        ),
-        details: expect.any(Error),
-      };
-      await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
+      // THEN expected it to reject with the same error thrown by fetchWithAuth
+      await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(givenFetchError);
     });
 
     test.each([
@@ -551,63 +459,5 @@ describe("ModelInfoService", () => {
         await expect(createModelPromise).rejects.toMatchObject(expectedError);
       }
     );
-
-    test("on 201, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
-      // GIVEN a api server url
-      const givenApiServerUrl = "/path/to/api";
-      // AND the create model REST API will respond with OK and some response
-      // that conforms to the modelInfoResponseSchema
-      // but the content-type is not application/json;charset=UTF-8
-      setupAPIServiceSpy(StatusCodes.CREATED, MockPayload.POST.getPayloadWithOneRandomModelInfo(), "");
-
-      // WHEN the createModel function is called with the given arguments (name, description, ...)
-      const service = new ModelInfoService(givenApiServerUrl);
-      const createModelPromise = service.createModel(getNewModelSpecMockData());
-
-      // THEN expected it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(
-          ModelInfoService.name,
-          "createModel",
-          "POST",
-          `${givenApiServerUrl}/models`,
-          StatusCodes.CREATED,
-          ErrorCodes.INVALID_RESPONSE_HEADER,
-          "",
-          ""
-        ),
-        details: expect.any(String),
-      };
-      await expect(createModelPromise).rejects.toMatchObject(expectedError);
-    });
-
-    test("on NOT 201, it should reject with an error ERROR_CODE.API_ERROR that contains the body of the response", async () => {
-      // GIVEN a api server url
-      const givenApiServerUrl = "/path/to/api";
-      // AND the create model REST API will respond with NOT OK and some response body
-      const givenResponse = { foo: "foo", bar: "bar" };
-      setupAPIServiceSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
-
-      // WHEN the createModel function is called with the given arguments (name, description, ...)
-      const service = new ModelInfoService(givenApiServerUrl);
-
-      // THEN expected it to reject with the error response
-      const expectedError = {
-        ...new ServiceError(
-          ModelInfoService.name,
-          "createModel",
-          "POST",
-          `${givenApiServerUrl}/models`,
-          0,
-          ErrorCodes.API_ERROR,
-          "",
-          givenResponse
-        ),
-        statusCode: expect.any(Number),
-        message: expect.any(String),
-        details: givenResponse,
-      };
-      await expect(service.createModel(getNewModelSpecMockData())).rejects.toMatchObject(expectedError);
-    });
   });
 });

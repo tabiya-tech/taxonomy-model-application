@@ -2,11 +2,9 @@
 import "src/_test_utilities/consoleMock";
 
 import ImportService from "./import.service";
-import { ServiceError } from "src/error/error";
 import ImportAPISpecs from "api-specifications/import";
 import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
 import { StatusCodes } from "http-status-codes/";
-import { ErrorCodes } from "src/error/errorCodes";
 import Ajv from "ajv/dist/2020";
 import { getTestString } from "src/_test_utilities/specialCharacters";
 import { getMockId } from "src/_test_utilities/mockMongoId";
@@ -64,6 +62,10 @@ describe("Test the service", () => {
         "Content-Type": "application/json",
       },
       body: expectedJSONPayload,
+      expectedStatusCode: StatusCodes.ACCEPTED,
+      serviceName: "ImportService",
+      serviceFunction: "import",
+      failureMessage: `Failed to import files`,
     });
     // AND the body conforms to the  ImportSchema schema
     const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
@@ -72,7 +74,7 @@ describe("Test the service", () => {
     expect(validateRequest.errors).toBeNull();
   });
 
-  test("on fail to fetch, it should reject with an error ERROR_CODE.FETCH_FAILED that contains information about the error", async () => {
+  test("on fail to fetch, it should reject with the error thrown by fetchWithAuth", async () => {
     // GIVEN url, modelId and filePaths
     const givenApiServerUrl = "/path/to/api";
     const givenModelId = getMockId(1);
@@ -90,55 +92,7 @@ describe("Test the service", () => {
     const importService = new ImportService(givenApiServerUrl);
     const importPromise = importService.import(givenModelId, givenFilePaths, givenIsOriginalESCOModel);
 
-    // THEN Expect to reject with an error
-    const expectedError = {
-      ...new ServiceError(
-        "ImportService",
-        "import",
-        "POST",
-        `${givenApiServerUrl}/import`,
-        StatusCodes.NOT_FOUND,
-        ErrorCodes.FAILED_TO_FETCH,
-        "",
-        ""
-      ),
-      statusCode: expect.any(Number),
-      message: expect.any(String),
-      details: expect.any(Error),
-    };
-    await expect(importPromise).rejects.toMatchObject(expectedError);
-  });
-
-  test("on NOT 202, it should reject with an error ERROR_CODE.FETCH_FAILED that contains information about the error", async () => {
-    // GIVEN url, modelId and filePaths
-    const givenApiServerUrl = getMockId(1);
-    const givenModelId = "modelId";
-    const givenFilePaths = mockFilePaths;
-    const givenIsOriginalESCOModel = true;
-    // AND the fetch of some of the files will respond with a status code other than 204.
-    const givenFailureStatusCode = StatusCodes.BAD_REQUEST;
-    setupAPIServiceSpy(givenFailureStatusCode, undefined, "");
-
-    // WHEN calling the import method with the given arguments (modelId, filePaths)
-    const importService = new ImportService(givenApiServerUrl);
-    const importPromise = importService.import(givenModelId, givenFilePaths, givenIsOriginalESCOModel);
-
-    // THEN Expect to reject with an error
-    const expectedError = {
-      ...new ServiceError(
-        "ImportService",
-        "import",
-        "POST",
-        `${givenApiServerUrl}/import`,
-        givenFailureStatusCode,
-        ErrorCodes.FAILED_TO_FETCH,
-        "",
-        ""
-      ),
-      statusCode: expect.any(Number),
-      message: expect.any(String),
-      details: expect.anything(),
-    };
-    await expect(importPromise).rejects.toMatchObject(expectedError);
+    // THEN Expect to reject with the same error thrown by fetchWithAuth
+    await expect(importPromise).rejects.toMatchObject(givenError);
   });
 });
