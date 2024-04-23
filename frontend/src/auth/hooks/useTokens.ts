@@ -12,6 +12,7 @@ type TUseTokensParams = {
  *  >  this hook was added to fullfill Single Responsability Principle, for now it is only used in authProvider
  * @returns tokens - The tokens
  */
+
 export function useTokens({ updateUserByAccessToken }: TUseTokensParams) {
   const isOnline = useContext(IsOnlineContext);
 
@@ -65,13 +66,19 @@ export function useTokens({ updateUserByAccessToken }: TUseTokensParams) {
   }, [refreshToken, _setAccessToken, isAuthenticated, isAuthenticating]);
 
   useEffect(() => {
-    let timer: NodeJS.Timer | undefined;
-    if (isOnline && !isAuthenticated) {
-      handleRefreshToken().then((t) => (timer = t));
+    let timer: Promise<NodeJS.Timer | undefined> | undefined;
+
+    if(isOnline && !isAuthenticated) {
+      timer = handleRefreshToken();
     }
 
     return () => {
-      if (timer) clearInterval(timer);
+      if(timer) {
+        timer
+          .then((t) => {
+            if (t) clearInterval(t);
+          });
+      }
     };
   }, [isOnline, handleRefreshToken, isAuthenticated]);
 
