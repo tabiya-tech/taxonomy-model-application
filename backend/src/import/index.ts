@@ -20,7 +20,15 @@ import AuthAPISpecs from "api-specifications/auth";
  *         - import
  *       summary: Trigger the import process.
  *       description: Asynchronously trigger the import process for a given model.
- *       security: []
+ *       security:
+ *         - jwt_auth: []
+ *       parameters:
+ *         - in: header
+ *           name: Authorization
+ *           required: true
+ *           schema:
+ *             type: string
+ *           example: 'Bearer ANONYMOUS'
  *       requestBody:
  *         content:
  *           application/json:
@@ -37,6 +45,8 @@ import AuthAPISpecs from "api-specifications/auth";
  *             application/json:
  *               schema:
  *                 $ref: '#/components/schemas/ErrorSchema'
+ *         '403':
+ *           $ref: '#/components/responses/ForbiddenResponse'
  *         '415':
  *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
  *         '500':
