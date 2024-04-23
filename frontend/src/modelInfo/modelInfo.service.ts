@@ -1,5 +1,5 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import { getServiceErrorFactory, ServiceError, ServiceErrorDetails } from "src/error/error";
+import { getServiceErrorFactory, ServiceError } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { StatusCodes } from "http-status-codes/";
 import LocaleAPISpecs from "api-specifications/locale";
@@ -47,40 +47,26 @@ export default class ModelInfoService {
    *
    */
   public async createModel(newModelSpec: INewModelSpecification): Promise<ModelInfoTypes.ModelInfo> {
-    const errorFactory = getServiceErrorFactory("ModelInfoService", "createModel", "POST", this.modelInfoEndpointUrl);
+    const serviceName = "ModelInfoService";
+    const serviceFunction = "createModel";
+    const method = "POST";
+    const errorFactory = getServiceErrorFactory(serviceName, serviceFunction, method, this.modelInfoEndpointUrl);
     let response;
     let responseBody: string;
     const requestBody = JSON.stringify(newModelSpec);
-    try {
-      response = await fetchWithAuth(this.modelInfoEndpointUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: requestBody,
-      });
-      responseBody = await response.text();
-    } catch (e: any) {
-      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to create model", e);
-    }
-
-    if (response.status !== StatusCodes.CREATED) {
-      // Server responded with a status code that indicates that the resource was not created
-      // The responseBody should be an ErrorResponse but that is not guaranteed e.g. if a gateway in the middle returns a 502,
-      // or if the server is not conforming to the error response schema
-      throw errorFactory(response.status, ErrorCodes.API_ERROR, "Failed to create model", responseBody);
-    }
-    // Resource was created
-    // Expect that the responseBody is a ModelResponse
-    const contentType = response.headers.get("Content-Type");
-    if (!contentType?.includes("application/json")) {
-      throw errorFactory(
-        response.status,
-        ErrorCodes.INVALID_RESPONSE_HEADER,
-        "Response Content-Type should be 'application/json'",
-        `Content-Type header was ${contentType}`
-      );
-    }
+    response = await fetchWithAuth(this.modelInfoEndpointUrl, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: requestBody,
+      expectedStatusCode: StatusCodes.CREATED,
+      serviceName: serviceName,
+      serviceFunction: serviceFunction,
+      failureMessage: "Failed to create a new model",
+      expectedContentType: "application/json",
+    });
+    responseBody = await response.text();
 
     let modelResponse: ModelInfoAPISpecs.Types.POST.Response.Payload;
     try {
@@ -108,38 +94,24 @@ export default class ModelInfoService {
   }
 
   public async getAllModels(): Promise<ModelInfoTypes.ModelInfo[]> {
-    const errorFactory = getServiceErrorFactory("ModelInfoService", "getAllModels", "GET", this.modelInfoEndpointUrl);
+    const serviceName = "ModelInfoService";
+    const serviceFunction = "getAllModels";
+    const method = "GET";
+    const errorFactory = getServiceErrorFactory(serviceName, serviceFunction, method, this.modelInfoEndpointUrl);
 
     let response: Response;
     let responseBody: string;
-    try {
-      response = await fetchWithAuth(this.modelInfoEndpointUrl, {
-        method: "GET",
-        headers: {},
-      });
-      responseBody = await response.text();
-    } catch (e: unknown) {
-      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to fetch models", e as ServiceErrorDetails);
-    }
+    response = await fetchWithAuth(this.modelInfoEndpointUrl, {
+      method: method,
+      headers: {},
+      expectedStatusCode: StatusCodes.OK,
+      serviceName: serviceName,
+      serviceFunction: serviceFunction,
+      failureMessage: "Failed to fetch all models",
+      expectedContentType: "application/json",
+    });
+    responseBody = await response.text();
 
-    if (response.status !== StatusCodes.OK) {
-      // Server responded with a status code that indicates that the resource was not created
-      // The responseBody should be an ErrorResponse but that is not guaranteed e.g. if a gateway in the middle returns a 502,
-      // or if the server is not conforming to the error response schema
-      throw errorFactory(response.status, ErrorCodes.API_ERROR, "Failed to fetch model", responseBody);
-    }
-
-    // Resource was created
-    // Expect that the responseBody is a ModelResponse
-    const contentType = response.headers.get("Content-Type");
-    if (!contentType?.includes("application/json")) {
-      throw errorFactory(
-        response.status,
-        ErrorCodes.INVALID_RESPONSE_HEADER,
-        "Response Content-Type should be 'application/json'",
-        `Content-Type header was ${contentType}`
-      );
-    }
     let allModelsResponse: ModelInfoAPISpecs.Types.GET.Response.Payload;
     try {
       allModelsResponse = JSON.parse(responseBody);

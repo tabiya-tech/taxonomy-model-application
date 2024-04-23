@@ -41,15 +41,20 @@ describe("LocalesService", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      expectedStatusCode: StatusCodes.OK,
+      serviceName: "LocalesService",
+      serviceFunction: "getLocales",
+      failureMessage: "Failed to fetch locales",
+      expectedContentType: "application/json",
     });
     // AND the response should be the expected locales
     expect(actualLocales).toEqual(givenResponse);
   });
 
-  test("on fail to fetch, it should reject with an error ERROR_CODE.FAILED_TO_FETCH", async () => {
+  test("on fail to fetch, it should reject with the same error thrown by fetchWithAuth", async () => {
     // GIVEN fetch rejects with some unknown error
     const givenFetchError = new Error();
-    jest.spyOn(window, "fetch").mockRejectedValue(givenFetchError);
+    jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockRejectedValueOnce(givenFetchError);
 
     // GIVEN a api server url
     const givenApiServerUrl = "/path/to/api";
@@ -57,22 +62,8 @@ describe("LocalesService", () => {
     const service = new LocalesService(givenApiServerUrl);
     const localesResponsePromise = service.getLocales();
 
-    // THEN expected it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(
-        LocalesService.name,
-        "getLocales",
-        "GET",
-        `${givenApiServerUrl}/locales.json`,
-        0,
-        ErrorCodes.FAILED_TO_FETCH,
-        "",
-        ""
-      ),
-      message: expect.any(String),
-      details: expect.any(Error),
-    };
-    await expect(localesResponsePromise).rejects.toMatchObject(expectedError);
+    // THEN expected it to reject with the same error as the fetchWithAuth
+    await expect(localesResponsePromise).rejects.toMatchObject(givenFetchError);
   });
 
   test.each([
@@ -109,61 +100,4 @@ describe("LocalesService", () => {
       await expect(localesResponsePromise).rejects.toMatchObject(expectedError);
     }
   );
-
-  test("on 200, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if the response Content-Type is not application/json;charset=UTF-8", async () => {
-    // GIVEN a api server url
-    const givenApiServerUrl = "/path/to/api";
-    // AND the REST API will respond with OK and the content-type is not application/json;charset=UTF-8
-    setupAPIServiceSpy(StatusCodes.OK, getArrayOfFakeLocales(4), "");
-
-    // WHEN the getLocales function is called
-    const service = new LocalesService(givenApiServerUrl);
-    const localesResponsePromise = service.getLocales();
-
-    // THEN expect it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(
-        LocalesService.name,
-        "getLocales",
-        "GET",
-        `${givenApiServerUrl}/locales.json`,
-        StatusCodes.OK,
-        ErrorCodes.INVALID_RESPONSE_HEADER,
-        "",
-        ""
-      ),
-      message: expect.any(String),
-      details: expect.anything(),
-    };
-    await expect(localesResponsePromise).rejects.toMatchObject(expectedError);
-  });
-
-  test("on NOT 200, it should reject with an error ERROR_CODE.API_ERROR", async () => {
-    // GIVEN a api server url
-    const givenApiServerUrl = "/path/to/api";
-    // AND the REST API will respond with NOT OK status and some response body
-    const givenResponse = { foo: "foo" };
-    setupAPIServiceSpy(StatusCodes.NOT_FOUND, givenResponse, "application/json;charset=UTF-8");
-
-    // WHEN the getLocales function is called
-    const service = new LocalesService(givenApiServerUrl);
-    const localesResponsePromise = service.getLocales();
-
-    // THEN expect it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(
-        LocalesService.name,
-        "getLocales",
-        "GET",
-        `${givenApiServerUrl}/locales.json`,
-        StatusCodes.NOT_FOUND,
-        ErrorCodes.API_ERROR,
-        "",
-        ""
-      ),
-      message: expect.any(String),
-      details: expect.anything(),
-    };
-    await expect(localesResponsePromise).rejects.toMatchObject(expectedError);
-  });
 });

@@ -68,6 +68,11 @@ describe("Test the service", () => {
     expect(fetchSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/presigned`, {
       method: "GET",
       body: undefined,
+      expectedStatusCode: StatusCodes.OK,
+      serviceName: "PresignedService",
+      serviceFunction: "getPresignedPost",
+      failureMessage: "Failed to get the pre-signed data",
+      expectedContentType: "application/json",
     });
   });
 
@@ -135,63 +140,22 @@ describe("Test the service", () => {
     }
   );
 
-  test("on 200, should reject with an error ERROR_CODE.INVALID_RESPONSE_HEADER if response content-type is not application/json;charset=UTF-8", async () => {
-    // GIVEN a api server url
+  test("on fail to fetch, it should reject with the error thrown by fetchWithAuth", async () => {
+    // GIVEN url, modelId and filePaths
     const givenApiServerUrl = "/path/to/api";
-    // AND the  REST API will respond with OK and some response
-    // that conforms to the Presigned.Schema
-    // but the content-type is not application/json;charset=UTF-8
-    setupAPIServiceSpy(StatusCodes.OK, getPresignedMockResponse(), "");
+    // AND the fetch of some of the files will fail with some error.
+    const givenError = new Error("some error");
+    jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockImplementationOnce(() => {
+      return new Promise(() => {
+        throw givenError;
+      });
+    });
 
     // WHEN the getPresignedPost function is called
     const service = new PresignedService(givenApiServerUrl);
     const presignedResponsePromise = service.getPresignedPost();
 
-    // THEN expected it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(
-        PresignedService.name,
-        "getPresignedPost",
-        "GET",
-        `${givenApiServerUrl}/presigned`,
-        StatusCodes.OK,
-        ErrorCodes.INVALID_RESPONSE_HEADER,
-        "",
-        ""
-      ),
-      message: expect.any(String),
-      details: expect.any(String),
-    };
-    await expect(presignedResponsePromise).rejects.toMatchObject(expectedError);
-  });
-
-  test("on NOT 200, it should reject with an error ERROR_CODE.API_ERROR that contains the body of the response", async () => {
-    // GIVEN a api server url
-    const givenApiServerUrl = "/path/to/api";
-    // AND the REST API will respond with NOT OK and some response body
-    const givenResponse = { foo: "foo", bar: "bar" };
-    setupAPIServiceSpy(StatusCodes.BAD_REQUEST, givenResponse, "application/json;charset=UTF-8");
-
-    // WHEN the getPresignedPost function is called
-    const service = new PresignedService(givenApiServerUrl);
-    const presignedResponsePromise = service.getPresignedPost();
-
-    // THEN expected it to reject with the error response
-    const expectedError = {
-      ...new ServiceError(
-        PresignedService.name,
-        "getPresignedPost",
-        "GET",
-        `${givenApiServerUrl}/presigned`,
-        0,
-        ErrorCodes.API_ERROR,
-        "",
-        givenResponse
-      ),
-      statusCode: expect.any(Number),
-      message: expect.any(String),
-      details: givenResponse,
-    };
-    await expect(presignedResponsePromise).rejects.toMatchObject(expectedError);
+    // THEN Expect to reject with the same error thrown by fetchWithAuth
+    await expect(presignedResponsePromise).rejects.toMatchObject(givenError);
   });
 });

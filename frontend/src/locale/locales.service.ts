@@ -1,6 +1,6 @@
 import addFormats from "ajv-formats";
 import Ajv, { ValidateFunction } from "ajv/dist/2020";
-import { getServiceErrorFactory, ServiceErrorDetails } from "src/error/error";
+import { getServiceErrorFactory } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { StatusCodes } from "http-status-codes/";
 import LocaleAPISpecs from "api-specifications/locale";
@@ -32,37 +32,18 @@ export default class LocalesService {
 
     let response: Response;
     let responseBody: string;
-
-    try {
-      response = await fetchWithAuth(this.localesEndpointUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      responseBody = await response.text();
-    } catch (error: unknown) {
-      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to fetch locales", error as ServiceErrorDetails);
-    }
-
-    if (response.status !== StatusCodes.OK) {
-      // Server responded with a status code that indicates that the resource was not OK
-      // The responseBody should be an ErrorResponse but that is not guaranteed e.g. if a gateway in the middle returns a 502,
-      // or if the server is not conforming to the error response schema
-      throw errorFactory(response.status, ErrorCodes.API_ERROR, "Failed to fetch locales", responseBody);
-    }
-
-    // Resource was OK
-    // Expect that the responseBody is a LocalesResponse
-    const contentType = response.headers.get("Content-Type");
-    if (!contentType?.includes("application/json")) {
-      throw errorFactory(
-        response.status,
-        ErrorCodes.INVALID_RESPONSE_HEADER,
-        "Response Content-Type should be 'application/json'",
-        `Content-Type header was ${contentType}`
-      );
-    }
+    response = await fetchWithAuth(this.localesEndpointUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      expectedStatusCode: StatusCodes.OK,
+      serviceName: "LocalesService",
+      serviceFunction: "getLocales",
+      failureMessage: "Failed to fetch locales",
+      expectedContentType: "application/json",
+    });
+    responseBody = await response.text();
 
     let localesResponse: LocaleAPISpecs.Types.Payload[];
     try {

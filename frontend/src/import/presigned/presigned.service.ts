@@ -37,32 +37,15 @@ export default class PresignedService {
     );
     let response;
     let responseBody: string;
-    try {
-      response = await fetchWithAuth(this.presignedEndpointUrl, {
-        method: "GET",
-      });
-      responseBody = await response.text();
-    } catch (e: any) {
-      throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Failed to get the pre-signed data", e);
-    }
-
-    if (response.status !== StatusCodes.OK) {
-      // Server responded with a status code that indicates that the resource was not OK
-      // The responseBody should be an ErrorResponse but that is not guaranteed e.g. if a gateway in the middle returns a 502,
-      // or if the server is not conforming to the error response schema
-      throw errorFactory(response.status, ErrorCodes.API_ERROR, "Failed to get the presigned data", responseBody);
-    }
-    // Presigned was issued
-    // Expect that the responseBody is a PresignedResponse
-    const contentType = response.headers.get("Content-Type");
-    if (!contentType?.includes("application/json")) {
-      throw errorFactory(
-        response.status,
-        ErrorCodes.INVALID_RESPONSE_HEADER,
-        "Response Content-Type should be 'application/json'",
-        `Content-Type header was ${contentType}`
-      );
-    }
+    response = await fetchWithAuth(this.presignedEndpointUrl, {
+      method: "GET",
+      expectedStatusCode: StatusCodes.OK,
+      serviceName: "PresignedService",
+      serviceFunction: "getPresignedPost",
+      failureMessage: "Failed to get the pre-signed data",
+      expectedContentType: "application/json",
+    });
+    responseBody = await response.text();
 
     let presignedResponse: PresignedAPISpecs.Types.GET.Response.Payload;
     try {
