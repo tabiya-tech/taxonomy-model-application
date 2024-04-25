@@ -142,7 +142,7 @@ function getOpenAPISpecification(
       },
       servers: [
         {
-          url: "/api",
+          url: "/taxonomy/api",
         },
       ],
     }, //format: '.yml',

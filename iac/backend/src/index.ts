@@ -14,7 +14,7 @@ export const domainName = process.env.DOMAIN_NAME!;
 pulumi.log.info(`Using domain name : ${domainName}`);
 if (!domainName) throw new Error("environment variable DOMAIN_NAME is required");
 
-export const publicApiRootPath = "/api";
+export const publicApiRootPath = "/taxonomy/api";
 export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 
 export const currentRegion = pulumi.output(aws.getRegion()).name;

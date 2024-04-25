@@ -205,7 +205,7 @@ export function setupCDN(
       //    for the SWAGGER api-doc/swagger
       ...getFrontendNoCachingBehaviour(
         swaggerBucketOrigin.arn,
-        ["/api-doc/swagger/tabiya-api.json"],
+        ["/taxonomy/api-doc/swagger/", "/taxonomy/api-doc/swagger/tabiya-api.json"],
         urlRewriteFunction),
       ...getFrontendNoCachingBehaviour(
         localesBucketOrigin.arn,
@@ -214,7 +214,7 @@ export function setupCDN(
       //    for the REDOC api-doc/redoc
       ...getFrontendNoCachingBehaviour(
         redocBucketOrigin.arn,
-        ["/api-doc/redoc/", "/api-doc/redoc/index.html"],
+        ["/taxonomy/api-doc/redoc/", "/taxonomy/api-doc/redoc/index.html"],
         urlRewriteFunction),
       // APP
       {
@@ -266,7 +266,7 @@ export function setupCDN(
         maxTtl: 0,
         defaultTtl: 0,
         targetOriginId: backendRestApiOrigin.restApiArn,
-        pathPattern: "/api/*",
+        pathPattern: "/taxonomy/api/*",
         functionAssociations: [
           {
             eventType: "viewer-request",
@@ -281,7 +281,7 @@ export function setupCDN(
         allowedMethods: ["GET", "HEAD", "OPTIONS"],
         cachedMethods: ["GET", "HEAD", "OPTIONS"],
         targetOriginId: swaggerBucketOrigin.arn,
-        pathPattern: "/api-doc/swagger/*",
+        pathPattern: "/taxonomy/api-doc/swagger/*",
         responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
         cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
         originRequestPolicyId: OriginRequest_ManagedPolicies.CORSS3Origin,
@@ -300,7 +300,7 @@ export function setupCDN(
         allowedMethods: ["GET", "HEAD", "OPTIONS"],
         cachedMethods: ["GET", "HEAD", "OPTIONS"],
         targetOriginId: redocBucketOrigin.arn,
-        pathPattern: "/api-doc/redoc/*",
+        pathPattern: "/taxonomy/api-doc/redoc/*",
         responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
         cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
         originRequestPolicyId: OriginRequest_ManagedPolicies.CORSS3Origin,
@@ -342,10 +342,10 @@ export function setupCDN(
   }, {dependsOn: [cdn]});
 
   return {
-    backendURLBase: interpolate`https://${domainName}/api`,
+    backendURLBase: interpolate`https://${domainName}/taxonomy/api`,
     frontendURLBase: interpolate`https://${domainName}/app`,
-    swaggerURLBase: interpolate`https://${domainName}/api-doc/swagger`,
-    redocURLBase: interpolate`https://${domainName}/api-doc/redoc`,
+    swaggerURLBase: interpolate`https://${domainName}/taxonomy/api-doc/swagger`,
+    redocURLBase: interpolate`https://${domainName}/taxonomy/api-doc/redoc`,
     localesURLBase: interpolate`https://${domainName}/locales/api`
   };
 }
