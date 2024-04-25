@@ -21,6 +21,6 @@ export const hostedZone = {
 
 export const targetDomainName = domainName;
 export const frontendURL = `https://${domainName}`;
-export const backendUrl = `https://${domainName}/api`;
+export const backendUrl = `https://${domainName}/taxonomy/api`;
 export const localesUrl = `https://${domainName}/locales/api`;
 export const authUrl = `https://auth.${domainName}`;
