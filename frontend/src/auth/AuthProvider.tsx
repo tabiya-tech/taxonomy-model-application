@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * redirects the user to the login url
    */
   const login = () => {
-    const url = `${AUTH_URL}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=${encodeURIComponent(
+    const url = `${AUTH_URL}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=email+openid+profile&redirect_uri=${encodeURIComponent(
       REDIRECT_URL
     )}/`;
     window.open(url, "_self");
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     AuthPersistentStorage.clear();
 
     window.open(
-      `${AUTH_URL}/logout?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&logout_uri=${encodeURIComponent(
+      `${AUTH_URL}/logout?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=email+openid+profile&logout_uri=${encodeURIComponent(
         REDIRECT_URL
       )}/`,
       "_self"

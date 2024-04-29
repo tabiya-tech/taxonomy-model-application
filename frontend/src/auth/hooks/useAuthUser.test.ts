@@ -187,5 +187,22 @@ describe("useAuthUser hook tests", () => {
       // AND a notification should be shown
       expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith("Invalid token", { variant: "error" });
     });
+
+    test("user with no roles provded", () => {
+      jwtDecodeFn.mockReturnValue({ username: userName });
+
+      // GIVEN the hook is used
+      const { result } = renderHook(() => useAuthUser());
+
+      // AND No user is set
+      expect(result.current.user).toBeNull();
+
+      // WHEN the user is updated by an access token
+      act(() => result.current.updateUserByAccessToken("foo"));
+
+      // THEN the user should be updated
+      expect(result.current.user?.roles).toEqual([]);
+      expect(result.current.user?.username).toEqual(userName);
+    });
   });
 });

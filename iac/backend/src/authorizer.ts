@@ -1,6 +1,7 @@
 import * as aws from "@pulumi/aws";
 import {asset} from "@pulumi/pulumi";
 import * as pulumi from "@pulumi/pulumi";
+import * as process from "process";
 
 const buildFolderPath = "../../backend/build/auth/customAuthenticator";
 
@@ -59,6 +60,8 @@ export function setupAuthorizer(): {
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
+        USER_POOL_ID: process.env.USER_POOL_ID!,
+        USER_POOL_CLIENT_ID: process.env.USER_POOL_CLIENT_ID!,
       }
     }
   });

@@ -67,7 +67,7 @@ describe("AuthProvider module", () => {
       // THEN: The window should be redirected to the login url
       // AND the url should contain the correct parameters
       expect(open).toHaveBeenCalledWith(
-        `${AUTH_URL}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&redirect_uri=${encodeURIComponent(
+        `${AUTH_URL}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=email+openid+profile&redirect_uri=${encodeURIComponent(
           window.location.origin
         )}/`,
         `_self`
@@ -87,7 +87,7 @@ describe("AuthProvider module", () => {
       expect(open).toHaveBeenCalled();
       // AND the url should contain the correct parameters
       expect(open).toHaveBeenCalledWith(
-        `${AUTH_URL}/logout?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=model-api%2Fmodel-api+openid&logout_uri=${encodeURIComponent(
+        `${AUTH_URL}/logout?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=email+openid+profile&logout_uri=${encodeURIComponent(
           window.location.origin
         )}/`,
         `_self`
