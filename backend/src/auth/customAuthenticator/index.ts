@@ -3,9 +3,9 @@ import { APIGatewayEventDefaultAuthorizerContext } from "aws-lambda/common/api-g
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import AuthAPISpecs from "api-specifications/auth";
 
-// TODO: move these to a config file
-const userPoolId = "us-east-1_F6vK8VEnc";
-const clientId = "77lkf19od35ss9r6kk4nn23kq7";
+const userPoolId = process.env.USER_POOL_ID!;
+const clientId = process.env.USER_POOL_CLIENT_ID!;
+
 const verifier = CognitoJwtVerifier.create({
   userPoolId: userPoolId,
   tokenUse: "access",

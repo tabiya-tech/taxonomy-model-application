@@ -55,9 +55,38 @@ The projects are deployed in the following order:
  
 ```mermaid
 flowchart RL
+    subgraph setup
+        hosted-zone
+        name-servers
+        certificate
+    end
+    subgraph common
+        dns
+        cdn
+    end
+    subgraph backend
+        subgraph import
+            asyncImport
+            uploadBucket
+        end
+        subgraph export
+            asyncExport
+            downloadBucket
+        end
+        authorizer
+        openapiBuckets
+        restApi
+
+    end
     common--->frontend;
     common--->backend;
-    name-servers--->common;
+    locales
+    auth--->setup
+    common---->setup
+
+    common--->locales
+    authorizer--user pool id\nuser pool client id-->auth
+    frontend--user pool secret id\nuser pool client id\nauth url-->auth
 ```
 
 The image below shows the solution architecture and how it relates to the IaC.

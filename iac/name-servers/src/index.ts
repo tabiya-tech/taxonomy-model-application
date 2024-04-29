@@ -8,9 +8,9 @@ const baseDomainName = process.env.BASE_DOMAIN_NAME!;
 pulumi.log.info(`Using base domain name : ${baseDomainName}`);
 if(!baseDomainName) throw new Error("environment variable BASE_DOMAIN_NAME is required")
 
-const commonStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-common/${environment}`);
+const commonStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-setup/${environment}`);
 
-const subDNS = commonStack.getOutput("dns").apply((t) => {
+const subDNS = commonStack.getOutput("hostedZone").apply((t) => {
   return {
     domainName: t.domainName as string,
     nameServers: t.nameServers as string[]
