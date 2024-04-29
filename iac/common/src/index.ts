@@ -1,8 +1,7 @@
 import {setupCDN} from "./cdn";
 import * as pulumi from "@pulumi/pulumi";
 import {Output} from "@pulumi/pulumi";
-import {setupDNS} from "./dns";
-import {setupCert} from "./cert";
+import { acm } from "@pulumi/aws/types/input";
 
 export const environment = pulumi.getStack();
 
@@ -14,16 +13,21 @@ if(!baseDomainName) throw new Error("environment variable BASE_DOMAIN_NAME is re
 const  subdomain = environment
 export const domainName = `${subdomain}.${baseDomainName}`;
 
-/**
- *  ROUTE 53
- */
-const hostedZone = setupDNS(domainName);
+const setUpStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-setup/${environment}`);
+const hostedZone = setUpStack.getOutput("hostedZone").apply((t) => ({
+  zoneId: t.zoneId,
+  nameServers: t.nameServers
+} as Output<{ zoneId: string, nameServers: string[] }>))
+
+const certificateStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-certificate/${environment}`);
+const certificate = certificateStack.getOutput("certificate").apply((t) => ({
+  domainValidationOptions: t.domainValidationOptions,
+  arn: t.arn
+} as Output<{ domainValidationOptions: acm.CertificateDomainValidationOption[], arn: string }>))
 
 /**
  * Certificate
  */
-const certificate = setupCert(domainName, hostedZone);
-
 
 const validationOptions = pulumi.output(certificate.domainValidationOptions[0]);
 export const dns = {
@@ -36,7 +40,6 @@ export const dns = {
     value: validationOptions.resourceRecordValue
   }
 };
-
 
 /**
  * Get Backend Stack
@@ -99,7 +102,7 @@ export const cdn = setupCDN({
   swaggerBucketOrigin: swaggerBucket,
   redocBucketOrigin: redocBucket,
   localesBucketOrigin: localesBucket
-}, certificate, hostedZone, domainName);
+}, certificate.arn, hostedZone.zoneId, domainName);
 export const backendURLBase = cdn.backendURLBase;
 
 // The resources base URL is the base URL for accessing tabiya resources

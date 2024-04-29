@@ -1,7 +1,5 @@
 import * as aws from "@pulumi/aws";
 import {Function} from "@pulumi/aws/cloudfront";
-import {Certificate} from "@pulumi/aws/acm";
-import {Zone} from "@pulumi/aws/route53";
 import * as fs from "fs";
 import * as path from "path";
 import {interpolate, Output} from "@pulumi/pulumi";
@@ -90,8 +88,8 @@ function getFrontendNoCachingBehaviour(bucketArn: Output<string>, pathPattern: s
 
 export function setupCDN(
   origns: Origins,
-  cert: Certificate,
-  hostedZone: Zone,
+  certificateArn: Output<string>,
+  hostedZoneId: Output<string>,
   domainName: string
 ): {
   backendURLBase: Output<string>,
@@ -323,15 +321,15 @@ export function setupCDN(
     },
     aliases: [domainName],
     viewerCertificate: {
-      acmCertificateArn: cert.arn,
+      acmCertificateArn: certificateArn,
       minimumProtocolVersion: "TLSv1.2_2021",
       sslSupportMethod: "sni-only"
     },
-  }, {dependsOn: [cert]});
+  });
 
   // Create an alias record for the distribution
   const record = new aws.route53.Record("record", {
-    zoneId: hostedZone.zoneId,
+    zoneId: hostedZoneId,
     name: domainName,
     type: "A",
     aliases: [
@@ -341,7 +339,7 @@ export function setupCDN(
         evaluateTargetHealth: true,
       },
     ],
-  }, {dependsOn: [cdn, hostedZone]});
+  }, {dependsOn: [cdn]});
 
   return {
     backendURLBase: interpolate`https://${domainName}/api`,

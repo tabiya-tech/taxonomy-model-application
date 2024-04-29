@@ -1,0 +1,10 @@
+{
+  "name": "setup",
+  "main": "src/index.ts",
+  "scripts": {
+    "up": "pulumi up -y --stack dev",
+    "preview": "pulumi preview --stack dev",
+    "refresh": "pulumi refresh --stack dev",
+    "destroy": "pulumi destroy --stack dev"
+  }
+}

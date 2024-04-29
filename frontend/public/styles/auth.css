@@ -56,12 +56,13 @@
 }
 
 .errorMessage-customizable {
-  padding: 5px;
-  font-size: 14px;
-  width: 100%;
-  background: #f5f5f5;
-  border: 2px solid #690005;
-  color: #690005;
+    padding: 12px;
+    font-size: 14px;
+    width: 100%;
+    background: #ffedea;
+    color: #690005;
+    border: none;
+    border-radius: 4px;
 }
 
 .inputField-customizable {

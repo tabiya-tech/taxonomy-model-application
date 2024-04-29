@@ -1,7 +1,16 @@
-name: Deploy Backend
+name: Deploy Auth
 
 on:
   workflow_call:
+    outputs:
+      clientId:
+        value: ${{ jobs.deploy.outputs.clientId }}
+      clientSecret:
+        value: ${{ jobs.deploy.outputs.clientSecret }}
+      userPoolId:
+        value: ${{ jobs.deploy.outputs.userPoolId }}
+      userPoolClientId:
+        value: ${{ jobs.deploy.outputs.userPoolClientId }}
     inputs:
       target-environment:
         required: true
@@ -9,30 +18,16 @@ on:
       target-domain-name:
         required: true
         type: string
-      version-info:
-        required: true
-        type: string
-      user-pool-id:
-        required: true
-        type: string
-      user-pool-client-id:
-        required: true
-        type: string
-    outputs:
-      backedRestApiURLBase:
-        description: "The backend api url"
-        value: ${{ jobs.deploy.outputs.backedRestApiURLBase }}
-      resourcesBaseUrl:
-        description: "The resources base url"
-        value: ${{ jobs.deploy.outputs.resourcesBaseUrl }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
-      backedRestApiURLBase: ${{ steps.pulumi.outputs.backedRestApiURLBase }}
-      resourcesBaseUrl: ${{ steps.pulumi.outputs.resourcesBaseUrl }}
+      clientId: ${{ steps.pulumi.outputs.clientId }}
+      clientSecret: ${{ steps.pulumi.outputs.clientSecret }}
+      userPoolId: ${{ steps.pulumi.outputs.userPoolId }}
+      userPoolClientId: ${{ steps.pulumi.outputs.userPoolClientId }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,21 +48,13 @@ jobs:
           aws-region: eu-central-1
           role-duration-seconds: 1200
           role-session-name: MySessionName
-      - name: Download backend.build.folder
-        uses: actions/download-artifact@v4
-        with:
-          name: backend.build.folder
-          path: backend/build/
-      - name: Deploy backend
+      - name: Deploy Auth
         id: pulumi
         uses: pulumi/actions@v5
         with:
-          work-dir: iac/backend
+          work-dir: iac/auth
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-backend/${{ inputs.target-environment }}
+          stack-name: tabiya-tech/taxonomy-model-application-auth/${{ inputs.target-environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
           DOMAIN_NAME: ${{ inputs.target-domain-name }}
-          USER_POOL_ID: ${{ inputs.user-pool-id }}
-          USER_POOL_CLIENT_ID: ${{ inputs.user-pool-client-id }}

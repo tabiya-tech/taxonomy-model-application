@@ -39,9 +39,15 @@ export function useAuthUser() {
     try {
       const decodedIdentityToken = jwtDecode<TAccessTokenDetails>(accessToken);
 
+      const roles = [];
+
+      if(decodedIdentityToken["cognito:groups"]) {
+        roles.push(...decodedIdentityToken["cognito:groups"]);
+      }
+
       setUser({
         username: decodedIdentityToken["username"],
-        roles: decodedIdentityToken["cognito:groups"],
+        roles: roles,
       });
     } catch (error) {
       enqueueSnackbar("Invalid token", { variant: "error" });
