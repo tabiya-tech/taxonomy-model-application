@@ -13,12 +13,12 @@ import * as React from "react";
 import { getRandomLorem } from "src/_test_utilities/specialCharacters";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
-import ExportStateCellContent from "src/modeldirectory/components/ModelsTable/ExportStateCellContent/ExportStateCellContent";
 import TableLoadingRows from "src/modeldirectory/components/tableLoadingRows/TableLoadingRows";
 import { act, fireEvent } from "@testing-library/react";
 import ContextMenu from "src/theme/ContextMenu/ContextMenu";
 import buildMenuItemsConfig from "./buildMenuItemsConfig";
 import { IsOnlineContext } from "src/app/providers";
+import { mockLoggedInUser, TestUsers } from "src/_test_utilities/mockLoggedInUser";
 
 function encodeHtmlAttribute(value: string) {
   const element = document.createElement("div");
@@ -106,6 +106,8 @@ describe("ModelsTable", () => {
     test("should render the table with the models", () => {
       // GIVEN n models with random data of max length
       const givenModels = getArrayOfRandomModelsMaxLength(3);
+      // AND a user has model manager role
+      mockLoggedInUser({ user: TestUsers.ModelManager });
 
       // WHEN the ModelsTable is rendered with the given models
       const { container } = render(
@@ -259,9 +261,16 @@ describe("ModelsTable", () => {
       });
     });
 
-    test("should render the table with the single model and match the snapshot", () => {
+    test.each([
+      ["ModelManager", TestUsers.ModelManager],
+      ["RegisteredUser", TestUsers.RegisteredUser],
+      ["Anonymous", TestUsers.Anonymous],
+    ])("should render the table with the single model and match the snapshot with '%s' role", (_user, testUser) => {
       // GIVEN a single model
-      // WHEN the ModelsTable is rendered with the single model in an array
+      // AND a logged-in user
+      mockLoggedInUser({ user: testUser });
+
+      // WHEN the ModelsTable is rendered with the single model  in an array
       render(<ModelsTable models={[fakeModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
       // THEN expect the table to be shown
@@ -277,6 +286,8 @@ describe("ModelsTable", () => {
       ["undefined", undefined],
     ])("should render an empty table with %s models array", async (_description, givenModels) => {
       // GIVEN an empty model list is provided
+      // AND a user has model manager role
+      mockLoggedInUser({ user: TestUsers.ModelManager });
 
       // WHEN the ModelsTable is rendered
       // @ts-ignore
@@ -432,61 +443,72 @@ describe("ModelsTable", () => {
         });
       });
 
-      describe("should render the model.importProcessState", () => {
-        test("should render the model.importProcessState", () => {
-          // GIVEN a model with some Import state
-          const givenModel = getOneRandomModelMaxLength();
-          expect(givenModel.importProcessState).toBeDefined();
+      test("should render the model.importProcessState only when user has model manager role", () => {
+        // GIVEN a model with some Import state
+        const givenModel = getOneRandomModelMaxLength();
+        expect(givenModel.importProcessState).toBeDefined();
+        // AND a user has model manager role
+        mockLoggedInUser({ user: TestUsers.ModelManager });
 
-          // WHEN the ModelsTable is rendered with the given model
-          render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
+        // WHEN the ModelsTable is rendered with the given model
+        render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
-          // THEN expect no errors or warning to have occurred
-          expect(console.error).not.toHaveBeenCalled();
-          expect(console.warn).not.toHaveBeenCalled();
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
 
-          // AND expect the icon to be shown
-          const actualModelCellImportStateIconContainer = screen.getByTestId(
-            DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER
-          );
-          const actualImportStateIcon = within(actualModelCellImportStateIconContainer).getByTestId(
-            "mock-import-state-icon"
-          );
-          expect(actualImportStateIcon).toBeInTheDocument();
+        // AND expect the icon to be shown
+        const actualModelCellImportStateIconContainer = screen.getByTestId(
+          DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER
+        );
+        const actualImportStateIcon = within(actualModelCellImportStateIconContainer).getByTestId(
+          "mock-import-state-icon"
+        );
+        expect(actualImportStateIcon).toBeInTheDocument();
 
-          // AND expect the ImportProcessStateIcon to have been called with the given import state
-          expect(ImportProcessStateIcon).toHaveBeenCalledWith(
-            { importProcessState: givenModel.importProcessState },
-            {}
-          );
-        });
+        // AND expect the ImportProcessStateIcon to have been called with the given import state
+        expect(ImportProcessStateIcon).toHaveBeenCalledWith({ importProcessState: givenModel.importProcessState }, {});
       });
 
-      describe("should render the model.exportProcessState", () => {
-        test("should render the model.exportProcessState", () => {
-          // GIVEN a model with some Export Process State
-          const givenModel = getOneRandomModelMaxLength();
-          expect(givenModel.exportProcessState).toBeDefined();
+      test("should not render the model.importProcessState when a user does not have a model manager role", () => {
 
-          // WHEN the ModelsTable is rendered with the given model
-          render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
+        // GIVEN a model with some Import state
+        const givenModel = getOneRandomModelMaxLength();
+        expect(givenModel.importProcessState).toBeDefined();
+        // AND a user has a role which is not "MODEL_MANAGER"
+        mockLoggedInUser({ user: TestUsers.RegisteredUser });
 
-          // THEN expect no errors or warning to have occurred
-          expect(console.error).not.toHaveBeenCalled();
-          expect(console.warn).not.toHaveBeenCalled();
+        // WHEN the ModelsTable is rendered with the given model
+        render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
 
-          // AND expect the export content to be shown
-          const actualModelCellExportStateContainer = screen.getByTestId(
-            DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER
-          );
-          const actualExportStateContent = within(actualModelCellExportStateContainer).getByTestId(
-            "mock-export-state-content"
-          );
-          expect(actualExportStateContent).toBeInTheDocument();
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
 
-          // AND expect the ImportProcessStateIcon to have been called with the given import state
-          expect(ExportStateCellContent).toHaveBeenCalledWith({ model: givenModel }, {});
-        });
+        // AND expect the icon to not be shown
+        const actualModelCellImportStateIconContainer = screen.queryByTestId(
+          DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER
+        );
+        expect(actualModelCellImportStateIconContainer).not.toBeInTheDocument();
+      });
+
+      test("should not render the model.exportProcessState when a user has an anonymous role", () => {
+        // GIVEN a model with some Export state
+        const givenModel = getOneRandomModelMaxLength();
+        expect(givenModel.exportProcessState).toBeDefined();
+        // AND a user has an anonymous role
+        mockLoggedInUser({ user: TestUsers.Anonymous });
+
+        // WHEN the ModelsTable is rendered with the given model
+        render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
+
+        // THEN expect no errors or warning to have occurred
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
+
+        // AND expect the icon to not be shown
+        const actualModelCellExportStateContainer = screen.queryByTestId(DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER);
+        expect(actualModelCellExportStateContainer).not.toBeInTheDocument();
       });
     });
 
@@ -494,6 +516,8 @@ describe("ModelsTable", () => {
       test("should render the table with the loader component when the loading property is set to true", () => {
         // GIVEN isLoading property is true
         const givenIsLoading = true;
+        // AND a user has model manager role
+        mockLoggedInUser({ user: TestUsers.ModelManager });
         // AND an empty models list is provided
 
         // WHEN the ModelsTable component is rendered with the given properties
@@ -639,6 +663,10 @@ describe("ModelsTable", () => {
         const mockNotifyOnExport = jest.fn();
         // AND a notifyOnShowModelDetails callback function
         const mockNotifyOnShowModelDetails = jest.fn();
+        // AND a hasRole function
+        const mockHasRole = jest.fn().mockReturnValue(true);
+        // AND a logged-in user
+        mockLoggedInUser({ hasRole: mockHasRole });
         // AND the function "buildMenuItemsConfig" will return some items
         const givenMenuItems = [
           {
@@ -687,7 +715,8 @@ describe("ModelsTable", () => {
           expect(buildMenuItemsConfig).toHaveBeenCalledWith(
             model,
             { handleExport: mockNotifyOnExport, handleShowModelDetails: mockNotifyOnShowModelDetails },
-            givenIsOnline
+            givenIsOnline,
+            mockHasRole
           );
           // AND the contextMenu to be called with:
           // - the given items returned by the "buildMenuItemsConfig" function,

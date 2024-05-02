@@ -41,7 +41,7 @@ export function useAuthUser() {
 
       const roles = [];
 
-      if(decodedIdentityToken["cognito:groups"]) {
+      if (decodedIdentityToken["cognito:groups"]) {
         roles.push(...decodedIdentityToken["cognito:groups"]);
       }
 

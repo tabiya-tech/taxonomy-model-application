@@ -2,7 +2,7 @@ import { AuthContextValue, TabiyaUser, authContextDefaultValue } from "src/auth/
 import AuthAPISpecs from "api-specifications/auth";
 
 export function mockLoggedInUser(mockedValues: Partial<AuthContextValue>) {
-  let user: TabiyaUser = mockedValues.user || { username: "foo", roles: [] };
+  let user: TabiyaUser = mockedValues.user || TestUsers.Anonymous;
   jest.spyOn(require("src/auth/hooks/useAuthUser"), "useAuthUser").mockReturnValue({
     ...authContextDefaultValue,
     user: user,
@@ -12,3 +12,18 @@ export function mockLoggedInUser(mockedValues: Partial<AuthContextValue>) {
     ...mockedValues,
   });
 }
+
+export const TestUsers = {
+  ModelManager: {
+    username: "ModelManagerUser",
+    roles: [AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER],
+  },
+  RegisteredUser: {
+    username: "RegisteredUser",
+    roles: [AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER],
+  },
+  Anonymous: {
+    username: "AnonymousUser",
+    roles: [AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS],
+  },
+};

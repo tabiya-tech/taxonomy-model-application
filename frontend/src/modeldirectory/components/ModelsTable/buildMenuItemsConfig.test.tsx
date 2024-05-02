@@ -2,14 +2,18 @@ import { getOneRandomModelMaxLength } from "./_test_utilities/mockModelData";
 import buildMenuItemsConfig, { MENU_ITEM_ID, MENU_ITEM_INDEX, MENU_ITEM_TEXT } from "./buildMenuItemsConfig";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { getAllImportProcessStatePermutations } from "src/modeldirectory/components/ImportProcessStateIcon/_test_utilities/importProcesStateTestData";
+import AuthAPISpecs from "api-specifications/auth";
 
 describe("buildMenuItemsConfig", () => {
-  test("returns all items", () => {
+  test("should return all items when user has model manager role", () => {
     // WHEN the function is called with some model, handleExport function and isOnline (true/false we don't care)
+    // AND the user has model manager role
+    const hasRole = (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER;
     const actualItems = buildMenuItemsConfig(
       getOneRandomModelMaxLength(),
       { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
-      true
+      true,
+      hasRole
     );
 
     // THEN expect all the items to be returned
@@ -21,11 +25,31 @@ describe("buildMenuItemsConfig", () => {
         icon: expect.anything(),
         action: expect.any(Function),
         disabled: expect.any(Boolean),
+        role: index === MENU_ITEM_INDEX.EXPORT_MODEL ? AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER : undefined,
       });
     });
   });
 
+  test("should not return export item when user does not have model manager role", () => {
+    // WHEN the function is called with some model, handleExport function and isOnline (true/false we don't care)
+    // AND the user does not have model manager role
+    const hasRole = (role: AuthAPISpecs.Enums.TabiyaRoles) => role !== AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER;
+    const actualItems = buildMenuItemsConfig(
+      getOneRandomModelMaxLength(),
+      { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
+      true,
+      hasRole
+    );
+
+    // THEN expect all the items to be returned except the export item
+    expect(actualItems).toHaveLength(Object.keys(MENU_ITEM_INDEX).length - 1);
+    expect(actualItems).not.toContainEqual(expect.objectContaining({ id: MENU_ITEM_ID[MENU_ITEM_INDEX.EXPORT_MODEL] }));
+  });
+
   describe("export item tests", () => {
+    // GIVEN a user has model manager role
+    const hasRole = (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER;
+
     describe.each(getAllImportProcessStatePermutations())(
       "export item is disabled when isOnline is false no matter the import state",
       (givenImportState) => {
@@ -40,7 +64,8 @@ describe("buildMenuItemsConfig", () => {
           const actualItems = buildMenuItemsConfig(
             givenModel,
             { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
-            false
+            false,
+            hasRole
           );
 
           // THEN expect the export item to be returned with disabled = true
@@ -50,6 +75,7 @@ describe("buildMenuItemsConfig", () => {
             icon: expect.anything(),
             action: expect.any(Function),
             disabled: true,
+            role: AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
           });
         });
       }
@@ -73,7 +99,8 @@ describe("buildMenuItemsConfig", () => {
           const actualItems = buildMenuItemsConfig(
             givenModel,
             { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
-            true
+            true,
+            hasRole
           );
 
           // THEN expect the export item to be returned with disabled = false
@@ -85,6 +112,7 @@ describe("buildMenuItemsConfig", () => {
               icon: expect.anything(),
               action: expect.any(Function),
               disabled: false,
+              role: index === MENU_ITEM_INDEX.EXPORT_MODEL ? AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER : undefined,
             });
           });
         });
@@ -109,7 +137,8 @@ describe("buildMenuItemsConfig", () => {
           const actualItems = buildMenuItemsConfig(
             givenModel,
             { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
-            true
+            true,
+            hasRole
           );
 
           // THEN expect all the items to be returned with disabled = true
@@ -119,6 +148,7 @@ describe("buildMenuItemsConfig", () => {
             icon: expect.anything(),
             action: expect.any(Function),
             disabled: true,
+            role: AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
           });
         });
       }
@@ -132,12 +162,15 @@ describe("buildMenuItemsConfig", () => {
       // AND a handleExport function
       const givenHandleExport = jest.fn();
       const givenHandleShowModelProperties = jest.fn();
+      // AND a user has model manager role
+      const hasRole = (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER;
 
       // AND a built MenuItems Config based on the model and handleExport function
       const givenMenuItems = buildMenuItemsConfig(
         givenModel,
         { handleExport: givenHandleExport, handleShowModelDetails: givenHandleShowModelProperties },
-        true
+        true,
+        hasRole
       );
 
       // WHEN the action of the export menu item is called
@@ -161,7 +194,8 @@ describe("buildMenuItemsConfig", () => {
       const givenMenuItems = buildMenuItemsConfig(
         givenModel,
         { handleExport: givenHandleExport, handleShowModelDetails: givenHandleShowModelProperties },
-        true
+        true,
+        () => true
       );
 
       // WHEN the action of the show model details menu item is called
