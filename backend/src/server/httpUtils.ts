@@ -14,16 +14,17 @@ export enum HTTP_VERBS {
 }
 
 export enum StatusCodes {
-  INTERNAL_SERVER_ERROR = 500,
-  BAD_REQUEST = 400,
-  METHOD_NOT_ALLOWED = 405,
-  NOT_FOUND = 404,
-  FORBIDDEN = 403,
-  UNSUPPORTED_MEDIA_TYPE = 415,
-  TOO_LARGE_PAYLOAD = 413,
   OK = 200,
   CREATED = 201,
   ACCEPTED = 202,
+  BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  METHOD_NOT_ALLOWED = 405,
+  TOO_LARGE_PAYLOAD = 413,
+  UNSUPPORTED_MEDIA_TYPE = 415,
+  INTERNAL_SERVER_ERROR = 500,
 }
 
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-output-format
