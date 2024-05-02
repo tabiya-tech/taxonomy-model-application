@@ -19,6 +19,14 @@ import {
 } from "_test_utilities/stdRESTHandlerTests";
 import { IModelInfo, IModelInfoReference } from "./modelInfo.types";
 
+import * as authenticatorModule from "auth/authenticator";
+import { usersRequestContext } from "_test_utilities/dataModel";
+import { APIGatewayProxyEvent } from "aws-lambda";
+
+const checkRole = jest.spyOn(authenticatorModule, "checkRole");
+
+checkRole.mockReturnValue(true);
+
 const transformSpy = jest.spyOn(transformModule, "transform");
 
 describe("Test for model handler", () => {
@@ -27,6 +35,34 @@ describe("Test for model handler", () => {
   });
 
   describe("POST", () => {
+    describe("Security tests", () => {
+      test("should respond with FORBIDDEN status code if a user is not a model manager", async () => {
+        // GIVEN The user is a registered user (not a model manager)
+        const givenRequestContext = usersRequestContext.REGISTED_USER;
+
+        // AND checkRole returns false
+        checkRole.mockReturnValue(false);
+
+        // AND the event with the given request context
+        const givenEvent: APIGatewayProxyEvent = {
+          httpMethod: HTTP_VERBS.POST,
+          body: JSON.stringify({}),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          requestContext: givenRequestContext,
+        } as never;
+
+        // WHEN the handler is invoked with the given event
+        const actualResponse = await modelHandler(givenEvent);
+
+        // THEN expect the handler to respond with the FORBIDDEN status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.FORBIDDEN);
+
+        checkRole.mockClear();
+      });
+    });
+
     test("POST should respond with the CREATED status code and the newly created modelInfo for a valid and a max size payload", async () => {
       // GIVEN a valid request (method & header & payload)
       const givenPayload: ModelInfoAPISpecs.Types.POST.Request.Payload = {
@@ -46,6 +82,9 @@ describe("Test for model handler", () => {
           "Content-Type": "application/json;charset=UTF-8",
         },
       } as never;
+
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
 
       // AND a configured base path for resources
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -122,6 +161,9 @@ describe("Test for model handler", () => {
         },
       } as never;
 
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
+
       // AND the repository fails to create a model
       const givenModelInfoRepositoryMock = {
         Model: undefined,
@@ -157,6 +199,36 @@ describe("Test for model handler", () => {
     testRequestJSONMalformed(modelHandler);
 
     testTooLargePayload(HTTP_VERBS.POST, ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH, modelHandler);
+
+    test("POST should return FORBIDDEN status code if the user does not have the required role", async () => {
+      // GIVEN a valid request (method & header & payload)
+      const givenPayload = {
+        name: "foo",
+        locale: {
+          UUID: randomUUID(),
+          name: "ZA",
+          shortCode: "SA",
+        },
+        description: "some text",
+        UUIDHistory: [randomUUID()],
+      };
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      } as never;
+
+      // AND the user does not have the required role
+      checkRole.mockReturnValue(false);
+
+      // WHEN the info handler is invoked with the given event
+      const actualResponse = await modelHandler(givenEvent);
+
+      // THEN expect the handler to return the FORBIDDEN status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.FORBIDDEN);
+    });
   });
 
   describe("GET", () => {
@@ -170,7 +242,115 @@ describe("Test for model handler", () => {
     const givenResourcesBaseUrl = "https://some/path/to/api/resources";
     jest.spyOn(config, "getResourcesBaseUrl").mockReturnValue(givenResourcesBaseUrl);
 
-    test("GET should respond with the OK status code and all the models in the body", async () => {
+    test("GET should return only released models for users who are not model managers", async () => {
+      // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
+      const givenModels: Array<IModelInfo> = [
+        {
+          ...getIModelInfoMockData(1),
+          UUID: "foo",
+          UUIDHistory: ["foo"],
+          released: true,
+        },
+        {
+          ...getIModelInfoMockData(2),
+          UUID: "bar",
+          UUIDHistory: ["bar", "foo"],
+          released: false,
+        },
+        {
+          ...getIModelInfoMockData(3),
+          UUID: "baz",
+          UUIDHistory: ["baz", randomUUID()],
+          released: true,
+        },
+      ];
+
+      // AND the user is not a model manager
+      checkRole.mockReturnValueOnce(false);
+
+      // AND a repository that will successfully get the N models
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(null),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue(givenModels),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the info handler is invoked with the given event
+      const response = await modelHandler(givenEvent);
+      const actualReleasedModels = (JSON.parse(response.body) as IModelInfo[]).sort((a, b) => a.id.localeCompare(b.id));
+
+      // THEN expect the handler to return the OK status
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+
+      const givenReleasedModels: IModelInfo[] = givenModels
+        .filter((model) => model.released)
+        .sort((a, b) => a.id.localeCompare(b.id));
+
+      const getUUId = (m: IModelInfo) => m.UUID;
+
+      // AND the response body contains only the released models
+      expect(actualReleasedModels.length).toBe(givenReleasedModels.length);
+      expect(actualReleasedModels.map(getUUId)).toEqual(givenReleasedModels.map(getUUId));
+    });
+
+    test("GET should return all models for model managers", async () => {
+      // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
+      const givenModels: Array<IModelInfo> = [
+        {
+          ...getIModelInfoMockData(1),
+          UUID: "foo",
+          UUIDHistory: ["foo"],
+          released: true,
+        },
+        {
+          ...getIModelInfoMockData(2),
+          UUID: "bar",
+          UUIDHistory: ["bar", "foo"],
+          released: false,
+        },
+        {
+          ...getIModelInfoMockData(3),
+          UUID: "baz",
+          UUIDHistory: ["baz", randomUUID()],
+          released: true,
+        },
+      ];
+
+      // AND the user is not a model manager
+      checkRole.mockReturnValueOnce(true);
+
+      // AND a repository that will successfully get the N models
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(null),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue(givenModels),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the info handler is invoked with the given event
+      const response = await modelHandler(givenEvent);
+      const actualReleasedModels = (JSON.parse(response.body) as IModelInfo[]).sort((a, b) => a.id.localeCompare(b.id));
+
+      // THEN expect the handler to return the OK status
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+
+      const getId = (m: IModelInfo) => m.id;
+
+      // AND the response body contains all the released models
+      expect(actualReleasedModels.length).toBe(givenModels.length);
+      expect(actualReleasedModels.map(getId)).toEqual(givenModels.map(getId));
+    });
+
+    test("GET should respond with the OK status code and all the released models in the body", async () => {
       // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
       const givenModels: Array<IModelInfo> = [
         // the first model has a UUIDHistory with its own UUID
@@ -178,18 +358,21 @@ describe("Test for model handler", () => {
           ...getIModelInfoMockData(1),
           UUID: "foo",
           UUIDHistory: ["foo"],
+          released: true,
         },
         // the second model has a UUIDHistory with its own UUID and the UUID of the first model
         {
           ...getIModelInfoMockData(2),
           UUID: "bar",
           UUIDHistory: ["bar", "foo"],
+          released: true,
         },
         // the third model has a UUIDHistory with its own UUID and a UUID that does not exist in the models array
         {
           ...getIModelInfoMockData(3),
           UUID: "baz",
           UUIDHistory: ["baz", randomUUID()],
+          released: true,
         },
       ];
       // AND a repository that will successfully get the N models

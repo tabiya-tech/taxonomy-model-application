@@ -68,16 +68,15 @@ export function useTokens({ updateUserByAccessToken }: TUseTokensParams) {
   useEffect(() => {
     let timer: Promise<NodeJS.Timer | undefined> | undefined;
 
-    if(isOnline && !isAuthenticated) {
+    if (isOnline && !isAuthenticated) {
       timer = handleRefreshToken();
     }
 
     return () => {
-      if(timer) {
-        timer
-          .then((t) => {
-            if (t) clearInterval(t);
-          });
+      if (timer) {
+        timer.then((t) => {
+          if (t) clearInterval(t);
+        });
       }
     };
   }, [isOnline, handleRefreshToken, isAuthenticated]);

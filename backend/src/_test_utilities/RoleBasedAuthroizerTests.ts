@@ -3,7 +3,7 @@ import AuthAPISpecs from "api-specifications/auth";
 
 export function generateCheckRoleTests(
   givenRole: AuthAPISpecs.Enums.TabiyaRoles,
-  givenMethod: (event: APIGatewayProxyEvent, requiredRole: AuthAPISpecs.Enums.TabiyaRoles) => Promise<boolean>
+  givenMethod: (event: APIGatewayProxyEvent, requiredRole: AuthAPISpecs.Enums.TabiyaRoles) => boolean
 ) {
   describe(`checkRole Tests for Role: ${givenRole}`, () => {
     test.each([
@@ -27,7 +27,7 @@ export function generateCheckRoleTests(
         } as unknown as APIGatewayProxyEvent;
 
         // WHEN the method is called
-        const result = await givenMethod(event, givenRole);
+        const result = givenMethod(event, givenRole);
 
         // THEN the result should be as expected
         expect(result).toBe(expected);

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import AuthAPISpecs from "api-specifications/auth";
 
 function formatMessage(message: string, ...args: string[]) {
   return message.replace(/{(\d+)}/g, (match: string, number: number) => {
@@ -108,4 +109,20 @@ const createNestedObject = (keys: string[], value: unknown): unknown => {
   return {
     [key]: createNestedObject(nestedKeys, value), // Recursively build nested object
   };
+};
+
+export const usersRequestContext = {
+  ANONYMOUS: {},
+  REGISTED_USER: {
+    authorizer: {
+      username: "foo",
+      roles: "",
+    },
+  },
+  MODEL_MANAGER: {
+    authorizer: {
+      username: "foo",
+      roles: AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
+    },
+  },
 };

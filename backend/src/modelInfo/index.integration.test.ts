@@ -21,6 +21,7 @@ import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { INewExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
 import { IModelInfo } from "./modelInfo.types";
+import { usersRequestContext } from "_test_utilities/dataModel";
 
 async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
@@ -118,6 +119,35 @@ describe("Test for model handler with a DB", () => {
     }
   });
 
+  test("POST should respond with the FORBIDDEN status code if the user is not a model manager", async () => {
+    // GIVEN a valid request (method & header & payload)
+    const givenPayload: ModelInfoAPISpecs.Types.POST.Request.Payload = {
+      name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+      locale: {
+        UUID: randomUUID(),
+        name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+        shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+      },
+      description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+      UUIDHistory: [randomUUID()],
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      body: JSON.stringify(givenPayload),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      requestContext: usersRequestContext.REGISTED_USER,
+    };
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelHandler(givenEvent);
+
+    // THEN expect the handler to respond with the FORBIDDEN status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.FORBIDDEN);
+  });
+
   test("POST should respond with the CREATED status code and the response passes the JSON Schema validation", async () => {
     // GIVEN a valid request (method & header & payload)
     const givenPayload: ModelInfoAPISpecs.Types.POST.Request.Payload = {
@@ -136,6 +166,7 @@ describe("Test for model handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      requestContext: usersRequestContext.MODEL_MANAGER,
     };
 
     // WHEN the handler is invoked with the given event
@@ -201,5 +232,78 @@ describe("Test for model handler with a DB", () => {
     // AND a modelInfo object that validates against the ModelInfoResponseGET schema
     validateGETResponse(JSON.parse(actualResponse.body));
     expect(validateGETResponse.errors).toBeNull();
+  });
+
+  // security tests
+  test("GET should return only released models for users who are not model managers", async () => {
+    // GIVEN a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      requestContext: usersRequestContext.REGISTED_USER,
+    };
+
+    // AND several modelInfo objects are in the DB
+    const models = await createModelsInDB(3);
+    expect(models.length).toBeGreaterThan(0); // guard to ensure that we actually have models in the DB
+
+    // AND each model has an import and an export process state
+    await Promise.all(
+      models.map(async (model) => {
+        await createImportProcessStatesForModel(model);
+        await createExportProcessStatesForModel(model);
+      })
+    );
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelHandler(givenEvent);
+    const actualModels = JSON.parse(actualResponse.body) as IModelInfo[];
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    const actualReleasedModels = models.filter((model) => model.released);
+
+    // AND the response should only contain released models
+    expect(actualModels.length).toBe(actualReleasedModels.length);
+    expect(actualModels.map((m) => m.UUID)).toMatchObject(actualReleasedModels.map((m) => m.UUID));
+  });
+
+  test("GET should return all models for users model managers", async () => {
+    // GIVEN a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+    };
+
+    // AND several modelInfo objects are in the DB
+    const models = await createModelsInDB(10);
+
+    // AND each model has an import and an export process state
+    await Promise.all(
+      models.map(async (model) => {
+        await createImportProcessStatesForModel(model);
+        await createExportProcessStatesForModel(model);
+      })
+    );
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelHandler(givenEvent);
+    const actualModels = JSON.parse(actualResponse.body) as IModelInfo[];
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    // AND the response should only contain released models
+    expect(actualModels.length).toBe(models.length);
+
+    expect(actualModels.map((m) => m.UUID)).toMatchObject(models.map((m) => m.UUID));
   });
 });

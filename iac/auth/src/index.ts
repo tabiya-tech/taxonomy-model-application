@@ -72,7 +72,9 @@ const client = new aws.cognito.UserPoolClient("taxonomy-model-app", {
   logoutUrls: appUrls,
   supportedIdentityProviders: ["COGNITO"],
   callbackUrls: appUrls,
-  refreshTokenValidity: 30,
+  refreshTokenValidity: 30, // 30 days
+  accessTokenValidity: 1, // 1 hour
+  idTokenValidity: 1, // 1 hour
   readAttributes: ["email", "preferred_username"],
   defaultRedirectUri: `https://${domainName}/`,
 });
