@@ -50,11 +50,8 @@ export function testRequestJSONMalformed(
       },
       requestContext: {
         authorizer: {
-          claims: {
-            user: JSON.stringify({
-              "cognito:groups": requiredRole ?? "",
-            }),
-          },
+          username: "foo",
+          roles: requiredRole ?? "",
         },
       },
     };
@@ -84,11 +81,8 @@ export function testRequestJSONSchema(
       },
       requestContext: {
         authorizer: {
-          claims: {
-            user: JSON.stringify({
-              "cognito:groups": requiredRole ?? "",
-            }),
-          },
+          username: "foo",
+          roles: requiredRole ?? "",
         },
       },
     };
@@ -117,11 +111,8 @@ export function testUnsupportedMediaType(
       },
       requestContext: {
         authorizer: {
-          claims: {
-            user: JSON.stringify({
-              "cognito:groups": requiredRole ?? "",
-            }),
-          },
+          username: "foo",
+          roles: requiredRole ?? "",
         },
       },
     };
@@ -152,11 +143,8 @@ export function testTooLargePayload(
       },
       requestContext: {
         authorizer: {
-          claims: {
-            user: JSON.stringify({
-              "cognito:groups": requiredRole ?? "",
-            }),
-          },
+          username: "foo",
+          roles: requiredRole ?? "",
         },
       },
     };

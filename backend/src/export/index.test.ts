@@ -20,6 +20,8 @@ import * as InvokeAsyncExport from "./invokeAsyncExport";
 import { getModelInfoMockDataArray } from "modelInfo/testDataHelper";
 import { AsyncExportEvent } from "./async/async.types";
 import { IExportProcessState, INewExportProcessStateSpec } from "./exportProcessState/exportProcessState.types";
+import { usersRequestContext } from "_test_utilities/dataModel";
+import AuthAPISpecs from "api-specifications/auth";
 
 const getMockExportProcessState = (id: string): IExportProcessState => ({
   createdAt: new Date(),
@@ -37,11 +39,43 @@ describe("test for trigger ExportHandler", () => {
     jest.clearAllMocks();
   });
 
-  test("should respond with the response of the invokeAsyncExport", async () => {
+  describe("Security Tests", () => {
+    test("should respond with FORBIDDEN status code if a user is not a model manager", async () => {
+      // GIVEN a correct payload
+      const givenPayload: ExportAPISpecs.Types.POST.Request.Payload = {
+        modelId: getMockStringId(2),
+      };
+
+      // AND The user is a registered user (not a model manager)
+      const givenRequestContext = usersRequestContext.REGISTED_USER;
+
+      // AND the event with the given payload with 'Content-Type: application/json; charset=utf-8'
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        requestContext: givenRequestContext,
+      } as never;
+
+      // WHEN the handler is invoked with the given event
+      const actualResponse = await ExportHandler.handler(givenEvent);
+
+      // THEN expect the handler to respond with the FORBIDDEN status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.FORBIDDEN);
+    });
+  });
+
+  test("should respond with the response of the invokeAsyncExport when the user is a model manager", async () => {
     // GIVEN a correct payload
     const givenPayload: ExportAPISpecs.Types.POST.Request.Payload = {
       modelId: getMockStringId(2),
     };
+
+    // AND The user is a model manager
+    const givenRequestContext = usersRequestContext.MODEL_MANAGER;
+
     // AND the event with the given payload with 'Content-Type: application/json; charset=utf-8'
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.POST,
@@ -49,6 +83,7 @@ describe("test for trigger ExportHandler", () => {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
+      requestContext: givenRequestContext,
     } as never;
 
     // AND the exportProcessStatRepository that will successfully create the exportProcessState
@@ -114,12 +149,17 @@ describe("test for trigger ExportHandler", () => {
     const givenPayload: ExportAPISpecs.Types.POST.Request.Payload = {
       modelId: getMockStringId(2),
     };
+
+    // AND The user is a model manager
+    const givenRequestContext = usersRequestContext.MODEL_MANAGER;
+
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
+      requestContext: givenRequestContext,
     } as never;
     // AND the modelInfo repository will resolve with null
     const givenModelInfoRepositoryMock = {
@@ -153,12 +193,17 @@ describe("test for trigger ExportHandler", () => {
     const givenPayload: ExportAPISpecs.Types.POST.Request.Payload = {
       modelId: getMockStringId(2),
     };
+
+    // AND The user is a model manager
+    const givenRequestContext = usersRequestContext.MODEL_MANAGER;
+
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.POST,
       body: JSON.stringify(givenPayload),
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
+      requestContext: givenRequestContext,
     } as never;
     // AND the model exists in the db
     const givenModelInfoRepositoryMock = {
@@ -206,11 +251,16 @@ describe("test for trigger ExportHandler", () => {
     ExportHandler.handler
   );
 
-  testRequestJSONMalformed(ExportHandler.handler);
+  testRequestJSONMalformed(ExportHandler.handler, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
-  testRequestJSONSchema(ExportHandler.handler);
+  testRequestJSONSchema(ExportHandler.handler, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
-  testUnsupportedMediaType(ExportHandler.handler);
+  testUnsupportedMediaType(ExportHandler.handler, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
-  testTooLargePayload(HTTP_VERBS.POST, ExportAPISpecs.Constants.MAX_PAYLOAD_LENGTH, ExportHandler.handler);
+  testTooLargePayload(
+    HTTP_VERBS.POST,
+    ExportAPISpecs.Constants.MAX_PAYLOAD_LENGTH,
+    ExportHandler.handler,
+    AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER
+  );
 });

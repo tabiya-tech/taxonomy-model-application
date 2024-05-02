@@ -6,6 +6,7 @@ import AuthAPISpecs from "api-specifications/auth";
 import * as Validator from "validator";
 import { generateCheckRoleTests } from "_test_utilities/RoleBasedAuthroizerTests";
 import { STD_ERRORS_RESPONSES } from "server/httpUtils";
+import { usersRequestContext } from "_test_utilities/dataModel";
 
 // Define a local class specifically for testing
 class TestLambdaHandler {
@@ -25,7 +26,161 @@ class TestLambdaHandler {
   }
 }
 
+const throwingFn = () => {
+  throw new Error("Validation error");
+};
+
 describe("RoleBasedAuthroizerTests", () => {
+  describe("checkRole", () => {
+    describe("checkRole.ANONYMOUS", () => {
+      test("should return true if no token provided", () => {
+        // GIVEN no token provided
+        const givenEvent = { requestContext: null } as unknown as APIGatewayProxyEvent;
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS);
+
+        // THEN expect the output to be true
+        expect(result).toBe(true);
+      });
+
+      test("should return true if some user is logged in", () => {
+        // GIVEN no token provided
+        const givenEvent = { requestContext: { authorizer: { username: "foo" } } } as unknown as APIGatewayProxyEvent;
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS);
+
+        // THEN expect the output to be true
+        expect(result).toBe(true);
+      });
+
+      test("should return true if model manager is logged in", () => {
+        // GIVEN no token provided
+        const givenEvent = { requestContext: { authorizer: { username: "foo" } } } as unknown as APIGatewayProxyEvent;
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS);
+
+        // THEN expect the output to be true
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("checkRole.REGISTERED_USER", () => {
+      test("should return false if no token provided", () => {
+        // GIVEN no token provided
+        const givenEvent = { requestContext: null } as unknown as APIGatewayProxyEvent;
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER);
+
+        // THEN expect the output to be false
+        expect(result).toBe(false);
+      });
+      test("should return false if invalid schema is provided", () => {
+        const validateFn = jest.spyOn(Validator.ajvInstance, "getSchema");
+
+        // GIVEN an invalid schema
+        const givenEvent = {
+          requestContext: usersRequestContext.MODEL_MANAGER,
+        } as unknown as APIGatewayProxyEvent;
+
+        // AND a validation error occurs while checking the role
+        validateFn.mockImplementationOnce(throwingFn);
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER);
+
+        // THEN expect the output to be false
+        expect(result).toBe(false);
+
+        // AND validateFunction should have been called
+        expect(validateFn).toHaveBeenCalled();
+      });
+
+      test("should return true if a valid token is provided", () => {
+        // GIVEN a valid token
+        const givenEvent = {
+          requestContext: { authorizer: { username: "foo" } },
+        } as unknown as APIGatewayProxyEvent;
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER);
+
+        // THEN expect the output to be true
+        expect(result).toBe(true);
+      });
+      test("should return true if no roles is provided", () => {
+        // GIVEN a user is passed with empty roles
+        const givenEvent = {
+          requestContext: { authorizer: { username: "foo", roles: "   " } },
+        } as unknown as APIGatewayProxyEvent;
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER);
+
+        // THEN expect the output to be true
+        expect(result).toBe(true);
+      });
+      test("should return true if a user is a model manager", () => {
+        // GIVEN a user is passed with empty roles
+        const givenEvent = {
+          requestContext: { authorizer: { username: "foo", roles: AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER } },
+        } as unknown as APIGatewayProxyEvent;
+
+        // WHEN the checkRole function is called
+        const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER);
+
+        // THEN expect the output to be true
+        expect(result).toBe(true);
+      });
+    });
+
+    // Valid user Groups
+    [AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER].forEach((role) => generateCheckRoleTests(role, checkRole));
+
+    test("should return false if the event context doesn't validate against the expected JSON schema", async () => {
+      //GIVEN the event context doesn't validate against the expected JSON schema
+      const givenEvent = {
+        requestContext: { authorizer: { roles: "model-managers" } }, //missing username key
+      } as unknown as APIGatewayProxyEvent;
+
+      //WHEN the checkRole function is called
+      const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
+
+      //THEN expect the output to be false
+      expect(result).toBe(false);
+
+      // AND expect the console.error to be called
+      expect(console.error).toHaveBeenCalledWith(
+        "Invalid JSON schema",
+        "[schema validation]  must have required property 'username'"
+      );
+    });
+
+    test("should return false if a validation error occurs while checking the role", async () => {
+      //GIVEN an event
+      const givenEvent = {
+        requestContext: usersRequestContext.MODEL_MANAGER,
+      } as unknown as APIGatewayProxyEvent;
+
+      // AND a validation error occurs while checking the role
+      jest.spyOn(Validator.ajvInstance, "getSchema").mockImplementationOnce(throwingFn);
+
+      //WHEN the checkRole function is called
+      const result = AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
+
+      //THEN expect the output to be false
+      expect(result).toBe(false);
+
+      // AND expect the console.error to be called
+      expect(console.error).toHaveBeenCalledWith("Error checking role", new Error("Validation error"), {
+        event: givenEvent,
+      });
+    });
+  });
+
   describe("RoleRequired Decorator", () => {
     const handler = new TestLambdaHandler();
 
@@ -35,7 +190,7 @@ describe("RoleBasedAuthroizerTests", () => {
         requestContext: { authorizer: { claims: { roles: "model-managers" } } },
       } as unknown as APIGatewayProxyEvent;
       // AND a valid role
-      jest.spyOn(AuthModule, "checkRole").mockResolvedValueOnce(true);
+      jest.spyOn(AuthModule, "checkRole").mockReturnValue(true);
 
       // WHEN the method is called with the given event
       const result = handler.handleModelManagerEvent(givenEvent);
@@ -50,7 +205,7 @@ describe("RoleBasedAuthroizerTests", () => {
         requestContext: { authorizer: { claims: { roles: "admin" } } },
       } as unknown as APIGatewayProxyEvent;
 
-      jest.spyOn(AuthModule, "checkRole").mockResolvedValueOnce(false);
+      jest.spyOn(AuthModule, "checkRole").mockReturnValue(false);
       // WHEN the decorated method is called
       const result = await handler.handleModelManagerEvent(givenEvent);
       // THEN expect the output to be a forbidden response
@@ -68,56 +223,6 @@ describe("RoleBasedAuthroizerTests", () => {
       expect(() =>
         RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)(target, propertyKey, descriptor)
       ).toThrow();
-    });
-  });
-
-  describe("checkRole", () => {
-    // Test that the checkRole function works as expected for each role
-    generateCheckRoleTests(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER, checkRole);
-
-    generateCheckRoleTests(AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER, checkRole);
-
-    generateCheckRoleTests(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS, checkRole);
-
-    test("should return false if the event context doesn't validate against the expected JSON schema", async () => {
-      //GIVEN the event context doesn't validate against the expected JSON schema
-      const givenEvent = {
-        requestContext: { authorizer: { roles: "model-managers" } }, //missing username key
-      } as unknown as APIGatewayProxyEvent;
-
-      //WHEN the checkRole function is called
-      const result = await AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
-
-      //THEN expect the output to be false
-      expect(result).toBe(false);
-
-      // AND expect the console.error to be called
-      expect(console.error).toHaveBeenCalledWith(
-        "Invalid JSON schema",
-        "[schema validation]  must have required property 'username'"
-      );
-    });
-
-    test("should return false if a validation error occurs while checking the role", async () => {
-      //GIVEN an event
-      const givenEvent = {
-        requestContext: { authorizer: { roles: "model-managers" } },
-      } as unknown as APIGatewayProxyEvent;
-      // AND a validation error occurs while checking the role
-      jest.spyOn(Validator.ajvInstance, "getSchema").mockImplementationOnce(() => {
-        throw new Error("Validation error");
-      });
-
-      //WHEN the checkRole function is called
-      const result = await AuthModule.checkRole(givenEvent, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
-
-      //THEN expect the output to be false
-      expect(result).toBe(false);
-
-      // AND expect the console.error to be called
-      expect(console.error).toHaveBeenCalledWith("Error checking role", new Error("Validation error"), {
-        event: givenEvent,
-      });
     });
   });
 });

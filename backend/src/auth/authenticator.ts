@@ -12,7 +12,7 @@ export function RoleRequired(requiredRole: AuthAPISpecs.Enums.TabiyaRoles) {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (event: APIGatewayEvent) {
-      const hasRole = await checkRole(event, requiredRole);
+      const hasRole = checkRole(event, requiredRole);
       if (!hasRole) {
         return STD_ERRORS_RESPONSES.FORBIDDEN;
       }
@@ -23,20 +23,26 @@ export function RoleRequired(requiredRole: AuthAPISpecs.Enums.TabiyaRoles) {
   };
 }
 
-export const checkRole = async (
-  event: APIGatewayEvent,
-  requiredRole: AuthAPISpecs.Enums.TabiyaRoles
-): Promise<boolean> => {
+export const checkRole = (event: APIGatewayEvent, requiredRole: AuthAPISpecs.Enums.TabiyaRoles): boolean => {
   try {
+    if (requiredRole === AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) return true;
+
     const validateFunction = ajvInstance.getSchema(
       AuthAPISpecs.Schemas.Request.Context.$id as string
     ) as ValidateFunction;
+
     const contextPayload = event.requestContext.authorizer;
+
     const isValid = validateFunction(contextPayload);
+
     if (!isValid) {
       console.error("Invalid JSON schema", ParseValidationError(validateFunction.errors));
       return false;
     }
+
+    // any user is a registered user
+    if (requiredRole === AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER) return true;
+
     // we remove all whitespace from the roles and split them by comma
     return event.requestContext.authorizer?.roles
       .trim()

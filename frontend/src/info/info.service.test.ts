@@ -2,6 +2,10 @@ import { InfoProps } from "src/info/info.types";
 import InfoService from "src/info/info.service";
 import infoURL from "./info.constants";
 
+const anonymousFetchOptions = {
+  headers: { map: { authorization: "Bearer ANONYMOUS" } },
+};
+
 describe("InfoService", () => {
   describe("Test the loadInfoFromUrl function", () => {
     afterEach(() => {
@@ -31,7 +35,7 @@ describe("InfoService", () => {
       const actualResult = await service.loadInfoFromUrl(someURL);
 
       // THEN it returns that data structure from the given url
-      expect(mockFetch).toHaveBeenCalledWith(someURL);
+      expect(mockFetch).toHaveBeenCalledWith(someURL, anonymousFetchOptions);
       expect(actualResult).toMatchObject(expectedData);
     });
 
@@ -46,7 +50,7 @@ describe("InfoService", () => {
       const actualResult = await service.loadInfoFromUrl(someURL);
 
       // THEN it returns info object with empty values
-      expect(mockFetch).toHaveBeenCalledWith(someURL);
+      expect(mockFetch).toHaveBeenCalledWith(someURL, anonymousFetchOptions);
       expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
     });
 
@@ -62,7 +66,7 @@ describe("InfoService", () => {
         const actualResult = await service.loadInfoFromUrl(someURL);
 
         // THEN it returns info object with empty values
-        expect(mockFetch).toHaveBeenCalledWith(someURL);
+        expect(mockFetch).toHaveBeenCalledWith(someURL, anonymousFetchOptions);
         expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
       }
     );
@@ -85,7 +89,7 @@ describe("InfoService", () => {
       const actualResult = await service.loadInfoFromUrl(someURL);
 
       // THEN it returns info object with empty values
-      expect(mockFetch).toHaveBeenCalledWith(someURL);
+      expect(mockFetch).toHaveBeenCalledWith(someURL, anonymousFetchOptions);
       expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
     });
   });

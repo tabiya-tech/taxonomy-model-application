@@ -29,7 +29,7 @@ export const fetchWithAuth = async (
     const token = sessionStorage.getItem("authToken");
     const headers = new Headers(init.headers || {});
     headers.append("Authorization", `Bearer ${token ?? "ANONYMOUS"}`);
-    const enhancedInit = { ...init, headers };
+    const enhancedInit = { headers };
 
     response = await fetch(apiUrl, enhancedInit);
   } catch (e: any) {

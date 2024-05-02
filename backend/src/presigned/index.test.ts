@@ -10,6 +10,7 @@ import { HTTP_VERBS, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils"
 import * as awsSDKServiceModule from "./awsSDKService";
 import * as transformModule from "./transform";
 import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
+import { usersRequestContext } from "_test_utilities/dataModel";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -31,7 +32,7 @@ describe("test main handler", () => {
     } as never;
     // AND the getPresigned() function returns some response
     const givenResponse = { foo: "foo" } as never;
-    jest.spyOn(handlerModule, "getPreSigned").mockReturnValueOnce(givenResponse);
+    jest.spyOn(handlerModule.PresignedController.prototype, "getPreSigned").mockReturnValueOnce(givenResponse);
 
     // WHEN the main handler is called with the given event
     const actualResponse = await handlerModule.handler(givenEvent);
@@ -47,12 +48,36 @@ describe("test main handler", () => {
 });
 
 describe("test getPreSigned()", () => {
+  describe("Security tests", () => {
+    test("should respond with FORBIDDEN status code if a user is not a model manager", async () => {
+      // GIVEN The user is a registered user (not a model manager)
+      const givenRequestContext = usersRequestContext.REGISTED_USER;
+
+      // AND the event with the given request context
+      const givenEvent: APIGatewayProxyEvent = {
+        requestContext: givenRequestContext,
+      } as never;
+
+      // WHEN the handler is invoked with the given event
+      const actualResponse = await new handlerModule.PresignedController().getPreSigned(givenEvent);
+
+      // THEN expect the handler to respond with the FORBIDDEN status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.FORBIDDEN);
+    });
+  });
+
   it("should respond with OK and the pre-signed data in the body", async () => {
     // GIVEN a region & a bucketName have been configured
     const givenRegion = "foo";
     const givenBucketName = "bar";
     jest.spyOn(config, "getUploadBucketRegion").mockReturnValue(givenRegion);
     jest.spyOn(config, "getUploadBucketName").mockReturnValue(givenBucketName);
+
+    // AND given the sample event. with a model manager role
+    const givenEvent = {
+      requestContext: usersRequestContext.MODEL_MANAGER,
+    } as unknown as APIGatewayProxyEvent;
+
     // AND a randomKey
     const givenRandomKey = "baz";
     (randomUUID as jest.Mock).mockReturnValue(givenRandomKey);
@@ -66,7 +91,7 @@ describe("test getPreSigned()", () => {
       .mockReturnValue(givenPresignedResponse);
 
     // WHEN getPreSigned() is called
-    const actualResponse = await handlerModule.getPreSigned();
+    const actualResponse = await new handlerModule.PresignedController().getPreSigned(givenEvent);
 
     // THEN expect that the getPreSigned function has called the awsSDKServiceModule.s3_getPresignedPost()
     // with the given region, bucket name, random key, MAX_FILE_SIZE and EXPIRES
@@ -95,9 +120,10 @@ describe("test getPreSigned()", () => {
   });
 
   it("should return a INTERNAL_SERVER_ERROR response when getPreSigned() throws an error", async () => {
-    // GIVEN a GET event
+    // GIVEN a GET event with model manager role
     const mockEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.GET,
+      requestContext: usersRequestContext.MODEL_MANAGER,
     } as never;
     // AND awsSDKServiceModule.s3_getPresignedPost() will throw an error
     jest.spyOn(awsSDKServiceModule, "s3_getPresignedPost").mockRejectedValue(new Error("foo"));
