@@ -20,7 +20,7 @@ jobs:
     secrets: inherit
   # Auth
   deploy-auth:
-    needs: [ setup-infrastructure, setup-infrastructure ]
+    needs: [ setup-infrastructure ]
     uses: ./.github/workflows/deploy-auth.yml
     secrets: inherit
     with:
@@ -44,6 +44,12 @@ jobs:
     uses: ./.github/workflows/build-backend.yml
     needs: [ build-api-specs, setup-infrastructure, deploy-auth ]
     secrets: inherit
+    with:
+      target-environment: dev
+      backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
+      user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
+      user-pool-client-id: ${{ needs.deploy-auth.outputs.clientId }}
+      user-pool-client-secret: ${{ needs.deploy-auth.outputs.clientSecret }}
   deploy-backend:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build-backend, setup-infrastructure, deploy-auth ]
@@ -54,7 +60,7 @@ jobs:
       version-info: ${{ needs.build-backend.outputs.version-info }}
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
       user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
-      user-pool-client-id: ${{ needs.deploy-auth.outputs.userPoolClientId }}
+      user-pool-client-id: ${{ needs.deploy-auth.outputs.clientId }}
   smoke-test-backend:
     needs: [ build-backend, deploy-backend ]
     uses: ./.github/workflows/smoke-test-version.yml

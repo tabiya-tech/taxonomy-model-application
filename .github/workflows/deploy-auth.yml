@@ -9,8 +9,6 @@ on:
         value: ${{ jobs.deploy.outputs.clientSecret }}
       userPoolId:
         value: ${{ jobs.deploy.outputs.userPoolId }}
-      userPoolClientId:
-        value: ${{ jobs.deploy.outputs.userPoolClientId }}
     inputs:
       target-environment:
         required: true
@@ -27,7 +25,6 @@ jobs:
       clientId: ${{ steps.pulumi.outputs.clientId }}
       clientSecret: ${{ steps.pulumi.outputs.clientSecret }}
       userPoolId: ${{ steps.pulumi.outputs.userPoolId }}
-      userPoolClientId: ${{ steps.pulumi.outputs.userPoolClientId }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

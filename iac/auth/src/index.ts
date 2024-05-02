@@ -77,6 +77,7 @@ const client = new aws.cognito.UserPoolClient("taxonomy-model-app", {
   idTokenValidity: 1, // 1 hour
   readAttributes: ["email", "preferred_username"],
   defaultRedirectUri: `https://${domainName}/`,
+  explicitAuthFlows: ["ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_USER_PASSWORD_AUTH"] // so that we're able to use the client to authenticate users
 });
 
 // Create a new user pool domain
@@ -151,4 +152,3 @@ export const _dom = domain;
 export const clientId = userPool.clientId;
 export const clientSecret = userPool.clientSecret;
 export const userPoolId = userPool.id;
-export const userPoolClientId = userPool.clientId;

@@ -2,6 +2,22 @@ name: Build Backend
 
 on:
   workflow_call:
+    inputs:
+      target-environment:
+        required: true
+        type: string
+      backend-url:
+        required: true
+        type: string
+      user-pool-id:
+        required: true
+        type: string
+      user-pool-client-id:
+        required: true
+        type: string
+      user-pool-client-secret:
+        required: true
+        type: string
     outputs:
       version-info:
         description: "The backend version info"
@@ -9,6 +25,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
     outputs:
         version-info: ${{ steps.setVersionInfo.outputs.version-info }}
     steps:
@@ -68,6 +85,7 @@ jobs:
           retention-days: 1
   test-integration:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -83,3 +101,12 @@ jobs:
       - name: Run Integration Tests
         run: yarn run test:integration
         working-directory: backend
+        env:
+          BACKEND_URL: ${{ inputs.backend-url }}
+          USER_POOL_ID: ${{ inputs.user-pool-id }}
+          USER_POOL_CLIENT_ID: ${{ inputs.user-pool-client-id }}
+          USER_POOL_CLIENT_SECRET: ${{ inputs.user-pool-client-secret }}
+          TEST_MODEL_MANAGER_USERNAME: ${{ secrets.TEST_MODEL_MANAGER_USERNAME }}
+          TEST_MODEL_MANAGER_PASSWORD: ${{ secrets.TEST_MODEL_MANAGER_PASSWORD }}
+          TEST_REGISTERED_USER_USERNAME: ${{ secrets.TEST_REGISTERED_USER_USERNAME }}
+          TEST_REGISTERED_USER_PASSWORD: ${{ secrets.TEST_REGISTERED_USER_PASSWORD }}
