@@ -5,8 +5,7 @@ import ModelDirectoryHeader, { DATA_TEST_ID } from "./ModelDirectoryHeader";
 import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
-import { AuthContext, authContextDefaultValue, AuthContextValue } from "src/auth/AuthProvider";
-import AuthAPISpecs from "api-specifications/auth";
+import { mockLoggedInUser, TestUsers } from "src/_test_utilities/mockLoggedInUser";
 
 describe("ModelDirectoryHeader", () => {
   beforeEach(() => {
@@ -19,23 +18,17 @@ describe("ModelDirectoryHeader", () => {
     const givenOnModelImportCallback = () => undefined;
     // AND the import model loading state
     const givenIsImportModelLoading = false;
-
     // AND a model manager user
-    const givenUser: AuthContextValue = {
-      ...authContextDefaultValue,
-      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
-    };
+    mockLoggedInUser({ user: TestUsers.ModelManager });
 
     jest.spyOn(PrimaryButtonModule, "default");
 
     // WHEN a ModelDirectoryHeader component is rendered
     render(
-      <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader
-          onModelImport={givenOnModelImportCallback}
-          isImportModelLoading={givenIsImportModelLoading}
-        />
-      </AuthContext.Provider>
+      <ModelDirectoryHeader
+        onModelImport={givenOnModelImportCallback}
+        isImportModelLoading={givenIsImportModelLoading}
+      />
     );
 
     // THEN expect no errors or warning to have occurred
@@ -61,19 +54,11 @@ describe("ModelDirectoryHeader", () => {
   test("should call onModelImport when import button is clicked", async () => {
     // GIVEN an onModelImport callback function
     const givenOnModelImportCallback = jest.fn();
-
     // AND a model manager user
-    const givenUser: AuthContextValue = {
-      ...authContextDefaultValue,
-      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
-    };
+    mockLoggedInUser({ user: TestUsers.ModelManager });
 
     // WHEN a ModelDirectoryHeader component is rendered
-    render(
-      <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader onModelImport={givenOnModelImportCallback} isImportModelLoading={false} />
-      </AuthContext.Provider>
-    );
+    render(<ModelDirectoryHeader onModelImport={givenOnModelImportCallback} isImportModelLoading={false} />);
 
     // AND the import button is clicked
     await userEvent.click(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON));
@@ -82,19 +67,12 @@ describe("ModelDirectoryHeader", () => {
     expect(givenOnModelImportCallback).toHaveBeenCalledTimes(1);
   });
 
-  test("should render import button when user have model manager role", () => {
+  test("should render import button only when user have model manager role", () => {
     // GIVEN a model manager user
-    const givenUser: AuthContextValue = {
-      ...authContextDefaultValue,
-      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
-    };
+    mockLoggedInUser({ user: TestUsers.ModelManager });
 
     // WHEN a ModelDirectoryHeader component is rendered
-    render(
-      <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader onModelImport={() => undefined} isImportModelLoading={false} />
-      </AuthContext.Provider>
-    );
+    render(<ModelDirectoryHeader onModelImport={() => undefined} isImportModelLoading={false} />);
 
     // THEN expect the import button to be present in the document
     expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
@@ -102,17 +80,10 @@ describe("ModelDirectoryHeader", () => {
 
   test("should not render import button when user does not have model manager role", () => {
     // GIVEN a non-model manager user
-    const givenUser: AuthContextValue = {
-      ...authContextDefaultValue,
-      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role !== AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
-    };
+    mockLoggedInUser({ user: TestUsers.RegisteredUser });
 
     // WHEN a ModelDirectoryHeader component is rendered
-    render(
-      <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader onModelImport={() => undefined} isImportModelLoading={false} />
-      </AuthContext.Provider>
-    );
+    render(<ModelDirectoryHeader onModelImport={() => undefined} isImportModelLoading={false} />);
 
     // THEN expect the import button to not be present in the document
     expect(screen.queryByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).not.toBeInTheDocument();
@@ -120,10 +91,7 @@ describe("ModelDirectoryHeader", () => {
 
   test("should render loading spinner and disable the button when import model is loading", () => {
     // GIVEN a model manager user
-    const givenUser: AuthContextValue = {
-      ...authContextDefaultValue,
-      hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
-    };
+    mockLoggedInUser({ user: TestUsers.ModelManager });
     // AND an onModelImport callback function
     const givenOnModelImportCallback = jest.fn();
     // AND the import model loading state
@@ -133,12 +101,10 @@ describe("ModelDirectoryHeader", () => {
 
     // WHEN a ModelDirectoryHeader component is rendered
     render(
-      <AuthContext.Provider value={givenUser}>
-        <ModelDirectoryHeader
-          onModelImport={givenOnModelImportCallback}
-          isImportModelLoading={givenIsImportModelLoading}
-        />
-      </AuthContext.Provider>
+      <ModelDirectoryHeader
+        onModelImport={givenOnModelImportCallback}
+        isImportModelLoading={givenIsImportModelLoading}
+      />
     );
 
     // THEN expect the loading spinner to be present in the document

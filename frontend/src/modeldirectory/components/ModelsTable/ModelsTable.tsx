@@ -21,6 +21,8 @@ import ContextMenu from "src/theme/ContextMenu/ContextMenu";
 import buildMenuItemsConfig from "./buildMenuItemsConfig";
 import { IsOnlineContext } from "src/app/providers";
 import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
+import { AuthContext } from "src/auth/AuthProvider";
+import AuthAPISpecs from "api-specifications/auth";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
@@ -121,6 +123,7 @@ const IMPORT_STATE_COLUMN_WIDTH = "40px"; // 24px for the icon + 16px for the bu
 const CELL_PADDING = (theme: Theme) => theme.tabiyaSpacing.sm;
 
 const ModelsTable = (props: Readonly<ModelsTableProps>) => {
+  const { hasRole } = useContext(AuthContext);
   const isOnline = useContext(IsOnlineContext);
   const [contextMenu, setContextMenu] = useState<{
     open: boolean;
@@ -170,7 +173,8 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
       menuItems: buildMenuItemsConfig(
         model,
         { handleExport: props.notifyOnExport, handleShowModelDetails: props.notifyOnShowModelDetails },
-        isOnline
+        isOnline,
+        hasRole
       ),
     });
   };
@@ -210,13 +214,17 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
         >
           <TableHead>
             <TableRow data-testid={DATA_TEST_ID.MODEL_TABLE_HEADER_ROW}>
-              <StyledHeaderCell width={IMPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_IMPORT_STATE} />
+              {hasRole(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER) && (
+                <StyledHeaderCell width={IMPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_IMPORT_STATE} />
+              )}
               <StyledHeaderCell cellSx={{ width: "calc(35%)" }}>{TEXT.TABLE_HEADER_LABEL_NAME}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_LOCALE}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_VERSION}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_RELEASED}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(35%)" }}>{TEXT.TABLE_HEADER_LABEL_DESCRIPTION}</StyledHeaderCell>
-              <StyledHeaderCell width={EXPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_EXPORT_STATE} />
+              {!hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) && (
+                <StyledHeaderCell width={EXPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_EXPORT_STATE} />
+              )}
               <StyledHeaderCell width={MORE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_MODEL_ACTIONS} />
             </TableRow>
           </TableHead>
@@ -234,20 +242,22 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                   }}
                   data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
                 >
-                  <TableCell
-                    align={"center"}
-                    sx={{
-                      padding: CELL_PADDING,
-                    }}
-                    data-testid={DATA_TEST_ID.MODEL_CELL}
-                  >
-                    <Container
-                      style={{ display: "contents", padding: 0, margin: 0 }}
-                      data-testid={DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER}
+                  {hasRole(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER) && (
+                    <TableCell
+                      align={"center"}
+                      sx={{
+                        padding: CELL_PADDING,
+                      }}
+                      data-testid={DATA_TEST_ID.MODEL_CELL}
                     >
-                      <ImportProcessStateIcon importProcessState={model.importProcessState} />
-                    </Container>
-                  </TableCell>
+                      <Container
+                        style={{ display: "contents", padding: 0, margin: 0 }}
+                        data-testid={DATA_TEST_ID.MODEL_CELL_IMPORT_STATE_ICON_CONTAINER}
+                      >
+                        <ImportProcessStateIcon importProcessState={model.importProcessState} />
+                      </Container>
+                    </TableCell>
+                  )}
                   <StyledBodyCell component="th" scope="row">
                     {model.name}
                   </StyledBodyCell>
@@ -273,18 +283,20 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                       ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
                       : model.description}
                   </StyledBodyCell>
-                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
-                    <Container
-                      style={{
-                        display: "contents",
-                        padding: 0,
-                        margin: 0,
-                      }}
-                      data-testid={DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER}
-                    >
-                      <ExportStateCellContent model={model} />
-                    </Container>
-                  </TableCell>
+                  {!hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) && (
+                    <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
+                      <Container
+                        style={{
+                          display: "contents",
+                          padding: 0,
+                          margin: 0,
+                        }}
+                        data-testid={DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER}
+                      >
+                        <ExportStateCellContent model={model} />
+                      </Container>
+                    </TableCell>
+                  )}
                   <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
                     <Button
                       sx={{

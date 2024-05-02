@@ -4,6 +4,7 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
 import DescriptionIcon from "@mui/icons-material/Description";
+import AuthAPISpecs from "api-specifications/auth";
 
 export const MENU_ITEM_ID = ["export-model", "show-model-details"];
 export const MENU_ITEM_TEXT = ["Export", "Show Details"];
@@ -19,7 +20,8 @@ export default function buildMenuItemsConfig(
     handleExport: (modelId: string) => void;
     handleShowModelDetails: (modelId: string) => void;
   },
-  isOnline: boolean
+  isOnline: boolean,
+  hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => boolean
 ): MenuItemConfig[] {
   const isImportSuccessful = () => {
     return (
@@ -28,7 +30,7 @@ export default function buildMenuItemsConfig(
     );
   };
 
-  const items = new Array<MenuItemConfig>();
+  const items = new Array<MenuItemConfig>(Object.keys(MENU_ITEM_INDEX).length);
   // Export
   items[MENU_ITEM_INDEX.EXPORT_MODEL] = {
     id: MENU_ITEM_ID[MENU_ITEM_INDEX.EXPORT_MODEL],
@@ -36,6 +38,7 @@ export default function buildMenuItemsConfig(
     icon: <CloudDownloadIcon />,
     action: () => handlers.handleExport(modelInfo.id),
     disabled: !isOnline || !isImportSuccessful(),
+    role: AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
   };
 
   // Show model details
@@ -47,5 +50,5 @@ export default function buildMenuItemsConfig(
     disabled: false,
   };
 
-  return items;
+  return items.filter((item) => !item.role || hasRole(item.role));
 }
