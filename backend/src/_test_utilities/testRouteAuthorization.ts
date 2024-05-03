@@ -18,7 +18,12 @@ export const STD_ROUTE_AUTHORIZATION_RESPONSE_SCENARIO: TestScenario[] = [
   { description: "with invalid token", token: "Bearer INVALID", expectedStatus: StatusCodes.FORBIDDEN },
 ];
 
-export const testSTDRoutesAuthorization = (route: string, method: AllowedMethods, allowedRoles: AuthAPISpecs.Enums.TabiyaRoles[], request: SuperAgentTest) => {
+export const testSTDRoutesAuthorization = (
+  route: string,
+  method: AllowedMethods,
+  allowedRoles: AuthAPISpecs.Enums.TabiyaRoles[],
+  request: SuperAgentTest
+) => {
   test.each(STD_ROUTE_AUTHORIZATION_RESPONSE_SCENARIO)("%s should respond accordingly", async (scenario) => {
     const response = await generateRequest(request, route, method, scenario.token).timeout(5000);
     if (scenario.expectedStatus) {
@@ -29,15 +34,15 @@ export const testSTDRoutesAuthorization = (route: string, method: AllowedMethods
   });
 };
 
-  export const generateRequest = (request: SuperAgentTest, route: string, method: AllowedMethods, token: string) => {
-    switch (method) {
-      case "GET":
-        return request.get(route).set("Authorization", token);
-      case "POST":
-        return request.post(route).set("Authorization", token).send({
-          /* empty body */
-        });
-      default:
-        throw new Error("Unsupported method");
-    }
-  };
+export const generateRequest = (request: SuperAgentTest, route: string, method: AllowedMethods, token: string) => {
+  switch (method) {
+    case "GET":
+      return request.get(route).set("Authorization", token);
+    case "POST":
+      return request.post(route).set("Authorization", token).send({
+        /* empty body */
+      });
+    default:
+      throw new Error("Unsupported method");
+  }
+};
