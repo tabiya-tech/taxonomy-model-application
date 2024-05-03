@@ -46,10 +46,15 @@ To work IaC locally, you have to install the following:
 
 ### IaC Codebase Components 
 The IaC is divided into four sub-projects.
-- [Frontend](frontend): Sets up the frontend application's infrastructure, wich is a static website hosted on S3.
-- [Backend](backend): Sets up the backend application's infrastructure, which is a serverless application hosted on AWS Lambda.
-- [Common](common): Sets up the foundational infrastructure such as SSL certificates, DNS records, CloudFront distributions. 
+
+- [Setup](setup): Sets up the fundamental infrastructure, which is a route53 hosted zone and exports environment variables that will be used by other projects. Mainly refered *to as set up env config project.
 - [Name Servers](name-servers): Sets up the name servers for the subdomains.
+- [Certificate](certificate): Sets up the SSL certificate infrastructure, which is an ACM certificate.
+- [Auth](auth): Sets up the authentication infrastructure, which is a Cognito User Pool. and related DNS Record.
+- [Locales](locales): Sets up the locales infrastructure, which is a S3 bucket for storing the locales.
+- [Frontend](frontend): Sets up the frontend application's infrastructure, which is a static website hosted on S3.
+- [Backend](backend): Sets up the backend application's infrastructure, which is a serverless application hosted on AWS Lambda. It also Deploys the Authorizer Lambda function.
+- [Common](common): Sets up the foundational infrastructure such as DNS records, CloudFront distributions.
 
 The projects are deployed in the following order:
  
