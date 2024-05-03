@@ -130,6 +130,13 @@ export class AuthenticateTestCognitoUser {
   }
 }
 
+/**
+ * Calculates the Cognito SECRET_HASH
+ * @param username The username of the Cognito user
+ * @param clientId The Client ID of the Cognito User Pool App Client
+ * @param clientSecret The Client Secret of the Cognito User Pool App Client
+ * @returns The computed secret hash as a base64-encoded string
+ */
 function calculateSecretHash(username: string, clientId: string, clientSecret: string): string {
   return crypto
     .createHmac("SHA256", clientSecret)

@@ -55,11 +55,3 @@ function shuffle(str: string): string {
   }
   return array.join('');
 }
-
-/**
- * Calculates the Cognito SECRET_HASH
- * @param username The username of the Cognito user
- * @param clientId The Client ID of the Cognito User Pool App Client
- * @param clientSecret The Client Secret of the Cognito User Pool App Client
- * @returns The computed secret hash as a base64-encoded string
- */
