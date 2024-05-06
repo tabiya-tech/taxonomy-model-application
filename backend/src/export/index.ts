@@ -37,7 +37,8 @@ class ExportController {
    *         - export
    *       summary: Trigger the export process.
    *       description: Asynchronously trigger the export process for a given model.
-   *       security: []
+   *       security:
+   *         - jwt_auth: []
    *       requestBody:
    *         content:
    *           application/json:

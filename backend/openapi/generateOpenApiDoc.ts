@@ -69,7 +69,13 @@ function getOpenAPISpecification(
       info: {
         version: version,
         title: "Taxonomy Model API",
-        description: "Taxonomy Model API",
+        description: `
+Taxonomy Model API Documentation
+
+NOTES:
+1. In order to be authorized to use the API, you need to provide the auth token in the header. \n
+   If you are anonymous, you can use the auth header: \`ANONYMOUS\`.
+`,
         license: {
           name: "MIT",
           url: "https://github.com/tabiya-tech/taxonomy-model-application/blob/main/LICENSE",

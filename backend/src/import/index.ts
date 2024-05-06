@@ -21,14 +21,7 @@ import AuthAPISpecs from "api-specifications/auth";
  *       summary: Trigger the import process.
  *       description: Asynchronously trigger the import process for a given model.
  *       security:
- *         - jwt_auth: []
- *       parameters:
- *         - in: header
- *           name: Authorization
- *           required: true
- *           schema:
- *             type: string
- *           example: 'Bearer ANONYMOUS'
+ *        - jwt_auth: []
  *       requestBody:
  *         content:
  *           application/json:
