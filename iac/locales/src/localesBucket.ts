@@ -15,18 +15,6 @@ export function setupLocalesBucket(domainName: string): Bucket {
       allowedOrigins: [`https://${domainName}`, 'http://localhost:3000', "http://localhost:6006"], // Other domains could want to access the locales e.g. compass domain
       maxAgeSeconds: 3600
     }],
-    versioning: {
-      enabled: false,
-      mfaDelete: false
-    },
-    lifecycleRules: [{
-      abortIncompleteMultipartUploadDays: 1,
-      enabled: true,
-      expiration: {
-        days: 1,
-      },
-      id: "clean-up",
-    }],
   });
 
   const bucketPolicy = new aws.s3.BucketPolicy(`${LOCALES_BUCKET_NAME}-bucket-policy`, {
