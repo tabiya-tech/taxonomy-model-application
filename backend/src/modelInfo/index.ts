@@ -40,7 +40,8 @@ class ModelController {
    *         - model
    *       summary: Create a new taxonomy model.
    *       description: Create a new taxonomy model that can be used to import data into it.
-   *       security: []
+   *       security:
+   *        - jwt_auth: []
    *       requestBody:
    *         content:
    *           application/json:
@@ -130,7 +131,8 @@ class ModelController {
    *       - model
    *     summary: Get a taxonomy model information
    *     description: Retrieve information about a specific taxonomy model.
-   *     security: []
+   *     security:
+   *        - jwt_auth: []
    *     responses:
    *       '200':
    *         description: Successfully retrieved the taxonomy model information.

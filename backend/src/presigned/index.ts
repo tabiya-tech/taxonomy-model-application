@@ -34,7 +34,8 @@ export class PresignedController {
    *       summary: Get a presigned url that can be used to upload files to the import.
    *       description: |
    *         Returns a presigned url that can be used to upload files to the import. There url expires after 1 hour. The maximum file size is 10 MB.
-   *       security: []
+   *       security:
+   *         - jwt_auth: []
    *       responses:
    *         200:
    *           description: Successfully created the presigned url.

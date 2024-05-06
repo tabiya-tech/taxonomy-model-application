@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 /**
  * Generates a strong random password that complies with specific security criteria.
@@ -7,7 +7,7 @@ import crypto from 'crypto';
  */
 export function generateStrongPassword(length: number = 16): string {
   if (length < 8) {
-    throw new Error('Password length must be at least 8 characters.');
+    throw new Error("Password length must be at least 8 characters.");
   }
 
   const lowerCase = "abcdefghijklmnopqrstuvwxyz";
@@ -48,10 +48,10 @@ function pickRandomChar(set: string): string {
  * @returns A shuffled string.
  */
 function shuffle(str: string): string {
-  const array = str.split('');
+  const array = str.split("");
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]]; // Swap elements
   }
-  return array.join('');
+  return array.join("");
 }
