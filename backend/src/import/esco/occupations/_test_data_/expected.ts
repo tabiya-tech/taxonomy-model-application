@@ -47,7 +47,6 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
     occupationType: ObjectTypes.ESCOOccupation,
     isLocalized: true,
   },
-
   {
     originUri: "origin uri",
     UUIDHistory: [],

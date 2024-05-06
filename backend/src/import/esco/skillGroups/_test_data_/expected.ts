@@ -51,4 +51,14 @@ export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
     scopeNote: "scopeNote",
     importId: "key_5",
   },
+  {
+    originUri: "origin uri",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d", "b69710e0-7e7d-43ea-a645-26dab12faf56"],
+    code: "L",
+    preferredLabel: "duplicate altLabels",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    scopeNote: "scopeNote",
+    importId: "key_6",
+  },
 ];

@@ -61,4 +61,16 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_5",
   },
+  {
+    originUri: "origin uri",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8d", "b69710e0-7e7d-43ea-a645-26dab12faf56"],
+    preferredLabel: "duplicate altLabels",
+    altLabels: ["label1", "label2"],
+    description: "description",
+    scopeNote: "scopeNote",
+    definition: "definition",
+    skillType: SkillType.SkillCompetence,
+    reuseLevel: ReuseLevel.SectorSpecific,
+    importId: "key_8",
+  },
 ];
