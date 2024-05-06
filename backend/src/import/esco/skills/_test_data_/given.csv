@@ -27,3 +27,7 @@ label2","description",definition,skill/competence,sector-specific,scopeNote
 label2","description",definition,INVALID,sector-specific,scopeNote
 origin uri,key_7,,"preferred label","label1
 label2","description",definition,skill/competence,INVALID,scopeNote
+origin uri,key_8,"b69710e0-7e7d-43ea-a645-26dab12faf8d
+b69710e0-7e7d-43ea-a645-26dab12faf56",duplicate altLabels,"label1
+label2
+label1",description,definition,skill/competence,sector-specific,scopeNote

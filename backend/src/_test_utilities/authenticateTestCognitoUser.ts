@@ -10,7 +10,7 @@ import {
 import crypto, { randomUUID } from "crypto";
 
 import AuthAPISpecs from "api-specifications/auth";
-import {generateStrongPassword} from "./generateStrongPassword";
+import { generateStrongPassword } from "./generateStrongPassword";
 
 // region is frankfurt and should perhaps be exported by the iac instead of hardcoded here
 const client = new CognitoIdentityProviderClient({ region: "eu-central-1" });

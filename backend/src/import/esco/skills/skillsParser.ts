@@ -10,7 +10,7 @@ import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import { ISkillImportRow, skillImportHeaders } from "esco/common/entityToCSV.types";
 import { getReuseLevelFromCSVReuseLevel, getSkillTypeFromCSVSkillType } from "esco/common/csvObjectTypes";
-import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
@@ -43,12 +43,18 @@ function getRowToSpecificationTransformFn(
       errorLogger.logWarning(`Failed to import Skill with skillId:${row.ID}`);
       return null;
     }
+    const { uniqueArray: uniqueAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
+    if (duplicateCount) {
+      errorLogger.logWarning(
+        `Warning while importing Skill row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
+      );
+    }
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
       preferredLabel: row.PREFERREDLABEL,
-      altLabels: arrayFromString(row.ALTLABELS),
+      altLabels: uniqueAltLabels,
       description: row.DESCRIPTION,
       definition: row.DEFINITION,
       scopeNote: row.SCOPENOTE,

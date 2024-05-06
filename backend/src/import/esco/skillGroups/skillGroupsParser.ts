@@ -9,7 +9,8 @@ import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import { ISkillGroupImportRow, skillGroupImportHeaders } from "esco/common/entityToCSV.types";
-import { arrayFromString } from "../../../common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import errorLogger from "common/errorLogger/errorLogger";
 
 // expect all columns to be in upper case
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
@@ -30,13 +31,19 @@ function getRowToSpecificationTransformFn(
   modelId: string
 ): TransformRowToSpecificationFunction<ISkillGroupImportRow, INewSkillGroupSpec> {
   return (row: ISkillGroupImportRow) => {
+    const { uniqueArray: uniqueAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
+    if (duplicateCount) {
+      errorLogger.logWarning(
+        `Warning while importing SkillGroup row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
+      );
+    }
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
-      altLabels: arrayFromString(row.ALTLABELS),
+      altLabels: uniqueAltLabels,
       description: row.DESCRIPTION,
       scopeNote: row.SCOPENOTE,
       importId: row.ID,

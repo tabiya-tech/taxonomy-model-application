@@ -13,7 +13,7 @@ import { RegExESCOOccupationCode, RegExLocalOccupationCode } from "esco/common/m
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationImportRow, occupationImportHeaders } from "esco/common/entityToCSV.types";
 import { getOccupationTypeFromCSVObjectType } from "import/esco/common/getOccupationTypeFromCSVObjectType";
-import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, occupationImportHeaders);
@@ -64,6 +64,14 @@ function getRowToSpecificationTransformFn(
       );
       return null;
     }
+    const { uniqueArray: uniqueAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
+    if (duplicateCount) {
+      errorLogger.logWarning(
+        `Warning while importing ${
+          occupationType === ObjectTypes.LocalOccupation ? "Local" : "ESCO"
+        } Occupation row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
+      );
+    }
 
     return {
       originUri: row.ORIGINURI,
@@ -72,7 +80,7 @@ function getRowToSpecificationTransformFn(
       ISCOGroupCode: row.ISCOGROUPCODE,
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
-      altLabels: arrayFromString(row.ALTLABELS),
+      altLabels: uniqueAltLabels,
       description: row.DESCRIPTION,
       definition: row.DEFINITION,
       scopeNote: row.SCOPENOTE,

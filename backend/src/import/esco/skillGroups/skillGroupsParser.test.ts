@@ -112,7 +112,7 @@ describe("test parseSkillGroups from", () => {
         rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(5);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(6);
 
       expectedResults
         .filter((res: Omit<INewSkillGroupSpec, "modelId">) => isSpecified(res.importId))
@@ -125,13 +125,18 @@ describe("test parseSkillGroups from", () => {
         });
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
-      // AND warning should be logged fo reach of the failed rows
+      // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
+        "Warning while importing SkillGroup row with id:'key_6'. AltLabels contain 1 duplicates."
+      );
+      // AND warning should be logged fo reach of the failed rows
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        2,
         "Failed to import SkillGroup from row:1 with importId:"
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        2,
+        3,
         "Failed to import SkillGroup from row:2 with importId:"
       );
     }
