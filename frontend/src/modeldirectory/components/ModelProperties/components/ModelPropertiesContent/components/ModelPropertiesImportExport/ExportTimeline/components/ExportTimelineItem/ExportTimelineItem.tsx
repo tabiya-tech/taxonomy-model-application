@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { AuthContext } from "src/auth/AuthProvider";
+import AuthAPISpecs from "api-specifications/auth";
 import {
   TimelineConnector,
   TimelineContent,
@@ -33,6 +35,8 @@ export const DATA_TEST_ID = {
  */
 const ExportTimelineItem: React.FC<ExportTimelineItemProps> = (props) => {
   const theme = useTheme();
+  const { hasRole } = useContext(AuthContext);
+
   return (
     <TimelineItem data-testid={DATA_TEST_ID.EXPORT_TIMELINE_ITEM}>
       <TimelineOppositeContent
@@ -50,7 +54,7 @@ const ExportTimelineItem: React.FC<ExportTimelineItemProps> = (props) => {
         >
           {formatDate(props.exportProcessState.createdAt)}
         </Typography>
-        {props.exportProcessState.downloadUrl && (
+        {props.exportProcessState.downloadUrl && !hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) && (
           <DownloadModelButton downloadUrl={props.exportProcessState.downloadUrl} />
         )}
       </TimelineOppositeContent>

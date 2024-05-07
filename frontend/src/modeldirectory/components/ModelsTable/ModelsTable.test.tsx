@@ -471,7 +471,6 @@ describe("ModelsTable", () => {
       });
 
       test("should not render the model.importProcessState when a user does not have a model manager role", () => {
-
         // GIVEN a model with some Import state
         const givenModel = getOneRandomModelMaxLength();
         expect(givenModel.importProcessState).toBeDefined();
@@ -507,7 +506,9 @@ describe("ModelsTable", () => {
         expect(console.warn).not.toHaveBeenCalled();
 
         // AND expect the icon to not be shown
-        const actualModelCellExportStateContainer = screen.queryByTestId(DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER);
+        const actualModelCellExportStateContainer = screen.queryByTestId(
+          DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER
+        );
         expect(actualModelCellExportStateContainer).not.toBeInTheDocument();
       });
     });
