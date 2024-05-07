@@ -42,7 +42,7 @@ exports[`ExportTimelineItem renders correctly when the exportProcessState doesnt
 </li>
 `;
 
-exports[`ExportTimelineItem renders correctly with the provided exportProcessState 1`] = `
+exports[`ExportTimelineItem renders correctly with the provided exportProcessState when user does not have anonymous role 1`] = `
 <li
   class="MuiTimelineItem-root MuiTimelineItem-positionRight css-ny8qih-MuiTimelineItem-root"
   data-testid="export-timeline-item-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
@@ -85,6 +85,48 @@ exports[`ExportTimelineItem renders correctly with the provided exportProcessSta
         class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
       />
     </a>
+  </div>
+  <div
+    class="MuiTimelineSeparator-root css-1fe7e6p-MuiTimelineSeparator-root"
+    data-testid="export-timeline-separator-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+  >
+    <span
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+      data-testid="export-timeline-dot-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+    />
+    <span
+      class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+      data-testid="export-timeline-connector-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-p3xido-MuiTypography-root-MuiTimelineContent-root"
+    data-testid="export-timeline-content-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+  >
+    <div
+      data-testid="export-process-state-content"
+    >
+      ExportProcessStateContent
+    </div>
+  </div>
+</li>
+`;
+
+exports[`ExportTimelineItem renders correctly with the provided exportProcessState when user has anonymous role 1`] = `
+<li
+  class="MuiTimelineItem-root MuiTimelineItem-positionRight css-ny8qih-MuiTimelineItem-root"
+  data-testid="export-timeline-item-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+>
+  <div
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-189t2ml-MuiTypography-root-MuiTimelineOppositeContent-root"
+    data-testid="export-timeline-opposite-content-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+  >
+    <p
+      class="MuiTypography-root MuiTypography-body1 css-ghakyl-MuiTypography-root"
+      data-testid="export-timeline-opposite-content-created-at-e50b6e98-dd42-4e1b-b7c8-7a282f67b032"
+    >
+      foo-date-user-friendly-formatted
+    </p>
   </div>
   <div
     class="MuiTimelineSeparator-root css-1fe7e6p-MuiTimelineSeparator-root"
