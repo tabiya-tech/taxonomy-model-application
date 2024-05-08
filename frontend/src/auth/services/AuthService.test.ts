@@ -134,6 +134,58 @@ describe("AuthService class tests", () => {
       // THEN it should throw an error
       await expect(authService.handleRefreshingTokens(refreshToken)).toReject();
     });
+
+    it("should not throw an error when the status is 200", async () => {
+      // GIVEN the fetch endpoint throws an error
+      setupFetchSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
+
+      // AND the code from cognito is foo
+      const refreshToken = "foo";
+
+      // WHEN exchangeCodeWithTokens is called with the code
+
+      // THEN it should not throw an error
+      await expect(authService.handleRefreshingTokens(refreshToken)).resolves.toEqual(givenResponseBody);
+    })
+
+    it("should thrown an error when the status is 400", async () => {
+      // GIVEN the fetch endpoint throws an error
+      setupFetchSpy(StatusCodes.BAD_REQUEST, givenResponseBody, "application/json;charset=UTF-8");
+
+      // AND the code from cognito is foo
+      const refreshToken = "foo";
+
+      // WHEN exchangeCodeWithTokens is called with the code
+
+      // THEN it should throw an error
+      await expect(authService.handleRefreshingTokens(refreshToken)).toReject();
+    })
+
+    it("should thrown an error when the status is 401", async () => {
+      // GIVEN the fetch endpoint throws an error
+      setupFetchSpy(StatusCodes.UNAUTHORIZED, givenResponseBody, "application/json;charset=UTF-8");
+
+      // AND the code from cognito is foo
+      const refreshToken = "foo";
+
+      // WHEN exchangeCodeWithTokens is called with the code
+
+      // THEN it should throw an error
+      await expect(authService.handleRefreshingTokens(refreshToken)).toReject();
+    })
+
+    it("should thrown an error when the status is 500", async () => {
+      // GIVEN the fetch endpoint throws an error
+      setupFetchSpy(StatusCodes.INTERNAL_SERVER_ERROR, givenResponseBody, "application/json;charset=UTF-8");
+
+      // AND the code from cognito is foo
+      const refreshToken = "foo";
+
+      // WHEN exchangeCodeWithTokens is called with the code
+
+      // THEN it should throw an error
+      await expect(authService.handleRefreshingTokens(refreshToken)).toReject();
+    })
   });
 
   describe("exchangeCodeWithTokens", () => {
@@ -386,7 +438,7 @@ describe("AuthService class tests", () => {
     });
 
     it("should call the unauthorized callback when the handleRefreshingTokens throws an error", async () => {
-      jest.spyOn(authService, "handleRefreshingTokens").mockRejectedValue({ status: 401 });
+      jest.spyOn(authService, "handleRefreshingTokens").mockRejectedValue({ statusCode: 401 });
 
       // GIVEN the refresh token is foo
       const givenRefreshToken = "foo";
@@ -411,7 +463,7 @@ describe("AuthService class tests", () => {
       expect(givenSuccessCallback).toHaveBeenCalled();
 
       // WHEN the handleRefreshingTokens throws an error
-      jest.spyOn(authService, "handleRefreshingTokens").mockRejectedValue({ status: 401 });
+      jest.spyOn(authService, "handleRefreshingTokens").mockRejectedValue({ statusCode: 401 });
 
       // AND the time elapses
       jest.advanceTimersByTime(givenRefreshResponse.expires_in * 1000 - givenRefreshResponse.expires_in * 1000 * 0.1);

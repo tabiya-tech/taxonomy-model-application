@@ -1,5 +1,5 @@
 import { ErrorCodes } from "src/error/errorCodes";
-import { getServiceErrorFactory } from "src/error/error";
+import {getServiceErrorFactory, ServiceError} from "src/error/error";
 import { TExchangeCodeResponse, TRefreshTokenResponse } from "src/auth/auth.types";
 import {
   AUTH_URL,
@@ -39,6 +39,9 @@ export class AuthService {
       method: "POST",
       headers: headers,
     });
+
+    if(response.status > 299 || response.status < 200)
+      throw errorFactory(response.status, ErrorCodes.FAILED_TO_FETCH, "Failed to fetch", new Error("Failed to fetch"));
 
     return response.json();
   }
@@ -84,8 +87,8 @@ export class AuthService {
     successCallback: (data: TRefreshTokenResponse) => void,
     unauthorizedCallback: () => void
   ) {
-    function handleEror(error: any) {
-      if (error.status >= 400 && error.status < 500) {
+    function handleEror(error: ServiceError) {
+      if (error.statusCode >= 400 && error.statusCode < 500) {
         isRefreshingTokens = false;
         unauthorizedCallback();
       }
@@ -96,7 +99,7 @@ export class AuthService {
       data = await this.handleRefreshingTokens(refreshToken);
       successCallback(data);
       // Refresh when remaining 10% of the life-time
-    } catch (error) {
+    } catch (error: any) {
       handleEror(error);
       return;
     }
