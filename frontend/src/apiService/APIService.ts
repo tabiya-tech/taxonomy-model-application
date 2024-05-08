@@ -18,30 +18,34 @@ export const fetchWithAuth = async (
     failureMessage: "Unknown error",
   }
 ): Promise<Response> => {
+  const { expectedStatusCode, serviceName,serviceFunction, failureMessage, ...options } = init;
+
   const errorFactory = getServiceErrorFactory(
-    init.serviceName,
-    init.serviceFunction,
+    serviceName,
+    serviceFunction,
     init.method ?? "Unknown method",
     apiUrl
   );
   let response: Response;
   try {
+
     const token = sessionStorage.getItem("authToken");
     const headers = new Headers(init.headers || {});
     headers.append("Authorization", `Bearer ${token ?? "ANONYMOUS"}`);
-    const enhancedInit = { headers };
+
+    const enhancedInit = { ...options, headers };
 
     response = await fetch(apiUrl, enhancedInit);
   } catch (e: any) {
-    throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, init.failureMessage, e);
+    throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, failureMessage, e);
   }
   // check if the server responded with the expected status code
-  if (response.status !== init.expectedStatusCode) {
+  if (response.status !== expectedStatusCode) {
     // Server responded with a status code that indicates that the resource was not the expected one
     // The responseBody should be an ErrorResponse but that is not guaranteed e.g. if a gateway in the middle returns a 502,
     // or if the server is not conforming to the error response schema
     const responseBody = await response.text();
-    throw errorFactory(response.status, ErrorCodes.API_ERROR, init.failureMessage, responseBody);
+    throw errorFactory(response.status, ErrorCodes.API_ERROR, failureMessage, responseBody);
   }
   // check if the response is in the expected format
   const responseContentType = response.headers.get("Content-Type");
