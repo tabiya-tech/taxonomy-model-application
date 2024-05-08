@@ -66,6 +66,7 @@ jobs:
           command: up
           stack-name: tabiya-tech/taxonomy-model-application-backend/${{ inputs.target-environment }}
         env:
+          TARGET_ENVIRONMENT: ${{ inputs.target-environment }}
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           DOMAIN_NAME: ${{ inputs.target-domain-name }}

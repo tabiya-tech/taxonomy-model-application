@@ -1,17 +1,38 @@
+//silence chatty console
+import "_test_utilities/consoleMock";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import "jest-performance-matchers";
-import { errorResponse, redactCredentialsFromURI, response, STD_ERRORS_RESPONSES } from "./httpUtils";
 
 import ErrorAPISpecs from "api-specifications/error";
+import process from "process";
+import {errorResponse, redactCredentialsFromURI, response, STD_ERRORS_RESPONSES} from "./httpUtils";
 
 describe("test response function", () => {
-  test("should return correct response for an object", () => {
+  const originalEnv: { [key: string]: string } = {};
+  // Backup and restore the original env variables
+  beforeAll(() => {
+    Object.keys(process.env).forEach((key) => {
+      originalEnv[key] = process.env[key] as string;
+    });
+  });
+
+  afterAll(() => {
+    // Restore original env variables
+    Object.keys(process.env).forEach((key) => {
+      delete process.env[key];
+    });
+    Object.keys(originalEnv).forEach((key) => {
+      process.env[key] = originalEnv[key];
+    });
+  });
+  test("should return correct response for an object in the dev environment", () => {
     // GIVEN a status code
     const givenStatusCode = 200;
     // AND a javascript object
     const givenObject = { bar: "baz" };
-
+    // AND the TARGET_ENVIRONMENT environment variable is set to "dev"
+    process.env.TARGET_ENVIRONMENT = "dev";
     //WHEN response is invoked for the given status javascript object
     const result = response(givenStatusCode, givenObject);
 
@@ -25,11 +46,59 @@ describe("test response function", () => {
     expect(result.isBase64Encoded).toEqual(false);
   });
 
+  test("should return correct response for an object in an environment that is not dev", () => {
+    // GIVEN a status code
+    const givenStatusCode = 200;
+    // AND a javascript object
+    const givenObject = { bar: "baz" };
+    // AND the TARGET_ENVIRONMENT environment variable is set to "prod"
+    process.env.TARGET_ENVIRONMENT = "prod";
+    // AND the DOMAIN_NAME environment variable is set to "foo.bar.baz"
+    process.env.DOMAIN_NAME = "foo.bar.baz";
+
+    //WHEN response is invoked for the given status javascript object
+    const result = response(givenStatusCode, givenObject);
+
+    //THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of the given object
+    expect(result.body).toEqual(JSON.stringify(givenObject));
+    // AND CORS headers to be set
+    expect(result.headers).toEqual({ "Access-Control-Allow-Origin": "foo.bar.baz" });
+    // AND isBase64Encoded to be false
+    expect(result.isBase64Encoded).toEqual(false);
+  });
+
+  test("should return correct response for an object in an environment that is not dev when DOMAIN_NAME is not set", () => {
+    // GIVEN a status code
+    const givenStatusCode = 200;
+    // AND a javascript object
+    const givenObject = { bar: "baz" };
+    // AND the TARGET_ENVIRONMENT environment variable is set to "prod"
+    process.env.TARGET_ENVIRONMENT = "prod";
+    // AND the DOMAIN_NAME environment variable is not set
+    delete process.env.DOMAIN_NAME;
+
+    //WHEN response is invoked for the given status javascript object
+    const result = response(givenStatusCode, givenObject);
+
+    //THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of the given object
+    expect(result.body).toEqual(JSON.stringify(givenObject));
+    // AND CORS headers to be empty
+    expect(result.headers).toEqual({});
+    // AND isBase64Encoded to be false
+    expect(result.isBase64Encoded).toEqual(false);
+  });
+
   test("should return correct response for a string", () => {
     // GIVEN a status code
     const givenStatusCode = 200;
     // AND a string
     const givenString = JSON.stringify({ bar: "baz" });
+    // AND the TARGET_ENVIRONMENT environment variable is set to "dev"
+    process.env.TARGET_ENVIRONMENT = "dev";
 
     //WHEN response is invoked for the given status and string
     const result = response(givenStatusCode, givenString);

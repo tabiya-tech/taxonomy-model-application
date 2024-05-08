@@ -1,3 +1,5 @@
+//silence chatty console
+import "_test_utilities/consoleMock";
 import { usersRequestContext } from "_test_utilities/dataModel";
 
 // ####

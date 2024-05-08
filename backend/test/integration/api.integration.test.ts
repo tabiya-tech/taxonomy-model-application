@@ -1,3 +1,6 @@
+//silence chatty console
+import "_test_utilities/consoleMock";
+
 import {
   testSTDRoutesAuthorization,
   generateRequest,
@@ -38,6 +41,24 @@ const modelManagerAccessibleRoutes: [string, AllowedMethods][] = [
 ];
 
 describe("Test route", () => {
+  const originalEnv: { [key: string]: string } = {};
+  // Backup and restore the original env variables
+  beforeAll(() => {
+    Object.keys(process.env).forEach((key) => {
+      originalEnv[key] = process.env[key] as string;
+    });
+    process.env.TARGET_ENVIRONMENT = "dev";
+  });
+
+  afterAll(() => {
+    // Restore original env variables
+    Object.keys(process.env).forEach((key) => {
+      delete process.env[key];
+    });
+    Object.keys(originalEnv).forEach((key) => {
+      process.env[key] = originalEnv[key];
+    });
+  });
   let userTokens: { "model-managers": string; "registered-users": string; anonymous: string };
   let authenticateTestCognitoUser: AuthenticateTestCognitoUser;
   beforeAll(async () => {

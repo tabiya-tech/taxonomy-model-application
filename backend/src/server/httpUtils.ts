@@ -3,6 +3,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import ImportAPISpecs from "api-specifications/import";
 import ExportAPISpecs from "api-specifications/export";
+import process from "process";
 
 export enum HTTP_VERBS {
   GET = "GET",
@@ -36,11 +37,23 @@ export function response(
     [key: string]: string;
   }
 ): APIGatewayProxyResult {
+  let allowedOrigins = "";
+  if (process.env.TARGET_ENVIRONMENT === "dev") {
+    allowedOrigins = "*"; // Allow all origins in development
+  } else if (process.env.DOMAIN_NAME) {
+    allowedOrigins = process.env.DOMAIN_NAME; // Use DOMAIN_NAME if set
+  } else {
+    // If DOMAIN_NAME is not set, we intentionally omit the CORS header
+    console.warn(
+      `No DOMAIN_NAME set for environment ${process.env.TARGET_ENVIRONMENT}; CORS requests will be denied.`
+    );
+  }
+
   return {
     isBase64Encoded: false,
     headers: {
       ...(headers ?? {}),
-      "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+      ...(allowedOrigins && { "Access-Control-Allow-Origin": allowedOrigins }), // Conditionally add the CORS header if allowedOrigins is not empty
     },
     multiValueHeaders: {},
     statusCode: statusCode,
