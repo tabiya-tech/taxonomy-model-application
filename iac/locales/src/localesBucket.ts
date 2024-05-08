@@ -6,13 +6,13 @@ import * as pulumi from "@pulumi/pulumi";
 const LOCALES_BUCKET_NAME = "locales-bucket"
 const LOCALES_FOLDER_PATH = "../../locales/public";
 
-export function setupLocalesBucket(domainName: string): Bucket {
+export function setupLocalesBucket(domainName: string, allowedOrigins: string[]): Bucket {
   // Create an AWS resource (S3 Bucket)
   const bucket = new aws.s3.Bucket(LOCALES_BUCKET_NAME, {
     corsRules: [{
       allowedHeaders: ["*"],
       allowedMethods: ["GET"],
-      allowedOrigins: [`https://${domainName}`, 'http://localhost:3000', "http://localhost:6006"], // Other domains could want to access the locales e.g. compass domain
+      allowedOrigins: allowedOrigins,
       maxAgeSeconds: 3600
     }],
   });

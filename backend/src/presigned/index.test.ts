@@ -1,6 +1,9 @@
 // ############
 // Set up mocks
 // Set up crypto.randomUUID mock
+//silence chatty console
+import "_test_utilities/consoleMock";
+
 import PresignedAPISpecs from "api-specifications/presigned";
 import { randomUUID } from "crypto";
 import * as config from "server/config/config";

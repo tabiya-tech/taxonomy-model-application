@@ -1,3 +1,5 @@
+//silence chatty console
+import "_test_utilities/consoleMock";
 import * as ImportHandler from "./index";
 import { HTTP_VERBS, response, StatusCodes } from "server/httpUtils";
 import * as AsyncImport from "./invokeAsyncImport";

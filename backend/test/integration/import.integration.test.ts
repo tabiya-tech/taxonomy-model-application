@@ -34,6 +34,7 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
     Object.keys(process.env).forEach((key) => {
       originalEnv[key] = process.env[key] as string;
     });
+    process.env.TARGET_ENVIRONMENT = "dev";
   });
 
   afterAll(() => {

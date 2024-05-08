@@ -1,3 +1,6 @@
+//silence chatty console
+import "_test_utilities/consoleMock";
+
 import * as config from "server/config/config";
 import * as transformModule from "./transform";
 import { handler as modelHandler } from "./index";
