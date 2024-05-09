@@ -21,5 +21,8 @@ function handler(event) {
   if (uri.startsWith('/taxonomy/api-doc/redoc/')) {
     request.uri = uri.replace(/^\/taxonomy\/api-doc\/redoc\//,'/');
   }
+  if(uri.startsWith('/downloads/')) {
+    request.uri = uri.replace(/^\/downloads\//,'/');
+  }
   return request;
 }

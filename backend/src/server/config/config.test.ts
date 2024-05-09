@@ -12,6 +12,7 @@ import {
   getAsyncLambdaFunctionRegion,
   getDownloadBucketRegion,
   getDownloadBucketName,
+  getDomainName,
 } from "./config";
 import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import * as process from "process";
@@ -37,6 +38,7 @@ describe("Test read Configuration()", () => {
   test("readEnvironmentConfiguration() should read values from the environment", () => {
     // GIVEN the environment variables are set
     process.env.MONGODB_URI = getRandomString(10);
+    process.env.DOMAIN_NAME = getRandomString(10);
     process.env.RESOURCES_BASE_URL = getRandomString(10);
     process.env.UPLOAD_BUCKET_NAME = getRandomString(10);
     process.env.UPLOAD_BUCKET_REGION = getRandomString(10);
@@ -52,6 +54,7 @@ describe("Test read Configuration()", () => {
     // THEN expect the configuration to have the values from the environment variables
     expect(actualConfig).toEqual({
       dbURI: process.env.MONGODB_URI,
+      domainName: process.env.DOMAIN_NAME,
       resourcesBaseUrl: process.env.RESOURCES_BASE_URL,
       uploadBucketName: process.env.UPLOAD_BUCKET_NAME,
       uploadBucketRegion: process.env.UPLOAD_BUCKET_REGION,
@@ -66,6 +69,7 @@ describe("Test read Configuration()", () => {
   test("readEnvironmentConfiguration() should return default value if environment is not set", () => {
     // GIVEN none of the relevant environment variables are set
     delete process.env.MONGODB_URI;
+    delete process.env.DOMAIN_NAME;
     delete process.env.RESOURCES_BASE_URL;
     delete process.env.UPLOAD_BUCKET_NAME;
     delete process.env.UPLOAD_BUCKET_REGION;
@@ -80,6 +84,7 @@ describe("Test read Configuration()", () => {
     // THEN expect the configuration to have empty values
     expect(config).toEqual({
       dbURI: "",
+      domainName: "",
       resourcesBaseUrl: "",
       uploadBucketName: "",
       uploadBucketRegion: "",
@@ -128,6 +133,8 @@ describe("Test current configuration", () => {
   );
 
   stdConfigurationValuesTest("getAsyncLambdaFunctionRegion", getAsyncLambdaFunctionRegion, "asyncLambdaFunctionRegion");
+
+  stdConfigurationValuesTest("getDomainName", getDomainName, "domainName");
 });
 
 function stdConfigurationValuesTest(
@@ -186,6 +193,7 @@ function stdConfigurationValuesTest(
 function getMockConfig(): IConfiguration {
   return {
     dbURI: getTestString(10),
+    domainName: getTestString(10),
     resourcesBaseUrl: getTestString(10),
     uploadBucketName: getTestString(10),
     uploadBucketRegion: getTestString(10),

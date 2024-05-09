@@ -62,6 +62,10 @@ type Origins = {
     arn: Output<string>,
     websiteEndpoint: Output<string>
   },
+  downloadBucketOrigin: {
+    arn: Output<string>,
+    websiteEndpoint: Output<string>
+  }
 }
 
 function getFrontendNoCachingBehaviour(bucketArn: Output<string>, pathPattern: string[], urlRewriteFunction: Function) {
@@ -97,8 +101,9 @@ export function setupCDN(
   swaggerURLBase: Output<string>,
   redocURLBase: Output<string>,
   localesURLBase: Output<string>,
+  downloadURLBase: Output<string>
 } {
-  const { frontendBucketOrigin, backendRestApiOrigin, swaggerBucketOrigin, redocBucketOrigin, localesBucketOrigin } = origns;
+  const { frontendBucketOrigin, backendRestApiOrigin, swaggerBucketOrigin, redocBucketOrigin, localesBucketOrigin, downloadBucketOrigin } = origns;
 
   const urlRewriteFunction = new aws.cloudfront.Function("urlRewrite", {
     runtime: "cloudfront-js-1.0",
@@ -161,6 +166,16 @@ export function setupCDN(
           httpsPort: 443,
           originSslProtocols: ["TLSv1.2"],
         },
+      },
+      {
+        originId: downloadBucketOrigin.arn,
+        domainName: downloadBucketOrigin.websiteEndpoint,
+        customOriginConfig: {
+          originProtocolPolicy: "http-only",
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ["TLSv1.2"],
+        },
       }
     ],
     defaultCacheBehavior: {
@@ -215,6 +230,11 @@ export function setupCDN(
       ...getFrontendNoCachingBehaviour(
         redocBucketOrigin.arn,
         ["/taxonomy/api-doc/redoc/", "/taxonomy/api-doc/redoc/index.html"],
+        urlRewriteFunction),
+      //    for the DOWNLOADS
+      ...getFrontendNoCachingBehaviour(
+        downloadBucketOrigin.arn,
+        ["/downloads/"],
         urlRewriteFunction),
       // APP
       {
@@ -313,6 +333,25 @@ export function setupCDN(
         ],
         viewerProtocolPolicy: "redirect-to-https",
       },
+      // DOWNLOADS
+      {
+        compress: true,
+        allowedMethods: ["GET", "HEAD", "OPTIONS"],
+        cachedMethods: ["GET", "HEAD", "OPTIONS"],
+        targetOriginId: downloadBucketOrigin.arn,
+        pathPattern: "/downloads/*",
+        responseHeadersPolicyId: ResponseHeader_ManagedPolicies.SecurityHeadersPolicy,
+        cachePolicyId: Cache_ManagedPolicies.CachingOptimized,
+        originRequestPolicyId: OriginRequest_ManagedPolicies.CORSS3Origin,
+        //defaultTtl: 86400,
+        functionAssociations: [
+          {
+            eventType: "viewer-request",
+            functionArn: urlRewriteFunction.arn,
+          }
+        ],
+        viewerProtocolPolicy: "redirect-to-https",
+      }
     ],
     restrictions: {
       geoRestriction: {
@@ -346,7 +385,8 @@ export function setupCDN(
     frontendURLBase: interpolate`https://${domainName}/app`,
     swaggerURLBase: interpolate`https://${domainName}/taxonomy/api-doc/swagger`,
     redocURLBase: interpolate`https://${domainName}/taxonomy/api-doc/redoc`,
-    localesURLBase: interpolate`https://${domainName}/locales/api`
+    localesURLBase: interpolate`https://${domainName}/locales/api`,
+    downloadURLBase: interpolate`https://${domainName}/downloads`
   };
 }
 

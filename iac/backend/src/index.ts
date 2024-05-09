@@ -24,8 +24,12 @@ const allowedOrigins = [`https://${domainName}`];
 /**
  * Setup Download Bucket
  */
-const downloadBucket = setupDownloadBucket(allowedOrigins);
-export const downloadBucketName = downloadBucket.id;
+const _downloadBucket = setupDownloadBucket(allowedOrigins);
+export const downloadBucket = {
+  id: _downloadBucket.id,
+  arn: _downloadBucket.arn,
+  websiteEndpoint: _downloadBucket.bucketRegionalDomainName,
+};
 
 /**
  * Setup Async Export
@@ -33,12 +37,13 @@ export const downloadBucketName = downloadBucket.id;
 
 const {asyncExportLambdaRole, asyncExportLambdaFunction} = setupAsyncExportApi(environment, {
   mongodb_uri: process.env.MONGODB_URI ?? "",
+  domainName,
   resourcesBaseUrl,
-  download_bucket_name: downloadBucketName,
+  download_bucket_name: _downloadBucket.id,
   download_bucket_region: currentRegion,
 });
 
-setupDownloadBucketWritePolicy(downloadBucket, asyncExportLambdaRole);
+setupDownloadBucketWritePolicy(_downloadBucket, asyncExportLambdaRole);
 
 /**
  * Setup Upload Bucket
@@ -77,7 +82,7 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
   upload_bucket_region: currentRegion,
-  download_bucket_name: downloadBucketName,
+  download_bucket_name: _downloadBucket.id,
   download_bucket_region: currentRegion,
   async_import_lambda_function_arn: asyncImportLambdaFunction.arn,
   async_export_lambda_function_arn: asyncExportLambdaFunction.arn,

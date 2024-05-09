@@ -14,6 +14,7 @@ const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 2;
 
 export function setupAsyncExportApi(environment: string, config: {
   mongodb_uri: string,
+  domainName: string,
   resourcesBaseUrl: string,
   download_bucket_name: Output<string>,
   download_bucket_region: Output<string>
@@ -63,6 +64,7 @@ export function setupAsyncExportApi(environment: string, config: {
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
+        DOMAIN_NAME: config.domainName,
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
         MONGODB_URI: config.mongodb_uri,
         DOWNLOAD_BUCKET_NAME: config.download_bucket_name,

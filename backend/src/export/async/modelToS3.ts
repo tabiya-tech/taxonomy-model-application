@@ -6,7 +6,7 @@ import archiver from "archiver";
 import ErrorLogger from "common/errorLogger/errorLogger";
 import CSVtoZipPipeline from "export/async/CSVtoZipPipeline";
 import uploadZipToS3 from "./uploadZipToS3";
-import { getDownloadBucketName, getDownloadBucketRegion } from "server/config/config";
+import { getDomainName, getDownloadBucketName, getDownloadBucketRegion } from "server/config/config";
 import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
@@ -133,9 +133,7 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
 
   // Set the export process status to COMPLETED
   const exportState = {
-    downloadUrl: `https://${getDownloadBucketName()}.s3.${getDownloadBucketRegion()}.amazonaws.com/${
-      event.modelId
-    }-export-${event.exportProcessStateId}.zip`,
+    downloadUrl: `https://${getDomainName()}/downloads/${event.modelId}-export-${event.exportProcessStateId}.zip`,
     status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
     result: {
       errored: false,
