@@ -146,7 +146,7 @@ describe("AuthService class tests", () => {
 
       // THEN it should not throw an error
       await expect(authService.handleRefreshingTokens(refreshToken)).resolves.toEqual(givenResponseBody);
-    })
+    });
 
     it("should thrown an error when the status is 400", async () => {
       // GIVEN the fetch endpoint throws an error
@@ -159,7 +159,7 @@ describe("AuthService class tests", () => {
 
       // THEN it should throw an error
       await expect(authService.handleRefreshingTokens(refreshToken)).toReject();
-    })
+    });
 
     it("should thrown an error when the status is 401", async () => {
       // GIVEN the fetch endpoint throws an error
@@ -172,7 +172,7 @@ describe("AuthService class tests", () => {
 
       // THEN it should throw an error
       await expect(authService.handleRefreshingTokens(refreshToken)).toReject();
-    })
+    });
 
     it("should thrown an error when the status is 500", async () => {
       // GIVEN the fetch endpoint throws an error
@@ -185,7 +185,7 @@ describe("AuthService class tests", () => {
 
       // THEN it should throw an error
       await expect(authService.handleRefreshingTokens(refreshToken)).toReject();
-    })
+    });
   });
 
   describe("exchangeCodeWithTokens", () => {

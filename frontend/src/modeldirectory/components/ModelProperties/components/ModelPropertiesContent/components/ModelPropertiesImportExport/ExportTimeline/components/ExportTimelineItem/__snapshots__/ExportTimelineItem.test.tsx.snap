@@ -60,8 +60,8 @@ exports[`ExportTimelineItem renders correctly with the provided exportProcessSta
     <a
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-aqwr9w-MuiButtonBase-root-MuiIconButton-root"
       data-testid="download-model-button-1623572c-456c-419e-9201-3c4971406fe1"
-      download="https://www.example.com/"
-      href="https://www.example.com/"
+      download="filename.zip"
+      href="https://www.example.com/filename.zip"
       tabindex="0"
       title="Download"
     >

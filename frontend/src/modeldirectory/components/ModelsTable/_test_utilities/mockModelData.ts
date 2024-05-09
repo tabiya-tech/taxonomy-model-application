@@ -170,7 +170,7 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
   },
   exportProcessState: [
     {
-      downloadUrl: "https://www.example.com/",
+      downloadUrl: "https://www.example.com/filename.zip",
       id: "000000000000000000000001",
       result: {
         errored: true,

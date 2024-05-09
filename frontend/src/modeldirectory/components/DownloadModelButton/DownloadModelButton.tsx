@@ -12,10 +12,16 @@ export interface DownloadModelButtonProps {
 }
 
 export function DownloadModelButton(props: Readonly<DownloadModelButtonProps>) {
+  // Function to extract the filename from URL using string methods
+  const extractFilename = (url: string) => {
+    return url.substring(url.lastIndexOf("/") + 1);
+  };
+
+  const filename = extractFilename(props.downloadUrl);
   return (
     <IconButton
       href={props.downloadUrl}
-      download={props.downloadUrl}
+      download={filename}
       sx={{
         margin: 0,
         paddingY: (theme) => theme.tabiyaSpacing.xs,

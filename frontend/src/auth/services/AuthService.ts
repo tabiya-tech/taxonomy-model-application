@@ -1,5 +1,5 @@
 import { ErrorCodes } from "src/error/errorCodes";
-import {getServiceErrorFactory, ServiceError} from "src/error/error";
+import { getServiceErrorFactory, ServiceError } from "src/error/error";
 import { TExchangeCodeResponse, TRefreshTokenResponse } from "src/auth/auth.types";
 import {
   AUTH_URL,
@@ -40,7 +40,7 @@ export class AuthService {
       headers: headers,
     });
 
-    if(response.status > 299 || response.status < 200)
+    if (response.status > 299 || response.status < 200)
       throw errorFactory(response.status, ErrorCodes.FAILED_TO_FETCH, "Failed to fetch", new Error("Failed to fetch"));
 
     return response.json();
