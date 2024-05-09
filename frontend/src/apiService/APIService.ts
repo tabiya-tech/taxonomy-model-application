@@ -18,17 +18,11 @@ export const fetchWithAuth = async (
     failureMessage: "Unknown error",
   }
 ): Promise<Response> => {
-  const { expectedStatusCode, serviceName,serviceFunction, failureMessage, ...options } = init;
+  const { expectedStatusCode, serviceName, serviceFunction, failureMessage, ...options } = init;
 
-  const errorFactory = getServiceErrorFactory(
-    serviceName,
-    serviceFunction,
-    init.method ?? "Unknown method",
-    apiUrl
-  );
+  const errorFactory = getServiceErrorFactory(serviceName, serviceFunction, init.method ?? "Unknown method", apiUrl);
   let response: Response;
   try {
-
     const token = sessionStorage.getItem("authToken");
     const headers = new Headers(init.headers || {});
     headers.append("Authorization", `Bearer ${token ?? "ANONYMOUS"}`);

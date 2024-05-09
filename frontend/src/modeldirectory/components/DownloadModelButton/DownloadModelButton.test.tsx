@@ -7,8 +7,8 @@ import { DATA_TEST_ID, DownloadModelButton } from "./DownloadModelButton";
 describe("DownloadModelButton", () => {
   it("should render", () => {
     // GIVEN a download url
-    const givenDownloadUrl = "https://foo/bar";
-
+    const givenFilename = "filename.zip";
+    const givenDownloadUrl = `https://foo/bar/${givenFilename}`;
     // WHEN the button is rendered
     render(<DownloadModelButton downloadUrl={givenDownloadUrl} />);
 
@@ -21,7 +21,7 @@ describe("DownloadModelButton", () => {
     // AND the button has the correct href
     expect(actualButton).toHaveAttribute("href", givenDownloadUrl);
     // AND the button has the correct download attribute
-    expect(actualButton).toHaveAttribute("download", givenDownloadUrl);
+    expect(actualButton).toHaveAttribute("download", givenFilename);
     // AND to match the snapshot
     expect(actualButton).toMatchSnapshot();
   });
