@@ -57,6 +57,13 @@ const backendRestApi = backendStack.getOutput("backendRestApi").apply((t) => {
   domainName: Output<string>,
   path: Output<string>
 }
+const downloadBucket = backendStack.getOutput("downloadBucket").apply((t) => {
+  return {
+    arn: t.arn,
+    websiteEndpoint: t.websiteEndpoint
+  };
+}) as Output<{ arn: string, websiteEndpoint: string }>;
+
 const swaggerBucket = backendStack.getOutput("swaggerBucket").apply((t) => {
   return {
     arn: t.arn,
@@ -101,7 +108,8 @@ export const cdn = setupCDN({
   backendRestApiOrigin: backendRestApi,
   swaggerBucketOrigin: swaggerBucket,
   redocBucketOrigin: redocBucket,
-  localesBucketOrigin: localesBucket
+  localesBucketOrigin: localesBucket,
+  downloadBucketOrigin: downloadBucket
 }, certificate.arn, hostedZone.zoneId, domainName);
 export const backendURLBase = cdn.backendURLBase;
 

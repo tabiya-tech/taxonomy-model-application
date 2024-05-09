@@ -2,6 +2,7 @@ import * as process from "process";
 
 export const ENV_VAR_NAMES = {
   MONGODB_URI: "MONGODB_URI",
+  DOMAIN_NAME: "DOMAIN_NAME",
   RESOURCES_BASE_URL: "RESOURCES_BASE_URL",
   UPLOAD_BUCKET_NAME: "UPLOAD_BUCKET_NAME",
   UPLOAD_BUCKET_REGION: "UPLOAD_BUCKET_REGION",
@@ -14,6 +15,7 @@ export const ENV_VAR_NAMES = {
 
 export interface IConfiguration {
   dbURI: string;
+  domainName: string;
   resourcesBaseUrl: string;
   uploadBucketName: string;
   uploadBucketRegion: string;
@@ -26,6 +28,7 @@ export interface IConfiguration {
 export function readEnvironmentConfiguration(): IConfiguration {
   return {
     dbURI: process.env[ENV_VAR_NAMES.MONGODB_URI] ?? "",
+    domainName: process.env[ENV_VAR_NAMES.DOMAIN_NAME] ?? "",
     resourcesBaseUrl: process.env[ENV_VAR_NAMES.RESOURCES_BASE_URL] ?? "",
     uploadBucketName: process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_NAME] ?? "",
     uploadBucketRegion: process.env[ENV_VAR_NAMES.UPLOAD_BUCKET_REGION] ?? "",
@@ -80,4 +83,8 @@ export function getAsyncExportLambdaFunctionArn() {
 
 export function getAsyncLambdaFunctionRegion() {
   return _configuration?.asyncLambdaFunctionRegion ?? "";
+}
+
+export function getDomainName() {
+  return _configuration?.domainName ?? "";
 }

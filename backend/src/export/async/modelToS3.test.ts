@@ -187,6 +187,9 @@ describe("modelToS3", () => {
     const givenDownloadBucketRegion = "bar";
     jest.spyOn(Config, "getDownloadBucketName").mockReturnValue(givenDownloadBucketName);
     jest.spyOn(Config, "getDownloadBucketRegion").mockReturnValue(givenDownloadBucketRegion);
+    // AND a domain name
+    const givenDomainName = "baz";
+    jest.spyOn(Config, "getDomainName").mockReturnValue(givenDomainName);
 
     // WHEN the modelToS3 function is called
     const modelToS3Promise = modelToS3(givenEvent);
@@ -267,7 +270,7 @@ describe("modelToS3", () => {
         exportErrors: false,
         exportWarnings: false,
       }, // AND the downloadUrl is set to the correct url
-      downloadUrl: `https://${givenDownloadBucketName}.s3.${givenDownloadBucketRegion}.amazonaws.com/${givenEvent.modelId}-export-${givenEvent.exportProcessStateId}.zip`,
+      downloadUrl: `https://${givenDomainName}/downloads/${givenEvent.modelId}-export-${givenEvent.exportProcessStateId}.zip`,
     });
 
     // AND All resources have been released
