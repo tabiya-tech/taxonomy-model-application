@@ -45,6 +45,10 @@ export class PresignedController {
    *                 $ref: '#/components/schemas/PresignedSchema'
    *         500:
    *           $ref: '#/components/responses/InternalServerErrorResponse'
+   *         401:
+   *           $ref: '#/components/responses/UnAuthorizedResponse'
+   *         403:
+   *           $ref: '#/components/responses/ForbiddenResponse'
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

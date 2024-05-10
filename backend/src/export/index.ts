@@ -66,6 +66,10 @@ class ExportController {
    *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
    *         '500':
    *           $ref: '#/components/responses/InternalServerErrorResponse'
+   *         '401':
+   *           $ref: '#/components/responses/UnAuthorizedResponse'
+   *         '403':
+   *           $ref: '#/components/responses/ForbiddenResponse'
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
   async postTriggerExport(event: APIGatewayProxyEvent) {
