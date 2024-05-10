@@ -26,6 +26,8 @@ import { getConnectionManager } from "server/connection/connectionManager";
  *                $ref: '#/components/schemas/InfoSchema'
  *        500:
  *          $ref: '#/components/responses/InternalServerErrorResponse'
+ *        401:
+ *          $ref: '#/components/responses/UnAuthorizedResponse'
  */
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/

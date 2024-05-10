@@ -104,8 +104,24 @@ NOTES:
               },
             },
           },
+          UnAuthorizedResponse: {
+            description: "The request failed because it lacks valid authentication credentials for the target resource.",
+            content: {
+              "application /json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Unauthorized",
+                    },
+                  },
+                },
+              },
+            },
+          },
           ForbiddenResponse: {
-            description: "The server understood the request, but is refusing to fulfill it.",
+            description: "The request has not been applied because you don't have the right permissions to access this resource.",
             content: {
               "application /json": {
                 schema: {
@@ -129,16 +145,16 @@ NOTES:
           AuthContextSchema: Auth.Schemas.Request.Context,
         },
         securitySchemes: {
-          api_key: {
-            type: "apiKey",
-            in: "header",
-            name: "TABIYA-API-KEY",
-            description: "Api key authentication.",
-          },
-          http_auth: {
-            type: "http",
-            scheme: "basic",
-          },
+          // api_key: {
+          //   type: "apiKey",
+          //   in: "header",
+          //   name: "TABIYA-API-KEY",
+          //   description: "Api key authentication.",
+          // },
+          // http_auth: {
+          //   type: "http",
+          //   scheme: "basic",
+          // },
           jwt_auth: {
             type: "http",
             scheme: "bearer",

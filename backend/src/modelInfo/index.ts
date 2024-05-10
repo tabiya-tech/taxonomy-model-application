@@ -62,6 +62,10 @@ class ModelController {
    *             application/json:
    *               schema:
    *                 $ref: '#/components/schemas/ErrorSchema'
+   *         '403':
+   *           $ref: '#/components/responses/ForbiddenResponse'
+   *         '401':
+   *           $ref: '#/components/responses/UnAuthorizedResponse'
    *         '415':
    *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
    *         '500':
@@ -146,6 +150,8 @@ class ModelController {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/ErrorSchema'
+   *       '401':
+   *         $ref: '#/components/responses/UnAuthorizedResponse'
    */
 
   // Currently we do not need the event

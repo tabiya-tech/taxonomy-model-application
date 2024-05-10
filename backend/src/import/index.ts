@@ -38,6 +38,8 @@ import AuthAPISpecs from "api-specifications/auth";
  *             application/json:
  *               schema:
  *                 $ref: '#/components/schemas/ErrorSchema'
+ *         '401':
+ *           $ref: '#/components/responses/UnAuthorizedResponse'
  *         '403':
  *           $ref: '#/components/responses/ForbiddenResponse'
  *         '415':
