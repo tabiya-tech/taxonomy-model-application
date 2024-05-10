@@ -1,11 +1,10 @@
-name: Main CI
+name: Deploy on Test Environment
 
 on:
   push:
-  # branches:
-  #   - main
-  #pull_request:
-  #  types: [ opened, synchronize, reopened ]
+    branches:
+      - test
+  workflow_dispatch:
 
 jobs:
   # Set-Up Infrastructure
@@ -13,7 +12,7 @@ jobs:
     uses: ./.github/workflows/deploy-setup.yml
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
   # API Specifications
   build-api-specs:
     uses: ./.github/workflows/build-api-specs.yml
@@ -24,20 +23,19 @@ jobs:
     uses: ./.github/workflows/deploy-auth.yml
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
-#  # Locales
+  #  # Locales
   build-locales:
     needs: [ build-api-specs ]
     uses: ./.github/workflows/build-locales.yml
     secrets: inherit
   deploy-locales:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/dev' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ setup-infrastructure, build-api-specs, build-locales ]
     uses: ./.github/workflows/deploy-locales.yml
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
   # Backend
   build-backend:
@@ -45,18 +43,17 @@ jobs:
     needs: [ build-api-specs, setup-infrastructure, deploy-auth ]
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
       backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
       user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
       user-pool-client-id: ${{ needs.deploy-auth.outputs.clientId }}
       user-pool-client-secret: ${{ needs.deploy-auth.outputs.clientSecret }}
   deploy-backend:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/dev' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build-backend, setup-infrastructure, deploy-auth ]
     uses: ./.github/workflows/deploy-backend.yml
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
       version-info: ${{ needs.build-backend.outputs.version-info }}
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
       user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
@@ -76,19 +73,18 @@ jobs:
     needs: [ build-api-specs, setup-infrastructure, deploy-auth ]
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
       backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
       locales-url: ${{ needs.setup-infrastructure.outputs.locales-url }}
       auth-url: ${{ needs.setup-infrastructure.outputs.auth-url }}
       cognito-client-id: ${{ needs.deploy-auth.outputs.clientId }}
       cognito-client-secret: ${{ needs.deploy-auth.outputs.clientSecret }}
   deploy-frontend:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/dev' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build-frontend, setup-infrastructure ]
     uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
       version-info: ${{ needs.build-frontend.outputs.version-info }}
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
   smoke-test-frontend:
@@ -106,12 +102,11 @@ jobs:
     secrets: inherit
   # Common Infrastructure
   deploy-common:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/dev' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ deploy-frontend, build-frontend, deploy-backend, build-backend, setup-infrastructure, deploy-locales, setup-infrastructure ]
     uses: ./.github/workflows/deploy-common.yml
     secrets: inherit
     with:
-      target-environment: dev
+      target-environment: test
       frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
       backend-version-info: ${{ needs.build-backend.outputs.version-info }}
       base-domain-name: ${{ needs.setup-infrastructure.outputs.base-domain-name }}
