@@ -1,6 +1,6 @@
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import * as relationValidationModule from "esco/common/relationValidation";
-import { INewOccupationToSkillPairSpec } from "./occupationToSkillRelation.types";
+import { INewOccupationToSkillPairSpec, OccupationToSkillRelationType } from "./occupationToSkillRelation.types";
 import { isNewOccupationToSkillRelationPairSpecValid } from "./occupationToSkillRelationValidation";
 
 describe("OccupationToSkillsRelationValidation", () => {
@@ -10,8 +10,10 @@ describe("OccupationToSkillsRelationValidation", () => {
     const givenPair: INewOccupationToSkillPairSpec = {
       requiringOccupationId: "foo",
       requiredSkillId: "bar",
-      relationType: RelationType.ESSENTIAL,
+      relationType: OccupationToSkillRelationType.ESSENTIAL,
       requiringOccupationType: ObjectTypes.ESCOOccupation,
+      signallingValueLabel: SignallingValueLabel.NONE,
+      signallingValue: null,
     };
     // AND some existingIds
     const givenExistingIds: Map<string, ObjectTypes[]> = new Map<string, ObjectTypes[]>();

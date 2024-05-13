@@ -1,8 +1,9 @@
-import { ImportIdentifiable, ObjectTypes, ReferenceWithRelationType } from "esco/common/objectTypes";
+import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 /**
  * Describes how an occupation is saved in MongoDB
@@ -34,7 +35,7 @@ export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
   children: (IISCOGroupReference | IOccupationReference)[];
   createdAt: Date;
   updatedAt: Date;
-  requiresSkills: ReferenceWithRelationType<ISkillReference>[];
+  requiresSkills: OccupationToSkillReferenceWithRelationType<ISkillReference>[];
 }
 
 /**

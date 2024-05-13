@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
 import { IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
 
@@ -17,7 +17,9 @@ export interface IOccupationToSkillRelationPairDoc {
   requiredSkillId: mongoose.Types.ObjectId;
   requiredSkillDocModel: MongooseModelName.Skill;
 
-  relationType: RelationType;
+  relationType: OccupationToSkillRelationType;
+  signallingValueLabel: SignallingValueLabel;
+  signallingValue: number | null;
 }
 
 /**
@@ -38,7 +40,12 @@ export interface IOccupationToSkillRelationPair
  */
 export type INewOccupationToSkillPairSpec = Pick<
   IOccupationToSkillRelationPair,
-  "requiringOccupationType" | "requiringOccupationId" | "requiredSkillId" | "relationType"
+  | "requiringOccupationType"
+  | "requiringOccupationId"
+  | "requiredSkillId"
+  | "relationType"
+  | "signallingValueLabel"
+  | "signallingValue"
 >;
 
 /**
@@ -50,3 +57,20 @@ export interface IPopulatedOccupationToSkillRelationPairDoc
   requiringOccupationId: IOccupationReferenceDoc;
   requiredSkillId: ISkillReferenceDoc;
 }
+
+/**
+ * Enum for the three different types of occupation to skill relations in the ESCO ontology, none, essential and optional
+ */
+export enum OccupationToSkillRelationType {
+  NONE = "",
+  ESSENTIAL = "essential",
+  OPTIONAL = "optional",
+}
+
+/**
+ * Describes how an occupation to skill reference is returned from the API.
+ */
+
+export type OccupationToSkillReferenceWithRelationType<T> = T & {
+  relationType: OccupationToSkillRelationType;
+};

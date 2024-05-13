@@ -1,5 +1,7 @@
-import { ReferenceWithRelationType } from "esco/common/objectTypes";
-import { IPopulatedOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
+import {
+  IPopulatedOccupationToSkillRelationPairDoc,
+  OccupationToSkillReferenceWithRelationType,
+} from "./occupationToSkillRelation.types";
 import { getOccupationReferenceWithRelationType } from "esco/occupations/occupationReference";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
@@ -9,7 +11,7 @@ import { IOccupationDoc } from "esco/occupations/occupation.types";
 
 export function getRequiredByOccupationReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc
-): ReferenceWithRelationType<IOccupationReference> | null {
+): OccupationToSkillReferenceWithRelationType<IOccupationReference> | null {
   if (!doc.requiringOccupationId) return null;
   if (!doc.requiringOccupationId.modelId?.equals(doc.modelId)) {
     console.error(new Error(`RequiredBy occupation is not in the same model as the Required skill`));
@@ -22,7 +24,7 @@ export function getRequiredByOccupationReference(
 
 export function getRequiresSkillReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc
-): ReferenceWithRelationType<ISkillReference> | null {
+): OccupationToSkillReferenceWithRelationType<ISkillReference> | null {
   if (!doc.requiredSkillId) return null;
   if (!doc.requiredSkillId.modelId?.equals(doc.modelId)) {
     console.error(new Error(`Required Skill is not in the same model as the Requiring Occupation`));
@@ -30,7 +32,10 @@ export function getRequiresSkillReference(
   }
   // @ts-ignore - we want to remove the modelId field because it is not part of the ISkillReference interface
   delete doc.requiredSkillId.modelId;
-  return getSkillReferenceWithRelationType(doc.requiredSkillId, doc.relationType);
+  return getSkillReferenceWithRelationType(
+    doc.requiredSkillId,
+    doc.relationType
+  ) as OccupationToSkillReferenceWithRelationType<ISkillReference>;
 }
 
 export function populateEmptyRequiresSkills(target: mongoose.Document<unknown, unknown, IOccupationDoc>) {

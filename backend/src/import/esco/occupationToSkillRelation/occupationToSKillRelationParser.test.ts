@@ -148,7 +148,7 @@ describe("test parseOccupationToSkillRelation from", () => {
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         6,
-        `Failed to import OccupationToSkillRelation row with occupationId:'key_15' and skillId:'key_16'.`
+        `Failed to import OccupationToSkillRelation row with occupationId:'key_17' and skillId:'key_18'.`
       );
     }
   );
