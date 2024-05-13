@@ -44,9 +44,7 @@ export function response(
     allowedOrigins = process.env.DOMAIN_NAME; // Use DOMAIN_NAME if set
   } else {
     // If DOMAIN_NAME is not set, we intentionally omit the CORS header
-    console.warn(
-      `No DOMAIN_NAME set for environment ${process.env.TARGET_ENVIRONMENT}; CORS requests will be denied.`
-    );
+    console.warn(`No DOMAIN_NAME set for environment ${process.env.TARGET_ENVIRONMENT}; CORS requests will be denied.`);
   }
 
   return {

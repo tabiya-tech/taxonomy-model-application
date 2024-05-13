@@ -1,6 +1,14 @@
-import { ObjectTypes, RelationType } from "./objectTypes";
-import { CSVObjectTypes, CSVRelationType, CSVReuseLevel, CSVSkillType } from "./csvObjectTypes";
-import { ReuseLevel, SkillType } from "../skill/skills.types";
+import { ObjectTypes } from "./objectTypes";
+import {
+  CSVObjectTypes,
+  CSVRelationType,
+  CSVReuseLevel,
+  CSVSignallingValueLabel,
+  CSVSkillType,
+} from "./csvObjectTypes";
+import { ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 const HEADER_NAMES = {
   UPDATED_AT: "UPDATEDAT",
@@ -215,7 +223,7 @@ export const skillToSkillRelationExportHeaders = [
 
 export interface ISkillToSkillsRelationImportRow {
   REQUIRINGID: string;
-  RELATIONTYPE: RelationType;
+  RELATIONTYPE: SkillToSkillRelationType;
   REQUIREDID: string;
 }
 
@@ -231,7 +239,14 @@ export interface ISkillToSkillsRelationExportRow {
  * Headers for the for occupation-to-skill relation CSV file
  */
 
-export const occupationToSkillRelationImportHeaders = ["OCCUPATIONTYPE", "OCCUPATIONID", "RELATIONTYPE", "SKILLID"];
+export const occupationToSkillRelationImportHeaders = [
+  "OCCUPATIONTYPE",
+  "OCCUPATIONID",
+  "RELATIONTYPE",
+  "SKILLID",
+  "SIGNALLINGVALUELABEL",
+  "SIGNALLINGVALUE",
+];
 
 export const occupationToSkillRelationExportHeaders = [
   ...occupationToSkillRelationImportHeaders,
@@ -246,8 +261,10 @@ export const occupationToSkillRelationExportHeaders = [
 export interface IOccupationToSkillRelationImportRow {
   OCCUPATIONTYPE: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   OCCUPATIONID: string;
-  RELATIONTYPE: RelationType;
+  RELATIONTYPE: OccupationToSkillRelationType;
   SKILLID: string;
+  SIGNALLINGVALUELABEL: CSVSignallingValueLabel;
+  SIGNALLINGVALUE: string;
 }
 
 export interface IOccupationToSkillRelationExportRow {
@@ -256,6 +273,8 @@ export interface IOccupationToSkillRelationExportRow {
   RELATIONTYPE: CSVRelationType;
   SKILLID: string;
   CREATEDAT: string;
+  SIGNALLINGVALUELABEL: CSVSignallingValueLabel;
+  SIGNALLINGVALUE: string;
   UPDATEDAT: string;
 }
 

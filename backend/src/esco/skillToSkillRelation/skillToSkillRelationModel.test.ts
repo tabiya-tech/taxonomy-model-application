@@ -2,7 +2,7 @@
 import "_test_utilities/consoleMock";
 
 import mongoose, { Connection } from "mongoose";
-import { ISkillToSkillRelationPairDoc } from "./skillToSkillRelation.types";
+import { ISkillToSkillRelationPairDoc, SkillToSkillRelationType } from "./skillToSkillRelation.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getNewConnection } from "server/connection/newConnection";
 import {
@@ -14,7 +14,6 @@ import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { testDocModel, testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { RelationType } from "esco/common/objectTypes";
 
 describe("Test the definition of the SkillToSkillRelation Model", () => {
   let dbConnection: Connection;
@@ -42,7 +41,7 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
       requiredSkillDocModel: MongooseModelName.Skill,
       requiringSkillDocModel: MongooseModelName.Skill,
       requiredSkillId: getMockObjectId(2),
-      relationType: RelationType.OPTIONAL,
+      relationType: SkillToSkillRelationType.OPTIONAL,
     };
     const givenSkillToSkillRelationDocument = new SkillToSkillRelationModel(givenObject);
 
@@ -86,8 +85,8 @@ describe("Test the definition of the SkillToSkillRelation Model", () => {
       [CaseType.Failure, undefined, "Path `relationType` is required."],
       [CaseType.Failure, null, "Path `relationType` is required."],
       [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `relationType`."],
-      [CaseType.Success, RelationType.ESSENTIAL, undefined],
-      [CaseType.Success, RelationType.OPTIONAL, undefined],
+      [CaseType.Success, SkillToSkillRelationType.ESSENTIAL, undefined],
+      [CaseType.Success, SkillToSkillRelationType.OPTIONAL, undefined],
     ])(`(%s) Validate 'relationType' when it is %s`, (caseType: CaseType, value, expectedFailureMessage) => {
       assertCaseForProperty<ISkillToSkillRelationPairDoc>({
         model: SkillToSkillRelationModel,

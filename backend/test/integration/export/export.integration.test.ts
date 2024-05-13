@@ -166,7 +166,8 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     expect(actualSkillHierarchy.length).toBeGreaterThan(0);
 
     // AND occupationToSkillRelations
-    const actualOccupations = actualEscoOccupations.concat(actualLocalOccupations);
+    // combine the occupations from both sources and sort them randomly
+    const actualOccupations = actualEscoOccupations.concat(actualLocalOccupations).sort(() => Math.random() - 0.5);
     const actualOccupationToSkillRelations = await getRepositoryRegistry().occupationToSkillRelation.createMany(
       givenModel.id,
       getSampleOccupationToSkillRelations(actualOccupations, actualSkills)

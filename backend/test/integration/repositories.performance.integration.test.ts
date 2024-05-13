@@ -7,11 +7,11 @@ import { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import {
-  getSimpleNewISCOGroupSpec,
   getSimpleNewESCOOccupationSpec,
+  getSimpleNewISCOGroupSpec,
   getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
@@ -27,10 +27,12 @@ import { IOccupation } from "esco/occupations/occupation.types";
 import {
   INewSkillToSkillPairSpec,
   ISkillToSkillRelationPair,
+  SkillToSkillRelationType,
 } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import {
   INewOccupationToSkillPairSpec,
   IOccupationToSkillRelationPair,
+  OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 describe("Test the Performance of Repositories with an in-memory mongodb", () => {
@@ -288,13 +290,17 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
             requiringOccupationId: esco_occupation.id,
             requiringOccupationType: esco_occupation.occupationType,
             requiredSkillId: skill.id,
-            relationType: RelationType.ESSENTIAL,
+            relationType: OccupationToSkillRelationType.ESSENTIAL,
+            signallingValueLabel: SignallingValueLabel.NONE,
+            signallingValue: null,
           },
           {
             requiringOccupationId: local_occupation.id,
             requiringOccupationType: local_occupation.occupationType,
             requiredSkillId: skill.id,
-            relationType: RelationType.OPTIONAL,
+            relationType: OccupationToSkillRelationType.NONE,
+            signallingValueLabel: SignallingValueLabel.HIGH,
+            signallingValue: 0,
           }
         );
       }
@@ -340,12 +346,12 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
           {
             requiredSkillId: skill_1.id,
             requiringSkillId: skill_2.id,
-            relationType: RelationType.ESSENTIAL,
+            relationType: SkillToSkillRelationType.ESSENTIAL,
           },
           {
             requiredSkillId: skill_2.id,
             requiringSkillId: skill_3.id,
-            relationType: RelationType.OPTIONAL,
+            relationType: SkillToSkillRelationType.OPTIONAL,
           }
         );
       }

@@ -1,19 +1,26 @@
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import {
   CSVObjectTypes,
   getObjectTypeFromCSVObjectType,
   getCSVTypeFromObjectType,
   CSVRelationType,
-  getRelationTypeFromCSVRelationType,
-  getCSVRelationTypeFromRelationType,
+  getSkillToSkillRelationTypeFromCSVRelationType,
+  getCSVRelationTypeFromSkillToSkillRelationType,
   CSVReuseLevel,
   getCSVTypeFromReuseLevel,
   getReuseLevelFromCSVReuseLevel,
   getCSVTypeFromSkillType,
   CSVSkillType,
   getSkillTypeFromCSVSkillType,
+  getOccupationToSkillRelationTypeFromCSVRelationType,
+  getCSVRelationTypeFromOccupationToSkillRelationType,
+  getCSVSignalingValueLabelFromSignallingValueLabel,
+  CSVSignallingValueLabel,
+  getCSVSignalingValueFromSignallingValue,
 } from "esco/common/csvObjectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 describe("getObjectTypeFromCSVObjectType", () => {
   test.each([
@@ -57,30 +64,55 @@ describe("getCSVTypeFromObjectObjectType", () => {
     }
   );
 });
-describe("getRelationTypeFromCSVRelationType", () => {
+describe("getSkillToSkillRelationTypeFromCSVRelationType", () => {
   test.each([
-    [RelationType.ESSENTIAL, CSVRelationType.Essential],
-    [RelationType.OPTIONAL, CSVRelationType.Optional],
+    [SkillToSkillRelationType.ESSENTIAL, CSVRelationType.Essential],
+    [SkillToSkillRelationType.OPTIONAL, CSVRelationType.Optional],
     [null, "foo"],
     [null, null],
     [null, undefined],
   ])(
     `should return RelationType: '%s' for CSVRelationType: '%s'`,
-    (expectedRelationType: RelationType | null, givenCSVRelationType: string | null | undefined) => {
+    (expectedRelationType: SkillToSkillRelationType | null, givenCSVRelationType: string | null | undefined) => {
       // GIVEN a CSVRelationType
       // THEN the RelationType should be returned
-      expect(getRelationTypeFromCSVRelationType(givenCSVRelationType as string)).toBe(expectedRelationType);
+      expect(getSkillToSkillRelationTypeFromCSVRelationType(givenCSVRelationType as string)).toBe(expectedRelationType);
       // irrespective of the case
-      expect(getRelationTypeFromCSVRelationType(givenCSVRelationType?.toUpperCase() as string)).toBe(
+      expect(getSkillToSkillRelationTypeFromCSVRelationType(givenCSVRelationType?.toUpperCase() as string)).toBe(
         expectedRelationType
       );
     }
   );
 });
-describe("getCSVRelationTypeFromRelationType", () => {
+
+describe("getOccupationToSkillRelationTypeFromCSVRelationType", () => {
   test.each([
-    [CSVRelationType.Essential, RelationType.ESSENTIAL],
-    [CSVRelationType.Optional, RelationType.OPTIONAL],
+    [OccupationToSkillRelationType.NONE, CSVRelationType.None],
+    [OccupationToSkillRelationType.ESSENTIAL, CSVRelationType.Essential],
+    [OccupationToSkillRelationType.OPTIONAL, CSVRelationType.Optional],
+    [null, "foo"],
+    [null, null],
+    [null, undefined],
+  ])(
+    `should return RelationType: '%s' for CSVRelationType: '%s'`,
+    (expectedRelationType: OccupationToSkillRelationType | null, givenCSVRelationType: string | null | undefined) => {
+      // GIVEN a CSVRelationType
+      // THEN the RelationType should be returned
+      expect(getOccupationToSkillRelationTypeFromCSVRelationType(givenCSVRelationType as string)).toBe(
+        expectedRelationType
+      );
+      // irrespective of the case
+      expect(getOccupationToSkillRelationTypeFromCSVRelationType(givenCSVRelationType?.toUpperCase() as string)).toBe(
+        expectedRelationType
+      );
+    }
+  );
+});
+
+describe("getCSVRelationTypeFromSkillToSkillRelationType", () => {
+  test.each([
+    [CSVRelationType.Essential, SkillToSkillRelationType.ESSENTIAL],
+    [CSVRelationType.Optional, SkillToSkillRelationType.OPTIONAL],
     [null, "foo"],
     [null, null],
     [null, undefined],
@@ -89,11 +121,86 @@ describe("getCSVRelationTypeFromRelationType", () => {
     (expectedCSVRelationType: CSVRelationType | null, givenRelationType: string | null | undefined) => {
       // GIVEN a RelationType
       // THEN the CSVRelationType should be returned
-      expect(getCSVRelationTypeFromRelationType(givenRelationType as string)).toBe(expectedCSVRelationType);
+      expect(getCSVRelationTypeFromSkillToSkillRelationType(givenRelationType as string)).toBe(expectedCSVRelationType);
       // irrespective of the case
-      expect(getCSVRelationTypeFromRelationType(givenRelationType?.toUpperCase() as string)).toBe(
+      expect(getCSVRelationTypeFromSkillToSkillRelationType(givenRelationType?.toUpperCase() as string)).toBe(
         expectedCSVRelationType
       );
+    }
+  );
+});
+
+describe("getCSVRelationTypeFromOccupationToSkillRelationType", () => {
+  test.each([
+    [CSVRelationType.None, OccupationToSkillRelationType.NONE],
+    [CSVRelationType.Essential, OccupationToSkillRelationType.ESSENTIAL],
+    [CSVRelationType.Optional, OccupationToSkillRelationType.OPTIONAL],
+    [null, "foo"],
+    [null, null],
+    [null, undefined],
+  ])(
+    `should return CSVRelationType: '%s' for RelationType: '%s'`,
+    (expectedCSVRelationType: CSVRelationType | null, givenRelationType: string | null | undefined) => {
+      // GIVEN a RelationType
+      // THEN the CSVRelationType should be returned
+      expect(getCSVRelationTypeFromOccupationToSkillRelationType(givenRelationType as string)).toBe(
+        expectedCSVRelationType
+      );
+      // irrespective of the case
+      expect(getCSVRelationTypeFromOccupationToSkillRelationType(givenRelationType?.toUpperCase() as string)).toBe(
+        expectedCSVRelationType
+      );
+    }
+  );
+});
+describe("getSignallingValueLabelFromCSVSignallingValueLabel", () => {
+  test.each([
+    [SignallingValueLabel.LOW, CSVSignallingValueLabel.LOW],
+    [SignallingValueLabel.HIGH, CSVSignallingValueLabel.HIGH],
+    [SignallingValueLabel.MEDIUM, CSVSignallingValueLabel.MEDIUM],
+    [SignallingValueLabel.NONE, CSVSignallingValueLabel.NONE],
+    ["", CSVSignallingValueLabel.NONE],
+    ["foo", null],
+    [null, null],
+    [undefined, null],
+  ])(
+    `should return SignallingValueLabel: '%s' for CSVSignallingValueLabel: '%s'`,
+    (
+      givenSignallingValueLabel: SignallingValueLabel | null | string | undefined,
+      expectedCSVSignallingValueLabel: string | null | undefined
+    ) => {
+      // GIVEN a CSVSignallingValue
+      // THEN the SignallingValue should be returned
+      expect(getCSVSignalingValueLabelFromSignallingValueLabel(givenSignallingValueLabel as string)).toBe(
+        expectedCSVSignallingValueLabel
+      );
+      // irrespective of the case (upper case)
+      expect(
+        getCSVSignalingValueLabelFromSignallingValueLabel(givenSignallingValueLabel?.toUpperCase() as string)
+      ).toBe(expectedCSVSignallingValueLabel);
+
+      // and lower case
+      expect(
+        getCSVSignalingValueLabelFromSignallingValueLabel(givenSignallingValueLabel?.toLowerCase() as string)
+      ).toBe(expectedCSVSignallingValueLabel);
+    }
+  );
+});
+describe("getSignallingValueFromCSVSignallingValue", () => {
+  const randomNumber = Math.floor(Math.random() * 10000);
+  test.each([
+    [0, "0"],
+    [1, "1"],
+    [10000, "10000"],
+    [null, ""],
+    [undefined, ""],
+    [randomNumber, randomNumber.toString()],
+  ])(
+    `for Signalling value: '%s', it should return CSV Signalling value: '%s'`,
+    (givenSignallingValue: number | null | undefined, expectedCSVSignallingValue: string | number) => {
+      // GIVEN a SignallingValue
+      // THEN the CSVSignallingValue should be returned
+      expect(getCSVSignalingValueFromSignallingValue(givenSignallingValue as number)).toBe(expectedCSVSignallingValue);
     }
   );
 });
