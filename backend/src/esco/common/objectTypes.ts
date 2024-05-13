@@ -17,6 +17,13 @@ export enum RelationType {
   OPTIONAL = "optional",
 }
 
+export enum SignallingValue {
+  NONE = "",
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
+}
+
 export type ReferenceWithRelationType<T> = T & {
   relationType: RelationType;
 };
