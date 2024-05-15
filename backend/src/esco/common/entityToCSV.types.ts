@@ -1,5 +1,11 @@
-import { ObjectTypes, SignallingValue } from "./objectTypes";
-import { CSVObjectTypes, CSVRelationType, CSVReuseLevel, CSVSkillType } from "./csvObjectTypes";
+import { ObjectTypes } from "./objectTypes";
+import {
+  CSVObjectTypes,
+  CSVRelationType,
+  CSVReuseLevel,
+  CSVSignallingValueLabel,
+  CSVSkillType,
+} from "./csvObjectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -257,7 +263,7 @@ export interface IOccupationToSkillRelationImportRow {
   OCCUPATIONID: string;
   RELATIONTYPE: OccupationToSkillRelationType;
   SKILLID: string;
-  SIGNALLINGVALUELABEL: SignallingValue;
+  SIGNALLINGVALUELABEL: CSVSignallingValueLabel;
   SIGNALLINGVALUE: number;
 }
 
@@ -267,6 +273,8 @@ export interface IOccupationToSkillRelationExportRow {
   RELATIONTYPE: CSVRelationType;
   SKILLID: string;
   CREATEDAT: string;
+  SIGNALLINGVALUELABEL: CSVSignallingValueLabel;
+  SIGNALLINGVALUE: string;
   UPDATEDAT: string;
 }
 

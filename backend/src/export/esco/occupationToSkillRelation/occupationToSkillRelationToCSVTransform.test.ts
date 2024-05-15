@@ -3,9 +3,10 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 import occupationToSkillRelationToCSVTransform, * as occupationToSkillRelationToCSVTransformModule from "./occupationToSkillRelationToCSVTransform";
+import * as parsersModule from "esco/common/csvObjectTypes";
 import { IUnpopulatedOccupationToSkillRelation } from "./occupationToSkillRelationToCSVTransform";
 import { IOccupationToSkillRelationRepository } from "esco/occupationToSkillRelation/occupationToSkillRelationRepository";
 import { parse } from "csv-parse/sync";
@@ -20,6 +21,18 @@ const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelat
         return ObjectTypes.ESCOOccupation;
       case 1:
         return ObjectTypes.LocalOccupation;
+      default:
+        throw new Error("Invalid number");
+    }
+  }
+
+  function getSignallingValueLabel(i: number) {
+    switch (i % 3) {
+      case 0:
+      case 1:
+        return SignallingValue.NONE;
+      case 2:
+        return SignallingValue.HIGH;
       default:
         throw new Error("Invalid number");
     }
@@ -45,6 +58,8 @@ const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelat
     requiredSkillId: getMockStringId(i * 3 + 2),
     requiringOccupationType: getOccupationType(i),
     relationType: getRelationType(i),
+    signallingValueLabel: getSignallingValueLabel(i),
+    signallingValue: i / 10,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
@@ -61,8 +76,10 @@ function setupOccupationToSkillRelationRepositoryMock(findAllImpl: () => Readabl
   OccupationToSkillRelationRepositorySpy.mockReturnValue(mockOccupationToSkillRelationRepository);
 }
 
-//TODO: Skipping test, remember to remove the skip
-xdescribe("occupationToSkillRelationToCSVTransform", () => {
+const getTransformCall = (givenRelation: IUnpopulatedOccupationToSkillRelation) => () =>
+  occupationToSkillRelationToCSVTransformModule.transformOccupationToSkillRelationSpecToCSVRow(givenRelation);
+
+describe("occupationToSkillRelationToCSVTransform", () => {
   test("should correctly transform occupationToSkillRelation data to CSV", async () => {
     // GIVEN findAll returns a stream of occupationToSkillRelations
     const givenRelations = getMockOccupationToSkillRelations();
@@ -103,8 +120,7 @@ xdescribe("occupationToSkillRelationToCSVTransform", () => {
         // WITH an unknown requiringOccupationType
         givenRelation.requiringOccupationType = "foo" as ObjectTypes.LocalOccupation | ObjectTypes.ESCOOccupation;
         // WHEN the OccupationToSkillRelation is transformed
-        const transformCall = () =>
-          occupationToSkillRelationToCSVTransformModule.transformOccupationToSkillRelationSpecToCSVRow(givenRelation);
+        const transformCall = getTransformCall(givenRelation);
         // THEN the transformation should throw an error
         expect(transformCall).toThrowError(
           `Failed to transform OccupationToSkillRelation to CSV row: Invalid requiringOccupationType: ${givenRelation.requiringOccupationType}`
@@ -117,12 +133,76 @@ xdescribe("occupationToSkillRelationToCSVTransform", () => {
         // WITH an unknown relationType
         givenRelation.relationType = "foo" as OccupationToSkillRelationType;
         // WHEN the OccupationToSkillRelation is transformed
-        const transformCall = () =>
-          occupationToSkillRelationToCSVTransformModule.transformOccupationToSkillRelationSpecToCSVRow(givenRelation);
+        const transformCall = getTransformCall(givenRelation);
         // THEN the transformation should throw an error
         expect(transformCall).toThrowError(
           `Failed to transform OccupationToSkillRelation to CSV row: Invalid relationType: ${givenRelation.relationType}`
         );
+      });
+
+      test("should throw an error when the signalling value label is unknown", async () => {
+        // GIVEN an otherwise valid OccupationToSkillRelation
+        const givenRelation = getMockOccupationToSkillRelations()[0];
+        // WITH an unknown signalling value label
+        givenRelation.signallingValueLabel = "foo" as SignallingValue;
+        // WHEN the OccupationToSkillRelation is transformed
+        const transformCall = getTransformCall(givenRelation);
+        // THEN the transformation should throw an error
+        expect(transformCall).toThrowError(
+          `Failed to transform OccupationToSkillRelation to CSV row: Invalid signallingValueLabel: ${givenRelation.signallingValueLabel}`
+        );
+      });
+
+      test("should throw an error if both relationType and signallingValueLabel are set", async () => {
+        // GIVEN an otherwise valid OccupationToSkillRelation
+        const givenRelation = getMockOccupationToSkillRelations()[0];
+
+        // WITH both relationType and signallingValueLabel set
+        givenRelation.relationType = OccupationToSkillRelationType.ESSENTIAL;
+        givenRelation.signallingValueLabel = SignallingValue.MEDIUM;
+
+        // WHEN the OccupationToSkillRelation is transformed
+        const transformCall = getTransformCall(givenRelation);
+
+        // THEN the transformation should throw an error
+        expect(transformCall).toThrowError(
+          `Failed to transform OccupationToSkillRelation to CSV row: We can't have both : ${givenRelation.relationType} or signallingValueLabel: ${givenRelation.signallingValueLabel}`
+        );
+      });
+
+      test("should throw an error if none of relationType and signallingValue label are set", async () => {
+        // GIVEN an otherwise valid OccupationToSkillRelation
+        const givenRelation = getMockOccupationToSkillRelations()[0];
+
+        // WITH both relationType and signallingValueLabel set
+        givenRelation.relationType = OccupationToSkillRelationType.NONE;
+        givenRelation.signallingValueLabel = SignallingValue.NONE;
+
+        // WHEN the OccupationToSkillRelation is transformed
+        const transformCall = getTransformCall(givenRelation);
+
+        // THEN the transformation should throw an error
+        expect(transformCall).toThrowError(
+          `Failed to transform OccupationToSkillRelation to CSV row: Invalid relationType: ${givenRelation.relationType} or signallingValueLabel: ${givenRelation.signallingValueLabel}`
+        );
+      });
+
+      test("should use the correct signalling value", async () => {
+        const transformSignallingValue = jest.spyOn(parsersModule, "getCSVSignalingValueFromSignallingValue");
+
+        // GIVEN an otherwise valid OccupationToSkillRelation
+        const givenRelation = getMockOccupationToSkillRelations()[2];
+
+        // WITH an unknown signalling value label
+        givenRelation.signallingValue = 0.2;
+
+        // WHEN the OccupationToSkillRelation is transformed
+        const transformCall = getTransformCall(givenRelation);
+        // AND transform called
+        transformCall();
+
+        // THEN the transformation should use the correct signalling value
+        expect(transformSignallingValue).toHaveBeenCalledWith(givenRelation.signallingValue);
       });
     });
 

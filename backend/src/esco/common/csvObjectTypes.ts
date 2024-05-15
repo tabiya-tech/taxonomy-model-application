@@ -51,6 +51,13 @@ export enum CSVRelationType {
   Optional = "optional",
 }
 
+export enum CSVSignallingValueLabel {
+  NONE = "",
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
+}
+
 export const getSkillToSkillRelationTypeFromCSVRelationType = (type: string): SkillToSkillRelationType | null => {
   switch (type?.toLowerCase()) {
     case CSVRelationType.Essential:
@@ -101,31 +108,24 @@ export const getCSVRelationTypeFromOccupationToSkillRelationType = (type: string
   }
 };
 
-export enum CSVSignallingValue {
-  None = "",
-  High = "high",
-  Medium = "medium",
-  Low = "low",
-}
-
-export const getSignallingValueLabelFromCSVSignallingValueLabel = (type: string): SignallingValue | null => {
-  switch (type?.toLowerCase()) {
-    case CSVSignallingValue.High:
-      return SignallingValue.HIGH;
-    case CSVSignallingValue.Medium:
-      return SignallingValue.MEDIUM;
-    case CSVSignallingValue.Low:
-      return SignallingValue.LOW;
-    case CSVSignallingValue.None:
-      return SignallingValue.NONE;
+export const getCSVSignalingValueLabelFromSignallingValueLabel = (value?: string): CSVSignallingValueLabel | null => {
+  switch (value?.toLowerCase()) {
+    case SignallingValue.HIGH:
+      return CSVSignallingValueLabel.HIGH;
+    case SignallingValue.LOW:
+      return CSVSignallingValueLabel.LOW;
+    case SignallingValue.MEDIUM:
+      return CSVSignallingValueLabel.MEDIUM;
+    case SignallingValue.NONE:
+      return CSVSignallingValueLabel.NONE;
     default:
       return null;
   }
 };
 
-export const getSignallingValueFromCSVSignallingValue = (value?: number): number | null | undefined => {
-  if (value === undefined) return null;
-  return value;
+export const getCSVSignalingValueFromSignallingValue = (value?: number): string => {
+  if (!value) return "";
+  return value.toString();
 };
 
 export enum CSVReuseLevel {

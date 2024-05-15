@@ -14,9 +14,9 @@ import {
   getSkillTypeFromCSVSkillType,
   getOccupationToSkillRelationTypeFromCSVRelationType,
   getCSVRelationTypeFromOccupationToSkillRelationType,
-  CSVSignallingValue,
-  getSignallingValueFromCSVSignallingValue,
-  getSignallingValueLabelFromCSVSignallingValueLabel,
+  getCSVSignalingValueLabelFromSignallingValueLabel,
+  CSVSignallingValueLabel,
+  getCSVSignalingValueFromSignallingValue,
 } from "esco/common/csvObjectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -155,40 +155,52 @@ describe("getCSVRelationTypeFromOccupationToSkillRelationType", () => {
 });
 describe("getSignallingValueLabelFromCSVSignallingValueLabel", () => {
   test.each([
-    [SignallingValue.NONE, CSVSignallingValue.None],
-    [SignallingValue.HIGH, CSVSignallingValue.High],
-    [SignallingValue.MEDIUM, CSVSignallingValue.Medium],
-    [SignallingValue.LOW, CSVSignallingValue.Low],
+    [SignallingValue.LOW, CSVSignallingValueLabel.LOW],
+    [SignallingValue.HIGH, CSVSignallingValueLabel.HIGH],
+    [SignallingValue.MEDIUM, CSVSignallingValueLabel.MEDIUM],
+    [SignallingValue.NONE, CSVSignallingValueLabel.NONE],
     [null, "foo"],
     [null, null],
     [null, undefined],
   ])(
     `should return SignallingValueLabel: '%s' for CSVSignallingValueLabel: '%s'`,
-    (expectedSignallingValueLabel: SignallingValue | null, givenCSVSignallingValueLabel: string | null | undefined) => {
+    (
+      givenSignallingValueLabel: SignallingValue | null | string | undefined,
+      expectedCSVSignallingValueLabel: string | null | undefined
+    ) => {
       // GIVEN a CSVSignallingValue
       // THEN the SignallingValue should be returned
-      expect(getSignallingValueLabelFromCSVSignallingValueLabel(givenCSVSignallingValueLabel as string)).toBe(
-        expectedSignallingValueLabel
+      expect(getCSVSignalingValueLabelFromSignallingValueLabel(givenSignallingValueLabel as string)).toBe(
+        expectedCSVSignallingValueLabel
       );
-      // irrespective of the case
+      // irrespective of the case (upper case)
       expect(
-        getSignallingValueLabelFromCSVSignallingValueLabel(givenCSVSignallingValueLabel?.toUpperCase() as string)
-      ).toBe(expectedSignallingValueLabel);
+        getCSVSignalingValueLabelFromSignallingValueLabel(givenSignallingValueLabel?.toUpperCase() as string)
+      ).toBe(expectedCSVSignallingValueLabel);
+
+      // and lower case
+      expect(
+        getCSVSignalingValueLabelFromSignallingValueLabel(givenSignallingValueLabel?.toLowerCase() as string)
+      ).toBe(expectedCSVSignallingValueLabel);
     }
   );
 });
 describe("getSignallingValueFromCSVSignallingValue", () => {
+  const randomNumber = Math.floor(Math.random() * 10000);
   test.each([
     [0, 0],
     [1, 1],
-    [null, null],
-    [null, undefined],
+    [1, "1"],
+    [10000, "10000"],
+    [null, ""],
+    [undefined, ""],
+    [randomNumber, randomNumber.toString()],
   ])(
-    `should return SignallingValue: '%s' for CSVSignallingValue: '%s'`,
-    (expectedSignallingValue: number | null, givenCSVSignallingValue: number | null | undefined) => {
-      // GIVEN a CSVSignallingValue
-      // THEN the SignallingValue should be returned
-      expect(getSignallingValueFromCSVSignallingValue(givenCSVSignallingValue as number)).toBe(expectedSignallingValue);
+    `for Signalling value: '%s', it should return CSV Signalling value: '%s'`,
+    (givenSignallingValue: number | null | undefined, expectedCSVSignallingValue: string | number) => {
+      // GIVEN a SignallingValue
+      // THEN the CSVSignallingValue should be returned
+      expect(getCSVSignalingValueFromSignallingValue(givenSignallingValue as number)).toBe(expectedCSVSignallingValue);
     }
   );
 });

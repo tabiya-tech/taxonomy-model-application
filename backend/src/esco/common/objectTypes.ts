@@ -9,6 +9,15 @@ export enum ObjectTypes {
   SkillGroup = "skillgroup",
 }
 
+/**
+ * Enum for the two different types of relations in the ESCO ontology, essential and optional
+ */
+export enum RelationType {
+  ESSENTIAL = "essential",
+  OPTIONAL = "optional",
+  NONE = "",
+}
+
 export enum SignallingValue {
   NONE = "",
   HIGH = "high",

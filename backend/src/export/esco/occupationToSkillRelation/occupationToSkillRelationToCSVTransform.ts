@@ -8,8 +8,12 @@ import { stringify } from "csv-stringify";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { Readable } from "node:stream";
 import {
-  getCSVTypeFromObjectType,
   getCSVRelationTypeFromOccupationToSkillRelationType,
+  CSVRelationType,
+  CSVSignallingValueLabel,
+  getCSVSignalingValueFromSignallingValue,
+  getCSVSignalingValueLabelFromSignallingValueLabel,
+  getCSVTypeFromObjectType,
 } from "esco/common/csvObjectTypes";
 
 export type IUnpopulatedOccupationToSkillRelation = Omit<
@@ -27,11 +31,39 @@ export const transformOccupationToSkillRelationSpecToCSVRow = (
     );
   }
   const RELATIONTYPE = getCSVRelationTypeFromOccupationToSkillRelationType(occupationToSkillRelation.relationType);
-  if (RELATIONTYPE === null) {
+
+  const SIGNALLINGVALUELABEL = getCSVSignalingValueLabelFromSignallingValueLabel(
+    occupationToSkillRelation.signallingValueLabel
+  );
+
+  if (RELATIONTYPE == null) {
     throw new Error(
       `Failed to transform OccupationToSkillRelation to CSV row: Invalid relationType: ${occupationToSkillRelation.relationType}`
     );
   }
+
+  if (SIGNALLINGVALUELABEL == null) {
+    throw new Error(
+      `Failed to transform OccupationToSkillRelation to CSV row: Invalid signallingValueLabel: ${occupationToSkillRelation.signallingValueLabel}`
+    );
+  }
+
+  // We can't have a null relationType and a NONE signallingValueLabel
+  if (RELATIONTYPE == CSVRelationType.None && SIGNALLINGVALUELABEL == CSVSignallingValueLabel.NONE) {
+    throw new Error(
+      `Failed to transform OccupationToSkillRelation to CSV row: Invalid relationType: ${occupationToSkillRelation.relationType} or signallingValueLabel: ${occupationToSkillRelation.signallingValueLabel}`
+    );
+  }
+
+  // we can't have both a relationType and a valid signallingValueLabel
+  if (RELATIONTYPE != CSVRelationType.None && SIGNALLINGVALUELABEL !== CSVSignallingValueLabel.NONE) {
+    throw new Error(
+      `Failed to transform OccupationToSkillRelation to CSV row: We can't have both : ${occupationToSkillRelation.relationType} or signallingValueLabel: ${occupationToSkillRelation.signallingValueLabel}`
+    );
+  }
+
+  const SIGNALLINGVALUE = getCSVSignalingValueFromSignallingValue(occupationToSkillRelation.signallingValue!);
+
   return {
     //@ts-ignore
     OCCUPATIONTYPE,
@@ -40,6 +72,8 @@ export const transformOccupationToSkillRelationSpecToCSVRow = (
     SKILLID: occupationToSkillRelation.requiredSkillId,
     CREATEDAT: occupationToSkillRelation.createdAt.toISOString(),
     UPDATEDAT: occupationToSkillRelation.updatedAt.toISOString(),
+    SIGNALLINGVALUELABEL,
+    SIGNALLINGVALUE,
   };
 };
 
