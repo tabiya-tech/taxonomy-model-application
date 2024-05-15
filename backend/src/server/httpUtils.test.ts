@@ -6,7 +6,7 @@ import "jest-performance-matchers";
 
 import ErrorAPISpecs from "api-specifications/error";
 import process from "process";
-import {errorResponse, redactCredentialsFromURI, response, STD_ERRORS_RESPONSES} from "./httpUtils";
+import { errorResponse, redactCredentialsFromURI, response, STD_ERRORS_RESPONSES } from "./httpUtils";
 
 describe("test response function", () => {
   const originalEnv: { [key: string]: string } = {};

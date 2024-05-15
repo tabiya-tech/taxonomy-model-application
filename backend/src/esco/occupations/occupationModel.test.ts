@@ -356,9 +356,6 @@ describe("Test the definition of the Occupation Model", () => {
           testValue: givenOccupation.code,
           expectedFailureMessage: "Validator failed for path `code` with value `1234.1`",
           expectedFailureReason: "Value of 'occupationType' path is not supported",
-          dependencies: {
-            code: "1234.1", // valid code for ESCO },
-          },
         });
       });
     });
