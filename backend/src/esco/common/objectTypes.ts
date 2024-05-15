@@ -13,6 +13,7 @@ export enum ObjectTypes {
  * Enum for the two different types of relations in the ESCO ontology, essential and optional
  */
 export enum RelationType {
+  NONE = "",
   ESSENTIAL = "essential",
   OPTIONAL = "optional",
 }

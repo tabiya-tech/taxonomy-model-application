@@ -12,7 +12,7 @@ import { ISkillRepository } from "./skillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, ReferenceWithRelationType, RelationType, SignallingValue } from "esco/common/objectTypes";
 import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ISkillToSkillRelationPairDoc } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -1129,18 +1129,22 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           requiringOccupationType: givenOccupationSpecs_1.occupationType,
           requiredSkillId: givenSubject.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           requiringOccupationType: givenOccupation_2.occupationType,
           requiredSkillId: givenSubject.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           requiringOccupationType: givenOccupation_2.occupationType,
           requiredSkillId: givenOtherSkill.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: RelationType.NONE,
+          signallingValueLabel: SignallingValue.HIGH,
+          signallingValue: Math.random(),
         },
       ]);
 

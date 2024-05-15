@@ -13,7 +13,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationDoc } from "./occupation.types";
 import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
-import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, ReferenceWithRelationType, RelationType, SignallingValue } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getNewISCOGroupSpec,
@@ -688,18 +688,21 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenRequiredSkill_1.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenRequiredSkill_2.id,
           relationType: RelationType.OPTIONAL,
+          signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenOtherOccupation.id,
           requiringOccupationType: givenOtherOccupation.occupationType,
           requiredSkillId: givenRequiredSkill_1.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
         },
       ]);
       // Guard assertion
@@ -1079,12 +1082,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenSkill_1.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenSkill_2.id,
           relationType: RelationType.OPTIONAL,
+          signallingValueLabel: SignallingValue.NONE,
         },
       ]);
 

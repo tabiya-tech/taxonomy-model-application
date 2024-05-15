@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType, SignallingValue } from "esco/common/objectTypes";
 import { IOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
+import { stringRequired } from "server/stringRequired";
 
 export const OccupationToSkillRelationModelPaths = {
   requiringOccupationId: "requiringOccupationId",
@@ -37,7 +38,55 @@ export function initializeSchemaAndModel(
           enum: [MongooseModelName.Occupation],
         },
         requiredSkillDocModel: { type: String, required: true, enum: [MongooseModelName.Skill] },
-        relationType: { type: String, required: true, enum: RelationType },
+        relationType: {
+          type: String,
+          required: stringRequired("relationType"),
+          enum: RelationType,
+          validate: {
+            validator: function (value: string): boolean {
+              // only ESCOOccupation can have relation types
+              // @ts-ignore
+              switch (this.requiringOccupationType) {
+                case ObjectTypes.ESCOOccupation:
+                  return value !== RelationType.NONE;
+                case ObjectTypes.LocalOccupation:
+                  // @ts-ignore
+                  if (this.signallingValueLabel === SignallingValue.NONE) {
+                    return value !== RelationType.NONE;
+                  } else {
+                    return value === RelationType.NONE;
+                  }
+                default:
+                  throw new Error("Value of 'occupationType' path is not supported");
+              }
+            },
+          },
+        },
+        signallingValueLabel: {
+          type: String,
+          required: stringRequired("signallingValueLabel"),
+          enum: SignallingValue,
+          validate: {
+            validator: function (value: string) {
+              // only local occupations can have signalling values
+              // @ts-ignore
+              switch (this.requiringOccupationType) {
+                case ObjectTypes.ESCOOccupation:
+                  return value === SignallingValue.NONE;
+                case ObjectTypes.LocalOccupation:
+                  // @ts-ignore
+                  if (this.relationType === RelationType.NONE) {
+                    return value !== SignallingValue.NONE;
+                  } else {
+                    return value === SignallingValue.NONE;
+                  }
+                default:
+                  throw new Error("Value of 'occupationType' path is not supported");
+              }
+            },
+          },
+        },
+        signallingValue: { type: Number, required: false, min: 0, max: 1 },
       },
       {
         timestamps: true,
