@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import {ObjectTypes, RelationType, SignallingValue} from "esco/common/objectTypes";
+import { ObjectTypes, RelationType, SignallingValue } from "esco/common/objectTypes";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
 import { IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
 
@@ -40,7 +40,12 @@ export interface IOccupationToSkillRelationPair
  */
 export type INewOccupationToSkillPairSpec = Pick<
   IOccupationToSkillRelationPair,
-  "requiringOccupationType" | "requiringOccupationId" | "requiredSkillId" | "relationType" | "signallingValueLabel" | "signallingValue"
+  | "requiringOccupationType"
+  | "requiringOccupationId"
+  | "requiredSkillId"
+  | "relationType"
+  | "signallingValueLabel"
+  | "signallingValue"
 >;
 
 /**

@@ -9,7 +9,7 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes, RelationType, SignallingValue } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getSimpleNewESCOOccupationSpec,
@@ -133,12 +133,14 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         {
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_2.id,
           requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
@@ -173,8 +175,10 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId = getMockStringId(2);
       const escoOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "ESCO Occupation");
       const escoOccupation = await repositoryRegistry.occupation.create(escoOccupationSpecs);
-      const localOccupationSpecs = getSimpleNewLocalOccupationSpec(givenModelId, "Local Occupation");
-      const localOccupation = await repositoryRegistry.occupation.create(localOccupationSpecs);
+      const localOccupation1Specs = getSimpleNewLocalOccupationSpec(givenModelId, "Local Occupation 1");
+      const localOccupation1 = await repositoryRegistry.occupation.create(localOccupation1Specs);
+      const localOccupation2Specs = getSimpleNewLocalOccupationSpec(givenModelId, "Local Occupation 2");
+      const localOccupation2 = await repositoryRegistry.occupation.create(localOccupation2Specs);
 
       // AND a skill in the same model which is a child of each of the occupations
       const childSkillSpecs = getSimpleNewSkillSpec(givenModelId, "childSkill");
@@ -185,14 +189,24 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         {
           requiringOccupationId: escoOccupation.id,
           relationType: RelationType.OPTIONAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: childSkill.id,
           requiringOccupationType: escoOccupation.occupationType,
         },
         {
-          requiringOccupationId: localOccupation.id,
+          requiringOccupationId: localOccupation1.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: childSkill.id,
-          requiringOccupationType: localOccupation.occupationType,
+          requiringOccupationType: localOccupation1.occupationType,
+        },
+        {
+          requiringOccupationId: localOccupation2.id,
+          relationType: RelationType.NONE,
+          signallingValueLabel: SignallingValue.HIGH,
+          signallingValue: Math.random(),
+          requiredSkillId: childSkill.id,
+          requiringOccupationType: localOccupation2.occupationType,
         },
       ];
 
@@ -224,6 +238,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         {
           requiringOccupationId: escoOccupation.id,
           relationType: RelationType.OPTIONAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: childSkill.id,
           requiringOccupationType: escoOccupation.occupationType,
         },
@@ -253,12 +268,14 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         {
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_2.id,
           requiringOccupationType: givenOccupation_2.occupationType,
         },
@@ -318,12 +335,14 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         {
           requiringOccupationId: givenOccupation_1.id,
           relationType: RelationType.OPTIONAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           requiringOccupationId: givenOccupation_1.id, //<----- duplicate entry
           relationType: RelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
