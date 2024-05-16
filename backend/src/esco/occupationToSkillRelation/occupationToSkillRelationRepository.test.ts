@@ -313,6 +313,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
                 ...newSpec,
                 requiringOccupationDocModel: MongooseModelName.Occupation,
                 requiredSkillDocModel: MongooseModelName.Skill,
+                signallingValue: null,
                 id: expect.any(String),
                 modelId: givenModelId,
                 createdAt: expect.any(Date),
@@ -366,6 +367,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         modelId: givenModelId,
         requiringOccupationDocModel: MongooseModelName.Occupation,
         requiredSkillDocModel: MongooseModelName.Skill,
+        signallingValue: null,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       });

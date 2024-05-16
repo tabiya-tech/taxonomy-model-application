@@ -19,7 +19,7 @@ export interface IOccupationToSkillRelationPairDoc {
 
   relationType: OccupationToSkillRelationType;
   signallingValueLabel?: SignallingValue;
-  signallingValue?: number;
+  signallingValue?: number | null;
 }
 
 /**
