@@ -1,9 +1,17 @@
 import { IISCOGroup, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
-import { ObjectTypes, ReferenceWithRelationType, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupation } from "esco/occupations/occupation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { ISkill, ISkillReference } from "esco/skill/skills.types";
 import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import {
+  OccupationToSkillRelationType,
+  OccupationToSkillReferenceWithRelationType,
+} from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import {
+  SkillToSkillReferenceWithRelationType,
+  SkillToSkillRelationType,
+} from "esco/skillToSkillRelation/skillToSkillRelation.types";
 
 /**
  *  Create an expected ISCOGroup reference from a given ISCOGroup
@@ -42,8 +50,8 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
  */
 export function expectedRelatedOccupationReference(
   givenOccupation: IOccupation,
-  relationType: RelationType
-): ReferenceWithRelationType<IOccupationReference> {
+  relationType: OccupationToSkillRelationType
+): OccupationToSkillReferenceWithRelationType<IOccupationReference> {
   return {
     ...expectedOccupationReference(givenOccupation),
     relationType,
@@ -70,12 +78,16 @@ export function expectedSkillReference(givenSkill: ISkill): ISkillReference {
  */
 export function expectedRelatedSkillReference(
   givenSkill: ISkill,
-  relationType: RelationType
-): ReferenceWithRelationType<ISkillReference> {
+  relationType: SkillToSkillRelationType | OccupationToSkillRelationType
+):
+  | SkillToSkillReferenceWithRelationType<ISkillReference>
+  | OccupationToSkillReferenceWithRelationType<ISkillReference> {
   return {
     ...expectedSkillReference(givenSkill),
     relationType,
-  };
+  } as
+    | SkillToSkillReferenceWithRelationType<ISkillReference>
+    | OccupationToSkillReferenceWithRelationType<ISkillReference>;
 }
 
 /**

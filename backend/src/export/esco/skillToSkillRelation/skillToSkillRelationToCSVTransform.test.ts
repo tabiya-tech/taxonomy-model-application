@@ -5,12 +5,12 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import SkillToSkillRelationToCSVTransform, {
   IUnpopulatedSkillToSkillRelation,
 } from "./skillToSkillRelationToCSVTransform";
-import { RelationType } from "esco/common/objectTypes";
 import { Readable } from "stream";
 import { ISkillToSkillRelationRepository } from "esco/skillToSkillRelation/skillToSkillRelationRepository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parse } from "csv-parse/sync";
 import * as skillToSkillRelationToCSVTransformModule from "./skillToSkillRelationToCSVTransform";
+import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 
 const SkillToSkillRelationRepositorySpy = jest.spyOn(getRepositoryRegistry(), "skillToSkillRelation", "get");
 
@@ -20,7 +20,7 @@ const getMockSkillToSkillRelations = (): IUnpopulatedSkillToSkillRelation[] => {
     modelId: getMockStringId(1),
     requiringSkillId: getMockStringId(i * 3 + 1),
     requiredSkillId: getMockStringId(i * 3 + 2),
-    relationType: i % 2 ? RelationType.ESSENTIAL : RelationType.OPTIONAL,
+    relationType: i % 2 ? SkillToSkillRelationType.ESSENTIAL : SkillToSkillRelationType.OPTIONAL,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
@@ -53,7 +53,7 @@ describe("skillToSkillRelationToCSVTransform", () => {
     test("should throw an error when the relationType is unknown", () => {
       // GIVEN an invalid SkillToSkillRelation
       const givenSkillToSkillRelation = getMockSkillToSkillRelations()[0];
-      givenSkillToSkillRelation.relationType = "unknown" as RelationType;
+      givenSkillToSkillRelation.relationType = "unknown" as SkillToSkillRelationType;
       // WHEN the SkillToSkillRelation is transformed
       // THEN expect the transformation to throw an error
       expect(() => {

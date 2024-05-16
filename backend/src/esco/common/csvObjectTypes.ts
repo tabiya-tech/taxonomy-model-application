@@ -1,5 +1,7 @@
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 export const enum CSVObjectTypes {
   ISCOGroup = "iscogroup",
@@ -44,26 +46,55 @@ export const getCSVTypeFromObjectType = (type: string): CSVObjectTypes | null =>
 };
 
 export enum CSVRelationType {
+  None = "",
   Essential = "essential",
   Optional = "optional",
 }
 
-export const getRelationTypeFromCSVRelationType = (type: string): RelationType | null => {
+export const getSkillToSkillRelationTypeFromCSVRelationType = (type: string): SkillToSkillRelationType | null => {
   switch (type?.toLowerCase()) {
     case CSVRelationType.Essential:
-      return RelationType.ESSENTIAL;
+      return SkillToSkillRelationType.ESSENTIAL;
     case CSVRelationType.Optional:
-      return RelationType.OPTIONAL;
+      return SkillToSkillRelationType.OPTIONAL;
     default:
       return null;
   }
 };
 
-export const getCSVRelationTypeFromRelationType = (type: string): CSVRelationType | null => {
+export const getOccupationToSkillRelationTypeFromCSVRelationType = (
+  type: string
+): OccupationToSkillRelationType | null => {
   switch (type?.toLowerCase()) {
-    case RelationType.ESSENTIAL:
+    case CSVRelationType.None:
+      return OccupationToSkillRelationType.NONE;
+    case CSVRelationType.Essential:
+      return OccupationToSkillRelationType.ESSENTIAL;
+    case CSVRelationType.Optional:
+      return OccupationToSkillRelationType.OPTIONAL;
+    default:
+      return null;
+  }
+};
+
+export const getCSVRelationTypeFromSkillToSkillRelationType = (type: string): CSVRelationType | null => {
+  switch (type?.toLowerCase()) {
+    case SkillToSkillRelationType.ESSENTIAL:
       return CSVRelationType.Essential;
-    case RelationType.OPTIONAL:
+    case SkillToSkillRelationType.OPTIONAL:
+      return CSVRelationType.Optional;
+    default:
+      return null;
+  }
+};
+
+export const getCSVRelationTypeFromOccupationToSkillRelationType = (type: string): CSVRelationType | null => {
+  switch (type?.toLowerCase()) {
+    case OccupationToSkillRelationType.NONE:
+      return CSVRelationType.None;
+    case OccupationToSkillRelationType.ESSENTIAL:
+      return CSVRelationType.Essential;
+    case OccupationToSkillRelationType.OPTIONAL:
       return CSVRelationType.Optional;
     default:
       return null;

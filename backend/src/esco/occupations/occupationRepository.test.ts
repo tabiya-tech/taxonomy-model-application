@@ -13,7 +13,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationDoc } from "./occupation.types";
 import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
-import { ObjectTypes, ReferenceWithRelationType, RelationType, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getNewISCOGroupSpec,
@@ -36,7 +36,11 @@ import {
   expectedRelatedSkillReference,
 } from "esco/_test_utilities/expectedReference";
 import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
-import { IOccupationToSkillRelationPairDoc } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import {
+  IOccupationToSkillRelationPairDoc,
+  OccupationToSkillReferenceWithRelationType,
+  OccupationToSkillRelationType,
+} from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { Readable } from "node:stream";
 import {
   getExpectedPlan,
@@ -687,21 +691,21 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenRequiredSkill_1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenRequiredSkill_2.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenOtherOccupation.id,
           requiringOccupationType: givenOtherOccupation.occupationType,
           requiredSkillId: givenRequiredSkill_1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           signallingValueLabel: SignallingValue.NONE,
         },
       ]);
@@ -717,9 +721,15 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // AND to have the given requiredSkill
       expect(actualFoundOccupation.requiresSkills).toEqual(
-        expect.arrayContaining<ReferenceWithRelationType<ISkillReference>>([
-          expectedRelatedSkillReference(givenRequiredSkill_1, RelationType.ESSENTIAL),
-          expectedRelatedSkillReference(givenRequiredSkill_2, RelationType.OPTIONAL),
+        expect.arrayContaining<OccupationToSkillReferenceWithRelationType<ISkillReference>>([
+          expectedRelatedSkillReference(
+            givenRequiredSkill_1,
+            OccupationToSkillRelationType.ESSENTIAL
+          ) as OccupationToSkillReferenceWithRelationType<ISkillReference>,
+          expectedRelatedSkillReference(
+            givenRequiredSkill_2,
+            OccupationToSkillRelationType.OPTIONAL
+          ) as OccupationToSkillReferenceWithRelationType<ISkillReference>,
         ])
       );
 
@@ -1081,14 +1091,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenSkill_1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           signallingValueLabel: SignallingValue.NONE,
         },
         {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenSkill_2.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           signallingValueLabel: SignallingValue.NONE,
         },
       ]);
@@ -1105,8 +1115,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // AND to have the given skills
       expect(actualFoundOccupation.requiresSkills).toEqual(
         expect.arrayContaining([
-          expectedRelatedSkillReference(givenSkill_1, RelationType.ESSENTIAL),
-          expectedRelatedSkillReference(givenSkill_2, RelationType.OPTIONAL),
+          expectedRelatedSkillReference(
+            givenSkill_1,
+            OccupationToSkillRelationType.ESSENTIAL
+          ) as OccupationToSkillReferenceWithRelationType<ISkillReference>,
+          expectedRelatedSkillReference(
+            givenSkill_2,
+            OccupationToSkillRelationType.OPTIONAL
+          ) as OccupationToSkillReferenceWithRelationType<ISkillReference>,
         ])
       );
 
@@ -1128,7 +1144,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
 
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
           requiringOccupationType: givenOccupation.occupationType,
           requiringOccupationDocModel: MongooseModelName.Occupation,
@@ -1167,7 +1183,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenModelId_3), // <- This is the inconsistency
 
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
           requiringOccupationType: givenOccupation.occupationType,
           requiringOccupationDocModel: MongooseModelName.Occupation,
@@ -1199,7 +1215,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenOccupation.modelId),
 
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           requiringOccupationId: new mongoose.Types.ObjectId(givenOccupation.id),
           requiringOccupationType: givenOccupation.occupationType,
           requiringOccupationDocModel: MongooseModelName.Occupation,

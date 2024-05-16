@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, RelationType, SignallingValue } from "esco/common/objectTypes";
-import { IOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
+import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { IOccupationToSkillRelationPairDoc, OccupationToSkillRelationType } from "./occupationToSkillRelation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { stringRequired } from "server/stringRequired";
 
@@ -41,20 +41,20 @@ export function initializeSchemaAndModel(
         relationType: {
           type: String,
           required: stringRequired("relationType"),
-          enum: RelationType,
+          enum: OccupationToSkillRelationType,
           validate: {
             validator: function (value: string): boolean {
               // only ESCOOccupation can have relation types
               // @ts-ignore
               switch (this.requiringOccupationType) {
                 case ObjectTypes.ESCOOccupation:
-                  return value !== RelationType.NONE;
+                  return value !== OccupationToSkillRelationType.NONE;
                 case ObjectTypes.LocalOccupation:
                   // @ts-ignore
                   if (this.signallingValueLabel === SignallingValue.NONE) {
-                    return value !== RelationType.NONE;
+                    return value !== OccupationToSkillRelationType.NONE;
                   } else {
-                    return value === RelationType.NONE;
+                    return value === OccupationToSkillRelationType.NONE;
                   }
                 default:
                   throw new Error("Value of 'occupationType' path is not supported");
@@ -75,7 +75,7 @@ export function initializeSchemaAndModel(
                   return value === SignallingValue.NONE;
                 case ObjectTypes.LocalOccupation:
                   // @ts-ignore
-                  if (this.relationType === RelationType.NONE) {
+                  if (this.relationType === OccupationToSkillRelationType.NONE) {
                     return value !== SignallingValue.NONE;
                   } else {
                     return value === SignallingValue.NONE;
