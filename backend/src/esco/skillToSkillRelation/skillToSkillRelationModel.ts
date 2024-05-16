@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import { ISkillToSkillRelationPairDoc } from "./skillToSkillRelation.types";
+import { ISkillToSkillRelationPairDoc, SkillToSkillRelationType } from "./skillToSkillRelation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { RelationType } from "esco/common/objectTypes";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 export const SkillToSkillRelationModelPaths = {
@@ -28,7 +27,7 @@ export function initializeSchemaAndModel(
         },
         requiringSkillDocModel: { type: String, required: true, enum: [MongooseModelName.Skill] },
         requiredSkillDocModel: { type: String, required: true, enum: [MongooseModelName.Skill] },
-        relationType: { type: String, required: true, enum: RelationType },
+        relationType: { type: String, required: true, enum: SkillToSkillRelationType },
       },
       {
         timestamps: true,

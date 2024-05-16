@@ -7,7 +7,7 @@ import { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import {
   getSimpleNewISCOGroupSpec,
@@ -26,11 +26,11 @@ import { ISkill } from "esco/skill/skills.types";
 import { IOccupation } from "esco/occupations/occupation.types";
 import {
   INewSkillToSkillPairSpec,
-  ISkillToSkillRelationPair,
+  ISkillToSkillRelationPair, SkillToSkillRelationType,
 } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import {
   INewOccupationToSkillPairSpec,
-  IOccupationToSkillRelationPair,
+  IOccupationToSkillRelationPair, OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 describe("Test the Performance of Repositories with an in-memory mongodb", () => {
@@ -288,13 +288,13 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
             requiringOccupationId: esco_occupation.id,
             requiringOccupationType: esco_occupation.occupationType,
             requiredSkillId: skill.id,
-            relationType: RelationType.ESSENTIAL,
+            relationType: OccupationToSkillRelationType.ESSENTIAL,
           },
           {
             requiringOccupationId: local_occupation.id,
             requiringOccupationType: local_occupation.occupationType,
             requiredSkillId: skill.id,
-            relationType: RelationType.OPTIONAL,
+            relationType: OccupationToSkillRelationType.OPTIONAL,
           }
         );
       }
@@ -340,12 +340,12 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
           {
             requiredSkillId: skill_1.id,
             requiringSkillId: skill_2.id,
-            relationType: RelationType.ESSENTIAL,
+            relationType: SkillToSkillRelationType.ESSENTIAL,
           },
           {
             requiredSkillId: skill_2.id,
             requiringSkillId: skill_3.id,
-            relationType: RelationType.OPTIONAL,
+            relationType: SkillToSkillRelationType.OPTIONAL,
           }
         );
       }

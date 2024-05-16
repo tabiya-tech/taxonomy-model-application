@@ -13,7 +13,7 @@ import {
   ISkillToSkillRelationPair,
 } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { ISkillToSkillsRelationImportRow, skillToSkillRelationImportHeaders } from "esco/common/entityToCSV.types";
-import { getRelationTypeFromCSVRelationType } from "esco/common/csvObjectTypes";
+import { getSkillToSkillRelationTypeFromCSVRelationType } from "esco/common/csvObjectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, skillToSkillRelationImportHeaders);
@@ -35,7 +35,7 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<ISkillToSkillsRelationImportRow, INewSkillToSkillPairSpec> {
   return (row: ISkillToSkillsRelationImportRow) => {
     // Check if relation type is valid
-    const relationType = getRelationTypeFromCSVRelationType(row.RELATIONTYPE);
+    const relationType = getSkillToSkillRelationTypeFromCSVRelationType(row.RELATIONTYPE);
     if (relationType === null) {
       errorLogger.logWarning(
         `Failed to import SkillToSkillRelation row with requiringSkillId:'${row.REQUIRINGID}' and requiredSkillId:'${row.REQUIREDID}'`

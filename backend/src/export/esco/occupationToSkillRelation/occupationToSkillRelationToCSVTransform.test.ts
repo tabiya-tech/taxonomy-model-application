@@ -3,14 +3,13 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { ObjectTypes, RelationType } from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
-import occupationToSkillRelationToCSVTransform, {
-  IUnpopulatedOccupationToSkillRelation,
-} from "./occupationToSkillRelationToCSVTransform";
+import occupationToSkillRelationToCSVTransform, * as occupationToSkillRelationToCSVTransformModule from "./occupationToSkillRelationToCSVTransform";
+import { IUnpopulatedOccupationToSkillRelation } from "./occupationToSkillRelationToCSVTransform";
 import { IOccupationToSkillRelationRepository } from "esco/occupationToSkillRelation/occupationToSkillRelationRepository";
-import * as occupationToSkillRelationToCSVTransformModule from "./occupationToSkillRelationToCSVTransform";
 import { parse } from "csv-parse/sync";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 const OccupationToSkillRelationRepositorySpy = jest.spyOn(getRepositoryRegistry(), "occupationToSkillRelation", "get");
 
@@ -26,13 +25,26 @@ const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelat
     }
   }
 
+  function getRelationType(i: number) {
+    switch (i % 3) {
+      case 0:
+        return OccupationToSkillRelationType.ESSENTIAL;
+      case 1:
+        return OccupationToSkillRelationType.OPTIONAL;
+      case 2:
+        return OccupationToSkillRelationType.NONE;
+      default:
+        throw new Error("Invalid number");
+    }
+  }
+
   return Array.from({ length: 6 }, (_, i) => ({
     id: getMockStringId(i * 3),
     modelId: getMockStringId(1),
     requiringOccupationId: getMockStringId(i * 3 + 1),
     requiredSkillId: getMockStringId(i * 3 + 2),
     requiringOccupationType: getOccupationType(i),
-    relationType: i % 2 ? RelationType.ESSENTIAL : RelationType.OPTIONAL,
+    relationType: getRelationType(i),
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
   }));
@@ -102,7 +114,7 @@ describe("occupationToSkillRelationToCSVTransform", () => {
         // GIVEN an otherwise valid OccupationToSkillRelation
         const givenRelation = getMockOccupationToSkillRelations()[0];
         // WITH an unknown relationType
-        givenRelation.relationType = "foo" as RelationType;
+        givenRelation.relationType = "foo" as OccupationToSkillRelationType;
         // WHEN the OccupationToSkillRelation is transformed
         const transformCall = () =>
           occupationToSkillRelationToCSVTransformModule.transformOccupationToSkillRelationSpecToCSVRow(givenRelation);

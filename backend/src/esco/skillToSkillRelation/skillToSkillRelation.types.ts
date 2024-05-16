@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { RelationType } from "esco/common/objectTypes";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
 
 /**
@@ -14,7 +13,7 @@ export interface ISkillToSkillRelationPairDoc {
 
   requiredSkillId: mongoose.Types.ObjectId;
   requiredSkillDocModel: MongooseModelName;
-  relationType: RelationType;
+  relationType: SkillToSkillRelationType;
 }
 
 /**
@@ -47,3 +46,18 @@ export interface IPopulatedSkillToSkillRelationPairDoc
   requiringSkillId: ISkillReferenceDoc;
   requiredSkillId: ISkillReferenceDoc;
 }
+
+/**
+ * Enum for the two different types of skill to skill relations in the ESCO ontology, essential and optional
+ */
+export enum SkillToSkillRelationType {
+  ESSENTIAL = "essential",
+  OPTIONAL = "optional",
+}
+
+/**
+ * Describes how a skills to skills relation reference is returned from the API.
+ */
+export type SkillToSkillReferenceWithRelationType<T> = T & {
+  relationType: SkillToSkillRelationType;
+};

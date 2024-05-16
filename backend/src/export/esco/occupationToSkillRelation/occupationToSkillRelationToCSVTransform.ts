@@ -7,7 +7,10 @@ import { pipeline, Transform } from "stream";
 import { stringify } from "csv-stringify";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { Readable } from "node:stream";
-import { getCSVTypeFromObjectType, getCSVRelationTypeFromRelationType } from "esco/common/csvObjectTypes";
+import {
+  getCSVTypeFromObjectType,
+  getCSVRelationTypeFromOccupationToSkillRelationType,
+} from "esco/common/csvObjectTypes";
 
 export type IUnpopulatedOccupationToSkillRelation = Omit<
   IOccupationToSkillRelationPair,
@@ -23,7 +26,7 @@ export const transformOccupationToSkillRelationSpecToCSVRow = (
       `Failed to transform OccupationToSkillRelation to CSV row: Invalid requiringOccupationType: ${occupationToSkillRelation.requiringOccupationType}`
     );
   }
-  const RELATIONTYPE = getCSVRelationTypeFromRelationType(occupationToSkillRelation.relationType);
+  const RELATIONTYPE = getCSVRelationTypeFromOccupationToSkillRelationType(occupationToSkillRelation.relationType);
   if (RELATIONTYPE === null) {
     throw new Error(
       `Failed to transform OccupationToSkillRelation to CSV row: Invalid relationType: ${occupationToSkillRelation.relationType}`

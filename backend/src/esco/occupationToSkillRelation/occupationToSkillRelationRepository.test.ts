@@ -9,7 +9,7 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes, RelationType, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getSimpleNewESCOOccupationSpec,
@@ -26,7 +26,11 @@ import {
   expectedRelatedSkillReference,
 } from "esco/_test_utilities/expectedReference";
 import { IOccupationToSkillRelationRepository } from "./occupationToSkillRelationRepository";
-import { INewOccupationToSkillPairSpec, IOccupationToSkillRelationPair } from "./occupationToSkillRelation.types";
+import {
+  INewOccupationToSkillPairSpec,
+  IOccupationToSkillRelationPair,
+  OccupationToSkillRelationType,
+} from "./occupationToSkillRelation.types";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 
@@ -77,7 +81,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const skill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
       newOccupationToSkillPairSpecs.push({
         requiringOccupationId: occupation.id,
-        relationType: RelationType.OPTIONAL,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
         requiredSkillId: skill.id,
         requiringOccupationType: ObjectTypes.ESCOOccupation,
       });
@@ -132,14 +136,14 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: givenOccupation_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_2.id,
           requiringOccupationType: ObjectTypes.ESCOOccupation,
@@ -188,21 +192,21 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: escoOccupation.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: childSkill.id,
           requiringOccupationType: escoOccupation.occupationType,
         },
         {
           requiringOccupationId: localOccupation1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: childSkill.id,
           requiringOccupationType: localOccupation1.occupationType,
         },
         {
           requiringOccupationId: localOccupation2.id,
-          relationType: RelationType.NONE,
+          relationType: OccupationToSkillRelationType.NONE,
           signallingValueLabel: SignallingValue.HIGH,
           signallingValue: Math.random(),
           requiredSkillId: childSkill.id,
@@ -237,7 +241,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: escoOccupation.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: childSkill.id,
           requiringOccupationType: escoOccupation.occupationType,
@@ -267,14 +271,14 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: givenOccupation_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_2.id,
           requiringOccupationType: givenOccupation_2.occupationType,
@@ -283,13 +287,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
           //@ts-ignore
           additionalField: "foo", //<------- invalid additional field
           requiringOccupationId: givenOccupation_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           //<----- missing field
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           requiredSkillId: givenSkill_2.id,
           requiringOccupationType: ObjectTypes.ESCOOccupation,
         } as INewOccupationToSkillPairSpec,
@@ -334,14 +338,14 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: givenOccupation_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
         {
           requiringOccupationId: givenOccupation_1.id, //<----- duplicate entry
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           signallingValueLabel: SignallingValue.NONE,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
@@ -391,13 +395,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: getMockStringId(998), //Non existent requiringOccupationId
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
         {
           requiringOccupationId: givenOccupation_1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
           requiredSkillId: getMockStringId(999), //Non existent requiredSkillId
           requiringOccupationType: givenOccupation_1.occupationType,
         },
@@ -423,7 +427,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: givenOccupation_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
@@ -447,7 +451,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: givenInvalidObject_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           requiredSkillId: givenSkill_1.id,
           requiringOccupationType: ObjectTypes.ESCOOccupation,
         },
@@ -473,7 +477,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
           requiringOccupationId: givenOccupation_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: OccupationToSkillRelationType.OPTIONAL,
           requiredSkillId: givenInvalidObject_1.id,
           requiringOccupationType: givenOccupation_1.occupationType,
         },
@@ -507,13 +511,13 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
           {
             requiringOccupationId: givenOccupation_1.id,
-            relationType: RelationType.OPTIONAL,
+            relationType: OccupationToSkillRelationType.OPTIONAL,
             requiredSkillId: givenSkill_1.id,
             requiringOccupationType: givenOccupation_1.occupationType,
           },
           {
             requiringOccupationId: givenOccupation_2.id,
-            relationType: RelationType.ESSENTIAL,
+            relationType: OccupationToSkillRelationType.ESSENTIAL,
             requiredSkillId: givenSkill_2.id,
             requiringOccupationType: givenOccupation_2.occupationType,
           },

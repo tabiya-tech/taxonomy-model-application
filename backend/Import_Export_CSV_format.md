@@ -187,10 +187,17 @@ Contains the relations between occupations and skills. The export filename is `o
   - Possible values: `escooccupation` or `localoccupation`.
 - `OCCUPATIONID`: The  [`ID`](#id) of the occupation.
 - `RELATIONTYPE`: The type of the relation. 
-  - Possible values: `essential` or `optional`. 
+  - Possible values: `essential`, `optional`, or it can be left empty. 
+- `SIGNALLINGVALUELABEL`: The signalling value label of the relation.
+  - Possible values: `low`, `medium`, `high`, or it can be left empty.
+- `SIGNALLINGVALUE`: The signalling value of the relation.
+  - A number between `0` and `1`, or it can be left empty.
 - `SKILLID`: The  [`ID`](#id) of the skill.
 - `CREATEDAT`: The [date](#dates) the relation was created.
 - `UPDATEDAT`: The [date](#dates) the relation was last updated.
+
+> Caveat: An `escooccuption` cannot have a signalling value or signalling value label.
+> For `localoccupation` signalling value and relationType are mutually exclusive. A `localoccupation` can EITHER have a signalling value and signalling value label OR it can have a relationType, but not both.
 
 ### Skill Hierarchy
 Contains the hierarchical structure of various skills. The export filename is `skill_hierarchy.csv`
