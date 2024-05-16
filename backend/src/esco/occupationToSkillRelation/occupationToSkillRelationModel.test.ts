@@ -13,8 +13,8 @@ import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { testDocModel, testObjectIdField, testObjectType } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, RelationType, SignallingValue } from "esco/common/objectTypes";
-import { IOccupationToSkillRelationPairDoc } from "./occupationToSkillRelation.types";
+import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { IOccupationToSkillRelationPairDoc, OccupationToSkillRelationType } from "./occupationToSkillRelation.types";
 
 describe("Test the definition of the OccupationToSkillRelation Model", () => {
   let dbConnection: Connection;
@@ -42,7 +42,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       requiredSkillDocModel: MongooseModelName.Skill,
       requiringOccupationDocModel: MongooseModelName.Occupation,
       requiringOccupationId: getMockObjectId(2),
-      relationType: RelationType.OPTIONAL,
+      relationType: OccupationToSkillRelationType.OPTIONAL,
       signallingValueLabel: SignallingValue.NONE,
       signallingValue: 1,
       requiringOccupationType: ObjectTypes.ESCOOccupation,
@@ -92,9 +92,9 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Failure, undefined, "Path `relationType` is required."],
         [CaseType.Failure, null, "Path `relationType` is required."],
         [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `relationType`."],
-        [CaseType.Failure, RelationType.NONE, "Validator failed for path `{0}` with value ``"],
-        [CaseType.Success, RelationType.ESSENTIAL, undefined],
-        [CaseType.Success, RelationType.OPTIONAL, undefined],
+        [CaseType.Failure, OccupationToSkillRelationType.NONE, "Validator failed for path `{0}` with value ``"],
+        [CaseType.Success, OccupationToSkillRelationType.ESSENTIAL, undefined],
+        [CaseType.Success, OccupationToSkillRelationType.OPTIONAL, undefined],
       ])(
         `(%s) Validate 'relationType' for esco occupations when it is %s`,
         (caseType: CaseType, value, expectedFailureMessage) => {
@@ -116,9 +116,9 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Failure, undefined, "Path `relationType` is required."],
         [CaseType.Failure, null, "Path `relationType` is required."],
         [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `relationType`."],
-        [CaseType.Failure, RelationType.NONE, "Validator failed for path `{0}` with value ``"],
-        [CaseType.Success, RelationType.ESSENTIAL, undefined],
-        [CaseType.Success, RelationType.OPTIONAL, undefined],
+        [CaseType.Failure, OccupationToSkillRelationType.NONE, "Validator failed for path `{0}` with value ``"],
+        [CaseType.Success, OccupationToSkillRelationType.ESSENTIAL, undefined],
+        [CaseType.Success, OccupationToSkillRelationType.OPTIONAL, undefined],
       ])(
         `(%s) Validate 'relationType' for local occupations with no signalling value when it is %s`,
         (caseType: CaseType, value, expectedFailureMessage) => {
@@ -141,9 +141,17 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Failure, undefined, "Path `relationType` is required."],
         [CaseType.Failure, null, "Path `relationType` is required."],
         [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `relationType`."],
-        [CaseType.Failure, RelationType.ESSENTIAL, "Validator failed for path `{0}` with value `essential`"],
-        [CaseType.Failure, RelationType.OPTIONAL, "Validator failed for path `{0}` with value `optional`"],
-        [CaseType.Success, RelationType.NONE, undefined],
+        [
+          CaseType.Failure,
+          OccupationToSkillRelationType.ESSENTIAL,
+          "Validator failed for path `{0}` with value `essential`",
+        ],
+        [
+          CaseType.Failure,
+          OccupationToSkillRelationType.OPTIONAL,
+          "Validator failed for path `{0}` with value `optional`",
+        ],
+        [CaseType.Success, OccupationToSkillRelationType.NONE, undefined],
       ])(
         `(%s) Validate 'relationType' for local occupations with a signalling value when it is %s`,
         (caseType: CaseType, value, expectedFailureMessage) => {
@@ -174,7 +182,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [ObjectTypes.Skill, ObjectTypes.Skill],
       ])(`should fail validation with reason when occupation type is %s `, (desc, givenOccupationType) => {
         const givenOccupationToSkillRelation = {
-          relationType: RelationType.ESSENTIAL, // valid value
+          relationType: OccupationToSkillRelationType.ESSENTIAL, // valid value
           requiringOccupationType: givenOccupationType,
         };
         assertCaseForProperty({
@@ -226,8 +234,8 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         `(%s) Validate 'signallingValueLabel' for local occupations with a relationType when it is %s`,
         (caseType: CaseType, value, expectedFailureMessage) => {
           // check that the signallingValueLabel is NONE when the relationType is not NONE
-          Object.values(RelationType)
-            .filter((value) => value !== RelationType.NONE)
+          Object.values(OccupationToSkillRelationType)
+            .filter((value) => value !== OccupationToSkillRelationType.NONE)
             .map((givenRelationType) =>
               assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
                 model: OccupationToSkillRelationModel,
@@ -264,7 +272,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
             expectedFailureMessage,
             dependencies: {
               requiringOccupationType: ObjectTypes.LocalOccupation,
-              relationType: RelationType.NONE,
+              relationType: OccupationToSkillRelationType.NONE,
             },
           });
         }

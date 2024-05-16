@@ -17,7 +17,7 @@ import {
   occupationToSkillRelationImportHeaders,
 } from "esco/common/entityToCSV.types";
 import { getOccupationTypeFromCSVObjectType } from "import/esco/common/getOccupationTypeFromCSVObjectType";
-import { getRelationTypeFromCSVRelationType } from "../../../esco/common/csvObjectTypes";
+import { getOccupationToSkillRelationTypeFromCSVRelationType } from "esco/common/csvObjectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, occupationToSkillRelationImportHeaders);
@@ -38,7 +38,7 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<IOccupationToSkillRelationImportRow, INewOccupationToSkillPairSpec> {
   return (row: IOccupationToSkillRelationImportRow) => {
     // Check if relation type is valid
-    const relationType = getRelationTypeFromCSVRelationType(row.RELATIONTYPE);
+    const relationType = getOccupationToSkillRelationTypeFromCSVRelationType(row.RELATIONTYPE);
     if (relationType === null) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`

@@ -19,4 +19,10 @@ export const expected = [
     relationType: "essential",
     requiredSkillId: "mapped_key_8",
   },
+  {
+    requiringOccupationType: ObjectTypes.ESCOOccupation,
+    requiringOccupationId: "mapped_key_15",
+    relationType: "",
+    requiredSkillId: "mapped_key_16",
+  },
 ];

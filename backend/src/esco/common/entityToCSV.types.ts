@@ -1,6 +1,8 @@
-import { ObjectTypes, RelationType } from "./objectTypes";
+import { ObjectTypes } from "./objectTypes";
 import { CSVObjectTypes, CSVRelationType, CSVReuseLevel, CSVSkillType } from "./csvObjectTypes";
-import { ReuseLevel, SkillType } from "../skill/skills.types";
+import { ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 const HEADER_NAMES = {
   UPDATED_AT: "UPDATEDAT",
@@ -215,7 +217,7 @@ export const skillToSkillRelationExportHeaders = [
 
 export interface ISkillToSkillsRelationImportRow {
   REQUIRINGID: string;
-  RELATIONTYPE: RelationType;
+  RELATIONTYPE: SkillToSkillRelationType;
   REQUIREDID: string;
 }
 
@@ -246,7 +248,7 @@ export const occupationToSkillRelationExportHeaders = [
 export interface IOccupationToSkillRelationImportRow {
   OCCUPATIONTYPE: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   OCCUPATIONID: string;
-  RELATIONTYPE: RelationType;
+  RELATIONTYPE: OccupationToSkillRelationType;
   SKILLID: string;
 }
 

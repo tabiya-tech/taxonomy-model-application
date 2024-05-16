@@ -9,10 +9,13 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { RelationType } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillToSkillRelationRepository } from "./skillToSkillRelationRepository";
-import { INewSkillToSkillPairSpec, ISkillToSkillRelationPair } from "./skillToSkillRelation.types";
+import {
+  INewSkillToSkillPairSpec,
+  ISkillToSkillRelationPair,
+  SkillToSkillRelationType,
+} from "./skillToSkillRelation.types";
 import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailure,
@@ -68,7 +71,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
       givenNewSkillToSkillPairSpecs.push({
         requiringSkillId: givenSkill_1.id,
-        relationType: RelationType.OPTIONAL,
+        relationType: SkillToSkillRelationType.OPTIONAL,
         requiredSkillId: givenSkill_2.id,
       });
     }
@@ -116,8 +119,16 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
 
       // AND the following relation
       const givenNewRelationSpecs = [
-        { requiringSkillId: givenSkill_1.id, relationType: RelationType.OPTIONAL, requiredSkillId: givenSkill_2.id },
-        { requiringSkillId: givenSkill_3.id, relationType: RelationType.ESSENTIAL, requiredSkillId: givenSkill_4.id },
+        {
+          requiringSkillId: givenSkill_1.id,
+          relationType: SkillToSkillRelationType.OPTIONAL,
+          requiredSkillId: givenSkill_2.id,
+        },
+        {
+          requiringSkillId: givenSkill_3.id,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+          requiredSkillId: givenSkill_4.id,
+        },
       ];
 
       // WHEN updating the relation of the Skills
@@ -154,24 +165,24 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [
         {
           requiringSkillId: givenSkill_1.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: SkillToSkillRelationType.OPTIONAL,
           requiredSkillId: givenSkill_2.id,
         },
         {
           requiringSkillId: givenSkill_3.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
           requiredSkillId: givenSkill_4.id,
         },
         {
           // @ts-ignore
           additionalField: "foo", // <------ Invalid additional field
           requiringSkillId: givenSkill_2.id,
-          relationType: RelationType.OPTIONAL,
+          relationType: SkillToSkillRelationType.OPTIONAL,
           requiredSkillId: givenSkill_3.id,
         },
         {
           //<----- missing field
-          relationType: RelationType.OPTIONAL,
+          relationType: SkillToSkillRelationType.OPTIONAL,
           requiredSkillId: givenSkill_2.id,
         } as INewSkillToSkillPairSpec,
       ];
@@ -212,12 +223,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
         {
           requiringSkillId: givenSkill_1.id,
           requiredSkillId: givenSkill_2.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
         {
           requiringSkillId: givenSkill_1.id,
           requiredSkillId: givenSkill_2.id, // <---- duplicate
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
       ];
 
@@ -262,12 +273,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
         {
           requiringSkillId: getMockStringId(998), // Non-existent skill id
           requiredSkillId: givenSkill_1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
         {
           requiringSkillId: givenSkill_1.id,
           requiredSkillId: getMockStringId(999), // Non-existent skill id
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
       ];
 
@@ -293,7 +304,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
         {
           requiringSkillId: givenSkill_1_in_Model_1.id,
           requiredSkillId: givenSkill_2_in_Model_2.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
       ];
 
@@ -313,7 +324,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
         {
           requiringSkillId: givenSkill_1.id,
           requiredSkillId: givenSkill_1.id, // Self relation
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
       ];
 
@@ -336,12 +347,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
         {
           requiringSkillId: givenInvalidObject_1.id,
           requiredSkillId: givenSkill_1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
         {
           requiringSkillId: givenSkill_1.id,
           requiredSkillId: givenInvalidObject_1.id,
-          relationType: RelationType.ESSENTIAL,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
         },
       ];
 
@@ -368,8 +379,16 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
 
         // AND the following relation
         const givenNewRelationSpecs = [
-          { requiringSkillId: givenSkill_1.id, relationType: RelationType.OPTIONAL, requiredSkillId: givenSkill_2.id },
-          { requiringSkillId: givenSkill_3.id, relationType: RelationType.ESSENTIAL, requiredSkillId: givenSkill_4.id },
+          {
+            requiringSkillId: givenSkill_1.id,
+            relationType: SkillToSkillRelationType.OPTIONAL,
+            requiredSkillId: givenSkill_2.id,
+          },
+          {
+            requiringSkillId: givenSkill_3.id,
+            relationType: SkillToSkillRelationType.ESSENTIAL,
+            requiredSkillId: givenSkill_4.id,
+          },
         ];
         return { givenModelId, givenNewRelationSpecs };
       },
