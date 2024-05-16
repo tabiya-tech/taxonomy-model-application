@@ -86,7 +86,7 @@ export function initializeSchemaAndModel(
             },
           },
         },
-        signallingValue: { type: Number, required: false, min: 0, max: 1 },
+        signallingValue: { type: Number, required: false, default: null, min: 0, max: 1 },
       },
       {
         timestamps: true,

@@ -87,7 +87,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       MongooseModelName.Skill,
     ]);
 
-    describe("Test validation of 'relationType'", () => {
+    describe("Test validation of 'relationType'", function () {
       test.each([
         [CaseType.Failure, undefined, "Path `relationType` is required."],
         [CaseType.Failure, null, "Path `relationType` is required."],
@@ -97,7 +97,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Success, OccupationToSkillRelationType.OPTIONAL, undefined],
       ])(
         `(%s) Validate 'relationType' for esco occupations when it is %s`,
-        (caseType: CaseType, value, expectedFailureMessage) => {
+        function (caseType: CaseType, value, expectedFailureMessage) {
           // check that the relationType is not NONE when the requiring occupation is an ESCO occupation
           assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
             model: OccupationToSkillRelationModel,
@@ -121,7 +121,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Success, OccupationToSkillRelationType.OPTIONAL, undefined],
       ])(
         `(%s) Validate 'relationType' for local occupations with no signalling value when it is %s`,
-        (caseType: CaseType, value, expectedFailureMessage) => {
+        function (caseType: CaseType, value, expectedFailureMessage) {
           // check that the relationType is not NONE when the signalling value is NONE
           assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
             model: OccupationToSkillRelationModel,
@@ -154,7 +154,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Success, OccupationToSkillRelationType.NONE, undefined],
       ])(
         `(%s) Validate 'relationType' for local occupations with a signalling value when it is %s`,
-        (caseType: CaseType, value, expectedFailureMessage) => {
+        function (caseType: CaseType, value, expectedFailureMessage) {
           // check that the relationType is NONE when the signalling value is not NONE
           Object.values(SignallingValue)
             .filter((value) => value !== SignallingValue.NONE)
@@ -196,7 +196,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       });
     });
 
-    describe("Test validation of 'signallingValueLabel'", () => {
+    describe("Test validation of 'signallingValueLabel'", function () {
       test.each([
         [CaseType.Failure, undefined, "Path `signallingValueLabel` is required."],
         [CaseType.Failure, null, "Path `signallingValueLabel` is required."],
@@ -207,7 +207,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Success, SignallingValue.NONE, undefined],
       ])(
         `(%s) Validate 'signallingValueLabel' for esco occupations when it is %s`,
-        (caseType: CaseType, value, expectedFailureMessage) => {
+        function (caseType: CaseType, value, expectedFailureMessage) {
           // check that the signallingValueLabel is NONE when the requiring occupation is an ESCO occupation
           assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
             model: OccupationToSkillRelationModel,
@@ -232,7 +232,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Success, SignallingValue.NONE, undefined],
       ])(
         `(%s) Validate 'signallingValueLabel' for local occupations with a relationType when it is %s`,
-        (caseType: CaseType, value, expectedFailureMessage) => {
+        function (caseType: CaseType, value, expectedFailureMessage) {
           // check that the signallingValueLabel is NONE when the relationType is not NONE
           Object.values(OccupationToSkillRelationType)
             .filter((value) => value !== OccupationToSkillRelationType.NONE)
