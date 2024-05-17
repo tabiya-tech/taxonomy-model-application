@@ -1,4 +1,4 @@
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
 import {
   CSVObjectTypes,
   getObjectTypeFromCSVObjectType,
@@ -14,6 +14,9 @@ import {
   getSkillTypeFromCSVSkillType,
   getOccupationToSkillRelationTypeFromCSVRelationType,
   getCSVRelationTypeFromOccupationToSkillRelationType,
+  CSVSignallingValue,
+  getSignallingValueFromCSVSignallingValue,
+  getSignallingValueLabelFromCSVSignallingValueLabel,
 } from "esco/common/csvObjectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -150,7 +153,45 @@ describe("getCSVRelationTypeFromOccupationToSkillRelationType", () => {
     }
   );
 });
-
+describe("getSignallingValueLabelFromCSVSignallingValueLabel", () => {
+  test.each([
+    [SignallingValue.NONE, CSVSignallingValue.None],
+    [SignallingValue.HIGH, CSVSignallingValue.High],
+    [SignallingValue.MEDIUM, CSVSignallingValue.Medium],
+    [SignallingValue.LOW, CSVSignallingValue.Low],
+    [null, "foo"],
+    [null, null],
+    [null, undefined],
+  ])(
+    `should return SignallingValueLabel: '%s' for CSVSignallingValueLabel: '%s'`,
+    (expectedSignallingValueLabel: SignallingValue | null, givenCSVSignallingValueLabel: string | null | undefined) => {
+      // GIVEN a CSVSignallingValue
+      // THEN the SignallingValue should be returned
+      expect(getSignallingValueLabelFromCSVSignallingValueLabel(givenCSVSignallingValueLabel as string)).toBe(
+        expectedSignallingValueLabel
+      );
+      // irrespective of the case
+      expect(
+        getSignallingValueLabelFromCSVSignallingValueLabel(givenCSVSignallingValueLabel?.toUpperCase() as string)
+      ).toBe(expectedSignallingValueLabel);
+    }
+  );
+});
+describe("getSignallingValueFromCSVSignallingValue", () => {
+  test.each([
+    [0, 0],
+    [1, 1],
+    [null, null],
+    [null, undefined],
+  ])(
+    `should return SignallingValue: '%s' for CSVSignallingValue: '%s'`,
+    (expectedSignallingValue: number | null, givenCSVSignallingValue: number | null | undefined) => {
+      // GIVEN a CSVSignallingValue
+      // THEN the SignallingValue should be returned
+      expect(getSignallingValueFromCSVSignallingValue(givenCSVSignallingValue as number)).toBe(expectedSignallingValue);
+    }
+  );
+});
 describe("getCSVTypeFromReuseLevel", () => {
   test.each([
     [CSVReuseLevel.SectorSpecific, ReuseLevel.SectorSpecific],

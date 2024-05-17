@@ -1,4 +1,4 @@
-import { ObjectTypes } from "./objectTypes";
+import { ObjectTypes, SignallingValue } from "./objectTypes";
 import { CSVObjectTypes, CSVRelationType, CSVReuseLevel, CSVSkillType } from "./csvObjectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -233,7 +233,14 @@ export interface ISkillToSkillsRelationExportRow {
  * Headers for the for occupation-to-skill relation CSV file
  */
 
-export const occupationToSkillRelationImportHeaders = ["OCCUPATIONTYPE", "OCCUPATIONID", "RELATIONTYPE", "SKILLID"];
+export const occupationToSkillRelationImportHeaders = [
+  "OCCUPATIONTYPE",
+  "OCCUPATIONID",
+  "RELATIONTYPE",
+  "SKILLID",
+  "SIGNALLINGVALUELABEL",
+  "SIGNALLINGVALUE",
+];
 
 export const occupationToSkillRelationExportHeaders = [
   ...occupationToSkillRelationImportHeaders,
@@ -250,6 +257,8 @@ export interface IOccupationToSkillRelationImportRow {
   OCCUPATIONID: string;
   RELATIONTYPE: OccupationToSkillRelationType;
   SKILLID: string;
+  SIGNALLINGVALUELABEL: SignallingValue;
+  SIGNALLINGVALUE: number;
 }
 
 export interface IOccupationToSkillRelationExportRow {
