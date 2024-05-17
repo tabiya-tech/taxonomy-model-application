@@ -1,4 +1,4 @@
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -99,6 +99,33 @@ export const getCSVRelationTypeFromOccupationToSkillRelationType = (type: string
     default:
       return null;
   }
+};
+
+export enum CSVSignallingValue {
+  None = "",
+  High = "high",
+  Medium = "medium",
+  Low = "low",
+}
+
+export const getSignallingValueLabelFromCSVSignallingValueLabel = (type: string): SignallingValue | null => {
+  switch (type?.toLowerCase()) {
+    case CSVSignallingValue.High:
+      return SignallingValue.HIGH;
+    case CSVSignallingValue.Medium:
+      return SignallingValue.MEDIUM;
+    case CSVSignallingValue.Low:
+      return SignallingValue.LOW;
+    case CSVSignallingValue.None:
+      return SignallingValue.NONE;
+    default:
+      return null;
+  }
+};
+
+export const getSignallingValueFromCSVSignallingValue = (value?: number): number | null | undefined => {
+  if (value === undefined) return null;
+  return value;
 };
 
 export enum CSVReuseLevel {
