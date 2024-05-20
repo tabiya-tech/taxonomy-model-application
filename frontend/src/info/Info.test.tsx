@@ -11,6 +11,7 @@ import { InfoProps } from "./info.types";
 import Info, { DATA_TEST_ID } from "./Info";
 import { render, act, screen } from "src/_test_utilities/test-utils";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 jest.mock("./info.service", () => {
   const mockInfoService = jest.fn();
@@ -100,4 +101,15 @@ describe("Testing Info component", () => {
     // THEN the info service should be called again
     expect(InfoService.prototype.loadInfo).toHaveBeenCalledTimes(2);
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "InfoComponent",
+      Component: <Info />,
+      roles: ALL_USERS,
+      testIds: [DATA_TEST_ID.INFO_ROOT, DATA_TEST_ID.VERSION_FRONTEND_ROOT, DATA_TEST_ID.VERSION_BACKEND_ROOT],
+    })
+  );
 });
