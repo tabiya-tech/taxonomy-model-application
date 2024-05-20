@@ -11,6 +11,7 @@ import { act, fireEvent, waitFor, within } from "@testing-library/react";
 import { AuthContext, AuthContextValue, authContextDefaultValue } from "src/auth/AuthProvider";
 import ContextMenu from "src/theme/ContextMenu/ContextMenu";
 import { useMemo } from "react";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 // mock the ContextMenu
 jest.mock("src/theme/ContextMenu/ContextMenu", () => {
@@ -42,6 +43,25 @@ describe("AppHeader", () => {
   beforeEach(() => {
     (ContextMenu as jest.Mock).mockClear();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "AppHeader",
+      Component: (
+        <HashRouter>
+          <AppHeader />
+        </HashRouter>
+      ),
+      roles: ALL_USERS,
+      testIds: [
+        DATA_TEST_ID.APP_HEADER_CONTAINER,
+        DATA_TEST_ID.APP_HEADER_AUTH_BUTTON,
+        DATA_TEST_ID.APP_HEADER_ICON_USER,
+      ],
+    })
+  );
 
   describe("AppHeader render tests", () => {
     beforeEach(() => {

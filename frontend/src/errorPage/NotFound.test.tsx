@@ -1,7 +1,19 @@
 import { render, screen } from "src/_test_utilities/test-utils";
 import NotFound, { DATA_TEST_ID } from "./NotFound";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 describe("NotFound", () => {
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "NotFound",
+      Component: <NotFound />,
+      roles: ALL_USERS,
+      testIds: [DATA_TEST_ID.NOT_FOUND_CONTAINER, DATA_TEST_ID.NOT_FOUND_ILLUSTRATION, DATA_TEST_ID.NOT_FOUND_MESSAGE],
+    })
+  );
+
   test("NotFound page renders correctly", () => {
     // GIVEN a NotFound page
     jest.spyOn(console, "error");

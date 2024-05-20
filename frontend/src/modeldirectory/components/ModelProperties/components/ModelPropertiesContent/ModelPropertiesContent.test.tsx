@@ -14,6 +14,8 @@ import ModelPropertiesVersion from "./components/ModelPropertiesVersion/ModelPro
 import ModelPropertiesHistory from "./components/ModelPropertiesHistory/ModelPropertiesHistory";
 import ModelPropertiesImportExport from "./components/ModelPropertiesImportExport/ModelPropertiesImportExport";
 
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
+
 // mock TabControl
 jest.mock("src/theme/TabControl/TabControl", () => {
   const actualTabControl = jest.requireActual("src/theme/TabControl/TabControl");
@@ -29,6 +31,17 @@ jest.mock("src/theme/TabControl/TabControl", () => {
 
 describe("ModelPropertiesContent", () => {
   describe("render tests", () => {
+    describe(
+      // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+      authorizationTests.defaultName,
+      authorizationTests.callback({
+        name: "ModelPropertiesContent",
+        Component: <ModelPropertiesContent model={getOneFakeModel(1)} />,
+        roles: ALL_USERS,
+        testIds: [DATA_TEST_ID.MODEL_PROPERTIES_CONTENT, DATA_TEST_ID.MODEL_PROPERTIES_TABS],
+      })
+    );
+
     test("should render correctly with the provided props", async () => {
       // GIVEN a model
       const givenModel = getOneFakeModel(1);

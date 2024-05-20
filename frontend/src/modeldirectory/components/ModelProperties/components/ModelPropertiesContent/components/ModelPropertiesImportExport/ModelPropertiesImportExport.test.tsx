@@ -8,6 +8,7 @@ import ModelPropertiesImportExport, {
 } from "./ModelPropertiesImportExport";
 import ImportTimeline, { DATA_TEST_ID as IMPORT_TIMELINE_DATA_TEST_ID } from "./ImportTimeline/ImportTimeline";
 import ExportTimeline, { DATA_TEST_ID as EXPORT_TIMELINE_DATA_TEST_ID } from "./ExportTimeline/ExportTimeline";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 // mock the ImportTimeline component
 jest.mock(
@@ -49,7 +50,7 @@ jest.mock(
 );
 
 describe("ModelPropertiesImportExport", () => {
-  test("Should render import correctly with the provided model props", () => {
+  test("Should render import and export correctly with the provided model props", () => {
     // GIVEN a model
     const givenModel = fakeModel;
 
@@ -91,4 +92,19 @@ describe("ModelPropertiesImportExport", () => {
     // AND to match the snapshot
     expect(actualImportExportTab).toMatchSnapshot();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "ModelPropertiesImportExport",
+      Component: <ModelPropertiesImportExport model={fakeModel} />,
+      roles: ALL_USERS,
+      testIds: [
+        MODEL_PROPERTIES_DATA_TEST_ID.IMPORT_EXPORT_TAB,
+        EXPORT_TIMELINE_DATA_TEST_ID.EXPORT_TIMELINE,
+        IMPORT_TIMELINE_DATA_TEST_ID.IMPORT_TIMELINE,
+      ],
+    })
+  );
 });

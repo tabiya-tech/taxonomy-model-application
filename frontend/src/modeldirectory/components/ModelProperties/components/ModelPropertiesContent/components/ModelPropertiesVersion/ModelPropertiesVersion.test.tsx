@@ -6,6 +6,7 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import ModelPropertiesVersion, { DATA_TEST_ID, FIELD_ID, FIELD_LABEL_TEXT } from "./ModelPropertiesVersion";
 import ReleasedPropertyField from "src/theme/PropertyFieldLayout/ReleasedPropertyField/ReleasedPropertyField";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 // mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", () => {
@@ -125,4 +126,23 @@ describe("ModelPropertiesVersion", () => {
     // AND to match the snapshot
     expect(modelPropertiesVersionContainer).toMatchSnapshot();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "ModelPropertiesVersion",
+      Component: <ModelPropertiesVersion model={fakeModel} />,
+      roles: ALL_USERS,
+      testIds: [
+        DATA_TEST_ID.MODEL_PROPERTIES_VERSION_CONTAINER,
+        DATA_TEST_ID.MODEL_PROPERTIES_UUID,
+        DATA_TEST_ID.MODEL_PROPERTIES_TABIYA_PATH,
+        DATA_TEST_ID.MODEL_PROPERTIES_PATH,
+        DATA_TEST_ID.MODEL_PROPERTIES_VERSION,
+        DATA_TEST_ID.MODEL_PROPERTIES_RELEASED_STATUS,
+        DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES,
+      ],
+    })
+  );
 });

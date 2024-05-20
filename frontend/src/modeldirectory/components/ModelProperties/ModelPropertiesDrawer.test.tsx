@@ -14,6 +14,7 @@ import ModelPropertiesContent, {
 import { render, screen, fireEvent } from "src/_test_utilities/test-utils";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { Drawer } from "@mui/material";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 jest.mock("./components/ModelPropertiesHeader/ModelPropertiesHeader", () => {
   const actual = jest.requireActual("./components/ModelPropertiesHeader/ModelPropertiesHeader");
@@ -75,6 +76,21 @@ describe("ModelPropertiesDrawer component render tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "ModelPropertiesDrawer",
+      Component: <ModelPropertiesDrawer model={testModel} isOpen={true} notifyOnClose={jest.fn()} />,
+      roles: ALL_USERS,
+      testIds: [
+        MODEL_PROPERTIES_DRAWER_DATA_TEST_ID.MODEL_PROPERTIES_DRAWER,
+        MODEL_PROPERTIES_HEADER_DATA_TEST_ID.MODEL_PROPERTIES_HEADER,
+        MODEL_PROPERTIES_CONTENT_DATA_TEST_ID.MODEL_PROPERTIES_CONTENT,
+      ],
+    })
+  );
 
   test("should render the drawer when 'isOpen' is true", () => {
     // GIVEN that a model is provided

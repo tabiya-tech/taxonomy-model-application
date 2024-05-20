@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ModelPropertiesImportExport Should render import correctly with the provided model props 1`] = `
+exports[`ModelPropertiesImportExport Should render import and export correctly with the provided model props 1`] = `
 <div
   class="MuiBox-root css-1ck9pm7"
   data-testid="import-export-tab-7804fa94-6151-4a64-8685-cdc3d845063c"

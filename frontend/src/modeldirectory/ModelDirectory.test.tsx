@@ -35,6 +35,8 @@ import { ErrorCodes } from "src/error/errorCodes";
 import ModelPropertiesDrawer from "./components/ModelProperties/ModelPropertiesDrawer";
 import { randomUUID } from "crypto";
 
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
+
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
@@ -231,6 +233,21 @@ describe("ModelDirectory", () => {
   });
 
   describe("ModelDirectory Render", () => {
+    describe(
+      // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+      authorizationTests.defaultName,
+      authorizationTests.callback({
+        name: "ModelDirectory",
+        Component: <ModelDirectory />,
+        roles: ALL_USERS,
+        testIds: [
+          MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE,
+          MODEL_DIRECTORY_HEADER_DATA_TEST_ID.MODEL_DIRECTORY_HEADER,
+          MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID,
+        ],
+      })
+    );
+
     test("ModelDirectory initial render tests", async () => {
       // GIVEN the model info service fetchPeriodically will resolve with some data and call the callback provided by the modeldirectory with that data
       const givenMockData = ["foo"] as any;

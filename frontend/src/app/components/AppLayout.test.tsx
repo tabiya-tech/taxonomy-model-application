@@ -6,6 +6,8 @@ import { DATA_TEST_ID as APP_SIDE_BAR_ID } from "./AppSidebar";
 import { DATA_TEST_ID as APP_HEADER_ID } from "./AppHeader";
 import userEvent from "@testing-library/user-event";
 
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
+
 // Mocking the AppSidebar and AppHeader components
 jest.mock("./AppSidebar", () => {
   const actual = jest.requireActual("./AppSidebar");
@@ -38,6 +40,21 @@ describe("AppLayout render tests", () => {
     (console.error as jest.Mock).mockClear();
     (console.warn as jest.Mock).mockClear();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "AppLayout",
+      Component: (
+        <AppLayout>
+          <div>foo</div>
+        </AppLayout>
+      ),
+      roles: ALL_USERS,
+      testIds: [DATA_TEST_ID.LAYOUT, DATA_TEST_ID.TOGGLE_BUTTON],
+    })
+  );
 
   test("should render app layout component", () => {
     // GIVEN a Layout Children component

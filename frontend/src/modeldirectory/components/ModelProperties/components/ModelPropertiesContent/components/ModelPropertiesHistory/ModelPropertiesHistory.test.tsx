@@ -13,6 +13,7 @@ import FormattedDatePropertyField from "src/theme/PropertyFieldLayout/FormattedD
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
 import { DATA_TEST_ID as UUIDHistoryTimelineDataTestId } from "./UUIDHistoryTimeline/ModelHistoryTimeline";
 import * as React from "react";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 //mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/FormattedDatePropertyField/FormattedDatePropertyField", () => {
@@ -120,4 +121,20 @@ describe("ModelPropertiesHistory", () => {
     // AND to match the snapshot
     expect(modelPropertiesHistoryContainer).toMatchSnapshot();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "ModelPropertiesHistory",
+      Component: <ModelPropertiesHistory model={fakeModel} />,
+      roles: ALL_USERS,
+      testIds: [
+        DATA_TEST_ID.MODEL_PROPERTIES_HISTORY_CONTAINER,
+        DATA_TEST_ID.MODEL_PROPERTIES_CREATED_DATE,
+        DATA_TEST_ID.MODEL_PROPERTIES_UPDATED_DATE,
+        UUIDHistoryTimelineDataTestId.UUID_HISTORY_TIMELINE,
+      ],
+    })
+  );
 });

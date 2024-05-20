@@ -6,6 +6,7 @@ import { HashRouter } from "react-router-dom";
 import { render, screen, within } from "src/_test_utilities/test-utils";
 import { routerPaths } from "src/app/routerConfig";
 import { testNavigateToPath } from "src/_test_utilities/routeNavigation";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 describe("AppSidebar render tests", () => {
   beforeEach(() => {
@@ -33,6 +34,21 @@ describe("AppSidebar render tests", () => {
     // AND to match the snapshot
     expect(screen.getByTestId(DATA_TEST_ID.CONTAINER)).toMatchSnapshot();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "AppSidebar",
+      Component: (
+        <HashRouter>
+          <AppSidebar />
+        </HashRouter>
+      ),
+      roles: ALL_USERS,
+      testIds: [DATA_TEST_ID.CONTAINER, DATA_TEST_ID.DIRECTORY_ICON, DATA_TEST_ID.SETTINGS_ICON],
+    })
+  );
 
   const allIconsCases = [
     ["Directory", DATA_TEST_ID.DIRECTORY_LINK, DATA_TEST_ID.DIRECTORY_ICON, ITEMS_LABEL_TEXT.DIRECTORY],

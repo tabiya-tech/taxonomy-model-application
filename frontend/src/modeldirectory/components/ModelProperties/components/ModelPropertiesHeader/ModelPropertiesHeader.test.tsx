@@ -1,17 +1,34 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { render, screen } from "src/_test_utilities/test-utils";
+import { render, screen, within } from "src/_test_utilities/test-utils";
 import ModelPropertiesHeader, { DATA_TEST_ID } from "./ModelPropertiesHeader";
 import userEvent from "@testing-library/user-event";
 import { fakeModel, getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
-import { within } from "@testing-library/react";
+
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 describe("ModelPropertiesHeader", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
     (console.warn as jest.Mock).mockClear();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "ModelPropertiesHeader",
+      Component: <ModelPropertiesHeader model={getOneFakeModel(1)} notifyOnClose={jest.fn()} />,
+      roles: ALL_USERS,
+      testIds: [
+        DATA_TEST_ID.MODEL_PROPERTIES_HEADER,
+        DATA_TEST_ID.MODEL_PROPERTIES_HEADER_TITLE,
+        DATA_TEST_ID.MODEL_PROPERTIES_HEADER_CLOSE_BUTTON,
+        DATA_TEST_ID.MODEL_PROPERTIES_MODEL_NAME,
+      ],
+    })
+  );
 
   test("should render model properties header component", () => {
     // GIVEN a model

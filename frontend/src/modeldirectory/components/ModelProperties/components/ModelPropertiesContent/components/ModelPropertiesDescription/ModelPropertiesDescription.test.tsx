@@ -5,6 +5,7 @@ import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utili
 import { render, screen } from "src/_test_utilities/test-utils";
 import ModelPropertiesDescription, { DATA_TEST_ID, FIELD_ID, FIELD_LABEL_TEXT } from "./ModelPropertiesDescription";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
+import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 
 // mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", () => {
@@ -74,4 +75,20 @@ describe("ModelPropertiesDescription", () => {
     // AND to match the snapshot
     expect(modelPropertiesDescriptionContainer).toMatchSnapshot();
   });
+
+  describe(
+    // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
+    authorizationTests.defaultName,
+    authorizationTests.callback({
+      name: "ModelPropertiesDescription",
+      Component: <ModelPropertiesDescription model={fakeModel} />,
+      roles: ALL_USERS,
+      testIds: [
+        DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION_CONTAINER,
+        DATA_TEST_ID.MODEL_PROPERTIES_NAME,
+        DATA_TEST_ID.MODEL_PROPERTIES_LOCALE,
+        DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION,
+      ],
+    })
+  );
 });
