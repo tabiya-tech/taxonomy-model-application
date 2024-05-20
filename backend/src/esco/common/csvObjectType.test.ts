@@ -159,9 +159,10 @@ describe("getSignallingValueLabelFromCSVSignallingValueLabel", () => {
     [SignallingValue.HIGH, CSVSignallingValueLabel.HIGH],
     [SignallingValue.MEDIUM, CSVSignallingValueLabel.MEDIUM],
     [SignallingValue.NONE, CSVSignallingValueLabel.NONE],
-    [null, "foo"],
+    ["", CSVSignallingValueLabel.NONE],
     [null, null],
-    [null, undefined],
+    ["foo", null],
+    [undefined, null],
   ])(
     `should return SignallingValueLabel: '%s' for CSVSignallingValueLabel: '%s'`,
     (
@@ -188,8 +189,7 @@ describe("getSignallingValueLabelFromCSVSignallingValueLabel", () => {
 describe("getSignallingValueFromCSVSignallingValue", () => {
   const randomNumber = Math.floor(Math.random() * 10000);
   test.each([
-    [0, 0],
-    [1, 1],
+    [0, "0"],
     [1, "1"],
     [10000, "10000"],
     [null, ""],

@@ -108,6 +108,21 @@ export const getCSVRelationTypeFromOccupationToSkillRelationType = (type: string
   }
 };
 
+export const getSignallingValueLabelFromCSVSignallingValueLabel = (value: string): SignallingValue | null => {
+  switch (value?.toLowerCase()) {
+    case CSVSignallingValueLabel.HIGH:
+      return SignallingValue.HIGH;
+    case CSVSignallingValueLabel.LOW:
+      return SignallingValue.LOW;
+    case CSVSignallingValueLabel.MEDIUM:
+      return SignallingValue.MEDIUM;
+    case CSVSignallingValueLabel.NONE:
+      return SignallingValue.NONE;
+    default:
+      return null;
+  }
+};
+
 export const getCSVSignalingValueLabelFromSignallingValueLabel = (value?: string): CSVSignallingValueLabel | null => {
   switch (value?.toLowerCase()) {
     case SignallingValue.HIGH:
@@ -123,8 +138,13 @@ export const getCSVSignalingValueLabelFromSignallingValueLabel = (value?: string
   }
 };
 
+export const getSignallingValueFromCSVSignallingValue = (value: string): number | null => {
+  if (!value) return null;
+  return Number(value);
+};
+
 export const getCSVSignalingValueFromSignallingValue = (value?: number): string => {
-  if (!value) return "";
+  if (value === undefined || value === null) return "";
   return value.toString();
 };
 

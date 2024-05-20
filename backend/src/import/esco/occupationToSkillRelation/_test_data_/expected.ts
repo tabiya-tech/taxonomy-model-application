@@ -7,7 +7,7 @@ export const expected = [
     relationType: "optional",
     requiredSkillId: "mapped_key_2",
     signallingValueLabel: "low",
-    signallingValue: "0.1",
+    signallingValue: 0.1,
   },
   {
     requiringOccupationType: ObjectTypes.ESCOOccupation,
@@ -15,7 +15,7 @@ export const expected = [
     relationType: "essential",
     requiredSkillId: "mapped_key_4",
     signallingValueLabel: "medium",
-    signallingValue: "0.5",
+    signallingValue: 0.5,
   },
   {
     requiringOccupationType: ObjectTypes.LocalOccupation,
@@ -23,7 +23,7 @@ export const expected = [
     relationType: "essential",
     requiredSkillId: "mapped_key_8",
     signallingValueLabel: "high",
-    signallingValue: "1",
+    signallingValue: 1,
   },
   {
     requiringOccupationType: ObjectTypes.ESCOOccupation,
@@ -31,6 +31,6 @@ export const expected = [
     relationType: "",
     requiredSkillId: "mapped_key_16",
     signallingValueLabel: "",
-    signallingValue: "",
+    signallingValue: null,
   },
 ];

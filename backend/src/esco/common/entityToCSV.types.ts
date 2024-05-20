@@ -264,7 +264,7 @@ export interface IOccupationToSkillRelationImportRow {
   RELATIONTYPE: OccupationToSkillRelationType;
   SKILLID: string;
   SIGNALLINGVALUELABEL: CSVSignallingValueLabel;
-  SIGNALLINGVALUE: number;
+  SIGNALLINGVALUE: string;
 }
 
 export interface IOccupationToSkillRelationExportRow {
