@@ -191,7 +191,7 @@ Contains the relations between occupations and skills. The export filename is `o
 - `SIGNALLINGVALUELABEL`: The signalling value label of the relation.
   - Possible values: `low`, `medium`, `high`, or it can be left empty.
 - `SIGNALLINGVALUE`: The signalling value of the relation.
-  - A number between `0` and `1`, or it can be left empty.
+  - A number between `0` and `1`, or it can be left empty. The only allowed delimiter for decimal numbers is a `.`.
 - `SKILLID`: The  [`ID`](#id) of the skill.
 - `CREATEDAT`: The [date](#dates) the relation was created.
 - `UPDATEDAT`: The [date](#dates) the relation was last updated.

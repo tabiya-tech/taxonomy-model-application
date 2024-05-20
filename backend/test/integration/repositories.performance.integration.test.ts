@@ -7,11 +7,11 @@ import { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import {
-  getSimpleNewISCOGroupSpec,
   getSimpleNewESCOOccupationSpec,
+  getSimpleNewISCOGroupSpec,
   getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
@@ -26,11 +26,13 @@ import { ISkill } from "esco/skill/skills.types";
 import { IOccupation } from "esco/occupations/occupation.types";
 import {
   INewSkillToSkillPairSpec,
-  ISkillToSkillRelationPair, SkillToSkillRelationType,
+  ISkillToSkillRelationPair,
+  SkillToSkillRelationType,
 } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import {
   INewOccupationToSkillPairSpec,
-  IOccupationToSkillRelationPair, OccupationToSkillRelationType,
+  IOccupationToSkillRelationPair,
+  OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 describe("Test the Performance of Repositories with an in-memory mongodb", () => {
@@ -289,12 +291,16 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
             requiringOccupationType: esco_occupation.occupationType,
             requiredSkillId: skill.id,
             relationType: OccupationToSkillRelationType.ESSENTIAL,
+            signallingValueLabel: SignallingValueLabel.NONE,
+            signallingValue: null,
           },
           {
             requiringOccupationId: local_occupation.id,
             requiringOccupationType: local_occupation.occupationType,
             requiredSkillId: skill.id,
-            relationType: OccupationToSkillRelationType.OPTIONAL,
+            relationType: OccupationToSkillRelationType.NONE,
+            signallingValueLabel: SignallingValueLabel.HIGH,
+            signallingValue: 0,
           }
         );
       }

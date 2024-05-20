@@ -12,7 +12,7 @@ import { ISkillRepository } from "./skillRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import {
@@ -1148,21 +1148,21 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           requiringOccupationType: givenOccupationSpecs_1.occupationType,
           requiredSkillId: givenSubject.id,
           relationType: OccupationToSkillRelationType.ESSENTIAL,
-          signallingValueLabel: SignallingValue.NONE,
+          signallingValueLabel: SignallingValueLabel.NONE,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           requiringOccupationType: givenOccupation_2.occupationType,
           requiredSkillId: givenSubject.id,
           relationType: OccupationToSkillRelationType.ESSENTIAL,
-          signallingValueLabel: SignallingValue.NONE,
+          signallingValueLabel: SignallingValueLabel.NONE,
         },
         {
           requiringOccupationId: givenOccupation_2.id,
           requiringOccupationType: givenOccupation_2.occupationType,
           requiredSkillId: givenOtherSkill.id,
           relationType: OccupationToSkillRelationType.NONE,
-          signallingValueLabel: SignallingValue.HIGH,
+          signallingValueLabel: SignallingValueLabel.HIGH,
           signallingValue: Math.random(),
         },
       ]);

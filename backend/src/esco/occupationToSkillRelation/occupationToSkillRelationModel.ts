@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupationToSkillRelationPairDoc, OccupationToSkillRelationType } from "./occupationToSkillRelation.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { stringRequired } from "server/stringRequired";
@@ -51,7 +51,7 @@ export function initializeSchemaAndModel(
                   return value !== OccupationToSkillRelationType.NONE;
                 case ObjectTypes.LocalOccupation:
                   // @ts-ignore
-                  if (this.signallingValueLabel === SignallingValue.NONE) {
+                  if (this.signallingValueLabel === SignallingValueLabel.NONE) {
                     return value !== OccupationToSkillRelationType.NONE;
                   } else {
                     return value === OccupationToSkillRelationType.NONE;
@@ -65,20 +65,20 @@ export function initializeSchemaAndModel(
         signallingValueLabel: {
           type: String,
           required: stringRequired("signallingValueLabel"),
-          enum: SignallingValue,
+          enum: SignallingValueLabel,
           validate: {
             validator: function (value: string) {
               // only local occupations can have signalling values
               // @ts-ignore
               switch (this.requiringOccupationType) {
                 case ObjectTypes.ESCOOccupation:
-                  return value === SignallingValue.NONE;
+                  return value === SignallingValueLabel.NONE;
                 case ObjectTypes.LocalOccupation:
                   // @ts-ignore
                   if (this.relationType === OccupationToSkillRelationType.NONE) {
-                    return value !== SignallingValue.NONE;
+                    return value !== SignallingValueLabel.NONE;
                   } else {
-                    return value === SignallingValue.NONE;
+                    return value === SignallingValueLabel.NONE;
                   }
                 default:
                   throw new Error("Value of 'occupationType' path is not supported");

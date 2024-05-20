@@ -13,7 +13,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationDoc } from "./occupation.types";
 import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
-import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getNewISCOGroupSpec,
@@ -692,21 +692,21 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenRequiredSkill_1.id,
           relationType: OccupationToSkillRelationType.ESSENTIAL,
-          signallingValueLabel: SignallingValue.NONE,
+          signallingValueLabel: SignallingValueLabel.NONE,
         },
         {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenRequiredSkill_2.id,
           relationType: OccupationToSkillRelationType.OPTIONAL,
-          signallingValueLabel: SignallingValue.NONE,
+          signallingValueLabel: SignallingValueLabel.NONE,
         },
         {
           requiringOccupationId: givenOtherOccupation.id,
           requiringOccupationType: givenOtherOccupation.occupationType,
           requiredSkillId: givenRequiredSkill_1.id,
           relationType: OccupationToSkillRelationType.ESSENTIAL,
-          signallingValueLabel: SignallingValue.NONE,
+          signallingValueLabel: SignallingValueLabel.NONE,
         },
       ]);
       // Guard assertion
@@ -1092,14 +1092,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenSkill_1.id,
           relationType: OccupationToSkillRelationType.ESSENTIAL,
-          signallingValueLabel: SignallingValue.NONE,
+          signallingValueLabel: SignallingValueLabel.NONE,
         },
         {
           requiringOccupationId: givenSubject.id,
           requiringOccupationType: givenSubject.occupationType,
           requiredSkillId: givenSkill_2.id,
           relationType: OccupationToSkillRelationType.OPTIONAL,
-          signallingValueLabel: SignallingValue.NONE,
+          signallingValueLabel: SignallingValueLabel.NONE,
         },
       ]);
 

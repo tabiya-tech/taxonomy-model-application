@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { Readable } from "node:stream";
 import occupationToSkillRelationToCSVTransform, * as occupationToSkillRelationToCSVTransformModule from "./occupationToSkillRelationToCSVTransform";
 import * as parsersModule from "esco/common/csvObjectTypes";
@@ -30,9 +30,9 @@ const getMockOccupationToSkillRelations = (): IUnpopulatedOccupationToSkillRelat
     switch (i % 3) {
       case 0:
       case 1:
-        return SignallingValue.NONE;
+        return SignallingValueLabel.NONE;
       case 2:
-        return SignallingValue.HIGH;
+        return SignallingValueLabel.HIGH;
       default:
         throw new Error("Invalid number");
     }
@@ -144,7 +144,7 @@ describe("occupationToSkillRelationToCSVTransform", () => {
         // GIVEN an otherwise valid OccupationToSkillRelation
         const givenRelation = getMockOccupationToSkillRelations()[0];
         // WITH an unknown signalling value label
-        givenRelation.signallingValueLabel = "foo" as SignallingValue;
+        givenRelation.signallingValueLabel = "foo" as SignallingValueLabel;
         // WHEN the OccupationToSkillRelation is transformed
         const transformCall = getTransformCall(givenRelation);
         // THEN the transformation should throw an error
@@ -159,7 +159,7 @@ describe("occupationToSkillRelationToCSVTransform", () => {
 
         // WITH both relationType and signallingValueLabel set
         givenRelation.relationType = OccupationToSkillRelationType.ESSENTIAL;
-        givenRelation.signallingValueLabel = SignallingValue.MEDIUM;
+        givenRelation.signallingValueLabel = SignallingValueLabel.MEDIUM;
 
         // WHEN the OccupationToSkillRelation is transformed
         const transformCall = getTransformCall(givenRelation);
@@ -176,7 +176,7 @@ describe("occupationToSkillRelationToCSVTransform", () => {
 
         // WITH both relationType and signallingValueLabel set
         givenRelation.relationType = OccupationToSkillRelationType.NONE;
-        givenRelation.signallingValueLabel = SignallingValue.NONE;
+        givenRelation.signallingValueLabel = SignallingValueLabel.NONE;
 
         // WHEN the OccupationToSkillRelation is transformed
         const transformCall = getTransformCall(givenRelation);

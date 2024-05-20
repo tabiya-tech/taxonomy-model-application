@@ -1,4 +1,4 @@
-import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import {
   CSVObjectTypes,
   getObjectTypeFromCSVObjectType,
@@ -155,18 +155,18 @@ describe("getCSVRelationTypeFromOccupationToSkillRelationType", () => {
 });
 describe("getSignallingValueLabelFromCSVSignallingValueLabel", () => {
   test.each([
-    [SignallingValue.LOW, CSVSignallingValueLabel.LOW],
-    [SignallingValue.HIGH, CSVSignallingValueLabel.HIGH],
-    [SignallingValue.MEDIUM, CSVSignallingValueLabel.MEDIUM],
-    [SignallingValue.NONE, CSVSignallingValueLabel.NONE],
+    [SignallingValueLabel.LOW, CSVSignallingValueLabel.LOW],
+    [SignallingValueLabel.HIGH, CSVSignallingValueLabel.HIGH],
+    [SignallingValueLabel.MEDIUM, CSVSignallingValueLabel.MEDIUM],
+    [SignallingValueLabel.NONE, CSVSignallingValueLabel.NONE],
     ["", CSVSignallingValueLabel.NONE],
-    [null, null],
     ["foo", null],
+    [null, null],
     [undefined, null],
   ])(
     `should return SignallingValueLabel: '%s' for CSVSignallingValueLabel: '%s'`,
     (
-      givenSignallingValueLabel: SignallingValue | null | string | undefined,
+      givenSignallingValueLabel: SignallingValueLabel | null | string | undefined,
       expectedCSVSignallingValueLabel: string | null | undefined
     ) => {
       // GIVEN a CSVSignallingValue

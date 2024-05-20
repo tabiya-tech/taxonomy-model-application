@@ -1,10 +1,11 @@
 OCCUPATIONTYPE,OCCUPATIONID,RELATIONTYPE,SKILLID,SIGNALLINGVALUELABEL,SIGNALLINGVALUE
-ESCOOCCUPATION,key_1,optional,key_2,low,0.1
-ESCOOCCUPATION,key_3,essential,key_4,medium,0.5
-ESCOOCCUPATION,,optional,key_5,,
-ESCOOCCUPATION,key_6,optional,,low,
-LOCALOCCUPATION,key_7,essential,key_8,high,1
+escooccupation,key_1,optional,key_2,low,0.1
+escooccupation,key_3,essential,key_4,medium,0.5
+escooccupation,,optional,key_5,,
+escooccupation,key_6,optional,,low,
+localoccupation,key_7,essential,key_8,high,1
 invalid should be ignored,key_9,essential,key_10,high,1
 ,key_11,essential,key_12,medium,0.5
-ESCOOCCUPATION,key_13,invalid relation type should be ignored,key_14,,
-ESCOOCCUPATION,key_15,,key_16,,
+escooccupation,key_13,invalid relation type should be ignored,key_14,,
+escooccupation,key_15,,key_16,,
+localoccupation,key_17,,key_18,invalid,0.5

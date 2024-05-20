@@ -1,4 +1,4 @@
-import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -108,16 +108,16 @@ export const getCSVRelationTypeFromOccupationToSkillRelationType = (type: string
   }
 };
 
-export const getSignallingValueLabelFromCSVSignallingValueLabel = (value: string): SignallingValue | null => {
+export const getSignallingValueLabelFromCSVSignallingValueLabel = (value: string): SignallingValueLabel | null => {
   switch (value?.toLowerCase()) {
     case CSVSignallingValueLabel.HIGH:
-      return SignallingValue.HIGH;
+      return SignallingValueLabel.HIGH;
     case CSVSignallingValueLabel.LOW:
-      return SignallingValue.LOW;
+      return SignallingValueLabel.LOW;
     case CSVSignallingValueLabel.MEDIUM:
-      return SignallingValue.MEDIUM;
+      return SignallingValueLabel.MEDIUM;
     case CSVSignallingValueLabel.NONE:
-      return SignallingValue.NONE;
+      return SignallingValueLabel.NONE;
     default:
       return null;
   }
@@ -125,13 +125,13 @@ export const getSignallingValueLabelFromCSVSignallingValueLabel = (value: string
 
 export const getCSVSignalingValueLabelFromSignallingValueLabel = (value?: string): CSVSignallingValueLabel | null => {
   switch (value?.toLowerCase()) {
-    case SignallingValue.HIGH:
+    case SignallingValueLabel.HIGH:
       return CSVSignallingValueLabel.HIGH;
-    case SignallingValue.LOW:
+    case SignallingValueLabel.LOW:
       return CSVSignallingValueLabel.LOW;
-    case SignallingValue.MEDIUM:
+    case SignallingValueLabel.MEDIUM:
       return CSVSignallingValueLabel.MEDIUM;
-    case SignallingValue.NONE:
+    case SignallingValueLabel.NONE:
       return CSVSignallingValueLabel.NONE;
     default:
       return null;

@@ -13,7 +13,7 @@ import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { testDocModel, testObjectIdField, testObjectType } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ObjectTypes, SignallingValue } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupationToSkillRelationPairDoc, OccupationToSkillRelationType } from "./occupationToSkillRelation.types";
 
 describe("Test the definition of the OccupationToSkillRelation Model", () => {
@@ -43,7 +43,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
       requiringOccupationDocModel: MongooseModelName.Occupation,
       requiringOccupationId: getMockObjectId(2),
       relationType: OccupationToSkillRelationType.OPTIONAL,
-      signallingValueLabel: SignallingValue.NONE,
+      signallingValueLabel: SignallingValueLabel.NONE,
       signallingValue: 1,
       requiringOccupationType: ObjectTypes.ESCOOccupation,
     };
@@ -131,7 +131,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
             expectedFailureMessage,
             dependencies: {
               requiringOccupationType: ObjectTypes.LocalOccupation,
-              signallingValueLabel: SignallingValue.NONE,
+              signallingValueLabel: SignallingValueLabel.NONE,
             },
           });
         }
@@ -156,8 +156,8 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         `(%s) Validate 'relationType' for local occupations with a signalling value when it is %s`,
         function (caseType: CaseType, value, expectedFailureMessage) {
           // check that the relationType is NONE when the signalling value is not NONE
-          Object.values(SignallingValue)
-            .filter((value) => value !== SignallingValue.NONE)
+          Object.values(SignallingValueLabel)
+            .filter((value) => value !== SignallingValueLabel.NONE)
             .map((givenSignallingValue) => {
               assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
                 model: OccupationToSkillRelationModel,
@@ -201,10 +201,10 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Failure, undefined, "Path `signallingValueLabel` is required."],
         [CaseType.Failure, null, "Path `signallingValueLabel` is required."],
         [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `signallingValueLabel`."],
-        [CaseType.Failure, SignallingValue.LOW, "Validator failed for path `{0}` with value `low`"],
-        [CaseType.Failure, SignallingValue.MEDIUM, "Validator failed for path `{0}` with value `medium`"],
-        [CaseType.Failure, SignallingValue.HIGH, "Validator failed for path `{0}` with value `high`"],
-        [CaseType.Success, SignallingValue.NONE, undefined],
+        [CaseType.Failure, SignallingValueLabel.LOW, "Validator failed for path `{0}` with value `low`"],
+        [CaseType.Failure, SignallingValueLabel.MEDIUM, "Validator failed for path `{0}` with value `medium`"],
+        [CaseType.Failure, SignallingValueLabel.HIGH, "Validator failed for path `{0}` with value `high`"],
+        [CaseType.Success, SignallingValueLabel.NONE, undefined],
       ])(
         `(%s) Validate 'signallingValueLabel' for esco occupations when it is %s`,
         function (caseType: CaseType, value, expectedFailureMessage) {
@@ -226,10 +226,10 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Failure, undefined, "Path `signallingValueLabel` is required."],
         [CaseType.Failure, null, "Path `signallingValueLabel` is required."],
         [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `signallingValueLabel`."],
-        [CaseType.Failure, SignallingValue.LOW, "Validator failed for path `{0}` with value `low`"],
-        [CaseType.Failure, SignallingValue.MEDIUM, "Validator failed for path `{0}` with value `medium`"],
-        [CaseType.Failure, SignallingValue.HIGH, "Validator failed for path `{0}` with value `high`"],
-        [CaseType.Success, SignallingValue.NONE, undefined],
+        [CaseType.Failure, SignallingValueLabel.LOW, "Validator failed for path `{0}` with value `low`"],
+        [CaseType.Failure, SignallingValueLabel.MEDIUM, "Validator failed for path `{0}` with value `medium`"],
+        [CaseType.Failure, SignallingValueLabel.HIGH, "Validator failed for path `{0}` with value `high`"],
+        [CaseType.Success, SignallingValueLabel.NONE, undefined],
       ])(
         `(%s) Validate 'signallingValueLabel' for local occupations with a relationType when it is %s`,
         function (caseType: CaseType, value, expectedFailureMessage) {
@@ -256,10 +256,10 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [CaseType.Failure, undefined, "Path `signallingValueLabel` is required."],
         [CaseType.Failure, null, "Path `signallingValueLabel` is required."],
         [CaseType.Failure, "foo", "`foo` is not a valid enum value for path `signallingValueLabel`."],
-        [CaseType.Failure, SignallingValue.NONE, "Validator failed for path `{0}` with value ``"],
-        [CaseType.Success, SignallingValue.LOW, undefined],
-        [CaseType.Success, SignallingValue.MEDIUM, undefined],
-        [CaseType.Success, SignallingValue.HIGH, undefined],
+        [CaseType.Failure, SignallingValueLabel.NONE, "Validator failed for path `{0}` with value ``"],
+        [CaseType.Success, SignallingValueLabel.LOW, undefined],
+        [CaseType.Success, SignallingValueLabel.MEDIUM, undefined],
+        [CaseType.Success, SignallingValueLabel.HIGH, undefined],
       ])(
         `(%s) Validate 'signallingValueLabel' for local occupations when it is %s`,
         (caseType: CaseType, value, expectedFailureMessage) => {
@@ -286,7 +286,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         [ObjectTypes.Skill, ObjectTypes.Skill],
       ])(`should fail validation with reason when occupation type is %s `, (desc, givenOccupationType) => {
         const givenOccupationToSkillRelation = {
-          signallingValueLabel: SignallingValue.LOW, // valid value
+          signallingValueLabel: SignallingValueLabel.LOW, // valid value
           requiringOccupationType: givenOccupationType,
         };
         assertCaseForProperty({
@@ -315,7 +315,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         testValue: value,
         expectedFailureMessage,
         dependencies: {
-          signallingValueLabel: SignallingValue.LOW,
+          signallingValueLabel: SignallingValueLabel.LOW,
         },
       });
     });
