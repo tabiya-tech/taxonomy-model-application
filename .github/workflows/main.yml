@@ -132,3 +132,55 @@ jobs:
       expected-version-info: ${{ needs.build-backend.outputs.version-info }}
       resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
       component-url: ${{ needs.deploy-common.outputs.backendURLBase }}
+  setup-infrastructure-test:
+    uses: ./.github/workflows/deploy-setup.yml
+    needs: [ smoke-test-frontend-cdn, smoke-test-backend-cdn ]
+    secrets: inherit
+    with:
+      target-environment: test
+  deploy-auth-test:
+    needs: [ setup-infrastructure-test ]
+    uses: ./.github/workflows/deploy-auth.yml
+    secrets: inherit
+    with:
+      target-environment: test
+      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
+  deploy-locales-test:
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
+    needs: [ setup-infrastructure-test, build-api-specs, build-locales ]
+    uses: ./.github/workflows/deploy-locales.yml
+    secrets: inherit
+    with:
+      target-environment: test
+      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
+  deploy-frontend-test:
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
+    needs: [ build-frontend, setup-infrastructure-test ]
+    uses: ./.github/workflows/deploy-frontend.yml
+    secrets: inherit
+    with:
+      target-environment: test
+      version-info: ${{ needs.build-frontend.outputs.version-info }}
+      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
+  deploy-backend-test:
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
+    needs: [ build-backend, setup-infrastructure-test, deploy-auth-test ]
+    uses: ./.github/workflows/deploy-backend.yml
+    secrets: inherit
+    with:
+      target-environment: test
+      version-info: ${{ needs.build-backend.outputs.version-info }}
+      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
+      user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
+      user-pool-client-id: ${{ needs.deploy-auth.outputs.clientId }}
+
+  deploy-common-test:
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
+    needs: [ deploy-frontend-test, deploy-backend-test, deploy-locales-test, setup-infrastructure-test ]
+    uses: ./.github/workflows/deploy-common.yml
+    secrets: inherit
+    with:
+      target-environment: test
+      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
+      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
+      base-domain-name: ${{ needs.setup-infrastructure.outputs.base-domain-name }}
