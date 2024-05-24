@@ -22,6 +22,7 @@ pulumi.all([subDNS]).apply(([subDNS]) => {
 });
 
 const parentHostedZone = aws.route53.getZone({ name: baseDomainName, privateZone: false });
+
 export const subdomainRecord = new aws.route53.Record(`${environment}-subdomain-record`, {
   allowOverwrite: true,
   name: subDNS.domainName,
