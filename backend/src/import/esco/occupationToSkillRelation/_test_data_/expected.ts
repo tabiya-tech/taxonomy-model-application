@@ -1,4 +1,4 @@
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 
 export const expected = [
   {
@@ -6,31 +6,23 @@ export const expected = [
     requiringOccupationId: "mapped_key_1",
     relationType: "optional",
     requiredSkillId: "mapped_key_2",
-    signallingValueLabel: "low",
-    signallingValue: 0.1,
+    signallingValueLabel: SignallingValueLabel.NONE,
+    signallingValue: null,
   },
   {
     requiringOccupationType: ObjectTypes.ESCOOccupation,
     requiringOccupationId: "mapped_key_3",
     relationType: "essential",
     requiredSkillId: "mapped_key_4",
-    signallingValueLabel: "medium",
-    signallingValue: 0.5,
+    signallingValueLabel: SignallingValueLabel.NONE,
+    signallingValue: null,
   },
   {
     requiringOccupationType: ObjectTypes.LocalOccupation,
     requiringOccupationId: "mapped_key_7",
     relationType: "essential",
     requiredSkillId: "mapped_key_8",
-    signallingValueLabel: "high",
-    signallingValue: 1,
-  },
-  {
-    requiringOccupationType: ObjectTypes.ESCOOccupation,
-    requiringOccupationId: "mapped_key_15",
-    relationType: "",
-    requiredSkillId: "mapped_key_16",
-    signallingValueLabel: "",
+    signallingValueLabel: SignallingValueLabel.NONE,
     signallingValue: null,
   },
 ];
