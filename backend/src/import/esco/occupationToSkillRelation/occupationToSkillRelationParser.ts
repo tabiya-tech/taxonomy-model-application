@@ -22,6 +22,7 @@ import {
   getSignallingValueFromCSVSignallingValue,
   getSignallingValueLabelFromCSVSignallingValueLabel,
 } from "esco/common/csvObjectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, occupationToSkillRelationImportHeaders);
@@ -59,12 +60,42 @@ function getRowToSpecificationTransformFn(
       return null;
     }
 
-    // Check if signalling value is valid
+    // Check if signalling value is valid (a number between 0 and 1)
     const signallingValue = getSignallingValueFromCSVSignallingValue(row.SIGNALLINGVALUE);
+    if (signallingValue !== null && (signallingValue < 0 || signallingValue > 1 || isNaN(signallingValue))) {
+      errorLogger.logWarning(
+        `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
+      );
+      return null;
+    }
 
     // Check if occupation type is valid
     const occupationType = getOccupationTypeFromCSVObjectType(row.OCCUPATIONTYPE);
     if (occupationType === null) {
+      errorLogger.logWarning(
+        `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
+      );
+      return null;
+    }
+
+    // Check if relationType is set for esco occupations (all esco occupations should have a relationType)
+    if (occupationType === ObjectTypes.ESCOOccupation && !relationType) {
+      errorLogger.logWarning(
+        `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
+      );
+      return null;
+    }
+
+    // Check if signallingValueLabel or signallingValue are set for esco occupation (no esco occupations should have a signalingValue or signallingValueLabel)
+    if (occupationType === ObjectTypes.ESCOOccupation && (signallingValueLabel || signallingValue)) {
+      errorLogger.logWarning(
+        `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
+      );
+      return null;
+    }
+
+    // Check if both signallingValueLabel and relationType are set (signallingValueLabel and relationType are mutually exclusive)
+    if (signallingValueLabel && relationType) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );

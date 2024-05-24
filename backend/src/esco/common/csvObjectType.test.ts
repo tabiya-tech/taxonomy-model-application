@@ -17,6 +17,7 @@ import {
   getCSVSignalingValueLabelFromSignallingValueLabel,
   CSVSignallingValueLabel,
   getCSVSignalingValueFromSignallingValue,
+  getSignallingValueFromCSVSignallingValue,
 } from "esco/common/csvObjectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -186,11 +187,13 @@ describe("getSignallingValueLabelFromCSVSignallingValueLabel", () => {
     }
   );
 });
-describe("getSignallingValueFromCSVSignallingValue", () => {
-  const randomNumber = Math.floor(Math.random() * 10000);
+describe("getCSVSignallingValueFromSignallingValue", () => {
+  const randomNumber = Math.floor(Math.random());
   test.each([
     [0, "0"],
     [1, "1"],
+    [2, "2"],
+    [-1, "-1"],
     [10000, "10000"],
     [null, ""],
     [undefined, ""],
@@ -204,6 +207,27 @@ describe("getSignallingValueFromCSVSignallingValue", () => {
     }
   );
 });
+
+describe("getSignallingValueFromCSVSignallingValue", () => {
+  const randomNumber = Math.floor(Math.random());
+  test.each([
+    ["0", 0],
+    ["1", 1],
+    ["2", 2],
+    ["10000", 10000],
+    ["-1", -1],
+    ["", null],
+    [randomNumber.toString(), randomNumber],
+  ])(
+    `for CSV Signalling value: '%s', it should return Signalling value: '%s'`,
+    (givenCSVSignallingValue: string, expectedSignallingValue: number | null) => {
+      // GIVEN a CSVSignallingValue
+      // THEN the SignallingValue should be returned
+      expect(getSignallingValueFromCSVSignallingValue(givenCSVSignallingValue)).toBe(expectedSignallingValue);
+    }
+  );
+});
+
 describe("getCSVTypeFromReuseLevel", () => {
   test.each([
     [CSVReuseLevel.SectorSpecific, ReuseLevel.SectorSpecific],

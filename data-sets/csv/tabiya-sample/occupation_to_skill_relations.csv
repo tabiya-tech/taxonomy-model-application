@@ -8673,3 +8673,7 @@ escooccupation,key_23426,optional,key_19853,,
 escooccupation,key_23426,optional,key_20015,,
 escooccupation,key_23428,essential,key_19934,,
 escooccupation,key_23428,optional,key_20359,,
+localoccupation,key_20000003,optional,key_19853,,
+localoccupation,key_20000003,,key_20015,low,0
+localoccupation,key_20000003,,key_19934,medium,0.5
+localoccupation,key_20000003,,key_20359,high,1
