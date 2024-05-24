@@ -12,6 +12,21 @@ on:
       target-domain-name:
         required: true
         type: string
+      backend-url:
+        required: true
+        type: string
+      locales-url:
+        required: true
+        type: string
+      auth-url:
+        required: true
+        type: string
+      cognito-client-id:
+        required: true
+        type: string
+      cognito-client-secret:
+        required: true
+        type: string
     outputs:
       frontendBucketWebsiteURLBase:
         description: "The frontend bucket url"
@@ -48,6 +63,18 @@ jobs:
         with:
           name: frontend.build.folder
           path: frontend/build/
+      - name: Build env.js file
+        # we are basically creating a js file with the passed env variables
+        # that can be executed in the client browser when the js file is loaded
+        run: |
+          echo "window.tabiyaConfig = {" > frontend/build/data/env.js
+          echo "\"BACKEND_URL\": btoa(\"${{ inputs.backend-url }}\")," >> frontend/build/data/env.js
+          echo "\"LOCALES_URL\": btoa(\"${{ inputs.locales-url }}\")," >> frontend/build/data/env.js
+          echo "\"AUTH_URL\": btoa(\"${{ inputs.auth-url }}\")," >> frontend/build/data/env.js
+          echo "\"COGNITO_CLIENT_ID\": btoa(\"${{ inputs.cognito-client-id }}\")," >> frontend/build/data/env.js
+          echo "\"COGNITO_CLIENT_SECRET\": btoa(\"${{ inputs.cognito-client-secret }}\")" >> frontend/build/data/env.js
+          echo "};" >> frontend/build/data/env.js
+          cat frontend/build/data/env.js
       - name: Deploy frontend
         id: pulumi
         uses: pulumi/actions@v5
