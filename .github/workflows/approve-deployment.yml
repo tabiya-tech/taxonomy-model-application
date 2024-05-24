@@ -1,0 +1,13 @@
+name: Request approval
+
+on:
+  workflow_call:
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    environment: confirmation
+    steps:
+      - name: Request approval
+        run: echo "Deployment approved"
+
