@@ -11,7 +11,7 @@ export function setupLocalesBucket(domainName: string, allowedOrigins: string[])
   const bucket = new aws.s3.Bucket(LOCALES_BUCKET_NAME, {
     corsRules: [{
       allowedHeaders: ["*"],
-      allowedMethods: ["GET"],
+      allowedMethods: ["GET", "HEAD"],
       allowedOrigins: allowedOrigins,
       maxAgeSeconds: 3600
     }],
@@ -64,8 +64,9 @@ export function setupLocalesBucket(domainName: string, allowedOrigins: string[])
     path: LOCALES_FOLDER_PATH,
     bucketName: bucket.bucket,
     acl: aws.s3.PublicReadAcl,
-    managedObjects: true
-  }, {dependsOn: [ownershipControls, publicAccessAllow, bucketPolicy]});
+    managedObjects: true,
+    disableManagedObjectAliases: true,
+  }, {dependsOn: [ownershipControls, publicAccessAllow]});
 
   return bucket;
 }

@@ -11,7 +11,7 @@ pulumi.log.info(`Using base domain name : ${baseDomainName}`);
 if(!baseDomainName) throw new Error("environment variable BASE_DOMAIN_NAME is required")
 
 const  subdomain = environment
-export const domainName = `${subdomain}.${baseDomainName}`;
+export const domainName = environment == "production" ? baseDomainName : `${subdomain}.${baseDomainName}`;
 
 const setUpStack = new pulumi.StackReference(`tabiya-tech/taxonomy-model-application-setup/${environment}`);
 const hostedZone = setUpStack.getOutput("hostedZone").apply((t) => ({
