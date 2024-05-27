@@ -154,7 +154,7 @@ describe("RoleBasedAuthroizerTests", () => {
 
       // AND expect the console.error to be called
       expect(console.error).toHaveBeenCalledWith(
-        "Invalid JSON schema",
+        "Authorizer context validation failed. Invalid JSON Schema:",
         "[schema validation]  must have required property 'username'"
       );
     });
