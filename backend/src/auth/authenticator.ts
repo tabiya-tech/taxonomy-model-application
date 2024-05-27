@@ -36,7 +36,10 @@ export const checkRole = (event: APIGatewayEvent, requiredRole: AuthAPISpecs.Enu
     const isValid = validateFunction(contextPayload);
 
     if (!isValid) {
-      console.error("Invalid JSON schema", ParseValidationError(validateFunction.errors));
+      console.error(
+        "Authorizer context validation failed. Invalid JSON Schema:",
+        ParseValidationError(validateFunction.errors)
+      );
       return false;
     }
 
