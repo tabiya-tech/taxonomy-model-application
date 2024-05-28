@@ -119,7 +119,7 @@ yarn lint
 
 Contributions are highly valued in this project. 
 
-In addition to the [contribution guidelines](/README.md#contribution-guidelines) mentioned in the parent directory, please follow these specific rules while working on the frontend project:
+In addition to the [contribution guidelines](../README.md#contribution-guidelines) mentioned in the parent directory, please follow these specific rules while working on the frontend project:
 
 - Please consult our [UI Guidelines](ui-guidelines.md) before proceeding with frontend work.
 

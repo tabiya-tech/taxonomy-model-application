@@ -3,7 +3,7 @@
 At [Tabiya](https://tabiya.tech/), we follow these UI guidelines to ensure consistency and maintainability in our
 project's user interface.
 
-Additionally, we have a [Styles Story in Storybook](src/theme/applicationTheme.stories.tsx) to visualize various aspects
+Additionally, we have a [Styles Stories in Storybook](src/theme/applicationTheme) to visualize various aspects
 of our style and provide visual guidance for selecting the appropriate styling for elements.
 
 For further guidance, refer to the [Material Design System v2](https://m2.material.io/).

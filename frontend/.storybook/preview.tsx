@@ -18,7 +18,7 @@ import "@fontsource/roboto/700.css";
 */
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
-import { IsOnlineProvider, AuthProvider } from "../src/app/providers";
+import { IsOnlineProvider } from "../src/app/providers";
 import { AuthContext, authContextDefaultValue } from "../src/auth/AuthProvider";
 
 const preview: Preview = {
@@ -42,7 +42,7 @@ const preview: Preview = {
       // so it is important that the selector returns only one element.
       // An alternative to this would have been to use the `body` element to run the a11y tests on that,
       // but this does not work well because it reports false positives and false negatives.
-      // The same selector is used in the `a11y` parameter in the `preview.tsx` file.
+      // The same selector is used in the `a11y` parameter in the `test-runner.tsx` file.
       element: '#storybook-root:not([aria-hidden="true"]), body > div[role="presentation"]',
     },
   },
