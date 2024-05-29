@@ -44,7 +44,7 @@ jobs:
     secrets: inherit
     with:
       target-environment: dev
-      target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
+      target-domain-name: ${{ needs.setup-infrastructure-dev.outputs.target-domain-name }}
   # Backend
   build-backend:
     uses: ./.github/workflows/build-backend.yml
@@ -160,6 +160,7 @@ jobs:
     with:
       target-environment: test
       target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
+
   deploy-locales-test:
     needs: [ setup-infrastructure-test, build-api-specs, build-locales ]
     uses: ./.github/workflows/deploy-locales.yml
@@ -186,6 +187,7 @@ jobs:
       expected-version-info: ${{ needs.build-backend.outputs.version-info }}
       component-url: ${{ needs.deploy-backend-test.outputs.backedRestApiURLBase }}
       resources-base-url: ${{ needs.deploy-backend-test.outputs.resourcesBaseUrl }}
+
   # Frontend
   deploy-frontend-test:
     needs: [ build-frontend, setup-infrastructure-test, deploy-auth-test ]
