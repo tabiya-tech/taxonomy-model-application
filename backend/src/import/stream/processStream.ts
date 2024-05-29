@@ -23,6 +23,7 @@ export function processDownloadStream<T>(
             reject(e);
             return;
           }
+          console.info(`Downloading file ${url} for ${streamName}...`);
           const stats = await processStream<T>(streamName, response, rowProcessor);
           resolve(stats);
         } catch (e: unknown) {
@@ -54,6 +55,7 @@ export function processStream<T>(
           errorLogger.logError(err);
           reject(error);
         });
+
         const parser: Parser = stream.pipe(
           parse({
             // Convert the header to uppercase, to avoid case sensitivity issues
@@ -64,10 +66,10 @@ export function processStream<T>(
         // Handling error here is not necessary as it is handled by the catch() in the async loop bellow
         // In fact, as the promise is already rejected in the catch() bellow, whoever is waiting for the promise has already been notified
         // and calling reject again here would result in unexpected side effects
-        // parser.on('error', (error: Error) => {
-        //  console.error(`Error from the csv parser:`, error);
-        //  reject(error);
-        // });
+        parser.on("error", (error: Error) => {
+          console.error(`Error from the csv parser:`, { cause: error });
+          // reject(error);
+        });
 
         let count = 0;
         for await (const record of parser) {

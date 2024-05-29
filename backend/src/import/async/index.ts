@@ -52,7 +52,8 @@ export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload):
   try {
     await parseFiles(event);
   } catch (e: unknown) {
-    console.error(e);
+    const err = new Error("Error while parsing files", { cause: e });
+    console.error(err);
     // Set the import process status to FAILED
     await importErrored(event.modelId);
     return;
