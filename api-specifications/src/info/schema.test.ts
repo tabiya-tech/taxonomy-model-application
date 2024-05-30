@@ -24,7 +24,7 @@ describe("Validate JSON against the Info Schema", () => {
   // GIVEN a valid ModelInfoResponse object
   const givenValidInfoResponse: InfoAPISpecs.Types.GET.Response.Payload = {
     date: "2023-08-22T14:13:32.439Z",
-    branch: "main",
+    version: "main",
     buildNumber: "972",
     sha: "c7846bd03d8bb709a93cd4eba4b88889e69a0fd2",
     path: "https://dev.tabiya.tech/api/info",
@@ -60,10 +60,10 @@ describe("Validate JSON against the Info Schema", () => {
       );
     });
 
-    describe("Test validation of 'branch'", () => {
+    describe("Test validation of 'version/branch'", () => {
       testStringField<InfoAPISpecs.Types.GET.Response.Payload>(
-        "branch",
-        InfoConstants.BRANCH_MAX_LENGTH,
+        "version",
+        InfoConstants.VERSION_MAX_LENGTH,
         InfoAPISpecs.Schemas.GET.Response.Payload
       );
     });

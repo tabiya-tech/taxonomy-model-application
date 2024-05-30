@@ -1,6 +1,6 @@
 {
 "date": "###date###",
-"branch": "###GITHUB_REF_NAME###",
+"version": "###GITHUB_REF_NAME###",
 "buildNumber":"###GITHUB_RUN_NUMBER###",
 "sha":"###GITHUB_SHA###"
 }

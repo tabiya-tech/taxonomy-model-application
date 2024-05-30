@@ -32,14 +32,14 @@ const VersionContainer = ({ dataTestId, title, info }: { dataTestId: string; tit
       {info ? (
         <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm}>
           <VersionInfoItem title="Date" value={info.date} />
-          <VersionInfoItem title="Branch" value={info.branch} />
+          <VersionInfoItem title="Version" value={info.version} />
           <VersionInfoItem title="Build Number" value={info.buildNumber} />
           <VersionInfoItem title="GIT SHA" value={info.sha} />
         </Box>
       ) : (
         <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm}>
           <VersionInfoItem title="Date" value={"0000-00-00T00:00:00.000Z"} skeleton={true} />
-          <VersionInfoItem title="Branch" value={"foo"} skeleton={true} />
+          <VersionInfoItem title="Version" value={"foo"} skeleton={true} />
           <VersionInfoItem title="Build Number" value={"000"} skeleton={true} />
           <VersionInfoItem title="GIT SHA" value={"foofoofoofoofoofoofoofoofoofoofoofoofoo"} skeleton={true} />
         </Box>
