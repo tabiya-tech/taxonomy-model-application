@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    name: Build API Specifications
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

@@ -34,13 +34,13 @@ describe("Testing Info component", () => {
     // GIVEN some frontend and backend info data are available and loaded
     const expectedFrontendInfoData: InfoProps = {
       date: "fooFrontend",
-      branch: "barFrontend",
+      version: "barFrontend",
       buildNumber: "bazFrontend",
       sha: "gooFrontend",
     };
     const expectedBackendInfoData: InfoProps = {
       date: "fooBackend",
-      branch: "barBackend",
+      version: "barBackend",
       buildNumber: "bazBackend",
       sha: "gooBackend",
     };
