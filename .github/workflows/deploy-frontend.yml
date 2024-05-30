@@ -30,10 +30,10 @@ on:
     outputs:
       frontendBucketWebsiteURLBase:
         description: "The frontend bucket url"
-        value: ${{ jobs.deploy.outputs.frontendBucketWebsiteURLBase }}
+        value: ${{ jobs.deploy-frontend.outputs.frontendBucketWebsiteURLBase }}
 
 jobs:
-  deploy:
+  deploy-frontend:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
