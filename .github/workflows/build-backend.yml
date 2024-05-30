@@ -2,18 +2,14 @@ name: Build Backend
 
 on:
   workflow_call:
-    inputs:
-      target-environment:
-        required: true
-        type: string
     outputs:
       version-info:
         description: "The backend version info"
         value: ${{ jobs.build.outputs.version-info }}
 jobs:
   build:
+    name: Backend - Build
     runs-on: ubuntu-latest
-    environment: ${{ inputs.target-environment }}
     outputs:
         version-info: ${{ steps.setVersionInfo.outputs.version-info }}
     steps:
@@ -73,7 +69,7 @@ jobs:
           retention-days: 1
   test-integration:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.target-environment }}
+    name: Backend - Test Integration
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -89,3 +85,5 @@ jobs:
       - name: Run Integration Tests
         run: yarn run test:integration
         working-directory: backend
+
+

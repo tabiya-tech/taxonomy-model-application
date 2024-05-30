@@ -40,7 +40,7 @@ delete Auth.Schemas.Request.Context.$id;
 //--------------------------------------------------------------------------------------------------
 // @ts-ignore
 import version = require("../src/applicationInfo/version.json");
-const specs = getOpenAPISpecification(`1.0.0 build:${version.buildNumber} sha:${version.sha}`, ["./src/**/index.ts"], false);
+const specs = getOpenAPISpecification(`${version.version} build:${version.buildNumber} sha:${version.sha}`, ["./src/**/index.ts"], false);
 
 //--------------------------------------------------------------------------------------------------
 // Store the openapi specification in the build folder.

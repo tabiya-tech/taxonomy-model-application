@@ -62,7 +62,7 @@ exports[`Testing Info component it should show frontend and backend info success
                   <h6
                     class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
                   >
-                    Branch
+                    Version
                   </h6>
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
@@ -132,7 +132,7 @@ exports[`Testing Info component it should show frontend and backend info success
                   <h6
                     class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
                   >
-                    Branch
+                    Version
                   </h6>
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
@@ -211,7 +211,7 @@ exports[`Testing Info component it should show frontend and backend info success
       <h6
         class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
       >
-        Branch
+        Version
       </h6>
       <p
         class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
@@ -284,7 +284,7 @@ exports[`Testing Info component it should show frontend and backend info success
       <h6
         class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
       >
-        Branch
+        Version
       </h6>
       <p
         class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"

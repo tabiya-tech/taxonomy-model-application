@@ -1,0 +1,35 @@
+name: MongoDB Database Dump and Restore
+
+on:
+  workflow_call:
+    inputs:
+      target-environment:
+        required: true
+        type: string
+
+jobs:
+  dump-and-restore:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target-environment }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up MongoDB CLI Tools
+        run: |
+          wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools
+
+      - name: Dump MongoDB Database
+        env:
+          SOURCE_DB_URL: ${{ secrets.PROD_MONGODB_URI }}
+        run: |
+          mongodump --uri="${SOURCE_DB_URL}" --out=/tmp/mongodump --quiet
+
+      - name: Restore MongoDB Database
+        env:
+          TARGET_DB_URL: ${{ secrets.MONGODB_URI }}
+        run: |
+          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${{ secrets.PROD_DB_NAME }} --quiet
