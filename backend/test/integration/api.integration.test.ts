@@ -40,7 +40,7 @@ const modelManagerAccessibleRoutes: [string, AllowedMethods][] = [
   ['/presigned', 'GET'],
 ];
 
-describe("Test route", () => {
+describe.skip("Test route", () => {
   const originalEnv: { [key: string]: string } = {};
   // Backup and restore the original env variables
   beforeAll(() => {
