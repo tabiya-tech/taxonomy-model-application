@@ -24,7 +24,7 @@ describe("InfoService", () => {
       const someURL: string = "url";
       const expectedData: InfoProps = {
         date: "foo",
-        branch: "bar",
+        version: "bar",
         buildNumber: "baz",
         sha: "goo",
       };
@@ -51,7 +51,7 @@ describe("InfoService", () => {
 
       // THEN it returns info object with empty values
       expect(mockFetch).toHaveBeenCalledWith(someURL, anonymousFetchOptions);
-      expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
+      expect(actualResult).toMatchObject({ date: "", version: "", buildNumber: "", sha: "" });
     });
 
     test.each([{}, { foo: "bar" }, null])(
@@ -67,7 +67,7 @@ describe("InfoService", () => {
 
         // THEN it returns info object with empty values
         expect(mockFetch).toHaveBeenCalledWith(someURL, anonymousFetchOptions);
-        expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
+        expect(actualResult).toMatchObject({ date: "", version: "", buildNumber: "", sha: "" });
       }
     );
 
@@ -90,7 +90,7 @@ describe("InfoService", () => {
 
       // THEN it returns info object with empty values
       expect(mockFetch).toHaveBeenCalledWith(someURL, anonymousFetchOptions);
-      expect(actualResult).toMatchObject({ date: "", branch: "", buildNumber: "", sha: "" });
+      expect(actualResult).toMatchObject({ date: "", version: "", buildNumber: "", sha: "" });
     });
   });
   describe("Test the loadInfo function", () => {
@@ -100,13 +100,13 @@ describe("InfoService", () => {
       const service = new InfoService();
       const expectedFrontendInfoData: InfoProps = {
         date: "fooFrontend",
-        branch: "barFrontend",
+        version: "barFrontend",
         buildNumber: "bazFrontend",
         sha: "gooFrontend",
       };
       const expectedBackendInfoData: InfoProps = {
         date: "fooBackend",
-        branch: "barBackend",
+        version: "barBackend",
         buildNumber: "bazBackend",
         sha: "gooBackend",
       };
@@ -131,7 +131,7 @@ describe("InfoService", () => {
       jest.spyOn(service, "loadInfoFromUrl").mockImplementation(() =>
         Promise.resolve({
           date: "",
-          branch: "",
+          version: "",
           buildNumber: "",
           sha: "",
         })

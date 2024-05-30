@@ -13,13 +13,13 @@ export default class InfoService {
         //jsonschema verify
         return {
           date: data.date || "",
-          branch: data.branch || "",
+          version: data.version || "",
           buildNumber: data.buildNumber || "",
           sha: data.sha || "",
         };
       });
     } catch (error) {
-      return { date: "", branch: "", buildNumber: "", sha: "" };
+      return { date: "", version: "", buildNumber: "", sha: "" };
     }
   }
 
