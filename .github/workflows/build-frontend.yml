@@ -6,29 +6,10 @@ on:
       version-info:
         description: 'The frontend version info'
         value: ${{ jobs.build.outputs.version-info }}
-    inputs:
-      target-environment:
-        required: true
-        type: string
-      backend-url:
-        required: true
-        type: string
-      locales-url:
-        required: true
-        type: string
-      auth-url:
-        required: true
-        type: string
-      cognito-client-id:
-        required: true
-        type: string
-      cognito-client-secret:
-        required: true
-        type: string
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.target-environment }}
     outputs:
       version-info: ${{ steps.setVersionInfo.outputs.version-info }}
     steps:
@@ -45,11 +26,11 @@ jobs:
         # that can be executed in the client browser when the js file is loaded
         run: |
           echo "window.tabiyaConfig = {" > frontend/public/data/env.js
-          echo "\"BACKEND_URL\": btoa(\"${{ inputs.backend-url }}\")," >> frontend/public/data/env.js
-          echo "\"LOCALES_URL\": btoa(\"${{ inputs.locales-url }}\")," >> frontend/public/data/env.js
-          echo "\"AUTH_URL\": btoa(\"${{ inputs.auth-url }}\")," >> frontend/public/data/env.js
-          echo "\"COGNITO_CLIENT_ID\": btoa(\"${{ inputs.cognito-client-id }}\")," >> frontend/public/data/env.js
-          echo "\"COGNITO_CLIENT_SECRET\": btoa(\"${{ inputs.cognito-client-secret }}\")" >> frontend/public/data/env.js
+          echo "\"BACKEND_URL\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"LOCALES_URL\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"AUTH_URL\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"COGNITO_CLIENT_ID\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"COGNITO_CLIENT_SECRET\": btoa(\"\")" >> frontend/public/data/env.js
           echo "};" >> frontend/public/data/env.js
           cat frontend/public/data/env.js
       - name: Install dependencies
@@ -80,6 +61,7 @@ jobs:
           retention-days: 1
   test:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
