@@ -144,8 +144,14 @@ jobs:
       resources-base-url: ${{ needs.deploy-backend-dev.outputs.resourcesBaseUrl }}
       component-url: ${{ needs.deploy-common-dev.outputs.backendURLBase }}
 
+  # Compare Versions
+  compare-versions:
+    uses: ./.github/workflows/compare-versions.yml
+    secrets: inherit
+
   # Set-Up Infrastructure if a tag is pushed or a release is published
   setup-infrastructure-test:
+    needs: [ compare-versions ]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     uses: ./.github/workflows/deploy-setup.yml
     secrets: inherit

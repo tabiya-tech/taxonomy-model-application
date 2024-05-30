@@ -1,0 +1,19 @@
+name: Validate Versions
+
+on:
+  workflow_call:
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Run Check version
+        # This script will compare the version of the current branch with the version in the platform
+        run: |
+          ./pipeline/compareVersions.sh $GITHUB_REF_NAME https://platform.tabiya.tech/data/version.json
+
