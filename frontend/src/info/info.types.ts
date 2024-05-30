@@ -1,6 +1,6 @@
 export interface InfoProps {
   date: string;
-  branch: string;
+  version: string;
   buildNumber: string;
   sha: string;
 }

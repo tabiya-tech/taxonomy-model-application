@@ -21,13 +21,13 @@ on:
     outputs:
       backedRestApiURLBase:
         description: "The backend api url"
-        value: ${{ jobs.deploy.outputs.backedRestApiURLBase }}
+        value: ${{ jobs.deploy-backend.outputs.backedRestApiURLBase }}
       resourcesBaseUrl:
         description: "The resources base url"
-        value: ${{ jobs.deploy.outputs.resourcesBaseUrl }}
+        value: ${{ jobs.deploy-backend.outputs.resourcesBaseUrl }}
 
 jobs:
-  deploy:
+  deploy-backend:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:

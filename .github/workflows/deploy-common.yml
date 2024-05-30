@@ -18,13 +18,13 @@ on:
     outputs:
       frontendURLBase:
         description: "The frontend url"
-        value: ${{ jobs.deploy.outputs.frontendURLBase }}
+        value: ${{ jobs.deploy-common.outputs.frontendURLBase }}
       backendURLBase:
         description: "The backend url"
-        value: ${{ jobs.deploy.outputs.backendURLBase }}
+        value: ${{ jobs.deploy-common.outputs.backendURLBase }}
 
 jobs:
-  deploy:
+  deploy-common:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:

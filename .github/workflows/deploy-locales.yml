@@ -11,7 +11,7 @@ on:
         type: string
 
 jobs:
-  deploy:
+  deploy-locales:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     steps:
