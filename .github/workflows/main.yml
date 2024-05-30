@@ -12,303 +12,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Development Jobs.
+  # Build
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
 
-  # Set-Up Infrastructure
-  setup-infrastructure-dev:
-    uses: ./.github/workflows/deploy-setup.yml
-    secrets: inherit
-    with:
-      target-environment: dev
-  # API Specifications
-  build-api-specs:
-    uses: ./.github/workflows/build-api-specs.yml
-    secrets: inherit
-  # Auth
-  deploy-auth-dev:
-    needs: [ setup-infrastructure-dev ]
-    uses: ./.github/workflows/deploy-auth.yml
-    secrets: inherit
-    with:
-      target-environment: dev
-      target-domain-name: ${{ needs.setup-infrastructure-dev.outputs.target-domain-name }}
-  #  # Locales
-  build-locales:
-    needs: [ build-api-specs ]
-    uses: ./.github/workflows/build-locales.yml
-    secrets: inherit
-  deploy-locales-dev:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]')) && !startsWith(github.ref, 'refs/tags/')
-    needs: [ setup-infrastructure-dev, build-api-specs, build-locales ]
-    uses: ./.github/workflows/deploy-locales.yml
-    secrets: inherit
-    with:
-      target-environment: dev
-      target-domain-name: ${{ needs.setup-infrastructure-dev.outputs.target-domain-name }}
-  # Backend
-  build-backend:
-    uses: ./.github/workflows/build-backend.yml
-    needs: [ build-api-specs, setup-infrastructure-dev, deploy-auth-dev ]
-    secrets: inherit
-    with:
-      target-environment: dev
-      backend-url: ${{ needs.setup-infrastructure-dev.outputs.backend-url }}
-      user-pool-id: ${{ needs.deploy-auth-dev.outputs.userPoolId }}
-      user-pool-client-id: ${{ needs.deploy-auth-dev.outputs.clientId }}
-      user-pool-client-secret: ${{ needs.deploy-auth-dev.outputs.clientSecret }}
-  deploy-backend-dev:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]')) && !startsWith(github.ref, 'refs/tags/')
-    needs: [ build-backend, setup-infrastructure-dev, deploy-auth-dev ]
-    uses: ./.github/workflows/deploy-backend.yml
-    secrets: inherit
-    with:
-      target-environment: dev
-      version-info: ${{ needs.build-backend.outputs.version-info }}
-      target-domain-name: ${{ needs.setup-infrastructure-dev.outputs.target-domain-name }}
-      user-pool-id: ${{ needs.deploy-auth-dev.outputs.userPoolId }}
-      user-pool-client-id: ${{ needs.deploy-auth-dev.outputs.clientId }}
-  smoke-test-backend-dev:
-    needs: [ build-backend, deploy-backend-dev ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: backend
-      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
-      component-url: ${{ needs.deploy-backend-dev.outputs.backedRestApiURLBase }}
-      resources-base-url: ${{ needs.deploy-backend-dev.outputs.resourcesBaseUrl }}
-  # Frontend
-  build-frontend:
-    uses: ./.github/workflows/build-frontend.yml
-    needs: [ build-api-specs, setup-infrastructure-dev, deploy-auth-dev ]
-    secrets: inherit
-    with:
-      target-environment: dev
-      backend-url: ${{ needs.setup-infrastructure-dev.outputs.backend-url }}
-      locales-url: ${{ needs.setup-infrastructure-dev.outputs.locales-url }}
-      auth-url: ${{ needs.setup-infrastructure-dev.outputs.auth-url }}
-      cognito-client-id: ${{ needs.deploy-auth.outputs.clientId }}
-      cognito-client-secret: ${{ needs.deploy-auth.outputs.clientSecret }}
-  deploy-frontend-dev:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]')) && !startsWith(github.ref, 'refs/tags/')
-    needs: [ build-frontend, setup-infrastructure-dev, deploy-auth-dev ]
-    uses: ./.github/workflows/deploy-frontend.yml
-    secrets: inherit
-    with:
-      target-environment: dev
-      version-info: ${{ needs.build-frontend.outputs.version-info }}
-      target-domain-name: ${{ needs.setup-infrastructure-dev.outputs.target-domain-name }}
-      backend-url: ${{ needs.setup-infrastructure-dev.outputs.backend-url }}
-      locales-url: ${{ needs.setup-infrastructure-dev.outputs.locales-url }}
-      auth-url: ${{ needs.setup-infrastructure-dev.outputs.auth-url }}
-      cognito-client-id: ${{ needs.deploy-auth-dev.outputs.clientId }}
-      cognito-client-secret: ${{ needs.deploy-auth-dev.outputs.clientSecret }}
-  smoke-test-frontend-dev:
-    needs: [ build-frontend, deploy-frontend-dev ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: frontend
-      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      component-url: ${{ needs.deploy-frontend-dev.outputs.frontendBucketWebsiteURLBase }}
-  # Sonarcloud
-  sonarcloud:
-    needs: [ build-backend, build-frontend, build-api-specs ]
-    uses: ./.github/workflows/sonar-cloud.yml
-    secrets: inherit
-  # Common Infrastructure
-  deploy-common-dev:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
-    needs: [ deploy-frontend-dev, build-frontend, deploy-backend-dev, build-backend, setup-infrastructure-dev, deploy-locales-dev, setup-infrastructure-dev ]
-    uses: ./.github/workflows/deploy-common.yml
-    secrets: inherit
-    with:
-      target-environment: dev
-      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
-      base-domain-name: ${{ needs.setup-infrastructure-dev.outputs.base-domain-name }}
-  smoke-test-frontend-cdn-dev:
-    needs: [ build-frontend, setup-infrastructure-dev, deploy-common-dev ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: frontend
-      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      component-url: ${{ needs.deploy-common-dev.outputs.frontendURLBase }}
-  smoke-test-backend-cdn-dev:
-    needs: [ build-backend, deploy-backend-dev, deploy-common-dev ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: backend
-      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
-      resources-base-url: ${{ needs.deploy-backend-dev.outputs.resourcesBaseUrl }}
-      component-url: ${{ needs.deploy-common-dev.outputs.backendURLBase }}
-
-  # Set-Up Infrastructure if a tag is pushed or a release is published
-  setup-infrastructure-test:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    uses: ./.github/workflows/deploy-setup.yml
+  # Copy the target database
+  copy-target-database:
+    uses: ./.github/workflows/copy-database.yml
     secrets: inherit
     with:
       target-environment: test
 
-  # Auth
-  deploy-auth-test:
-    needs: [ setup-infrastructure-test ]
-    uses: ./.github/workflows/deploy-auth.yml
+  deploy:
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]') || startsWith(github.ref, 'refs/tags/'))
+    needs: [ build, copy-target-database ]
+    uses: ./.github/workflows/deploy.yml
     secrets: inherit
     with:
-      target-environment: test
-      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
+      target-environment: ${{ startsWith(github.ref, 'refs/tags/') && 'test' || 'dev'  }}
+      backend-version-info: ${{ needs.build.outputs.backend-version-info }}
+      frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}
 
-  deploy-locales-test:
-    needs: [ setup-infrastructure-test, build-api-specs, build-locales ]
-    uses: ./.github/workflows/deploy-locales.yml
-    secrets: inherit
-    with:
-      target-environment: test
-      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
-  deploy-backend-test:
-    needs: [ build-backend, setup-infrastructure-test, deploy-auth-test ]
-    uses: ./.github/workflows/deploy-backend.yml
-    secrets: inherit
-    with:
-      target-environment: test
-      version-info: ${{ needs.build-backend.outputs.version-info }}
-      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
-      user-pool-id: ${{ needs.deploy-auth-test.outputs.userPoolId }}
-      user-pool-client-id: ${{ needs.deploy-auth-test.outputs.clientId }}
-  smoke-test-backend-test:
-    needs: [ build-backend, deploy-backend-test ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: backend
-      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
-      component-url: ${{ needs.deploy-backend-test.outputs.backedRestApiURLBase }}
-      resources-base-url: ${{ needs.deploy-backend-test.outputs.resourcesBaseUrl }}
-
-  # Frontend
-  deploy-frontend-test:
-    needs: [ build-frontend, setup-infrastructure-test, deploy-auth-test ]
-    uses: ./.github/workflows/deploy-frontend.yml
-    secrets: inherit
-    with:
-      target-environment: test
-      version-info: ${{ needs.build-frontend.outputs.version-info }}
-      target-domain-name: ${{ needs.setup-infrastructure-test.outputs.target-domain-name }}
-      backend-url: ${{ needs.setup-infrastructure-test.outputs.backend-url }}
-      locales-url: ${{ needs.setup-infrastructure-test.outputs.locales-url }}
-      auth-url: ${{ needs.setup-infrastructure-test.outputs.auth-url }}
-      cognito-client-id: ${{ needs.deploy-auth-test.outputs.clientId }}
-      cognito-client-secret: ${{ needs.deploy-auth-test.outputs.clientSecret }}
-  smoke-test-frontend-test:
-    needs: [ build-frontend, deploy-frontend-test ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: frontend
-      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      component-url: ${{ needs.deploy-frontend-test.outputs.frontendBucketWebsiteURLBase }}
-  # Common Infrastructure
-  deploy-common-test:
-    needs: [ deploy-frontend-test, build-frontend, deploy-backend-test, build-backend, setup-infrastructure-test, deploy-locales-test, setup-infrastructure-test ]
-    uses: ./.github/workflows/deploy-common.yml
-    secrets: inherit
-    with:
-      target-environment: test
-      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
-      base-domain-name: ${{ needs.setup-infrastructure-test.outputs.base-domain-name }}
-  smoke-test-frontend-cdn-test:
-    needs: [ build-frontend, setup-infrastructure-test, deploy-common-test ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: frontend
-      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      component-url: ${{ needs.deploy-common-test.outputs.frontendURLBase }}
-  smoke-test-backend-cdn-test:
-    needs: [ build-backend, deploy-backend-test, deploy-common-test ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: backend
-      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
-      resources-base-url: ${{ needs.deploy-backend-test.outputs.resourcesBaseUrl }}
-      component-url: ${{ needs.deploy-common-test.outputs.backendURLBase }}
   require-approval:
-    needs: [smoke-test-frontend-cdn-test, smoke-test-backend-cdn-test ]
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [ build, deploy ]
     uses: ./.github/workflows/approve-deployment.yml
     secrets: inherit
-  setup-infrastructure-prod:
-    uses: ./.github/workflows/deploy-setup.yml
-    needs: [ smoke-test-frontend-cdn-test, smoke-test-backend-cdn-test, require-approval ]
-    secrets: inherit
-    with:
-      target-environment: production
-  deploy-auth-prod:
-    needs: [ setup-infrastructure-prod ]
-    uses: ./.github/workflows/deploy-auth.yml
-    secrets: inherit
-    with:
-      target-environment: production
-      target-domain-name: ${{ needs.setup-infrastructure-prod.outputs.target-domain-name }}
-  deploy-locales-prod:
-    needs: [ setup-infrastructure-prod, build-api-specs, build-locales ]
-    uses: ./.github/workflows/deploy-locales.yml
-    secrets: inherit
-    with:
-      target-environment: production
-      target-domain-name: ${{ needs.setup-infrastructure-prod.outputs.target-domain-name }}
-  deploy-frontend-prod:
-    needs: [ build-frontend, setup-infrastructure-prod, deploy-auth-prod ]
-    uses: ./.github/workflows/deploy-frontend.yml
-    secrets: inherit
-    with:
-      target-environment: production
-      version-info: ${{ needs.build-frontend.outputs.version-info }}
-      target-domain-name: ${{ needs.setup-infrastructure-prod.outputs.target-domain-name }}
-      backend-url: ${{ needs.setup-infrastructure-prod.outputs.backend-url }}
-      locales-url: ${{ needs.setup-infrastructure-prod.outputs.locales-url }}
-      auth-url: ${{ needs.setup-infrastructure-prod.outputs.auth-url }}
-      cognito-client-id: ${{ needs.deploy-auth-prod.outputs.clientId }}
-      cognito-client-secret: ${{ needs.deploy-auth-prod.outputs.clientSecret }}
 
-  deploy-backend-prod:
-    needs: [ build-backend, setup-infrastructure-prod, deploy-auth-prod ]
-    uses: ./.github/workflows/deploy-backend.yml
+  deploy-production:
+    needs: [ build, require-approval, deploy ]
+    uses: ./.github/workflows/deploy.yml
     secrets: inherit
     with:
       target-environment: production
-      version-info: ${{ needs.build-backend.outputs.version-info }}
-      target-domain-name: ${{ needs.setup-infrastructure-prod.outputs.target-domain-name }}
-      user-pool-id: ${{ needs.deploy-auth-prod.outputs.userPoolId }}
-      user-pool-client-id: ${{ needs.deploy-auth-prod.outputs.clientId }}
-
-  deploy-common-prod:
-    needs: [ deploy-frontend-prod, deploy-backend-prod, deploy-locales-prod, setup-infrastructure-prod ]
-    uses: ./.github/workflows/deploy-common.yml
-    secrets: inherit
-    with:
-      target-environment: production
-      frontend-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      backend-version-info: ${{ needs.build-backend.outputs.version-info }}
-      base-domain-name: ${{ needs.setup-infrastructure-prod.outputs.base-domain-name }}
-  smoke-test-frontend-cdn-prod:
-    needs: [ build-frontend, setup-infrastructure-prod, deploy-common-prod ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: frontend
-      expected-version-info: ${{ needs.build-frontend.outputs.version-info }}
-      component-url: ${{ needs.deploy-common-prod.outputs.frontendURLBase }}
-  smoke-test-backend-cdn-prod:
-    needs: [ build-backend, deploy-backend-prod, deploy-common-prod ]
-    uses: ./.github/workflows/smoke-test-version.yml
-    secrets: inherit
-    with:
-      component: backend
-      expected-version-info: ${{ needs.build-backend.outputs.version-info }}
-      resources-base-url: ${{ needs.deploy-backend-prod.outputs.resourcesBaseUrl }}
-      component-url: ${{ needs.deploy-common-prod.outputs.backendURLBase }}
+      backend-version-info: ${{ needs.build.outputs.backend-version-info }}
+      frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}

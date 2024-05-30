@@ -1,0 +1,112 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      target-environment:
+        required: true
+        type: string
+      backend-version-info:
+        required: true
+        type: string
+      frontend-version-info:
+        required: true
+        type: string
+
+jobs:
+  # Set-Up Infrastructure
+  setup-infrastructure:
+    uses: ./.github/workflows/deploy-setup.yml
+    secrets: inherit
+    with:
+      target-environment: ${{ inputs.target-environment }}
+
+  # Auth
+  deploy-auth:
+    needs: [ setup-infrastructure ]
+    uses: ./.github/workflows/deploy-auth.yml
+    secrets: inherit
+    with:
+      target-environment: ${{ inputs.target-environment }}
+      target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
+
+  deploy-locales:
+    needs: [ setup-infrastructure ]
+    uses: ./.github/workflows/deploy-locales.yml
+    secrets: inherit
+    with:
+      target-environment: ${{ inputs.target-environment }}
+      target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
+
+  deploy-backend:
+    needs: [ setup-infrastructure, deploy-auth ]
+    uses: ./.github/workflows/deploy-backend.yml
+    secrets: inherit
+    with:
+      target-environment: ${{ inputs.target-environment }}
+      version-info: ${{ inputs.backend-version-info }}
+      target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
+      user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
+      user-pool-client-id: ${{ needs.deploy-auth.outputs.clientId }}
+
+  deploy-frontend:
+    needs: [ setup-infrastructure, deploy-auth ]
+    uses: ./.github/workflows/deploy-frontend.yml
+    secrets: inherit
+    with:
+      target-environment: ${{ inputs.target-environment }}
+      version-info: ${{ inputs.frontend-version-info }}
+      target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
+      backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
+      locales-url: ${{ needs.setup-infrastructure.outputs.locales-url }}
+      auth-url: ${{ needs.setup-infrastructure.outputs.auth-url }}
+      cognito-client-id: ${{ needs.deploy-auth.outputs.clientId }}
+      cognito-client-secret: ${{ needs.deploy-auth.outputs.clientSecret }}
+
+  smoke-test-frontend:
+    needs: [ deploy-frontend ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: frontend
+      expected-version-info: ${{ inputs.frontend-version-info }}
+      component-url: ${{ needs.deploy-frontend.outputs.frontendBucketWebsiteURLBase }}
+
+  smoke-test-backend:
+    needs: [ deploy-backend ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: backend
+      expected-version-info: ${{ inputs.backend-version-info }}
+      component-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}
+      resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
+
+  deploy-common:
+    needs: [ deploy-frontend, deploy-backend, setup-infrastructure, deploy-locales, setup-infrastructure ]
+    uses: ./.github/workflows/deploy-common.yml
+    secrets: inherit
+    with:
+      target-environment: ${{ inputs.target-environment }}
+      frontend-version-info: ${{ inputs.frontend-version-info }}
+      backend-version-info: ${{ inputs.backend-version-info }}
+      base-domain-name: ${{ needs.setup-infrastructure.outputs.base-domain-name }}
+
+  smoke-test-frontend-cdn:
+    needs: [  deploy-frontend, deploy-common ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: frontend
+      expected-version-info: ${{ inputs.frontend-version-info }}
+      component-url: ${{ needs.deploy-common.outputs.frontendURLBase }}
+
+  smoke-test-backend-cdn:
+    needs: [  deploy-backend, deploy-common ]
+    uses: ./.github/workflows/smoke-test-version.yml
+    secrets: inherit
+    with:
+      component: backend
+      expected-version-info: ${{ inputs.backend-version-info }}
+      resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
+      component-url: ${{ needs.deploy-common.outputs.backendURLBase }}
