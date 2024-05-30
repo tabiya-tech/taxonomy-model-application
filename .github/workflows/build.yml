@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  workflow_call:
+    outputs:
+      frontend-version-info:
+        description: 'The frontend version info'
+        value: ${{ jobs.build-frontend.outputs.version-info }}
+      backend-version-info:
+        description: 'The backend version info'
+        value: ${{ jobs.build-backend.outputs.version-info }}
+
+jobs:
+  # API Specifications
+  build-api-specs:
+    uses: ./.github/workflows/build-api-specs.yml
+    secrets: inherit
+
+  # Locales
+  build-locales:
+    needs: [ build-api-specs ]
+    uses: ./.github/workflows/build-locales.yml
+    secrets: inherit
+
+  # Backend
+  build-backend:
+    uses: ./.github/workflows/build-backend.yml
+    needs: [ build-api-specs ]
+    secrets: inherit
+
+  # Frontend
+  build-frontend:
+    uses: ./.github/workflows/build-frontend.yml
+    needs: [ build-api-specs ]
+    secrets: inherit
+
+  # Sonarcloud
+  sonarcloud:
+    needs: [ build-backend, build-frontend, build-api-specs ]
+    uses: ./.github/workflows/sonar-cloud.yml
+    secrets: inherit
