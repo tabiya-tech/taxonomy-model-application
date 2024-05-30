@@ -62,7 +62,7 @@ export const ShownFetchIsSlow: Story = {
 function getFakerVersion() {
   return {
     date: faker.date.recent().toISOString(),
-    branch: faker.git.branch(),
+    version: faker.git.branch(),
     buildNumber: faker.number.int({ min: 100, max: 1000 }).toString(),
     sha: faker.git.commitSha(),
   };

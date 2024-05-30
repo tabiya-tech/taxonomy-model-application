@@ -10,7 +10,7 @@ namespace InfoTypes {
     export namespace Response {
       export type Payload = {
         date: string;
-        branch: string;
+        version: string;
         buildNumber: string;
         sha: string;
         path: string;

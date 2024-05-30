@@ -9,11 +9,6 @@ exports[`Test the info module The info module matches the snapshot 1`] = `
           "$id": "/components/schemas/InfoResponseSchemaGET",
           "additionalProperties": false,
           "properties": {
-            "branch": {
-              "description": "The name of the git branch the application was built from.",
-              "maxLength": 256,
-              "type": "string",
-            },
             "buildNumber": {
               "description": "The build number of the application.",
               "maxLength": 256,
@@ -44,10 +39,15 @@ exports[`Test the info module The info module matches the snapshot 1`] = `
               "maxLength": 40,
               "type": "string",
             },
+            "version": {
+              "description": "The name of the git tag/branch the application was built from.",
+              "maxLength": 256,
+              "type": "string",
+            },
           },
           "required": [
             "date",
-            "branch",
+            "version",
             "buildNumber",
             "sha",
             "path",

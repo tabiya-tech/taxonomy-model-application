@@ -11,10 +11,10 @@ const SchemaGETResponse: SchemaObject = {
       format: "date-time",
       description: "The date and time when the application was built.",
     },
-    branch: {
+    version: {
       type: "string",
-      description: "The name of the git branch the application was built from.",
-      maxLength: InfoConstants.BRANCH_MAX_LENGTH,
+      description: "The name of the git tag/branch the application was built from.",
+      maxLength: InfoConstants.VERSION_MAX_LENGTH,
     },
     buildNumber: {
       type: "string",
@@ -39,7 +39,7 @@ const SchemaGETResponse: SchemaObject = {
       description: "The database connection status.",
     },
   },
-  required: ["date", "branch", "buildNumber", "sha", "path", "database"],
+  required: ["date", "version", "buildNumber", "sha", "path", "database"],
 };
 
 export default SchemaGETResponse;

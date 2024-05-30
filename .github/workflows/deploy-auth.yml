@@ -19,6 +19,7 @@ on:
 
 jobs:
   deploy:
+    name: Deploy Auth
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
