@@ -34,6 +34,7 @@ on:
 
 jobs:
   deploy:
+    name: Frontend - Deploy
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:

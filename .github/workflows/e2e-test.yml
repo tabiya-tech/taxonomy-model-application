@@ -24,6 +24,7 @@ on:
         type: string
 jobs:
   test-api:
+    name: E2E Test - ${{ inputs.component }} - ${{ inputs.target-environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     steps:

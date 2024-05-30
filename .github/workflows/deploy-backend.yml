@@ -28,6 +28,7 @@ on:
 
 jobs:
   deploy:
+    name: Deploy Backend
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:

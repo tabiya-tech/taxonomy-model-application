@@ -5,6 +5,7 @@ on:
 
 jobs:
   lint:
+    name: Locales - Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,6 +23,7 @@ jobs:
         run: yarn run lint
         working-directory: locales
   test:
+    name: Locales - Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
