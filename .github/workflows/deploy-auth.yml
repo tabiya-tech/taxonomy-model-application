@@ -4,11 +4,11 @@ on:
   workflow_call:
     outputs:
       clientId:
-        value: ${{ jobs.deploy.outputs.clientId }}
+        value: ${{ jobs.deploy-auth.outputs.clientId }}
       clientSecret:
-        value: ${{ jobs.deploy.outputs.clientSecret }}
+        value: ${{ jobs.deploy-auth.outputs.clientSecret }}
       userPoolId:
-        value: ${{ jobs.deploy.outputs.userPoolId }}
+        value: ${{ jobs.deploy-auth.outputs.userPoolId }}
     inputs:
       target-environment:
         required: true
@@ -18,7 +18,7 @@ on:
         type: string
 
 jobs:
-  deploy:
+  deploy-auth:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     outputs:
