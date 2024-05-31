@@ -52,10 +52,6 @@ jobs:
     secrets: inherit
     with:
       target-environment: dev
-      backend-url: ${{ needs.setup-infrastructure-dev.outputs.backend-url }}
-      user-pool-id: ${{ needs.deploy-auth-dev.outputs.userPoolId }}
-      user-pool-client-id: ${{ needs.deploy-auth-dev.outputs.clientId }}
-      user-pool-client-secret: ${{ needs.deploy-auth-dev.outputs.clientSecret }}
   deploy-backend-dev:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]')) && !startsWith(github.ref, 'refs/tags/')
     needs: [ build-backend, setup-infrastructure-dev, deploy-auth-dev ]
@@ -143,7 +139,17 @@ jobs:
       expected-version-info: ${{ needs.build-backend.outputs.version-info }}
       resources-base-url: ${{ needs.deploy-backend-dev.outputs.resourcesBaseUrl }}
       component-url: ${{ needs.deploy-common-dev.outputs.backendURLBase }}
-
+  e2e-test-backend-dev:
+    needs: [ deploy-auth-dev, build-backend, deploy-backend-dev ]
+    uses: ./.github/workflows/e2e-test.yml
+    secrets: inherit
+    with:
+      component: backend
+      target-environment: dev
+      backend-url: ${{ needs.deploy-backend-dev.outputs.backedRestApiURLBase }}
+      user-pool-id: ${{ needs.deploy-auth-dev.outputs.userPoolId }}
+      cognito-client-id: ${{ needs.deploy-auth-dev.outputs.clientId }}
+      cognito-client-secret: ${{ needs.deploy-auth-dev.outputs.clientSecret }}
   # Set-Up Infrastructure if a tag is pushed or a release is published
   setup-infrastructure-test:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
@@ -237,6 +243,17 @@ jobs:
       expected-version-info: ${{ needs.build-backend.outputs.version-info }}
       resources-base-url: ${{ needs.deploy-backend-test.outputs.resourcesBaseUrl }}
       component-url: ${{ needs.deploy-common-test.outputs.backendURLBase }}
+  e2e-test-backend-test:
+    needs: [ deploy-auth-test, build-backend, deploy-backend-test ]
+    uses: ./.github/workflows/e2e-test.yml
+    secrets: inherit
+    with:
+      component: backend
+      target-environment: test
+      backend-url: ${{ needs.deploy-backend-test.outputs.backedRestApiURLBase }}
+      user-pool-id: ${{ needs.deploy-auth-test.outputs.userPoolId }}
+      cognito-client-id: ${{ needs.deploy-auth-test.outputs.clientId }}
+      cognito-client-secret: ${{ needs.deploy-auth-test.outputs.clientSecret }}
   require-approval:
     needs: [smoke-test-frontend-cdn-test, smoke-test-backend-cdn-test ]
     uses: ./.github/workflows/approve-deployment.yml
@@ -312,3 +329,14 @@ jobs:
       expected-version-info: ${{ needs.build-backend.outputs.version-info }}
       resources-base-url: ${{ needs.deploy-backend-prod.outputs.resourcesBaseUrl }}
       component-url: ${{ needs.deploy-common-prod.outputs.backendURLBase }}
+  e2e-test-backend-prod:
+    needs: [ deploy-auth-prod, build-backend, deploy-backend-prod ]
+    uses: ./.github/workflows/e2e-test.yml
+    secrets: inherit
+    with:
+      component: backend
+      target-environment: production
+      backend-url: ${{ needs.deploy-backend-prod.outputs.backedRestApiURLBase }}
+      user-pool-id: ${{ needs.deploy-auth-prod.outputs.userPoolId }}
+      cognito-client-id: ${{ needs.deploy-auth-prod.outputs.clientId }}
+      cognito-client-secret: ${{ needs.deploy-auth-prod.outputs.clientSecret }}
