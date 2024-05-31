@@ -13,6 +13,7 @@
     "test": "jest --coverage",
     "test:integration": "jest --config jest.integration.config.js --runInBand",
     "test:smoke": "jest --config jest.smoke.config.js --runInBand test/smoke/*.test.ts",
+    "test:e2e": "jest --config jest.e2e.config.js --runInBand",
     "postinstall:win32": "cd .. & link-api-specifications.bat & link-tabiya-prettier-config.bat",
     "postinstall:darwin:linux": "(cd .. && ./link-api-specifications.sh && ./link-tabiya-prettier-config.sh)",
     "postinstall": "run-script-os",
