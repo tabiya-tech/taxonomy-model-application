@@ -1,10 +1,10 @@
-REQUIRINGID,RELATIONTYPE,REQUIREDID
-key_1,optional,key_2
-key_3,essential,key_4
-,optional,key_5
-key_6,optional,
-key_7,essential,key_8
-,essential,key_9
-key_10,essential,
-key_11,invalid relation type should be ignored,key_12
-key_13,,key_14
+"REQUIRINGID","RELATIONTYPE","REQUIREDID"
+"key_1","optional","key_2"
+"key_3","essential","key_4"
+"","optional","key_5"
+"key_6","optional",""
+"key_7","essential","key_8"
+"","essential","key_9"
+"key_10","essential",""
+"key_11","invalid relation type should be ignored","key_12"
+"key_13","","key_14"

@@ -1,13 +1,13 @@
-"ORIGINURI",ID,"UUIDHISTORY","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION",SCOPENOTE
-,,,,,,,
-,,,,,,,
-"origin uri",key_1,"b69710e0-7e7d-43ea-a645-26dab12faf8d
+"ORIGINURI","ID","UUIDHISTORY","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION","SCOPENOTE"
+"","","","","","","",""
+"","","","","","","",""
+"origin uri","key_1","b69710e0-7e7d-43ea-a645-26dab12faf8d
 b69710e0-7e7d-43ea-a645-26dab12faf83","L","preferred label","label1
-label2","description",scopeNote
+label2","description","scopeNote"
 "origin
 uri
 with
-linebreak",key_2,"b69710e0-7e7d-43ea-a645-26dab12faf8d","L6.6.6","preferred
+linebreak","key_2","b69710e0-7e7d-43ea-a645-26dab12faf8d","L6.6.6","preferred
 label
 with
 linebreak","label1
@@ -16,12 +16,12 @@ with
 linebreak","scopeNote
 with
 linebreak"
-,key_3,,,,,,
-"origin uri",key_4,,"L","preferred label","label1
-label2","description",scopeNote
-"origin uri",key_5,"","L","preferred label","label1
-label2","description",scopeNote
-origin uri,key_6,"b69710e0-7e7d-43ea-a645-26dab12faf8d
-b69710e0-7e7d-43ea-a645-26dab12faf56",L,duplicate altLabels,"label1
+"","key_3","","","","","",""
+"origin uri","key_4","","L","preferred label","label1
+label2","description","scopeNote"
+"origin uri","key_5","","L","preferred label","label1
+label2","description","scopeNote"
+"origin uri","key_6","b69710e0-7e7d-43ea-a645-26dab12faf8d
+b69710e0-7e7d-43ea-a645-26dab12faf56","L","duplicate altLabels","label1
 label2
-label1",description,scopeNote
+label1","description","scopeNote"

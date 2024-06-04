@@ -1,13 +1,13 @@
-"ORIGINURI",ID,"UUIDHISTORY","PREFERREDLABEL","ALTLABELS","DESCRIPTION",DEFINITION,SKILLTYPE,REUSELEVEL,SCOPENOTE
-,,,,,,,,,
-,,,,,,,,,
-"origin uri",key_1,"b69710e0-7e7d-43ea-a645-26dab12faf8d
+"ORIGINURI","ID","UUIDHISTORY","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SKILLTYPE","REUSELEVEL","SCOPENOTE"
+"","","","","","","","","",""
+"","","","","","","","","",""
+"origin uri","key_1","b69710e0-7e7d-43ea-a645-26dab12faf8d
 b69710e0-7e7d-43ea-a645-26dab12faf83","preferred label","label1
-label2","description",definition,skill/competence,sector-specific,scopeNote
+label2","description","definition","skill/competence","sector-specific","scopeNote"
 "origin
 uri
 with
-linebreak",key_2,"b69710e0-7e7d-43ea-a645-26dab12faf8d","preferred
+linebreak","key_2","b69710e0-7e7d-43ea-a645-26dab12faf8d","preferred
 label
 with
 linebreak","label1
@@ -15,19 +15,19 @@ label2","description
 with
 linebreak","definition
 with
-linebreak",knowledge,cross-sector,"scopeNote
+linebreak","knowledge","cross-sector","scopeNote
 with
 linebreak"
-,key_3,,,,,,,,
-"origin uri","key_4",,"preferred label","label1
-label2","description",definition,skill/competence,sector-specific,scopeNote
+"","key_3","","","","","","","",""
+"origin uri","key_4","","preferred label","label1
+label2","description","definition","skill/competence","sector-specific","scopeNote"
 "origin uri","key_5","","preferred label","label1
-label2","description",definition,skill/competence,sector-specific,scopeNote
-"origin uri",key_6,"","preferred label","label1
-label2","description",definition,INVALID,sector-specific,scopeNote
-origin uri,key_7,,"preferred label","label1
-label2","description",definition,skill/competence,INVALID,scopeNote
-origin uri,key_8,"b69710e0-7e7d-43ea-a645-26dab12faf8d
-b69710e0-7e7d-43ea-a645-26dab12faf56",duplicate altLabels,"label1
+label2","description","definition","skill/competence","sector-specific","scopeNote"
+"origin uri","key_6","","preferred label","label1
+label2","description","definition","INVALID","sector-specific","scopeNote"
+"origin uri","key_7","","preferred label","label1
+label2","description","definition","skill/competence","INVALID","scopeNote"
+"origin uri","key_8","b69710e0-7e7d-43ea-a645-26dab12faf8d
+b69710e0-7e7d-43ea-a645-26dab12faf56","duplicate altLabels","label1
 label2
-label1",description,definition,skill/competence,sector-specific,scopeNote
+label1","description","definition","skill/competence","sector-specific","scopeNote"

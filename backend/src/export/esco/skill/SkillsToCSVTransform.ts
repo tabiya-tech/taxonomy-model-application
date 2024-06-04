@@ -71,6 +71,7 @@ const SkillsToCSVTransform = (modelId: string): Readable => {
   const skillStringifier = stringify({
     header: true,
     columns: skillExportHeaders,
+    quoted_string: true,
   });
 
   return pipeline(
