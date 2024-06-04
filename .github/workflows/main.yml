@@ -17,31 +17,46 @@ jobs:
     uses: ./.github/workflows/build.yml
     secrets: inherit
 
-  # Copy the target database
-  copy-target-database:
-    uses: ./.github/workflows/copy-database.yml
-    secrets: inherit
-    with:
-      target-environment: test
-
-  deploy:
-    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]') || startsWith(github.ref, 'refs/tags/')) || github.event_name == 'release' && startsWith(github.ref, 'refs/tags/')
+  deploy-dev:
+    # This job will only run if the push event is on the main branch or the commit message contains '[pulumi up]'
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]'))
     needs: [ build ]
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
     with:
-      target-environment: ${{ startsWith(github.ref, 'refs/tags/') && 'test' || 'dev'  }}
+      target-environment: dev
+      backend-version-info: ${{ needs.build.outputs.backend-version-info }}
+      frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}
+
+  # Copy the target database
+  copy-target-database:
+    # This job will only run if the event is a tag or release on a tag
+    if: github.event_name == 'push' && github.ref == startsWith(github.ref, 'refs/tags/')
+    uses: ./.github/workflows/copy-database.yml
+    needs: [ build ]
+    secrets: inherit
+    with:
+      target-environment: test
+
+  deploy-test:
+    # This job will only run if the event is a tag or release on a tag
+    if: github.event_name == 'push' && github.ref == startsWith(github.ref, 'refs/tags/')
+    needs: [ build, copy-target-database ]
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      target-environment: test
       backend-version-info: ${{ needs.build.outputs.backend-version-info }}
       frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}
 
   require-approval:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [ build, deploy ]
+    needs: [ build, deploy-test ]
     uses: ./.github/workflows/approve-deployment.yml
     secrets: inherit
 
   deploy-production:
-    needs: [ build, require-approval, deploy ]
+    needs: [ build, require-approval, deploy-test ]
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
     with:

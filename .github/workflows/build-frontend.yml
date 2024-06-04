@@ -23,8 +23,8 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
       - name: Build env.js file
-        # we are basically creating a js file with the passed env variables
-        # that can be executed in the client browser when the js file is loaded
+        # we are basically creating a js file with empty strings for each of the variables
+        # these variables will be replaced by the actual values during the deployment
         run: |
           echo "window.tabiyaConfig = {" > frontend/public/data/env.js
           echo "\"BACKEND_URL\": btoa(\"\")," >> frontend/public/data/env.js
