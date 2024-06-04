@@ -21,8 +21,25 @@ export const DATA_TEST_ID = {
  */
 
 const HelpTip: React.FC<HelpTipProps> = (props: Readonly<HelpTipProps>) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = () => setOpen(false);
+
+  const handleOpen = () => setOpen(true);
+
   return (
-    <Tooltip aria-label={"help"} data-testid={props["data-testid"]} describeChild title={<Box>{props.children}</Box>}>
+    <Tooltip
+      open={open}
+      aria-label="help"
+      data-testid={props["data-testid"]}
+      describeChild
+      disableTouchListener
+      onMouseEnter={handleOpen}
+      onMouseLeave={handleClose}
+      onClick={handleOpen}
+      onBlur={handleClose}
+      title={<Box>{props.children}</Box>}
+    >
       <IconButton data-testid={DATA_TEST_ID.HELP_ICON} color={"primary"} sx={{ padding: "5px" }}>
         <HelpRounded />
       </IconButton>
