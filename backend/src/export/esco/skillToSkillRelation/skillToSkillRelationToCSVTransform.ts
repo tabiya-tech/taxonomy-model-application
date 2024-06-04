@@ -61,6 +61,7 @@ const SkillToSkillRelationToCSVTransform = (modelId: string): Transform => {
   const skillToSkillRelationStringifier = stringify({
     header: true,
     columns: skillToSkillRelationExportHeaders,
+    quoted_string: true,
   });
 
   return pipeline(

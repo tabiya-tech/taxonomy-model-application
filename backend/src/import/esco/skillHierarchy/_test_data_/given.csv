@@ -1,8 +1,8 @@
-PARENTOBJECTTYPE,PARENTID,CHILDID,CHILDOBJECTTYPE
-SKILLGROUP,key_1,key_2,SKILLGROUP
-SKILL,key_3,key_4,SKILL
-SKILLGROUP,key_5,key_6,SKILL
-invalid should be ignored,key_7,key_8,SKILL
-SKILLGROUP,key_9,key_10,invalid should be ignored
-SKILLGROUP,,key_11,SKILL
-SKILLGROUP,key_12,,SKILL
+"PARENTOBJECTTYPE","PARENTID","CHILDID","CHILDOBJECTTYPE"
+"SKILLGROUP","key_1","key_2","SKILLGROUP"
+"SKILL","key_3","key_4","SKILL"
+"SKILLGROUP","key_5","key_6","SKILL"
+"invalid should be ignored","key_7","key_8","SKILL"
+"SKILLGROUP","key_9","key_10","invalid should be ignored"
+"SKILLGROUP","","key_11","SKILL"
+"SKILLGROUP","key_12","","SKILL"

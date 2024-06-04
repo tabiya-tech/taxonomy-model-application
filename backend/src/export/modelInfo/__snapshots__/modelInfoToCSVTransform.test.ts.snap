@@ -18,9 +18,9 @@ uuid_2",
 `;
 
 exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory has multiple items 2`] = `
-"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES,CREATEDAT,UPDATEDAT
+""UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","CREATEDAT","UPDATEDAT"
 "uuid_1
-uuid_2","name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/(",1970-01-01T00:00:00.000Z,1970-01-01T00:00:00.001Z
+uuid_2","name_2_^°!""§$%&/(","shortCode_2","description_2_^°!""§$%&/(","version_2","TRUE","releaseNotes_2_^°!""§$%&/(","1970-01-01T00:00:00.000Z","1970-01-01T00:00:00.001Z"
 "
 `;
 
@@ -41,8 +41,8 @@ exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data t
 `;
 
 exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory has one item 2`] = `
-"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES,CREATEDAT,UPDATEDAT
-uuid_1,"name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/(",1970-01-01T00:00:00.000Z,1970-01-01T00:00:00.001Z
+""UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","CREATEDAT","UPDATEDAT"
+"uuid_1","name_2_^°!""§$%&/(","shortCode_2","description_2_^°!""§$%&/(","version_2","TRUE","releaseNotes_2_^°!""§$%&/(","1970-01-01T00:00:00.000Z","1970-01-01T00:00:00.001Z"
 "
 `;
 
@@ -63,8 +63,8 @@ exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data t
 `;
 
 exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when UUIDHistory is empty 2`] = `
-"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES,CREATEDAT,UPDATEDAT
-,"name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/(",1970-01-01T00:00:00.000Z,1970-01-01T00:00:00.001Z
+""UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","CREATEDAT","UPDATEDAT"
+"","name_2_^°!""§$%&/(","shortCode_2","description_2_^°!""§$%&/(","version_2","TRUE","releaseNotes_2_^°!""§$%&/(","1970-01-01T00:00:00.000Z","1970-01-01T00:00:00.001Z"
 "
 `;
 
@@ -86,9 +86,9 @@ uuid_2",
 `;
 
 exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when model is released 2`] = `
-"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES,CREATEDAT,UPDATEDAT
+""UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","CREATEDAT","UPDATEDAT"
 "uuid_1
-uuid_2","name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,TRUE,"releaseNotes_2_^°!""§$%&/(",1970-01-01T00:00:00.000Z,1970-01-01T00:00:00.001Z
+uuid_2","name_2_^°!""§$%&/(","shortCode_2","description_2_^°!""§$%&/(","version_2","TRUE","releaseNotes_2_^°!""§$%&/(","1970-01-01T00:00:00.000Z","1970-01-01T00:00:00.001Z"
 "
 `;
 
@@ -110,8 +110,8 @@ uuid_2",
 `;
 
 exports[`ModelInfosDocToCsvTransform should correctly transform ModelInfo data to CSV when model is unreleased 2`] = `
-"UUIDHistory,NAME,LOCALE,DESCRIPTION,VERSION,RELEASED,RELEASENOTES,CREATEDAT,UPDATEDAT
+""UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","CREATEDAT","UPDATEDAT"
 "uuid_1
-uuid_2","name_2_^°!""§$%&/(",shortCode_2,"description_2_^°!""§$%&/(",version_2,FALSE,"releaseNotes_2_^°!""§$%&/(",1970-01-01T00:00:00.000Z,1970-01-01T00:00:00.001Z
+uuid_2","name_2_^°!""§$%&/(","shortCode_2","description_2_^°!""§$%&/(","version_2","FALSE","releaseNotes_2_^°!""§$%&/(","1970-01-01T00:00:00.000Z","1970-01-01T00:00:00.001Z"
 "
 `;

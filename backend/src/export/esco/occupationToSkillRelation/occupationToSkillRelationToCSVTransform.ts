@@ -110,6 +110,7 @@ const OccupationToSkillRelationToCSVTransform = (modelId: string): Readable => {
   const occupationToSkillRelationStringifier = stringify({
     header: true,
     columns: occupationToSkillRelationExportHeaders,
+    quoted_string: true,
   });
 
   return pipeline(

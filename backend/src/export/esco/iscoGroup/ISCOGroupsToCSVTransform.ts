@@ -54,6 +54,7 @@ const ISCOGroupsToCSVTransform = (modelId: string): Readable => {
   const iscoGroupStringifier = stringify({
     header: true,
     columns: ISCOGroupExportHeaders,
+    quoted_string: true,
   });
 
   return pipeline(

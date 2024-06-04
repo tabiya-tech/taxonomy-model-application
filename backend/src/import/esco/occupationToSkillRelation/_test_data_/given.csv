@@ -1,17 +1,17 @@
-OCCUPATIONTYPE,OCCUPATIONID,RELATIONTYPE,SKILLID,SIGNALLINGVALUELABEL,SIGNALLINGVALUE
-escooccupation,key_1,optional,key_2,,
-escooccupation,key_3,essential,key_4,,
-escooccupation,,optional,key_5,,
-escooccupation,key_6,optional,,low,
-localoccupation,key_7,essential,key_8,,
-invalid should be ignored,key_9,essential,key_10,high,1
-,key_11,essential,key_12,medium,0.5
-escooccupation,key_13,invalid relation type should be ignored,key_14,,
-escooccupation,key_15,,key_16,,
-localoccupation,key_17,,key_18,medium,1000
-localoccupation,key_19,,key_20,medium,-1
-localoccupation,key_21,,key_22,medium,2
-localoccupation,key_23,,key_24,medium,foo
-localoccupation,key_25,,key_26,medium,"0,6"
-localoccupation,key_27,,key_28,foo,
-localoccupation,key_29,essential,key_30,medium,
+"OCCUPATIONTYPE","OCCUPATIONID","RELATIONTYPE","SKILLID","SIGNALLINGVALUELABEL","SIGNALLINGVALUE"
+"escooccupation","key_1","optional","key_2","",""
+"escooccupation","key_3","essential","key_4","",""
+"escooccupation","","optional","key_5","",""
+"escooccupation","key_6","optional","","low",""
+"localoccupation","key_7","essential","key_8","",""
+"invalid should be ignored","key_9","essential","key_10","high","1"
+"","key_11","essential","key_12","medium","0.5"
+"escooccupation","key_13","invalid relation type should be ignored","key_14","",""
+"escooccupation","key_15","","key_16","",""
+"localoccupation","key_17","","key_18","medium","1000"
+"localoccupation","key_19","","key_20","medium","-1"
+"localoccupation","key_21","","key_22","medium","2"
+"localoccupation","key_23","","key_24","medium","foo"
+"localoccupation","key_25","","key_26","medium","0,6"
+"localoccupation","key_27","","key_28","foo",""
+"localoccupation","key_29","essential","key_30","medium",""

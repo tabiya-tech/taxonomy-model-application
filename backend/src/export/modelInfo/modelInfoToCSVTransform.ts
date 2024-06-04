@@ -75,6 +75,7 @@ const ModelInfoToCSVTransform = async (modelId: string): Promise<Readable> => {
   const modelInfoStringifier = stringify({
     header: true,
     columns: modelInfoHeaders,
+    quoted_string: true,
   });
   const modelInfo = await getRepositoryRegistry().modelInfo.getModelById(modelId);
 

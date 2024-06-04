@@ -68,6 +68,7 @@ const OccupationHierarchyToCSVTransform = (modelId: string): Readable => {
   const occupationHierarchyStringifier = stringify({
     header: true,
     columns: occupationHierarchyExportHeaders,
+    quoted_string: true,
   });
 
   return pipeline(
