@@ -10,7 +10,6 @@ on:
 jobs:
   dump-and-restore:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') && inputs.target-environment == 'test'
     environment: ${{ inputs.target-environment }}
     steps:
       - name: Checkout Repository
