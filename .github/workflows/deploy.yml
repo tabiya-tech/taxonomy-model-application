@@ -22,6 +22,14 @@ jobs:
     with:
       target-environment: ${{ inputs.target-environment }}
 
+  # Copy the target database
+  database-sanity-checks:
+    if: ${{ inputs.target-environment == 'test' }} || ${{ inputs.target-environment == 'production' }}
+    uses: ./.github/workflows/db-sanity-checks.yml
+    secrets: inherit
+    with:
+      command: ${{ inputs.target-environment == 'test' && 'save' || 'assert'  }}
+
   # Set-Up Infrastructure
   setup-infrastructure:
     uses: ./.github/workflows/deploy-setup.yml
