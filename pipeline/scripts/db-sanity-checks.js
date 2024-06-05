@@ -1,4 +1,4 @@
-import semver from "semver"
+import { exec } from "child_process"
 import fetch from "node-fetch"
 
 /**
@@ -14,6 +14,20 @@ const formatVersion = (version) => {
   return version;
 }
 
+async function getCurrentVersion(url){
+  // Fetch the current version
+  let { version: currentVersion } = await fetch(url.replace("test.", ""), {
+    headers: {
+      Authorization: `Bearer ANONYMOUS`
+    }
+  }).then(res => res.json());
+
+  console.log({ currentVersion })
+
+  exec(`echo "testing-backend-version=${currentVersion}" >> $GITHUB_OUTPUT`);
+  process.exit(0);
+}
+
 /**
  * Compare the new version with the current version
  * @param newVersion the new version
@@ -23,12 +37,16 @@ async function compareVersions(newVersion, url){
   let _newVersion = formatVersion(newVersion);
 
   // Fetch the current version
-  let { version: currentVersion } = await fetch(url).then(res => res.json());
+  let { version: currentVersion } = await fetch(url.replace("test.", ""), {
+    headers: {
+      Authorization: `Bearer ANONYMOUS`
+    }
+  }).then(res => res.json());
 
   let _currentVersion = formatVersion(currentVersion);
 
   // Compare the versions
-  if(semver.gte(_newVersion, _currentVersion)){
+  if(_newVersion === _currentVersion){
     console.log(`✅ New version ${newVersion}, current version ${currentVersion}`);
     process.exit(0);
   } else {
@@ -37,4 +55,8 @@ async function compareVersions(newVersion, url){
   }
 }
 
-compareVersions(process.argv[2], process.argv[3])
+if(process.argv[2] === "get-current-version") {
+  getCurrentVersion(process.argv[4])
+} else if (process.argv[2] === "assert") {
+  compareVersions(process.argv[3], process.argv[4])
+}
