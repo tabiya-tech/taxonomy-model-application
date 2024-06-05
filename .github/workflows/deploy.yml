@@ -12,6 +12,13 @@ on:
       frontend-version-info:
         required: true
         type: string
+    outputs:
+      backend-url:
+        description: 'The backend URL'
+        value: ${{ jobs.setup-infrastructure.outputs.backend-url }}
+      tested-version:
+        description: 'The tested version'
+        value: ${{ jobs.get-current-version.outputs.testing-backend-version }}
 
 jobs:
   # Copy the target database
@@ -28,6 +35,17 @@ jobs:
     secrets: inherit
     with:
       target-environment: ${{ inputs.target-environment }}
+
+  # Copy the target database, the database we are testing.
+  get-current-version:
+    if: ${{ inputs.target-environment == 'test' }}
+    needs: [ setup-infrastructure ]
+    uses: ./.github/workflows/db-sanity-checks.yml
+    secrets: inherit
+    with:
+      command: get-current-version
+      backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
+      version: $GITHUB_REF_NAME
 
   # Auth
   deploy-auth:

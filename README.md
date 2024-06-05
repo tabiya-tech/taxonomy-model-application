@@ -52,6 +52,10 @@ There is a more detailed architecture diagram in the [IaC Readme](iac/README.md)
 
 🎉 Thank you for considering contributing to the Taxonomy Model App! 🎉
 
+## Deployment Guidelines
+
+🚀 For deployment guidelines, please refer to the [Deployment Guidelines](deployment-guidelines.md) 🚀
+
 ### Code Quality
 
 We aim to achieve the following metrics on SonarCloud:
