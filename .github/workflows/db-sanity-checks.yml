@@ -1,0 +1,24 @@
+name: Database Sanity Checks
+
+on:
+  workflow_call:
+    inputs:
+      command:
+        required: true
+        type: string
+
+jobs:
+  db-sanity-checks:
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: yarn install
+        working-directory: pipeline/scripts
+      - name: Run Database Sanity Checks
+        run: |
+          node ./db-sanity-checks.js ${{ inputs.command }} $GITHUB_REF_NAME ${{ secrets.TMP_DATABASE_URI }}
+        working-directory: pipeline/scripts
+

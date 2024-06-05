@@ -5,6 +5,7 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
+    "mongodb": "^6.7.0",
     "node-fetch": "^3.3.2",
     "semver": "^7.6.2"
   }
