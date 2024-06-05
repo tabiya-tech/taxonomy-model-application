@@ -29,6 +29,16 @@ jobs:
     with:
       target-environment: ${{ inputs.target-environment }}
 
+  # Copy the target database
+  get-current-version:
+    if: ${{ inputs.target-environment == 'test' }}
+    needs: [ setup-infrastructure ]
+    uses: ./.github/workflows/db-sanity-checks.yml
+    secrets: inherit
+    with:
+      command: get-current-version
+      backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
+
   # Auth
   deploy-auth:
     needs: [ setup-infrastructure ]
