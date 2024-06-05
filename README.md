@@ -25,6 +25,7 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 - **[Backend](backend)**: Explore the Backend directory for detailed insights about the backend Node.js project.
 - **[Locales](locales)**: Explore the Locales directory for detailed insights about the locales used in the project.
 - **[Contribution Guidelines](#contribution-guidelines)**: Help us improve the project by contributing to various aspects.
+- **[Deployment Guidelines](#deployment-guidelines)**: Help us improve the project by contributing to various aspects.
 - **[Getting Started](#getting-started)**: Easy steps to set up your environment and start contributing.
 - **[License](#license)**: The project is licensed under MIT License.
 - **[@tabiya/prettier-config](%40tabiya%2Fprettier-config)**: The configuration for [prettier](#code-formatting).
@@ -122,6 +123,10 @@ To work with this repository you should have a system with a bash compatible ter
 6. Open a pull request to our main branch.
 
 Happy contributing! 🚀
+
+## Deployment Guidelines
+
+🚀 For deployment guidelines, please refer to the [Deployment Guidelines](deployment-guidelines.md) 🚀
 
 ## License
 

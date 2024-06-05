@@ -9,6 +9,7 @@ on:
 
 jobs:
   dump-and-restore:
+    name: Database Dump and Restore
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
     steps:
