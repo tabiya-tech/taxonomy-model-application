@@ -11,3 +11,9 @@ jobs:
       - name: Request approval
         run: echo "Deployment approved"
 
+  db-sanity-checks:
+    needs: approve
+    uses: ./.github/workflows/db-sanity-checks.yml
+    secrets: inherit
+    with:
+      command: assert
