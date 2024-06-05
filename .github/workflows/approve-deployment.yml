@@ -2,6 +2,13 @@ name: Request approval
 
 on:
   workflow_call:
+    inputs:
+      tested-version:
+        required: true
+        type: string
+      backend-url:
+        required: true
+        type: string
 
 jobs:
   approve:
@@ -11,3 +18,11 @@ jobs:
       - name: Request approval
         run: echo "Deployment approved"
 
+  db-sanity-checks:
+    needs: approve
+    uses: ./.github/workflows/db-sanity-checks.yml
+    secrets: inherit
+    with:
+      command: assert
+      backend-url: ${{ inputs.backend-url }}
+      version: ${{ inputs.tested-version }}

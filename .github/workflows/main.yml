@@ -32,6 +32,9 @@ jobs:
     needs: [ build, deploy ]
     uses: ./.github/workflows/approve-deployment.yml
     secrets: inherit
+    with:
+      tested-version: ${{ jobs.deploy.outputs.tested-version }}
+      backend-url: ${{ jobs.deploy.outputs.backend-url }}
 
   deploy-production:
     needs: [ build, require-approval, deploy ]
