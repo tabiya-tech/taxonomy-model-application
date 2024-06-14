@@ -45,9 +45,9 @@ To work IaC locally, you have to install the following:
 **NOTE**: Deployments are automated using GitHub Actions. In principle only the `main` branch is deployed (other branches are built but not deployed). In case you want to test the pulumi configuration from a different branch, commit the changes and add `[pulumi up]` in the  commit message. This will deploy the branch when the branch is pushed to remote.
 
 ### IaC Codebase Components 
-The IaC is divided into four sub-projects.
+The IaC is divided into four subprojects.
 
-- [Setup](setup): Sets up the fundamental infrastructure, which is a route53 hosted zone and exports environment variables that will be used by other projects. Mainly refered *to as set up env config project.
+- [Setup](setup-environment): Sets up the fundamental infrastructure specific to the environment, which is a route53 hosted zone and exports environment variables that will be used by other projects. Mainly referred *to as set up env config project.
 - [Name Servers](name-servers): Sets up the name servers for the subdomains.
 - [Certificate](certificate): Sets up the SSL certificate infrastructure, which is an ACM certificate.
 - [Auth](auth): Sets up the authentication infrastructure, which is a Cognito User Pool. and related DNS Record.
@@ -60,11 +60,10 @@ The projects are deployed in the following order:
  
 ```mermaid
 flowchart RL
-    subgraph setup
+    subgraph setup-environment
         hosted-zone
-        name-servers
-        certificate
     end
+
     subgraph common
         dns
         cdn
@@ -81,13 +80,19 @@ flowchart RL
         authorizer
         openapiBuckets
         restApi
-
     end
+
     common--->frontend;
     common--->backend;
     locales
-    auth--->setup
-    common---->setup
+
+
+    auth ---> certificate
+
+    nameservers ---> hosted-zone
+
+    certificate --validation record--> hosted-zone
+    certificate --dns validation--> nameservers
 
     common--->locales
     authorizer--user pool id\nuser pool client id-->auth
@@ -112,4 +117,3 @@ Beyond the [contribution guidelines](/README.md#contribution-guidelines), specif
     - Comment your code.
     - Test the changes by running: `yarn preview`
     - Update this README for significant changes.
-  

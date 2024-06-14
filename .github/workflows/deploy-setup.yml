@@ -70,7 +70,7 @@ jobs:
         id: pulumi
         uses: pulumi/actions@v5
         with:
-          work-dir: iac/setup
+          work-dir: iac/setup-environment
           command: up
           stack-name: tabiya-tech/taxonomy-model-application-setup/${{ inputs.target-environment }}
         env:
@@ -137,6 +137,7 @@ jobs:
   certificate:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target-environment }}
+    needs: [ hosted-zone, name-servers ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
