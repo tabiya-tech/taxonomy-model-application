@@ -62,6 +62,9 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
     reuseLevel: getReuseLevel(i), // we should test all skill types, so we have to ensure that the length of the array is >= 5
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
+    degreeCentrality: i % 10,
+    interOccupationTransferability: i % 10,
+    unseenToSeenTransferability: i % 10,
   }));
 };
 

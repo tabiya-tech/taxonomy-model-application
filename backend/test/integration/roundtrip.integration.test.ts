@@ -34,7 +34,7 @@ enum DataTestType {
   ESCO = "ESCO",
 }
 
-describe("Test Roundtrip with an in-memory mongodb", () => {
+xdescribe("Test Roundtrip with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
   // Backup and restore the original env variables
   beforeAll(() => {

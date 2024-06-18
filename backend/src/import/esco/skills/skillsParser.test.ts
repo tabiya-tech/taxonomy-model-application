@@ -105,6 +105,12 @@ describe("test parseSkills from", () => {
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
         );
       });
+      // AND the metrics fields are correctly ignored
+      expectedResults.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
+        expect(expectedSpec).not.toHaveProperty("DEGREECENTRALITY");
+        expect(expectedSpec).not.toHaveProperty("INTEROCCUPATIONTRANSFERABILITY");
+        expect(expectedSpec).not.toHaveProperty("UNSEENTOSEENTRANSFERABILITY");
+      });
       // AND all the expected rows to have been processed successfully
       const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
       expect(actualStats).toEqual({

@@ -176,5 +176,5 @@ export const PositiveNumberProperty: mongoose.SchemaDefinitionProperty<number> =
   type: Number,
   required: true,
   min: 0,
-  default: 0
+  default: 0,
 };

@@ -47,7 +47,7 @@ export interface ISkillDoc extends ImportIdentifiable {
 
   degreeCentrality?: number;
   interOccupationTransferability?: number;
-  unseenToSeenTransferability?: number
+  unseenToSeenTransferability?: number;
 }
 
 /**
