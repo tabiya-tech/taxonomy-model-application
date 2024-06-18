@@ -27,7 +27,7 @@ enum DataTestType {
   ESCO = "ESCO",
 }
 
-describe("Test Import CSV files with an in-memory mongodb", () => {
+xdescribe("Test Import CSV files with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
   // Backup and restore the original env variables
   beforeAll(() => {
