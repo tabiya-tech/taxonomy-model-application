@@ -9,6 +9,7 @@ import {
   UUIDHistoryProperty,
   PreferredLabelProperty,
   ScopeNoteProperty,
+  PositiveNumberProperty,
 } from "esco/common/modelSchema";
 import { stringRequired } from "server/stringRequired";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -51,6 +52,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       description: DescriptionProperty,
       scopeNote: ScopeNoteProperty,
       importId: ImportIDProperty,
+
+      // Metrics
+
+      degreeCentrality: PositiveNumberProperty,
+      interOccupationTransferability: PositiveNumberProperty,
+      unseenToSeenTransferability: PositiveNumberProperty,
     },
     {
       timestamps: true,

@@ -42,6 +42,12 @@ export interface ISkillDoc extends ImportIdentifiable {
   scopeNote: string;
   skillType: SkillType;
   reuseLevel: ReuseLevel;
+
+  // Metrics
+
+  degreeCentrality?: number;
+  interOccupationTransferability?: number;
+  unseenToSeenTransferability?: number
 }
 
 /**

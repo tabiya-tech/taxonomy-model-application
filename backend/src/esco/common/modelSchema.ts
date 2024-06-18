@@ -171,3 +171,10 @@ export const ImportIDProperty: mongoose.SchemaDefinitionProperty<string> = {
   required: stringRequired("importId"),
   maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
 };
+
+export const PositiveNumberProperty: mongoose.SchemaDefinitionProperty<number> = {
+  type: Number,
+  required: true,
+  min: 0,
+  default: 0
+};
