@@ -76,7 +76,14 @@ export const skillImportHeaders = [
   HEADER_NAMES.DESCRIPTION,
 ];
 
-export const skillExportHeaders = [...skillImportHeaders, HEADER_NAMES.CREATED_AT, HEADER_NAMES.UPDATED_AT];
+export const skillExportHeaders = [
+  ...skillImportHeaders,
+  "DEGREECENTRALITY",
+  "INTEROCCUPATIONTRANSFERABILITY",
+  "UNSEENTOSEENTRANSFERABILITY",
+  HEADER_NAMES.CREATED_AT,
+  HEADER_NAMES.UPDATED_AT,
+];
 
 /*
  * Interface for the skill row in the CSV file
@@ -107,6 +114,9 @@ export interface ISkillExportRow {
   ID: string;
   CREATEDAT: string;
   UPDATEDAT: string;
+  DEGREECENTRALITY: string;
+  INTEROCCUPATIONTRANSFERABILITY: string;
+  UNSEENTOSEENTRANSFERABILITY: string;
 }
 
 /*

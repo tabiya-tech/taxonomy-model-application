@@ -14,7 +14,13 @@ import {
 } from "esco/common/modelSchema";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import {
+  generateRandomNumber,
+  generateRandomUrl,
+  getRandomString,
+  getTestString,
+  WHITESPACE,
+} from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
 import {
@@ -62,6 +68,9 @@ describe("Test the definition of the skill Model", () => {
         skillType: SkillType.SkillCompetence,
         reuseLevel: ReuseLevel.SectorSpecific,
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
+        degreeCentrality: 0.5,
+        interOccupationTransferability: 0.5,
+        unseenToSeenTransferability: 0.5,
       },
     ],
     [
@@ -79,6 +88,9 @@ describe("Test the definition of the skill Model", () => {
         description: "",
         scopeNote: "",
         importId: "",
+        degreeCentrality: 0,
+        interOccupationTransferability: 0,
+        unseenToSeenTransferability: 0,
       },
     ],
   ])("Successfully validate skill with mandatory fields", async (description, givenObject: ISkillDoc) => {
@@ -193,6 +205,84 @@ describe("Test the definition of the skill Model", () => {
           assertCaseForProperty<ISkillDoc>({
             model: skillModel,
             propertyNames: "skillType",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
+        }
+      );
+    });
+
+    describe("Test validation of 'interOccupationTransferability'", () => {
+      const testString = getTestString(10);
+      const testRandomNumber = -generateRandomNumber(1, 10);
+      const testPositiveNumber = generateRandomNumber(1, 10);
+
+      test.each([
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "string", testString, "Cast to Number failed"],
+        [CaseType.Failure, "negative number", testRandomNumber, "is less than minimum allowed value."],
+        [CaseType.Success, "undefined", undefined, undefined],
+        [CaseType.Success, "zero", 0, undefined],
+        [CaseType.Success, "positive/valid number", testPositiveNumber, undefined],
+      ])(
+        `(%s) Validate 'interOccupationTransferability' when it is %s`,
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "interOccupationTransferability",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
+        }
+      );
+    });
+
+    describe("Test validation of 'unseenToSeenTransferability'", () => {
+      const testString = getTestString(10);
+      const testRandomNumber = -generateRandomNumber(1, 10);
+      const testPositiveNumber = generateRandomNumber(1, 10);
+
+      test.each([
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "string", testString, "Cast to Number failed"],
+        [CaseType.Failure, "negative number", testRandomNumber, "is less than minimum allowed value."],
+        [CaseType.Success, "undefined", undefined, undefined],
+        [CaseType.Success, "zero", 0, undefined],
+        [CaseType.Success, "positive/valid number", testPositiveNumber, undefined],
+      ])(
+        `(%s) Validate 'unseenToSeenTransferability' when it is %s`,
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "unseenToSeenTransferability",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
+        }
+      );
+    });
+
+    describe("Test validation of 'degreeCentrality'", () => {
+      const testString = getTestString(10);
+      const testRandomNumber = -generateRandomNumber(1, 10);
+      const testPositiveNumber = generateRandomNumber(1, 10);
+
+      test.each([
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "string", testString, "Cast to Number failed"],
+        [CaseType.Failure, "negative number", testRandomNumber, "is less than minimum allowed value."],
+        [CaseType.Success, "undefined", undefined, undefined],
+        [CaseType.Success, "zero", 0, undefined],
+        [CaseType.Success, "positive/valid number", testPositiveNumber, undefined],
+      ])(
+        `(%s) Validate 'degreeCentrality' when it is %s`,
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "degreeCentrality",
             caseType,
             testValue: value,
             expectedFailureMessage,
