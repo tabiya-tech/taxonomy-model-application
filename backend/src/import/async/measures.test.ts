@@ -3,9 +3,9 @@ import "_test_utilities/consoleMock";
 import { processMeasures } from "./measures";
 import ImportAPISpecs from "api-specifications/import";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { DegreeCentralityService } from "esco/interestingMeasures/DegreeCentralityService";
+import { InterestingMeasuresService } from "esco/interestingMeasures/InterestingMeasuresService";
 
-jest.mock("esco/interestingMeasures/DegreeCentralityService");
+jest.mock("esco/interestingMeasures/InterestingMeasuresService");
 
 jest.mock("server/repositoryRegistry/repositoryRegistry", () => ({
   getRepositoryRegistry: () => ({
@@ -34,7 +34,7 @@ describe("Interesting Measures", () => {
       await processMeasures(givenEvent);
 
       // THEN calculateSkillDegreeCentrality should be called with the same given event
-      expect(DegreeCentralityService.prototype.calculateDegreeCentrality).toHaveBeenCalledWith(givenModelId);
+      expect(InterestingMeasuresService.prototype.calculateDegreeCentrality).toHaveBeenCalledWith(givenModelId);
     });
 
     test("should throw an error if calculateDegreeCentrality throws an error", async () => {
@@ -45,7 +45,7 @@ describe("Interesting Measures", () => {
       const givenError = new Error(`Error in calculating interesting measures for modelId: ${givenModelId}`);
 
       // AND calculateSkillDegreeCentrality throws an error
-      jest.spyOn(DegreeCentralityService.prototype, "calculateDegreeCentrality").mockRejectedValue(givenError);
+      jest.spyOn(InterestingMeasuresService.prototype, "calculateDegreeCentrality").mockRejectedValue(givenError);
 
       const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
         modelId: givenModelId,

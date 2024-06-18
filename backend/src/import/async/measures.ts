@@ -1,6 +1,6 @@
 import ImportAPISpecs from "api-specifications/import";
 import errorLogger from "common/errorLogger/errorLogger";
-import { DegreeCentralityService } from "esco/interestingMeasures/DegreeCentralityService";
+import {InterestingMeasuresService} from "esco/interestingMeasures/InterestingMeasuresService";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
 /**
@@ -15,13 +15,14 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 export async function processMeasures(event: ImportAPISpecs.Types.POST.Request.Payload): Promise<void> {
   console.info("Calculating interesting measures for modelId: ", event.modelId);
 
-  const degreeCentralityService = new DegreeCentralityService(
+  const intrestingMeasuresService = new InterestingMeasuresService(
     getRepositoryRegistry().skill.Model,
+    getRepositoryRegistry().occupation.Model,
     getRepositoryRegistry().occupationToSkillRelation.relationModel
   );
 
   try {
-    await Promise.all([degreeCentralityService.calculateDegreeCentrality(event.modelId)]);
+    await intrestingMeasuresService.calculate(event.modelId);
   } catch (e) {
     console.error(e);
     const err = new Error(`Error in calculating interesting measures for modelId: ${event.modelId}`, { cause: e });
