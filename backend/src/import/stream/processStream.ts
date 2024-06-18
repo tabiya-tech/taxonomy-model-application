@@ -6,39 +6,68 @@ import { RowProcessor } from "import/parse/RowProcessor.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 
-export function processDownloadStream<T>(
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1000;
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function processDownloadStream<T>(
   url: string,
   streamName: string,
-  rowProcessor: RowProcessor<T>
+  rowProcessor: RowProcessor<T>,
+  retries = MAX_RETRIES
 ): Promise<RowsProcessedStats> {
-  return new Promise<RowsProcessedStats>((resolve, reject) => {
-    const request = https.get(url, (response: IncomingMessage) => {
-      (async () => {
-        try {
-          if (response.statusCode !== 200) {
-            const e = new Error(
-              `Failed to download file ${url} for ${streamName}. Status Code: ${response.statusCode}`
-            );
-            errorLogger.logError(e);
-            reject(e);
-            return;
-          }
-          console.info(`Downloading file ${url} for ${streamName}...`);
-          const stats = await processStream<T>(streamName, response, rowProcessor);
-          resolve(stats);
-        } catch (e: unknown) {
-          const err = new Error(`Error while processing ${url} for ${streamName}`, { cause: e });
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const stats = await new Promise<RowsProcessedStats>((resolve, reject) => {
+        const request = https.get(url, (response: IncomingMessage) => {
+          (async () => {
+            try {
+              if (response.statusCode !== 200) {
+                const e = new Error(
+                  `Failed to download file ${url} for ${streamName}. Status Code: ${response.statusCode}`
+                );
+                errorLogger.logError(e);
+                reject(e);
+                return;
+              }
+              console.info(`Downloading file ${url} for ${streamName}...`);
+              const stats = await processStream<T>(streamName, response, rowProcessor);
+              resolve(stats);
+            } catch (e: unknown) {
+              const err = new Error(`Error while processing ${url} for ${streamName}`, { cause: e });
+              errorLogger.logError(err);
+              reject(err);
+            }
+          })();
+        });
+
+        request.on("error", (e: Error) => {
+          const err = new Error(`Failed to download file ${url} for ${streamName}`, { cause: e });
           errorLogger.logError(err);
-          reject(err);
-        }
-      })();
-    });
-    request.on("error", (e: Error) => {
-      const err = new Error(`Failed to download file ${url} for ${streamName}`, { cause: e });
-      errorLogger.logError(err);
-      reject(err);
-    });
-  });
+          throw err;
+        });
+      });
+
+      return stats;
+    } catch (error) {
+      errorLogger.logError(new Error(`Attempt ${attempt} failed`, { cause: error }));
+
+      if (attempt < retries) {
+        console.warn(`Retrying download... Attempt ${attempt + 1}`);
+        await sleep(RETRY_DELAY_MS);
+      } else {
+        const err = new Error(`Failed to download file ${url} after ${retries} attempts, for stream ${streamName}`, {
+          cause: error,
+        });
+        throw err;
+      }
+    }
+  }
+  // This will never be reached due to the loop structure
+  throw new Error("Unexpected error in processDownloadStream");
 }
 
 export function processStream<T>(
