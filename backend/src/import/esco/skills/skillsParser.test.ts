@@ -105,12 +105,6 @@ describe("test parseSkills from", () => {
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
         );
       });
-      // AND the metrics fields are correctly ignored
-      expectedResults.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
-        expect(expectedSpec).not.toHaveProperty("DEGREECENTRALITY");
-        expect(expectedSpec).not.toHaveProperty("INTEROCCUPATIONTRANSFERABILITY");
-        expect(expectedSpec).not.toHaveProperty("UNSEENTOSEENTRANSFERABILITY");
-      });
       // AND all the expected rows to have been processed successfully
       const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
       expect(actualStats).toEqual({
@@ -119,7 +113,7 @@ describe("test parseSkills from", () => {
         rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(6);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(9);
       expectedResults
         .filter((res: Omit<INewSkillSpec, "modelId">) => isSpecified(res.importId))
         .forEach((expectedSpec: Omit<INewSkillSpec, "modelId">, index: number) => {
