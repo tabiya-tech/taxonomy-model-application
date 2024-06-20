@@ -14,6 +14,7 @@ import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransfo
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
 import { populateEmptyRequiredByOccupations } from "esco/occupationToSkillRelation/populateFunctions";
+import { ISkillConnection } from "../occupationToSkillRelation/occupationToSkillRelation.types";
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -54,6 +55,8 @@ export interface ISkillRepository {
    * Rejects with an error if the operation fails.
    */
   findAll(modelId: string): Readable;
+
+  updateSkillDegreeCentrality(skills: ISkillConnection[]): Promise<mongoose.mongo.BulkWriteResult>;
 }
 
 export class SkillRepository implements ISkillRepository {
@@ -168,6 +171,27 @@ export class SkillRepository implements ISkillRepository {
       return pipeline;
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw e;
+    }
+  }
+
+  updateSkillDegreeCentrality(skills: ISkillConnection[]): Promise<mongoose.mongo.BulkWriteResult> {
+    try {
+      return this.Model.bulkWrite(
+        skills.map((skill) => ({
+          updateOne: {
+            filter: { _id: new mongoose.Types.ObjectId(skill.skillId) },
+            update: {
+              $set: {
+                degreeCentrality: skill.edges,
+              },
+            },
+          },
+        }))
+      );
+    } catch (e) {
+      const err = new Error("SkillRepository.updateSkillDegreeCentrality: bulkWrite failed", { cause: e });
       console.error(err);
       throw e;
     }

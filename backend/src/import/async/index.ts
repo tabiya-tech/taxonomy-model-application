@@ -7,6 +7,8 @@ import ImportProcessStateApiSpecs from "api-specifications/importProcessState";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { parseFiles } from "./parseFiles";
 import errorLogger from "common/errorLogger/errorLogger";
+import { processMeasures } from "./measures";
+import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
 /**
  * Lambda function handler for asynchronous import.
@@ -51,6 +53,8 @@ export const handler = async (event: ImportAPISpecs.Types.POST.Request.Payload):
   // This is because we don't want to retry the lambda function in case of errors during the import process.
   try {
     await parseFiles(event);
+    await processMeasures(event);
+    await importCompleted(event.modelId);
   } catch (e: unknown) {
     const err = new Error("Error while parsing files", { cause: e });
     console.error(err);
@@ -76,6 +80,28 @@ const importErrored = async (modelId: string) => {
     const importProcessStateId = ((await getRepositoryRegistry().modelInfo.getModelById(modelId)) as IModelInfo)
       .importProcessState.id;
     await getRepositoryRegistry().importProcessState.update(importProcessStateId, state);
+  } catch (e: unknown) {
+    console.error(e);
+  }
+};
+
+// The importCompleted function does not throw errors.
+// This is because we don't want to retry the lambda function in case of errors during the import process.
+const importCompleted = async (modelId: string) => {
+  try {
+    const importProcessStateId = ((await getRepositoryRegistry().modelInfo.getModelById(modelId)) as IModelInfo)
+      .importProcessState.id;
+    const state = {
+      status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
+      result: {
+        errored: false,
+        parsingErrors: errorLogger.errorCount > 0,
+        parsingWarnings: errorLogger.warningCount > 0,
+      },
+    };
+
+    await getRepositoryRegistry().importProcessState.update(importProcessStateId, state);
+    console.info("Import completed", state);
   } catch (e: unknown) {
     console.error(e);
   }

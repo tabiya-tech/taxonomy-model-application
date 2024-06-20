@@ -29,6 +29,7 @@ import { IOccupationToSkillRelationRepository } from "./occupationToSkillRelatio
 import {
   INewOccupationToSkillPairSpec,
   IOccupationToSkillRelationPair,
+  ISkillConnection,
   OccupationToSkillRelationType,
 } from "./occupationToSkillRelation.types";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
@@ -646,6 +647,129 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
 
     TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
       repositoryRegistry.occupationToSkillRelation.findAll(getMockStringId(1))
+    );
+  });
+
+  describe("Test groupBySkillId()", () => {
+    test("should return a list of valid ISkillConnections when querried", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+
+      // AND a set of occupationToSkill relations exist in the database
+      const givenNewOccupationToSkillRelations = await createOccupationToSkillRelationsInDB(givenModelId);
+
+      // AND some others exist for a different model
+      await createOccupationToSkillRelationsInDB(getMockStringId(2));
+
+      // WHEN finding all occupationToSkill relations for the given modelId
+      const actualSkillConnections = repository.groupBySkillId(givenModelId);
+
+      // THEN expect all the occupationToSkill relations to be returned as a consumable stream
+      const actualSkillConnectionsArray: ISkillConnection[] = [];
+      for await (const data of actualSkillConnections) {
+        console.log({ data });
+        actualSkillConnectionsArray.push(data);
+      }
+
+      // group by skillId
+      const expectedSkillsConnectionsArray: ISkillConnection[] = [];
+      for (const relation of givenNewOccupationToSkillRelations) {
+        const found = expectedSkillsConnectionsArray.findIndex((item) => item.skillId === relation.requiredSkillId);
+        if (found === -1) {
+          expectedSkillsConnectionsArray.push({
+            skillId: relation.requiredSkillId,
+            edges: 1,
+          });
+        } else {
+          expectedSkillsConnectionsArray[found].edges++;
+        }
+      }
+
+      // Sort the arrays to make sure they are in the same order
+      actualSkillConnectionsArray.sort((a, b) => a.skillId.localeCompare(b.skillId));
+      expectedSkillsConnectionsArray.sort((a, b) => a.skillId.localeCompare(b.skillId));
+
+      expect(actualSkillConnectionsArray).toEqual(expectedSkillsConnectionsArray);
+    });
+
+    test("should not return any entry when the given model does not have any occupationToSkill relations but other models does", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+
+      // AND some occupationToSkill relations exist in the database for a different model
+      await createOccupationToSkillRelationsInDB(getMockStringId(2));
+
+      // WHEN grouping by skillId for the given modelId
+      const actualOccupationToSkillRelations = repository.groupBySkillId(givenModelId);
+
+      // THEN expect no skill connections to be returned
+      const actualOccupationToSkillRelationsArray: ISkillConnection[] = [];
+
+      for await (const data of actualOccupationToSkillRelations) {
+        actualOccupationToSkillRelationsArray.push(data);
+      }
+
+      expect(actualOccupationToSkillRelationsArray).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving data
+      const givenError = new Error("foo");
+      jest.spyOn(repository.relationModel, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN grouping by skillId for some modelId
+      const actualOccupationToSkillRelations = () => repository.groupBySkillId(getMockStringId(1));
+
+      // THEN expect the operation to fail with the given error
+      expect(actualOccupationToSkillRelations).toThrow(
+        expect.toMatchErrorWithCause(
+          "OccupationToSkillRelationRepository.groupBySkillId: aggregate failed",
+          givenError.message
+        )
+      );
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN that an error will occur during the streaming of data
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.relationModel, "aggregate");
+
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockReturnValueOnce(mockStream),
+      });
+
+      // WHEN grouping by skillId for some modelId
+      const actualStream = repository.groupBySkillId(getMockStringId(1));
+
+      // THEN expect the operation to return a stream that emits an error
+      const skillConnections: ISkillConnection[] = [];
+      await expect(async () => {
+        for await (const data of actualStream) {
+          skillConnections.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+
+      expect(console.error).toHaveBeenCalledWith(
+        expect.toMatchErrorWithCause(
+          "OccupationToSkillRelationRepository.groupBySkillId: stream failed",
+          givenError.message
+        )
+      );
+
+      expect(actualStream.closed).toBeTruthy();
+      expect(skillConnections).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.occupationToSkillRelation.groupBySkillId(getMockStringId(1))
     );
   });
 });

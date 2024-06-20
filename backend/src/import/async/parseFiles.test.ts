@@ -464,6 +464,7 @@ describe("Test the main async handler", () => {
       const givenSkillRepositoryMock = {
         Model: undefined as never,
         updateMany: jest.fn().mockResolvedValue(null),
+        updateSkillDegreeCentrality: jest.fn(),
         create: jest.fn(),
         createMany: jest.fn(),
         findById: jest.fn(),

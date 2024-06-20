@@ -43,6 +43,7 @@ import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
 import {
   IOccupationToSkillRelationPairDoc,
+  ISkillConnection,
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { Readable } from "node:stream";
@@ -53,6 +54,7 @@ import {
   INDEX_FOR_REQUIRES_SKILLS,
 } from "esco/skillToSkillRelation/skillToSkillRelationModel";
 import { INDEX_FOR_REQUIRED_BY_OCCUPATIONS } from "../occupationToSkillRelation/occupationToSkillRelationModel";
+import { generateRandomNumber } from "../../_test_utilities/specialCharacters";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -1413,5 +1415,72 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     });
 
     TestStreamDBConnectionFailureNoSetup((repositoryRegistry) => repositoryRegistry.skill.findAll(getMockStringId(1)));
+  });
+
+  describe("Test updateSkillDegreeCentrality() ", () => {
+    test("should successfully update the degree centrality of the existing skills", async () => {
+      // GIVEN some valid SkillSpec
+      const givenBatchSize = 3;
+      const givenNewSkillSpecs: INewSkillSpec[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenNewSkillSpecs[i] = getNewSkillSpec();
+      }
+
+      // AND skills are created
+      const givenCreatedSkills: ISkill[] = await repository.createMany(givenNewSkillSpecs);
+
+      // AND updating the degree centrality of the skills
+      const actualSkillsConnections: ISkillConnection[] = [];
+      for (const skill of givenCreatedSkills) {
+        actualSkillsConnections.push({
+          skillId: skill.id,
+          edges: generateRandomNumber(0, 10),
+        });
+      }
+
+      // WHEN updating the degree centrality of the skills
+      const actualResponse = await repository.updateSkillDegreeCentrality(actualSkillsConnections);
+
+      // THEN modified rows should be equal to provided skills connection.
+      expect(actualResponse.modifiedCount).toEqual(actualSkillsConnections.length);
+
+      // THEN For each skill, the degree centrality should be updated
+      for (const skill of givenCreatedSkills) {
+        const actualSkill = await repository.findById(skill.id);
+
+        expect(actualSkill!.degreeCentrality).toEqual(
+          actualSkillsConnections.find((s) => s.skillId === skill.id)!.edges
+        );
+      }
+    });
+
+    test("should not fail for an empty array of skills connection", async () => {
+      // GIVEN an empty array of skills connections
+      const givenSkillsConnections: ISkillConnection[] = [];
+
+      // WHEN updating the degree centrality of the skills
+      const actualResponse = await repository.updateSkillDegreeCentrality(givenSkillsConnections);
+
+      // THEN modified rows should be equal to 0
+      expect(givenSkillsConnections.length).toEqual(actualResponse.modifiedCount);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN that an error will occur when updating the degree centrality of the skills
+      const givenError = new Error("foo");
+      jest.spyOn(repository, "updateSkillDegreeCentrality").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN updating the degree centrality of the skills
+      const actualOccupationToSkillRelations = () => repository.updateSkillDegreeCentrality([]);
+
+      // THEN expect the operation to fail with the given error
+      expect(actualOccupationToSkillRelations).toThrow(givenError);
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skill.updateSkillDegreeCentrality([]);
+    });
   });
 });

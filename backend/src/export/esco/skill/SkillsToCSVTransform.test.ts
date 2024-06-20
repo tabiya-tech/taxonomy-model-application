@@ -69,6 +69,7 @@ function setupSkillRepositoryMock(findAllImpl: () => Readable) {
   const mockSkillRepository: ISkillRepository = {
     Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
+    updateSkillDegreeCentrality: jest.fn(),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),

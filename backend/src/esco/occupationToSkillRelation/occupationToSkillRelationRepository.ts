@@ -7,12 +7,13 @@ import {
   INewOccupationToSkillPairSpec,
   IOccupationToSkillRelationPair,
   IOccupationToSkillRelationPairDoc,
+  ISkillConnection,
 } from "./occupationToSkillRelation.types";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { IOccupationDoc } from "esco/occupations/occupation.types";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
-import stream from "stream";
+import stream, { Transform, TransformCallback } from "stream";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 
 export interface IOccupationToSkillRelationRepository {
@@ -41,6 +42,15 @@ export interface IOccupationToSkillRelationRepository {
    * Rejects with an error if the operation fails.
    */
   findAll(modelId: string): Readable;
+
+  /**
+   * Counts the number of OccupationToSkillRelation entries that have the given skillId.
+   * @param {string} modelId - The modelId of the occupations.
+   * @returns {Readable} - A Readable stream of objects with the skillId and the total number of connections (edges).
+   *
+   * Rejects with an error if the operation fails.
+   */
+  groupBySkillId(modelId: string): Readable;
 }
 
 export class OccupationToSkillRelationRepository implements IOccupationToSkillRelationRepository {
@@ -148,6 +158,37 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
       return pipeline;
     } catch (e: unknown) {
       const err = new Error("OccupationToSkillRelationRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  groupBySkillId(modelId: string): Readable {
+    try {
+      const pipeline = stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.relationModel
+          .aggregate([
+            { $match: { modelId: { $eq: new mongoose.Types.ObjectId(modelId) } } },
+            { $group: { _id: "$requiredSkillId", edges: { $sum: 1 } } },
+            { $project: { _id: 0, skillId: { $toString: "$_id" }, edges: 1 } },
+          ])
+          .cursor(),
+        new Transform({
+          objectMode: true,
+          transform(chunk: ISkillConnection, _encoding: BufferEncoding, callback: TransformCallback) {
+            callback(null, chunk);
+          },
+        }),
+        () => undefined
+      );
+      pipeline.on("error", (e) => {
+        console.error(new Error("OccupationToSkillRelationRepository.groupBySkillId: stream failed", { cause: e }));
+      });
+
+      return pipeline;
+    } catch (e: unknown) {
+      const err = new Error("OccupationToSkillRelationRepository.groupBySkillId: aggregate failed", { cause: e });
       console.error(err);
       throw err;
     }

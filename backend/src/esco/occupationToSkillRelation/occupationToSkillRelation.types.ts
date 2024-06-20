@@ -36,6 +36,14 @@ export interface IOccupationToSkillRelationPair
 }
 
 /**
+ * Describes how degree centrality is calculated for a skill
+ */
+export interface ISkillConnection {
+  skillId: string;
+  edges: number;
+}
+
+/**
  *  Describes how an occupation to skills relation is created with the API
  */
 export type INewOccupationToSkillPairSpec = Pick<
