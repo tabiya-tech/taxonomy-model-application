@@ -14,7 +14,13 @@ import {
 } from "esco/common/modelSchema";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import {
+  generateRandomNumber,
+  generateRandomUrl,
+  getRandomString,
+  getTestString,
+  WHITESPACE,
+} from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
 import {
@@ -209,8 +215,8 @@ describe("Test the definition of the skill Model", () => {
 
     describe("Test validation of 'interOccupationTransferability'", () => {
       const testString = getTestString(10);
-      const testRandomNumber = -Math.random();
-      const testPositiveNumber = Math.random();
+      const testRandomNumber = -generateRandomNumber(1, 10);
+      const testPositiveNumber = generateRandomNumber(1, 10);
 
       test.each([
         // TODO: Uncomment these tests when the validation is implemented
@@ -236,8 +242,8 @@ describe("Test the definition of the skill Model", () => {
 
     describe("Test validation of 'unseenToSeenTransferability'", () => {
       const testString = getTestString(10);
-      const testRandomNumber = -Math.random();
-      const testPositiveNumber = Math.random();
+      const testRandomNumber = -generateRandomNumber(1, 10);
+      const testPositiveNumber = generateRandomNumber(1, 10);
 
       test.each([
         // TODO: Uncomment these tests when the validation is implemented
@@ -263,8 +269,8 @@ describe("Test the definition of the skill Model", () => {
 
     describe("Test validation of 'degreeCentrality'", () => {
       const testString = getTestString(10);
-      const testRandomNumber = -Math.random();
-      const testPositiveNumber = Math.random();
+      const testRandomNumber = -generateRandomNumber(1, 10);
+      const testPositiveNumber = generateRandomNumber(1, 10);
 
       test.each([
         // TODO: Uncomment these tests when the validation is implemented
