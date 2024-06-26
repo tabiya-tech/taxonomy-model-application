@@ -9,6 +9,7 @@ import { DATA_TEST_ID as MODEL_DESCRIPTION_FIELD_DATA_TEST_ID } from "src/import
 import { DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID } from "src/import/components/ImportFilesSelection";
 import { DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID } from "src/import/components/FileEntry";
 import { DATA_TEST_ID as MODEL_INFO_DATA_TEST_ID } from "src/import/components/ModelInfoFileEntry";
+import HelpTip from "src/theme/HelpTip/HelpTip";
 import ImportAPISpecs from "api-specifications/import";
 import { clickDebouncedButton, typeDebouncedInput } from "src/_test_utilities/userEventFakeTimer";
 import { ImportFiles } from "./ImportFiles.type";
@@ -21,6 +22,18 @@ import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
 jest.mock("src/import/components/parseSelectedModelInfoFile", () => {
   return jest.fn().mockResolvedValue(["foo", "bar"]);
 });
+
+jest.mock("src/theme/HelpTip/HelpTip", () => {
+  const actual = jest.requireActual("src/theme/HelpTip/HelpTip");
+
+  return {
+    __esModule: true,
+    ...actual,
+    default: jest.fn().mockImplementation((props) => (
+      <div data-testid={props["data-testid"]} />
+    ))
+  }
+})
 
 const notifyOnCloseMock = jest.fn();
 const testProps: ImportModelDialogProps = {
@@ -144,6 +157,10 @@ describe("ImportModel dialog render tests", () => {
     // AND expect the Import Files Selection to exist
     const importFilesSelectionElement = screen.getByTestId(IMPORT_FILE_SELECTION_DATA_TEST_ID.IMPORT_FILES_SELECTION);
     expect(importFilesSelectionElement).toBeInTheDocument();
+
+    // AND the  Import Oirignal ESCO checkbox tooltip to be visible.
+    const originalESCOCheckboxTooltipElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP);
+    expect(originalESCOCheckboxTooltipElement).toBeVisible();
   });
 
   it("should render the dialog hidden", function () {
@@ -232,6 +249,17 @@ describe("ImportModel dialog render tests", () => {
       {}
     );
   });
+
+  it("should render HelpTip with the correct message", () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // AND expect the HelpTip to have the correct message and data test id
+    expect(HelpTip).toHaveBeenCalledWith({
+      children: "Check this if you are importing these CSVs for the very first time.",
+      "data-testid": DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP
+    }, {})
+  })
 });
 
 describe("ImportModel dialog action tests", () => {

@@ -12,8 +12,6 @@ exports[`Test the import module The import module matches the snapshot 1`] = `
       "ISCO_GROUPS": "ISCO_GROUPS",
       "OCCUPATIONS": "OCCUPATIONS",
       "OCCUPATION_HIERARCHY": "OCCUPATION_HIERARCHY",
-      "OCCUPATION_LOGS": "OCCUPATION_LOGS",
-      "OCCUPATION_LOG_CHANGES": "OCCUPATION_LOG_CHANGES",
       "OCCUPATION_SKILL_RELATIONS": "OCCUPATION_SKILL_RELATIONS",
     },
     "MAX_PAYLOAD_LENGTH": 4000,
@@ -133,30 +131,6 @@ exports[`Test the import module The import module matches the snapshot 1`] = `
                   },
                   "required": [
                     "OCCUPATION_SKILL_RELATIONS",
-                  ],
-                },
-                {
-                  "properties": {
-                    "OCCUPATION_LOGS": {
-                      "maxLength": 255,
-                      "pattern": "\\S",
-                      "type": "string",
-                    },
-                  },
-                  "required": [
-                    "OCCUPATION_LOGS",
-                  ],
-                },
-                {
-                  "properties": {
-                    "OCCUPATION_LOG_CHANGES": {
-                      "maxLength": 255,
-                      "pattern": "\\S",
-                      "type": "string",
-                    },
-                  },
-                  "required": [
-                    "OCCUPATION_LOG_CHANGES",
                   ],
                 },
               ],
