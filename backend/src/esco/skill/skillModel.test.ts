@@ -219,15 +219,14 @@ describe("Test the definition of the skill Model", () => {
       const testPositiveNumber = generateRandomNumber(1, 10);
 
       test.each([
-        // TODO: Uncomment these tests when the validation is implemented
-        // [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        // [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "string", testString, "Cast to Number failed"],
         [CaseType.Failure, "negative number", testRandomNumber, "is less than minimum allowed value."],
+        [CaseType.Success, "undefined", undefined, undefined],
         [CaseType.Success, "zero", 0, undefined],
         [CaseType.Success, "positive/valid number", testPositiveNumber, undefined],
       ])(
-        `(%s) Validate 'reuseLevel' when it is %s`,
+        `(%s) Validate 'interOccupationTransferability' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ISkillDoc>({
             model: skillModel,
@@ -246,15 +245,14 @@ describe("Test the definition of the skill Model", () => {
       const testPositiveNumber = generateRandomNumber(1, 10);
 
       test.each([
-        // TODO: Uncomment these tests when the validation is implemented
-        // [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        // [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "string", testString, "Cast to Number failed"],
         [CaseType.Failure, "negative number", testRandomNumber, "is less than minimum allowed value."],
+        [CaseType.Success, "undefined", undefined, undefined],
         [CaseType.Success, "zero", 0, undefined],
         [CaseType.Success, "positive/valid number", testPositiveNumber, undefined],
       ])(
-        `(%s) Validate 'reuseLevel' when it is %s`,
+        `(%s) Validate 'unseenToSeenTransferability' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ISkillDoc>({
             model: skillModel,
@@ -273,15 +271,14 @@ describe("Test the definition of the skill Model", () => {
       const testPositiveNumber = generateRandomNumber(1, 10);
 
       test.each([
-        // TODO: Uncomment these tests when the validation is implemented
-        // [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        // [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
         [CaseType.Failure, "string", testString, "Cast to Number failed"],
         [CaseType.Failure, "negative number", testRandomNumber, "is less than minimum allowed value."],
+        [CaseType.Success, "undefined", undefined, undefined],
         [CaseType.Success, "zero", 0, undefined],
         [CaseType.Success, "positive/valid number", testPositiveNumber, undefined],
       ])(
-        `(%s) Validate 'reuseLevel' when it is %s`,
+        `(%s) Validate 'degreeCentrality' when it is %s`,
         (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
           assertCaseForProperty<ISkillDoc>({
             model: skillModel,

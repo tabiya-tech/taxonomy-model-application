@@ -34,7 +34,7 @@ enum DataTestType {
   ESCO = "ESCO",
 }
 
-xdescribe("Test Roundtrip with an in-memory mongodb", () => {
+describe("Test Roundtrip with an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
   // Backup and restore the original env variables
   beforeAll(() => {
@@ -100,7 +100,7 @@ xdescribe("Test Roundtrip with an in-memory mongodb", () => {
     //[DataTestType.ESCO, true , "../data-sets/csv/tabiya-esco-v1.1.1/"],
     [DataTestType.SAMPLE, true, "../data-sets/csv/tabiya-sample/"],
   ])(
-    "should [CSV -Import-> DB -Export-> CSV | optional second pass: %s | -Import-> DB -Export-> CSV] for %s data test type",
+    "should [CSV -Import-> DB -Export-> CSV | optional second pass: %s | 0 DB -Export-> CSV] for %s data test type",
     async (_dataTestType, doTwoPasses, sourceFolder) => {
       // First pass
       // 1.1 Import the original CSV files into the database
@@ -299,6 +299,10 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     row.UUIDHISTORY = uuidHistory[uuidHistory.length - 1];
@@ -312,6 +316,10 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     row.UUIDHISTORY = uuidHistory[uuidHistory.length - 1];
@@ -343,6 +351,10 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     map1.set(row.PARENTID + row.CHILDID, row);
     return row;
   });
@@ -354,6 +366,10 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     expect(map1.get(row.PARENTID + row.CHILDID)).toEqual(row); // assert that all object in file2 are in file1
     return row;
   });
@@ -383,6 +399,10 @@ function compareSkillToSkillCSV(file1: string, mapper1: Mapper, file2: string, m
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     map1.set(row.REQUIRINGID + row.REQUIREDID, row);
     return row;
   });
@@ -394,6 +414,10 @@ function compareSkillToSkillCSV(file1: string, mapper1: Mapper, file2: string, m
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     expect(map1.get(row.REQUIRINGID + row.REQUIREDID)).toEqual(row); // assert that all object in file2 are in file1
     return row;
   });
@@ -422,6 +446,10 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     map1.set(row.OCCUPATIONID + row.SKILLID, row);
     return row;
   });
@@ -433,6 +461,10 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    // Remove the metrics fields from the parsed CSV data
+    delete row.DEGREECENTRALITY;
+    delete row.INTEROCCUPATIONTRANSFERABILITY;
+    delete row.UNSEENTOSEENTRANSFERABILITY;
     expect(map1.get(row.OCCUPATIONID + row.SKILLID)).toEqual(row); // assert that all object in file2 are in file1
     return row;
   });
