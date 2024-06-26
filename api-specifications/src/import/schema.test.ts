@@ -32,8 +32,8 @@ describe("Validate JSON against the Import Schema", () => {
       ESCO_SKILL_HIERARCHY: "folder/file2",
       ESCO_SKILL_SKILL_RELATIONS: "folder/file5",
       OCCUPATION_SKILL_RELATIONS: "folder/file13",
-      OCCUPATION_LOGS: "folder/file11",
-      OCCUPATION_LOG_CHANGES: "folder/file12",
+      // OCCUPATION_LOGS: "folder/file11",
+      // OCCUPATION_LOG_CHANGES: "folder/file12",
     },
     isOriginalESCOModel: true,
   };

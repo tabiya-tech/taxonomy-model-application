@@ -19,12 +19,14 @@ import { ImportFiles } from "./ImportFiles.type";
 import ModelLocalSelectField from "./components/ModelLocalSelectField";
 import LocaleAPISpecs from "api-specifications/locale";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
+import HelpTip from "src/theme/HelpTip/HelpTip";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f";
 export const DATA_TEST_ID = {
   IMPORT_MODEL_DIALOG: `import-model-dialog-${uniqueId}`,
   IMPORT_ORIGINAL_ESCO_CHECKBOX: `import-original-esco-checkbox-${uniqueId}`,
   IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL: `import-original-esco-checkbox-label-${uniqueId}`,
+  IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP: `import-original-esco-checkbox-tooltip-${uniqueId}`,
   IMPORT_BUTTON: `import-button-${uniqueId}`,
   CANCEL_BUTTON: `cancel-button-${uniqueId}`,
 };
@@ -128,22 +130,28 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
           <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />
-          <FormControlLabel
-            data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL}
-            control={
-              <Checkbox
-                onChange={handleOriginalESCOChange}
-                data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX}
-                sx={{
-                  color: theme.palette.primary.main,
-                  "&.Mui-checked": {
+          <Stack direction={"row"} gap={theme.tabiyaSpacing.xs}>
+            <FormControlLabel
+              data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL}
+              control={
+                <Checkbox
+                  onChange={handleOriginalESCOChange}
+                  data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX}
+                  sx={{
                     color: theme.palette.primary.main,
-                  },
-                }}
-              />
-            }
-            label="I'm importing a base ESCO model"
-          />
+                    "&.Mui-checked": {
+                      color: theme.palette.primary.main,
+                    },
+                  }}
+                />
+              }
+              label="I'm importing a base ESCO model"
+            />
+
+            <HelpTip data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP}>
+              Check this if you are importing these CSVs for the very first time.
+            </HelpTip>
+          </Stack>
           <ImportFilesSelection
             notifySelectedFileChange={handleSelectedFileChange}
             notifyUUIDHistoryChange={handleUUIDHistoryChange}

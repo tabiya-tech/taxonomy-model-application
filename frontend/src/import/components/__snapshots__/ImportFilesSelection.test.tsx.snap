@@ -112,28 +112,6 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
       class="MuiBox-root css-8ghero"
     >
       <div
-        data-testid="mock-file-entry"
-      >
-        Mock FileEntry: 
-        OCCUPATION_LOGS
-         
-      </div>
-    </div>
-    <div
-      class="MuiBox-root css-8ghero"
-    >
-      <div
-        data-testid="mock-file-entry"
-      >
-        Mock FileEntry: 
-        OCCUPATION_LOG_CHANGES
-         
-      </div>
-    </div>
-    <div
-      class="MuiBox-root css-8ghero"
-    >
-      <div
         data-filetype="MODEL_INFO"
         data-testid="modelInfo-file-entry-16c54d56-b091-48ce-826a-c721b0c3643d"
       >

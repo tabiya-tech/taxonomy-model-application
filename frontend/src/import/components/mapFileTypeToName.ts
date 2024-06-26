@@ -18,10 +18,10 @@ export const mapFileTypeToName = (fileType: ImportAPISpecs.Constants.ImportFileT
       return "Skill Hierarchy";
     case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_SKILL_RELATIONS:
       return "Occupation-To-Skill Relations";
-    case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_LOGS:
-      return "Occupation Logs";
-    case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_LOG_CHANGES:
-      return "Occupation Log Changes";
+    // case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_LOGS:
+    //   return "Occupation Logs";
+    // case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_LOG_CHANGES:
+    //   return "Occupation Log Changes";
     default:
       return "Unknown File Type";
   }
