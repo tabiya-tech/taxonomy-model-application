@@ -19,8 +19,73 @@ export async function processDownloadStream<T>(
   rowProcessor: RowProcessor<T>,
   retries = MAX_RETRIES
 ): Promise<RowsProcessedStats> {
+  /**
+   * Logs everything in a download, for debugging an intermittent error
+   * // TODO: remove when done
+   * @param url
+   */
+  const downloadFile = (url: string): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      console.log(`Starting preRequest download for URL: ${url}`);
+      const preRequest = https.get(url, (response: IncomingMessage) => {
+        console.log(`Received response for preRequest download. Status Code: ${response.statusCode}`);
+        console.log('Response Headers:', response.headers);
+
+        response.on('data', (chunk: Buffer) => {
+          console.log(`Received data chunk of size: ${chunk.length}`);
+        });
+
+        response.on('end', () => {
+          console.log('Completed preRequest download');
+          resolve();
+        });
+
+        response.on('error', (err: Error) => {
+          console.error('Error during preRequest download:', err);
+          reject(err);
+        });
+      });
+
+      preRequest.on('error', (err: Error) => {
+        console.error('Error initiating preRequest download:', err);
+        reject(err);
+      });
+
+      preRequest.on('socket', (socket) => {
+        socket.on('connect', () => {
+          console.log('Socket connected');
+        });
+
+        socket.on('lookup', (err, address, family, host) => {
+          if (err) {
+            console.error('DNS lookup error:', err);
+          } else {
+            console.log(`DNS lookup result: address=${address}, family=${family}, host=${host}`);
+          }
+        });
+
+        socket.on('timeout', () => {
+          console.warn('Socket timeout');
+          preRequest.abort();
+        });
+
+        socket.on('close', (hadError) => {
+          if (hadError) {
+            console.error('Socket closed due to an error');
+          } else {
+            console.log('Socket closed');
+          }
+        });
+      });
+    });
+  };
+
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
+      // Pre-request download
+      await downloadFile(url);
+
+      // Main download and processing
       const stats = await new Promise<RowsProcessedStats>((resolve, reject) => {
         const request = https.get(url, (response: IncomingMessage) => {
           (async () => {
@@ -47,7 +112,7 @@ export async function processDownloadStream<T>(
         request.on("error", (e: Error) => {
           const err = new Error(`Failed to download file ${url} for ${streamName}`, { cause: e });
           errorLogger.logError(err);
-          throw err;
+          reject(err);
         });
       });
 
