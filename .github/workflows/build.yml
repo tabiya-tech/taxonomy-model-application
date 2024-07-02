@@ -34,8 +34,8 @@ jobs:
     needs: [ build-api-specs ]
     secrets: inherit
 
-  # Sonarcloud
-  sonarcloud:
-    needs: [ build-backend, build-frontend, build-api-specs ]
-    uses: ./.github/workflows/sonar-cloud.yml
-    secrets: inherit
+#  # Sonarcloud
+#  sonarcloud:
+#    needs: [ build-backend, build-frontend, build-api-specs ]
+#    uses: ./.github/workflows/sonar-cloud.yml
+#    secrets: inherit

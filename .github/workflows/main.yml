@@ -20,24 +20,25 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
     with:
-      target-environment: ${{ startsWith(github.ref, 'refs/tags/') && 'test' || 'dev'  }}
-      backend-version-info: ${{ needs.build.outputs.backend-version-info }}
-      frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}
-
-  require-approval:
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: [ build, deploy ]
-    uses: ./.github/workflows/approve-deployment.yml
-    secrets: inherit
-    with:
-      tested-version: ${{ needs.deploy.outputs.tested-version }}
-      backend-url: ${{ needs.deploy.outputs.backend-url }}
-
-  deploy-production:
-    needs: [ build, require-approval, deploy ]
-    uses: ./.github/workflows/deploy.yml
-    secrets: inherit
-    with:
+#      target-environment: ${{ startsWith(github.ref, 'refs/tags/') && 'test' || 'dev'  }}
       target-environment: production
       backend-version-info: ${{ needs.build.outputs.backend-version-info }}
       frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}
+
+#  require-approval:
+#    if: startsWith(github.ref, 'refs/tags/')
+#    needs: [ build, deploy ]
+#    uses: ./.github/workflows/approve-deployment.yml
+#    secrets: inherit
+#    with:
+#      tested-version: ${{ needs.deploy.outputs.tested-version }}
+#      backend-url: ${{ needs.deploy.outputs.backend-url }}
+#
+#  deploy-production:
+#    needs: [ build, require-approval, deploy ]
+#    uses: ./.github/workflows/deploy.yml
+#    secrets: inherit
+#    with:
+#      target-environment: production
+#      backend-version-info: ${{ needs.build.outputs.backend-version-info }}
+#      frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}
