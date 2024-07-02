@@ -33,6 +33,6 @@ jobs:
         env:
           TARGET_DB_URL: ${{ secrets.MONGODB_URI }}
         run: |
-          export TARGET_FOLDER=${for dir in /tmp/mongodump/*/; do basename "$dir"; done}
+          export TARGET_FOLDER=$(for dir in /tmp/mongodump/*/; do basename "$dir"; done)
           echo "Restoring database from /tmp/mongodump/${TARGET_FOLDER}"
-          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${TARGET_FOLDER} --quiet
+          mongorestore --uri="${TARGET_DB_URLfor dir in /tmp/mongodump/*/; do basename "$dir"; done}" /tmp/mongodump/${TARGET_FOLDER} --quiet
