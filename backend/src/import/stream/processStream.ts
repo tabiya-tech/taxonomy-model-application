@@ -6,6 +6,28 @@ import { RowProcessor } from "import/parse/RowProcessor.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 
+function logPreRequestDownload(url: string, streamName: string) {
+  https.get(url, (response: IncomingMessage) => {
+    console.log(`PreRequest download started for ${streamName}`);
+    console.log(`Status Code: ${response.statusCode}`);
+    console.log('Response Headers:', response.headers);
+
+    response.on('data', (chunk: Buffer) => {
+      console.log(`Received data chunk of size: ${chunk.length}`);
+    });
+
+    response.on('end', () => {
+      console.log(`PreRequest download finished for ${streamName}`);
+    });
+
+    response.on('error', (err: Error) => {
+      console.error(`Error during preRequest download for ${streamName}:`, err);
+    });
+  }).on('error', (err: Error) => {
+    console.error(`Failed to initiate preRequest download for ${url} for ${streamName}:`, err);
+  });
+}
+
 export function processDownloadStream<T>(
   url: string,
   streamName: string,
@@ -29,6 +51,8 @@ export function processDownloadStream<T>(
         } catch (e: unknown) {
           const err = new Error(`Error while processing ${url} for ${streamName}`, { cause: e });
           errorLogger.logError(err);
+          console.log("trying one more time");
+          logPreRequestDownload(url, streamName);
           reject(err);
         }
       })();
