@@ -27,10 +27,12 @@ jobs:
         env:
           SOURCE_DB_URL: ${{ secrets.PROD_MONGODB_URI }}
         run: |
-          mongodump --uri="${SOURCE_DB_URL}" --out=/tmp/mongodump --quiet
+          mongodump --uri="${SOURCE_DB_URL}" --out=/tmp/mongodump 
 
       - name: Restore MongoDB Database
         env:
           TARGET_DB_URL: ${{ secrets.MONGODB_URI }}
         run: |
-          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${{ secrets.PROD_DB_NAME }} --quiet
+          export TARGET_FOLDER=${for dir in /tmp/mongodump/*/; do basename "$dir"; done}
+          echo "Restoring database from /tmp/mongodump/${TARGET_FOLDER}"
+          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${TARGET_FOLDER} --quiet --drop
