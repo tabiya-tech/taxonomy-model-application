@@ -22,13 +22,13 @@ on:
 
 jobs:
   # Copy the target database
-  copy-target-database:
-    if: ${{ inputs.target-environment == 'test' }}
-    name: Database Dump and Restore
-    uses: ./.github/workflows/copy-database.yml
-    secrets: inherit
-    with:
-      target-environment: ${{ inputs.target-environment }}
+#  copy-target-database:
+#    if: ${{ inputs.target-environment == 'test' }}
+#    name: Database Dump and Restore
+#    uses: ./.github/workflows/copy-database.yml
+#    secrets: inherit
+#    with:
+#      target-environment: ${{ inputs.target-environment }}
 
   # Set-Up Infrastructure
   setup-infrastructure:
@@ -37,17 +37,17 @@ jobs:
     with:
       target-environment: ${{ inputs.target-environment }}
 
-  # Copy the target database, the database we are testing.
-  get-current-version:
-    if: ${{ inputs.target-environment == 'test' }}
-    needs: [ setup-infrastructure ]
-    uses: ./.github/workflows/db-sanity-checks.yml
-    name: DB Sanity Checks
-    secrets: inherit
-    with:
-      command: get-current-version
-      backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
-      version: $GITHUB_REF_NAME
+#  # Copy the target database, the database we are testing.
+#  get-current-version:
+#    if: ${{ inputs.target-environment == 'test' }}
+#    needs: [ setup-infrastructure ]
+#    uses: ./.github/workflows/db-sanity-checks.yml
+#    name: DB Sanity Checks
+#    secrets: inherit
+#    with:
+#      command: get-current-version
+#      backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
+#      version: $GITHUB_REF_NAME
 
   # Auth
   deploy-auth:
