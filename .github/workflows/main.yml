@@ -19,6 +19,7 @@ jobs:
     needs: [ build ]
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
+    name: ${{ startsWith(github.ref, 'refs/tags/') && 'deploy-test' || 'deploy-dev'  }}
     with:
       target-environment: ${{ startsWith(github.ref, 'refs/tags/') && 'test' || 'dev'  }}
       backend-version-info: ${{ needs.build.outputs.backend-version-info }}
