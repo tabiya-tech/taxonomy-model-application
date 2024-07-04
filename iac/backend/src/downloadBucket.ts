@@ -78,5 +78,5 @@ export function setupDownloadBucketWritePolicy(downloadBucket: Bucket, asyncExpo
   const myBucketPolicy = new aws.s3.BucketPolicy("download-bucket-2-policy", {
     bucket: downloadBucket.id,
     policy: bucketPolicyDocument,
-  });
+  }, {dependsOn: [publicAccessAllow]});
 }
