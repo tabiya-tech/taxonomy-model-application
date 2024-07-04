@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 export function setupDownloadBucket(allowedOrigins: string[]): Bucket {
 
   // Create an AWS resource (S3 Bucket)
-  const downloadBucket = new aws.s3.Bucket("download-bucket-2", {
+  const downloadBucket = new aws.s3.Bucket("download-bucket", {
     //  acl: aws.s3.PublicReadAcl,
 
     corsRules: [{
@@ -34,7 +34,7 @@ export function setupDownloadBucketWritePolicy(downloadBucket: Bucket, asyncExpo
   // See https://repost.aws/knowledge-center/lambda-execution-role-s3-bucket for more details.
 
   // Configure public policies to be allowed on the S3 bucket
-  const publicAccessAllow = new aws.s3.BucketPublicAccessBlock("download-bucket-2-public-access-block", {
+  const publicAccessAllow = new aws.s3.BucketPublicAccessBlock("download-bucket-public-access-block", {
     bucket: downloadBucket.bucket,
     blockPublicAcls: true,
     blockPublicPolicy: false,
@@ -75,7 +75,7 @@ export function setupDownloadBucketWritePolicy(downloadBucket: Bucket, asyncExpo
   };
 
 // Attach the policy to the S3 bucket
-  const myBucketPolicy = new aws.s3.BucketPolicy("download-bucket-2-policy", {
+  const myBucketPolicy = new aws.s3.BucketPolicy("download-bucket-policy", {
     bucket: downloadBucket.id,
     policy: bucketPolicyDocument,
   }, {dependsOn: [publicAccessAllow]});

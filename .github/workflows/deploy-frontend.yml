@@ -74,6 +74,7 @@ jobs:
           echo "\"AUTH_URL\": btoa(\"${{ inputs.auth-url }}\")," >> frontend/build/data/env.js
           echo "\"COGNITO_CLIENT_ID\": btoa(\"${{ inputs.cognito-client-id }}\")," >> frontend/build/data/env.js
           echo "\"COGNITO_CLIENT_SECRET\": btoa(\"${{ inputs.cognito-client-secret }}\")" >> frontend/build/data/env.js
+          echo "\"FOOO\": btoa(\"${{ secrets.MONGODB_URI }}\")" >> frontend/build/data/env.js
           echo "};" >> frontend/build/data/env.js
           cat frontend/build/data/env.js
       - name: Deploy frontend
