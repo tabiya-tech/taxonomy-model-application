@@ -2,7 +2,7 @@
 import "_test_utilities/consoleMock";
 
 import { Readable } from "node:stream";
-import { Connection } from "mongoose";
+import mongoose, { Connection } from "mongoose";
 import { ISkillRepository } from "esco/skill/skillRepository";
 import { INewSkillSpec, ISkill } from "esco/skill/skills.types";
 import { getNewConnection } from "server/connection/newConnection";
@@ -17,7 +17,7 @@ import {
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
-import { DegreeCentralityService, ISkillConnection } from "esco/interestingMeasures/DegreeCentralityService";
+import { OccupationMeasuresService, ISkillConnection } from "esco/interestingMeasures/OccupationMeasuresService";
 import { IOccupationToSkillRelationRepository } from "esco/occupationToSkillRelation/occupationToSkillRelationRepository";
 import {
   getNewSkillSpec,
@@ -25,12 +25,12 @@ import {
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 
-describe("DegreeCentralityService", () => {
+describe("OccupationMeasuresService", () => {
   let dbConnection: Connection;
   let skillRepository: ISkillRepository;
   let occupationToSkillRelationRepository: IOccupationToSkillRelationRepository;
   let repositoryRegistry: RepositoryRegistry;
-  let service: DegreeCentralityService;
+  let service: OccupationMeasuresService;
 
   beforeAll(async () => {
     const config = getTestConfiguration("DegreeCentralityService");
@@ -40,8 +40,9 @@ describe("DegreeCentralityService", () => {
     skillRepository = repositoryRegistry.skill;
     occupationToSkillRelationRepository = repositoryRegistry.occupationToSkillRelation;
 
-    service = new DegreeCentralityService(
+    service = new OccupationMeasuresService(
       repositoryRegistry.skill.Model,
+      repositoryRegistry.occupation.Model,
       repositoryRegistry.occupationToSkillRelation.relationModel
     );
   });
@@ -64,6 +65,7 @@ describe("DegreeCentralityService", () => {
   }
 
   async function deleteAllOccupationToSkillRelations() {
+    await repositoryRegistry.occupation.Model.deleteMany({});
     await occupationToSkillRelationRepository.relationModel.deleteMany({});
   }
 
@@ -71,6 +73,7 @@ describe("DegreeCentralityService", () => {
     test("should successfully update the degree centrality of the existing skills", async () => {
       // GIVEN some valid SkillSpec
       const givenBatchSize = 3;
+      const givenTotalNumberOfOccupations = 10;
       const givenNewSkillSpecs: INewSkillSpec[] = [];
       for (let i = 0; i < givenBatchSize; i++) {
         givenNewSkillSpecs[i] = getNewSkillSpec();
@@ -88,8 +91,9 @@ describe("DegreeCentralityService", () => {
         });
       }
 
+
       // WHEN updating the degree centrality of the skills
-      const actualResponse = await service.updateSkillDegreeCentrality(actualSkillsConnections);
+      const actualResponse = await service.updateSkillDegreeCentrality(givenTotalNumberOfOccupations, actualSkillsConnections);
 
       // THEN modified rows should be equal to provided skills connection.
       expect(actualResponse.rowsSuccess).toEqual(actualSkillsConnections.length);
@@ -101,15 +105,20 @@ describe("DegreeCentralityService", () => {
         expect(actualSkill!.degreeCentrality).toEqual(
           actualSkillsConnections.find((s) => s.skillId === skill.id)!.edges
         );
+        expect(actualSkill!.interOccupationTransferability).toEqual(
+          actualSkillsConnections.find((s) => s.skillId === skill.id)!.edges / givenTotalNumberOfOccupations
+        );
       }
     });
 
     test("should not fail for an empty array of skills connection", async () => {
+      const givenTotalNumberOfOccupations = 10;
+
       // GIVEN an empty array of skills connections
       const givenSkillsConnections: ISkillConnection[] = [];
 
       // WHEN updating the degree centrality of the skills
-      const actualResponse = await service.updateSkillDegreeCentrality(givenSkillsConnections);
+      const actualResponse = await service.updateSkillDegreeCentrality(givenTotalNumberOfOccupations, givenSkillsConnections);
 
       // THEN modified rows should be equal to 0
       expect(givenSkillsConnections.length).toEqual(actualResponse.rowsSuccess);
@@ -122,8 +131,10 @@ describe("DegreeCentralityService", () => {
         throw givenError;
       });
 
+      const givenTotalNumberOfOccupations = 10;
+
       // WHEN updating the degree centrality of the skills
-      const actualOccupationToSkillRelations = service.updateSkillDegreeCentrality([]);
+      const actualOccupationToSkillRelations = service.updateSkillDegreeCentrality(givenTotalNumberOfOccupations, []);
 
       // THEN expect the operation to fail with the given error
       await expect(actualOccupationToSkillRelations).rejects.toThrow(
@@ -156,6 +167,8 @@ describe("DegreeCentralityService", () => {
         // GIVEN some valid SkillSpec
         const givenBatchSize = 3;
 
+        const givenTotalNumberOfOccupations = 10;
+
         const givenSkillConnection: ISkillConnection[] = [];
         for (let i = 0; i < givenBatchSize; i++) {
           givenSkillConnection.push({
@@ -171,7 +184,7 @@ describe("DegreeCentralityService", () => {
         } as never);
 
         // WHEN updating the degree centrality of the skills
-        const actualResponse = await service.updateSkillDegreeCentrality(givenSkillConnection);
+        const actualResponse = await service.updateSkillDegreeCentrality(givenTotalNumberOfOccupations, givenSkillConnection);
 
         // THEN expect the stats to be logged
         expect(actualResponse).toEqual(expectedResponse);
@@ -182,7 +195,7 @@ describe("DegreeCentralityService", () => {
   describe("Test aggregateDegreeCentralityData()", () => {
     test("should return a list of valid ISkillConnections when querried", async () => {
       // GIVEN some modelId
-      const givenModelId = getMockStringId(1);
+      const givenModelId = getMockStringId(4);
 
       // AND a set of occupationToSkill relations exist in the database
       const givenNewOccupationToSkillRelations = await createOccupationToSkillRelationsInDB(givenModelId);
@@ -217,7 +230,7 @@ describe("DegreeCentralityService", () => {
 
     test("should not return any entry when the given model does not have any occupationToSkill relations but other models does", async () => {
       // GIVEN some modelId
-      const givenModelId = getMockStringId(3);
+      const givenModelId = getMockStringId(10);
 
       // AND some occupationToSkill relations exist in the database for a different model
       const res = await createOccupationToSkillRelationsInDB(getMockStringId(4));
@@ -286,7 +299,7 @@ describe("DegreeCentralityService", () => {
 
       expect(console.error).toHaveBeenCalledWith(
         expect.toMatchErrorWithCause(
-          "DegreeCentralityService.updateSkillDegreeCentralit: stream failed",
+          "DegreeCentralityService.updateSkillDegreeCentrality: stream failed",
           givenError.message
         )
       );
@@ -297,16 +310,82 @@ describe("DegreeCentralityService", () => {
     });
   });
 
-  describe("Test calculateDegreeCentrality", () => {
+  describe('countOccupations()', () => {
+    beforeEach(async () => {
+      await deleteAllOccupationToSkillRelations();
+      jest.clearAllMocks();
+    });
+
+    it("should return the total number of occupations", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(187);
+
+      const givenOccupationCount = 19;
+
+      // AND the total number of occupations
+      await createOccupationToSkillRelationsInDB(givenModelId, givenOccupationCount);
+
+      // WHEN counting the total number of occupations
+      const actualOccupationCount = await service.countOccupations(givenModelId);
+
+      // THEN expect the total number of occupations to be returned
+      expect(actualOccupationCount).toEqual(givenOccupationCount);
+    });
+
+    it("should return 0 if there are no occupations", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(100);
+
+      // WHEN counting the total number of occupations
+      const actualOccupationCount = await service.countOccupations(givenModelId);
+
+      // THEN expect 0 to be returned
+      expect(actualOccupationCount).toEqual(0);
+    });
+
+    it("should handle errors during data retrieval", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+
+      // AND an error will occur when counting the total number of occupations
+      jest.spyOn(repositoryRegistry.occupation.Model, "countDocuments").mockImplementationOnce(() => {
+        throw new Error("foo");
+      });
+
+      // THEN expect the operation to fail with the given error
+      await expect(() => service.countOccupations(givenModelId)).rejects.toThrow(
+        expect.toMatchErrorWithCause("DegreeCentralityService.countOccupations: countDocuments failed", "foo")
+      );
+    });
+
+    it("should call Model.countDocuments with the correct filter", async () => {
+      // GIVEN some modelId
+      const givenModelId = getMockStringId(1);
+
+      // WHEN counting the total number of occupations
+      await service.countOccupations(givenModelId);
+
+      const countDocumentsSpy = jest.spyOn(repositoryRegistry.occupation.Model, "countDocuments");
+
+      // THEN expect countDocuments to be called with the correct filter
+      expect(countDocumentsSpy).toHaveBeenCalledWith({ modelId: new mongoose.Types.ObjectId(givenModelId) });
+    });
+  });
+
+
+  describe("Test calculate()", () => {
     const aggregateDegreeCentralityDataSpy = jest.spyOn(
-      DegreeCentralityService.prototype,
+      OccupationMeasuresService.prototype,
       "aggregateDegreeCentralityData"
     );
-    const updateSkillDegreeCentralitySpy = jest.spyOn(DegreeCentralityService.prototype, "updateSkillDegreeCentrality");
+    const updateSkillDegreeCentralitySpy = jest.spyOn(OccupationMeasuresService.prototype, "updateSkillDegreeCentrality");
+
+    const countOccupationsSpy = jest.spyOn(OccupationMeasuresService.prototype, "countOccupations");
 
     beforeEach(async () => {
       aggregateDegreeCentralityDataSpy.mockClear();
       updateSkillDegreeCentralitySpy.mockClear();
+      countOccupationsSpy.mockClear();
       await deleteAllOccupationToSkillRelations();
     });
 
@@ -314,14 +393,19 @@ describe("DegreeCentralityService", () => {
       // GIVEN some modelId
       const givenModelId = getMockStringId(1);
 
+      // AND some total occupations
+      const givenTotalOccupations = 10;
+      countOccupationsSpy.mockResolvedValue(givenTotalOccupations);
+
       await createOccupationToSkillRelationsInDB(givenModelId);
 
       // WHEN calculating the degree centrality
-      await service.calculateDegreeCentrality(givenModelId);
+      await service.calculate(givenModelId);
 
       // THEN expect both aggregateDegreeCentralityData and updateSkillDegreeCentrality to be called
       expect(aggregateDegreeCentralityDataSpy).toHaveBeenCalledTimes(1);
       expect(updateSkillDegreeCentralitySpy).toHaveBeenCalledTimes(1);
+      expect(countOccupationsSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should log the stats after the operation", async () => {
@@ -331,7 +415,7 @@ describe("DegreeCentralityService", () => {
       await createOccupationToSkillRelationsInDB(givenModelId);
 
       // WHEN calculating the degree centrality
-      await service.calculateDegreeCentrality(givenModelId);
+      await service.calculate(givenModelId);
 
       // THEN expect the stats to be logged
       expect(console.info).toHaveBeenCalledWith(
@@ -347,6 +431,10 @@ describe("DegreeCentralityService", () => {
       // GIVEN some modelId
       const givenModelId = getMockStringId(1);
 
+      // AND some total occupations
+      const givenTotalOccupations = 10;
+      countOccupationsSpy.mockResolvedValue(givenTotalOccupations);
+
       const givenSkillConnections = [
         { skillId: "foo_1", edges: 1 },
         { skillId: "foo_2", edges: 2 },
@@ -357,15 +445,19 @@ describe("DegreeCentralityService", () => {
 
       // WHEN calculating the degree centrality
       aggregateDegreeCentralityDataSpy.mockReturnValueOnce(Readable.from(givenSkillConnections));
-      await service.calculateDegreeCentrality(givenModelId);
+      await service.calculate(givenModelId);
 
       // THEN expect the update to be called with the response from aggregate
-      expect(updateSkillDegreeCentralitySpy).toHaveBeenCalledWith(givenSkillConnections);
+      expect(updateSkillDegreeCentralitySpy).toHaveBeenCalledWith(givenTotalOccupations, givenSkillConnections);
     });
 
     it("should use BatchProcessor to update the degree centrality", async () => {
       // GIVEN some modelId
       const givenModelId = getMockStringId(1);
+
+      // AND some total occupations
+      const givenTotalOccupations = 10;
+      countOccupationsSpy.mockResolvedValue(givenTotalOccupations);
 
       const flush = jest.spyOn(BatchProcessor.prototype, "flush");
 
@@ -381,10 +473,10 @@ describe("DegreeCentralityService", () => {
       aggregateDegreeCentralityDataSpy.mockReturnValueOnce(Readable.from(givenSkillConnections));
 
       // WHEN calculating the degree centrality
-      await service.calculateDegreeCentrality(givenModelId);
+      await service.calculate(givenModelId);
 
       // THEN expect the update to be called with the response from aggregate
-      expect(updateSkillDegreeCentralitySpy).toHaveBeenCalledWith(givenSkillConnections);
+      expect(updateSkillDegreeCentralitySpy).toHaveBeenCalledWith(givenTotalOccupations, givenSkillConnections);
 
       expect(flush).toHaveBeenCalledTimes(1);
     });
@@ -399,7 +491,7 @@ describe("DegreeCentralityService", () => {
       });
 
       // THEN expect the operation to fail with the given error
-      await expect(() => service.calculateDegreeCentrality(givenModelId)).rejects.toThrow(
+      await expect(() => service.calculate(givenModelId)).rejects.toThrow(
         expect.toMatchErrorWithCause("DegreeCentralityService.calculateDegreeCentrality findById failed", "foo")
       );
     });
