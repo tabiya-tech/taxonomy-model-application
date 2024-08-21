@@ -125,7 +125,7 @@ describe("test parseOccupations from", () => {
         rowsFailed: expectedCSVFileRowCount - expectedSpecs.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(4);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(5);
       expectedSpecs
         .filter((res: Omit<INewOccupationSpec, "modelId">) => isSpecified(res.importId))
         .forEach((expectedSpec: Omit<INewOccupationSpec, "modelId">, index: number) => {

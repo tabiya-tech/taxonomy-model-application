@@ -25,4 +25,20 @@ export const expected = [
     signallingValueLabel: SignallingValueLabel.NONE,
     signallingValue: null,
   },
+  {
+    requiringOccupationType: ObjectTypes.LocalOccupation,
+    requiringOccupationId: "mapped_key_30",
+    relationType: "",
+    requiredSkillId: "mapped_key_22",
+    signallingValueLabel: SignallingValueLabel.MEDIUM,
+    signallingValue: 10232,
+  },
+  {
+    requiringOccupationType: ObjectTypes.LocalOccupation,
+    requiringOccupationId: "mapped_key_I30",
+    relationType: "",
+    requiredSkillId: "mapped_key_22",
+    signallingValueLabel: SignallingValueLabel.MEDIUM,
+    signallingValue: 10231,
+  },
 ];

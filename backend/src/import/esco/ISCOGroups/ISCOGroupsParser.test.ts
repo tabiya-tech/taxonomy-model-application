@@ -112,7 +112,7 @@ describe("test parseISCOGroups from", () => {
         rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(4);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(5);
       expectedResults
         .filter((res: Omit<INewISCOGroupSpec, "modelId">) => isSpecified(res.importId))
         .forEach((expectedSpec: Omit<INewISCOGroupSpec, "modelId">, index: number) => {

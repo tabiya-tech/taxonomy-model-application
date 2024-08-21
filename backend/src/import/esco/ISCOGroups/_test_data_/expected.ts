@@ -37,4 +37,13 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     description: "description",
     importId: "key_4",
   },
+  {
+    originUri: "origin uri",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8f"],
+    code: "I0102",
+    preferredLabel: "not duplicate altLabels",
+    altLabels: ["label I0102"],
+    description: "description",
+    importId: "key_i4",
+  },
 ];

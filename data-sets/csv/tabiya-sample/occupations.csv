@@ -33133,3 +33133,6 @@ precision device quality control inspector
 inspector of precision devices
 precision instrument inspector
 precision instrument supervisor","Precision device inspectors make sure precision devices, such as micrometers and gauges, operate according to design specifications. They may adjust the precision devices and their components in case of any faults.","","","http://data.europa.eu/esco/regulated-professions/unregulated","localoccupation","false"
+"","key_i11","9396d08e-c9e6-4de8-b422-eed6862f4006","I1","I1_1","ICATUS Occupation","","ICATUS Occupation Description","","","","localoccupation","false"
+"","key_i1111","9396d08e-c9e6-4de8-b422-eed6862f4007","I111","I111_1","ICATUS 1 Occupation","","ICATUS Occupation 2 Description","","","","localoccupation","false"
+"","key_i11111","9396d08e-c9e6-4de8-b422-eed6862f4008","I111","I1111_1","ICATUS 2 Occupation","","ICATUS Occupation 2.1 Description","","","","localoccupation","false"
