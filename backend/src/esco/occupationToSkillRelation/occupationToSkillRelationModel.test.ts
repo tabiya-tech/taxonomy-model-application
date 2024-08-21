@@ -302,8 +302,10 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
 
     test.each([
       [CaseType.Failure, -1, "Path `signallingValue` \\(-1\\) is less than minimum allowed value \\(0\\)"],
-      [CaseType.Failure, 2, "Path `signallingValue` \\(2\\) is more than maximum allowed value \\(1\\)"],
-      [CaseType.Success, 0, undefined],
+      [CaseType.Success, 2, undefined],
+      [CaseType.Success, 102, undefined],
+      [CaseType.Success, 10002, undefined],
+      [CaseType.Success, 3432, undefined],
       [CaseType.Success, 1, undefined],
       [CaseType.Success, 0.5, undefined],
       [CaseType.Success, 0.12345, undefined],

@@ -127,7 +127,7 @@ describe("test parseOccupationHierarchy from", () => {
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows
-      expect(errorLogger.logWarning).toHaveBeenCalledTimes(5); // 5 entries are constructed in the csv to fail
+      expect(errorLogger.logWarning).toHaveBeenCalledTimes(6); // 6 entries are constructed in the csv to fail
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
         `Failed to import OccupationHierarchy row with parentType:'LOCALOCCUPATION' and childType:'ISCOOCCUPATION'`

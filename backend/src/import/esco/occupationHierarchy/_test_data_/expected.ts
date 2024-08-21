@@ -49,4 +49,10 @@ export const expected = [
     childId: "mapped_key_16",
     childType: ObjectTypes.ESCOOccupation,
   },
+  {
+    parentType: ObjectTypes.ISCOGroup,
+    parentId: "mapped_key_i11",
+    childId: "mapped_key_20",
+    childType: ObjectTypes.LocalOccupation,
+  },
 ];

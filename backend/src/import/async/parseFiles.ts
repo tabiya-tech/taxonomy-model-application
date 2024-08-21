@@ -86,11 +86,14 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
   if (downloadUrls.OCCUPATION_HIERARCHY) {
     const stats = await parseOccupationHierarchyFromUrl(modelId, downloadUrls.OCCUPATION_HIERARCHY, importIdToDBIdMap);
     console.info(`Processed ${JSON.stringify(stats)} Occupation hierarchy entries`);
-    if (stats.rowsSuccess !== countISCOGroups + countOccupations - 10) {
+    const ICATUS_LEVEL_1_GROUPS = 3;
+    const ESCO_LEVEL_1_GROUPS = 10;
+
+    if (stats.rowsSuccess !== countISCOGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)) {
       errorLogger.logWarning(
         `Expected to successfully process ${
-          countISCOGroups + countOccupations - 10
-        } (ISCO groups + Occupations (Local and ESCO) - 10) hierarchy entries. Instead processed ${
+          countISCOGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)
+        } (ISCO groups + Occupations (Local and ESCO) - ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS) hierarchy entries. Instead processed ${
           stats.rowsSuccess
         } entries.`
       );

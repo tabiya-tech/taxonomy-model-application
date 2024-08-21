@@ -3618,3 +3618,8 @@
 "iscogroup","key_18781","key_20000001","localoccupation"
 "iscogroup","key_18781","key_20000002","localoccupation"
 "iscogroup","key_18781","key_20000003","localoccupation"
+"iscogroup","key_i1","key_i2","iscogroup"
+"iscogroup","key_i2","key_i3","iscogroup"
+"iscogroup","key_i3","key_i11","localoccupation"
+"iscogroup","key_i3","key_i1111","localoccupation"
+"localoccupation","key_i1111","key_i11111","localoccupation"

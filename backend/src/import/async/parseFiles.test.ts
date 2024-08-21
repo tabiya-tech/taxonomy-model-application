@@ -86,8 +86,8 @@ jest.mock("import/esco/occupations/occupationsParser.ts", () => {
 // Mock the OccupationHierarchyParser
 const givenOccupationHierarchyStats: RowsProcessedStats = {
   // 10 are the to level isco groups that to not have a parent and are not in the hierarchy
-  rowsProcessed: givenISCGOGroupsStats.rowsProcessed + givenOccupationsStats.rowsProcessed - 10,
-  rowsSuccess: givenISCGOGroupsStats.rowsSuccess + givenOccupationsStats.rowsSuccess - 10,
+  rowsProcessed: givenISCGOGroupsStats.rowsProcessed + givenOccupationsStats.rowsProcessed - (10+3),
+  rowsSuccess: givenISCGOGroupsStats.rowsSuccess + givenOccupationsStats.rowsSuccess - (10+3),
   rowsFailed: 0,
 };
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
