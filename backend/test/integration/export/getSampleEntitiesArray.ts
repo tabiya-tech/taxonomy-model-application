@@ -1,8 +1,12 @@
 import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
-import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
+import { getMockRandomOccupationGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
-import {ObjectTypes, SignallingValueLabel} from "esco/common/objectTypes";
-import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
+import {
+  INewOccupationGroupSpec,
+  IOccupationGroup,
+  OccupationGroupType,
+} from "esco/occupationGroup/OccupationGroup.types";
 import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
@@ -10,14 +14,17 @@ import { INewOccupationHierarchyPairSpec } from "esco/occupationHierarchy/occupa
 import { INewSkillHierarchyPairSpec } from "esco/skillHierarchy/skillHierarchy.types";
 import {
   INewOccupationToSkillPairSpec,
-  OccupationToSkillRelationType
+  OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import {INewSkillToSkillPairSpec, SkillToSkillRelationType} from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import {
+  INewSkillToSkillPairSpec,
+  SkillToSkillRelationType,
+} from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { randomUUID } from "crypto";
 
 export const getSampleESCOOccupationSpecs = (givenModelId: string): INewOccupationSpec[] => {
   return Array.from<never, INewOccupationSpec>({ length: 100 }, (_, i) => ({
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    OccupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: `definition_${i}`,
     regulatedProfessionNote: `regulatedProfessionNote_${i}`,
     scopeNote: `scopeNote_${i}`,
@@ -36,7 +43,7 @@ export const getSampleESCOOccupationSpecs = (givenModelId: string): INewOccupati
 
 export const getSampleLocalOccupationSpecs = (givenModelId: string): INewOccupationSpec[] => {
   return Array.from<never, INewOccupationSpec>({ length: 100 }, (_, i) => ({
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    OccupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: `definition_${i}`,
     regulatedProfessionNote: `regulatedProfessionNote_${i}`,
     scopeNote: `scopeNote_${i}`,
@@ -53,11 +60,12 @@ export const getSampleLocalOccupationSpecs = (givenModelId: string): INewOccupat
   }));
 };
 
-export const getSampleISCOGroupSpecs = (givenModelId: string): INewISCOGroupSpec[] => {
-  return Array.from<never, INewISCOGroupSpec>({ length: 100 }, (_, i) => ({
-    code: getMockRandomISCOGroupCode(),
-    preferredLabel: `ISCOGroup_${i}`,
+export const getSampleOccupationGroupSpecs = (givenModelId: string): INewOccupationGroupSpec[] => {
+  return Array.from<never, INewOccupationGroupSpec>({ length: 100 }, (_, i) => ({
+    code: getMockRandomOccupationGroupCode(),
+    preferredLabel: `OccupationGroup_${i}`,
     modelId: givenModelId,
+    groupType: OccupationGroupType.ISCO_GROUP,
     UUIDHistory: [randomUUID()],
     altLabels: i % 2 ? [`altLabel_1`, `altLabel_2`] : [],
     originUri: `originUri_${i}`,
@@ -97,18 +105,18 @@ export const getSampleSkillGroupsSpecs = (givenModelId: string): INewSkillGroupS
 };
 
 export const getSampleOccupationHierarchy = (
-  isco_groups: IISCOGroup[],
+  occupation_groups: IOccupationGroup[],
   esco_occupations: IOccupation[],
   local_occupations: IOccupation[]
 ): INewOccupationHierarchyPairSpec[] => {
   const specs: INewOccupationHierarchyPairSpec[] = [];
   let index = 0;
-  isco_groups.forEach((iscoGroup) => {
-    // add 1 occupation to each isco group
+  occupation_groups.forEach((occupationGroup) => {
+    // add 1 occupation to each occupation group
     if (index < esco_occupations.length) {
       specs.push({
-        parentId: iscoGroup.id,
-        parentType: ObjectTypes.ISCOGroup,
+        parentId: occupationGroup.id,
+        parentType: ObjectTypes.OccupationGroup,
         childType: esco_occupations[index].occupationType,
         childId: esco_occupations[index].id,
       });

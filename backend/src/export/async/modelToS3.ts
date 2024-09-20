@@ -7,7 +7,7 @@ import ErrorLogger from "common/errorLogger/errorLogger";
 import CSVtoZipPipeline from "export/async/CSVtoZipPipeline";
 import uploadZipToS3 from "./uploadZipToS3";
 import { getDomainName, getDownloadBucketName, getDownloadBucketRegion } from "server/config/config";
-import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
+import OccupationGroupsToCSVTransform from "export/esco/occupationGroup/OccupationGroupsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
 import OccupationHierarchyToCSVTransform from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
@@ -60,7 +60,11 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
 
     // For each Collection in the DB
     [
-      { collectionName: "ISCOGroups", fileName: FILENAMES.ISCOGroups, csvStream: ISCOGroupsToCSVTransform },
+      {
+        collectionName: "OccupationGroups",
+        fileName: FILENAMES.OccupationGroups,
+        csvStream: OccupationGroupsToCSVTransform,
+      },
       {
         collectionName: "Occupations",
         fileName: FILENAMES.Occupations,
@@ -147,7 +151,7 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
 };
 
 export const FILENAMES = {
-  ISCOGroups: "isco_groups.csv",
+  OccupationGroups: "occupation_groups.csv",
   Occupations: "occupations.csv",
   SkillGroups: "skill_groups.csv",
   Skills: "skills.csv",

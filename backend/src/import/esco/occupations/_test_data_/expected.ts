@@ -5,7 +5,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     originUri: "origin uri",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
-    ISCOGroupCode: "01",
+    OccupationGroupCode: "01",
     code: "0001.1.2.3",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
@@ -20,7 +20,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     originUri: "origin\nuri\nwith\nlinebreak",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
-    ISCOGroupCode: "0101",
+    OccupationGroupCode: "0101",
     code: "0101.01.02.03_01",
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
@@ -35,7 +35,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     originUri: "origin uri",
     UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf83", "b69710e0-7e7d-43ea-a645-26dab12faf8d"],
-    ISCOGroupCode: "01",
+    OccupationGroupCode: "01",
     code: "1000.1.2.3",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
@@ -50,7 +50,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     originUri: "origin uri",
     UUIDHistory: [],
-    ISCOGroupCode: "01",
+    OccupationGroupCode: "01",
     code: "0001.1.2.3.4_01",
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
@@ -65,7 +65,7 @@ export const expected: Omit<INewOccupationSpec, "modelId">[] = [
   {
     originUri: "origin uri",
     UUIDHistory: [],
-    ISCOGroupCode: "I01",
+    OccupationGroupCode: "I01",
     code: "0001.1.2.3.4_01",
     preferredLabel: "preferred label",
     altLabels: ["label1"],

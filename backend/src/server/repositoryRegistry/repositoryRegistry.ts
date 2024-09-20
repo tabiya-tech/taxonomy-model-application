@@ -1,7 +1,7 @@
 import { IModelRepository, ModelRepository } from "modelInfo/modelInfoRepository";
 import { Connection } from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
-import * as ISCOGroupModel from "esco/iscoGroup/ISCOGroupModel";
+import * as OccupationGroupModel from "esco/occupationGroup/OccupationGroupModel";
 import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
 import * as occupationModel from "esco/occupations/occupationModel";
@@ -12,7 +12,7 @@ import * as occupationToSkillRelationModel from "esco/occupationToSkillRelation/
 import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
 import * as exportProcessStateModel from "export/exportProcessState/exportProcessStateModel";
 
-import { IISCOGroupRepository, ISCOGroupRepository } from "esco/iscoGroup/ISCOGroupRepository";
+import { IOccupationGroupRepository, OccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
 import { ISkillGroupRepository, SkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
 import { ISkillRepository, SkillRepository } from "esco/skill/skillRepository";
 import { IOccupationRepository, OccupationRepository } from "esco/occupations/occupationRepository";
@@ -50,12 +50,12 @@ export class RepositoryRegistry {
     this._repositories.set("ModelRepository", repository);
   }
 
-  public get ISCOGroup(): IISCOGroupRepository {
-    return this._repositories.get("ISCOGroupRepository");
+  public get OccupationGroup(): IOccupationGroupRepository {
+    return this._repositories.get("OccupationGroupRepository");
   }
 
-  public set ISCOGroup(repository: IISCOGroupRepository) {
-    this._repositories.set("ISCOGroupRepository", repository);
+  public set OccupationGroup(repository: IOccupationGroupRepository) {
+    this._repositories.set("OccupationGroupRepository", repository);
   }
 
   public get skillGroup(): ISkillGroupRepository {
@@ -135,13 +135,13 @@ export class RepositoryRegistry {
 
     // Set up the ModelRepository
     this.modelInfo = new ModelRepository(modelInfoModel.initializeSchemaAndModel(connection));
-    this.ISCOGroup = new ISCOGroupRepository(ISCOGroupModel.initializeSchemaAndModel(connection));
+    this.OccupationGroup = new OccupationGroupRepository(OccupationGroupModel.initializeSchemaAndModel(connection));
     this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
     this.occupation = new OccupationRepository(occupationModel.initializeSchemaAndModel(connection));
     this.occupationHierarchy = new OccupationHierarchyRepository(
       occupationHierarchyModel.initializeSchemaAndModel(connection),
-      this.ISCOGroup.Model,
+      this.OccupationGroup.Model,
       this.occupation.Model
     );
     this.skillHierarchy = new SkillHierarchyRepository(
@@ -170,7 +170,7 @@ export class RepositoryRegistry {
     // and it the future this code should be moved in to deployment scripts.
     // If indexes are not created then, queries will become inefficient, unique constrains will not be enforced.
     await this.modelInfo.Model.createIndexes();
-    await this.ISCOGroup.Model.createIndexes();
+    await this.OccupationGroup.Model.createIndexes();
     await this.skillGroup.Model.createIndexes();
     await this.skill.Model.createIndexes();
     await this.occupation.Model.createIndexes();

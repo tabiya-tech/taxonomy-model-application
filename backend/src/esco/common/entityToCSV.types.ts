@@ -9,6 +9,7 @@ import {
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { OccupationGroupType } from "../occupationGroup/OccupationGroup.types";
 
 const HEADER_NAMES = {
   UPDATED_AT: "UPDATEDAT",
@@ -27,25 +28,30 @@ const HEADER_NAMES = {
  */
 
 /*
- * Headers for the iscoGroup CSV file
+ * Headers for the occupationGroup CSV file
  */
 
-export const ISCOGroupImportHeaders = [
+export const OccupationGroupImportHeaders = [
   HEADER_NAMES.ID,
   HEADER_NAMES.ORIGINURI,
   HEADER_NAMES.UUIDHISTORY,
   "CODE",
+  "GROUPTYPE",
   HEADER_NAMES.PREFERREDLABEL,
   HEADER_NAMES.ALTLABELS,
   HEADER_NAMES.DESCRIPTION,
 ];
 
-export const ISCOGroupExportHeaders = [...ISCOGroupImportHeaders, HEADER_NAMES.CREATED_AT, HEADER_NAMES.UPDATED_AT];
+export const OccupationGroupExportHeaders = [
+  ...OccupationGroupImportHeaders,
+  HEADER_NAMES.CREATED_AT,
+  HEADER_NAMES.UPDATED_AT,
+];
 
 /*
- * Interface for the iscoGroup row in the CSV file
+ * Interface for the occupationGroup row in the CSV file
  */
-export interface IISCOGroupImportRow {
+export interface IOccupationGroupImportRow {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
@@ -53,9 +59,10 @@ export interface IISCOGroupImportRow {
   PREFERREDLABEL: string;
   ALTLABELS: string;
   DESCRIPTION: string;
+  GROUPTYPE: OccupationGroupType;
 }
 
-export interface IISCOGroupExportRow extends IISCOGroupImportRow {
+export interface IOccupationGroupExportRow extends IOccupationGroupImportRow {
   CREATEDAT: string;
   UPDATEDAT: string;
 }
@@ -163,7 +170,7 @@ export const occupationImportHeaders = [
   HEADER_NAMES.ID,
   HEADER_NAMES.ORIGINURI,
   HEADER_NAMES.UUIDHISTORY,
-  "ISCOGROUPCODE",
+  "OCCUPATIONGROUPCODE",
   "CODE",
   "DEFINITION",
   "SCOPENOTE",
@@ -185,7 +192,7 @@ export interface IOccupationImportRow {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
-  ISCOGROUPCODE: string;
+  OCCUPATIONGROUPCODE: string;
   CODE: string;
   PREFERREDLABEL: string;
   ALTLABELS: string;
@@ -201,7 +208,7 @@ export interface IOccupationExportRow {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
-  ISCOGROUPCODE: string;
+  OCCUPATIONGROUPCODE: string;
   CODE: string;
   PREFERREDLABEL: string;
   ALTLABELS: string;
@@ -305,17 +312,17 @@ export const occupationHierarchyExportHeaders = [
  */
 
 export interface IOccupationHierarchyImportRow {
-  PARENTOBJECTTYPE: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  PARENTOBJECTTYPE: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   PARENTID: string;
   CHILDID: string;
-  CHILDOBJECTTYPE: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  CHILDOBJECTTYPE: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
 }
 
 export interface IOccupationHierarchyExportRow {
-  PARENTOBJECTTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  PARENTOBJECTTYPE: CSVObjectTypes.OccupationGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
   PARENTID: string;
   CHILDID: string;
-  CHILDOBJECTTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  CHILDOBJECTTYPE: CSVObjectTypes.OccupationGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
   CREATEDAT: string;
   UPDATEDAT: string;
 }

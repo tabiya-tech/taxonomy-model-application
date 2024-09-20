@@ -105,7 +105,7 @@ describe("SkillGroupsDocToCsvTransform", () => {
     test("should log an error and end the stream when the transformSkillGroupSpecToCSVRow throws", async () => {
       // GIVEN findAll will return a stream of SkillGroups
       setupSkillGroupRepositoryMock(() => Readable.from(getMockSkillGroups()));
-      // AND  the transformISCOGroupSpecToCSVRow will throw an error
+      // AND  the transformOccupationGroupSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
       const transformFunctionSpy = jest
         .spyOn(SKillGroupsToCSVTransformModule, "transformSkillGroupSpecToCSVRow")

@@ -24,7 +24,7 @@ describe("Validate JSON against the Import Schema", () => {
   const givenValidImportRequest: ImportAPISpecs.Types.POST.Request.Payload = {
     modelId: getMockId(2),
     filePaths: {
-      ISCO_GROUPS: "folder/file6",
+      OCCUPATION_GROUPS: "folder/file6",
       OCCUPATIONS: "folder/file7",
       ESCO_SKILL_GROUPS: "folder/file3",
       ESCO_SKILLS: "folder/file4",
@@ -107,7 +107,7 @@ describe("Validate JSON against the Import Schema", () => {
           "empty object",
           {},
           [
-            constructSchemaError("/filePaths", "required", "must have required property 'ISCO_GROUPS'"),
+            constructSchemaError("/filePaths", "required", "must have required property 'OCCUPATION_GROUPS'"),
             constructSchemaError("/filePaths", "required", "must have required property 'OCCUPATIONS'"),
             constructSchemaError("/filePaths", "required", "must have required property 'ESCO_SKILL_GROUPS'"),
             constructSchemaError("/filePaths", "required", "must have required property 'ESCO_SKILLS'"),

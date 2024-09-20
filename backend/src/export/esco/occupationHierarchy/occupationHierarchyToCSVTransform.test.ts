@@ -25,7 +25,7 @@ const getMockOccupationHierarchies = (): IUnpopulatedOccupationHierarchy[] => {
     modelId: getMockStringId(1),
     parentId: getMockStringId(i * 3 + 1),
     childId: getMockStringId(i * 3 + 2),
-    parentType: i % 2 ? ObjectTypes.ESCOOccupation : ObjectTypes.ISCOGroup,
+    parentType: i % 2 ? ObjectTypes.ESCOOccupation : ObjectTypes.OccupationGroup,
     childType: i % 2 ? ObjectTypes.LocalOccupation : ObjectTypes.ESCOOccupation,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
@@ -36,7 +36,7 @@ function setupOccupationHierarchyRepositoryMock(findAllImpl: () => Readable) {
   const mockOccupationHierarchyRepository: IOccupationHierarchyRepository = {
     hierarchyModel: undefined as never,
     occupationModel: undefined as never,
-    iscoGroupModel: undefined as never,
+    occupationGroupModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };

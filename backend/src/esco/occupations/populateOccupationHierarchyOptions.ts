@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { getISCOGroupDocReference, ISCOGroupDocument } from "esco/iscoGroup/ISCOGroupReference";
+import { getOccupationGroupDocReference, OccupationGroupDocument } from "esco/occupationGroup/OccupationGroupReference";
 import { getOccupationDocReference, OccupationDocument } from "esco/occupations/occupationReference";
-import { IISCOGroupReference, IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationGroupReference, IOccupationGroupReferenceDoc } from "esco/occupationGroup/OccupationGroup.types";
 import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IPopulatedOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
@@ -20,22 +20,26 @@ export const populateOccupationParentOptions = {
   populate: {
     path: OccupationHierarchyModelPaths.parentId,
     transform: function (
-      doc: ModelConstructed & (ISCOGroupDocument | OccupationDocument)
-    ): IISCOGroupReferenceDoc | IOccupationReferenceDoc | null {
+      doc: ModelConstructed & (OccupationGroupDocument | OccupationDocument)
+    ): IOccupationGroupReferenceDoc | IOccupationReferenceDoc | null {
       // return only the relevant fields
       const modelName = (doc as ModelConstructed).constructor.modelName;
-      if (modelName === MongooseModelName.ISCOGroup) {
-        return getISCOGroupDocReference(doc as ISCOGroupDocument); // NOSONAR
+      if (modelName === MongooseModelName.OccupationGroup) {
+        return getOccupationGroupDocReference(doc as OccupationGroupDocument); // NOSONAR
       }
       if (modelName === MongooseModelName.Occupation) {
         return getOccupationDocReference(doc as OccupationDocument); // NOSONAR
       }
-      console.error(new Error(`Parent is not an ISCOGroup or an ESCO Occupation or a Local Occupation: ${modelName}`));
+      console.error(
+        new Error(`Parent is not an OccupationGroup or an ESCO Occupation or a Local Occupation: ${modelName}`)
+      );
       return null;
     },
   },
-  transform: function (doc: IPopulatedOccupationHierarchyPairDoc): IISCOGroupReference | IOccupationReference | null {
-    return getOccupationHierarchyParentReference(doc) as IISCOGroupReference | IOccupationReference;
+  transform: function (
+    doc: IPopulatedOccupationHierarchyPairDoc
+  ): IOccupationGroupReference | IOccupationReference | null {
+    return getOccupationHierarchyParentReference(doc) as IOccupationGroupReference | IOccupationReference;
   },
 };
 

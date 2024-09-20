@@ -18,7 +18,7 @@ export const SchemaPOSTRequest: SchemaObject = {
       type: "object",
       examples: [
         {
-          [ImportConstants.ImportFileTypes.ISCO_GROUPS]: "some-random-folder/ISCOGroups_en.csv",
+          [ImportConstants.ImportFileTypes.OCCUPATION_GROUPS]: "some-random-folder/OccupationGroups_en.csv",
           [ImportConstants.ImportFileTypes.ESCO_SKILL_GROUPS]: "some-random-folder/skillGroups_en.csv",
         },
       ],

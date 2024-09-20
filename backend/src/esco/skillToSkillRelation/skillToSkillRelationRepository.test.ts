@@ -16,7 +16,7 @@ import {
   ISkillToSkillRelationPair,
   SkillToSkillRelationType,
 } from "./skillToSkillRelation.types";
-import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
+import { getSimpleNewOccupationGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailure,
   TestStreamDBConnectionFailureNoSetup,
@@ -339,9 +339,9 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenInvalidObject_1 = await repositoryRegistry.ISCOGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
-      ); // Assuming there's an ISCOGroup model
+      const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
+        getSimpleNewOccupationGroupSpec(givenModelId, "group_1")
+      ); // Assuming there's an OccupationGroup model
 
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [
         {

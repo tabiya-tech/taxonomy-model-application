@@ -1,4 +1,4 @@
-import { IISCOGroup, IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupation } from "esco/occupations/occupation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
@@ -14,16 +14,16 @@ import {
 } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 
 /**
- *  Create an expected ISCOGroup reference from a given ISCOGroup
- * @param givenISCOGroup
+ *  Create an expected OccupationGroup reference from a given OccupationGroup
+ * @param givenOccupationGroup
  */
-export function expectedISCOGroupReference(givenISCOGroup: IISCOGroup): IISCOGroupReference {
+export function expectedOccupationGroupReference(givenOccupationGroup: IOccupationGroup): IOccupationGroupReference {
   return {
-    id: givenISCOGroup.id,
-    UUID: givenISCOGroup.UUID,
-    objectType: ObjectTypes.ISCOGroup,
-    code: givenISCOGroup.code,
-    preferredLabel: givenISCOGroup.preferredLabel,
+    id: givenOccupationGroup.id,
+    UUID: givenOccupationGroup.UUID,
+    objectType: ObjectTypes.OccupationGroup,
+    code: givenOccupationGroup.code,
+    preferredLabel: givenOccupationGroup.preferredLabel,
   };
 }
 
@@ -36,7 +36,7 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
     id: givenOccupation.id,
     UUID: givenOccupation.UUID,
     code: givenOccupation.code,
-    ISCOGroupCode: givenOccupation.ISCOGroupCode,
+    OccupationGroupCode: givenOccupation.OccupationGroupCode,
     preferredLabel: givenOccupation.preferredLabel,
     occupationType: givenOccupation.occupationType,
     isLocalized: givenOccupation.isLocalized,

@@ -8,7 +8,7 @@ import { ENV_VAR_NAMES } from "server/config/config";
 import { parse } from "csv-parse/sync";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { randomUUID } from "crypto";
-import { parseISCOGroupsFromFile } from "import/esco/ISCOGroups/ISCOGroupsParser";
+import { parseOccupationGroupsFromFile } from "import/esco/OccupationGroups/OccupationGroupsParser";
 import { parseSkillGroupsFromFile } from "import/esco/skillGroups/skillGroupsParser";
 import { parseSkillsFromFile } from "import/esco/skills/skillsParser";
 import { parseOccupationsFromFile } from "import/esco/occupations/occupationsParser";
@@ -136,7 +136,7 @@ async function doImport(dataFolder: string): Promise<IModelInfo> {
     },
   });
   const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
-  await parseISCOGroupsFromFile(newModel.id, `${dataFolder}/isco_groups.csv`, importIdToDBIdMap);
+  await parseOccupationGroupsFromFile(newModel.id, `${dataFolder}/occupation_groups.csv`, importIdToDBIdMap);
   await parseOccupationsFromFile(newModel.id, `${dataFolder}/occupations.csv`, importIdToDBIdMap);
   await parseSkillGroupsFromFile(newModel.id, `${dataFolder}/skill_groups.csv`, importIdToDBIdMap);
   await parseSkillsFromFile(newModel.id, `${dataFolder}/skills.csv`, importIdToDBIdMap);
@@ -240,13 +240,13 @@ async function doExport(modelId: string) {
 async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string) {
   const map1 = new Mapper();
   mapOccupationCSVFile(`${folder1}/occupations.csv`, map1);
-  mapEntityCSVFile(`${folder1}/isco_groups.csv`, CSVObjectTypes.ISCOGroup, map1);
+  mapEntityCSVFile(`${folder1}/occupation_groups.csv`, CSVObjectTypes.OccupationGroup, map1);
   mapEntityCSVFile(`${folder1}/skill_groups.csv`, CSVObjectTypes.SkillGroup, map1);
   mapEntityCSVFile(`${folder1}/skills.csv`, CSVObjectTypes.Skill, map1);
 
   const map2 = new Mapper();
   mapOccupationCSVFile(`${folder2}/occupations.csv`, map2);
-  mapEntityCSVFile(`${folder2}/isco_groups.csv`, CSVObjectTypes.ISCOGroup, map2);
+  mapEntityCSVFile(`${folder2}/occupation_groups.csv`, CSVObjectTypes.OccupationGroup, map2);
   mapEntityCSVFile(`${folder2}/skill_groups.csv`, CSVObjectTypes.SkillGroup, map2);
   mapEntityCSVFile(`${folder2}/skills.csv`, CSVObjectTypes.Skill, map2);
 
@@ -265,7 +265,7 @@ async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string
     map2
   );
 
-  compareCSVContent(`${folder1}/isco_groups.csv`, `${folder2}/isco_groups.csv`);
+  compareCSVContent(`${folder1}/occupation_groups.csv`, `${folder2}/occupation_groups.csv`);
   compareCSVContent(`${folder1}/occupations.csv`, `${folder2}/occupations.csv`);
   compareCSVContent(`${folder1}/skill_groups.csv`, `${folder2}/skill_groups.csv`);
   compareCSVContent(`${folder1}/skills.csv`, `${folder2}/skills.csv`);

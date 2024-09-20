@@ -8,7 +8,7 @@ export interface IBaseOccupationDoc extends ImportIdentifiable {
   UUID: string;
   modelId: mongoose.Types.ObjectId;
   preferredLabel: string;
-  ISCOGroupCode: string;
+  OccupationGroupCode: string;
   code: string;
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   isLocalized: boolean;

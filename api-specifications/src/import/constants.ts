@@ -4,7 +4,7 @@ namespace ImportConstants {
   export const FILEPATH_MAX_LENGTH = 255;
 
   export enum ImportFileTypes { //enum is not a type, but not having it in this namespace causes import issues down the line
-    ISCO_GROUPS = "ISCO_GROUPS", //<--- isco_groups.csv
+    OCCUPATION_GROUPS = "OCCUPATION_GROUPS", //<--- occupation_groups.csv
     OCCUPATIONS = "OCCUPATIONS", // <-- occupations.csv
     ESCO_SKILL_GROUPS = "ESCO_SKILL_GROUPS", // <-- skill_groups.csv
     ESCO_SKILLS = "ESCO_SKILLS", //<--- skills.csv

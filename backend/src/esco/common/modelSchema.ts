@@ -135,10 +135,10 @@ export const OriginUriProperty: mongoose.SchemaDefinitionProperty<string> = {
 // and for ICACTUS Group Code, the code can contain a number from 1 to 4 digits prefixed with 'I'
 export const RegExCode = RegExp(/^I?\d{1,4}$/);
 
-export const ISCOCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
+export const CodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: true,
-  validate: RegExCode
+  validate: RegExCode,
 };
 
 // ESCO Occupation Code

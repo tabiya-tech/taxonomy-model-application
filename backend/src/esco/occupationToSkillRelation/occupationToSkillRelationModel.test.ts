@@ -158,7 +158,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
           // check that the relationType is NONE when the signalling value is not NONE
           Object.values(SignallingValueLabel)
             .filter((value) => value !== SignallingValueLabel.NONE)
-            .map((givenSignallingValue) => {
+            .forEach((givenSignallingValue) => {
               assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
                 model: OccupationToSkillRelationModel,
                 propertyNames: "relationType",
@@ -177,7 +177,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         ["undefined", undefined],
         ["null", null],
         ["unknown type", "foo"],
-        [ObjectTypes.ISCOGroup, ObjectTypes.ISCOGroup],
+        [ObjectTypes.OccupationGroup, ObjectTypes.OccupationGroup],
         [ObjectTypes.SkillGroup, ObjectTypes.SkillGroup],
         [ObjectTypes.Skill, ObjectTypes.Skill],
       ])(`should fail validation with reason when occupation type is %s `, (desc, givenOccupationType) => {
@@ -236,7 +236,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
           // check that the signallingValueLabel is NONE when the relationType is not NONE
           Object.values(OccupationToSkillRelationType)
             .filter((value) => value !== OccupationToSkillRelationType.NONE)
-            .map((givenRelationType) =>
+            .forEach((givenRelationType) =>
               assertCaseForProperty<IOccupationToSkillRelationPairDoc>({
                 model: OccupationToSkillRelationModel,
                 propertyNames: "signallingValueLabel",
@@ -281,7 +281,7 @@ describe("Test the definition of the OccupationToSkillRelation Model", () => {
         ["undefined", undefined],
         ["null", null],
         ["unknown type", "foo"],
-        [ObjectTypes.ISCOGroup, ObjectTypes.ISCOGroup],
+        [ObjectTypes.OccupationGroup, ObjectTypes.OccupationGroup],
         [ObjectTypes.SkillGroup, ObjectTypes.SkillGroup],
         [ObjectTypes.Skill, ObjectTypes.Skill],
       ])(`should fail validation with reason when occupation type is %s `, (desc, givenOccupationType) => {

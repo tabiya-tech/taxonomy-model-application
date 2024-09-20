@@ -5,7 +5,7 @@ import {
   DefinitionProperty,
   DescriptionProperty,
   ImportIDProperty,
-  ISCOCodeProperty,
+  CodeProperty,
   OccupationCodeProperty,
   OriginUriProperty,
   PreferredLabelProperty,
@@ -35,7 +35,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       UUIDHistory: UUIDHistoryProperty,
       originUri: OriginUriProperty,
       code: OccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
-      ISCOGroupCode: ISCOCodeProperty, // TODO: if code ISCOGroupCode is part of the code then make sure that code starts with ISCOGroupCode
+      OccupationGroupCode: CodeProperty, // TODO: if code OccupationGroupCode is part of the code then make sure that code starts with OccupationGroupCode
       preferredLabel: PreferredLabelProperty,
       altLabels: AltLabelsProperty,
       definition: DefinitionProperty,

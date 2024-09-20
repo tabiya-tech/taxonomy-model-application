@@ -5,11 +5,11 @@ import { ObjectTypes } from "./objectTypes";
  * Given a document it is possible to find the type of the document by looking at the modelName property of the document's constructor.
  *
  * ```typescript
- * document.constructor.modelName === MongooseModelName.ISCOGroup
+ * document.constructor.modelName === MongooseModelName.OccupationGroup
  * ```
  */
 export enum MongooseModelName {
-  ISCOGroup = "ISCOGroupModel",
+  OccupationGroup = "OccupationGroupModel",
   Occupation = "OccupationModel",
   Skill = "SkillModel",
   SkillGroup = "SkillGroupModel",
@@ -21,8 +21,8 @@ export enum MongooseModelName {
 
 export function getModelName(objectType: ObjectTypes): MongooseModelName {
   switch (objectType) {
-    case ObjectTypes.ISCOGroup:
-      return MongooseModelName.ISCOGroup;
+    case ObjectTypes.OccupationGroup:
+      return MongooseModelName.OccupationGroup;
     case ObjectTypes.ESCOOccupation:
     case ObjectTypes.LocalOccupation:
       return MongooseModelName.Occupation;

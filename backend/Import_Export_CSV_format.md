@@ -9,7 +9,7 @@ There are 9 CSV files in the format. Each file contains a different type of data
 - [Skills](#skills)
 - [Skill Hierarchy](#skill-hierarchy)
 - [Skill to Skill Relations](#skill-to-skill-relations)
-- [ISCO Groups](#isco-groups)
+- [Occupation Groups](#occupation-groups)
 - [Occupations](#occupations)
 - [Occupation Hierarchy](#occupation-hierarchy) 
 - [Occupation to Skill Relations](#occupation-to-skill-relations)
@@ -56,7 +56,7 @@ The object types in the CSV files are:
 - `skillgroup`: Represents a [skill group](#skill-groups).
 - `escooccupation`: Represents an [occupation](#occupations) that originates from the ESCO framework.
 - `localoccupation`: Represents an [occupation](#occupations) that not originate from the ESCO framework and is defined only this taxonomy.
-- `iscogroup`: Represents an [ISCO group](#isco-groups).
+- `occupationgroup`: Represents an [Occupation group](#occupation-groups).
 
 ### Lists
 
@@ -130,7 +130,7 @@ Contains the occupations of the taxonomy. The export filename is `occupations.cs
 - [`ORIGINURI`](#origin-uri): A [URI](#origin-uri) that points to the location where the occupation was originally defined.
 - [`ID`](#id): A [unique identifier](#id), used for referencing the occupation within the CSV dataset.
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
-- `ISCOGROUPCODE`: A four digit identification code of the ISCO group that the occupation belongs to.
+- `OCCUPATIONGROUPCODE`:The Occupation group that the occupation belongs to.
 - `CODE`: An occupation code assigned to the occupation. 
 - `PREFERREDLABEL`: The preferred label of the occupation.
 - `ALTLABELS`: A [list](#lists) of alternative labels for the occupation.
@@ -151,22 +151,24 @@ Contains the occupations of the taxonomy. The export filename is `occupations.cs
 - `CREATEDAT`: The [date](#dates) the occupation was created.
 - `UPDATEDAT`: The [date](#dates) the occupation was last updated.
 
-### ISCO Groups
-Contains the ISCO groups of the taxonomy. The export filename is `isco_groups.csv`
+### Occupation Groups
+Contains the Occupation groups of the taxonomy. The export filename is `occupation_groups.csv`
 
 ### Columns
-- [`ORIGINURI`](#origin-uri): A [URI](#origin-uri) that points to the location where the ISCO group was originally defined.
-- [`ID`](#id): A [unique identifier](#id), used for referencing the ISCO group within the CSV dataset.
+- [`ORIGINURI`](#origin-uri): A [URI](#origin-uri) that points to the location where the Occupation group was originally defined.
+- [`ID`](#id): A [unique identifier](#id), used for referencing the Occupation group within the CSV dataset.
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
-- `CODE`: A four digit identification code of the ISCO group.
-- `PREFERREDLABEL`: The preferred label of the ISCO group.
-- `ALTLABELS`: A [list](#lists) of alternative labels for the ISCO group.
+- `CODE`: A four digit identification code of the Occupation group.
+- `GROUPTYPE`: The type of the Occupation group.
+  - Possible values: `iscogroup` or `icatusgroup`.
+- `PREFERREDLABEL`: The preferred label of the Occupation group.
+- `ALTLABELS`: A [list](#lists) of alternative labels for the Occupation group.
   - Maximum length per label: `256` characters.
   - Maximum number of labels: `100`.
-- `DESCRIPTION`: The ISCO group description.
+- `DESCRIPTION`: The Occupation group description.
   -  Maximum length:`4000` characters.
-- `CREATEDAT`: The [date](#dates) the ISCO group was created.
-- `UPDATEDAT`: The [date](#dates) the ISCO group was last updated.
+- `CREATEDAT`: The [date](#dates) the Occupation group was created.
+- `UPDATEDAT`: The [date](#dates) the Occupation group was last updated.
 
 ### Skill-to-Skill Relations
 Contains the relations between skills. The export filename is `skill_to_skill_relations.csv`
@@ -219,13 +221,13 @@ Contains the hierarchical structure of various occupations. The export filename 
 
 #### Columns
 - `PARENTOBJECTTYPE`: The type of the parent object. 
-  - Possible values: `iscogroup`, `escooccupation`, `localoccupation`.
+  - Possible values: `occupationgroup`, `escooccupation`, `localoccupation`.
 - `PARENTID`: The  [`ID`](#id) of the parent object.
 - `CHILDID`: The  [`ID`](#id) of the child object.
 - `CHILDOBJECTTYPE`: The type of the child object.
-  - Possible values: `iscogroup`, `escooccupation`, `localoccupation`.
+  - Possible values: `occupationgroup`, `escooccupation`, `localoccupation`.
 - `CREATEDAT`: The [date](#dates) the relation was created.
 - `UPDATEDAT`: The [date](#dates) the relation was last updated.
 
-> Caveat: An `escooccupation` cannot be the parent of an 'iscogroup'.
+> Caveat: An `escooccupation` cannot be the parent of an 'occupationgroup'.
 > Caveat: An `localoccupation` can be a child of an `escooccupation` or another `localoccupation`.

@@ -7,7 +7,7 @@ exports[`occupationHierarchyToCSVTransform should correctly transform occupation
     "CHILDOBJECTTYPE": "escooccupation",
     "CREATEDAT": "1970-01-01T00:00:00.000Z",
     "PARENTID": "000000000000000000000001",
-    "PARENTOBJECTTYPE": "iscogroup",
+    "PARENTOBJECTTYPE": "occupationgroup",
     "UPDATEDAT": "1970-01-01T00:00:00.000Z",
   },
   {
@@ -23,7 +23,7 @@ exports[`occupationHierarchyToCSVTransform should correctly transform occupation
     "CHILDOBJECTTYPE": "escooccupation",
     "CREATEDAT": "1970-01-01T00:00:00.002Z",
     "PARENTID": "000000000000000000000007",
-    "PARENTOBJECTTYPE": "iscogroup",
+    "PARENTOBJECTTYPE": "occupationgroup",
     "UPDATEDAT": "1970-01-01T00:00:00.002Z",
   },
   {
@@ -39,7 +39,7 @@ exports[`occupationHierarchyToCSVTransform should correctly transform occupation
     "CHILDOBJECTTYPE": "escooccupation",
     "CREATEDAT": "1970-01-01T00:00:00.004Z",
     "PARENTID": "00000000000000000000000d",
-    "PARENTOBJECTTYPE": "iscogroup",
+    "PARENTOBJECTTYPE": "occupationgroup",
     "UPDATEDAT": "1970-01-01T00:00:00.004Z",
   },
   {
@@ -55,11 +55,11 @@ exports[`occupationHierarchyToCSVTransform should correctly transform occupation
 
 exports[`occupationHierarchyToCSVTransform should correctly transform occupationHierarchy data to CSV 2`] = `
 ""PARENTOBJECTTYPE","PARENTID","CHILDID","CHILDOBJECTTYPE","CREATEDAT","UPDATEDAT"
-"iscogroup","000000000000000000000001","000000000000000000000002","escooccupation","1970-01-01T00:00:00.000Z","1970-01-01T00:00:00.000Z"
+"occupationgroup","000000000000000000000001","000000000000000000000002","escooccupation","1970-01-01T00:00:00.000Z","1970-01-01T00:00:00.000Z"
 "escooccupation","000000000000000000000004","000000000000000000000005","localoccupation","1970-01-01T00:00:00.001Z","1970-01-01T00:00:00.001Z"
-"iscogroup","000000000000000000000007","000000000000000000000008","escooccupation","1970-01-01T00:00:00.002Z","1970-01-01T00:00:00.002Z"
+"occupationgroup","000000000000000000000007","000000000000000000000008","escooccupation","1970-01-01T00:00:00.002Z","1970-01-01T00:00:00.002Z"
 "escooccupation","00000000000000000000000a","00000000000000000000000b","localoccupation","1970-01-01T00:00:00.003Z","1970-01-01T00:00:00.003Z"
-"iscogroup","00000000000000000000000d","00000000000000000000000e","escooccupation","1970-01-01T00:00:00.004Z","1970-01-01T00:00:00.004Z"
+"occupationgroup","00000000000000000000000d","00000000000000000000000e","escooccupation","1970-01-01T00:00:00.004Z","1970-01-01T00:00:00.004Z"
 "escooccupation","000000000000000000000010","000000000000000000000011","localoccupation","1970-01-01T00:00:00.005Z","1970-01-01T00:00:00.005Z"
 "
 `;
@@ -70,7 +70,7 @@ exports[`occupationHierarchyToCSVTransform test transformOccupationHierarchySpec
   "CHILDOBJECTTYPE": "escooccupation",
   "CREATEDAT": "1970-01-01T00:00:00.000Z",
   "PARENTID": "000000000000000000000001",
-  "PARENTOBJECTTYPE": "iscogroup",
+  "PARENTOBJECTTYPE": "occupationgroup",
   "UPDATEDAT": "1970-01-01T00:00:00.000Z",
 }
 `;

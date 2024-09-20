@@ -6,7 +6,7 @@ describe("getOccupationTypeFromCSVObjectType", () => {
   test.each([
     [ObjectTypes.ESCOOccupation, CSVObjectTypes.ESCOOccupation],
     [ObjectTypes.LocalOccupation, CSVObjectTypes.LocalOccupation],
-    [null, CSVObjectTypes.ISCOGroup],
+    [null, CSVObjectTypes.OccupationGroup],
     [null, CSVObjectTypes.SkillGroup],
     [null, CSVObjectTypes.Skill],
     [null, null],

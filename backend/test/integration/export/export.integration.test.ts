@@ -22,7 +22,7 @@ import { randomUUID } from "crypto";
 import { pipeline, Readable } from "stream";
 import fs from "fs";
 import { AsyncExportEvent } from "export/async/async.types";
-import * as ISCOGroupsToCSVTransformModule from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
+import * as OccupationGroupsToCSVTransformModule from "export/esco/occupationGroup/OccupationGroupsToCSVTransform";
 import * as OccupationsToCSVTransform from "export/esco/occupation/OccupationsToCSVTransform";
 import * as SkillsToCSVTransformModule from "export/esco/skill/SkillsToCSVTransform";
 import * as SkillGroupsToCSVTransformModule from "export/esco/skillGroup/SkillGroupsToCSVTransform";
@@ -36,7 +36,7 @@ import * as UploadZipToS3Module from "export/async/uploadZipToS3";
 import archiver from "archiver";
 import { getConnectionManager } from "server/connection/connectionManager";
 import {
-  getSampleISCOGroupSpecs,
+  getSampleOccupationGroupSpecs,
   getSampleOccupationHierarchy,
   getSampleESCOOccupationSpecs,
   getSampleLocalOccupationSpecs,
@@ -120,8 +120,8 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       UUIDHistory: [randomUUID()],
     });
 
-    // AND occupationISCOGroups exist for that model
-    const actualIscoGroups = await getRepositoryRegistry().ISCOGroup.createMany(getSampleISCOGroupSpecs(givenModel.id));
+    // AND occupationOccupationGroups exist for that model
+    const actualOccupationgroups = await getRepositoryRegistry().OccupationGroup.createMany(getSampleOccupationGroupSpecs(givenModel.id));
 
     // AND ESCO Occupations
     const actualEscoOccupations = await getRepositoryRegistry().occupation.createMany(
@@ -152,7 +152,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     // AND occupationHierarchy
     const actualOccupationHierarchy = await getRepositoryRegistry().occupationHierarchy.createMany(
       givenModel.id,
-      getSampleOccupationHierarchy(actualIscoGroups, actualEscoOccupations, actualLocalOccupations)
+      getSampleOccupationHierarchy(actualOccupationgroups, actualEscoOccupations, actualLocalOccupations)
     );
     // guard to ensure that test data where generated
     expect(actualOccupationHierarchy.length).toBeGreaterThan(0);
@@ -188,7 +188,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
 
   test("export to file", async () => {
     // For each Collection exported
-    jest.spyOn(ISCOGroupsToCSVTransformModule, "default");
+    jest.spyOn(OccupationGroupsToCSVTransformModule, "default");
     jest.spyOn(OccupationsToCSVTransform, "default");
     jest.spyOn(SkillsToCSVTransformModule, "default");
     jest.spyOn(SkillGroupsToCSVTransformModule, "default");
@@ -283,7 +283,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     await extract(zipFile, { dir: extractFolder });
 
     // AND assert the content of the extracted files
-    await assertCollectionExportedSuccessfully(getRepositoryRegistry().ISCOGroup.Model, path.join(extractFolder, FILENAMES.ISCOGroups));
+    await assertCollectionExportedSuccessfully(getRepositoryRegistry().OccupationGroup.Model, path.join(extractFolder, FILENAMES.OccupationGroups));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().occupation.Model, path.join(extractFolder, FILENAMES.Occupations));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().skill.Model, path.join(extractFolder, FILENAMES.Skills));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillGroup.Model, path.join(extractFolder, FILENAMES.SkillGroups));
@@ -338,7 +338,7 @@ async function assertThanAllResourcesAreReleased() {
   // For each Collection in the DB
   // Assert stream resources are released
   for (const module of [
-    ISCOGroupsToCSVTransformModule.default,
+    OccupationGroupsToCSVTransformModule.default,
     OccupationsToCSVTransform.default,
     SkillsToCSVTransformModule.default,
     SkillGroupsToCSVTransformModule.default,

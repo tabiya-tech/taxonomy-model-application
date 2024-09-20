@@ -69,7 +69,7 @@ describe("test parseOccupationHierarchy from", () => {
       const givenModelId = "foo-model-id";
       // AND an OccupationHierarchy repository
       const givenMockRepository: OccupationHierarchyRepository = {
-        iscoGroupModel: undefined as never,
+        occupationGroupModel: undefined as never,
         occupationModel: undefined as never,
         hierarchyModel: undefined as never,
         findAll: jest.fn(),
@@ -83,7 +83,7 @@ describe("test parseOccupationHierarchy from", () => {
                     ...spec,
                     id: "DB_ID_", // + spec.importId,
                     modelId: modelId,
-                    childDocModel: MongooseModelName.ISCOGroup,
+                    childDocModel: MongooseModelName.OccupationGroup,
                     parentDocModel: MongooseModelName.Occupation,
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -138,7 +138,7 @@ describe("test parseOccupationHierarchy from", () => {
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         3,
-        `Failed to import OccupationHierarchy row with parentType:'ISCOGROUP' and childType:'invalid should be ignored'`
+        `Failed to import OccupationHierarchy row with parentType:'OCCUPATIONGROUP' and childType:'invalid should be ignored'`
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         4,
