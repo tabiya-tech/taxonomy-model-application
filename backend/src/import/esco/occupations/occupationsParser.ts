@@ -9,7 +9,7 @@ import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.typ
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import errorLogger from "common/errorLogger/errorLogger";
-import {RegExESCOOccupationCode, RegExICATUSOccupationCode, RegExLocalOccupationCode} from "esco/common/modelSchema";
+import { RegExESCOOccupationCode, RegExICATUSOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationImportRow, occupationImportHeaders } from "esco/common/entityToCSV.types";
 import { getOccupationTypeFromCSVObjectType } from "import/esco/common/getOccupationTypeFromCSVObjectType";
@@ -77,7 +77,7 @@ function getRowToSpecificationTransformFn(
       originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
-      ISCOGroupCode: row.ISCOGROUPCODE,
+      OccupationGroupCode: row.OCCUPATIONGROUPCODE,
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: uniqueAltLabels,

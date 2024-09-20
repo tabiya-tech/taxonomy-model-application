@@ -7,7 +7,7 @@ describe("test getModelName()", () => {
     [ObjectTypes.LocalOccupation, MongooseModelName.Occupation],
     [ObjectTypes.Skill, MongooseModelName.Skill],
     [ObjectTypes.SkillGroup, MongooseModelName.SkillGroup],
-    [ObjectTypes.ISCOGroup, MongooseModelName.ISCOGroup],
+    [ObjectTypes.OccupationGroup, MongooseModelName.OccupationGroup],
   ])("getModelName('%s') should return '%s'", (givenObjectType, expectedModelName) => {
     expect(getModelName(givenObjectType)).toEqual(expectedModelName);
   });

@@ -4,34 +4,39 @@ import {
   DescriptionProperty,
   OriginUriProperty,
   ImportIDProperty,
-  ISCOCodeProperty,
+  CodeProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IISCOGroupDoc } from "./ISCOGroup.types";
+import { IOccupationGroupDoc, OccupationGroupType } from "./OccupationGroup.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { RegExp_UUIDv4 } from "server/regex";
 import { ObjectTypes } from "esco/common/objectTypes";
 
-export const ISCOGroupModelPaths = {
+export const OccupationGroupModelPaths = {
   parent: "parent",
   children: "children",
 };
 
-export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IISCOGroupDoc> {
+export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationGroupDoc> {
   // Main Schema
-  const ISCOGroupSchema = new mongoose.Schema<IISCOGroupDoc>(
+  const OccupationGroupSchema = new mongoose.Schema<IOccupationGroupDoc>(
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
       UUIDHistory: UUIDHistoryProperty,
-      code: ISCOCodeProperty,
+      code: CodeProperty,
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       originUri: OriginUriProperty,
       altLabels: AltLabelsProperty,
       description: DescriptionProperty,
+      groupType: {
+        type: String,
+        required: true,
+        enum: [OccupationGroupType.ICATUS_GROUP, OccupationGroupType.ISCO_GROUP],
+      },
       importId: ImportIDProperty,
     },
     {
@@ -41,35 +46,35 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       toJSON: getGlobalTransformOptions(),
     }
   );
-  ISCOGroupSchema.virtual(ISCOGroupModelPaths.parent, {
+  OccupationGroupSchema.virtual(OccupationGroupModelPaths.parent, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: OccupationHierarchyModelPaths.childId,
-    match: (iscoGroup: IISCOGroupDoc) => ({
-      modelId: { $eq: iscoGroup.modelId },
-      childType: { $eq: ObjectTypes.ISCOGroup },
+    match: (occupationGroup: IOccupationGroupDoc) => ({
+      modelId: { $eq: occupationGroup.modelId },
+      childType: { $eq: ObjectTypes.OccupationGroup },
     }),
     justOne: true,
   });
 
-  ISCOGroupSchema.virtual(ISCOGroupModelPaths.children, {
+  OccupationGroupSchema.virtual(OccupationGroupModelPaths.children, {
     ref: MongooseModelName.OccupationHierarchy,
     localField: "_id",
     foreignField: OccupationHierarchyModelPaths.parentId,
-    match: (iscoGroup: IISCOGroupDoc) => ({
-      modelId: { $eq: iscoGroup.modelId },
-      parentType: { $eq: ObjectTypes.ISCOGroup },
+    match: (occupationGroup: IOccupationGroupDoc) => ({
+      modelId: { $eq: occupationGroup.modelId },
+      parentType: { $eq: ObjectTypes.OccupationGroup },
     }),
   });
 
-  // Two isco groups cannot have the same isco code in the same model
+  // Two occupation groups cannot have the same isco code in the same model
   // Compound index allows to search for the model
-  ISCOGroupSchema.index({ modelId: 1, code: 1 }, { unique: true });
+  OccupationGroupSchema.index({ modelId: 1, code: 1 }, { unique: true });
 
-  ISCOGroupSchema.index({ UUID: 1 }, { unique: true });
-  ISCOGroupSchema.index({ UUIDHistory: 1 });
+  OccupationGroupSchema.index({ UUID: 1 }, { unique: true });
+  OccupationGroupSchema.index({ UUIDHistory: 1 });
   // Preferred label must be unique in the same model
-  // ISCOGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
+  // OccupationGroupSchema.index({preferredLabel: 1, modelId: 1}, {unique: true});
 
-  return dbConnection.model<IISCOGroupDoc>(MongooseModelName.ISCOGroup, ISCOGroupSchema);
+  return dbConnection.model<IOccupationGroupDoc>(MongooseModelName.OccupationGroup, OccupationGroupSchema);
 }

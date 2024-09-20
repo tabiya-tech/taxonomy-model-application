@@ -27,7 +27,7 @@ jest.mock("./parseFiles", () => ({
 const getMockImportEvent = (): ImportAPISpecs.Types.POST.Request.Payload => {
   return {
     filePaths: {
-      [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+      [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_GROUPS]: "path/to/OCCUPATION_GROUPS.csv",
       [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
       [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
       [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",

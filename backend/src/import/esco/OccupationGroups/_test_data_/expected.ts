@@ -1,6 +1,6 @@
-import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { INewOccupationGroupSpec, OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
 
-export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
+export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
   {
     originUri: "origin uri",
     UUIDHistory: [],
@@ -8,6 +8,7 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2"],
     description: "description",
+    groupType: OccupationGroupType.ISCO_GROUP,
     importId: "key_1",
   },
   {
@@ -16,6 +17,7 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     code: "0101",
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
+    groupType: OccupationGroupType.ISCO_GROUP,
     description: "description\nwith\nlinebreak",
     importId: "key_2",
   },
@@ -25,6 +27,7 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     code: "",
     preferredLabel: "",
     altLabels: [],
+    groupType: OccupationGroupType.ISCO_GROUP,
     description: "",
     importId: "key_3",
   },
@@ -34,6 +37,7 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     code: "0102",
     preferredLabel: "duplicate altLabels",
     altLabels: ["label1", "label2"],
+    groupType: OccupationGroupType.ISCO_GROUP,
     description: "description",
     importId: "key_4",
   },
@@ -44,6 +48,17 @@ export const expected: Omit<INewISCOGroupSpec, "modelId">[] = [
     preferredLabel: "not duplicate altLabels",
     altLabels: ["label I0102"],
     description: "description",
+    groupType: OccupationGroupType.ISCO_GROUP,
     importId: "key_i4",
+  },
+  {
+    originUri: "icatus urn",
+    UUIDHistory: ["b69710e0-7e7d-43ea-a645-26dab12faf8g"],
+    code: "I0103",
+    preferredLabel: "ICATUS Occupation group",
+    altLabels: ["label I0103"],
+    description: "description",
+    groupType: OccupationGroupType.ICATUS_GROUP,
+    importId: "key_i5",
   },
 ];

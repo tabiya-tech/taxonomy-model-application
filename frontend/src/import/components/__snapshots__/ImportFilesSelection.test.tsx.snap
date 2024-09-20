@@ -27,7 +27,7 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
         data-testid="mock-file-entry"
       >
         Mock FileEntry: 
-        ISCO_GROUPS
+        OCCUPATION_GROUPS
          
       </div>
     </div>

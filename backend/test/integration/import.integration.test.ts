@@ -8,7 +8,7 @@ import { ENV_VAR_NAMES } from "server/config/config";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { randomUUID } from "crypto";
-import { parseISCOGroupsFromFile } from "import/esco/ISCOGroups/ISCOGroupsParser";
+import { parseOccupationGroupsFromFile } from "import/esco/OccupationGroups/OccupationGroupsParser";
 import { parseSkillGroupsFromFile } from "import/esco/skillGroups/skillGroupsParser";
 import { parseSkillsFromFile } from "import/esco/skills/skillsParser";
 import { parseOccupationsFromFile } from "import/esco/occupations/occupationsParser";
@@ -113,11 +113,11 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
 
       // parse the entities first
 
-      // parse the isco_groups.csv file and assert that all rows were imported successfully
+      // parse the occupation_groups.csv file and assert that all rows were imported successfully
       await assertEntityImportedSuccessfully(
-        () => parseISCOGroupsFromFile(modelInfo.id, dataFolder + "isco_groups.csv", importIdToDBIdMap),
-        getRepositoryRegistry().ISCOGroup.Model,
-        dataFolder + "isco_groups.csv"
+        () => parseOccupationGroupsFromFile(modelInfo.id, dataFolder + "occupation_groups.csv", importIdToDBIdMap),
+        getRepositoryRegistry().OccupationGroup.Model,
+        dataFolder + "occupation_groups.csv"
       );
       // parse the skill_groups.csv file and assert that all rows were imported successfully
       await assertEntityImportedSuccessfully(

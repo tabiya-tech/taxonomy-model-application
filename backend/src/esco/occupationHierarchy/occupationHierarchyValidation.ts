@@ -9,9 +9,9 @@ export function isNewOccupationHierarchyPairSpecValid(
 ): boolean {
   const relationshipSpec = toRelationshipPairSpec(spec);
   const validPairsForOccupationHierarchy = [
-    { firstPartnerType: ObjectTypes.ISCOGroup, secondPartnerType: ObjectTypes.ISCOGroup },
-    { firstPartnerType: ObjectTypes.ISCOGroup, secondPartnerType: ObjectTypes.ESCOOccupation },
-    { firstPartnerType: ObjectTypes.ISCOGroup, secondPartnerType: ObjectTypes.LocalOccupation },
+    { firstPartnerType: ObjectTypes.OccupationGroup, secondPartnerType: ObjectTypes.OccupationGroup },
+    { firstPartnerType: ObjectTypes.OccupationGroup, secondPartnerType: ObjectTypes.ESCOOccupation },
+    { firstPartnerType: ObjectTypes.OccupationGroup, secondPartnerType: ObjectTypes.LocalOccupation },
     { firstPartnerType: ObjectTypes.ESCOOccupation, secondPartnerType: ObjectTypes.ESCOOccupation },
     { firstPartnerType: ObjectTypes.ESCOOccupation, secondPartnerType: ObjectTypes.LocalOccupation },
     { firstPartnerType: ObjectTypes.LocalOccupation, secondPartnerType: ObjectTypes.LocalOccupation },

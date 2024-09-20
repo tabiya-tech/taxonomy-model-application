@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationDoc } from "esco/occupations/occupation.types";
-import { IISCOGroupDoc } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationGroupDoc } from "esco/occupationGroup/OccupationGroup.types";
 import {
   INewOccupationHierarchyPairSpec,
   IOccupationHierarchyPair,
@@ -17,7 +17,7 @@ import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransfo
 
 export interface IOccupationHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
-  readonly iscoGroupModel: mongoose.Model<IISCOGroupDoc>;
+  readonly occupationGroupModel: mongoose.Model<IOccupationGroupDoc>;
   readonly occupationModel: mongoose.Model<IOccupationDoc>;
 
   /**
@@ -45,16 +45,16 @@ export interface IOccupationHierarchyRepository {
 
 export class OccupationHierarchyRepository implements IOccupationHierarchyRepository {
   public readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
-  public readonly iscoGroupModel: mongoose.Model<IISCOGroupDoc>;
+  public readonly occupationGroupModel: mongoose.Model<IOccupationGroupDoc>;
   public readonly occupationModel: mongoose.Model<IOccupationDoc>;
 
   constructor(
     hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>,
-    iscoGroupModel: mongoose.Model<IISCOGroupDoc>,
+    occupationGroupModel: mongoose.Model<IOccupationGroupDoc>,
     occupationModel: mongoose.Model<IOccupationDoc>
   ) {
     this.hierarchyModel = hierarchyModel;
-    this.iscoGroupModel = iscoGroupModel;
+    this.occupationGroupModel = occupationGroupModel;
     this.occupationModel = occupationModel;
   }
 
@@ -67,12 +67,14 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     try {
       const existingIds = new Map<string, ObjectTypes[]>();
 
-      //  get all ISCO groups
-      const _existingIscoGroupIds = await this.iscoGroupModel
+      //  get all Occupation groups
+      const _existingOccupationgroupIds = await this.occupationGroupModel
         .find({ modelId: { $eq: modelId } })
         .select("_id")
         .exec();
-      _existingIscoGroupIds.forEach((iscoGroup) => existingIds.set(iscoGroup._id.toString(), [ObjectTypes.ISCOGroup]));
+      _existingOccupationgroupIds.forEach((occupationGroup) =>
+        existingIds.set(occupationGroup._id.toString(), [ObjectTypes.OccupationGroup])
+      );
 
       //  get all Occupations
       const _existingOccupations = await this.occupationModel

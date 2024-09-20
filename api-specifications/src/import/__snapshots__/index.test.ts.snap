@@ -9,8 +9,8 @@ exports[`Test the import module The import module matches the snapshot 1`] = `
       "ESCO_SKILL_GROUPS": "ESCO_SKILL_GROUPS",
       "ESCO_SKILL_HIERARCHY": "ESCO_SKILL_HIERARCHY",
       "ESCO_SKILL_SKILL_RELATIONS": "ESCO_SKILL_SKILL_RELATIONS",
-      "ISCO_GROUPS": "ISCO_GROUPS",
       "OCCUPATIONS": "OCCUPATIONS",
+      "OCCUPATION_GROUPS": "OCCUPATION_GROUPS",
       "OCCUPATION_HIERARCHY": "OCCUPATION_HIERARCHY",
       "OCCUPATION_SKILL_RELATIONS": "OCCUPATION_SKILL_RELATIONS",
     },
@@ -39,14 +39,14 @@ exports[`Test the import module The import module matches the snapshot 1`] = `
               "anyOf": [
                 {
                   "properties": {
-                    "ISCO_GROUPS": {
+                    "OCCUPATION_GROUPS": {
                       "maxLength": 255,
                       "pattern": "\\S",
                       "type": "string",
                     },
                   },
                   "required": [
-                    "ISCO_GROUPS",
+                    "OCCUPATION_GROUPS",
                   ],
                 },
                 {
@@ -138,7 +138,7 @@ exports[`Test the import module The import module matches the snapshot 1`] = `
               "examples": [
                 {
                   "ESCO_SKILL_GROUPS": "some-random-folder/skillGroups_en.csv",
-                  "ISCO_GROUPS": "some-random-folder/ISCOGroups_en.csv",
+                  "OCCUPATION_GROUPS": "some-random-folder/OccupationGroups_en.csv",
                 },
               ],
               "type": "object",

@@ -1,6 +1,6 @@
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
-import { IISCOGroupReference } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
 import { ISkillReference } from "esco/skill/skills.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -14,7 +14,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   preferredLabel: string;
   UUIDHistory: string[];
   originUri: string;
-  ISCOGroupCode: string;
+  OccupationGroupCode: string;
   code: string;
   altLabels: string[];
   description: string;
@@ -31,8 +31,8 @@ export interface IOccupationDoc extends ImportIdentifiable {
 export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
   id: string;
   modelId: string;
-  parent: IISCOGroupReference | IOccupationReference | null;
-  children: (IISCOGroupReference | IOccupationReference)[];
+  parent: IOccupationGroupReference | IOccupationReference | null;
+  children: (IOccupationGroupReference | IOccupationReference)[];
   createdAt: Date;
   updatedAt: Date;
   requiresSkills: OccupationToSkillReferenceWithRelationType<ISkillReference>[];

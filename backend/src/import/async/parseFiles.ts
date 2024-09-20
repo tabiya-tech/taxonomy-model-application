@@ -2,7 +2,7 @@ import { S3PresignerService } from "./S3PresignerService";
 import { getUploadBucketName, getUploadBucketRegion } from "server/config/config";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { IModelInfo } from "modelInfo/modelInfo.types";
-import { parseISCOGroupsFromUrl } from "import/esco/ISCOGroups/ISCOGroupsParser";
+import { parseOccupationGroupsFromUrl } from "import/esco/OccupationGroups/OccupationGroupsParser";
 import { parseSkillGroupsFromUrl } from "import/esco/skillGroups/skillGroupsParser";
 import { parseSkillsFromUrl } from "import/esco/skills/skillsParser";
 import { parseOccupationsFromUrl } from "import/esco/occupations/occupationsParser";
@@ -63,11 +63,11 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
   });
 
   // Process the files
-  let countISCOGroups = 0;
-  if (downloadUrls.ISCO_GROUPS) {
-    const stats = await parseISCOGroupsFromUrl(modelId, downloadUrls.ISCO_GROUPS, importIdToDBIdMap);
-    countISCOGroups = stats.rowsSuccess;
-    console.info(`Processed ${JSON.stringify(stats)} ISCO Groups`);
+  let countOccupationGroups = 0;
+  if (downloadUrls.OCCUPATION_GROUPS) {
+    const stats = await parseOccupationGroupsFromUrl(modelId, downloadUrls.OCCUPATION_GROUPS, importIdToDBIdMap);
+    countOccupationGroups = stats.rowsSuccess;
+    console.info(`Processed ${JSON.stringify(stats)} Occupation Groups`);
   }
   if (downloadUrls.ESCO_SKILL_GROUPS) {
     const stats = await parseSkillGroupsFromUrl(modelId, downloadUrls.ESCO_SKILL_GROUPS, importIdToDBIdMap);
@@ -89,11 +89,14 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     const ICATUS_LEVEL_1_GROUPS = 3;
     const ESCO_LEVEL_1_GROUPS = 10;
 
-    if (stats.rowsSuccess !== countISCOGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)) {
+    if (
+      stats.rowsSuccess !==
+      countOccupationGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)
+    ) {
       errorLogger.logWarning(
         `Expected to successfully process ${
-          countISCOGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)
-        } (ISCO groups + Occupations (Local and ESCO) - ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS) hierarchy entries. Instead processed ${
+          countOccupationGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)
+        } (Occupation groups + Occupations (Local and ESCO) - ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS) hierarchy entries. Instead processed ${
           stats.rowsSuccess
         } entries.`
       );
@@ -125,7 +128,7 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
       getRepositoryRegistry().occupation.Model,
       getRepositoryRegistry().skill.Model,
       getRepositoryRegistry().skillGroup.Model,
-      getRepositoryRegistry().ISCOGroup.Model,
+      getRepositoryRegistry().OccupationGroup.Model,
       getRepositoryRegistry().modelInfo.Model
     ).removeUUIDFromHistory(modelId);
   }

@@ -1,7 +1,7 @@
 //mute console.log
 import "_test_utilities/consoleMock";
 
-jest.mock("export/esco/iscoGroup/ISCOGroupsToCSVTransform", () => {
+jest.mock("export/esco/occupationGroup/OccupationGroupsToCSVTransform", () => {
   // std mock should return a transform stream with some data
   return jest.fn().mockImplementation(() => {
     return Readable.from(["foo", "bar", "baz"], { objectMode: true });
@@ -153,7 +153,7 @@ import stream, { Readable } from "stream";
 import errorLogger from "common/errorLogger/errorLogger";
 import archiver from "archiver";
 import CSVtoZipPipeline from "./CSVtoZipPipeline";
-import ISCOGroupsToCSVTransform from "export/esco/iscoGroup/ISCOGroupsToCSVTransform";
+import OccupationGroupsToCSVTransform from "export/esco/occupationGroup/OccupationGroupsToCSVTransform";
 import SkillsToCSVTransform from "export/esco/skill/SkillsToCSVTransform";
 import SkillGroupsToCSVTransform from "export/esco/skillGroup/SkillGroupsToCSVTransform";
 import OccupationHierarchyToCSVTransform from "export/esco/occupationHierarchy/occupationHierarchyToCSVTransform";
@@ -217,7 +217,7 @@ describe("modelToS3", () => {
 
     // AND for each collection in the database
     [
-      [ISCOGroupsToCSVTransform, FILENAMES.ISCOGroups],
+      [OccupationGroupsToCSVTransform, FILENAMES.OccupationGroups],
       [OccupationsToCSVTransform, FILENAMES.Occupations],
       [SkillGroupsToCSVTransform, FILENAMES.SkillGroups],
       [SkillsToCSVTransform, FILENAMES.Skills],
@@ -279,7 +279,7 @@ describe("modelToS3", () => {
 
   describe("should handle streaming errors emitted during the upstream DB-Collection-ToCSVTransform", () => {
     test.each([
-      ["ISCOGroupsToCSVTransformStream", ISCOGroupsToCSVTransform],
+      ["OccupationGroupsToCSVTransformStream", OccupationGroupsToCSVTransform],
       ["OccupationsToCSVTransformStream", OccupationsToCSVTransform],
       ["SkillGroupsToCSVTransformStream", SkillGroupsToCSVTransform],
       ["SkillsToCSVTransformStream", SkillsToCSVTransform],
@@ -339,11 +339,11 @@ describe("modelToS3", () => {
         },
       ],
       [
-        "ISCOGroupsToCSVTransform throws an error",
+        "OccupationGroupsToCSVTransform throws an error",
         "An error occurred while streaming data from the DB to the csv zip file on S3",
         "foo",
         () => {
-          (ISCOGroupsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
+          (OccupationGroupsToCSVTransform as jest.Mock).mockImplementationOnce(() => {
             throw new Error("foo");
           });
         },
@@ -573,9 +573,9 @@ async function assertThatAllCreatedResourcesAreReleased(assertCreated: boolean) 
     }
   }
   // For each Collection in the DB
-  // Assert the ISCOGroupsToCSV stream resources are released
+  // Assert the OccupationGroupsToCSV stream resources are released
   const collectionToCSVTransformMocks = [
-    ISCOGroupsToCSVTransform,
+    OccupationGroupsToCSVTransform,
     OccupationsToCSVTransform,
     SkillGroupsToCSVTransform,
     SkillsToCSVTransform,

@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
-import { IISCOGroupReferenceDoc } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationGroupReferenceDoc } from "esco/occupationGroup/OccupationGroup.types";
 
 /**
  * Describes what the ObjectType of the parent of an occupation hierarchy is.
  */
 export type OccupationHierarchyParentType =
-  | ObjectTypes.ISCOGroup
+  | ObjectTypes.OccupationGroup
   | ObjectTypes.ESCOOccupation
   | ObjectTypes.LocalOccupation;
 
@@ -16,7 +16,7 @@ export type OccupationHierarchyParentType =
  * Describes what the ObjectType of the child of an occupation hierarchy is.
  */
 export type OccupationHierarchyChildType =
-  | ObjectTypes.ISCOGroup
+  | ObjectTypes.OccupationGroup
   | ObjectTypes.ESCOOccupation
   | ObjectTypes.LocalOccupation;
 
@@ -66,6 +66,6 @@ export type INewOccupationHierarchyPairSpec = Pick<IOccupationHierarchyPair, "pa
  */
 export interface IPopulatedOccupationHierarchyPairDoc
   extends Omit<IOccupationHierarchyPairDoc, "parentId" | "childId"> {
-  parentId: IOccupationReferenceDoc | IISCOGroupReferenceDoc;
-  childId: IOccupationReferenceDoc | IISCOGroupReferenceDoc;
+  parentId: IOccupationReferenceDoc | IOccupationGroupReferenceDoc;
+  childId: IOccupationReferenceDoc | IOccupationGroupReferenceDoc;
 }

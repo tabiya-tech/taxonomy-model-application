@@ -34,9 +34,9 @@ function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
 ): (row: IOccupationHierarchyImportRow) => null | {
-  childType: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  childType: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   childId: string;
-  parentType: ObjectTypes.ISCOGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  parentType: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   parentId: string;
 } {
   return (row: IOccupationHierarchyImportRow) => {
@@ -44,10 +44,10 @@ function getRowToSpecificationTransformFn(
     const childType = getObjectTypeFromCSVObjectType(row.CHILDOBJECTTYPE);
 
     if (
-      (parentType !== ObjectTypes.ISCOGroup &&
+      (parentType !== ObjectTypes.OccupationGroup &&
         parentType !== ObjectTypes.ESCOOccupation &&
         parentType !== ObjectTypes.LocalOccupation) ||
-      (childType !== ObjectTypes.ISCOGroup &&
+      (childType !== ObjectTypes.OccupationGroup &&
         childType !== ObjectTypes.ESCOOccupation &&
         childType !== ObjectTypes.LocalOccupation)
     ) {
@@ -92,14 +92,14 @@ export async function parseOccupationHierarchyFromFile(
   filePath: string,
   importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> {
-  const iscoGroupsCSVFileStream = fs.createReadStream(filePath);
+  const occupationGroupsCSVFileStream = fs.createReadStream(filePath);
   const headersValidator = getHeadersValidator("OccupationHierarchy");
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, importIdToDBIdMap);
   const batchProcessor = getBatchProcessor(modelId);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<IOccupationHierarchyImportRow>(
     "OccupationHierarchy",
-    iscoGroupsCSVFileStream,
+    occupationGroupsCSVFileStream,
     batchRowProcessor
   );
 }

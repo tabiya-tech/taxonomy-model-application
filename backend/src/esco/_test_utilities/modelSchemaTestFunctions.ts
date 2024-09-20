@@ -457,3 +457,32 @@ export function testOriginUri<T>(getModel: () => mongoose.Model<T>) {
     );
   });
 }
+
+export const testEnumField = <T>(getModel: () => mongoose.Model<T>, fieldName: string, enumValues: string[]) => {
+  describe("Test validation of '" + fieldName + "'", () => {
+    const test_cases: [CaseType, string, string | null | undefined, string | undefined][] = [
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+      [CaseType.Failure, "null", null, "Path `{0}` is required."],
+      [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+      [CaseType.Failure, "only whitespace characters", WHITESPACE, ` is not a valid enum value for path \`{0}\`.`],
+      [CaseType.Failure, "random string", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
+    ];
+
+    for (const enumValue of enumValues) {
+      test_cases.push([CaseType.Success, `valid enum value ${enumValue}`, enumValue, undefined]);
+    }
+
+    test.each(test_cases)(
+      `(%s) Validate 'preferredLabel' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: fieldName,
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
+  });
+};

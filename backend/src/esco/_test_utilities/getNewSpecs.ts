@@ -1,4 +1,4 @@
-import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { INewOccupationGroupSpec, OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
 import { generateRandomUrl, getRandomString, getTestString } from "_test_utilities/specialCharacters";
 import {
   DEFINITION_MAX_LENGTH,
@@ -8,7 +8,7 @@ import {
   REGULATED_PROFESSION_NOTE_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH,
 } from "esco/common/modelSchema";
-import { getMockRandomISCOGroupCode } from "_test_utilities/mockISCOCode";
+import { getMockRandomOccupationGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
@@ -19,34 +19,36 @@ import { randomUUID } from "crypto";
 import { ObjectTypes } from "../common/objectTypes";
 
 /**
- * Helper function to create an INewISCOGroupSpec with random values,
- * that can be used for creating a new ISCOGroup
+ * Helper function to create an INewOccupationGroupSpec with random values,
+ * that can be used for creating a new OccupationGroup
  */
-export function getNewISCOGroupSpec(): INewISCOGroupSpec {
+export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {
   return {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getMockRandomISCOGroupCode(),
+    code: getMockRandomOccupationGroupCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
+    groupType: OccupationGroupType.ICATUS_GROUP,
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
 }
 
 /**
- * Helper function to create an INewISCOGroupSpec with simplest possible values,
- * that can be used for creating a new ISCOGroup
+ * Helper function to create an INewOccupationGroupSpec with simplest possible values,
+ * that can be used for creating a new OccupationGroup
  */
-export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewISCOGroupSpec {
+export function getSimpleNewOccupationGroupSpec(modelId: string, preferredLabel: string): INewOccupationGroupSpec {
   return {
     altLabels: [],
-    code: getMockRandomISCOGroupCode(),
+    code: getMockRandomOccupationGroupCode(),
     preferredLabel: preferredLabel,
     modelId: modelId,
     UUIDHistory: [randomUUID()],
     originUri: "",
+    groupType: OccupationGroupType.ISCO_GROUP,
     description: "",
     importId: getMockStringId(Math.random() * 1000),
   };
@@ -58,7 +60,7 @@ export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: strin
  */
 export function getNewESCOOccupationSpec(): INewOccupationSpec {
   return {
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    OccupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
@@ -83,7 +85,7 @@ export function getNewLocalizedESCOOccupationSpec(): INewOccupationSpec {
 
 export function getNewLocalOccupationSpec(): INewOccupationSpec {
   return {
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    OccupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
@@ -106,7 +108,7 @@ export function getNewLocalOccupationSpec(): INewOccupationSpec {
  */
 export function getSimpleNewESCOOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    OccupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",
@@ -130,7 +132,7 @@ export function getSimpleNewLocalizedESCOOccupationSpec(modelId: string, preferr
 }
 export function getSimpleNewLocalOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
-    ISCOGroupCode: getMockRandomISCOGroupCode(),
+    OccupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",

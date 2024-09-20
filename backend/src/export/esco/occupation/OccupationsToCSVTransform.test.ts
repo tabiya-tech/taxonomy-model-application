@@ -20,7 +20,7 @@ const getMockOccupations = (
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
     UUIDHistory: i % 2 ? [`uuid_${i}_${getTestString(80)}`] : [],
-    ISCOGroupCode: `ISCOGroupCode_${i}`,
+    OccupationGroupCode: `OccupationGroupCode_${i}`,
     definition: `definition_${i}_${getTestString(80)}`,
     regulatedProfessionNote: `regulatedProfessionNote_${i}_${getTestString(80)}`,
     scopeNote: `scopeNote_${i}_${getTestString(80)}`,

@@ -26,7 +26,7 @@ import {
 } from "_test_utilities/testDBConnectionFaillure";
 import {
   getNewESCOOccupationSpec,
-  getNewISCOGroupSpec,
+  getNewOccupationGroupSpec,
   getNewSkillSpec,
   getSimpleNewESCOOccupationSpec,
   getSimpleNewLocalOccupationSpec,
@@ -40,7 +40,7 @@ import {
   expectedSkillReference,
 } from "esco/_test_utilities/expectedReference";
 import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
-import { IISCOGroup, INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationGroup, INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
 import {
   IOccupationToSkillRelationPairDoc,
   OccupationToSkillRelationType,
@@ -1217,19 +1217,19 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkillSpecs = getNewSkillSpec();
         const givenSkill = await repository.create(givenSkillSpecs);
 
-        // The non-Skill in this case an ISCOGroup
-        const givenNewISCOGroupSpec: INewISCOGroupSpec = getNewISCOGroupSpec();
-        const givenISCOGroup = await repositoryRegistry.ISCOGroup.create(givenNewISCOGroupSpec);
+        // The non-Skill in this case an OccupationGroup
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec();
+        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
         const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenSkill.modelId),
 
           relationType: OccupationToSkillRelationType.ESSENTIAL,
-          requiringOccupationId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
+          requiringOccupationId: new mongoose.Types.ObjectId(givenOccupationGroup.id), // <- This is the inconsistency
           requiringOccupationType: ObjectTypes.ESCOOccupation,
           //@ts-ignore
-          requiringOccupationDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
+          requiringOccupationDocModel: MongooseModelName.OccupationGroup, // <- This is the inconsistency
 
           requiredSkillId: new mongoose.Types.ObjectId(givenSkill.id),
           requiredSkillDocModel: MongooseModelName.Skill,
@@ -1401,7 +1401,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const actualSkills = repository.findAll(getMockStringId(1));
 
       // THEN expect the Skills to be returned as a consumable stream that emits an error and ends
-      const actualSkillsArray: IISCOGroup[] = [];
+      const actualSkillsArray: IOccupationGroup[] = [];
       await expect(async () => {
         for await (const data of actualSkills) {
           actualSkillsArray.push(data);

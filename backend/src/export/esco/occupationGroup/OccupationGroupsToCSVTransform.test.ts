@@ -3,25 +3,27 @@ import "_test_utilities/consoleMock";
 
 import { Readable } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { IISCOGroupRepository } from "esco/iscoGroup/ISCOGroupRepository";
+import { IOccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getTestString } from "_test_utilities/specialCharacters";
-import ISCOGroupsToCSVTransform, * as ISCOGroupsToCSVTransformModule from "./ISCOGroupsToCSVTransform";
-import { IUnpopulatedISCOGroup } from "./ISCOGroupsToCSVTransform";
+import OccupationGroupsToCSVTransform, * as OccupationGroupsToCSVTransformModule from "./OccupationGroupsToCSVTransform";
+import { IUnpopulatedOccupationGroup } from "./OccupationGroupsToCSVTransform";
 import { parse } from "csv-parse/sync";
+import { OccupationGroupType } from "../../../esco/occupationGroup/OccupationGroup.types";
 
-const ISCOGroupRepository = jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get");
+const OccupationGroupRepository = jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get");
 
-const getMockISCOGroups = (): IUnpopulatedISCOGroup[] => {
-  return Array.from<never, IUnpopulatedISCOGroup>({ length: 6 }, (_, i) => ({
+const getMockOccupationGroups = (): IUnpopulatedOccupationGroup[] => {
+  return Array.from<never, IUnpopulatedOccupationGroup>({ length: 6 }, (_, i) => ({
     id: getMockStringId(i),
     UUID: `uuid_${i}`,
     UUIDHistory: i % 2 ? [`uuid_${i}_${getTestString(80)}`, `uuid_${i + 1}_${getTestString(80)}`] : [],
     code: `code_${i}`,
-    preferredLabel: `ISCOGroup_${i}_${getTestString(80)}`,
+    preferredLabel: `OccupationGroup_${i}_${getTestString(80)}`,
     altLabels: i % 2 ? [`altLabel_1_${getTestString(80)}`, `altLabel_2_${getTestString(80)}`] : [],
     description: `description_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
+    groupType: OccupationGroupType.ISCO_GROUP,
     originUri: `originUri_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
@@ -29,29 +31,29 @@ const getMockISCOGroups = (): IUnpopulatedISCOGroup[] => {
   }));
 };
 
-function setupISCOGroupRepositoryMock(findAllImpl: () => Readable) {
-  const mockISCOGroupRepository: IISCOGroupRepository = {
+function setupOccupationGroupRepositoryMock(findAllImpl: () => Readable) {
+  const mockOccupationGroupRepository: IOccupationGroupRepository = {
     Model: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };
-  ISCOGroupRepository.mockReturnValue(mockISCOGroupRepository);
+  OccupationGroupRepository.mockReturnValue(mockOccupationGroupRepository);
 }
 
-describe("ISCOGroupsDoc2csvTransform", () => {
+describe("OccupationGroupsDoc2csvTransform", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test("should correctly transform ISCOGroup data to CSV", async () => {
-    // GIVEN findAll returns a stream of ISCOGroups
-    const givenISCOGroups = getMockISCOGroups();
-    setupISCOGroupRepositoryMock(() => Readable.from(givenISCOGroups));
+  test("should correctly transform OccupationGroup data to CSV", async () => {
+    // GIVEN findAll returns a stream of OccupationGroups
+    const givenOccupationGroups = getMockOccupationGroups();
+    setupOccupationGroupRepositoryMock(() => Readable.from(givenOccupationGroups));
 
     // WHEN the transformation is applied
-    const transformedStream = ISCOGroupsToCSVTransform("foo");
+    const transformedStream = OccupationGroupsToCSVTransform("foo");
 
     // THEN the output should be a stream
     const chunks = [];
@@ -72,9 +74,9 @@ describe("ISCOGroupsDoc2csvTransform", () => {
 
   describe("should handle errors during stream processing", () => {
     test("should log an error and end the stream when the source repository fails", async () => {
-      // GIVEN that the source ISCOGroup stream will emit an error
+      // GIVEN that the source OccupationGroup stream will emit an error
       const givenError = new Error("Test Error");
-      setupISCOGroupRepositoryMock(
+      setupOccupationGroupRepositoryMock(
         () =>
           new Readable({
             read() {
@@ -84,7 +86,7 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       );
 
       // WHEN the transformation stream is consumed
-      const transformedStream = ISCOGroupsToCSVTransform("foo");
+      const transformedStream = OccupationGroupsToCSVTransform("foo");
       // THEN expect the given error to be thrown
       await expect(async () => {
         //  iterate to consume the stream
@@ -94,7 +96,7 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       }).rejects.toThrow(givenError);
 
       // THEN the error should be logged
-      const expectedErrorMessage = "Transforming ESCO iscoGroups to CSV failed";
+      const expectedErrorMessage = "Transforming ESCO occupationGroups to CSV failed";
       expect(console.error).toHaveBeenCalledWith(
         expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
       );
@@ -103,20 +105,20 @@ describe("ISCOGroupsDoc2csvTransform", () => {
       expect(transformedStream.closed).toBe(true);
     });
 
-    test("should log an error and end the stream when the transformISCOGroupSpecToCSVRow throws", async () => {
-      // GIVEN findAll returns a stream of ISCOGroups
-      setupISCOGroupRepositoryMock(() => Readable.from(getMockISCOGroups()));
+    test("should log an error and end the stream when the transformOccupationGroupSpecToCSVRow throws", async () => {
+      // GIVEN findAll returns a stream of OccupationGroups
+      setupOccupationGroupRepositoryMock(() => Readable.from(getMockOccupationGroups()));
 
-      // AND  the transformISCOGroupSpecToCSVRow will throw an error
+      // AND  the transformOccupationGroupSpecToCSVRow will throw an error
       const givenError = new Error("Mocked Transformation Error");
       const transformFunctionSpy = jest
-        .spyOn(ISCOGroupsToCSVTransformModule, "transformISCOGroupSpecToCSVRow")
+        .spyOn(OccupationGroupsToCSVTransformModule, "transformOccupationGroupSpecToCSVRow")
         .mockImplementationOnce(() => {
           throw givenError;
         });
 
       // WHEN the transformation stream is consumed
-      const transformedStream = ISCOGroupsToCSVTransform("foo");
+      const transformedStream = OccupationGroupsToCSVTransform("foo");
 
       // THEN expect the given error to be thrown
       await expect(async () => {
@@ -124,21 +126,21 @@ describe("ISCOGroupsDoc2csvTransform", () => {
         for await (const _ of transformedStream) {
           // do nothing
         }
-      }).rejects.toThrowError("Failed to transform ISCOGroup to CSV row");
+      }).rejects.toThrowError("Failed to transform OccupationGroup to CSV row");
 
       // THEN the error should be logged
       const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
 
       expect(console.error).toHaveBeenCalledWith(
         expect.toMatchErrorWithCause(
-          `Failed to transform ISCOGroup to CSV row: ${expectedLoggedItem}`,
+          `Failed to transform OccupationGroup to CSV row: ${expectedLoggedItem}`,
           givenError.message
         )
       );
       expect(console.error).toHaveBeenCalledWith(
         expect.toMatchErrorWithCause(
-          "Transforming ESCO iscoGroups to CSV failed",
-          `Failed to transform ISCOGroup to CSV row: ${expectedLoggedItem}`
+          "Transforming ESCO occupationGroups to CSV failed",
+          `Failed to transform OccupationGroup to CSV row: ${expectedLoggedItem}`
         )
       );
       // AND the stream should end

@@ -19,12 +19,12 @@ export function initializeSchemaAndModel(
       parentType: {
         type: String,
         required: true,
-        enum: [ObjectTypes.ISCOGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
+        enum: [ObjectTypes.OccupationGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
       },
       parentDocModel: {
         type: String,
         required: true,
-        enum: [MongooseModelName.ISCOGroup, MongooseModelName.Occupation],
+        enum: [MongooseModelName.OccupationGroup, MongooseModelName.Occupation],
       },
       [OccupationHierarchyModelPaths.parentId]: {
         type: mongoose.Schema.Types.ObjectId,
@@ -39,12 +39,12 @@ export function initializeSchemaAndModel(
       childType: {
         type: String,
         required: true,
-        enum: [ObjectTypes.ISCOGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
+        enum: [ObjectTypes.OccupationGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
       },
       childDocModel: {
         type: String,
         required: true,
-        enum: [MongooseModelName.ISCOGroup, MongooseModelName.Occupation],
+        enum: [MongooseModelName.OccupationGroup, MongooseModelName.Occupation],
       },
     },
     {
@@ -59,7 +59,7 @@ export function initializeSchemaAndModel(
   // Additionally, it is needed from the virtual children field matcher, that is populated via the populateOccupationChildrenOptions
   OccupationHierarchySchema.index(INDEX_FOR_CHILDREN, { unique: true });
 
-  // An entity (occupation, iscoGroup) cannot have multiple parents.
+  // An entity (occupation, occupationGroup) cannot have multiple parents.
   // Additionally, it is needed from the virtual parent field matcher, that is populated via the populateOccupationParentOptions
   OccupationHierarchySchema.index(INDEX_FOR_PARENT, { unique: true });
   // Model

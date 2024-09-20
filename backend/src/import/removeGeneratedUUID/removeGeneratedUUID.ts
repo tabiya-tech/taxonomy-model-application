@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { IOccupationDoc } from "esco/occupations/occupation.types";
 import { ISkillDoc } from "esco/skill/skills.types";
 import { ISkillGroupDoc } from "esco/skillGroup/skillGroup.types";
-import { IISCOGroupDoc } from "esco/iscoGroup/ISCOGroup.types";
+import { IOccupationGroupDoc } from "esco/occupationGroup/OccupationGroup.types";
 import { IModelInfoDoc } from "modelInfo/modelInfo.types";
 
 export interface ICleanupUUIDHistory {
@@ -19,20 +19,20 @@ export class RemoveGeneratedUUID implements ICleanupUUIDHistory {
   private readonly OccupationModel = mongoose.Model<IOccupationDoc>;
   private readonly SkillModel: mongoose.Model<ISkillDoc>;
   private readonly SkillGroupModel: mongoose.Model<ISkillGroupDoc>;
-  private readonly ISCOGroupModel: mongoose.Model<IISCOGroupDoc>;
+  private readonly OccupationGroupModel: mongoose.Model<IOccupationGroupDoc>;
   private readonly ModelInfoModel: mongoose.Model<IModelInfoDoc>;
 
   constructor(
     occupationModel: mongoose.Model<IOccupationDoc>,
     skillModel: mongoose.Model<ISkillDoc>,
     skillGroupModel: mongoose.Model<ISkillGroupDoc>,
-    iscoGroupModel: mongoose.Model<IISCOGroupDoc>,
+    occupationGroupModel: mongoose.Model<IOccupationGroupDoc>,
     modelInfoModel: mongoose.Model<IModelInfoDoc>
   ) {
     this.OccupationModel = occupationModel;
     this.SkillModel = skillModel;
     this.SkillGroupModel = skillGroupModel;
-    this.ISCOGroupModel = iscoGroupModel;
+    this.OccupationGroupModel = occupationGroupModel;
     this.ModelInfoModel = modelInfoModel;
   }
 
@@ -67,7 +67,7 @@ export class RemoveGeneratedUUID implements ICleanupUUIDHistory {
         this.OccupationModel.updateMany(entityFilter, updatePipeline).exec(),
         this.SkillModel.updateMany(entityFilter, updatePipeline).exec(),
         this.SkillGroupModel.updateMany(entityFilter, updatePipeline).exec(),
-        this.ISCOGroupModel.updateMany(entityFilter, updatePipeline).exec(),
+        this.OccupationGroupModel.updateMany(entityFilter, updatePipeline).exec(),
       ]);
     } catch (error) {
       console.error(new Error("Error occurred during cleanup:", { cause: error }));

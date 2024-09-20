@@ -36,7 +36,7 @@ describe("test the RepositoryRegistry", () => {
 
     // THEN the repositories should be initialized
     expect(repositoryRegistry.modelInfo).toBeDefined();
-    expect(repositoryRegistry.ISCOGroup).toBeDefined();
+    expect(repositoryRegistry.OccupationGroup).toBeDefined();
     expect(repositoryRegistry.skillGroup).toBeDefined();
     expect(repositoryRegistry.skill).toBeDefined();
     expect(repositoryRegistry.occupation).toBeDefined();

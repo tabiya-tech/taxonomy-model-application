@@ -2,8 +2,8 @@ import ImportAPISpecs from "api-specifications/import";
 
 export const mapFileTypeToName = (fileType: ImportAPISpecs.Constants.ImportFileTypes): string => {
   switch (fileType) {
-    case ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS:
-      return "ISCO Groups";
+    case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_GROUPS:
+      return "Occupation Groups";
     case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS:
       return "Occupations";
     case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS:

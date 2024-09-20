@@ -46,24 +46,24 @@
         {
             "ID": "0123456789abcdef01234567",
             "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
-            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+            "ParentObjectType": "ESCO | Localized | Local | OccupationGroup"
         },
         {
             "ID": "0123456789abcdef01234567",
             "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
-            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+            "ParentObjectType": "ESCO | Localized | Local | OccupationGroup"
         }
     ],
     "Children": [
         {
             "ID": "0123456789abcdef01234567",
             "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
-            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+            "ParentObjectType": "ESCO | Localized | Local | OccupationGroup"
         },
         {
             "ID": "0123456789abcdef01234567",
             "UUID": "11ab4eb0-2304-4d26-b810-1d15d50e3fd4",
-            "ParentObjectType": "ESCO | Localized | Local | ISCOGroup"
+            "ParentObjectType": "ESCO | Localized | Local | OccupationGroup"
         } 
     ]
 }

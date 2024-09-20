@@ -2,19 +2,19 @@ import { ObjectTypes } from "esco/common/objectTypes";
 
 export const expected = [
   {
-    parentType: ObjectTypes.ISCOGroup,
+    parentType: ObjectTypes.OccupationGroup,
     parentId: "mapped_key_1",
     childId: "mapped_key_2",
-    childType: ObjectTypes.ISCOGroup,
+    childType: ObjectTypes.OccupationGroup,
   },
   {
-    parentType: ObjectTypes.ISCOGroup,
+    parentType: ObjectTypes.OccupationGroup,
     parentId: "mapped_key_3",
     childId: "mapped_key_4",
     childType: ObjectTypes.ESCOOccupation,
   },
   {
-    parentType: ObjectTypes.ISCOGroup,
+    parentType: ObjectTypes.OccupationGroup,
     parentId: "mapped_key_5",
     childId: "mapped_key_6",
     childType: ObjectTypes.LocalOccupation,
@@ -35,7 +35,7 @@ export const expected = [
     parentType: ObjectTypes.ESCOOccupation,
     parentId: "mapped_key_11",
     childId: "mapped_key_12",
-    childType: ObjectTypes.ISCOGroup,
+    childType: ObjectTypes.OccupationGroup,
   },
   {
     parentType: ObjectTypes.LocalOccupation,
@@ -50,7 +50,7 @@ export const expected = [
     childType: ObjectTypes.ESCOOccupation,
   },
   {
-    parentType: ObjectTypes.ISCOGroup,
+    parentType: ObjectTypes.OccupationGroup,
     parentId: "mapped_key_i11",
     childId: "mapped_key_20",
     childType: ObjectTypes.LocalOccupation,

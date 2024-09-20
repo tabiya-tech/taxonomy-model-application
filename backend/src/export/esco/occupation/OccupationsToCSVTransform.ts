@@ -18,7 +18,7 @@ export const transformOccupationSpecToCSVRow = (occupation: IUnpopulatedOccupati
     ORIGINURI: occupation.originUri,
     ID: occupation.id,
     UUIDHISTORY: stringFromArray(occupation.UUIDHistory),
-    ISCOGROUPCODE: occupation.ISCOGroupCode,
+    OCCUPATIONGROUPCODE: occupation.OccupationGroupCode,
     CODE: occupation.code,
     PREFERREDLABEL: occupation.preferredLabel,
     ALTLABELS: stringFromArray(occupation.altLabels),

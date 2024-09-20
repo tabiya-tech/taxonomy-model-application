@@ -36,15 +36,17 @@ jest.mock("./S3PresignerService", () => {
 
 //
 
-// Mock the ISCOGroupsParser
+// Mock the OccupationGroupsParser
 const givenISCGOGroupsStats: RowsProcessedStats = {
   rowsProcessed: 100,
   rowsSuccess: 100,
   rowsFailed: 0,
 };
-jest.mock("import/esco/ISCOGroups/ISCOGroupsParser", () => {
+jest.mock("import/esco/OccupationGroups/OccupationGroupsParser", () => {
   return {
-    parseISCOGroupsFromUrl: jest.fn<Promise<RowsProcessedStats>, never>().mockResolvedValue(givenISCGOGroupsStats),
+    parseOccupationGroupsFromUrl: jest
+      .fn<Promise<RowsProcessedStats>, never>()
+      .mockResolvedValue(givenISCGOGroupsStats),
   };
 });
 // Mock the ESCOSkillGroupsParser
@@ -85,9 +87,9 @@ jest.mock("import/esco/occupations/occupationsParser.ts", () => {
 
 // Mock the OccupationHierarchyParser
 const givenOccupationHierarchyStats: RowsProcessedStats = {
-  // 10 are the to level isco groups that to not have a parent and are not in the hierarchy
-  rowsProcessed: givenISCGOGroupsStats.rowsProcessed + givenOccupationsStats.rowsProcessed - (10+3),
-  rowsSuccess: givenISCGOGroupsStats.rowsSuccess + givenOccupationsStats.rowsSuccess - (10+3),
+  // 10 are the to level occupation groups that to not have a parent and are not in the hierarchy
+  rowsProcessed: givenISCGOGroupsStats.rowsProcessed + givenOccupationsStats.rowsProcessed - (10 + 3),
+  rowsSuccess: givenISCGOGroupsStats.rowsSuccess + givenOccupationsStats.rowsSuccess - (10 + 3),
   rowsFailed: 0,
 };
 jest.mock("import/esco/occupationHierarchy/occupationHierarchyParser.ts", () => {
@@ -144,7 +146,7 @@ jest.mock("import/esco/occupationToSkillRelation/occupationToSkillRelationParser
 import { parseFiles } from "./parseFiles";
 import ImportAPISpecs from "api-specifications/import";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { parseISCOGroupsFromUrl } from "import/esco/ISCOGroups/ISCOGroupsParser";
+import { parseOccupationGroupsFromUrl } from "import/esco/OccupationGroups/OccupationGroupsParser";
 import { getUploadBucketName, getUploadBucketRegion } from "server/config/config";
 import { S3PresignerService } from "./S3PresignerService";
 import { parseSkillGroupsFromUrl } from "import/esco/skillGroups/skillGroupsParser";
@@ -209,7 +211,7 @@ describe("Test the main async handler", () => {
     // AND an Import event
     const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
       filePaths: {
-        [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+        [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_GROUPS]: "path/to/OCCUPATION_GROUPS.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
         [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",
@@ -244,8 +246,8 @@ describe("Test the main async handler", () => {
       const expectedFileType = entry[0];
       const expectedPresignedUrl = await mockS3PresignerServiceInstance.getPresignedGet(entry[1]);
       switch (expectedFileType) {
-        case ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS:
-          expect(parseISCOGroupsFromUrl).toHaveBeenCalledWith(
+        case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_GROUPS:
+          expect(parseOccupationGroupsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
             expect.any(Map)
@@ -367,7 +369,7 @@ describe("Test the main async handler", () => {
         "report parsingWarnings when the occupations hierarchy has more or less rows than expected",
         () => {
           (parseOccupationHierarchyFromUrl as jest.Mock).mockResolvedValueOnce({
-            // see the mock implementation of parseISCOGroupsFromUrl and parseOccupationsFromUrl
+            // see the mock implementation of parseOccupationGroupsFromUrl and parseOccupationsFromUrl
             rowsProcessed: 1, //<------- should have been 100 + 200  + 300 - 10
             rowsSuccess: 1, //<------- should have been 100 + 200  + 300 - 10
             rowsFailed: 0,
@@ -411,7 +413,7 @@ describe("Test the main async handler", () => {
       // AND an Import event
       const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
         filePaths: {
-          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_GROUPS]: "path/to/OCCUPATION_GROUPS.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",
@@ -491,8 +493,8 @@ describe("Test the main async handler", () => {
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
 
-      // AND an iscoGroup repository
-      const givenISCOGroupRepositoryMock = {
+      // AND an occupationGroup repository
+      const givenOccupationGroupRepositoryMock = {
         Model: undefined as never,
         updateMany: jest.fn().mockResolvedValue(null),
         create: jest.fn(),
@@ -500,7 +502,7 @@ describe("Test the main async handler", () => {
         findById: jest.fn(),
         findAll: jest.fn(),
       };
-      jest.spyOn(getRepositoryRegistry(), "ISCOGroup", "get").mockReturnValue(givenISCOGroupRepositoryMock);
+      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
       // AND the importProcessState will be successfully updated
@@ -516,7 +518,7 @@ describe("Test the main async handler", () => {
       // AND an Import event
       const givenEvent: ImportAPISpecs.Types.POST.Request.Payload = {
         filePaths: {
-          [ImportAPISpecs.Constants.ImportFileTypes.ISCO_GROUPS]: "path/to/ISCO_GROUPS.csv",
+          [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_GROUPS]: "path/to/OCCUPATION_GROUPS.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS]: "path/to/OCCUPATIONS.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS]: "path/to/ESCO_SKILL_GROUPS.csv",
           [ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS]: "path/to/ESCO_SKILLS.csv",

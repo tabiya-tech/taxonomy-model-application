@@ -15,10 +15,10 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { INewSkillSpec } from "esco/skill/skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
-import { INewISCOGroupSpec } from "esco/iscoGroup/ISCOGroup.types";
+import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
 import {
   getNewSkillGroupSpec,
-  getSimpleNewISCOGroupSpec,
+  getSimpleNewOccupationGroupSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
@@ -112,7 +112,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
   async function cleanupDBCollections() {
     if (repository) await repository.Model.deleteMany({}).exec();
     if (repositoryRegistry) {
-      await repositoryRegistry.ISCOGroup.Model.deleteMany({}).exec();
+      await repositoryRegistry.OccupationGroup.Model.deleteMany({}).exec();
       await repositoryRegistry.skill.Model.deleteMany({}).exec();
       await repositoryRegistry.skillHierarchy.hierarchyModel.deleteMany({}).exec();
     }
@@ -510,9 +510,12 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // The SkillGroup
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
         const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
-        // The non-SkillGroup in this case an ISCO group
-        const givenNewISCOGroupSpec: INewISCOGroupSpec = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
-        const givenISCOGroup = await repositoryRegistry.ISCOGroup.create(givenNewISCOGroupSpec);
+        // The non-SkillGroup in this case an Occupation group
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getSimpleNewOccupationGroupSpec(
+          getMockStringId(1),
+          "group_1"
+        );
+        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenSkillGroup.modelId),
@@ -522,9 +525,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           parentType: ObjectTypes.SkillGroup,
 
           //@ts-ignore
-          childType: ObjectTypes.ISCOGroup, // <- This is the inconsistency
-          childDocModel: MongooseModelName.ISCOGroup, // <- This is the inconsistency
-          childId: new mongoose.Types.ObjectId(givenISCOGroup.id), // <- This is the inconsistency
+          childType: ObjectTypes.OccupationGroup, // <- This is the inconsistency
+          childDocModel: MongooseModelName.OccupationGroup, // <- This is the inconsistency
+          childId: new mongoose.Types.ObjectId(givenOccupationGroup.id), // <- This is the inconsistency
 
           createdAt: new Date(),
           updatedAt: new Date(),
