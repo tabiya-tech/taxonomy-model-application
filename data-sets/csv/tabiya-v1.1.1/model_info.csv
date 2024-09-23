@@ -1,0 +1,16 @@
+"UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya 1.1.1","","Tabiya v1.1.1 model
+
+The model is based on the ESCO v1.1.1 and has the following changes:
+- Add: New Micro-entrepreneur occupation (code:5221_2  uuid:d76f0bac-7145-4acc-a53e-259b96a6346b)
+- Add: Unseen economy occupations/activities from the Icatus classification
+  - 15 Occupations Groups ( I3, I4, I5 etc)
+  - 48 Occupations (I31_1, I31_2 etc)
+  - 60 Occupation hierarchy entries
+  - 3673 Occupations
+  - Skills Relations
+- Fix: Preferred labels were not included in the altLabels of isco-groups, skill-groups, some occupations, some skills.
+- Fix: Several alt-labels had duplicate entries
+- Fix: Several text fields have invisible characters such as \t, nbsp and others
+- Fix: Several text fields have leading and trailing spaces or new lines
+- Fix: Reformat the scope notes of occupations and skills","","",""
