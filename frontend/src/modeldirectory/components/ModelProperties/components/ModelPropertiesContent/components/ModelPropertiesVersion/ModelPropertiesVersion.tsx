@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import React from "react";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 import ReleasedPropertyField from "src/theme/PropertyFieldLayout/ReleasedPropertyField/ReleasedPropertyField";
+import MarkdownPropertyField from "src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField";
 
 export interface ModelPropertiesVersionProps {
   model: ModelInfoTypes.ModelInfo;
@@ -91,7 +92,7 @@ const ModelPropertiesVersion: React.FC<ModelPropertiesVersionProps> = (
         fieldId={FIELD_ID.RELEASED_STATUS}
       />
 
-      <TextPropertyField
+      <MarkdownPropertyField
         label={FIELD_LABEL_TEXT.LABEL_RELEASE_NOTES}
         text={props.model.releaseNotes}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES}

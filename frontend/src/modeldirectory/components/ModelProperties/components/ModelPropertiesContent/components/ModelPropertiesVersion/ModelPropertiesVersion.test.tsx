@@ -7,6 +7,8 @@ import ModelPropertiesVersion, { DATA_TEST_ID, FIELD_ID, FIELD_LABEL_TEXT } from
 import ReleasedPropertyField from "src/theme/PropertyFieldLayout/ReleasedPropertyField/ReleasedPropertyField";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
+import * as React from "react";
+import MarkdownPropertyField from "src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField";
 
 // mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", () => {
@@ -27,6 +29,18 @@ jest.mock("src/theme/PropertyFieldLayout/ReleasedPropertyField/ReleasedPropertyF
     default: jest.fn().mockImplementation((props) => (
       <div data-testid={props["data-testid"]} id={props.fieldId}>
         Released Status Mock
+      </div>
+    )),
+  };
+});
+
+// mock the MarkdownPropertyField component
+jest.mock("src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField", () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation((props) => (
+      <div data-testid={props["data-testid"]} id={props.fieldId}>
+        Markdown Property Field Mock
       </div>
     )),
   };
@@ -114,7 +128,7 @@ describe("ModelPropertiesVersion", () => {
     const actualReleaseNotes = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES);
     expect(actualReleaseNotes).toBeInTheDocument();
     // AND TextPropertyField component to be called with the correct props for the 'release notes'
-    expect(TextPropertyField).toHaveBeenCalledWith(
+    expect(MarkdownPropertyField).toHaveBeenCalledWith(
       {
         label: FIELD_LABEL_TEXT.LABEL_RELEASE_NOTES,
         text: givenModel.releaseNotes,

@@ -96,6 +96,18 @@ jest.mock("src/modeldirectory/components/tableLoadingRows/TableLoadingRows", () 
   };
 });
 
+// mock MarkdownPropertyField component
+jest.mock("src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField", () => {
+  const mockMarkdownPropertyField = jest.fn().mockImplementation((props) => {
+    return <span data-testid="mock-markdown-property-field">{props.text}</span>;
+  });
+
+  return {
+    __esModule: true,
+    default: mockMarkdownPropertyField,
+  };
+});
+
 describe("ModelsTable", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();

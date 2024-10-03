@@ -6,6 +6,7 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import ModelPropertiesDescription, { DATA_TEST_ID, FIELD_ID, FIELD_LABEL_TEXT } from "./ModelPropertiesDescription";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
+import MarkdownPropertyField from "src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField";
 
 // mock the TextPropertyField component
 jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", () => {
@@ -14,6 +15,18 @@ jest.mock("src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField", (
     default: jest.fn().mockImplementation((props) => (
       <div data-testid={props["data-testid"]} id={props.fieldId}>
         Text Property Field Mock
+      </div>
+    )),
+  };
+});
+
+// mock the MarkdownPropertyField component
+jest.mock("src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField", () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation((props) => (
+      <div data-testid={props["data-testid"]} id={props.fieldId}>
+        Markdown Property Field Mock
       </div>
     )),
   };
@@ -63,7 +76,7 @@ describe("ModelPropertiesDescription", () => {
     const descriptionItem = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION);
     expect(descriptionItem).toBeInTheDocument();
     // AND the TextPropertyField component to be called with the correct props for the 'Description'
-    expect(TextPropertyField).toHaveBeenCalledWith(
+    expect(MarkdownPropertyField).toHaveBeenCalledWith(
       {
         label: FIELD_LABEL_TEXT.LABEL_DESCRIPTION,
         text: givenModel.description,
