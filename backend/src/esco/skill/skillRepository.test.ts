@@ -53,6 +53,7 @@ import {
   INDEX_FOR_REQUIRES_SKILLS,
 } from "esco/skillToSkillRelation/skillToSkillRelationModel";
 import { INDEX_FOR_REQUIRED_BY_OCCUPATIONS } from "../occupationToSkillRelation/occupationToSkillRelationModel";
+import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -173,7 +174,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
   });
 
   describe("Test create() skill", () => {
-    test("should successfully create a new skill", async () => {
+    test("should successfully create a new skill when the given specification have a UUIDHistory with one UUID", async () => {
       // GIVEN a valid newSkillSpec
       const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
 
@@ -182,6 +183,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // THEN expect the new skill to be created with the specific attributes
       const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
+
+      // AND expect the UUID to be generated
+      expect(actualNewSkill.UUID).toBeTruthy();
+
+      // AND expect the new skill to be created with the specific attributes
       expect(actualNewSkill).toEqual(expectedNewSkill);
     });
 
@@ -195,8 +201,31 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // THEN expect the new skill to be created with the specific attributes
       const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
+      expect(actualNewSkill.UUID).toBeTruthy();
       expect(actualNewSkill).toEqual(expectedNewSkill);
     });
+
+    test.each([2, 10])(
+      "should successfully create a new skill when the given specification have a UUIDHistory with %i UUIDs",
+      async (count: number) => {
+        // GIVEN a valid newSkillSpec
+        const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
+
+        givenNewSkillSpec.UUIDHistory = generateRandomUUIDs(count);
+
+        // WHEN Creating a new skill with the given specifications
+        const actualNewSkill = await repository.create(givenNewSkillSpec);
+
+        // THEN expect the new skill to be created with the specific attributes
+        const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
+
+        // AND expect the UUID to be generated
+        expect(actualNewSkill.UUID).toBeTruthy();
+
+        // AND expect the new skill to be created with the specific attributes
+        expect(actualNewSkill).toEqual(expectedNewSkill);
+      }
+    );
 
     test("should reject with an error when creating a skill and providing a UUID", async () => {
       // GIVEN a valid newSkillSpec
@@ -235,7 +264,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
   });
 
   describe("Test createMany() Skill ", () => {
-    test("should successfully create a batch of new Skills", async () => {
+    test("should successfully create a batch of new Skills that have a UUIDHistory with one UUID", async () => {
       // GIVEN some valid SkillSpec
       const givenBatchSize = 3;
       const givenNewSkillSpecs: INewSkillSpec[] = [];
@@ -250,6 +279,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(actualNewSkills).toEqual(
         expect.arrayContaining(
           givenNewSkillSpecs.map((givenNewSkillSpec, index) => {
+            // AND expect the UUID to be generated
+            expect(actualNewSkills[index].UUID).toBeTruthy();
+
+            // AND expect the new skill to be created with the specific attributes
             return expectedFromGivenSpec(givenNewSkillSpec, actualNewSkills[index].UUID);
           })
         )
@@ -304,6 +337,31 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         )
       );
     });
+
+    test.each([2, 10])(
+      "should successfully create a batch of skills skill when the given specifications have a UUIDHistory with %i entries",
+      async (count: number) => {
+        // GIVEN some valid SkillSpec
+        const givenBatchSize = 3;
+        const givenNewSkillSpecs: INewSkillSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewSkillSpecs[i] = getNewSkillSpec();
+          givenNewSkillSpecs[i].UUIDHistory = generateRandomUUIDs(count);
+        }
+
+        // WHEN creating the batch of skills with the given specifications
+        const actualNewSkills: ISkill[] = await repository.createMany(givenNewSkillSpecs);
+
+        // THEN expect all the Skills to be created with the specific attributes
+        expect(actualNewSkills).toEqual(
+          expect.arrayContaining(
+            givenNewSkillSpecs.map((givenNewSkillSpec, index) => {
+              return expectedFromGivenSpec(givenNewSkillSpec, actualNewSkills[index].UUID);
+            })
+          )
+        );
+      }
+    );
 
     test("should resolve to an empty array if none of the element could be validated", async () => {
       // GIVEN only invalid SkillSpec
