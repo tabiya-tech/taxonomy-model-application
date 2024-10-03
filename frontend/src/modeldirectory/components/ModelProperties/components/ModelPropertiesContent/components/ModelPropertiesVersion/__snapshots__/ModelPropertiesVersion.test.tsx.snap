@@ -39,7 +39,7 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
     data-testid="model-properties-release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"
     id="release-notes-8d3b0caa-95e2-4f11-a98c-054208e72438"
   >
-    Text Property Field Mock
+    Markdown Property Field Mock
   </div>
 </div>
 `;

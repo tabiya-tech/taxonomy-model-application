@@ -23,6 +23,7 @@ import { IsOnlineContext } from "src/app/providers";
 import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
 import { AuthContext } from "src/auth/AuthProvider";
 import AuthAPISpecs from "api-specifications/auth";
+import MarkdownPropertyField from "src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField";
 
 interface ModelsTableProps {
   models: ModelInfoTypes.ModelInfo[];
@@ -279,9 +280,13 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                     }
                   </StyledBodyCell>
                   <StyledBodyCell>
-                    {model.description.length > CELL_MAX_LENGTH
-                      ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
-                      : model.description}
+                    <MarkdownPropertyField
+                      text={
+                        model.description.length > CELL_MAX_LENGTH
+                          ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
+                          : model.description
+                      }
+                    />
                   </StyledBodyCell>
                   {!hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) && (
                     <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>

@@ -278,7 +278,11 @@ exports[`ModelsTable render tests should render the table with the single model 
           <p
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
-            aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+            <span
+              data-testid="mock-markdown-property-field"
+            >
+              aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+            </span>
           </p>
         </td>
         <td
@@ -511,7 +515,11 @@ exports[`ModelsTable render tests should render the table with the single model 
           <p
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
-            aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+            <span
+              data-testid="mock-markdown-property-field"
+            >
+              aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+            </span>
           </p>
         </td>
         <td
@@ -733,7 +741,11 @@ exports[`ModelsTable render tests should render the table with the single model 
           <p
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
-            aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+            <span
+              data-testid="mock-markdown-property-field"
+            >
+              aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
+            </span>
           </p>
         </td>
         <td

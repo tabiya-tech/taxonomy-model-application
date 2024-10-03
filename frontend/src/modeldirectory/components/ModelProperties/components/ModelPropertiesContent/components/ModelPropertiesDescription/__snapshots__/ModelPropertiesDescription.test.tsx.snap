@@ -21,7 +21,7 @@ exports[`ModelPropertiesDescription should render correctly with the provided mo
     data-testid="model-properties-description-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
     id="description-2dc9c69b-bd8f-4b51-bff8-69faa511a316"
   >
-    Text Property Field Mock
+    Markdown Property Field Mock
   </div>
 </div>
 `;

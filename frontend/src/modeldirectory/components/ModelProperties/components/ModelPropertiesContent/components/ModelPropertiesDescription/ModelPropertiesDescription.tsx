@@ -3,6 +3,7 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
+import MarkdownPropertyField from "src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField";
 
 export interface ModelPropertiesDescriptionProps {
   model: ModelInfoTypes.ModelInfo;
@@ -59,7 +60,7 @@ const ModelPropertiesDescription: React.FC<ModelPropertiesDescriptionProps> = (
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_LOCALE}
         fieldId={FIELD_ID.LOCALE}
       />
-      <TextPropertyField
+      <MarkdownPropertyField
         label={FIELD_LABEL_TEXT.LABEL_DESCRIPTION}
         text={props.model.description}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION}
