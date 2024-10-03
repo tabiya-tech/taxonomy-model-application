@@ -266,7 +266,7 @@ async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string
   );
 
   compareCSVContent(`${folder1}/occupation_groups.csv`, `${folder2}/occupation_groups.csv`);
-  compareCSVContent(`${folder1}/occupations.csv`, `${folder2}/occupations.csv`);
+  compareOccupationsContent(`${folder1}/occupations.csv`, `${folder2}/occupations.csv`);
   compareCSVContent(`${folder1}/skill_groups.csv`, `${folder2}/skill_groups.csv`);
   compareCSVContent(`${folder1}/skills.csv`, `${folder2}/skills.csv`);
 }
@@ -291,9 +291,20 @@ function mapEntityCSVFile(file: string, entityType: CSVObjectTypes, mapper: Mapp
 
 function compareCSVContent(file1: string, file2: string) {
   const map1 = new Map<string, unknown>();
+  const entitiesMissingUUID1 = []; // entities that have no UUIDHistory from file 1
+  const entitiesMissingUUID2 = []; // entities that have no UUIDHistory from file 2
+
   // Read CSV files and parse their content
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const csvData1 = parse(fs.readFileSync(path.resolve(file1)), { columns: true }).map((row: any) => {
+    // if there is a file with no UUIDHistory, add it to the entitiesMissingUUID1
+    // for later comparison, because we can't compare it with the other file
+    // since there is no UUID.
+    if(!row.UUIDHISTORY){
+      entitiesMissingUUID1.push(row);
+      return;
+    }
+
     // Delete the ID field from the parsed CSV data
     delete row.ID;
     // Remove the created and updated fields from the parsed CSV data
@@ -323,6 +334,16 @@ function compareCSVContent(file1: string, file2: string) {
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     row.UUIDHISTORY = uuidHistory[uuidHistory.length - 1];
+
+    // if there is a row with no reference from first file, add it to the entitiesMissingUUID2
+    // because the current UUID is not in the first file.
+    // we will have to compare the size of entitiesMissingUUID1 and entitiesMissingUUID2
+    // to assert that the two files have the same entities with no UUID.
+    if (!map1.get(row.UUIDHISTORY)){
+      entitiesMissingUUID2.push(row);
+      return;
+    }
+
     expect(map1.get(row.UUIDHISTORY)).toEqual(row); // assert that all object in file2 are in file1
     return row;
   });
@@ -338,16 +359,75 @@ function compareCSVContent(file1: string, file2: string) {
   // expect(csvData1).toIncludeSameMembers(csvData2);
   // However it is very slow as it compares each object in the list.
   // We are using the UUID instead speed up the comparison .
+
+  // also expect that the size of entities with no UUID from file 1 are the same as
+  // the size of entities with no UUID from file 2
+  expect(entitiesMissingUUID1.length).toEqual(entitiesMissingUUID2.length);
 }
+
+function compareOccupationsContent(file1: string, file2: string) {
+  const map1 = new Map<string, unknown>();
+
+  // Read CSV files and parse their content
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const csvData1 = parse(fs.readFileSync(path.resolve(file1)), { columns: true }).map((row: any) => {
+    // Delete the ID field from the parsed CSV data
+    delete row.ID;
+    // Remove the created and updated fields from the parsed CSV data
+    delete row.CREATEDAT;
+    delete row.UPDATEDAT;
+    // Keep only the original UUID field from the parsed CSV data
+    map1.set(row.CODE, row);
+    return row;
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const csvData2 = parse(fs.readFileSync(path.resolve(file2)), { columns: true }).map((row: any) => {
+    // Remove the ID field from the parsed CSV data
+    delete row.ID;
+    // Remove the created and updated fields from the parsed CSV data
+    delete row.CREATEDAT;
+    delete row.UPDATEDAT;
+    // Because UUID can change in cases like.
+    // 1. No UUID that was uploaded and the server generated a new one.
+    //    In this case, the UUIDHistory will have the generated UUID.
+    //    We can't compare because on the second phase the server will generate a new UUID. which is not present on the first phase.
+    row.UUIDHISTORY = expect.any(String);
+    expect(map1.get(row.CODE)).toEqual(row); // assert that all object in file2 are in file1
+    return row;
+  });
+
+  expect(csvData1.length).toBeGreaterThan(0);
+  expect(csvData2.length).toBeGreaterThan(0);
+  // By asserting that the two lists have equal length,
+  // we are also "almost" asserting that there are "identical".
+  // This is because we have asserted that all objects in file2 are in file1
+  // and that the two list have the same length.
+  // Assuming that file 1 does not have any duplicates, then the two lists are identical.
+  expect(csvData1.length).toEqual(csvData2.length);
+  // Using toIncludeSameMembers would be more accurate:
+  // expect(csvData1).toIncludeSameMembers(csvData2);
+  // However it is very slow as it compares each object in the list.
+  // We are using the UUID instead speed up the comparison .
+}
+
 
 function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: string, mapper2: Mapper) {
   // Read CSV files and parse their content
   const map1 = new Map<string, unknown>();
+  const entitiesMissingUUID1 = []; // entities that have no UUIDHistory from file 1
+  const entitiesMissingUUID2 = []; // entities that have no UUIDHistory from file 2
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const csvData1 = parse(fs.readFileSync(path.resolve(file1)), { columns: true }).map((row: any) => {
     // Map the parent and child IDs to their UUIDs
     row.PARENTID = mapper1.getUUID(row.PARENTID, row.PARENTOBJECTTYPE);
     row.CHILDID = mapper1.getUUID(row.CHILDID, row.CHILDOBJECTTYPE);
+
+    if(!row.PARENTID || !row.CHILDID){
+      entitiesMissingUUID1.push(row);
+      return;
+    }
+
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
@@ -370,6 +450,12 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
     delete row.DEGREECENTRALITY;
     delete row.INTEROCCUPATIONTRANSFERABILITY;
     delete row.UNSEENTOSEENTRANSFERABILITY;
+
+    if(!map1.get(row.PARENTID + row.CHILDID)){
+      entitiesMissingUUID2.push(row);
+      return;
+    }
+
     expect(map1.get(row.PARENTID + row.CHILDID)).toEqual(row); // assert that all object in file2 are in file1
     return row;
   });
@@ -386,6 +472,10 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
   // expect(csvData1).toIncludeSameMembers(csvData2);
   // However it is very slow as it compares each object in the list.
   // We are using the UUID instead speed up the comparison .
+
+  // also expect that the size of entities with no UUID from file 1 are the same as
+  // the size of entities with no UUID from file 2
+  expect(entitiesMissingUUID1.length).toEqual(entitiesMissingUUID2.length);
 }
 
 function compareSkillToSkillCSV(file1: string, mapper1: Mapper, file2: string, mapper2: Mapper) {
@@ -437,12 +527,23 @@ function compareSkillToSkillCSV(file1: string, mapper1: Mapper, file2: string, m
 
 function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file2: string, mapper2: Mapper) {
   const map1 = new Map<string, unknown>();
+  const entitiesMissingUUID1 = []; // entities that have no UUIDHistory from file 1
+  const entitiesMissingUUID2 = []; // entities that have no UUIDHistory from file 2
+
   // Read CSV files and parse their content
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const csvData1 = parse(fs.readFileSync(path.resolve(file1)), { columns: true }).map((row: any) => {
     // Map the occupation and skill IDs to their UUIDs
     row.OCCUPATIONID = mapper1.getUUID(row.OCCUPATIONID, row.OCCUPATIONTYPE);
     row.SKILLID = mapper1.getUUID(row.SKILLID, CSVObjectTypes.Skill);
+    // if there is a file with no UUIDHistory, add it to the entitiesMissingUUID1
+    // for later comparison, because we can't compare it with the other file
+    // since there is no UUID.
+    if(!row.OCCUPATIONID || !row.SKILLID){
+      entitiesMissingUUID1.push(row);
+      return;
+    }
+
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
@@ -465,6 +566,14 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
     delete row.DEGREECENTRALITY;
     delete row.INTEROCCUPATIONTRANSFERABILITY;
     delete row.UNSEENTOSEENTRANSFERABILITY;
+    // if there is a row with no reference from first file, add it to the entitiesMissingUUID2
+    // because the current UUID is not in the first file.
+    // we will have to compare the size of entitiesMissingUUID1 and entitiesMissingUUID2
+    // to assert that the two files have the same entities with no UUID.
+    if (!map1.get(row.OCCUPATIONID + row.SKILLID)){
+      entitiesMissingUUID2.push(row);
+      return;
+    }
     expect(map1.get(row.OCCUPATIONID + row.SKILLID)).toEqual(row); // assert that all object in file2 are in file1
     return row;
   });
@@ -479,6 +588,10 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
   // expect(csvData1).toIncludeSameMembers(csvData2);
   // However it is very slow as it compares each object in the list.
   // We are using the UUID instead speed up the comparison.
+
+  // also expect that the size of entities with no UUID from file 1 are the same as
+  // the size of entities with no UUID from file 2
+  expect(entitiesMissingUUID1.length).toEqual(entitiesMissingUUID2.length);
 }
 
 class Mapper {

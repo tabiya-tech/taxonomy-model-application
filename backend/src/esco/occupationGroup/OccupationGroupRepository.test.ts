@@ -36,6 +36,7 @@ import { IOccupationReference } from "esco/occupations/occupationReference.types
 import { Readable } from "node:stream";
 import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
+import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -166,21 +167,24 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(actualNewOccupationGroup).toEqual(expectedNewISCO);
     });
 
-    test("should successfully create a new OccupationGroup when the given specifications have an empty UUIDHistory", async () => {
-      // GIVEN a valid OccupationGroupSpec
-      const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec();
-      givenNewOccupationGroupSpec.UUIDHistory = [];
+    test.each([0, 1, 2, 10])(
+      "should successfully create a new OccupationGroup when the given specifications have UUIDHistory with %s UUIDs",
+      async (count: number) => {
+        // GIVEN a valid OccupationGroupSpec
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec();
+        givenNewOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(count);
 
-      // WHEN Creating a new OccupationGroup with given specifications
-      const actualNewOccupationGroup: IOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        // WHEN Creating a new OccupationGroup with given specifications
+        const actualNewOccupationGroup: IOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
 
-      // THEN expect the new OccupationGroup to be created with the specific attributes
-      const expectedNewISCO: IOccupationGroup = expectedFromGivenSpec(
-        givenNewOccupationGroupSpec,
-        actualNewOccupationGroup.UUID
-      );
-      expect(actualNewOccupationGroup).toEqual(expectedNewISCO);
-    });
+        // THEN expect the new OccupationGroup to be created with the specific attributes
+        const expectedNewISCO: IOccupationGroup = expectedFromGivenSpec(
+          givenNewOccupationGroupSpec,
+          actualNewOccupationGroup.UUID
+        );
+        expect(actualNewOccupationGroup).toEqual(expectedNewISCO);
+      }
+    );
 
     test("should reject with an error when creating a model and providing a UUID", async () => {
       // GIVEN a valid OccupationGroupSpec
@@ -317,27 +321,30 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       );
     });
 
-    test("should successfully create a batch of new OccupationGroups when they have an empty UUIDHistory", async () => {
-      // GIVEN some valid OccupationGroupSpec
-      const givenBatchSize = 3;
-      const givenNewOccupationGroupSpecs: INewOccupationGroupSpec[] = [];
-      for (let i = 0; i < givenBatchSize; i++) {
-        givenNewOccupationGroupSpecs[i] = getNewOccupationGroupSpec();
-        givenNewOccupationGroupSpecs[i].UUIDHistory = []; // empty UUIDHistory
+    test.each([0, 1, 2, 10])(
+      "should successfully create a batch of new OccupationGroups when they have UUIDHistory with %i UUIDs",
+      async (count: number) => {
+        // GIVEN some valid OccupationGroupSpec
+        const givenBatchSize = 3;
+        const givenNewOccupationGroupSpecs: INewOccupationGroupSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewOccupationGroupSpecs[i] = getNewOccupationGroupSpec();
+          givenNewOccupationGroupSpecs[i].UUIDHistory = generateRandomUUIDs(count);
+        }
+
+        // WHEN creating the batch of OccupationGroups with the given specifications
+        const actualNewOccupationGroups: IOccupationGroup[] = await repository.createMany(givenNewOccupationGroupSpecs);
+
+        // THEN expect all the OccupationGroups to be created with the specific attributes
+        expect(actualNewOccupationGroups).toEqual(
+          expect.arrayContaining(
+            givenNewOccupationGroupSpecs.map((givenNewOccupationGroupSpec, index) => {
+              return expectedFromGivenSpec(givenNewOccupationGroupSpec, actualNewOccupationGroups[index].UUID);
+            })
+          )
+        );
       }
-
-      // WHEN creating the batch of OccupationGroups with the given specifications
-      const actualNewOccupationGroups: IOccupationGroup[] = await repository.createMany(givenNewOccupationGroupSpecs);
-
-      // THEN expect all the OccupationGroups to be created with the specific attributes
-      expect(actualNewOccupationGroups).toEqual(
-        expect.arrayContaining(
-          givenNewOccupationGroupSpecs.map((givenNewOccupationGroupSpec, index) => {
-            return expectedFromGivenSpec(givenNewOccupationGroupSpec, actualNewOccupationGroups[index].UUID);
-          })
-        )
-      );
-    });
+    );
 
     test("should resolve to an empty array if none of the element could be validated", async () => {
       // GIVEN only invalid OccupationGroupSpec

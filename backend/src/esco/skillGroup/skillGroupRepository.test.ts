@@ -30,6 +30,7 @@ import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_
 import { Readable } from "node:stream";
 import { getExpectedPlan, setUpPopulateWithExplain } from "../_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "../skillHierarchy/skillHierarchyModel";
+import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -157,18 +158,21 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualNewModel).toEqual(expectedNewSkillGroup);
     });
 
-    test("should successfully create a new skill group when the given specifications have an empty UUIDHistory", async () => {
-      // GIVEN a valid SkillGroupSpec
-      const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
-      givenNewSkillGroupSpec.UUIDHistory = [];
+    test.each([0, 1, 2, 10])(
+      "should successfully create a new skill group when the given specifications have a UUIDHistory with %i items",
+      async (count: number) => {
+        // GIVEN a valid SkillGroupSpec
+        const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+        givenNewSkillGroupSpec.UUIDHistory = generateRandomUUIDs(count);
 
-      // WHEN Creating a new skillGroup with given specifications
-      const actualNewModel = await repository.create(givenNewSkillGroupSpec);
+        // WHEN Creating a new skillGroup with given specifications
+        const actualNewModel = await repository.create(givenNewSkillGroupSpec);
 
-      // THEN expect the new skillGroup to be created with the specific attributes
-      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewModel.UUID);
-      expect(actualNewModel).toEqual(expectedNewSkillGroup);
-    });
+        // THEN expect the new skillGroup to be created with the specific attributes
+        const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewModel.UUID);
+        expect(actualNewModel).toEqual(expectedNewSkillGroup);
+      }
+    );
 
     test("should reject with an error when creating a skill group and providing a UUID", async () => {
       // GIVEN a valid newSkillGroupSpec
@@ -256,27 +260,30 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       );
     });
 
-    test("should successfully create a batch of new skill groups when they have an empty UUIDHistory", async () => {
-      // GIVEN some valid SkillGroupSpec
-      const givenBatchSize = 3;
-      const givenNewSkillGroupSpecs: INewSkillGroupSpec[] = [];
-      for (let i = 0; i < givenBatchSize; i++) {
-        givenNewSkillGroupSpecs[i] = getNewSkillGroupSpec();
-        givenNewSkillGroupSpecs[i].UUIDHistory = [];
+    test.each([0, 1, 2, 10])(
+      "should successfully create a batch of new skill groups when they have UUIDHistory with %i UUIDs",
+      async (count: number) => {
+        // GIVEN some valid SkillGroupSpec
+        const givenBatchSize = 3;
+        const givenNewSkillGroupSpecs: INewSkillGroupSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewSkillGroupSpecs[i] = getNewSkillGroupSpec();
+          givenNewSkillGroupSpecs[i].UUIDHistory = generateRandomUUIDs(count);
+        }
+
+        // WHEN creating the batch of skills Groups with the given specifications
+        const actualNewSkillGroups: ISkillGroup[] = await repository.createMany(givenNewSkillGroupSpecs);
+
+        // THEN expect all the Skill Groups to be created with the specific attributes
+        expect(actualNewSkillGroups).toEqual(
+          expect.arrayContaining(
+            givenNewSkillGroupSpecs.map((givenNewSkillGroupSpec, index) => {
+              return expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewSkillGroups[index].UUID);
+            })
+          )
+        );
       }
-
-      // WHEN creating the batch of skills Groups with the given specifications
-      const actualNewSkillGroups: ISkillGroup[] = await repository.createMany(givenNewSkillGroupSpecs);
-
-      // THEN expect all the Skill Groups to be created with the specific attributes
-      expect(actualNewSkillGroups).toEqual(
-        expect.arrayContaining(
-          givenNewSkillGroupSpecs.map((givenNewSkillGroupSpec, index) => {
-            return expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewSkillGroups[index].UUID);
-          })
-        )
-      );
-    });
+    );
 
     test("should resolve to an empty array if none of the element could be validated", async () => {
       // GIVEN only invalid SkillGroupSpec

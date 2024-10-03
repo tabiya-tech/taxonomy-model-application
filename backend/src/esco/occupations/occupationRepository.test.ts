@@ -51,6 +51,7 @@ import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/o
 import { INDEX_FOR_REQUIRES_SKILLS } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE } from "./occupationModel";
+import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -213,6 +214,23 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       }
     );
 
+    test.each([ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation])(
+      "should successfully create a new %s occupation when the given specifications have UUIDHistory with many UUIDs",
+      async (givenOccupationType) => {
+        // GIVEN a valid OccupationSpec that has an empty UUIDHistory
+        // GIVEN a valid OccupationSpec
+        const givenNewOccupationSpec: INewOccupationSpec = getNewOccupation(givenOccupationType);
+        givenNewOccupationSpec.UUIDHistory = generateRandomUUIDs(10);
+
+        // WHEN Creating a new occupation with given specifications
+        const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
+
+        // THEN expect the new occupation to be created with the specific attributes
+        const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
+        expect(actualNewOccupation).toEqual(expectedNewISCO);
+      }
+    );
+
     test("should reject with an error when creating a model and providing a UUID", async () => {
       // GIVEN a OccupationSpec that is otherwise valid but has a UUID
       const givenNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
@@ -361,6 +379,31 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         for (let i = 0; i < givenBatchSize; i++) {
           givenNewOccupationSpecs[i] = getNewOccupation(givenOccupationType);
           givenNewOccupationSpecs[i].UUIDHistory = [];
+        }
+
+        // WHEN creating the batch of occupations with the given specifications
+        const actualNewOccupations: IOccupation[] = await repository.createMany(givenNewOccupationSpecs);
+
+        // THEN expect all the occupations to be created with the specific attributes
+        expect(actualNewOccupations).toEqual(
+          expect.arrayContaining(
+            givenNewOccupationSpecs.map((givenNewOccupationSpec, index) => {
+              return expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupations[index].UUID);
+            })
+          )
+        );
+      }
+    );
+
+    test.each([ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation])(
+      "should successfully create a batch of new %s occupations when they have an UUIDHistory with 10 items",
+      async (givenOccupationType) => {
+        // GIVEN some valid OccupationSpec that have an empty UUIDHistory
+        const givenBatchSize = 3;
+        const givenNewOccupationSpecs: INewOccupationSpec[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenNewOccupationSpecs[i] = getNewOccupation(givenOccupationType);
+          givenNewOccupationSpecs[i].UUIDHistory = generateRandomUUIDs(10);
         }
 
         // WHEN creating the batch of occupations with the given specifications

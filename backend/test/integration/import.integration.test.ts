@@ -172,7 +172,7 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
         getRepositoryRegistry().occupationToSkillRelation.relationModel,
         dataFolder + "occupation_to_skill_relations.csv"
       );
-    },
+      },
     60000 // Should remain at 1 min for the Sample files, but can be increased to 3 min in case of testing both Sample and full ESCO files
   );
 });

@@ -51,7 +51,13 @@ export class RemoveGeneratedUUID implements ICleanupUUIDHistory {
       model.UUIDHistory.shift();
       model.UUID = model.UUIDHistory[0];
 
-      const entityFilter = { modelId: { $eq: modelId } };
+      const entityFilter = {
+        modelId: { $eq: modelId },
+        // Only update entities that have more than one UUID in the history
+        // This is to avoid cases where UUIDHistory can be empty.
+        // This will happen only on rare cases when there is a base model and it includes the UUIDHistory field which is empty.
+        $where: "this.UUIDHistory.length > 1",
+      };
       const updatePipeline = [
         {
           $set: {
