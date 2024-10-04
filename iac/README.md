@@ -1,11 +1,11 @@
 # Infrastructure as Code (IaC)
 
-### About
+## About
 This repository contains the Infrastructure as Code (IaC) configurations for deploying and managing resources on AWS using Pulumi.
 
 Infrastructure as Code (IaC) is a method to provision and manage IT infrastructure through the use of machine-readable definition files, rather than physical hardware configuration or interactive configuration tools.
 
-### Prerequisites 
+## Prerequisites 
 
 To work IaC locally, you have to install the following:
 
@@ -15,11 +15,11 @@ To work IaC locally, you have to install the following:
 * [Pulumi CLI](https://www.pulumi.com/docs/install/)
 * [AWS CLI](https://aws.amazon.com/cli/)
 
-### Technologies
+## Technologies
 - [Pulumi](https://www.pulumi.com/product/)
 - [AWS](https://aws.amazon.com/)
 - [GitHub Actions](https://docs.github.com/en/actions)
-### Getting Started
+## Getting Started
 1. After cloning the repository
     ```bash
     cd iac
@@ -44,7 +44,7 @@ To work IaC locally, you have to install the following:
     ```
 **NOTE**: Deployments are automated using GitHub Actions. In principle only the `main` branch is deployed (other branches are built but not deployed). In case you want to test the pulumi configuration from a different branch, commit the changes and add `[pulumi up]` in the  commit message. This will deploy the branch when the branch is pushed to remote.
 
-### IaC Codebase Components 
+## IaC Codebase Components 
 The IaC is divided into four subprojects.
 
 - [Setup](setup-environment): Sets up the fundamental infrastructure specific to the environment, which is a route53 hosted zone and exports environment variables that will be used by other projects. Mainly referred *to as set up env config project.
@@ -104,11 +104,11 @@ The image below shows the solution architecture and how it relates to the IaC.
 ![Tabiya Solution Architecture](https://lucid.app/publicSegments/view/55bf8274-afe9-4675-95c0-90779a45a0df/image.png)
 
 
-### Gotchas
+## Gotchas
 - Avoid deploying changes to the infrastructure from your local machine. The deployment is automated using GitHub Actions and changes will be overwritten by the automated deployment.
 - Avoid changing managed resources manually. This will cause a drift in the infrastructure's state and resources will most likely be overwritten by the automated deployment or cause unexpected errors in the system.
 
-### Contribution
+## Contribution
 Your input in this project is greatly appreciated.
 
 Beyond the [contribution guidelines](/README.md#contribution-guidelines), specifically the conventional commit guidelines outlined in the main directory, adhere to these particular standards when engaging with the IaC project:
