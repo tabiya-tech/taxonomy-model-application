@@ -117,3 +117,8 @@ Beyond the [contribution guidelines](/README.md#contribution-guidelines), specif
     - Comment your code.
     - Test the changes by running: `yarn preview`
     - Update this README for significant changes.
+      
+## Special Thanks
+Big kudos to Pulumi for granting us for granting us the Pulumi Team Edition for Open Source! 
+
+<img src="https://www.pulumi.com/images/pricing/team-oss.svg" width="250">
