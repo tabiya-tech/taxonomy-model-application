@@ -96,7 +96,7 @@ describe("RemoveGeneratedUUID", () => {
     expect(actualOccupation.id).toEqual(givenOccupation.id);
     expect(actualOccupation.preferredLabel).toEqual(givenOccupation.preferredLabel);
     expect(actualOccupation.originUri).toEqual(givenOccupation.originUri);
-    expect(actualOccupation.OccupationGroupCode).toEqual(givenOccupation.OccupationGroupCode);
+    expect(actualOccupation.occupationGroupCode).toEqual(givenOccupation.occupationGroupCode);
     expect(actualOccupation.code).toEqual(givenOccupation.code);
     expect(actualOccupation.altLabels).toEqual(givenOccupation.altLabels);
     expect(actualOccupation.description).toEqual(givenOccupation.description);

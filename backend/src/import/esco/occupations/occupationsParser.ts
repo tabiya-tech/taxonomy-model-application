@@ -77,7 +77,7 @@ function getRowToSpecificationTransformFn(
       originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
-      OccupationGroupCode: row.OCCUPATIONGROUPCODE,
+      occupationGroupCode: row.OCCUPATIONGROUPCODE,
       code: row.CODE,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: uniqueAltLabels,

@@ -60,7 +60,7 @@ export function getSimpleNewOccupationGroupSpec(modelId: string, preferredLabel:
  */
 export function getNewESCOOccupationSpec(): INewOccupationSpec {
   return {
-    OccupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
@@ -85,7 +85,7 @@ export function getNewLocalizedESCOOccupationSpec(): INewOccupationSpec {
 
 export function getNewLocalOccupationSpec(): INewOccupationSpec {
   return {
-    OccupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
@@ -108,7 +108,7 @@ export function getNewLocalOccupationSpec(): INewOccupationSpec {
  */
 export function getSimpleNewESCOOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
-    OccupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",
@@ -132,7 +132,7 @@ export function getSimpleNewLocalizedESCOOccupationSpec(modelId: string, preferr
 }
 export function getSimpleNewLocalOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
-    OccupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",

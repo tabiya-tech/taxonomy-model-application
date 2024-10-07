@@ -24,7 +24,7 @@ import { randomUUID } from "crypto";
 
 export const getSampleESCOOccupationSpecs = (givenModelId: string): INewOccupationSpec[] => {
   return Array.from<never, INewOccupationSpec>({ length: 100 }, (_, i) => ({
-    OccupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: `definition_${i}`,
     regulatedProfessionNote: `regulatedProfessionNote_${i}`,
     scopeNote: `scopeNote_${i}`,
@@ -43,7 +43,7 @@ export const getSampleESCOOccupationSpecs = (givenModelId: string): INewOccupati
 
 export const getSampleLocalOccupationSpecs = (givenModelId: string): INewOccupationSpec[] => {
   return Array.from<never, INewOccupationSpec>({ length: 100 }, (_, i) => ({
-    OccupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomOccupationGroupCode(),
     definition: `definition_${i}`,
     regulatedProfessionNote: `regulatedProfessionNote_${i}`,
     scopeNote: `scopeNote_${i}`,

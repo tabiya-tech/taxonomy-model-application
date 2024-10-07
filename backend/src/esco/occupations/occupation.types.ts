@@ -14,7 +14,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   preferredLabel: string;
   UUIDHistory: string[];
   originUri: string;
-  OccupationGroupCode: string;
+  occupationGroupCode: string;
   code: string;
   altLabels: string[];
   description: string;

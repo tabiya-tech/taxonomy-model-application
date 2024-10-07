@@ -17,7 +17,7 @@ export function getOccupationDocReference(occupation: OccupationDocument): IOccu
     modelId: occupation.modelId,
     id: occupation.id,
     UUID: occupation.UUID,
-    OccupationGroupCode: occupation.OccupationGroupCode,
+    occupationGroupCode: occupation.occupationGroupCode,
     code: occupation.code,
     preferredLabel: occupation.preferredLabel,
     occupationType: occupation.occupationType,
