@@ -36,7 +36,7 @@ export function expectedOccupationReference(givenOccupation: IOccupation): IOccu
     id: givenOccupation.id,
     UUID: givenOccupation.UUID,
     code: givenOccupation.code,
-    OccupationGroupCode: givenOccupation.OccupationGroupCode,
+    occupationGroupCode: givenOccupation.occupationGroupCode,
     preferredLabel: givenOccupation.preferredLabel,
     occupationType: givenOccupation.occupationType,
     isLocalized: givenOccupation.isLocalized,
