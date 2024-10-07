@@ -148,32 +148,39 @@ describe("test parseOccupations from", () => {
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         3,
+        "Warning while importing Occupation row with id:'key_2'. Preferred label 'preferred\n" +
+        "label\n" +
+        "with\n" +
+        "linebreak' is not in the alt labels."
+      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        4,
         "Failed to import ESCO Occupation row with id:'error_3'. Code not valid."
       );
 
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        4,
+        5,
         "Failed to import Occupation row with id:'error_4'. OccupationType not found/invalid."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        6,
+        7,
         "Failed to import Local Occupation row with id:'error_5'. Code not valid."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        7,
+        8,
         "Failed to import ESCO Occupation row with id:'error_6'. Code not valid."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        8,
+        9,
         "Failed to import Local Occupation row with id:'error_7'. Local occupation cannot be localized."
       );
       // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        5,
+        6,
         "Warning while importing ESCO Occupation row with id:'key_3'. AltLabels contain 1 duplicates."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        9,
+        10,
         "Warning while importing Local Occupation row with id:'key_4'. AltLabels contain 1 duplicates."
       );
     }

@@ -49,6 +49,14 @@ function getRowToSpecificationTransformFn(
         `Warning while importing Skill row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
       );
     }
+
+    // warning if the preferred label is not in the alt labels
+    if (row.PREFERREDLABEL && !uniqueAltLabels.includes(row.PREFERREDLABEL)) {
+      errorLogger.logWarning(
+        `Warning while importing Skill row with id:'${row.ID}'. Preferred label '${row.PREFERREDLABEL}' is not in the alt labels.`
+      );
+    }
+
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,

@@ -127,16 +127,23 @@ describe("test parseOccupationGroups from", () => {
       // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
+        "Warning while importing Occupation Group row with id:'key_2'. Preferred label 'preferred\n" +
+        "label\n" +
+        "with\n" +
+        "linebreak' is not in the alt labels."
+      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        2,
         "Warning while importing OccupationGroup row with id:'key_4'. AltLabels contain 1 duplicates."
       );
       // AND warning should be logged fo reach of the failed rows
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        2,
-        "Failed to import OccupationGroup from row:1 with importId:"
+        3,
+        "Warning while importing Occupation Group row with id:'key_i5'. Preferred label 'ICATUS Occupation group' is not in the alt labels."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        3,
-        "Failed to import OccupationGroup from row:2 with importId:"
+        4,
+        "Failed to import OccupationGroup from row:1 with importId:"
       );
     }
   );
