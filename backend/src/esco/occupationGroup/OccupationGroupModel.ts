@@ -35,7 +35,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       groupType: {
         type: String,
         required: true,
-        enum: [OccupationGroupType.ICATUS_GROUP, OccupationGroupType.ISCO_GROUP],
+        enum: [OccupationGroupType.ICATUSGroup, OccupationGroupType.ISCOGroup],
       },
       importId: ImportIDProperty,
     },

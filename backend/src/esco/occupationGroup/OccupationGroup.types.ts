@@ -6,8 +6,8 @@ import { IOccupationReference } from "esco/occupations/occupationReference.types
  * Describes the type of OccupationGroup.
  */
 export enum OccupationGroupType {
-  ISCO_GROUP = "iscogroup",
-  ICATUS_GROUP = "icatusgroup",
+  ISCOGroup = "iscogroup",
+  ICATUSGroup = "icatusgroup",
 }
 
 /**

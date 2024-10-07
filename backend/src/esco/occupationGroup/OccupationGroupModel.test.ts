@@ -52,7 +52,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         originUri: generateRandomUrl(),
-        groupType: OccupationGroupType.ISCO_GROUP,
+        groupType: OccupationGroupType.ISCOGroup,
         altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
@@ -66,7 +66,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
         code: getMockRandomOccupationGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        groupType: OccupationGroupType.ISCO_GROUP,
+        groupType: OccupationGroupType.ISCOGroup,
         originUri: "",
         altLabels: [],
         description: "",
@@ -180,8 +180,8 @@ describe("Test the definition of the OccupationGroup Model", () => {
     testImportId<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     testEnumField(() => OccupationGroupModel, "groupType", [
-      OccupationGroupType.ISCO_GROUP,
-      OccupationGroupType.ICATUS_GROUP,
+      OccupationGroupType.ISCOGroup,
+      OccupationGroupType.ICATUSGroup,
     ]);
   });
 

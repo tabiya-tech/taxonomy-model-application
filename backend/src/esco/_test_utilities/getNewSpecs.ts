@@ -30,7 +30,7 @@ export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
-    groupType: OccupationGroupType.ICATUS_GROUP,
+    groupType: OccupationGroupType.ICATUSGroup,
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
@@ -48,7 +48,7 @@ export function getSimpleNewOccupationGroupSpec(modelId: string, preferredLabel:
     modelId: modelId,
     UUIDHistory: [randomUUID()],
     originUri: "",
-    groupType: OccupationGroupType.ISCO_GROUP,
+    groupType: OccupationGroupType.ISCOGroup,
     description: "",
     importId: getMockStringId(Math.random() * 1000),
   };

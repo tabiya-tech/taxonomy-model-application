@@ -65,7 +65,7 @@ export const getSampleOccupationGroupSpecs = (givenModelId: string): INewOccupat
     code: getMockRandomOccupationGroupCode(),
     preferredLabel: `OccupationGroup_${i}`,
     modelId: givenModelId,
-    groupType: OccupationGroupType.ISCO_GROUP,
+    groupType: OccupationGroupType.ISCOGroup,
     UUIDHistory: [randomUUID()],
     altLabels: i % 2 ? [`altLabel_1`, `altLabel_2`] : [],
     originUri: `originUri_${i}`,
