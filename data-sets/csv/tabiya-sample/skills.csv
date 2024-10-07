@@ -54,19 +54,21 @@ ensure coquille is uniform
 ensuring of coquille uniformity
 make sure coquille is uniform
 check that coquille is uniform","Oversee uniformity of coquilles; use casting equipment and tools such as welding machines.","",""
-"http://data.europa.eu/esco/skill/000f1d3d-220f-4789-9c0a-cc742521fb02",key_19429,"340696b7-0e7a-4109-b716-f81794615253","knowledge","sector-specific","Haskell","Haskell","The techniques and principles of software development, such as analysis, algorithms, coding, testing and compiling of programming paradigms in Haskell.","",""
+"http://data.europa.eu/esco/skill/000f1d3d-220f-4789-9c0a-cc742521fb02","key_19429","340696b7-0e7a-4109-b716-f81794615253","knowledge","sector-specific","Haskell","Haskell","The techniques and principles of software development, such as analysis, algorithms, coding, testing and compiling of programming paradigms in Haskell.","",""
 "http://data.europa.eu/esco/skill/001115fb-569f-4ee6-8381-c6807ef2527f","key_19430","4e95e133-da61-414d-b4fd-2ef0ec1ef542","skill/competence","transversal","show initiative","take the initiative
 give impetus
 be a driving force
 demonstrate sense of initiative
 initiate action
 show sense of initiative
-show active initiative","Be proactive and take the first step in an action without waiting for what others say or do.
+show active initiative
+show initiative","Be proactive and take the first step in an action without waiting for what others say or do.
 ","",""
 "http://data.europa.eu/esco/skill/001d46db-035e-4b92-83a3-ed8771e0c123","key_19431","48309521-018a-4f16-8ff8-62e9c1d98933","skill/competence","sector-specific","train staff to reduce food waste","teach students food waste reduction practices
 inform staff on food waste reduction practices
 educate workers on food recycling methods
-educate staff on food waste reduction","Establish new trainings and staff development provisions to support staff knowledge in food waste prevention and food recycling practices. Ensure that staff understands methods of and tools for food recycling, e.g., separating waste.","",""
+educate staff on food waste reduction
+train staff to reduce food waste","Establish new trainings and staff development provisions to support staff knowledge in food waste prevention and food recycling practices. Ensure that staff understands methods of and tools for food recycling, e.g., separating waste.","",""
 "http://data.europa.eu/esco/skill/0023e7a5-43da-4b68-bee3-726ef21f986d","key_19432","ea39f3d4-f8a4-438b-b019-7d57b00cc724","skill/competence","cross-sector","apply diplomatic principles","utilise diplomacy principles
 administer diplomacy principles
 use diplomatic principles
@@ -139,7 +141,8 @@ commissioning of heat pumps
 install heat pumps
 heat pump installing","Install heat pumps, which use the physical properties of substances called refrigerants to extract heat from an environment and release it to a warmer environment, counter to spontaneous heat flow. Create the necessary openings and install the indoors and outdoors parts of the heat pump. Connect electricity and any ducts, and configure the heat pump.","",""
 "http://data.europa.eu/esco/skill/0082c13b-5866-4542-bc4f-722a4ae9530e","key_19441","9cc83c2b-26e3-4427-bca0-de50e2f5a302","skill/competence","sector-specific","design biomass installations","design biomass installation
-design biomass system","Design the biomass energy system. Determine construction boundaries such as needed space and weight. Calculate indicators such as capacity, flow, and temperatures. Make detailed descriptions and drawings of the design.","",""
+design biomass system
+design biomass installations","Design the biomass energy system. Determine construction boundaries such as needed space and weight. Calculate indicators such as capacity, flow, and temperatures. Make detailed descriptions and drawings of the design.","",""
 "http://data.europa.eu/esco/skill/00831ebb-bac3-4bd1-8dae-2bca67be958d","key_19442","86328fd6-415f-45df-8cb4-f350b3d044bf","skill/competence","occupation-specific","handle equipment while suspended","using climbing equipment
 equipment handling while suspended
 handling of equipment while suspended
@@ -168,8 +171,10 @@ ensure train engines meet regulatory requirements
 check train engines meet regulations
 check engines on trains
 ensure train engines comply with applicable regulations","Ensure that train engines comply with regulations before commencing a journey.","",""
-"http://data.europa.eu/esco/skill/008fa98b-dba6-4abf-909e-04299728e3eb","key_19445","dc12ffcb-e350-46ac-8d99-eb90a368ff99","skill/competence","cross-sector","influence public policies","lobbying for public policies","Communicate with policymakers and provide them with data to convince them to change legislation or allocate funds to a specific cause.","",""
-"http://data.europa.eu/esco/skill/00920055-eb50-4cb8-a23d-3deedbf3753e","key_19446","729be6bc-9da7-4f60-95c7-a9e10adfe70d","knowledge","sector-specific","enterprise risk management","ERM","A plan-based business strategy that aims to identify, assess, and prepare for any dangers, hazards, and other potentials for disaster, both physical and figurative, that may interfere with an organization's operations and objectives. ","",""
+"http://data.europa.eu/esco/skill/008fa98b-dba6-4abf-909e-04299728e3eb","key_19445","dc12ffcb-e350-46ac-8d99-eb90a368ff99","skill/competence","cross-sector","influence public policies","lobbying for public policies
+influence public policies","Communicate with policymakers and provide them with data to convince them to change legislation or allocate funds to a specific cause.","",""
+"http://data.europa.eu/esco/skill/00920055-eb50-4cb8-a23d-3deedbf3753e","key_19446","729be6bc-9da7-4f60-95c7-a9e10adfe70d","knowledge","sector-specific","enterprise risk management","ERM
+enterprise risk management","A plan-based business strategy that aims to identify, assess, and prepare for any dangers, hazards, and other potentials for disaster, both physical and figurative, that may interfere with an organization's operations and objectives. ","",""
 "http://data.europa.eu/esco/skill/009673d9-e2fd-46ef-a64b-6027ac7fd613","key_19447","3c94251d-528a-4f4e-a003-e3f4e282fb69","skill/competence","sector-specific","manufacture ingredients","manufacture ingredients
 ingredients manufacture
 assemble ingredients
@@ -208,7 +213,7 @@ deal with requests of customers related to cargo
 deal with customer requests related to freight
 respond to customer requests in relation to cargo
 handle requests of customers related to freight","Handle requests of port users and customers in the field of containers, shipping arrangements or cargo.","",""
-"http://data.europa.eu/esco/skill/00b9a3aa-7070-4bb5-8020-f228a97cf42f","key_19451","c1c9acd8-e868-4dae-ab75-e1ebbd9695e4","skill/competence","cross-sector","draft scientific or academic papers and technical documentation","","Draft and edit scientific, academic or technical texts on different subjects.","",""
+"http://data.europa.eu/esco/skill/00b9a3aa-7070-4bb5-8020-f228a97cf42f","key_19451","c1c9acd8-e868-4dae-ab75-e1ebbd9695e4","skill/competence","cross-sector","draft scientific or academic papers and technical documentation","draft scientific or academic papers and technical documentation","Draft and edit scientific, academic or technical texts on different subjects.","",""
 "http://data.europa.eu/esco/skill/00c04e40-35ea-4ed1-824c-82f936c8f876","key_19452","ec626f5c-6f76-4628-9d8c-e7f1a2b6ff46","knowledge","sector-specific","Incremental development","Incremental development","The incremental development model is a methodology to design software systems and applications.","",""
 "http://data.europa.eu/esco/skill/00c51318-4ea9-4d37-9cd8-74680583d203","key_19453","70297120-b68e-419d-b7c0-2a78ac39ca17","knowledge","occupation-specific","use of special equipment for daily activities","use of special equipment for daily activities","The types of special equipment, prosthetics and orthotics used to aid with performing daily activities, such as wheelchairs.","",""
 "http://data.europa.eu/esco/skill/00c85cbc-2b24-4605-a6fe-55b5c615e3fe","key_19454","d4bb154b-59f8-4a84-ab7c-210f673086be","knowledge","sector-specific","sawing techniques","sawing technologies
@@ -270,7 +275,8 @@ compile a rehabilitation plan
 develop a rehabilitation program
 set up rehabilitation plan
 develop rehabilitation programmes
-develop rehabilitation programs","Develop a rehabilitation programme to help patients rebuild their skills and restore their confidence.","",""
+develop rehabilitation programs
+develop a rehabilitation programme","Develop a rehabilitation programme to help patients rebuild their skills and restore their confidence.","",""
 "http://data.europa.eu/esco/skill/00ec5333-e570-477b-9017-2e95fea0150a","key_19462","d7e95247-572a-4abe-ad05-09f292365a44","skill/competence","sector-specific","maintain inventory of cleaning supplies","track  inventory of cleaning supplies
 manage inventory of cleaning supplies
 maintain inventory of cleaning supplies
@@ -281,7 +287,8 @@ maintain inventory of cleaning supply","Follow the stock of cleaning materials, 
 tyre repair method
 cold vulcanization
 use of vulcanising solution
-tyre repair technique","Technique used to repair defective tyres, especially bicycle tyres, and consisting in grinding the area around the tear, applying a vulcanising solution and fixing a patch to seal the tear.","",""
+tyre repair technique
+cold vulcanisation","Technique used to repair defective tyres, especially bicycle tyres, and consisting in grinding the area around the tear, applying a vulcanising solution and fixing a patch to seal the tear.","",""
 "http://data.europa.eu/esco/skill/00f12ec1-b416-4e3c-8ed7-c4f875c6b681","key_19464","d7f3c8d6-16fd-472e-aa86-7cc38dfccc53","skill/competence","sector-specific","supervise housekeeping operations","oversee housekeeping operations
 supervise operations of housekeeping
 supervise housekeepers' duties
@@ -301,7 +308,8 @@ schedule landscaping
 managing time in landscaping
 scheduling landscaping
 time managing in landscaping","Plan and implement work schedules to fit in landscaping activities, which include the briefing phase where the landscape project is discussed with a client after which follow a series of sketches, plans and designs.","",""
-"http://data.europa.eu/esco/skill/00ff06cc-103f-4c85-b5df-6f75acff6abf","key_19467","ea23de01-e6de-46a2-9b07-23a19188e402","skill/competence","sector-specific","advise on customs regulations","advise customers","Give information to people regarding import and export restrictions, tariff systems and other custom-related topics.","",""
+"http://data.europa.eu/esco/skill/00ff06cc-103f-4c85-b5df-6f75acff6abf","key_19467","ea23de01-e6de-46a2-9b07-23a19188e402","skill/competence","sector-specific","advise on customs regulations","advise customers
+advise on customs regulations","Give information to people regarding import and export restrictions, tariff systems and other custom-related topics.","",""
 "http://data.europa.eu/esco/skill/011711eb-f20b-4d64-84d7-17b8979946dc","key_19468","8803a04b-4fdb-42d0-b4a8-ba337c88a9f1","skill/competence","occupation-specific","manage university department","manage university departments
 managing university department
 supervise university department
@@ -363,7 +371,8 @@ carry out parts purchasing
 carrying out parts purchasing
 make parts purchasing
 undertake parts purchasing
-complete parts purchasing","Order specific parts required for maintenance and repair of a wide variety of vehicles.","",""
+complete parts purchasing
+purchase vehicle parts","Order specific parts required for maintenance and repair of a wide variety of vehicles.","",""
 "http://data.europa.eu/esco/skill/013a64b9-5e74-4f7f-af5b-9ec76715238b","key_19477","ebe26f3e-0a3e-44c3-b33d-7f97432e7f0b","skill/competence","cross-sector","inspect offshore constructions","inspect offshore constructions
 evaluate offshore constructions
 inspect offshore construction
@@ -431,13 +440,15 @@ practice  extreme sports
 play extreme sports
 practise extreme sport
 practising extreme sports
-engage in extreme sports","Practise action sports considered to have a high level of inherent danger and involving speed, height, a high level of physical exertion, and highly specialized gear.","",""
+engage in extreme sports
+practise extreme sports","Practise action sports considered to have a high level of inherent danger and involving speed, height, a high level of physical exertion, and highly specialized gear.","",""
 "http://data.europa.eu/esco/skill/0171653e-c8e9-4c24-bb86-a4b6fe038f25","key_19487","6d649af8-0fcf-4142-8f3e-746bd364cd1c","skill/competence","transversal","adopt ways to foster biodiversity and animal welfare","implement environmental choices in your own eating habit
 adopt a sustainable eating habit
 promoting organic and biological food consumption
 take animal welfare into account when buying food products
 concretely support biodiversity and animal welfare
-take sustainability issues into account in consumption choices","Engage in behaviours that help maintaining stable ecosystems and combatting mass extinction, for example by making conscious dietary choices that support organic food production and animal welfare. ","",""
+take sustainability issues into account in consumption choices
+adopt ways to foster biodiversity and animal welfare","Engage in behaviours that help maintaining stable ecosystems and combatting mass extinction, for example by making conscious dietary choices that support organic food production and animal welfare. ","",""
 "http://data.europa.eu/esco/skill/0174a9e6-bf12-4ac3-bfc3-0a5469410f18","key_19488","3f28918b-6b14-48eb-b87d-a8c6d30b75e6","skill/competence","occupation-specific","provide chaperone for children on set","offer chaperone for children on set
 organise chaperone for children on set
 arrange chaperone for children on set
@@ -451,7 +462,8 @@ workers organising
 worker organising
 organise workers
 organising workers
-organising labour","Organise, allocate and coordinate members of the team. Organise production programmes and plan the production and sales. Purchase materials and equipment. Manage stocks.","",""
+organising labour
+organise labour","Organise, allocate and coordinate members of the team. Organise production programmes and plan the production and sales. Purchase materials and equipment. Manage stocks.","",""
 "http://data.europa.eu/esco/skill/017738e7-7d12-4e87-a580-8523405bab96","key_19490","6f613a5b-46c4-4042-8056-8ab94fb57732","skill/competence","sector-specific","use glass engraving tools","using glass engraving tools
 glass engraving with tools
 glass engraving tools using
@@ -486,8 +498,10 @@ undertake refunds
 apply for refunds
 administer refunds
 applying  for a refund","Make inquiries at the supplier in order to return, exchange or refund goods.","",""
-"http://data.europa.eu/esco/skill/01895f13-1989-4756-80d6-9b9ee19ddb32","key_19494","b66cfb75-ad8e-457e-a74c-8bc4679c09c2","skill/competence","sector-specific","perform a feasibility study for building management systems","carry out bms feasibility study","Perform the evaluation and assessment of the potential of a building management system. Realise a standardised study to determine the energy saving contribution, costs and restrictions, and conduct research to support the process of decision making.","",""
-"http://data.europa.eu/esco/skill/0189f448-179e-47cc-9716-c5c3ac4b1aec","key_19495","e2991331-e984-449f-9fb5-fb0d359e1244","knowledge","sector-specific","Absorb (learning management systems)","Absorb","The learning system Absorb is an e-learning platform for creating, administrating and delivering e-learning education courses or training programs for secondary school students.","",""
+"http://data.europa.eu/esco/skill/01895f13-1989-4756-80d6-9b9ee19ddb32","key_19494","b66cfb75-ad8e-457e-a74c-8bc4679c09c2","skill/competence","sector-specific","perform a feasibility study for building management systems","carry out bms feasibility study
+perform a feasibility study for building management systems","Perform the evaluation and assessment of the potential of a building management system. Realise a standardised study to determine the energy saving contribution, costs and restrictions, and conduct research to support the process of decision making.","",""
+"http://data.europa.eu/esco/skill/0189f448-179e-47cc-9716-c5c3ac4b1aec","key_19495","e2991331-e984-449f-9fb5-fb0d359e1244","knowledge","sector-specific","Absorb (learning management systems)","Absorb
+Absorb (learning management systems)","The learning system Absorb is an e-learning platform for creating, administrating and delivering e-learning education courses or training programs for secondary school students.","",""
 "http://data.europa.eu/esco/skill/0194a8eb-c262-411a-ad3f-f3d587630562","key_19496","96f1bae5-8ec6-43cc-b73f-042ae2c3a10b","skill/competence","occupation-specific","peform small vessel administrative duties","fulfil small vessel administrative duties
 perform administrative duties on a small vessel
 fulfilling administrative duties on a small vessel
@@ -495,7 +509,8 @@ perform small vessel administrative duties
 performing administrative duties on a small vessel
 performing small vessel administrative duties
 fulfil administrative duties on a small vessel
-fulfilling small vessel administrative duties","Fulfil administrative and labour requirements. Plan provisioning, receipt and stowage. Release the ship in accordance with current regulations.","",""
+fulfilling small vessel administrative duties
+peform small vessel administrative duties","Fulfil administrative and labour requirements. Plan provisioning, receipt and stowage. Release the ship in accordance with current regulations.","",""
 "http://data.europa.eu/esco/skill/0196d283-9b1a-43a5-b219-43580c7cf560","key_19497","f7cbec1e-e4db-4c6c-9bfb-bd40a0fbe608","knowledge","sector-specific","cosmetics ingredients","cosmetics additives
 cosmetics elements
 a cosmetics ingredient
@@ -620,7 +635,8 @@ tree diseases controlling","Identify diseased or undesirable trees. Remove them 
 examine a performance's artistic concept according to stage movements
 analyse the artistic concept of a performance during rehearsals
 analyse artistic concept stage action
-analyse  the artistic concept based on actions on stage","Analyse the artistic concept, form and structure of a live performance based on observation during rehearsals or improvisation. Create a structured base for the design process of a specific production.","",""
+analyse  the artistic concept based on actions on stage
+analyse the artistic concept based on stage actions","Analyse the artistic concept, form and structure of a live performance based on observation during rehearsals or improvisation. Create a structured base for the design process of a specific production.","",""
 "http://data.europa.eu/esco/skill/020918ef-4b55-47c1-8430-ab7b8f6a7377","key_19515","a83f5668-cd48-41e1-98a5-09386f378542","skill/competence","sector-specific","migrate existing data","migrate existing data","Apply migration and conversion methods for existing data, in order to transfer or convert data between formats, storage or computer systems.","",""
 "http://data.europa.eu/esco/skill/020b3c27-bae1-4b85-9d6f-eccee0f5ed99","key_19516","c69d881a-18e1-47d1-be02-186fa3afe91d","skill/competence","cross-sector","manage supplies","plan supplies
 monitor and control supplies
@@ -676,7 +692,8 @@ set up circus rigging equipment
 fit up circus rigging equipment
 assembling circus rigging equipment
 assemble rigging equipment for circus","Assemble and fit-up circus rigging equipment based on instruction or technical rider or description.","",""
-"http://data.europa.eu/esco/skill/0238dd62-d407-4a87-ae0c-e08cd7b4ea8d","key_19523","f117c2dc-8350-4069-b774-8e8f16e7f451","skill/competence","occupation-specific","manage documentation of prior learning assessments ","handle documentation of prior learning assessments ","Agree upon competencies that are to be assessed. Establish the assessment protocol and develop templates to record the assessment decisions. Establish a communication plan. Distribute relevant assessment documents to authorities, clients, or colleagues according to this plan.","",""
+"http://data.europa.eu/esco/skill/0238dd62-d407-4a87-ae0c-e08cd7b4ea8d","key_19523","f117c2dc-8350-4069-b774-8e8f16e7f451","skill/competence","occupation-specific","manage documentation of prior learning assessments ","handle documentation of prior learning assessments 
+manage documentation of prior learning assessments ","Agree upon competencies that are to be assessed. Establish the assessment protocol and develop templates to record the assessment decisions. Establish a communication plan. Distribute relevant assessment documents to authorities, clients, or colleagues according to this plan.","",""
 "http://data.europa.eu/esco/skill/023e4b09-a193-4c2b-9009-f7dc9326a19b","key_19524","e2d21bea-6648-40d9-9501-f5d49d594ae7","skill/competence","occupation-specific","perform oral health diagnosis","fulfill oral health diagnosis
 record patient's oral and dental state
 accomplish oral health diagnosis
@@ -784,7 +801,8 @@ advise customers on usage of care products for pets
 advise customers on the usage of care products for pets
 suggest customers on usage of care products for pets
 commend customers on usage of care products for pets
-instruct customers on usage of care products for pets","Provide advice on basic care products, such as supplements and vitamins, that can be used on various types of pets.","",""
+instruct customers on usage of care products for pets
+advise on care products for pets","Provide advice on basic care products, such as supplements and vitamins, that can be used on various types of pets.","",""
 "http://data.europa.eu/esco/skill/02b6350e-433a-42b1-b620-92fc53b9a14d","key_19540","bbc01513-7e4d-4400-89ed-9978ee288aa0","skill/competence","cross-sector","operate remote sensing equipment","control remote sensing equipment
 run remote sensing equipment
 employ remote sensing equipment
@@ -818,7 +836,8 @@ basic emergency treatment for animals","Animal emergency treatment, including th
 "http://data.europa.eu/esco/skill/02c1a369-f1e7-4f8e-8882-d7ded57f9cf4","key_19543","5d9ccf95-497d-4bc8-9839-f8d4154ea34b","skill/competence","sector-specific","empathise with outdoor groups","empathise with groups
 understand participants of outdoor activities
 empathize  with outdoor groups
-empathise with participants of outdoor sports","Identify the outdoor activities permitted or suited in an outdoor setting based on the group's needs. ","",""
+empathise with participants of outdoor sports
+empathise with outdoor groups","Identify the outdoor activities permitted or suited in an outdoor setting based on the group's needs. ","",""
 "http://data.europa.eu/esco/skill/02c462b7-b93b-44a7-ba3a-9d3b7a163f51","key_19544","e99a8611-4852-4ea6-9911-33de05d80c7a","skill/competence","sector-specific","provide context to news stories","contextualize news stories
 providing context to news stories
 provide context to news stories
@@ -889,7 +908,8 @@ creating model","Create sketches, drawing, three-dimensional models, and models 
 follow control of health procedures for hazardous substances
 follow health procedures for the  control of hazardous substances
 follow control of substances hazardous to health procedures
-ensure safe use of substances hazardous to health","Adhere to the Control of Substances Hazardous to Health (COSHH) procedures for activities that involve hazardous substances, such as bacteria, allergens, waste oil, paint or brake fluids that result in illness or injury.","",""
+ensure safe use of substances hazardous to health
+follow procedures to control substances hazardous to health","Adhere to the Control of Substances Hazardous to Health (COSHH) procedures for activities that involve hazardous substances, such as bacteria, allergens, waste oil, paint or brake fluids that result in illness or injury.","",""
 "http://data.europa.eu/esco/skill/02eeea19-76db-4d19-bb8b-a649c0fbe796","key_19553","3e6eb767-9cc6-4fb5-8730-7cfab2b1c35b","skill/competence","sector-specific","assess visual impact of displays","assessing the visual impact of displays
 test visual impact of displays
 assess the visual impact of displays
@@ -976,7 +996,8 @@ guard electron beam heating and bonding machine units
 watch electron beam welding machine","Tend a metalworking machine designed to join metal pieces by use of an electron beam exuding a concentrated heat source, monitor and operate it according to regulations.","",""
 "http://data.europa.eu/esco/skill/0332f526-6dc0-4f09-8a7c-2b9473c50736","key_19566","316fd826-7d6f-46a1-ac6e-027e665e2384","skill/competence","cross-sector","ensure infrastructure accessibility","ensure facilities are accessible to people with disabilities
 consult on infrastructure accessibility
-provide accessible facilities","Consult designers, builders, and people with disabilities to determine how best to provide accessible infrastructure.","",""
+provide accessible facilities
+ensure infrastructure accessibility","Consult designers, builders, and people with disabilities to determine how best to provide accessible infrastructure.","",""
 "http://data.europa.eu/esco/skill/03353964-657a-4737-9afc-1ca9ec04195b","key_19567","c190b7c5-c665-48a7-9c7a-24ba66f9b62b","skill/competence","sector-specific","inspect table settings","check table layout
 inspect table setup
 ensure correct table layout
@@ -1010,7 +1031,8 @@ operate specialized  equipment in emergency
 operate specialized equipment in emergency environment
 use specialised equipment in emergency
 operate specialized equipment in emergency
-use specialised equipment in emergency situations","Operate equipment such as external defibrillators and bag-valve mask resuscitators, spinal and traction splints and intravenous drips in advanced life-support environments, taking electrocardiograms when required.","",""
+use specialised equipment in emergency situations
+operate specialised equipment in emergency","Operate equipment such as external defibrillators and bag-valve mask resuscitators, spinal and traction splints and intravenous drips in advanced life-support environments, taking electrocardiograms when required.","",""
 "http://data.europa.eu/esco/skill/03520ff5-9e68-434b-91fa-3ced9c085159","key_19573","d87c992c-7496-4a87-b264-e6f07e985c46","skill/competence","occupation-specific","plan retail space","plan retail space
 lay out retail space
 set up retail space
@@ -1032,7 +1054,8 @@ create leaflets","Create flyers such as recruitment flyers in order to recruit p
 using jewellery equipment
 utilize jewellery equipment
 work with jewellery equipment
-use jewelry  equipment","Handle, modify, or repair jewellery-making equipment such as jigs, fixtures, and hand tools such as scrapers, cutters, gougers, and shapers.","",""
+use jewelry  equipment
+use jewellery equipment","Handle, modify, or repair jewellery-making equipment such as jigs, fixtures, and hand tools such as scrapers, cutters, gougers, and shapers.","",""
 "http://data.europa.eu/esco/skill/0359f76c-3ef3-4e52-abcf-1b2b32ed20a5","key_19576","63c68da8-1092-47a7-81c1-ba7ab906298a","skill/competence","occupation-specific","taste wines","sip wines
 taste a wine
 drink wines
@@ -1146,7 +1169,8 @@ examine cultural trends
 analyze  cultural trends
 analysing cultural trends
 analyse cultural trend
-analyse trends in culture","Keep up to date with popular cultural trends such as pop culture, cultural and social slang.","",""
+analyse trends in culture
+analyse cultural trends","Keep up to date with popular cultural trends such as pop culture, cultural and social slang.","",""
 "http://data.europa.eu/esco/skill/03bc85d5-78f0-4409-86ed-87dc35345760","key_19592","e035da6a-d9cd-425d-9590-b6c3c42fa612","skill/competence","sector-specific","assess cage water quality","assess cage water quality
 cage water quality checking
 check cage water quality
@@ -1214,7 +1238,7 @@ study of criminal behaviour
 research into criminal behaviour
 criminology","The study of criminal behaviour, such as its causes and nature, its consequences, and control and prevention methods.","",""
 "http://data.europa.eu/esco/skill/03ff0d53-573a-47a0-a0ad-1995815a4339","key_19600","1f4af455-d25f-45c4-80af-dd74c310a2d4","knowledge","sector-specific","information structure","information structure","The type of infrastructure which defines the format of data: semi-structured, unstructured and structured.","",""
-"http://data.europa.eu/esco/skill/04012dd1-478d-4eec-9951-dd623bfe86ca","key_19601","19985ed0-f724-4c9d-92e2-ed97ee9b4967","knowledge","sector-specific","climate smart agriculture","","An integrated approach to landscape management that aims at increasing food productivity, enhance crop resilience, ensure food safety and reduce emissions and adapt to climate change.","",""
+"http://data.europa.eu/esco/skill/04012dd1-478d-4eec-9951-dd623bfe86ca","key_19601","19985ed0-f724-4c9d-92e2-ed97ee9b4967","knowledge","sector-specific","climate smart agriculture","climate smart agriculture","An integrated approach to landscape management that aims at increasing food productivity, enhance crop resilience, ensure food safety and reduce emissions and adapt to climate change.","",""
 "http://data.europa.eu/esco/skill/0415142d-6921-4f8d-832b-6271382b8193","key_19602","1f89a43e-ab34-4bb6-a9f7-f22f1e6c1c14","skill/competence","cross-sector","test materials","examine materials
 check materials
 test materials
@@ -1254,11 +1278,13 @@ communicate with programmer on intent of consultancy work
 interface with programmer on intent of consultancy work
 interact with programmer on consultancy work intention
 interacting with programmer on intent of consultancy work
-interact with programmers on intent of consultancy work","Ask the programmer or direction team about the intent of your consultancy work, whether it be to follow and improve the current vision, to build customers loyalty, to address a new audience, to change or re-orient the artistic line, etc. Clarify the extent to which the choreologist should be involved in the development of the artistic vision, programming season, or project, and adapt yourself to different leadership styles.","",""
+interact with programmers on intent of consultancy work
+interact with programmer on intention of consultancy work","Ask the programmer or direction team about the intent of your consultancy work, whether it be to follow and improve the current vision, to build customers loyalty, to address a new audience, to change or re-orient the artistic line, etc. Clarify the extent to which the choreologist should be involved in the development of the artistic vision, programming season, or project, and adapt yourself to different leadership styles.","",""
 "http://data.europa.eu/esco/skill/043c477b-71f6-43e9-8927-ca854fc55252","key_19608","4fdc9a03-9e0f-4e5d-87d9-48bec6bade4b","skill/competence","cross-sector","communicate gambling rules","communicate house rules
 explain rules and regulations
 communicate rules of the house
-list the game rules","Inform about the applicable rules and guidelines in force in the gambling industry such as betting ceilings.","",""
+list the game rules
+communicate gambling rules","Inform about the applicable rules and guidelines in force in the gambling industry such as betting ceilings.","",""
 "http://data.europa.eu/esco/skill/043f1a88-7faa-4d56-b220-5428741c6a75","key_19609","773fd5ce-526f-4ead-b433-1cf78ab8ebe7","skill/competence","occupation-specific","control train departures","control departure of trains
 supervise departure of outbound trains
 prepare outbound trains
@@ -1282,7 +1308,7 @@ shape dental materials","Manipulate materials used in dental procedures such as 
 legal procedures of forensic pathology
 legal procedures to determine cause of death in criminal cases
 procedures and techniques of forensic pathology","The legal procedures and techniques used to determine the cause of death of an individual, as part of an investigation of criminal law cases.","",""
-"http://data.europa.eu/esco/skill/04473991-161d-46db-8684-0d5ed6cb6c66","key_19612","f0866ef1-25ae-4729-b345-849b63825276","skill/competence","occupation-specific","manage temporary ICT networks for live performance","","Manage the set-up of networks for distribution of control signals for performing art and event applications. Coordinates with the different users. Defines and sets-up the equipment, cables, connections and devices. Configures, tests and monitors equipment and performance of the network. Control signals include for example DMX, RDM, MIDI, Timecode, tracking and positioning data, but also audio, video and positioning signals. ","",""
+"http://data.europa.eu/esco/skill/04473991-161d-46db-8684-0d5ed6cb6c66","key_19612","f0866ef1-25ae-4729-b345-849b63825276","skill/competence","occupation-specific","manage temporary ICT networks for live performance","manage temporary ICT networks for live performance","Manage the set-up of networks for distribution of control signals for performing art and event applications. Coordinates with the different users. Defines and sets-up the equipment, cables, connections and devices. Configures, tests and monitors equipment and performance of the network. Control signals include for example DMX, RDM, MIDI, Timecode, tracking and positioning data, but also audio, video and positioning signals. ","",""
 "http://data.europa.eu/esco/skill/0449bf39-a288-4ecc-823a-3d194be5e932","key_19613","3b68a4bc-c4c4-4e74-a52e-b9729f478a5a","knowledge","sector-specific","techniques of blood-sampling","methods of blood-sampling
 techniques of blood-sampling
 techniques of blood sampling
@@ -1328,7 +1354,8 @@ counselling
 giving advice to others
 guide
 offer suggestions to others
-give advice","Offer suggestions about the best course of action.","","Excludes <a resource=""http://data.europa.eu/esco/skill/699e7c26-6502-4e78-a823-3656ff5a5b8b"" typeOf=""http://data.europa.eu/esco/model#Skill"" href=""http://data.europa.eu/esco/skill/699e7c26-6502-4e78-a823-3656ff5a5b8b""><span property=""http://www.w3.org/2000/01/rdf-schema#label"" xml:lang=""en"">instruct others</span></a>."
+give advice
+advise others","Offer suggestions about the best course of action.","","Excludes <a resource=""http://data.europa.eu/esco/skill/699e7c26-6502-4e78-a823-3656ff5a5b8b"" typeOf=""http://data.europa.eu/esco/model#Skill"" href=""http://data.europa.eu/esco/skill/699e7c26-6502-4e78-a823-3656ff5a5b8b""><span property=""http://www.w3.org/2000/01/rdf-schema#label"" xml:lang=""en"">instruct others</span></a>."
 "http://data.europa.eu/esco/skill/0460013b-e73a-4200-8c11-88b3b60a222a","key_19619","f3e3932f-fc92-47c5-a08d-b06860f6daf6","skill/competence","occupation-specific","perform manual spiral binding","perform manual spiral bindings
 carry out manual spiral binding
 perform manual spiral binding
@@ -1384,7 +1411,8 @@ organise homecare for a patient
 arrange home-care for patients
 make homecare arrangements for patients
 organise home-care for patients
-make home-care arrangements for patients","Organise care to be provided in the house of a patient who is housebound with acute and/or long-term health problems.","",""
+make home-care arrangements for patients
+organise homecare for patients","Organise care to be provided in the house of a patient who is housebound with acute and/or long-term health problems.","",""
 "http://data.europa.eu/esco/skill/048affec-04db-4bd5-b7a6-c666d16c0fef","key_19627","67402570-9efa-4b91-9e2d-a1fe8dd88c9d","skill/competence","cross-sector","load cargo","fill up cargo vehicle
 load cargo
 loading cargo
@@ -1520,7 +1548,8 @@ selling processed timber in a commercial environment
 processed timber selling in a commercial environment
 selling processed timber in a commercial setting
 sell timber and timber-based products in a commercial environment
-sell processed timber in a commercial setting","Check that the sales area is in a suitable condition for customers and that the stock and materials are in a suitable condition to be sold.","",""
+sell processed timber in a commercial setting
+sell processed timber in a commercial environment","Check that the sales area is in a suitable condition for customers and that the stock and materials are in a suitable condition to be sold.","",""
 "http://data.europa.eu/esco/skill/04dfd9fb-e0cf-40f6-96c6-9d2280c4347e","key_19646","66e4d888-d3fc-4675-a53d-6b2c1f0c3213","skill/competence","cross-sector","provide technical documentation","document the product life cycle
 prepare technical documentation
 provide technical documentation","Prepare documentation for existing and upcoming products or services, describing their functionality and composition in such a way that it is understandable for a wide audience without technical background and compliant with defined requirements and standards. Keep documentation up to date.","",""
@@ -1652,7 +1681,8 @@ energy performance contracts drafting
 energy performance contracts composing
 composing energy performance contracts
 energy performance contract drafting
-compose EPC","Prepare and review contracts that describe the energy performance while making sure they comply with legal requirements.","",""
+compose EPC
+prepare energy performance contracts","Prepare and review contracts that describe the energy performance while making sure they comply with legal requirements.","",""
 "http://data.europa.eu/esco/skill/05338a70-1ea1-4c33-a886-1c4f0c7d7241","key_19664","c089ad6e-9cf1-456a-945d-f2d5c8bf7824","skill/competence","cross-sector","pass on trade techniques","pass on trade skills
 pass on a trade technique
 pass on trade procedures
@@ -1733,7 +1763,8 @@ implement upholstery restoration of classic cars
 perform upholstery restoration of classic cars
 complete upholstery restoration of classic cars
 performing upholstery restoration of classic cars
-perform the upholstery restoration of a classic car","Preserve and repair/restore the upholstery of vintage or classic cars. Add a new look to the vehicles’ original aspect.","",""
+perform the upholstery restoration of a classic car
+restore upholstery of classic cars","Preserve and repair/restore the upholstery of vintage or classic cars. Add a new look to the vehicles’ original aspect.","",""
 "http://data.europa.eu/esco/skill/056f3e1e-ba27-4498-9fd1-c22ae04dbf3a","key_19675","0a4ef8d4-d832-4ec3-942f-b39a5397783c","skill/competence","sector-specific","supervise medical office support workers","oversee medical office support workers
 supervise medical office support workers
 supervise medical office administration employees
@@ -1808,7 +1839,8 @@ shellfish depuration procedures undertaking
 undertaking shellfish depuration procedures
 carrying out depuration procedures on shellfish
 shellfish depuration procedures carrying out
-carry out shellfish depuration procedures","Place shellfish into large tanks of clean water that is continuously disinfected to allow purging of physical impurities. ","",""
+carry out shellfish depuration procedures
+depurate shellfish","Place shellfish into large tanks of clean water that is continuously disinfected to allow purging of physical impurities. ","",""
 "http://data.europa.eu/esco/skill/05a7f9e0-1ebd-4853-890b-c78f37096d51","key_19683","711e6420-5b05-499f-be47-3e48e1933a0f","skill/competence","cross-sector","provide humanitarian aid","provide humanitarian aid
 commit humanitarian aid
 grant humanitarian aid
@@ -1824,7 +1856,8 @@ accept critics
 accept feedback
 tolerate critics
 handle feedback
-welcome criticism","Handle negative feedback from others and react openly to criticism, trying to identify in it potential areas for improvement. ","",""
+welcome criticism
+accept criticism and guidance","Handle negative feedback from others and react openly to criticism, trying to identify in it potential areas for improvement. ","",""
 "http://data.europa.eu/esco/skill/05ab4b2c-7389-4495-9355-ba0a69effe4f","key_19685","bf3494ea-94f6-4d6a-a4ea-20f34a06dac1","skill/competence","sector-specific","provide pre-treatment information","provide information before treatment
 supply pre-treatment information
 provide pre-treatment information
@@ -1839,7 +1872,8 @@ organize rehearsals
 plan rehearsals
 arrange rehearsals
 organising rehearsals
-schedule rehearsals","Manage, schedule and run rehearsals for the performance.","",""
+schedule rehearsals
+organise rehearsals","Manage, schedule and run rehearsals for the performance.","",""
 "http://data.europa.eu/esco/skill/05bd9f18-370a-4a88-98c7-473cffb7b2ca","key_19688","6bc93dd0-6725-4ac8-8a05-8b56a64a3231","skill/competence","sector-specific","produce materials for decision making","gather data for decision making
 produce materials for decision making
 produce materials for management
@@ -1942,7 +1976,8 @@ fitting cladding for façade
 installation of cladding for facade
 fixing facade cladding
 facade cladding fitment
-fitting facade cladding","Prepare facade covering materials such as wood shingle, slate or metal by cutting, drilling, bending or trimming, and use the appropriate fixing techniques according to the material.","",""
+fitting facade cladding
+prepare facade cladding","Prepare facade covering materials such as wood shingle, slate or metal by cutting, drilling, bending or trimming, and use the appropriate fixing techniques according to the material.","",""
 "http://data.europa.eu/esco/skill/05e432cf-ac9d-4596-8b1b-2cea064e801e","key_19700","323faa98-ed77-4834-8365-6632a5d6335a","knowledge","sector-specific","typology of meat parts","typology of a meat part
 typology of meat parts
 types of meat parts
@@ -2176,7 +2211,8 @@ explain archaeology
 teaches archaeology
 teaching archaeology
 educate on archaeology
-teach archeology","Instruct students in the theory and practice of archaeology, more specifically in archaeological excavation techniques, human and cultural development, archaeological science, and archaeological investigation.","",""
+teach archeology
+teach archaeology","Instruct students in the theory and practice of archaeology, more specifically in archaeological excavation techniques, human and cultural development, archaeological science, and archaeological investigation.","",""
 "http://data.europa.eu/esco/skill/06792b9d-b287-46ad-aa0e-1ae7efe13293","key_19732","0e5dacdb-08fe-4204-9540-735ae7136c7c","skill/competence","sector-specific","operate oil pumping systems","control liquid circulation
 control refinery liquid circulation
 oil pumping systems operation
@@ -2213,7 +2249,8 @@ study of molecular and cellular immune systems
 molecular and cellular immunology
 development of molecular and cellular immune systems","The interactions at molecular level that trigger a response from the immune system.","",""
 "http://data.europa.eu/esco/skill/06a4004d-ee47-44ff-ae2f-a038ba0c0256","key_19736","181eb979-caa3-4c86-ac1e-622fec96b246","skill/competence","sector-specific","perform a feasibility study on mini wind power","carry out feasibility study on mini wind power
-do a feasibility study on mini wind power","Perform the evaluation and assessment of the potential of mini wind power systems. Realise a standardised study to estimate the needed electrical power demand of the building, the part of mini wind power on total supply, and conduct research to support the process of decision making.","",""
+do a feasibility study on mini wind power
+perform a feasibility study on mini wind power","Perform the evaluation and assessment of the potential of mini wind power systems. Realise a standardised study to estimate the needed electrical power demand of the building, the part of mini wind power on total supply, and conduct research to support the process of decision making.","",""
 "http://data.europa.eu/esco/skill/06aac0bf-3bfd-42b3-a334-39c4f4055da0","key_19737","8a31cc26-0bd8-4c40-bb5f-29ae0c7104d1","skill/competence","sector-specific","monitor curriculum implementation","oversee syllabus implementation
 monitor curriculum implementation
 oversee curriculum implementation
@@ -2260,7 +2297,8 @@ organising harvests
 harvest scheduling
 harvest organising
 organize harvests
-harvests organising","Schedule the planting and harvesting of crops.","",""
+harvests organising
+organise harvests","Schedule the planting and harvesting of crops.","",""
 "http://data.europa.eu/esco/skill/06c02117-18f2-4a39-bb0b-451f27435660","key_19744","e10d4168-27ad-4861-8e13-e6ae5c343a66","skill/competence","sector-specific","transfer kiln-baked products","move kiln-baked products
 kiln-baked product transferring
 transferring kiln-baked products
@@ -2330,7 +2368,8 @@ lead dental team","Act as the leader of the dental team by providing clear instr
 disinfect working environment
 sterilize working environment
 sanitize working environment
-decontaminate working environment","Make sure all working equipment, jewellery and skin is made sterile, before performing skin treatment or body modifications such as tattooing or piercing, to prevent infections or the transfer of diseases.","",""
+decontaminate working environment
+sterilise working environment","Make sure all working equipment, jewellery and skin is made sterile, before performing skin treatment or body modifications such as tattooing or piercing, to prevent infections or the transfer of diseases.","",""
 "http://data.europa.eu/esco/skill/06f33d6a-f7a7-4a2b-baa5-8c3c53bd1a9c","key_19753","6321b756-e6eb-4914-bd50-7a35c4079d20","knowledge","sector-specific","keywords in digital content","keywords in digital content","The digital tools to conduct keyword research. The information retrieval systems identify the content of a document guided by keywords and metadata.","",""
 "http://data.europa.eu/esco/skill/06f3473a-0057-4992-b6f2-3bf606462ed0","key_19754","9edb460a-0cb9-4b4d-b151-d38ce0bb54a0","skill/competence","sector-specific","apply related sciences to music therapy","apply related sciences to music therapy
 apply philosophical basis of music as therapy
@@ -2356,7 +2395,8 @@ diagnose mental disorders in children
 manage a child's problems
 manage problems of children's psychological development
 manage children's problems
-manage child's problem","Promote the prevention, early detection, and management of children`s problems, focusing on developmental delays and disorders, behavioural problems, functional disabilities, social stresses, mental disorders including depression, and anxiety disorders.","",""
+manage child's problem
+handle children's problems","Promote the prevention, early detection, and management of children`s problems, focusing on developmental delays and disorders, behavioural problems, functional disabilities, social stresses, mental disorders including depression, and anxiety disorders.","",""
 "http://data.europa.eu/esco/skill/070b9cfc-5052-4567-ab82-cb931eaed700","key_19759","e4d45d8b-359f-4885-b301-c566c15db9af","skill/competence","sector-specific","operate grease gun","run a lubricant machine
 utilise a grease gun
 use lubricant machine
@@ -2418,7 +2458,8 @@ stacking timber
 organise timber
 stockpile timber
 pile timber
-arrange timber","Stack and align timber in neat and separate layers to make it ready for kiln drying.","",""
+arrange timber
+stack timber","Stack and align timber in neat and separate layers to make it ready for kiln drying.","",""
 "http://data.europa.eu/esco/skill/072a702d-70c3-4959-91c7-85e69d143894","key_19767","39c91d04-5018-4664-8232-38a94172ddf7","skill/competence","cross-sector","manage a healthcare unit budget","manage a healthcare unit budget
 manage a health-care unit budget
 manage a healt-care unit-budget
@@ -2469,7 +2510,8 @@ controlling technical aspects of vineyard production process
 controlling technical aspects of vineyard production
 technical aspects of vineyard production controlling
 technical aspects of vineyard production managing","Control the whole production process in teræs of quantity and quality. Decide about new pratices in vineyard and winery by using internal information and consultation processus.","",""
-"http://data.europa.eu/esco/skill/075228f2-d00d-4e24-9036-bccddbb9b414","key_19773","0783b260-2aca-4305-bcd5-ee4cb8692bbc","skill/competence","sector-specific","balance hydraulics of hot water systems","hydraulics balancing","Make a hydraulic balancing calculation, calculate and select projects and components in the installation such as A-label pumps, balancing valves.","",""
+"http://data.europa.eu/esco/skill/075228f2-d00d-4e24-9036-bccddbb9b414","key_19773","0783b260-2aca-4305-bcd5-ee4cb8692bbc","skill/competence","sector-specific","balance hydraulics of hot water systems","hydraulics balancing
+balance hydraulics of hot water systems","Make a hydraulic balancing calculation, calculate and select projects and components in the installation such as A-label pumps, balancing valves.","",""
 "http://data.europa.eu/esco/skill/07547bd9-fede-40e4-96c4-71a264c9362c","key_19774","2b84c57c-3e28-49c8-af44-3dccb0a02bdb","skill/competence","occupation-specific","use a water-fed pole system","use water-fed pole systems
 use a water fed pole system
 use a water-fed pole system
@@ -2482,7 +2524,7 @@ maintain sport facility finances
 manage sport facility finances
 oversee sport facility finances
 manage sport facility finance","Manage finance in sport and physical activity to achieve the stated objectives for the organisation. Develop a master budget and use this to monitor, evaluate and control performance and take action to deal with identified variances. Delegate responsibility for budgets for clearly defined activities.","",""
-"http://data.europa.eu/esco/skill/075c411b-c5cd-4238-be12-d6b284a4130c","key_19776","1fe3fdb0-0fbb-47d4-8ca2-a9dc7a70c98d","skill/competence","sector-specific","identify information needs of young people","","Inquire and identify the information needs of young people and adapt services and approach towards their individual or collective needs. ","",""
+"http://data.europa.eu/esco/skill/075c411b-c5cd-4238-be12-d6b284a4130c","key_19776","1fe3fdb0-0fbb-47d4-8ca2-a9dc7a70c98d","skill/competence","sector-specific","identify information needs of young people","identify information needs of young people","Inquire and identify the information needs of young people and adapt services and approach towards their individual or collective needs. ","",""
 "http://data.europa.eu/esco/skill/075c68d7-efe4-4466-be4a-9acc726504df","key_19777","2da7858d-2ccb-4c64-99be-76d82f6238dd","knowledge","cross-sector","mergers and acquisitions","mergers and acquisitions
 acquisitions and mergers
 transferring ownership or combining businesses
@@ -2495,7 +2537,8 @@ supervise  government-funded programmes
 oversee  government-funded programmes
 manage government-funded programs
 supervise state-funded programmes
-maintain  government-funded programmes","Implement and monitor the development of projects subsidized by regional, national or European authorities.","",""
+maintain  government-funded programmes
+manage government-funded programmes","Implement and monitor the development of projects subsidized by regional, national or European authorities.","",""
 "http://data.europa.eu/esco/skill/07627684-2705-422f-9b31-346171eac852","key_19779","6a9a164e-157a-4e15-8c17-e95a4c496394","knowledge","occupation-specific","horse racing regulation","horse race regulation
 horse racing managing
 horse racing regulation
@@ -2563,7 +2606,8 @@ operation of warehouse materials
 perform warehouse materials","Be able to operate pallet jack and similar motorised warehouse equipment, for loading and storage purposes.","",""
 "http://data.europa.eu/esco/skill/07889c08-7220-47c8-96f7-6068fbea00dc","key_19788","642f1520-5cd1-4e4a-8c31-765db6592264","skill/competence","sector-specific","normalise data","prepare data
 normalize data
-perform data pre-processing","Reduce data to their accurate core form (normal forms) in order to achieve such results as minimisation of dependency, elimination of redundancy, increase of consistency.","",""
+perform data pre-processing
+normalise data","Reduce data to their accurate core form (normal forms) in order to achieve such results as minimisation of dependency, elimination of redundancy, increase of consistency.","",""
 "http://data.europa.eu/esco/skill/078a25a4-1ac2-4c83-b0ed-8f8573c4633a","key_19789","715329df-8b11-4273-930c-fad89c2a0a77","skill/competence","transversal","interact verbally in Occitan","speak Provençal
 communicate verbally in Occitan
 interact verbally in Occitan
@@ -2595,7 +2639,8 @@ stock tobacco products machines with material
 provide tobacco products machines with materials
 stock tobacco products machines with materials
 stock tobacco products machinery with materials
-furnish tobacco products machines with materials","Stock machine with materials for production of tobacco products. Take care to provide adequate quantities of paper, filters, glue, and other materials to achieve the daily production plan.","",""
+furnish tobacco products machines with materials
+stock tobacco products' machines","Stock machine with materials for production of tobacco products. Take care to provide adequate quantities of paper, filters, glue, and other materials to achieve the daily production plan.","",""
 "http://data.europa.eu/esco/skill/07aa096a-bb4e-4380-b9f2-97fd70da2a82","key_19794","4fca301c-f7d2-4d96-b486-59d0e90911e4","knowledge","cross-sector","glass tempering","tempering of glass
 heat treating glass
 glass tempering
@@ -2708,7 +2753,8 @@ monitor a stamp machine
 watch stamp machine
 view stamp machine
 supervise stamp machine","Monitor automated production line and stamp machine to ensure smooth operation. Monitor and report any damaged cigarette package. Stand at a machine while stamping product, using two hands for stamping and stabilising.","",""
-"http://data.europa.eu/esco/skill/07e47d58-dd0e-4302-9e68-70a188e89065","key_19809","586158dd-6542-4145-b066-ca6a17076dea","skill/competence","cross-sector","apply system organisational policies","apply system organizational  policies","Implement internal policies related to the development, internal and external usage of technological systems, such as software systems, network systems and telecommunications systems, in order to achieve a set of goals and targets regarding the efficient operations and growth of an organisation.","",""
+"http://data.europa.eu/esco/skill/07e47d58-dd0e-4302-9e68-70a188e89065","key_19809","586158dd-6542-4145-b066-ca6a17076dea","skill/competence","cross-sector","apply system organisational policies","apply system organizational  policies
+apply system organisational policies","Implement internal policies related to the development, internal and external usage of technological systems, such as software systems, network systems and telecommunications systems, in order to achieve a set of goals and targets regarding the efficient operations and growth of an organisation.","",""
 "http://data.europa.eu/esco/skill/07e51c60-763a-4335-b4ec-70a15f66d328","key_19810","cf0aa0bf-542d-4077-a677-d5b5d76d3004","skill/competence","cross-sector","propose ICT solutions to business problems","propose technical solutions to business problems
 propose ICT solutions to business problems","Suggest how to solve business issues, using ICT means, so that business processes are improved.","",""
 "http://data.europa.eu/esco/skill/07e6231e-fbd4-4876-8ab5-346710dabe85","key_19811","518d1b07-6a0d-4621-b636-bde9e3b3e707","skill/competence","occupation-specific","start up chocolate moulding line","start up chocolate molding  line
@@ -2717,18 +2763,21 @@ begin chocolate moulding line
 launch chocolate moulding line
 establish chocolate moulding line
 construct chocolate moulding line
-starting up chocolate moulding line","Start up moulding line equipment, including chillers, air compressor, chocolate tanks, pumps and tempering units.","",""
+starting up chocolate moulding line
+start up chocolate moulding line","Start up moulding line equipment, including chillers, air compressor, chocolate tanks, pumps and tempering units.","",""
 "http://data.europa.eu/esco/skill/07e6bc9f-9c98-44ae-a7a3-5266caa393e1","key_19812","415dfa02-4926-4ebf-9a92-28e0c6035506","skill/competence","sector-specific","calculate costs of repair operations","measure costs of repair operations
 calculating costs of repair operations
 calculate the costs of repair operations
 count costs of repair operations
 forecast costs of repair operations
 tally costs of repair operations
-calculate the cost of repair operations","Calculate material and labour costs of repair operations. Understand appropriate computer programmes.","",""
+calculate the cost of repair operations
+calculate costs of repair operations","Calculate material and labour costs of repair operations. Understand appropriate computer programmes.","",""
 "http://data.europa.eu/esco/skill/07ebe761-763e-4bf8-8cb7-c16da0d66981","key_19813","99687afa-3f0e-4bd6-9a87-3e6fb13f5fd8","skill/competence","sector-specific","handle different pottery materials","manage different materials of pottery
 manage different clay and mud recipes
 manage different clay or mud recipes
-manage different pottery materials","Treat different recipes of clay and mud according to the genre (such as china) or the expected strength, look, colour, tradition or innovation in the creative process.","",""
+manage different pottery materials
+handle different pottery materials","Treat different recipes of clay and mud according to the genre (such as china) or the expected strength, look, colour, tradition or innovation in the creative process.","",""
 "http://data.europa.eu/esco/skill/07ec6866-d283-46a6-991c-e8ce0c6fc159","key_19814","5ba67e1e-e76f-4710-b080-92d191a6b13b","skill/competence","cross-sector","interpret scientific data to assess water quality","assess water quality data
 interpret scientific data to assess water quality
 analysing scientific data to assess water quality
@@ -2829,7 +2878,7 @@ ensure conditions that affect train movement are accounted for in operations
 monitor factors affecting the movement of trains
 perform train operations with an awareness of conditions that affect movement
 monitor conditions influencing the movement of trains","Monitor conditions that may influence train movements, e.g. crew availability, weather conditions, equipment operability, speed or track limitations, etc. Undertake actions to ensure and optimise train performance and safety; anticipate emergencies and unexpected situations.","",""
-"http://data.europa.eu/esco/skill/08236fee-c405-4f30-8858-f10d7d5c94b7","key_19829","87d6e264-9613-4f65-97c5-12c6a6ac031a","skill/competence","occupation-specific","operate media integration systems","","Operate a media integration system for performing art and event applications during setup, configuration, rehearsals and during live performances.","",""
+"http://data.europa.eu/esco/skill/08236fee-c405-4f30-8858-f10d7d5c94b7","key_19829","87d6e264-9613-4f65-97c5-12c6a6ac031a","skill/competence","occupation-specific","operate media integration systems","operate media integration systems","Operate a media integration system for performing art and event applications during setup, configuration, rehearsals and during live performances.","",""
 "http://data.europa.eu/esco/skill/082967d4-b94c-4305-aa13-35a6aa8c5c7c","key_19830","2cea5fa5-29f8-471c-9599-3d6aeeec734d","skill/competence","cross-sector","cooperate with colleagues","work together with colleagues
 work in cooperation with colleagues
 collaborate with colleagues
@@ -2873,7 +2922,8 @@ recognize fake goods
 recognising fake goods
 recognizing fake goods
 discover fake goods
-detect fake goods","Identify imitation and counterfeit products using methods and equipment such as microscopes and laboratory analysis in order to determine their properties.","",""
+detect fake goods
+recognise fake goods","Identify imitation and counterfeit products using methods and equipment such as microscopes and laboratory analysis in order to determine their properties.","",""
 "http://data.europa.eu/esco/skill/083b677b-e52e-48a4-9c97-5c177af23e84","key_19836","c45e2b10-ea7d-4c08-8159-6a73f7c7bcb7","skill/competence","occupation-specific","organise participation in international events","coordinate participation in international events
 organising participation in international events
 arrange participation in international events
@@ -2881,7 +2931,8 @@ organisation of participation in international events
 organise participation in an international event
 set up participation in international events
 establish participation in international events
-organize participation in international events","Apply for and secure a place to participate in international exhibitions and competitions.","",""
+organize participation in international events
+organise participation in international events","Apply for and secure a place to participate in international exhibitions and competitions.","",""
 "http://data.europa.eu/esco/skill/083c139e-3228-413e-93f0-71fe5e301421","key_19837","a23b96d3-1a37-424a-90c0-843c2f47bed9","skill/competence","occupation-specific","differentiate between maxillofacial tissues","distinguish maxillofacial tissues
 differentiate maxillofacial tissue
 differentiate between normal, hard and soft tissue facial tissue
@@ -3025,7 +3076,8 @@ help clients take decisions during councelling sessions
 help clients make decisions during counseling  sessions
 help a client make decisions during a councelling session
 support clients in decision-making during councelling sessoins
-help clients make a decision during counseling sessions","Encourage clients to make their own decisions related to their problems or inner conflicts by reducing confusion and allowing clients to reach their own conclusions, with no bias whatsoever.","",""
+help clients make a decision during counseling sessions
+help clients make decisions during counselling sessions","Encourage clients to make their own decisions related to their problems or inner conflicts by reducing confusion and allowing clients to reach their own conclusions, with no bias whatsoever.","",""
 "http://data.europa.eu/esco/skill/089bab26-a854-40fb-8c04-5be4f693315a","key_19857","5aeaf70f-e59c-470d-8af6-5d09a2a24f82","skill/competence","cross-sector","integrate strategic foundation in daily performance","incorporate strategic foundation in daily performance
 integrate strategic foundation in daily performance
 integrating strategic foundation in daily performance
@@ -3093,7 +3145,7 @@ preparing a vehicle trim
 develop vehicle trim
 plan vehicle trim
 provide vehicle trim","Prepare vehicle trim work in accordance with technical drawings and preliminary sketches.","",""
-"http://data.europa.eu/esco/skill/08b04e53-ed25-41a2-9f90-0b9cd939ba3d","key_19865","8a5dec57-f043-4a15-9aca-576df2519686","skill/competence","cross-sector","manage research data","","Produce and analyse scientific data originating from qualitative and quantitative research methods. Store and maintain the data in research databases. Support the re-use of scientific data and be familiar with open data management principles.","",""
+"http://data.europa.eu/esco/skill/08b04e53-ed25-41a2-9f90-0b9cd939ba3d","key_19865","8a5dec57-f043-4a15-9aca-576df2519686","skill/competence","cross-sector","manage research data","manage research data","Produce and analyse scientific data originating from qualitative and quantitative research methods. Store and maintain the data in research databases. Support the re-use of scientific data and be familiar with open data management principles.","",""
 "http://data.europa.eu/esco/skill/08b4e1c1-eddd-4495-94ea-510c310a5fe6","key_19866","4c8f4c45-997a-4580-8501-3f17a9c769ad","knowledge","occupation-specific","kosher slaughtering practices","kosher slaughtering practices
 kosher slaughtering conventions
 kosher slaughtering processes
@@ -3177,7 +3229,8 @@ puff cigars
 smoke a cigar
 smoke cigars
 smoking cigar
-light cigars","Test the suitability of a cigar in all aspects. This consists of: grabbing the cigar, lightening it, moisturising its end before lighting it up and labelling it.","",""
+light cigars
+test cigars","Test the suitability of a cigar in all aspects. This consists of: grabbing the cigar, lightening it, moisturising its end before lighting it up and labelling it.","",""
 "http://data.europa.eu/esco/skill/08edeccc-524f-40ff-8107-2ca973779c83","key_19877","a34edd90-afac-4a8f-babd-2af4cb4b6c00","skill/competence","sector-specific","be a role model in community arts","be a role model in community arts
 be a person who is looked up to in the community arts
 act as a role model in community arts
@@ -3203,7 +3256,8 @@ determine components
 adjust materials
 forecast materials: work out material needs
 determine materials
-adjust components","Determine the amount and the kind of materals necessary to build certain machines or equipment.","",""
+adjust components
+calculate materials to build equipment","Determine the amount and the kind of materals necessary to build certain machines or equipment.","",""
 "http://data.europa.eu/esco/skill/08f0af26-2178-40d2-9267-6d50a7346555","key_19881","59006684-57a2-4c69-8a7f-509c6c5d6378","skill/competence","sector-specific","combine business technology with user experience","combining business technology and user experience
 combine sector technology with user experience
 combine industry technology with user experience
@@ -3242,7 +3296,8 @@ design marketing strategy","Determine the objective of the marketing strategy wh
 "http://data.europa.eu/esco/skill/08fe5910-8c4c-4679-a988-eb2ded3c4909","key_19886","d62db042-4f2c-42f9-8b94-21980aa5fbbb","knowledge","cross-sector","labour legislation","employment law
 employment legislation
 labor  legislation
-legislation on labour","Legislation, on a national or international level, that governs labour conditions in various fields between labour parties such as the government, employees, employers, and trade unions.","",""
+legislation on labour
+labour legislation","Legislation, on a national or international level, that governs labour conditions in various fields between labour parties such as the government, employees, employers, and trade unions.","",""
 "http://data.europa.eu/esco/skill/0900073c-85f9-4f81-b178-ad9a12371bc3","key_19887","64181e03-b1ec-4c97-bc66-e3912731ae19","skill/competence","sector-specific","respond to individuals' extreme emotions","respond appropriately to individuals' extreme emotions
 deal with individuals' extreme emotions
 handle individuals' extreme emotions
@@ -3556,7 +3611,8 @@ prepare speech
 preparing speeches
 write up speeches
 create speeches","Write speeches on multiple topics in a way to hold the attention and interest of an audience.","",""
-"http://data.europa.eu/esco/skill/09cf2c34-6f93-4a19-a9f1-c0d866414bcc","key_19931","3a9b210a-b9d1-4dcc-96db-61dec2d1d545","knowledge","sector-specific","Cain and Abel (penetration testing tool)","Cain and Abel","The software tool Cain and Abel is a password recovery tool which tests the Microsoft Operating System for security weaknesses and potentially unauthorised access to system information. The tool decodes, decrypts and uncovers passwords by means such as brute-force and cryptanalysis attacks, network sniffing and protocols analysis.","",""
+"http://data.europa.eu/esco/skill/09cf2c34-6f93-4a19-a9f1-c0d866414bcc","key_19931","3a9b210a-b9d1-4dcc-96db-61dec2d1d545","knowledge","sector-specific","Cain and Abel (penetration testing tool)","Cain and Abel
+Cain and Abel (penetration testing tool)","The software tool Cain and Abel is a password recovery tool which tests the Microsoft Operating System for security weaknesses and potentially unauthorised access to system information. The tool decodes, decrypts and uncovers passwords by means such as brute-force and cryptanalysis attacks, network sniffing and protocols analysis.","",""
 "http://data.europa.eu/esco/skill/09d48285-7d78-4f27-878c-e54fd0c75cee","key_19932","540ee8cd-0023-4a75-8caa-33f174af7021","skill/competence","occupation-specific","encourage healthy behaviours","advocate healthy lifestyle
 encourage behaviours that enhance health
 promote healthy lifestyle behaviours
@@ -3567,7 +3623,8 @@ promote adoption of behaviours to protect health
 encourage healthy behaviors
 encourage adoption of healthy behaviours
 promote healthy behaviours
-advocate adoption of healthy lifestyle behaviours","Encourage the adoption of healthy behaviours such as exercise, a healthy diet, oral hygiene, health checks and preventative medical screenings.","",""
+advocate adoption of healthy lifestyle behaviours
+encourage healthy behaviours","Encourage the adoption of healthy behaviours such as exercise, a healthy diet, oral hygiene, health checks and preventative medical screenings.","",""
 "http://data.europa.eu/esco/skill/09d6ed43-95a1-4492-8bd7-d01039285afa","key_19933","d405a27b-2b13-4d2e-be06-d54940ef6017","skill/competence","cross-sector","provide social counselling","provide social counseling
 offer social counseling services
 offer social counseling
@@ -3575,7 +3632,8 @@ assist and guide social service users
 offer social counselling
 offer social counselling services
 provide social-counseling
-provide social-concelling","Assist and guide social service users to resolve personal, social or psychological problems and difficulties.","",""
+provide social-concelling
+provide social counselling","Assist and guide social service users to resolve personal, social or psychological problems and difficulties.","",""
 "http://data.europa.eu/esco/skill/09d79759-316b-48fe-b95d-a7b5954fb74f","key_19934","cbaf1989-f577-455c-a392-610ad106ae6e","skill/competence","sector-specific","supervise motor vehicles manufacture","supervise motor vehicles manufacture
 supervise manufacture of motorised vehicles
 scrutinise motor vehicles manufacture
@@ -3620,7 +3678,8 @@ impart training on general quality management supervision
 convey training on general quality management supervision
 impart training on quality management supervision
 reveal training on general quality management supervision
-impart training about general quality management supervision","Provide training to production employees, in groups or individually, on standard operating procedures, product specifications, visual quality inspection criteria, SPC, production controls, formulas, GMP, and food safety procedures.","",""
+impart training about general quality management supervision
+provide training on quality management supervision","Provide training to production employees, in groups or individually, on standard operating procedures, product specifications, visual quality inspection criteria, SPC, production controls, formulas, GMP, and food safety procedures.","",""
 "http://data.europa.eu/esco/skill/09e8e770-b467-4fba-80dd-7e896ada0d5e","key_19940","7bec4c0b-4ecc-494c-8ad3-3d98c03316fe","skill/competence","sector-specific","use laser therapy for skin conditions","use laser therapy for skin conditions
 treat skin conditions using laser therapy
 use laser treatment for skin conditions
@@ -3636,12 +3695,14 @@ execute advertising measures for a vehicle
 execute advertising measures for the vehicles
 carry out advertising measures for the vehicles
 enact advertising measures for the vehicles
-achieve advertising measures for the vehicles","Contribute to vehicle promotion using various media e.g. websites or newspapers.","",""
+achieve advertising measures for the vehicles
+execute advertising for vehicles","Contribute to vehicle promotion using various media e.g. websites or newspapers.","",""
 "http://data.europa.eu/esco/skill/09f159aa-2745-4ab0-a050-96722a2269b9","key_19942","6af3e4da-399d-4c88-b070-e94267aca2db","skill/competence","cross-sector","assist in the organisation of school events","help in the organisation of school events
 assist in the organization  of school events
 assists in the organisation of school events
 aid in the organisation of school events
-assisting in the organisation of school events","Provide assistance in the planning and organisation of school events, such as the school's open house day, a sports game or a talent show.","",""
+assisting in the organisation of school events
+assist in the organisation of school events","Provide assistance in the planning and organisation of school events, such as the school's open house day, a sports game or a talent show.","",""
 "http://data.europa.eu/esco/skill/09f2f811-a3fb-4de3-a70f-6420a6935575","key_19943","bc6a5d85-e362-420e-b6d5-b19f646be6ca","knowledge","cross-sector","systems development life-cycle","systems development life-cycle
 application development life-cycle","The sequence of steps, such as planning, creating, testing and deploying and the models for the development and life-cycle management of a system.","",""
 "http://data.europa.eu/esco/skill/09f4c52b-ac72-4f0e-a8ae-78bb1d7bffba","key_19944","41c46f3f-1d6f-43da-9e2b-90786508bb8f","knowledge","cross-sector","transportation software related to an ERP system","transportation software relating to ERP systems
@@ -3773,7 +3834,8 @@ business management fundamentals
 business management conventions
 business management principle","Principles governing business management methods such as strategy planning, methods of efficient production, people and resources coordination.","",""
 "http://data.europa.eu/esco/skill/0a52bed5-fd29-45fb-aba6-e32bccfda1c1","key_19961","711b49f4-f24a-45cd-8ad8-b536ebc2b7b0","skill/competence","sector-specific","plan migration to cloud","plan refactoring
-cloud migration planning","Select existing workloads and processes for potential migration to the cloud and choose migration tools. Determine a new cloud architecture for an existing solution, plan a strategy for migrating existing workloads to the cloud.","",""
+cloud migration planning
+plan migration to cloud","Select existing workloads and processes for potential migration to the cloud and choose migration tools. Determine a new cloud architecture for an existing solution, plan a strategy for migrating existing workloads to the cloud.","",""
 "http://data.europa.eu/esco/skill/0a53f6b2-9205-4505-93fb-480e163cdc2f","key_19962","e7479d77-8e11-43db-bbf9-c05e4b25c776","skill/competence","sector-specific","calculate insurance rate","calculate insurance rates
 calculate insurance rate
 determine insurance rate
@@ -3814,7 +3876,8 @@ utilise radar navigation
 use radar navigation","Operate modern radar navigation equipment to ensure safe vessel operations.","",""
 "http://data.europa.eu/esco/skill/0a856d55-23b5-4bdc-ad24-3eb5bc83d81f","key_19967","0536336d-28f6-4bda-8422-6d123594eb39","skill/competence","sector-specific","implement route planning in smart mobility services","calculate journeys
 use route planning software
-recommend journeys","Use specialised search engines such as route planners or journey planners to suggest optimised travel itineraries based of different criteria such as means of transport, departure and arrival time, location, duration of the journey.","",""
+recommend journeys
+implement route planning in smart mobility services","Use specialised search engines such as route planners or journey planners to suggest optimised travel itineraries based of different criteria such as means of transport, departure and arrival time, location, duration of the journey.","",""
 "http://data.europa.eu/esco/skill/0a85e1c5-393b-4348-97c4-7b5bef419e7d","key_19968","8adf562a-d0d5-4001-8f80-31703dbe7c01","skill/competence","sector-specific","replace faucets","fit taps
 replace faucets
 fitting taps
@@ -3885,7 +3948,8 @@ checking fish mortality rates
 monitor fish mortality rates","Monitor fish mortalities and assess possible causes.","",""
 "http://data.europa.eu/esco/skill/0aabb61b-5382-490a-bf44-375858f9cd3e","key_19978","e051d9b6-c7f9-45e8-a6b3-9c1b6e1589d7","knowledge","sector-specific","types of tidal stream generators","TEC
 types of tidal energy converter
-types of tidal turbines","Different types of generators such as crossflow turbines, flow augmented turbines, venturi effect devices, or tidal kite turbines. They are used to draw energy from water currents, either in rivers, or estuaries profiting the tidal range, as well as in the offshore underwater currents. ","",""
+types of tidal turbines
+types of tidal stream generators","Different types of generators such as crossflow turbines, flow augmented turbines, venturi effect devices, or tidal kite turbines. They are used to draw energy from water currents, either in rivers, or estuaries profiting the tidal range, as well as in the offshore underwater currents. ","",""
 "http://data.europa.eu/esco/skill/0aabcae7-71de-456e-8e38-d9e40a4e0272","key_19979","48f20d09-63a4-405e-b0e3-06c026982c2a","knowledge","sector-specific","modern power signalling systems","signalling systems used in modern railway infrastructure
 railroad power signalling systems
 railway power signalling systems
@@ -3897,7 +3961,8 @@ modern rail power signalling systems
 modern railway power signalling systems
 modern signalling systems used in railway infrastructure
 power signalling systems used in modern railway infrastructure
-rail power signalling systems","Understand traditional and modern signalling systems; operate railway signalling systems.","",""
+rail power signalling systems
+modern power signalling systems","Understand traditional and modern signalling systems; operate railway signalling systems.","",""
 "http://data.europa.eu/esco/skill/0ab03c6c-281b-48f4-83e0-10eeb27a1bae","key_19980","9ee7d9e1-8720-45c1-a87a-20dd67e1233f","knowledge","sector-specific","network management system tools","network management system tools","The software or hardware tools which enable monitoring, analysis and supervision of individual network components or network parts within a larger network system.","",""
 "http://data.europa.eu/esco/skill/0ab07923-f350-4a3c-bbea-3017d756c409","key_19981","cd0443ba-bd7d-4a31-8c76-e3c7ab588b99","skill/competence","cross-sector","communicate regulations","communicate regulation
 share regulations
@@ -3984,7 +4049,8 @@ research on the past in recorded source
 analyse the past in recorded sources
 researching the past in recorded sources
 examine the past in recorded sources
-research history in recorded sources","Analyse recorded sources such as government records, newspapers, biographies, and letters in order to uncover and interpret the past.","",""
+research history in recorded sources
+analyse recorded sources","Analyse recorded sources such as government records, newspapers, biographies, and letters in order to uncover and interpret the past.","",""
 "http://data.europa.eu/esco/skill/0af529ff-a95d-419b-ab2a-335f6894a966","key_19993","caf0f731-018c-4315-829a-102ca9739f2a","skill/competence","cross-sector","maintain logistics databases","maintain databases of logistics information
 carry out logics database maintenance activities
 maintain logistical databases
@@ -4089,7 +4155,8 @@ perform stacking fermentation of the tobacco leaves
 undertake stacking fermentation of tobacco leaves
 implement stacking fermentation of tobacco leaves
 perform the stacking fermentation of tobacco leaves
-complete  stacking fermentation of tobacco leaves","Wrap large stacks of tobacco in burlap and allow them to ""sweat"". The internal temperature is closely monitored. When it reaches 60 degrees Celsius, the stack is broken down to release tar, ammonia, and nicotine. Repeat the process until the stack no longer reaches 45 degrees Celsius. Strip the stems and stack them in a cooler place to age.","",""
+complete  stacking fermentation of tobacco leaves
+ferment stacks of tobacco leaves","Wrap large stacks of tobacco in burlap and allow them to ""sweat"". The internal temperature is closely monitored. When it reaches 60 degrees Celsius, the stack is broken down to release tar, ammonia, and nicotine. Repeat the process until the stack no longer reaches 45 degrees Celsius. Strip the stems and stack them in a cooler place to age.","",""
 "http://data.europa.eu/esco/skill/0b286e3f-2fb4-4dbb-afd3-3e421f0c6366","key_20007","e09e2185-576f-495e-a904-420b8821d89b","skill/competence","sector-specific","record lessons learnt from your sessions","record lessons learnt from your sessions
 record lessons learned from your sessions
 make recordings of lessons learnt from your sessions
@@ -4119,7 +4186,7 @@ health and safety implementing when picking
 implement health and safety when picking
 applying health and safety when picking
 health and safety applying when picking","Take the necessary health and safety precautions when picking: posture your body well, safely operate tools and machinery, and wear the right clothes and protection for the climate.","",""
-"http://data.europa.eu/esco/skill/0b370a54-aba5-438d-9b3f-5c739aa57496","key_20010","b21a5d9e-c697-4727-a8d1-b48cbc562826","skill/competence","occupation-specific","fit low vision aids","","Assure the proper specialised visual appliance is fitted for the partially sighted person.","",""
+"http://data.europa.eu/esco/skill/0b370a54-aba5-438d-9b3f-5c739aa57496","key_20010","b21a5d9e-c697-4727-a8d1-b48cbc562826","skill/competence","occupation-specific","fit low vision aids","fit low vision aids","Assure the proper specialised visual appliance is fitted for the partially sighted person.","",""
 "http://data.europa.eu/esco/skill/0b3ae8c1-771e-4483-b3da-fd420fe6545b","key_20011","d0bcf78b-504d-4520-a43f-ae859e148a63","skill/competence","occupation-specific","strive to conserve the composition of water","strive to conserve water composition
 strive to conserve the composition of water
 strive to maintain the composition of water
@@ -4147,7 +4214,8 @@ carrying out standard aquaculture stock health operations
 undertaking standard aquaculture stock health operations
 undertake standard aquaculture stock health operations
 carry out standard aquaculture stock health operations
-standard aquaculture stock health operations carrying out","Perform activities that ensure monitoring and implementation of aquaculture health standards and health analysis of the fish population.","",""
+standard aquaculture stock health operations carrying out
+monitor aquaculture stock health standards","Perform activities that ensure monitoring and implementation of aquaculture health standards and health analysis of the fish population.","",""
 "http://data.europa.eu/esco/skill/0b41f1ca-73b1-470e-a425-ba3e9c1b6e0b","key_20014","5e51f4eb-c4b9-4c8f-8feb-8a758a3ea4ef","skill/competence","sector-specific","maintain safety systems","safety system servicing
 maintain safety systems
 safety systems maintaining
@@ -4259,7 +4327,8 @@ detail allocations","Inform the grant giver and grant receiver accurately and in
 evaluate the moral and ethical consequences of actions 
 follow ethical values and religious believes
 act according to ethical and religious values
-assess the consequences and impact of ideas,  opportunities and  actions","Discover and develop an individual perspective about one's roles, meaning and purpose, including what it means to live, to die and to be human. ","",""
+assess the consequences and impact of ideas,  opportunities and  actions
+apply knowledge of philosophy, ethics and religion","Discover and develop an individual perspective about one's roles, meaning and purpose, including what it means to live, to die and to be human. ","",""
 "http://data.europa.eu/esco/skill/0b82924b-6741-4d58-b38d-16731cb14f53","key_20028","0d556ce7-163d-4de5-bc8c-4cae41518937","skill/competence","cross-sector","provide objective assessments of calls","provide an objective assessment of a call
 provide objective assessments of calls
 arrange objective assessments of calls
@@ -4372,7 +4441,8 @@ install spindles
 fit spindles","Install spindles, vertical elements that connect a handrail to a bottom element such as a staircase or balustrade bottom. ","",""
 "http://data.europa.eu/esco/skill/0bb3792c-0a17-4e48-a8b3-5603bb12a660","key_20042","aa5da34d-2615-4ac4-ab41-1ea6d940f1f8","skill/competence","occupation-specific","provide nursing care in community settings ","nursing practices in community settings 
 nursing care in communities 
-nursing in community situations","Provide nursing care in community settings such as schools, home settings, assisted living facilities, correctional facilities and hospice, and outside the hospital system. ","",""
+nursing in community situations
+provide nursing care in community settings ","Provide nursing care in community settings such as schools, home settings, assisted living facilities, correctional facilities and hospice, and outside the hospital system. ","",""
 "http://data.europa.eu/esco/skill/0bb4b474-da3a-45ce-9de3-0c964d84e73f","key_20043","fbab938d-893f-4abc-8723-dd1d43ff11a0","knowledge","cross-sector","soldering techniques","soldering practices
 soldering
 soldering methods
@@ -4389,7 +4459,8 @@ attachment of protection to timber piles
 attachment of protective attachments to timber piles
 protect pile head
 attaching protective attachments to timber piles
-fit pile boots","Attach various protective elements, such as boots or points, to the head and toe of timber piles in order to prevent damage to the pile from the stresses of pile driving. Take care to attach a timber pile point correctly to make sure the pile is driven straight down.","",""
+fit pile boots
+attach protective attachments to timber piles","Attach various protective elements, such as boots or points, to the head and toe of timber piles in order to prevent damage to the pile from the stresses of pile driving. Take care to attach a timber pile point correctly to make sure the pile is driven straight down.","",""
 "http://data.europa.eu/esco/skill/0bc42cda-a6f0-4cac-9b34-7911faba0bd4","key_20045","fee9f8ab-3df5-4b9e-ba14-2ebb9878081e","knowledge","sector-specific","microbiology-bacteriology","microbiology-bacteriologies
 science of bacteria
 microbiology-bacteriology
@@ -4595,7 +4666,8 @@ analyse electronic communications
 analysing transmitted communications
 transmitted communications analysing
 interpret transmitted communications
-interpreting transmitted communications","Monitor and analyse data, waveforms, measurements, images or transmitted communications and emissions and identify electrical anomalies.","",""
+interpreting transmitted communications
+analyse transmitted communications","Monitor and analyse data, waveforms, measurements, images or transmitted communications and emissions and identify electrical anomalies.","",""
 "http://data.europa.eu/esco/skill/0c577318-e850-4b3b-aa7c-c196abe4cba6","key_20072","199aaec6-941c-4a0a-99c6-9ce20f573e2d","skill/competence","occupation-specific","liaise with specialist contractors for well operations","liaise with specialist contractors for well operations
 liaising with specialist contractors for well operations
 establish business relationships with specialist contractors
@@ -4687,7 +4759,8 @@ undertake clinical audit
 collect statistical data related to clinical audit
 conduct clinical audit","Undertake internal clinical audit through the collection of statistical, financial and other data related to service delivery.","",""
 "http://data.europa.eu/esco/skill/0c8e6a83-8350-47b9-9619-ae8c796086b0","key_20084","0286d9f3-a71e-43d7-bb6e-347fe589844e","skill/competence","occupation-specific","conduct training on monitoring and evaluation frameworks","train staff on monitoring and evaluation frameworks
-teach monitoring and evaluation frameworks ","Educate and train research staff, policy makers, and various stakeholders on the concepts and tools used in monitoring and evaluation practices.","",""
+teach monitoring and evaluation frameworks 
+conduct training on monitoring and evaluation frameworks","Educate and train research staff, policy makers, and various stakeholders on the concepts and tools used in monitoring and evaluation practices.","",""
 "http://data.europa.eu/esco/skill/0c8f1351-d1fe-4542-89fe-b70729679c52","key_20085","d69090f2-1f70-4d7e-ab82-b68a9eeaa896","skill/competence","cross-sector","manage consumables stock","keep watch on consumables stock
 managing consumables stock
 manage consumables stock
@@ -4706,7 +4779,8 @@ prepare raw materials for man-made fibres fibers manufacturing
 preparation of man-made fibres manufacturing
 pre-processing of man-made fibres
 prepare to manufacture man-made fibres
-prepare raw materials for man-made fibers  manufacturing","Settle the supply of raw materials that need to go into the processing phase such as spinning, in order to prepare the fibres for manufacturing purposes.","",""
+prepare raw materials for man-made fibers  manufacturing
+prepare raw materials for man-made fibres manufacturing","Settle the supply of raw materials that need to go into the processing phase such as spinning, in order to prepare the fibres for manufacturing purposes.","",""
 "http://data.europa.eu/esco/skill/0c944316-12f6-4949-a156-a03dbaae790f","key_20088","d9e48f54-2e22-4e13-8c99-ab2562f022d1","skill/competence","cross-sector","ensure sanitation","provide sanitation
 ensure sanitation
 safeguard sanitation
@@ -4730,7 +4804,8 @@ post-process of a fish
 post-process of fish
 post production of fish
 post-process of fishes","Develop fish products as a result of various processing methods such as cured fish cuts, frying, etc.","",""
-"http://data.europa.eu/esco/skill/0c9f20cb-32fb-4ff7-877e-508762791151","key_20092","f628e3a1-d7b6-49ec-88ee-c164e713a8c8","knowledge","sector-specific","RAGE (digital game creation systems)","Rage","The software framework that consists of integrated development environments and specialised design tools, designed for the rapid iteration of user-derived computer games.","",""
+"http://data.europa.eu/esco/skill/0c9f20cb-32fb-4ff7-877e-508762791151","key_20092","f628e3a1-d7b6-49ec-88ee-c164e713a8c8","knowledge","sector-specific","RAGE (digital game creation systems)","Rage
+RAGE (digital game creation systems)","The software framework that consists of integrated development environments and specialised design tools, designed for the rapid iteration of user-derived computer games.","",""
 "http://data.europa.eu/esco/skill/0c9fdeaa-7b3a-480b-b6cc-757f1dfb5f0f","key_20093","26084dba-8b2b-475b-bbae-924ec48b4191","skill/competence","occupation-specific","assist students with library operations","aid students with library operations
 assist students with library operations
 assists students with library operations
@@ -4784,7 +4859,8 @@ assist passengers with information on railway timetables
 assist passengers with information on rail timetables
 assist passengers with rail timetable information
 respond to passenger enquiries on railway timetables","Listen to railway travellers and respond to their enquiries related to train times; read timetables to assist travellers with the planning of a trip. Identify in a timetable when a particular train service is scheduled to depart and arrive at its destination.","",""
-"http://data.europa.eu/esco/skill/0cc02ab5-da14-4fd4-963d-192fe71d3225","key_20100","5a7a173c-b476-4797-bf2c-228cc50c0d44","skill/competence","sector-specific","assess integrated domotics systems","choose domotic systems","Understand designs and specifications provided by producers of domotics integrated systems and choose a concept that fulfils specific needs within the project.","",""
+"http://data.europa.eu/esco/skill/0cc02ab5-da14-4fd4-963d-192fe71d3225","key_20100","5a7a173c-b476-4797-bf2c-228cc50c0d44","skill/competence","sector-specific","assess integrated domotics systems","choose domotic systems
+assess integrated domotics systems","Understand designs and specifications provided by producers of domotics integrated systems and choose a concept that fulfils specific needs within the project.","",""
 "http://data.europa.eu/esco/skill/0cc9c234-f817-4f4c-908a-4d28fe3b0f4a","key_20101","f95e2b95-b594-4a4d-bf53-2453a90c947b","skill/competence","cross-sector","coach employees","coach employees
 coach employees for performance
 train staff to improve performance
@@ -4794,7 +4870,8 @@ coach staff","Maintain and improve employees' performance by coaching individual
 "http://data.europa.eu/esco/skill/0ccdfe98-f845-4598-84a1-3dca66e9d9a3","key_20102","3fa33169-766c-44b0-a294-60e08b5bb06b","knowledge","sector-specific","Ruby (computer programming)","Ruby-gnome2
 Ruby lang
 Ruby
-Ruby prog","The techniques and principles of software development, such as analysis, algorithms, coding, testing and compiling of programming paradigms in Ruby.","",""
+Ruby prog
+Ruby (computer programming)","The techniques and principles of software development, such as analysis, algorithms, coding, testing and compiling of programming paradigms in Ruby.","",""
 "http://data.europa.eu/esco/skill/0cd07ad3-642c-4073-812f-3842dffcd920","key_20103","c3d5c4ea-c152-45e9-b872-d13e33fb67aa","knowledge","occupation-specific","procedural law","procedural laws
 procedural statutes
 procedural rules and regulations
@@ -4858,7 +4935,8 @@ ensure fleet is used to maximum capacity
 ensure fleet is used optimally
 optimise usability of fleet
 maximise fleet usability
-ensure fleet is used as efficiently as possible","Optimise fleet utilisation, visibility, efficiency and profitability through the use of special ship management software.","",""
+ensure fleet is used as efficiently as possible
+optimise fleet usability","Optimise fleet utilisation, visibility, efficiency and profitability through the use of special ship management software.","",""
 "http://data.europa.eu/esco/skill/0cf27a00-947f-473d-af1a-24028c17ba27","key_20113","9d34a612-67cd-4d5d-b70e-c07ae0b5a0d0","knowledge","cross-sector","international regulations for cargo handling","international regulations governing the loading and unloading of shipments
 international regulations governing the loading and unloading of cargo
 international conventions on the loading and unloading of cargo
@@ -4871,7 +4949,7 @@ international regulations for handling of cargo
 international conventions on the loading and unloading of freight
 international regulations for freight handling
 international regulations for shipment handling","The body of conventions, guidelines and rules which dictate the activity of loading and unloading  cargo in international ports.","",""
-"http://data.europa.eu/esco/skill/0cf3117a-c627-48e0-8d55-65b0f4557ae5","key_20114","a63b8a94-b04a-450b-98d4-d64bbc339507","skill/competence","sector-specific","apply sustainable tillage techniques","","Apply sustainable tillage techniques such as conservation tillage or no till farming in order to minimise the impact on soil.","",""
+"http://data.europa.eu/esco/skill/0cf3117a-c627-48e0-8d55-65b0f4557ae5","key_20114","a63b8a94-b04a-450b-98d4-d64bbc339507","skill/competence","sector-specific","apply sustainable tillage techniques","apply sustainable tillage techniques","Apply sustainable tillage techniques such as conservation tillage or no till farming in order to minimise the impact on soil.","",""
 "http://data.europa.eu/esco/skill/0cf4c414-891e-4030-a3c3-898643bf20fc","key_20115","3e4c8171-9064-4593-ad89-ba68cb772590","knowledge","sector-specific","footwear and leather goods marketing planning","marketing planning
 marketing plan and strategy
 leather goods marketing planning
@@ -4977,7 +5055,8 @@ complete makeover for customers
 carrying out makeover for customers
 carry out a makeover for customers","Apply make-up according to customer's face shape and skin type; use cosmetics such as eyeliner, mascara and lipstick; provide suggestions to customers.","",""
 "http://data.europa.eu/esco/skill/0d4471ae-3820-4c23-8566-f44a7bd159b2","key_20130","9af32887-9c3f-4f9d-ae3e-dda2946d0b5c","skill/competence","cross-sector","prepare licence agreements","prepare license  agreements
-prepare license agreements","Make the legal contract ready, granting permission to use equipment, services, components, applications and intellectual property.","",""
+prepare license agreements
+prepare licence agreements","Make the legal contract ready, granting permission to use equipment, services, components, applications and intellectual property.","",""
 "http://data.europa.eu/esco/skill/0d45c1ef-f56b-4a6c-9517-2d30205d693b","key_20131","c269d10d-042f-4c1b-ba55-4a36f4009115","skill/competence","cross-sector","repair heating equipment","overhaul boiler equipment
 repair heating equipment
 mend boiler equipment
@@ -5047,7 +5126,8 @@ address customer requests based on the REACh Regulation 1907 2006
 deal with customer requests based on the REACh Regulation 1907 2006
 process customer requests based on the REACh Regulation 1907 2006","Reply to private consumer requests according to REACh Regulation 1907/2006 whereby chemical Substances of Very High Concern (SVHC) should be minimal. Advise customers on how to proceed and protect themselves if the presence of SVHC is higher than expected.","",""
 "http://data.europa.eu/esco/skill/0d73a5c0-7f95-4ede-92f3-eac434a970a9","key_20140","7ab2da36-004f-4d6d-8db0-b6c435bd5f56","knowledge","cross-sector","marine engineering","ocean engineering
-maritime engineering","The engineering discipline that studies the design, operation and maintenance of watercraft propulsion and on-board systems. It also addresses the design and construction of fixed and floating marine structures, such as oil platforms and offshore wind farms, which is generally called offshore engineering. ","",""
+maritime engineering
+marine engineering","The engineering discipline that studies the design, operation and maintenance of watercraft propulsion and on-board systems. It also addresses the design and construction of fixed and floating marine structures, such as oil platforms and offshore wind farms, which is generally called offshore engineering. ","",""
 "http://data.europa.eu/esco/skill/0d73ba83-44f0-48c8-8c83-ca8e0e2651fc","key_20141","4cf22553-04d5-4816-9929-ddf7d3f0e893","skill/competence","occupation-specific","load film reels","loading film reels
 prepare film reels
 ready film reels
@@ -5066,7 +5146,8 @@ organise frisk","Conduct frisks, or pat downs, with individual to ensure there a
 use public transportation
 prevent pollution 
 reduce noise
-handle your own waste","Apply measures to reduce air, noise, light, water or environmental pollution, for example by using public transports, not leaving any waste in the natural environment, and reducing unnecessary light and noise emissions, particularly during the night.  ","",""
+handle your own waste
+adopt ways to reduce pollution","Apply measures to reduce air, noise, light, water or environmental pollution, for example by using public transports, not leaving any waste in the natural environment, and reducing unnecessary light and noise emissions, particularly during the night.  ","",""
 "http://data.europa.eu/esco/skill/0d76da6c-b63f-4630-9b23-77d8f90eb8bc","key_20144","c2e131e1-15af-4bff-a6ed-e74d567aea35","skill/competence","occupation-specific","monitor waiting list","monitor waiting-list
 track waiting list
 monitor waiting lists
@@ -5096,7 +5177,8 @@ utilise cutting equipment","Operate cutting equipment specific to the activities
 administer the logistics of medicinal products
 manage the logistics of medicinal products
 ensure storage and preservation of medicinal products
-manage the logistics of a medicinal product","Store, preserve and distribute medicinal products at the wholesale stage.","",""
+manage the logistics of a medicinal product
+handle the logistics of medicinal products","Store, preserve and distribute medicinal products at the wholesale stage.","",""
 "http://data.europa.eu/esco/skill/0d90f823-6f6a-44df-8ab0-1771300d9660","key_20150","99ba0324-8c8b-4c49-b077-07758cf56df0","skill/competence","sector-specific","monitor developments in technology used for design","monitor developments in design technology
 track developments in technology used for design
 monitor developments in technology used for designs
@@ -5191,7 +5273,8 @@ restore tooth's natural color
 bring back natural color of teeth
 bleach, clean or polish teeth
 restore teeths' natural color
-restore tooth's natural colour","Bleach, clean or polish teeth to restore natural colour.","",""
+restore tooth's natural colour
+restore teeths' natural colour","Bleach, clean or polish teeth to restore natural colour.","",""
 "http://data.europa.eu/esco/skill/0de0d575-1112-4f79-9d41-037f1ad18be9","key_20166","fb0e2e14-88c0-4ced-adca-ea93236a357f","skill/competence","sector-specific","deliver sophrology exercises","execute sophrology exercises
 implement sophrology exercises
 carry out sophrology exercises
@@ -5254,7 +5337,8 @@ give advice about mining environmental issues","Advise engineers, surveyors, geo
 use cognitive behaviour treatment
 employ cognitive behavior  treatment techniques
 use cognitive behaviour treatment techniques
-apply cognitive behaviour treatment","Employ cognitive behavioural treatment techniques for those whose treatment involves cognitive re-training, addressing dysfunctional emotions, maladaptive behaviours and cognitive processes and contents through a variety of systematic procedures.","",""
+apply cognitive behaviour treatment
+employ cognitive behaviour treatment techniques","Employ cognitive behavioural treatment techniques for those whose treatment involves cognitive re-training, addressing dysfunctional emotions, maladaptive behaviours and cognitive processes and contents through a variety of systematic procedures.","",""
 "http://data.europa.eu/esco/skill/0e0eec3f-0a8b-4cfe-b86d-925bde288bc4","key_20176","4452fce8-ed87-4c10-a19b-ae825d86e38a","knowledge","sector-specific","items specialty available for auction","lots available for auction
 goods available for auction
 items available to auction
@@ -5324,7 +5408,8 @@ mechanics of digital games","The classification of video games based on their in
 sustain catalogues of antiquarian goods
 control catalogues of antiquarian goods
 maintain catalogs  of antiquarian goods
-manage catalogues of antiquarian goods","Make up inventories of antiquarian products in order to facilitate the search of customers.","",""
+manage catalogues of antiquarian goods
+maintain catalogues of antiquarian goods","Make up inventories of antiquarian products in order to facilitate the search of customers.","",""
 "http://data.europa.eu/esco/skill/0e44ceb3-9dd4-4ec4-b1d7-a0e83ddba7d4","key_20188","fbdecbd6-f5d1-43f7-a719-b329fb491c98","skill/competence","cross-sector","automotive engineering","automotive engineering
 constructing automobiles
 engineering of automotives
@@ -5355,8 +5440,9 @@ sediment control conduct
 conduct sediment and erosion control
 conducting sediment control
 sediment and erosion control conduct","Manage sediment control processes and projects. Plan sediment control actions to prevent eroded soil from polluting nearby waterways.","","Sediment control techniques are mostly used together with erosion control techniques. Used on construction sites."
-"http://data.europa.eu/esco/skill/0e62eba3-d076-47e5-b22d-340a8faccb3b","key_20192","826db83a-e77d-41b9-be8f-341627b0f7ee","knowledge","occupation-specific","assistive technology in education","","Digital devices and equipment that support learners with learning, communication or mobility challenges to access educational resources and achieve their full potential. It includes software such as text to speech and optical character recognition.","",""
-"http://data.europa.eu/esco/skill/0e667579-d045-4c6a-b0f3-230a61edd014","key_20193","69822b39-8e52-4dff-8519-ab0a58697269","skill/competence","occupation-specific","model power electronics","simulate power electronics","Model and simulate power electronics systems, products, and components using technical design software. Assess the viability of the product and examine the physical parameters to ensure a successful production process.","",""
+"http://data.europa.eu/esco/skill/0e62eba3-d076-47e5-b22d-340a8faccb3b","key_20192","826db83a-e77d-41b9-be8f-341627b0f7ee","knowledge","occupation-specific","assistive technology in education","assistive technology in education","Digital devices and equipment that support learners with learning, communication or mobility challenges to access educational resources and achieve their full potential. It includes software such as text to speech and optical character recognition.","",""
+"http://data.europa.eu/esco/skill/0e667579-d045-4c6a-b0f3-230a61edd014","key_20193","69822b39-8e52-4dff-8519-ab0a58697269","skill/competence","occupation-specific","model power electronics","simulate power electronics
+model power electronics","Model and simulate power electronics systems, products, and components using technical design software. Assess the viability of the product and examine the physical parameters to ensure a successful production process.","",""
 "http://data.europa.eu/esco/skill/0e685cc5-df53-451f-b987-7fd6d7025447","key_20194","545cbd31-1d40-49b3-b2ec-1504f63cbbe2","skill/competence","sector-specific","provide anti-cancer medical treatment","provide medical treatment against cancer
 supply anti-cancer medical therapy
 provide anti-cancer medical therapy
@@ -5380,7 +5466,8 @@ constructing molds
 construction of moulds
 construct molds
 make molds
-constructing moulds","Construct moulds for the casting of objects in plaster, clay, glass, plastic or metal. Use casting machines and materials such as rubber, plaster or fibreglass.","",""
+constructing moulds
+construct moulds","Construct moulds for the casting of objects in plaster, clay, glass, plastic or metal. Use casting machines and materials such as rubber, plaster or fibreglass.","",""
 "http://data.europa.eu/esco/skill/0e78d9c9-7c3c-4c5c-82cb-205c16edbcb8","key_20196","5a9e7f5a-4746-49b2-bfa1-ff99d8b914d3","knowledge","occupation-specific","green computing","green computing","The use of ICT systems in an environmentally responsible and sustainable manner, such as the implementation of energy-efficient servers and central processing units (CPUs), reduction of resources and correct disposal of e-waste.","",""
 "http://data.europa.eu/esco/skill/0e7f7009-6633-47a0-ab39-b04e9436daef","key_20197","984db221-e0c1-48a4-b0f7-c2eefa876dc1","knowledge","cross-sector","musculoskeletal anatomy","musculoskeletal system and functions
 musculoskeletal functions and system
@@ -5617,7 +5704,8 @@ production processes parameter optimising
 maintaining production processes parameters
 maintain production processes parameters
 production processes parameters maintaining
-production processes parameter maintaining","Optimise and maintain the parameters of the production process such as flow, temperature or pressure.","",""
+production processes parameter maintaining
+optimise production processes parameters","Optimise and maintain the parameters of the production process such as flow, temperature or pressure.","",""
 "http://data.europa.eu/esco/skill/0f16809e-a1a4-46a4-ae8e-058f5d0d358a","key_20229","bed912c4-900c-4e69-b3ab-c0246685cd51","knowledge","occupation-specific","prototyping in the wearing apparel industry","creating prototypes for the wearing apparel industry
 prototyping in the wearing apparel industry
 made-up textile prototyping
@@ -5653,13 +5741,15 @@ mold type selection
 mould type selection
 selecting of mould types
 choice of mould types
-selecting mold types","Select the appropriate type and size of mould based on the operation.","",""
+selecting mold types
+select mould types","Select the appropriate type and size of mould based on the operation.","",""
 "http://data.europa.eu/esco/skill/0f298334-ae4a-4ab7-96c2-0d90d2883768","key_20232","d68a6adb-264f-40db-9c24-669a3049188a","skill/competence","sector-specific","assist individuals with disabilities in community activities","enable disabled individuals to participate in community activities
 facilitate disabled individuals' participatation in community life
 facilitate disabled individuals' participatation in community activities
 assist disabled individuals with community activity participation
 assist disabled individuals to participate in community activities
-assist disabled individuals with community life participation","Facilitate the inclusion of individuals with disabilities in the community and support them to establish and maintain relationships through access to community activities, venues and services.","",""
+assist disabled individuals with community life participation
+assist individuals with disabilities in community activities","Facilitate the inclusion of individuals with disabilities in the community and support them to establish and maintain relationships through access to community activities, venues and services.","",""
 "http://data.europa.eu/esco/skill/0f2cb38a-6e97-4f49-80f7-1da9e5835ed0","key_20233","0f2c1a6d-3a93-464f-a7aa-e200ecd2b6eb","knowledge","cross-sector","buffing motions","polishing operation
 buffing motions
 buffing processes
@@ -5760,7 +5850,7 @@ solder lead came joints
 conjoin lead came joints
 solder joints of lead came
 soldering of lead came joints","Soldering of lead came windows and joints.","",""
-"http://data.europa.eu/esco/skill/0f5374e3-0b9b-4b16-af7a-49654ce0bb15","key_20246","3bc97077-6bca-4730-bf7a-733c82b95685","knowledge","sector-specific","human-robot collaboration","","Human-Robot Collaboration is the study of collaborative processes in which human and robot agents work together to achieve shared goals. Human-Robot Collaboration (HRC) is an interdisciplinary research area comprising classical robotics, human-computer interaction, artificial intelligence, design, cognitive sciences and psychology. It is related to the definition of the plans and the rules for communication to perform a task and achieve a goal in a joint action with a robot.","",""
+"http://data.europa.eu/esco/skill/0f5374e3-0b9b-4b16-af7a-49654ce0bb15","key_20246","3bc97077-6bca-4730-bf7a-733c82b95685","knowledge","sector-specific","human-robot collaboration","human-robot collaboration","Human-Robot Collaboration is the study of collaborative processes in which human and robot agents work together to achieve shared goals. Human-Robot Collaboration (HRC) is an interdisciplinary research area comprising classical robotics, human-computer interaction, artificial intelligence, design, cognitive sciences and psychology. It is related to the definition of the plans and the rules for communication to perform a task and achieve a goal in a joint action with a robot.","",""
 "http://data.europa.eu/esco/skill/0f551181-e1af-47e2-b2d8-ff9f4e011ecd","key_20247","98d3dae6-76f7-48cd-afc7-edd7b6a0491a","skill/competence","sector-specific","use clinical assessment techniques","use clinical assessement technique
 apply clinical assessment techniques
 use clinical assessement methods
@@ -5811,7 +5901,8 @@ explain financial technicalities in plain words
 explain financial technicalities to customers
 explain financial technicalities to clients
 explain financial technicalities to buyers
-describe financial technicalities to clients","Explain all details of financial products in plain words to clients, including financial terms and all costs.","",""
+describe financial technicalities to clients
+explain financial jargon","Explain all details of financial products in plain words to clients, including financial terms and all costs.","",""
 "http://data.europa.eu/esco/skill/0f62b20e-90ea-446b-b5a4-eb5ece4057b0","key_20252","1b19d89e-8c7c-4498-ba8f-03f068a71021","skill/competence","sector-specific","develop strategic plans for physiotherapy services","develop strategic plans for physiotherapy services
 develop plans for physiotherapy services
 contribute to the development of physiotherapy services
@@ -5903,7 +5994,8 @@ investigate jobless rates
 scrutinise jobless rates
 scrutinise unemployment rates
 analyze  unemployment rates
-investigate unemployment rates","Analyse data and perform research concerning unemployment in a region or nation in order to identify causes for unemployment and possible solutions.","",""
+investigate unemployment rates
+analyse unemployment rates","Analyse data and perform research concerning unemployment in a region or nation in order to identify causes for unemployment and possible solutions.","",""
 "http://data.europa.eu/esco/skill/0fad7d54-a1ac-412e-84d5-3740ba5cb7a1","key_20265","cb9e477d-b445-489d-bb5f-f57cbba5ea37","skill/competence","occupation-specific","use locksmith equipment","use locksmith gear
 use locksmith instruments
 using locksmith equipment
@@ -5945,7 +6037,8 @@ contribute to realizing artistic direction's intent
 get involved in realising artistic direction's intent
 get involved in realizing artistic direction's intent
 participate in realising artistic direction's intent
-contribute towards realising artistic direction's intent","Contribute to the development of an artistic approach. Help the choreographer develop his or her artistic intent, grasping the work's identity, participating in the creative process.","",""
+contribute towards realising artistic direction's intent
+contribute to an artistic approach","Contribute to the development of an artistic approach. Help the choreographer develop his or her artistic intent, grasping the work's identity, participating in the creative process.","",""
 "http://data.europa.eu/esco/skill/0fc0cb61-f44d-4fd0-afd1-18506380b55e","key_20273","15d739bb-14de-4ea9-a2b3-f9092fb6c2e0","skill/competence","sector-specific","exert a goal-oriented leadership role towards colleagues","exert a result-oriented leadership role
 lead colleagues
 make use of goal-driven leadership abilities
@@ -6018,13 +6111,15 @@ counseling techniques
 counseling  methods
 counseling methods
 counseling method
-methods of counselling","Counselling techniques used in different settings and with various groups and individuals, especially concerning methods of supervision and mediation in the counselling process.","",""
+methods of counselling
+counselling methods","Counselling techniques used in different settings and with various groups and individuals, especially concerning methods of supervision and mediation in the counselling process.","",""
 "http://data.europa.eu/esco/skill/10026df1-670d-4c75-b3d5-ee0037f9d59b","key_20283","e126c58d-5a06-43e6-a9bb-b7628239c458","skill/competence","sector-specific","lead process optimisation","determine process optimisation
 govern process optimisation
 process optimisation lead
 control process optimisation
 lead process optimization
-manage process optimisation","Lead process optimisation using statistical data. Design experiments on the production line and functional process control models.","",""
+manage process optimisation
+lead process optimisation","Lead process optimisation using statistical data. Design experiments on the production line and functional process control models.","",""
 "http://data.europa.eu/esco/skill/1008da30-7690-42c8-94c7-3f3bd8885c00","key_20284","cb91d484-bbb1-4da8-bf0e-9e6c7cc12405","skill/competence","sector-specific","maintain amusement park equipment","maintain the amusement park's equipment
 list all equipment in amusement park
 maintain equipment in amusement park
@@ -6139,7 +6234,8 @@ undertake veterinary hospital nursing activities
 deliver nursing care to animals in veterinary hospitals
 supply nursing care to hospitalised animals
 conduct veterinary hospital nursing activities
-ensure hospitalised animals receive nursing care","​'Plan and provide nursing care to hospitalised animals, conducting a range of activities related to areas including fluid and nutrition, hygiene and grooming, comfort and pain management, toileting, positioning and exercise, attention and enrichment, and the nursing environment.'","","Provision of nursing support must be in accordance with national regulatory frameworks."
+ensure hospitalised animals receive nursing care
+provide nursing care for hospitalised animals","​'Plan and provide nursing care to hospitalised animals, conducting a range of activities related to areas including fluid and nutrition, hygiene and grooming, comfort and pain management, toileting, positioning and exercise, attention and enrichment, and the nursing environment.'","","Provision of nursing support must be in accordance with national regulatory frameworks."
 "http://data.europa.eu/esco/skill/104f5817-978e-419a-a32b-5b5ccfc0f3bb","key_20301","730b73c0-3dc7-4d36-bf5e-a8331cafd0bc","knowledge","sector-specific","complementary and alternative medicine","unconventional medicine
 alternative and complementary medicine
 complementary and alternative medicine
@@ -6340,7 +6436,7 @@ document stock of costumes
 document costume stock
 keep records of costumes in stock
 document costumes in stock","Keep records of the costumes held in stock. Track all relevant properties of the costumes and how they are used.","",""
-"http://data.europa.eu/esco/skill/10ff3d22-1f29-48bc-98e4-63fc61c78034","key_20328","6237599b-809e-4f9f-bdae-3e568ac24c25","knowledge","sector-specific","social alliances","","The creation of partnerships between different actors (businesses, non-profit organisations or public sector organisations) through which they share resources and knowledge for a common cause: typically to solve a social or environmental challenge.","",""
+"http://data.europa.eu/esco/skill/10ff3d22-1f29-48bc-98e4-63fc61c78034","key_20328","6237599b-809e-4f9f-bdae-3e568ac24c25","knowledge","sector-specific","social alliances","social alliances","The creation of partnerships between different actors (businesses, non-profit organisations or public sector organisations) through which they share resources and knowledge for a common cause: typically to solve a social or environmental challenge.","",""
 "http://data.europa.eu/esco/skill/11069c8b-fc8e-4e2f-b00b-32785b095946","key_20329","8a4a56ed-62fe-42db-af42-af5d6a7133b6","skill/competence","occupation-specific","unload raw material for animal feed","conduct unloading of raw materials, undertake unloading of raw materials
 unload raw material for animal feeds
 perform raw material unloading activities
@@ -6397,7 +6493,8 @@ educate on teaching principles
 teaches teaching principles","Instruct students in the theory and practice of teaching, more specifically in the different teaching methods, classroom management, and learning processes.","",""
 "http://data.europa.eu/esco/skill/11335fcc-23af-4afe-bfaf-c0c25abcb5b0","key_20338","1ed3228b-0eed-4ea7-a338-54777909bb00","knowledge","cross-sector","biological haematology","biological hematology
 study of blood diseases
-diagnosis and treatment of blood diseases","Biological haematology is a medical specialty mentioned in the EU Directive 2005/36/EC.","",""
+diagnosis and treatment of blood diseases
+biological haematology","Biological haematology is a medical specialty mentioned in the EU Directive 2005/36/EC.","",""
 "http://data.europa.eu/esco/skill/113b4428-0a31-4199-8496-070af7854b91","key_20339","49b5ff55-7253-4787-9374-d88f5318ba7d","skill/competence","transversal","meet commitments","meet commitment
 show conscientiousness
 keep promises
@@ -6436,7 +6533,8 @@ show use of hardware","Provide customers with information about the quality of h
 ensure tableware is ready for use
 check that plates and cutlery and glasses are ready for use
 ensure tableware is ready to be used
-ensure use of tableware is ready","Guarantee that plates, cutlery and glassware are clean, polished and in good condition.","",""
+ensure use of tableware is ready
+prepare tableware","Guarantee that plates, cutlery and glassware are clean, polished and in good condition.","",""
 "http://data.europa.eu/esco/skill/113de748-7d31-4cc7-b7c8-e34cad08a225","key_20343","8ae9de6e-a1dc-42e8-b834-fcfd968f2910","skill/competence","sector-specific","operate monogram-printing device","run a monogram-printing device
 work a monogram-printing device
 use a monogram-printing device
@@ -6446,7 +6544,8 @@ operate monogram-printing device
 operate monogram-printing devices","Set up and operate monogram-printing device to print brand on cigarette paper at specified position.","",""
 "http://data.europa.eu/esco/skill/11430d93-c835-48ed-8e70-285fa69c9ae6","key_20344","9a26eddf-8f27-48b3-a5d6-851ab32da0fa","skill/competence","sector-specific","design cloud architecture","design multi-tier cloud architecture
 create cloud architecture
-engineer cloud architecture","Design a multi-tier cloud architecture solution, which tolerates faults and is fit for the workload and other business needs. Identify elastic and scalable computing solutions, select high-performing and scalable storage solutions, and choose high-performing database solutions. Identify cost-effective storage, computing, and database services in the cloud.","",""
+engineer cloud architecture
+design cloud architecture","Design a multi-tier cloud architecture solution, which tolerates faults and is fit for the workload and other business needs. Identify elastic and scalable computing solutions, select high-performing and scalable storage solutions, and choose high-performing database solutions. Identify cost-effective storage, computing, and database services in the cloud.","",""
 "http://data.europa.eu/esco/skill/1143e53e-2933-472d-8161-f26d6936c927","key_20345","c52980c5-4f84-43c0-b195-1edc8175857b","skill/competence","cross-sector","lead military troops","direct military personnel
 supervise military troops
 lead military troops
@@ -6531,7 +6630,8 @@ fouling removing
 cleaning fouling off
 removing fouling","Clean off fouling in aquaculture facilities.","",""
 "http://data.europa.eu/esco/skill/1177a1e9-213a-477b-b57c-364368c68b95","key_20358","e5517c49-9884-49bc-88f4-52309b7f6dbb","skill/competence","occupation-specific","design power electronics","design power electronics system
-develop power electronics","Design and develop power electronics systems, products, and components according to specifications. Select suitable ancillary devices for the intended application.","",""
+develop power electronics
+design power electronics","Design and develop power electronics systems, products, and components according to specifications. Select suitable ancillary devices for the intended application.","",""
 "http://data.europa.eu/esco/skill/1177c6f5-09c5-4c35-873c-afd22d170ad3","key_20359","8ebfa488-4086-45a0-b94d-47cec4d2309d","knowledge","cross-sector","quality assurance procedures","quality assurance procedures
 quality control procedures
 quality check
@@ -6558,7 +6658,8 @@ advocate equality of opportunity in organisations
 encourage inclusion in organisations
 boost inclusion in organisations
 stimulate inclusion in organisations
-stimulate equality of opportunity in organisations","Promote diversity and equal treatment of genders, ethnicities and minority groups in organisations in order to prevent discrimination and ensure inclusion and a positive environment.","",""
+stimulate equality of opportunity in organisations
+promote inclusion in organisations","Promote diversity and equal treatment of genders, ethnicities and minority groups in organisations in order to prevent discrimination and ensure inclusion and a positive environment.","",""
 "http://data.europa.eu/esco/skill/11877887-d81e-4fdd-865a-e47a40b6707d","key_20362","be48ee58-ee89-4207-b79b-eba39dbac662","skill/competence","sector-specific","study communications channels for different employers/contractors","studying communications channels for different employers/contractors
 study communications channels for different employers/contractors
 study communications channels for different contractors/employers
@@ -6606,7 +6707,8 @@ provide instruction to crew in technical shore-based operations
 oversee operations in technical shore-based facilities
 direct crew actions in technical shore-based operations
 oversee activities in technical shore-based facilities
-instruct crew in operations of technical shore-based facilities","Instruct crew members in the pre- and after activities relating to the operations of technical shore-based facilities. Understand safety regulations required to work with shipboard electrical systems.","",""
+instruct crew in operations of technical shore-based facilities
+instruct on technical shore-based operations","Instruct crew members in the pre- and after activities relating to the operations of technical shore-based facilities. Understand safety regulations required to work with shipboard electrical systems.","",""
 "http://data.europa.eu/esco/skill/119535c6-ff74-4e64-91c2-bcf338749fd6","key_20369","99a4f777-da67-4cd1-9c3d-7ec40f43cd3d","skill/competence","occupation-specific","design well paths","designing well paths
 calculate well paths
 design well paths
@@ -6635,7 +6737,8 @@ practice innovative thinking in the leather goods industry
 practice innovative thinking in the footwear industry
 practice innovative thinking in the footwear and leather goods industries
 practice innovative thinking in the footwear and leather industries
-apply creative thinking in the footwear and leather industry","Innovate in the footwear and leather goods sector. Evaluate new ideas and concepts to turn them into marketable products. Use entrepreneurial thinking in all stages of the product and process development to identify new business opportunities for the targeted markets.","",""
+apply creative thinking in the footwear and leather industry
+innovate in footwear and leather goods industry","Innovate in the footwear and leather goods sector. Evaluate new ideas and concepts to turn them into marketable products. Use entrepreneurial thinking in all stages of the product and process development to identify new business opportunities for the targeted markets.","",""
 "http://data.europa.eu/esco/skill/11bbb82e-f3cc-4734-94d5-b99fdd0a683e","key_20373","f254f69c-818f-4ba8-82f0-31882803e7b5","skill/competence","cross-sector","explain interview purposes","explain purposes of interview
 explaining interview purposes
 describe interview purposes
@@ -6764,7 +6867,8 @@ recording survey measurements
 survey measurement recording
 collation of survey data
 collate survey data
-processing survey data","Gather and process descriptive data by using documents such as sketches, drawings and notes.","",""
+processing survey data
+record survey data","Gather and process descriptive data by using documents such as sketches, drawings and notes.","",""
 "http://data.europa.eu/esco/skill/120e54ef-b480-4d49-bf8d-591dbd3598f5","key_20389","4cf0d051-d3b1-42fb-b915-5d08b9e52b1d","skill/competence","sector-specific","shunt inbound loads","shunt inbound shipments
 perform shunting operations for inbound freight
 undertake shunting operations for inbound and outbound freight
@@ -6806,10 +6910,12 @@ pouring of molten metal into molds
 filling moulds with molten steel
 fill molds with molten steel
 pouring molten metal into moulds
-filling molds with molten steel","Pour molten steel or metal into moulds; operate by hand or by using cranes.","",""
+filling molds with molten steel
+pour molten metal into moulds","Pour molten steel or metal into moulds; operate by hand or by using cranes.","",""
 "http://data.europa.eu/esco/skill/12274664-b642-4945-b88f-d7787dc3c9dd","key_20393","e2332c5c-e216-4d35-bd20-c297c93fd4a3","skill/competence","sector-specific","design interaction model","design virtual assistant skills
 develop interaction model
-design skills for interaction model","Design and develop an interaction model. Design a multi-turn conversation, use built-in intents and slots, handle unexpected conversational requests or responses, design multi-modal skills using one or more service interfaces (for example, audio, video, and gadgets).","",""
+design skills for interaction model
+design interaction model","Design and develop an interaction model. Design a multi-turn conversation, use built-in intents and slots, handle unexpected conversational requests or responses, design multi-modal skills using one or more service interfaces (for example, audio, video, and gadgets).","",""
 "http://data.europa.eu/esco/skill/122c4641-027e-4add-888d-de7de0122d43","key_20394","074af147-ae0c-447b-8f44-82d6f8241c13","skill/competence","sector-specific","design floor","design of flooring
 design floor
 selecting floor materials
@@ -6861,7 +6967,8 @@ perform testing on AIM systems","Test functionality of systems before releasing 
 organise records management
 carry out record management
 coordinate management records
-carry out management of records","Manage the life-cycle of records of institutions, indivduals, corporate bodies, collections, oral history.","",""
+carry out management of records
+perform records management","Manage the life-cycle of records of institutions, indivduals, corporate bodies, collections, oral history.","",""
 "http://data.europa.eu/esco/skill/124a7276-1598-46dc-bd4e-f2dff7377cc9","key_20400","564d65cb-c55f-4ccc-ba38-27c3dfb76472","skill/competence","sector-specific","coordinate the ship crew","coordinating the ship crew
 coordinate crew of ship
 organising crew of ship
@@ -6888,7 +6995,8 @@ organise work
 organise work according to deadlines
 be organized
 be organised
-show organisational abilities","Stay focused on the project at hand, at any time. Organise, manage time, plan, schedule and meet deadlines.","",""
+show organisational abilities
+work in an organised manner","Stay focused on the project at hand, at any time. Organise, manage time, plan, schedule and meet deadlines.","",""
 "http://data.europa.eu/esco/skill/1263904f-1c2c-48f5-a6ca-0176ef5d2060","key_20403","1a7a086f-c125-4c86-9d73-f1a4e1f5199e","skill/competence","sector-specific","read scripts","read the play script
 read the script
 read the screenplay
@@ -6939,7 +7047,8 @@ assign homework
 assign exercises","Provide additional exercises and assignments that the students will prepare at home, explain them in a clear way, and determine the deadline and evaluation method.","",""
 "http://data.europa.eu/esco/skill/128f318e-1bc8-4921-821f-b0aad1d98922","key_20410","2f93b84b-448e-4fc4-a18a-2f00765acdeb","skill/competence","sector-specific","determine appropriate heating and cooling system ","determine systems that fit nzeb demands
 determine appropriate heating and cooling system fitting nzeb demands
-determine hvac system fitting nzeb demands","Determine the appropriate system in relation to available energy sources (soil, gas, electricity, district etc) and that fit the NZEB demands.","",""
+determine hvac system fitting nzeb demands
+determine appropriate heating and cooling system ","Determine the appropriate system in relation to available energy sources (soil, gas, electricity, district etc) and that fit the NZEB demands.","",""
 "http://data.europa.eu/esco/skill/1299a59c-8b90-4838-8bef-0065cdfc8bdf","key_20411","fed7afa5-1410-4488-8b3e-62b2c7a3060b","skill/competence","transversal","write Punjabi","show competency in written Punjabi
 write Panjabi
 write Punjabi
@@ -6954,7 +7063,8 @@ use instruments in ophthalmology","Use specialised instruments in ophthalmology 
 supervise a script
 supervise preparation of script
 oversee script
-supervise the script","Supervise script preparation, maintenance, and distribution for all productions.","",""
+supervise the script
+supervise script preparation","Supervise script preparation, maintenance, and distribution for all productions.","",""
 "http://data.europa.eu/esco/skill/12adba20-07ba-40af-ad41-48f730af3851","key_20414","8141cd4d-e1f2-4c4d-90ed-ef7bfa9b8f9d","knowledge","sector-specific","radioactive contamination","radio-active substances
 typology of radioactive substances
 types of radioactive contamination
@@ -6973,7 +7083,8 @@ fault tree analysis
 testability analysis
 accelerated testing
 reliability hazard analysis and modelling
-functional failure analysis","Analyse the causes and effects of the errors which can occur during the production process, in order to minimise accidents and maximise customer satisfaction and safety. ","",""
+functional failure analysis
+perform failure analysis of production process","Analyse the causes and effects of the errors which can occur during the production process, in order to minimise accidents and maximise customer satisfaction and safety. ","",""
 "http://data.europa.eu/esco/skill/12b7d5a1-1ad4-45dc-b0fa-b31d1eb2c79a","key_20416","d2b8e2b0-7aae-49aa-884b-4bf3e8ec46e3","skill/competence","occupation-specific","maintain pricing database","maintain pricing databases
 maintain pricing database
 maintain a pricing database
