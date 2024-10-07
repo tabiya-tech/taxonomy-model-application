@@ -2,7 +2,8 @@
 "","","","","","","",""
 "","","","","","","",""
 "origin uri","key_1","","01","iscogroup","preferred label","label1
-label2","description"
+label2
+preferred label","description"
 "esco
 uri
 with
@@ -18,6 +19,8 @@ linebreak"
 "origin uri","key_4","b69710e0-7e7d-43ea-a645-26dab12faf8d
 b69710e0-7e7d-43ea-a645-26dab12faf56","0102","iscogroup","duplicate altLabels","label1
 label2
-label1","description"
-"origin uri","key_i4",b69710e0-7e7d-43ea-a645-26dab12faf8f,"I0102","iscogroup","not duplicate altLabels","label I0102","description"
+label1
+duplicate altLabels","description"
+"origin uri","key_i4",b69710e0-7e7d-43ea-a645-26dab12faf8f,"I0102","iscogroup","not duplicate altLabels","label I0102
+not duplicate altLabels","description"
 "icatus urn","key_i5","b69710e0-7e7d-43ea-a645-26dab12faf8g","I0103","icatusgroup","ICATUS Occupation group","label I0103","description"

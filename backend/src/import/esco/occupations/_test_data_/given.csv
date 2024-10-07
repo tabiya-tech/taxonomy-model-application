@@ -3,7 +3,8 @@
 "","","","","","","","","","","","",""
 "origin uri","key_1","b69710e0-7e7d-43ea-a645-26dab12faf83
 b69710e0-7e7d-43ea-a645-26dab12faf8d","01","0001.1.2.3","preferred label","label1
-label2","description","definition","scope note","regulated profession note","ESCOOCCUPATION","FALSE"
+label2
+preferred label","description","definition","scope note","regulated profession note","ESCOOCCUPATION","FALSE"
 "origin
 uri
 with
@@ -27,21 +28,28 @@ linebreak","LOCALOCCUPATION","FALSE"
 "","error_3","","","","","","","","","","ESCOOCCUPATION","FALSE"
 "origin uri","error_4","b69710e0-7e7d-43ea-a645-26dab12faf83
 b69710e0-7e7d-43ea-a645-26dab12faf8d","011","0011.1.2.3","preferred label","label1
-label2","description","definition","scope note","regulated profession note","INVALID TYPE","FALSE"
+label2
+preferred label","description","definition","scope note","regulated profession note","INVALID TYPE","FALSE"
 "origin uri","key_3","b69710e0-7e7d-43ea-a645-26dab12faf83
 b69710e0-7e7d-43ea-a645-26dab12faf8d","01","1000.1.2.3","preferred label","label1
 label2
-label1","description","definition","scope note","regulated profession note","ESCOOCCUPATION","TRUE"
+label1
+preferred label","description","definition","scope note","regulated profession note","ESCOOCCUPATION","TRUE"
 "origin uri","error_5","b69710e0-7e7d-43ea-a645-26dab12faf83
 b69710e0-7e7d-43ea-a645-26dab12faf8d","011","0111.1.2.3","preferred label","label1
-label2","description","definition","scope note","regulated profession note","LOCALOCCUPATION","FALSE"
+label2
+preferred label","description","definition","scope note","regulated profession note","LOCALOCCUPATION","FALSE"
 "origin uri","error_6","b69710e0-7e7d-43ea-a645-26dab12faf83
 b69710e0-7e7d-43ea-a645-26dab12faf8d","01","0001.1.2_3","preferred label","label1
-label2","description","definition","scope note","regulated profession note","escooccupation","FALSE"
+label2
+preferred label","description","definition","scope note","regulated profession note","escooccupation","FALSE"
 "origin uri","error_7","b69710e0-7e7d-43ea-a645-26dab12faf83
 b69710e0-7e7d-43ea-a645-26dab12faf8d","011","0111.1.2.3","preferred label","label1
-label2","description","definition","scope note","regulated profession note","LOCALOCCUPATION","true"
+label2
+preferred label","description","definition","scope note","regulated profession note","LOCALOCCUPATION","true"
 "origin uri","key_4","","01","0001.1.2.3.4_01","preferred label","label1
 label2
-label1","description","definition","scope note","regulated profession note","localoccupation","false"
-"origin uri","key_i4","","I01","0001.1.2.3.4_01","preferred label","label1","description","definition","scope note","regulated profession note","localoccupation","false"
+label1
+preferred label","description","definition","scope note","regulated profession note","localoccupation","false"
+"origin uri","key_i4","","I01","0001.1.2.3.4_01","preferred label","label1
+preferred label","description","definition","scope note","regulated profession note","localoccupation","false"

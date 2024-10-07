@@ -125,18 +125,25 @@ describe("test parseSkillGroups from", () => {
         });
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
-      // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
+        "Warning while importing Skill Group row with id:'key_2'. Preferred label 'preferred\n" +
+        "label\n" +
+        "with\n" +
+        "linebreak' is not in the alt labels."
+      );
+      // AND a warning should be logged for the row with duplicate altLabels
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        2,
         "Warning while importing SkillGroup row with id:'key_6'. AltLabels contain 1 duplicates."
       );
       // AND warning should be logged fo reach of the failed rows
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        2,
+        3,
         "Failed to import SkillGroup from row:1 with importId:"
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        3,
+        4,
         "Failed to import SkillGroup from row:2 with importId:"
       );
     }

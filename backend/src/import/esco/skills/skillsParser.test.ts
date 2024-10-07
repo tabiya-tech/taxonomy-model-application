@@ -130,14 +130,23 @@ describe("test parseSkills from", () => {
       expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        3,
+        4,
         "Warning while importing Skill row with id:'key_8'. AltLabels contain 1 duplicates."
       );
+
+      // AND a warning that that says that the preferred label is not in the alt labels should be logged
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        3,
+        "Failed to import Skill with skillId:key_7"
+      );
       // AND warning should be logged fo reach of the failed rows
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(1, "Failed to import Skill with skillId:key_6");
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(2, "Failed to import Skill with skillId:key_7");
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(4, "Failed to import Skill from row:1 with importId:");
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(5, "Failed to import Skill from row:2 with importId:");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(1, "Warning while importing Skill row with id:'key_2'. Preferred label 'preferred\n" +
+        "label\n" +
+        "with\n" +
+        "linebreak' is not in the alt labels.");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(2, "Failed to import Skill with skillId:key_6");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(5, "Failed to import Skill from row:1 with importId:");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(6, "Failed to import Skill from row:2 with importId:");
     }
   );
 });

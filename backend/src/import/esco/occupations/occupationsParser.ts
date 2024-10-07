@@ -73,6 +73,14 @@ function getRowToSpecificationTransformFn(
       );
     }
 
+    // warning if the preferred label is not in the alt labels
+    if (!uniqueAltLabels.includes(row.PREFERREDLABEL)) {
+      errorLogger.logWarning(
+        `Warning while importing Occupation row with id:'${row.ID}'. Preferred label '${row.PREFERREDLABEL}' is not in the alt labels.`
+      );
+    }
+
+
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
