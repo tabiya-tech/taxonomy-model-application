@@ -89,14 +89,21 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     const ICATUS_LEVEL_1_GROUPS = 3;
     const ESCO_LEVEL_1_GROUPS = 10;
 
+    const expectedOccupationHierarchyEntriesWithoutICATUS = countOccupationGroups + countOccupations - (ESCO_LEVEL_1_GROUPS);
+    const expectedOccupationHierarchyEntriesWithICATUS = expectedOccupationHierarchyEntriesWithoutICATUS - ICATUS_LEVEL_1_GROUPS;
+
+    // For now there are two possible cases:
+    // 1. The import contains both ESCO and ICATUS data (10 level 1 isco groups and 3 level 1 icatus groups)
+    // 2. The import contains only ESCO data (10 level 1 isco groups)
+    // We check for both cases and log a warning if the number of processed entries does not match either.
     if (
-      stats.rowsSuccess !==
-      countOccupationGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)
+      stats.rowsSuccess !== expectedOccupationHierarchyEntriesWithoutICATUS &&
+      stats.rowsSuccess !== expectedOccupationHierarchyEntriesWithICATUS
     ) {
       errorLogger.logWarning(
-        `Expected to successfully process ${
-          countOccupationGroups + countOccupations - (ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS)
-        } (Occupation groups + Occupations (Local and ESCO) - ESCO_LEVEL_1_GROUPS + ICATUS_LEVEL_1_GROUPS) hierarchy entries. Instead processed ${
+        `Expected to successfully process either ${
+          expectedOccupationHierarchyEntriesWithoutICATUS
+        } or ${expectedOccupationHierarchyEntriesWithICATUS} hierarchy entries. Instead processed ${
           stats.rowsSuccess
         } entries.`
       );
