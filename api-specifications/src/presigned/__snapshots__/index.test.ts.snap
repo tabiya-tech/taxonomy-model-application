@@ -4,7 +4,7 @@ exports[`Test the presigned module The presigned module matches the snapshot 1`]
 {
   "Constants": {
     "EXPIRES": 3600,
-    "MAX_FILE_SIZE": 10485760,
+    "MAX_FILE_SIZE": 20971520,
     "MAX_FOLDER_NAME_LENGTH": 256,
     "MAX_URI_LENGTH": 4096,
   },
