@@ -52,11 +52,13 @@ export class RemoveGeneratedUUID implements ICleanupUUIDHistory {
       model.UUID = model.UUIDHistory[0];
 
       const entityFilter = {
-        modelId: { $eq: modelId },
+        modelId: {
+          $eq: new mongoose.Types.ObjectId(modelId),
+        },
         // Only update entities that have more than one UUID in the history
         // This is to avoid cases where UUIDHistory can be empty.
         // This will happen only on rare cases when there is a base model and it includes the UUIDHistory field which is empty.
-        $where: "this.UUIDHistory.length > 1",
+        "UUIDHistory.1": { $exists: true },
       };
       const updatePipeline = [
         {
@@ -68,12 +70,13 @@ export class RemoveGeneratedUUID implements ICleanupUUIDHistory {
       ];
 
       // Perform bulk updates for each entity in parallel, including the model save operation
+      // It was not possible to run this or a similar query with the mongoose model, so it was done with the raw query
       await Promise.all([
         model.save(), // Save the model with the updated UUID history and UUID field
-        this.OccupationModel.updateMany(entityFilter, updatePipeline).exec(),
-        this.SkillModel.updateMany(entityFilter, updatePipeline).exec(),
-        this.SkillGroupModel.updateMany(entityFilter, updatePipeline).exec(),
-        this.OccupationGroupModel.updateMany(entityFilter, updatePipeline).exec(),
+        this.OccupationModel.collection.updateMany(entityFilter, updatePipeline),
+        this.SkillModel.collection.updateMany(entityFilter, updatePipeline),
+        this.SkillGroupModel.collection.updateMany(entityFilter, updatePipeline),
+        this.OccupationGroupModel.collection.updateMany(entityFilter, updatePipeline),
       ]);
     } catch (error) {
       console.error(new Error("Error occurred during cleanup:", { cause: error }));
