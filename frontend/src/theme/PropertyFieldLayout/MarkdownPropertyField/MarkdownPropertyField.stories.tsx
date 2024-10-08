@@ -29,3 +29,9 @@ export const ShownWithLink: Story = {
     text: "## Text with Link\n Here is a link to [Example URL](https://example.com).",
   },
 };
+
+export const ShownWithUrnLink: Story = {
+  args: {
+    text: "## Text with Urn Link\n Here is a urn link to [Example URN](urn:esco:occupation:1234).",
+  },
+};

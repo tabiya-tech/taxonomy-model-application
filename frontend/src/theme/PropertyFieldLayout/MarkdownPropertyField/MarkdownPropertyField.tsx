@@ -17,12 +17,39 @@ export const DATA_TEST_ID = {
   MARKDOWN_PROPERTY_FIELD_TEXT: `markdown-property-field-text-${uniqueId}`,
 };
 
-const handleLink = (props: any) => {
+enum UrnType {
+  ESCO = "esco",
+}
+
+export const handleLink = (props: any) => {
+  let href = props.href;
+
+  if (href.startsWith("urn")) {
+    const [, type, resource, uuid] = href.split(":");
+
+    switch (type) {
+      case UrnType.ESCO:
+        href = `https://data.europa.eu/${type}/${resource}/${uuid}`;
+        break;
+      default:
+        href = props.href;
+    }
+  } else {
+    href = props.href;
+  }
+
   return (
-    <a {...props} target="_blank" rel="noreferrer noopener">
+    <a {...props} target="_blank" rel="noreferrer noopener" href={href}>
       {props.children}
     </a>
   );
+};
+
+// Function to return the same URL without any transformation
+// This is added to ensure that markdown supports URNs without altering them
+// Markdown by default only supports http/https URLs, so this function allows URNs to be used as well
+export const handleTransform = (url: string) => {
+  return url;
 };
 
 const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
@@ -31,6 +58,7 @@ const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
       <Typography sx={{ "& > *": { margin: "0" } }} data-testid={DATA_TEST_ID.MARKDOWN_PROPERTY_FIELD_TEXT}>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
+          urlTransform={handleTransform}
           components={{
             a: handleLink,
           }}
