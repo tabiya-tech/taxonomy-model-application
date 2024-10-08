@@ -2,7 +2,11 @@
 const { compilerOptions } = require("./tsconfig.json");
 const mongodbPreset = require("@shelf/jest-mongodb/jest-preset");
 module.exports = {
-  setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/src/_test_utilities/_extendedErrorMatchers.ts"],
+  setupFilesAfterEnv: [
+    "jest-extended/all",
+    "<rootDir>/src/_test_utilities/_extendedErrorMatchers.ts",
+    "<rootDir>/src/setUpTests.ts",
+  ],
   preset: "@shelf/jest-mongodb",
   testPathIgnorePatterns: ["<rootDir>/build", "<rootDir>/coverage", "<rootDir>/deploy", "<rootDir>/test"],
   modulePathIgnorePatterns: ["<rootDir>/build"],

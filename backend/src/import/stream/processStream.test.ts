@@ -88,6 +88,9 @@ describe("test processStream", () => {
         expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
+
+      // Wait for all promises to resolve to close the process
+      await new Promise(process.nextTick);
     });
 
     test("readable stream throws an error", async () => {
@@ -173,6 +176,9 @@ describe("test processStream", () => {
       const expectedError = new Error(`Invalid headers:NAME,AGE in stream:${givenStreamName}`);
       expect(errorLogger.logError).toHaveBeenCalledWith(expectedError);
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
+
+      // Wait for all promises to resolve to close the process
+      await new Promise(process.nextTick);
     });
   });
 });
@@ -385,6 +391,9 @@ describe("test processDownloadStream", () => {
         expect.toMatchErrorWithCause(`Error while processing the stream: ${givenStreamName}`, givenError.message)
       );
       expect(errorLogger.logWarning).not.toHaveBeenCalled();
+
+      // Wait for all promises to resolve to close the process
+      await new Promise(process.nextTick);
     });
   });
 });

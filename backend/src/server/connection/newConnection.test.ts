@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "./newConnection";
-import { redactCredentialsFromURI } from "server/httpUtils";
+import { redactCredentialsFromURI } from "server/redactCredentialsFromURI";
 
 describe("Test new connection", () => {
   let dbConnection: Connection;
