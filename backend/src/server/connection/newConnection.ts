@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { isUnspecified } from "server/isUnspecified";
-import { redactCredentialsFromURI } from "server/httpUtils";
+import { redactCredentialsFromURI } from "server/redactCredentialsFromURI";
 
 export async function getNewConnection(uri: string): Promise<mongoose.Connection> {
   // FAIL FAST if the database uri is not specified

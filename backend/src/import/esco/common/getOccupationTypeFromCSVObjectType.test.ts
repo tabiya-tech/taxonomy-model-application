@@ -1,3 +1,6 @@
+// Suppress chatty console during the tests
+import "_test_utilities/consoleMock";
+
 import { ObjectTypes } from "esco/common/objectTypes";
 import { CSVObjectTypes } from "esco/common/csvObjectTypes";
 import { getOccupationTypeFromCSVObjectType } from "./getOccupationTypeFromCSVObjectType";

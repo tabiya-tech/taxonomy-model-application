@@ -1,5 +1,5 @@
 // Suppress chatty console during the tests
-// import "_test_utilities/consoleMock";
+import "_test_utilities/consoleMock";
 
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
