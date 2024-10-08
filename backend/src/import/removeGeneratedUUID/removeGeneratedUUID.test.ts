@@ -187,36 +187,50 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewModelInfoSpec: INewModelInfoSpec = getNewModelInfoSpec();
     givenNewModelInfoSpec.UUIDHistory = generateRandomUUIDs(1);
     const givenCreatedModel = await repositoryRegistry.modelInfo.create(givenNewModelInfoSpec); // the creation process adds a new UUID to the history
+    // AND a new UUID is added to the history
+    expect(givenCreatedModel.UUIDHistory).toHaveLength(2);
+    // AND the new UUID is added on the top
+    expect(givenCreatedModel.UUIDHistory[1]).toEqual(givenNewModelInfoSpec.UUIDHistory[0]);
 
     // AND an occupation is created with the modelId and a single item in the UUIDHistory
     const givenNewOccupationSpec = getNewESCOOccupationSpec();
     givenNewOccupationSpec.modelId = givenCreatedModel.id;
     givenNewOccupationSpec.UUIDHistory = generateRandomUUIDs(0);
     const givenCreatedOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
+    // AND a new UUID Item is added
+    expect(givenCreatedOccupation.UUIDHistory).toHaveLength(1);
 
     // AND a local occupation is created with the modelId and a single item in the UUIDHistory
     const givenNewLocalOccupationSpec = getNewLocalOccupationSpec();
     givenNewLocalOccupationSpec.modelId = givenCreatedModel.id;
     givenNewLocalOccupationSpec.UUIDHistory = generateRandomUUIDs(0);
     const givenCreatedLocalOccupation = await repositoryRegistry.occupation.create(givenNewLocalOccupationSpec);
+    // AND a new UUID Item is added
+    expect(givenCreatedLocalOccupation.UUIDHistory).toHaveLength(1);
 
     // AND a skill is created with the modelId and a single item in the UUIDHistory
     const givenNewSkillSpec = getNewSkillSpec();
     givenNewSkillSpec.modelId = givenCreatedModel.id;
     givenNewSkillSpec.UUIDHistory = generateRandomUUIDs(0);
     const givenCreatedSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+    // AND a new UUID Item is added
+    expect(givenCreatedSkill.UUIDHistory).toHaveLength(1);
 
     // AND a skill group is created with the modelId and a single item in the UUIDHistory
     const givenNewSkillGroupSpec = getNewSkillGroupSpec();
     givenNewSkillGroupSpec.modelId = givenCreatedModel.id;
     givenNewSkillGroupSpec.UUIDHistory = generateRandomUUIDs(0);
     const givenCreatedSkillGroup = await repositoryRegistry.skillGroup.create(givenNewSkillGroupSpec);
+    // AND a new UUID Item is added
+    expect(givenCreatedSkillGroup.UUIDHistory).toHaveLength(1);
 
     // AND an occupation group is created with the modelId and a single item in the UUIDHistory
     const givenNewOccupationGroupSpec = getNewOccupationGroupSpec();
     givenNewOccupationGroupSpec.modelId = givenCreatedModel.id;
     givenNewOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(0);
     const givenCreatedOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+    // AND a new UUID Item is added
+    expect(givenCreatedOccupationGroup.UUIDHistory).toHaveLength(1);
 
     // WHEN removeUUIDFromHistory method is called with the modelId
     await removeUUIDInstance.removeUUIDFromHistory(givenCreatedModel.id);
@@ -283,36 +297,68 @@ describe("RemoveGeneratedUUID", () => {
       const givenNewModelInfoSpec: INewModelInfoSpec = getNewModelInfoSpec();
       givenNewModelInfoSpec.UUIDHistory = generateRandomUUIDs(count);
       const givenCreatedModel = await repositoryRegistry.modelInfo.create(givenNewModelInfoSpec); // the creation process adds a new UUID to the history
+      // AND UUIDHistory is increaased by 1 (1 new UUID is added)
+      expect(givenCreatedModel.UUIDHistory).toHaveLength(count + 1);
+      // AND the givenUUIDHistory is added on the bottom.
+      expect([givenCreatedModel.UUID, ...givenNewModelInfoSpec.UUIDHistory]).toEqual(givenCreatedModel.UUIDHistory);
 
       // AND an occupation is created with the modelId and a single item in the UUIDHistory
       const givenNewOccupationSpec = getNewESCOOccupationSpec();
       givenNewOccupationSpec.modelId = givenCreatedModel.id;
       givenNewOccupationSpec.UUIDHistory = generateRandomUUIDs(count);
       const givenCreatedOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
+      // AND UUIDHistory is increaased by 1 (1 new UUID is added)
+      expect(givenCreatedOccupation.UUIDHistory).toHaveLength(count + 1);
+      // AND the givenUUIDHistory is added on the bottom.
+      expect([givenCreatedOccupation.UUID, ...givenNewOccupationSpec.UUIDHistory]).toEqual(
+        givenCreatedOccupation.UUIDHistory
+      );
 
       // AND a local occupation is created with the modelId and a single item in the UUIDHistory
       const givenNewLocalOccupationSpec = getNewLocalOccupationSpec();
       givenNewLocalOccupationSpec.modelId = givenCreatedModel.id;
       givenNewLocalOccupationSpec.UUIDHistory = generateRandomUUIDs(count);
       const givenCreatedLocalOccupation = await repositoryRegistry.occupation.create(givenNewLocalOccupationSpec);
+      // AND UUIDHistory is increaased by 1 (1 new UUID is added)
+      expect(givenCreatedLocalOccupation.UUIDHistory).toHaveLength(count + 1);
+      // AND the givenUUIDHistory is added on the bottom.
+      expect([givenCreatedLocalOccupation.UUID, ...givenNewLocalOccupationSpec.UUIDHistory]).toEqual(
+        givenCreatedLocalOccupation.UUIDHistory
+      );
 
       // AND a skill is created with the modelId and a single item in the UUIDHistory
       const givenNewSkillSpec = getNewSkillSpec();
       givenNewSkillSpec.modelId = givenCreatedModel.id;
       givenNewSkillSpec.UUIDHistory = generateRandomUUIDs(count);
       const givenCreatedSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+      // AND UUIDHistory is increaased by 1 (1 new UUID is added)
+      expect(givenCreatedSkill.UUIDHistory).toHaveLength(count + 1);
+      // AND the givenUUIDHistory is added on the bottom.
+      expect([givenCreatedSkill.UUID, ...givenNewSkillSpec.UUIDHistory]).toEqual(givenCreatedSkill.UUIDHistory);
 
       // AND a skill group is created with the modelId and a single item in the UUIDHistory
       const givenNewSkillGroupSpec = getNewSkillGroupSpec();
       givenNewSkillGroupSpec.modelId = givenCreatedModel.id;
       givenNewSkillGroupSpec.UUIDHistory = generateRandomUUIDs(count);
       const givenCreatedSkillGroup = await repositoryRegistry.skillGroup.create(givenNewSkillGroupSpec);
+      // AND UUIDHistory is increaased by 1 (1 new UUID is added)
+      expect(givenCreatedSkillGroup.UUIDHistory).toHaveLength(count + 1);
+      // AND the givenUUIDHistory is added on the bottom.
+      expect([givenCreatedSkillGroup.UUID, ...givenNewSkillGroupSpec.UUIDHistory]).toEqual(
+        givenCreatedSkillGroup.UUIDHistory
+      );
 
       // AND an occupation group is created with the modelId and a single item in the UUIDHistory
       const givenNewOccupationGroupSpec = getNewOccupationGroupSpec();
       givenNewOccupationGroupSpec.modelId = givenCreatedModel.id;
       givenNewOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(count);
       const givenCreatedOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+      // AND UUIDHistory is increaased by 1 (1 new UUID is added)
+      expect(givenCreatedOccupationGroup.UUIDHistory).toHaveLength(count + 1);
+      // AND the givenUUIDHistory is added on the bottom.
+      expect([givenCreatedOccupationGroup.UUID, ...givenNewOccupationGroupSpec.UUIDHistory]).toEqual(
+        givenCreatedOccupationGroup.UUIDHistory
+      );
 
       // WHEN removeUUIDFromHistory method is called with the modelId
       await removeUUIDInstance.removeUUIDFromHistory(givenCreatedModel.id);
@@ -327,39 +373,60 @@ describe("RemoveGeneratedUUID", () => {
           repositoryRegistry.OccupationGroup.findById(givenCreatedOccupationGroup.id),
         ]);
 
-      // AND expect all the entities to be truthy
+      // AND expect Occupation Entity to be truthy
+      // AND UUIDHistory is decreased by 1 (1 UUID is removed)
+      // AND the first UUID is removed
+      // AND Nothing changed
       expect(actualOccupation).toBeTruthy();
-      expect(actualLocalOccupaiton).toBeTruthy();
-      expect(actualSkill).toBeTruthy();
-      expect(actualSkillGroup).toBeTruthy();
-      expect(actualOccupationGroup).toBeTruthy();
-
       actualOccupation = actualOccupation!;
-      actualLocalOccupaiton = actualLocalOccupaiton!;
-      actualSkill = actualSkill!;
-      actualSkillGroup = actualSkillGroup!;
-      actualOccupationGroup = actualOccupationGroup!;
-
-      // AND expect all the entities to have the first UUID removed from the history
       expect(actualOccupation.UUIDHistory).toHaveLength(count);
-      expect(actualLocalOccupaiton.UUIDHistory).toHaveLength(count);
-      expect(actualSkill.UUIDHistory).toHaveLength(count);
-      expect(actualSkillGroup.UUIDHistory).toHaveLength(count);
-      expect(actualOccupationGroup.UUIDHistory).toHaveLength(count);
-
-      // AND expect all the entities to have a UUID that matches the first item in the UUIDHistory
       expect(actualOccupation.UUID).toEqual(givenNewOccupationSpec.UUIDHistory[0]);
-      expect(actualLocalOccupaiton.UUID).toEqual(givenNewLocalOccupationSpec.UUIDHistory[0]);
-      expect(actualSkill.UUID).toEqual(givenNewSkillSpec.UUIDHistory[0]);
-      expect(actualSkillGroup.UUID).toEqual(givenNewSkillGroupSpec.UUIDHistory[0]);
-      expect(actualOccupationGroup.UUID).toEqual(givenNewOccupationGroupSpec.UUIDHistory[0]);
-
-      // AND expect that the other fields are not changed
       checkOccupationFieldsNotChanged(givenCreatedOccupation, actualOccupation);
+      expect(actualOccupation.UUIDHistory).toEqual(givenNewOccupationSpec.UUIDHistory);
+
+      // AND expect LocalOccupation Entity to be truthy
+      // AND UUIDHistory is decreased by 1 (1 UUID is removed)
+      // AND the first UUID is removed
+      // AND Nothing changed
+      expect(actualLocalOccupaiton).toBeTruthy();
+      actualLocalOccupaiton = actualLocalOccupaiton!;
+      expect(actualLocalOccupaiton.UUIDHistory).toHaveLength(count);
+      expect(actualLocalOccupaiton.UUID).toEqual(givenNewLocalOccupationSpec.UUIDHistory[0]);
       checkOccupationFieldsNotChanged(givenCreatedLocalOccupation, actualLocalOccupaiton);
+      expect(actualLocalOccupaiton.UUIDHistory).toEqual(givenNewLocalOccupationSpec.UUIDHistory);
+
+      // AND expect Skill Entity to be truthy
+      // AND UUIDHistory is decreased by 1 (1 UUID is removed)
+      // AND the first UUID is removed
+      // AND Nothing changed
+      expect(actualSkill).toBeTruthy();
+      actualSkill = actualSkill!;
+      expect(actualSkill.UUIDHistory).toHaveLength(count);
+      expect(actualSkill.UUID).toEqual(givenNewSkillSpec.UUIDHistory[0]);
       checkSkillFieldsNotChanged(givenCreatedSkill, actualSkill);
-      checkOccupationGroupFieldsNotChanged(givenCreatedOccupationGroup, actualOccupationGroup);
+      expect(actualSkill.UUIDHistory).toEqual(givenNewSkillSpec.UUIDHistory);
+
+      // AND expect SkillGroup Entity to be truthy
+      // AND UUIDHistory is decreased by 1 (1 UUID is removed)
+      // AND the first UUID is removed
+      // AND Nothing changed
+      expect(actualSkillGroup).toBeTruthy();
+      actualSkillGroup = actualSkillGroup!;
+      expect(actualSkillGroup.UUIDHistory).toHaveLength(count);
+      expect(actualSkillGroup.UUID).toEqual(givenNewSkillGroupSpec.UUIDHistory[0]);
       checkSkillGroupFieldsNotChanged(givenCreatedSkillGroup, actualSkillGroup);
+      expect(actualSkillGroup.UUIDHistory).toEqual(givenNewSkillGroupSpec.UUIDHistory);
+
+      // AND expect OccupationGroup Entity to be truthy
+      // AND UUIDHistory is decreased by 1 (1 UUID is removed)
+      // AND the first UUID is removed
+      // AND Nothing changed
+      expect(actualOccupationGroup).toBeTruthy();
+      actualOccupationGroup = actualOccupationGroup!;
+      expect(actualOccupationGroup.UUIDHistory).toHaveLength(count);
+      expect(actualOccupationGroup.UUID).toEqual(givenNewOccupationGroupSpec.UUIDHistory[0]);
+      checkOccupationGroupFieldsNotChanged(givenCreatedOccupationGroup, actualOccupationGroup);
+      expect(actualOccupationGroup.UUIDHistory).toEqual(givenNewOccupationGroupSpec.UUIDHistory);
 
       // AND expect the modelInfo to have the first UUID removed from the history
       const updatedModelInfo = await repositoryRegistry.modelInfo.getModelById(givenCreatedModel.id);
