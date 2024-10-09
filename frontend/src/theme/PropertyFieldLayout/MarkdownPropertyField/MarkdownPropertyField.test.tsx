@@ -30,9 +30,7 @@ jest.mock("react-markdown", () => {
   return jest.fn().mockImplementation((props) => {
     const { remarkPlugins, urlTransform, components, ...rest } = props;
     return (
-      <>
-        <span {...rest} />
-      </>
+      <span {...rest} />
     );
   });
 });
