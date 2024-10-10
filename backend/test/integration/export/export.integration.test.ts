@@ -1,5 +1,6 @@
 //mute chatty console
 import "_test_utilities/consoleMock";
+import "_test_utilities/mockSentry";
 
 import errorLogger from "common/errorLogger/errorLogger";
 
@@ -51,6 +52,7 @@ import * as path from "path";
 import {FILENAMES} from "export/async/modelToS3";
 import {countCSVRecords} from "import/esco/_test_utilities/countCSVRecords";
 import mongoose from "mongoose";
+import {Context} from "aws-lambda";
 
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -226,6 +228,14 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       modelId: modelId,
       exportProcessStateId: givenExportProcessState.id,
     };
+    // AND a context object
+    const givenContext: Context = {
+        functionName: "foo",
+        functionVersion: "bar",
+        invokedFunctionArn: "baz",
+      } as unknown as Context;
+    // AND a callback function
+    const givenCallback = jest.fn();
     // AND the s3.upload is mocked to write in to a file
     jest
       .spyOn(UploadZipToS3Module, "default")
@@ -251,7 +261,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       });
 
     // WHEN the handler is called
-    const handlerPromise = handler(givenAsyncExportEvent);
+    const handlerPromise = handler(givenAsyncExportEvent, givenContext, givenCallback);
 
     // THEN the handler should resolve successfully
     await expect(handlerPromise).resolves.toBe(undefined);

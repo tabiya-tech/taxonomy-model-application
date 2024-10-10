@@ -37,7 +37,7 @@ import * as ImportHandler from "import/index";
 import * as ExportHandler from "export/index";
 import { APIGatewayProxyEventBase, APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { response, STD_ERRORS_RESPONSES } from "server/httpUtils";
-import { APIGatewayEventDefaultAuthorizerContext } from "aws-lambda";
+import { APIGatewayEventDefaultAuthorizerContext, Context } from "aws-lambda";
 import { initOnce } from "server/init";
 import { Routes } from "routes.constant";
 
@@ -46,6 +46,20 @@ beforeEach(() => {
 });
 
 describe("test the main handler function", () => {
+  let givenContext: Context;
+  let givenCallback: jest.Mock;
+
+  beforeEach(() => {
+    // GIVEN a context object
+    givenContext = {
+      functionName: "foo",
+      functionVersion: "bar",
+      invokedFunctionArn: "baz",
+    } as unknown as Context;
+
+    // AND a callback function
+    givenCallback = jest.fn();
+  });
   afterAll(() => {
     (MainHandler.handleRouteEvent as jest.Mock).mockRestore();
   });
@@ -60,7 +74,7 @@ describe("test the main handler function", () => {
 
     // WHEN the main handler is invoked with the given event
     // @ts-ignore
-    const actualResponse = await MainHandler.handler(givenEvent);
+    const actualResponse = await MainHandler.handler(givenEvent, givenContext, givenCallback);
 
     // THEN expect the handleRouteEvent function to be called with the given event, context and callback
     expect(givenHandleRouteEventSpy).toBeCalledWith(givenEvent);
@@ -73,10 +87,14 @@ describe("test the main handler function", () => {
     jest.spyOn(MainHandler, "handleRouteEvent").mockImplementation(() => {
       throw new Error();
     });
+    // AND some event
+    const givenEvent = {
+      event: "",
+    } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
 
     // WHEN the main handler is invoked
     // @ts-ignore
-    const actualResponse = await MainHandler.handler(null, null, null);
+    const actualResponse = await MainHandler.handler(givenEvent, givenContext, givenCallback);
 
     // THEN expect an internal server error response
     expect(actualResponse).toEqual(STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR);
@@ -87,10 +105,14 @@ describe("test the main handler function", () => {
       // GIVEN the handleRouteEvent will successfully handle the event and return a response
       const givenResponse = response(200, { foo: "bar" });
       jest.spyOn(MainHandler, "handleRouteEvent").mockResolvedValue(givenResponse);
+      // AND an event
+      const givenEvent = {
+        event: "",
+      } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
 
       // WHEN the main handler is invoked
       // @ts-ignore
-      await MainHandler.handler(null, null, null);
+      await MainHandler.handler(givenEvent, givenContext, givenCallback);
 
       // THEN expect initOnce to have been called
       expect(initOnce).toBeCalledTimes(1);
@@ -102,10 +124,14 @@ describe("test the main handler function", () => {
       // AND the handleRouteEvent will successfully handle the event and return a response
       const givenResponse = response(200, { foo: "bar" });
       jest.spyOn(MainHandler, "handleRouteEvent").mockResolvedValue(givenResponse);
+      // AND an event
+      const givenEvent = {
+        event: "",
+      } as unknown as APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>;
 
       // WHEN the main handler is invoked
       // @ts-ignore
-      const actualResponse = await MainHandler.handler(null, null, null);
+      const actualResponse = await MainHandler.handler(givenEvent, givenContext, givenCallback);
 
       // THEN expect initOnce to have been called
       expect(initOnce).toBeCalled();

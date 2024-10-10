@@ -18,6 +18,7 @@ export function setupAsyncExportApi(environment: string, config: {
   resourcesBaseUrl: string,
   download_bucket_name: Output<string>,
   download_bucket_region: Output<string>
+  sentry_backend_dsn: string
 }): { asyncExportLambdaRole: aws.iam.Role, asyncExportLambdaFunction: aws.lambda.Function } {
 
   // Create a new IAM role for the Lambda function
@@ -68,7 +69,9 @@ export function setupAsyncExportApi(environment: string, config: {
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
         MONGODB_URI: config.mongodb_uri,
         DOWNLOAD_BUCKET_NAME: config.download_bucket_name,
-        DOWNLOAD_BUCKET_REGION: config.download_bucket_region
+        DOWNLOAD_BUCKET_REGION: config.download_bucket_region,
+        SENTRY_BACKEND_DSN: config.sentry_backend_dsn,
+        TARGET_ENVIRONMENT: environment,
       }
     }
   });

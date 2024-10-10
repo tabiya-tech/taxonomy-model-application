@@ -1,7 +1,11 @@
-import { APIGatewayAuthorizerResult, APIGatewayTokenAuthorizerEvent } from "aws-lambda";
+import { Handler } from "aws-lambda";
 import { APIGatewayEventDefaultAuthorizerContext } from "aws-lambda/common/api-gateway";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import AuthAPISpecs from "api-specifications/auth";
+import { initializeSentry } from "initializeSentry";
+import * as Sentry from "@sentry/aws-serverless";
+
+initializeSentry();
 
 const userPoolId = process.env.USER_POOL_ID!;
 const clientId = process.env.USER_POOL_CLIENT_ID!;
@@ -12,9 +16,7 @@ const verifier = CognitoJwtVerifier.create({
   clientId: clientId,
 });
 
-export const handler: (event: APIGatewayTokenAuthorizerEvent) => Promise<APIGatewayAuthorizerResult> = async (
-  event
-) => {
+export const handler: Handler = Sentry.wrapHandler(async (event) => {
   let token = "";
   if (event.authorizationToken) {
     const parts = event.authorizationToken.split(" ");
@@ -48,7 +50,7 @@ export const handler: (event: APIGatewayTokenAuthorizerEvent) => Promise<APIGate
     console.error("Token validation error:", error);
     return generatePolicy("user", "Deny", event.methodArn);
   }
-};
+});
 
 function generatePolicy(
   principalId: string,

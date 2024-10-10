@@ -25,7 +25,8 @@ export function setupBackendRESTApi(environment: string, config: {
   async_export_lambda_function_arn: Output<string>,
   async_lambda_function_region: Output<string>,
   authorizer_lambda_function_invoke_arn: Output<string>
-  authorizer_lambda_function_name: Output<string>
+  authorizer_lambda_function_name: Output<string>,
+  sentry_backend_dsn: string
 }): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
   /**
    * Lambda for api
@@ -127,6 +128,8 @@ export function setupBackendRESTApi(environment: string, config: {
         ASYNC_IMPORT_LAMBDA_FUNCTION_ARN: config.async_import_lambda_function_arn,
         ASYNC_EXPORT_LAMBDA_FUNCTION_ARN: config.async_export_lambda_function_arn,
         ASYNC_LAMBDA_FUNCTION_REGION: config.async_lambda_function_region,
+        SENTRY_BACKEND_DSN: config.sentry_backend_dsn,
+        TARGET_ENVIRONMENT: environment,
       }
     }
   });

@@ -1,5 +1,6 @@
 // mute the console
 import "_test_utilities/consoleMock";
+import "_test_utilities/mockSentry";
 
 import {
   testMethodsNotAllowed,

@@ -16,7 +16,8 @@ export function setupAsyncImportApi(environment: string, config: {
   mongodb_uri: string,
   resourcesBaseUrl: string,
   upload_bucket_name: Output<string>,
-  upload_bucket_region: Output<string>
+  upload_bucket_region: Output<string>,
+  sentry_backend_dsn: string
 }): { asyncImportLambdaRole: aws.iam.Role, asyncImportLambdaFunction: aws.lambda.Function } {
   /**
    * Lambda for api
@@ -69,7 +70,9 @@ export function setupAsyncImportApi(environment: string, config: {
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
         MONGODB_URI: config.mongodb_uri,
         UPLOAD_BUCKET_NAME: config.upload_bucket_name,
-        UPLOAD_BUCKET_REGION: config.upload_bucket_region
+        UPLOAD_BUCKET_REGION: config.upload_bucket_region,
+        SENTRY_BACKEND_DSN: config.sentry_backend_dsn,
+        TARGET_ENVIRONMENT: environment,
       }
     }
   });

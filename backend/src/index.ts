@@ -8,19 +8,25 @@ import { handler as ExportHandler } from "export";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { initOnce } from "server/init";
 import { Routes } from "routes.constant";
+import { initializeSentry } from "initializeSentry";
+import * as Sentry from "@sentry/aws-serverless";
 
-export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = async (event: APIGatewayProxyEvent) => {
-  try {
-    // Initialize the application
-    await initOnce();
+initializeSentry();
 
-    // Handle routes
-    return await handleRouteEvent(event);
-  } catch (e: unknown) {
-    console.error(e);
-    return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;
+export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = Sentry.wrapHandler(
+  async (event: APIGatewayProxyEvent) => {
+    try {
+      // Initialize the application
+      await initOnce();
+
+      // Handle routes
+      return await handleRouteEvent(event);
+    } catch (e: unknown) {
+      console.error(e);
+      return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;
+    }
   }
-};
+);
 
 export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
   if (event.path === Routes.APPLICATION_INFO_ROUTE) {

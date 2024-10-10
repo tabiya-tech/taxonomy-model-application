@@ -1,8 +1,9 @@
 // silence chatty console
 import "_test_utilities/consoleMock";
+import "_test_utilities/mockSentry";
 
 import * as AuthHandler from "./index";
-import { APIGatewayTokenAuthorizerEvent } from "aws-lambda";
+import { APIGatewayTokenAuthorizerEvent, Context } from "aws-lambda";
 import { CognitoJwtVerifierSingleUserPool } from "aws-jwt-verify/cognito-verifier";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { CognitoAccessTokenPayload } from "aws-jwt-verify/jwt-model";
@@ -19,6 +20,20 @@ jest.mock("aws-jwt-verify", () => {
 
 describe("test for trigger AuthenticationHandler", () => {
   let verifierInstance: CognitoJwtVerifierSingleUserPool<{ userPoolId: string; tokenUse: "access"; clientId: string }>;
+  let givenContext: Context;
+  let givenCallback: jest.Mock;
+
+  beforeEach(() => {
+    // GIVEN a context object
+    givenContext = {
+      functionName: "foo",
+      functionVersion: "bar",
+      invokedFunctionArn: "baz",
+    } as unknown as Context;
+
+    // AND a callback function
+    givenCallback = jest.fn();
+  });
   beforeEach(() => {
     verifierInstance = CognitoJwtVerifier.create({
       userPoolId: "foo",
@@ -49,7 +64,7 @@ describe("test for trigger AuthenticationHandler", () => {
         .mockResolvedValueOnce(givenDecodedUser as unknown as CognitoAccessTokenPayload);
 
       // WHEN the handler is invoked
-      const response = await AuthHandler.handler(givenEvent);
+      const response = await AuthHandler.handler(givenEvent, givenContext, givenCallback);
 
       // THEN the response should allow access
       expect(response.policyDocument.Statement[0].Effect).toBe("Allow");
@@ -78,7 +93,7 @@ describe("test for trigger AuthenticationHandler", () => {
     jest.spyOn(verifierInstance, "verify").mockRejectedValueOnce(givenError);
 
     // WHEN the handler is invoked
-    const response = await AuthHandler.handler(givenEvent);
+    const response = await AuthHandler.handler(givenEvent, givenContext, givenCallback);
 
     // THEN the response should deny access
     expect(response.policyDocument.Statement[0].Effect).toBe("Deny");
@@ -97,7 +112,7 @@ describe("test for trigger AuthenticationHandler", () => {
     } as APIGatewayTokenAuthorizerEvent;
 
     // WHEN the handler is invoked
-    const response = await AuthHandler.handler(givenEvent);
+    const response = await AuthHandler.handler(givenEvent, givenContext, givenCallback);
 
     // THEN the response should allow access
     expect(response.policyDocument.Statement[0].Effect).toBe("Allow");
@@ -119,7 +134,7 @@ describe("test for trigger AuthenticationHandler", () => {
     } as APIGatewayTokenAuthorizerEvent;
 
     // WHEN the handler is invoked
-    const response = await AuthHandler.handler(givenEvent);
+    const response = await AuthHandler.handler(givenEvent, givenContext, givenCallback);
 
     // THEN the response should allow access
     expect(response.policyDocument.Statement[0].Effect).toBe("Allow");
@@ -141,7 +156,7 @@ describe("test for trigger AuthenticationHandler", () => {
     } as APIGatewayTokenAuthorizerEvent;
 
     // WHEN the handler is invoked
-    const response = await AuthHandler.handler(givenEvent);
+    const response = await AuthHandler.handler(givenEvent, givenContext, givenCallback);
 
     // THEN the response should deny access
     expect(response.policyDocument.Statement[0].Effect).toBe("Deny");
