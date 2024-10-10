@@ -281,11 +281,14 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                   </StyledBodyCell>
                   <StyledBodyCell>
                     <MarkdownPropertyField
-                      text={
-                        model.description.length > CELL_MAX_LENGTH
-                          ? model.description.substring(0, CELL_MAX_LENGTH) + "..."
-                          : model.description
-                      }
+                      text={model.description}
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 8,
+                        WebkitBoxOrient: "vertical",
+                      }}
                     />
                   </StyledBodyCell>
                   {!hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) && (
