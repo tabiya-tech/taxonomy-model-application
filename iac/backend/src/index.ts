@@ -41,6 +41,7 @@ const {asyncExportLambdaRole, asyncExportLambdaFunction} = setupAsyncExportApi(e
   resourcesBaseUrl,
   download_bucket_name: _downloadBucket.id,
   download_bucket_region: currentRegion,
+  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
 });
 
 setupDownloadBucketWritePolicy(_downloadBucket, asyncExportLambdaRole);
@@ -66,13 +67,16 @@ const {asyncImportLambdaRole, asyncImportLambdaFunction} = setupAsyncImportApi(e
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
   upload_bucket_region: currentRegion,
+  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
 });
 
 /**
  * Setup Authorizer Lambda
  */
 
-const {authorizerLambdaFunction} = setupAuthorizer();
+const {authorizerLambdaFunction} = setupAuthorizer(environment, {
+  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
+});
 
 /**
  * Setup Backend Rest API
@@ -89,6 +93,7 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   async_lambda_function_region: currentRegion,
   authorizer_lambda_function_invoke_arn: authorizerLambdaFunction.invokeArn,
   authorizer_lambda_function_name: authorizerLambdaFunction.name,
+  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
 });
 
 export const backendRestApi = {

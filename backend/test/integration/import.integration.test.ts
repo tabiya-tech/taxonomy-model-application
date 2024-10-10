@@ -1,5 +1,6 @@
 //mute console.log
 import "_test_utilities/consoleMock";
+import "_test_utilities/mockSentry";
 
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";

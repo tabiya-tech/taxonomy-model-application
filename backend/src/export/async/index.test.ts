@@ -1,5 +1,6 @@
 //mute console.log
 import "_test_utilities/consoleMock";
+import "_test_utilities/mockSentry";
 
 import { initOnce } from "server/init";
 import * as asyncIndex from "export/async";
@@ -10,6 +11,7 @@ import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import exportLogger from "common/errorLogger/errorLogger";
 import { IExportProcessState, IUpdateExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
+import { Context } from "aws-lambda";
 
 // Mock the init function
 jest.mock("server/init", () => {
@@ -64,6 +66,21 @@ const getMockExportProcessState = (): IExportProcessState => ({
 });
 
 describe("Test the main async handler", () => {
+  let givenContext: Context;
+  let givenCallback: jest.Mock;
+
+  beforeEach(() => {
+    // GIVEN a context object
+    givenContext = {
+      functionName: "foo",
+      functionVersion: "bar",
+      invokedFunctionArn: "baz",
+    } as unknown as Context;
+
+    // AND a callback function
+    givenCallback = jest.fn();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -81,7 +98,7 @@ describe("Test the main async handler", () => {
 
     // WHEN the handler is invoked with the given event param
     jest.spyOn(exportLogger, "clear"); // spy on the logger clear function
-    await asyncIndex.handler(givenEvent);
+    await asyncIndex.handler(givenEvent, givenContext, givenCallback);
 
     // THEN expect the initOnce function to be called
     expect(initOnce).toBeCalledTimes(1);
@@ -109,7 +126,7 @@ describe("Test the main async handler", () => {
       async (description: string, givenBadEvent: AsyncExportEvent) => {
         // GIVEN an event that does not conform to the expected export event
         // WHEN the main handler is invoked with the given bad event
-        const actualPromiseHandler = () => asyncIndex.handler(givenBadEvent);
+        const actualPromiseHandler = () => asyncIndex.handler(givenBadEvent, givenContext, givenCallback);
 
         // THEN expect it to return without throwing an error
         expect(actualPromiseHandler).not.toThrowError();
@@ -133,7 +150,7 @@ describe("Test the main async handler", () => {
       const givenExportEvent = getMockExportEvent();
 
       // WHEN the handler is invoked with a valid event
-      const actualPromiseHandler = () => asyncIndex.handler(givenExportEvent);
+      const actualPromiseHandler = () => asyncIndex.handler(givenExportEvent, givenContext, givenCallback);
 
       // THEN expect the handler to throw an error
       const expectedErrorMessage = "Failed to initialize database connection";
@@ -156,7 +173,7 @@ describe("Test the main async handler", () => {
       const givenExportEvent = getMockExportEvent();
 
       // THEN expect the handler to not throw an error
-      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+      await expect(asyncIndex.handler(givenExportEvent, givenContext, givenCallback)).resolves.toBeUndefined();
     });
 
     test("should not throw error and not call modelToS3 when there is no exportProcessState for the given id", async () => {
@@ -167,7 +184,7 @@ describe("Test the main async handler", () => {
       const givenExportEvent = getMockExportEvent();
 
       // THEN expect the handler to not throw an error
-      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+      await expect(asyncIndex.handler(givenExportEvent, givenContext, givenCallback)).resolves.toBeUndefined();
     });
 
     test.each([
@@ -187,7 +204,7 @@ describe("Test the main async handler", () => {
         const givenExportEvent = getMockExportEvent();
 
         // THEN expect the handler not to throw an error
-        await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+        await expect(asyncIndex.handler(givenExportEvent, givenContext, givenCallback)).resolves.toBeUndefined();
         // AND the error to be logged
         const expectedError = new Error(
           `Export failed. The exportProcessState status is not PENDING, it is ${givenStatus}`
@@ -204,7 +221,7 @@ describe("Test the main async handler", () => {
       const givenExportEvent = getMockExportEvent();
 
       // THEN expect the handler to not throw an error
-      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+      await expect(asyncIndex.handler(givenExportEvent, givenContext, givenCallback)).resolves.toBeUndefined();
 
       // AND expect the update method to have been called with specific arguments
       expect(getRepositoryRegistry().exportProcessState.update).toHaveBeenCalledWith(
@@ -230,7 +247,7 @@ describe("Test the main async handler", () => {
       const givenExportEvent = getMockExportEvent();
 
       // THEN expect the handler to not throw an error
-      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+      await expect(asyncIndex.handler(givenExportEvent, givenContext, givenCallback)).resolves.toBeUndefined();
 
       // AND expect the update method to have been called with export errors
       expect(getRepositoryRegistry().exportProcessState.update).toHaveBeenCalledWith(
@@ -259,7 +276,7 @@ describe("Test the main async handler", () => {
       const givenExportEvent = getMockExportEvent();
 
       // THEN expect the handler to not throw an error
-      await expect(asyncIndex.handler(givenExportEvent)).resolves.toBeUndefined();
+      await expect(asyncIndex.handler(givenExportEvent, givenContext, givenCallback)).resolves.toBeUndefined();
 
       // AND expect the update method to have been called with specific arguments
       expect(getRepositoryRegistry().exportProcessState.update).toHaveBeenCalledWith(

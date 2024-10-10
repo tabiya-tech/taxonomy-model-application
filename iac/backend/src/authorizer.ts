@@ -13,7 +13,9 @@ const LAMBDA_MEMORY_IN_MB = 128;
 
 const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 5;
 
-export function setupAuthorizer(): {
+export function setupAuthorizer(environment: string, config: {
+  sentry_backend_dsn: string,
+}): {
   authorizerLambdaFunction: aws.lambda.Function
 } {
   /**
@@ -62,6 +64,8 @@ export function setupAuthorizer(): {
         NODE_OPTIONS: '--enable-source-maps',
         USER_POOL_ID: process.env.USER_POOL_ID!,
         USER_POOL_CLIENT_ID: process.env.USER_POOL_CLIENT_ID!,
+        SENTRY_BACKEND_DSN: config.sentry_backend_dsn,
+        TARGET_ENVIRONMENT: environment,
       }
     }
   });

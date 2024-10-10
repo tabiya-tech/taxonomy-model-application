@@ -1,5 +1,7 @@
 //mute console.log
 import "_test_utilities/consoleMock";
+import "_test_utilities/mockSentry";
+
 // ##############
 import * as asyncIndex from "./index";
 import ImportAPISpecs from "api-specifications/import";
@@ -10,6 +12,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { parseFiles } from "./parseFiles";
 import ImportProcessStateAPISpec from "api-specifications/importProcessState";
 import errorLogger from "common/errorLogger/errorLogger";
+import { Context } from "aws-lambda";
 
 // ##############
 // Mock the init function
@@ -43,6 +46,21 @@ const getMockImportEvent = (): ImportAPISpecs.Types.POST.Request.Payload => {
 };
 
 describe("Test the main async handler", () => {
+  let givenContext: Context;
+  let givenCallback: jest.Mock;
+
+  beforeEach(() => {
+    // GIVEN a context object
+    givenContext = {
+      functionName: "foo",
+      functionVersion: "bar",
+      invokedFunctionArn: "baz",
+    } as unknown as Context;
+
+    // AND a callback function
+    givenCallback = jest.fn();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -55,7 +73,7 @@ describe("Test the main async handler", () => {
 
     // WHEN the handler is invoked with the given event param
     jest.spyOn(errorLogger, "clear"); // spy on the logger clear function
-    await asyncIndex.handler(givenEvent);
+    await asyncIndex.handler(givenEvent, givenContext, givenCallback);
 
     // THEN expect the initOnce function to be called
     expect(initOnce).toBeCalledTimes(1);
@@ -86,7 +104,7 @@ describe("Test the main async handler", () => {
       //@ts-ignore
       const givenBadEvent: Import = { foo: "foo" } as Import;
       // WHEN the main handler is invoked with the given bad event
-      const actualPromiseHandler = () => asyncIndex.handler(givenBadEvent);
+      const actualPromiseHandler = () => asyncIndex.handler(givenBadEvent, givenContext, givenCallback);
 
       // THEN expect it to return without throwing an error
       expect(actualPromiseHandler).not.toThrowError();
@@ -101,7 +119,7 @@ describe("Test the main async handler", () => {
       (initOnce as jest.Mock).mockRejectedValueOnce(new Error("foo"));
 
       // WHEN the handler is invoked with a valid event
-      const actualPromiseHandler = () => asyncIndex.handler(getMockImportEvent());
+      const actualPromiseHandler = () => asyncIndex.handler(getMockImportEvent(), givenContext, givenCallback);
 
       // THEN expect the handler to throw an error
       await expect(actualPromiseHandler).rejects.toThrow("foo");
@@ -139,7 +157,7 @@ describe("Test the main async handler", () => {
       (parseFiles as jest.Mock).mockRejectedValueOnce(new Error("foo"));
 
       // WHEN the handler is invoked
-      await asyncIndex.handler(getMockImportEvent());
+      await asyncIndex.handler(getMockImportEvent(), givenContext, givenCallback);
 
       // THEN expect the handler not to throw an error
       expect(asyncIndex.handler).not.toThrowError();
