@@ -3,6 +3,9 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
+import remarkBreaks from "remark-breaks";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from 'rehype-sanitize';
 
 export interface MarkdownPropertyFieldProps {
   label?: string;
@@ -64,7 +67,8 @@ const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
         data-testid={DATA_TEST_ID.MARKDOWN_PROPERTY_FIELD_TEXT}
       >
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[remarkGfm, remarkBreaks]}
+          rehypePlugins={[rehypeRaw, rehypeSanitize]}
           urlTransform={handleTransform}
           components={{
             a: handleLink,

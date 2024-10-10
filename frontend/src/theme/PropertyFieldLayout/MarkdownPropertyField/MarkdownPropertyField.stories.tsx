@@ -35,3 +35,15 @@ export const ShownWithUrnLink: Story = {
     text: "## Text with Urn Link\n Here is a urn link to [Example URN](urn:esco:occupation:1234).",
   },
 };
+
+export const ShownWithLineBreak: Story = {
+  args: {
+    text: "## Text with Line Break \n Here is a text with a line break <br /> and another line.",
+  },
+};
+
+export const ShowWithMultipleLineBreaks: Story = {
+  args: {
+    text: "## Text with Multiple Line Breaks \n<br /> Here is a text with multiple line breaks <br /><br /> and another \n - line.",
+  },
+};
