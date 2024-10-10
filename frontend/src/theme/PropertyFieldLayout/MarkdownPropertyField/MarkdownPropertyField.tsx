@@ -9,6 +9,7 @@ export interface MarkdownPropertyFieldProps {
   text: string;
   "data-testid"?: string;
   fieldId?: string;
+  style?: React.CSSProperties;
 }
 
 const uniqueId = "0af822fc-07e3-4032-8276-d7ebf6dc4631";
@@ -55,7 +56,13 @@ export const handleTransform = (url: string) => {
 const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
   return (
     <PropertyFieldLayout title={props.label ?? ""} data-testid={props["data-testid"]} fieldId={props?.fieldId ?? ""}>
-      <Typography sx={{ "& > *": { margin: "0" } }} data-testid={DATA_TEST_ID.MARKDOWN_PROPERTY_FIELD_TEXT}>
+      <Typography
+        sx={{
+          "& > *": { margin: "0" },
+          ...props.style,
+        }}
+        data-testid={DATA_TEST_ID.MARKDOWN_PROPERTY_FIELD_TEXT}
+      >
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           urlTransform={handleTransform}
