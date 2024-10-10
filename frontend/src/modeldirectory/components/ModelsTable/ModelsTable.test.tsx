@@ -2,7 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import { render, screen, within } from "src/_test_utilities/test-utils";
-import ModelsTable, { CELL_MAX_LENGTH, DATA_TEST_ID, TEXT } from "./ModelsTable";
+import ModelsTable, { DATA_TEST_ID, TEXT } from "./ModelsTable";
 import {
   fakeModel,
   getArrayOfFakeModels,
@@ -257,13 +257,7 @@ describe("ModelsTable", () => {
         expect(actualModelCells[actualModelReleasedHeaderIndex]).toContainHTML(expectedReleasedContent);
 
         // AND the model's DESCRIPTION to be shown in the correct column
-        let expectedDescription;
-        if (model.description.length > CELL_MAX_LENGTH) {
-          expectedDescription = model.description.substring(0, CELL_MAX_LENGTH) + "...";
-        } else {
-          expectedDescription = model.description;
-        }
-        expect(actualModelCells[actualModelDescriptionHeaderIndex]).toHaveTextContent(expectedDescription);
+        expect(actualModelCells[actualModelDescriptionHeaderIndex]).toHaveTextContent(model.description);
 
         // AND the more button to be shown in the correct column
         const actualModelMoreIcon = within(actualModelCells[actualModelActionsHeaderIndex]).getByTestId(
@@ -417,9 +411,8 @@ describe("ModelsTable", () => {
       describe("should render the model.description", () => {
         test.each([
           ["empty", ""],
-          ["less than CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH - 1)],
-          ["equal to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH)],
-          ["longer than to CELL_MAX_LENGTH", getRandomLorem(CELL_MAX_LENGTH + 1)],
+          ["short description", getRandomLorem(10)],
+          ["long description", getRandomLorem(50)],
         ])("should render the 'model.description' then it is %s", (_desc, givenDescription) => {
           // GIVEN n models with random data of max length
           const givenModels = getArrayOfRandomModelsMaxLength(1);
@@ -444,13 +437,7 @@ describe("ModelsTable", () => {
           actualModelRows.forEach((row, _index) => {
             const rowCells = within(row).getAllByTestId(DATA_TEST_ID.MODEL_CELL);
             const descriptionCell = rowCells[descriptionCellIndex];
-            let expectedDescription;
-            if (givenDescription.length > CELL_MAX_LENGTH) {
-              expectedDescription = givenDescription.substring(0, CELL_MAX_LENGTH) + "...";
-            } else {
-              expectedDescription = givenDescription;
-            }
-            expect(descriptionCell.textContent).toMatch(expectedDescription);
+            expect(descriptionCell.textContent).toMatch(givenDescription);
           });
         });
       });
