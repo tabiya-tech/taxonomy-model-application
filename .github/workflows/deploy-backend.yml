@@ -73,3 +73,4 @@ jobs:
           DOMAIN_NAME: ${{ inputs.target-domain-name }}
           USER_POOL_ID: ${{ inputs.user-pool-id }}
           USER_POOL_CLIENT_ID: ${{ inputs.user-pool-client-id }}
+          SENTRY_BACKEND_DSN: ${{ secrets.SENTRY_BACKEND_DSN }}

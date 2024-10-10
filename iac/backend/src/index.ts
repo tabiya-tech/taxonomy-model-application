@@ -41,6 +41,7 @@ const {asyncExportLambdaRole, asyncExportLambdaFunction} = setupAsyncExportApi(e
   resourcesBaseUrl,
   download_bucket_name: _downloadBucket.id,
   download_bucket_region: currentRegion,
+  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
 });
 
 setupDownloadBucketWritePolicy(_downloadBucket, asyncExportLambdaRole);

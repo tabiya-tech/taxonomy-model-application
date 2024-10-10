@@ -4,6 +4,22 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { modelToS3 } from "./modelToS3";
 import { initOnce } from "server/init";
 import { AsyncExportEvent } from "./async.types";
+import * as Sentry from "@sentry/aws-serverless";
+
+console.log(process.env.SENTRY_BACKEND_DSN, "SENTRY_BACKEND_DSN");
+
+Sentry.init({
+  dsn: process.env.SENTRY_BACKEND_DSN,
+  tracesSampleRate: 1.0,
+  integrations: [
+    Sentry.captureConsoleIntegration(
+      {
+        levels: ["error", "warn", "log", "info"], // TODO: allow adjusting this according to the environment
+      },
+    )
+  ],
+  environment: process.env.TARGET_ENVIRONMENT,
+});
 
 /**
  * Lambda function handler for asynchronous export.
@@ -17,7 +33,7 @@ import { AsyncExportEvent } from "./async.types";
  * for example when initializing the db,  but not for parsing errors, where a restart is unlikely to resolve the problem.
  */
 
-export const handler = async (event: AsyncExportEvent): Promise<void> => {
+export const handler = Sentry.wrapHandler(async (event: AsyncExportEvent): Promise<void> => {
   console.info("Export started", event);
   // Clear the errorLogger from previous runs
   errorLogger.clear();
@@ -70,7 +86,7 @@ export const handler = async (event: AsyncExportEvent): Promise<void> => {
     // Set the export process status to FAILED
     await exportErrored(event.exportProcessStateId);
   }
-};
+});
 // TODO: should not trow errors, but log them and set the exportProcessState to FAILED
 
 // The exportErrored function does not throw errors.

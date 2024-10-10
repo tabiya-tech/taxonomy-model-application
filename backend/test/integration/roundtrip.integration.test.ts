@@ -28,6 +28,7 @@ import extract from "extract-zip";
 import ExportProcessStateApiSpecs from "api-specifications/exportProcessState";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import { CSVObjectTypes } from "esco/common/csvObjectTypes";
+import {Context} from "aws-lambda";
 
 enum DataTestType {
   SAMPLE = "SAMPLE",
@@ -176,6 +177,15 @@ async function doExport(modelId: string) {
     modelId: modelId,
     exportProcessStateId: givenExportProcessState.id,
   };
+  // AND a context object
+  const  // GIVEN a context object
+    givenContext = {
+      functionName: "foo",
+      functionVersion: "bar",
+      invokedFunctionArn: "baz",
+    } as unknown as Context;
+  // AND a callback function
+  const givenCallback = jest.fn();
   // AND the s3.upload is mocked to write in to a file
   jest
     .spyOn(UploadZipToS3Module, "default")
@@ -201,7 +211,7 @@ async function doExport(modelId: string) {
     });
 
   // WHEN the handler is called
-  const handlerPromise = handler(givenAsyncExportEvent);
+  const handlerPromise = handler(givenAsyncExportEvent, givenContext, givenCallback);
 
   // THEN the handler should resolve successfully
   await expect(handlerPromise).resolves.toBe(undefined);
