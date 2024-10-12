@@ -137,6 +137,19 @@ describe("ModelPropertiesVersion", () => {
       },
       {}
     );
+    // AND the release notes property to be shown
+    const actualLicense = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_LICENSE);
+    expect(actualLicense).toBeInTheDocument();
+    // AND TextPropertyField component to be called with the correct props for the 'release notes'
+    expect(MarkdownPropertyField).toHaveBeenCalledWith(
+      {
+        label: FIELD_LABEL_TEXT.LABLE_LICENSE,
+        text: givenModel.license,
+        "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_LICENSE,
+        fieldId: FIELD_ID.LICENSE,
+      },
+      {}
+    );
     // AND to match the snapshot
     expect(modelPropertiesVersionContainer).toMatchSnapshot();
   });
@@ -156,6 +169,7 @@ describe("ModelPropertiesVersion", () => {
         DATA_TEST_ID.MODEL_PROPERTIES_VERSION,
         DATA_TEST_ID.MODEL_PROPERTIES_RELEASED_STATUS,
         DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES,
+        DATA_TEST_ID.MODEL_PROPERTIES_LICENSE,
       ],
     })
   );

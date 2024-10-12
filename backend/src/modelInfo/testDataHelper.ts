@@ -19,6 +19,7 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
       shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
     description: getRandomString(DESCRIPTION_MAX_LENGTH),
+    license: getRandomString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
     released: false,
     releaseNotes: getRandomString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     version: getRandomString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),

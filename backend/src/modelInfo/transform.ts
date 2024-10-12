@@ -17,6 +17,7 @@ export function transform(
     released: data.released,
     releaseNotes: data.releaseNotes,
     locale: data.locale,
+    license: data.license,
     path: `${baseURL}${Routes.MODELS_ROUTE}/${data.id}`,
     tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.UUID}`,
     exportProcessState: data.exportProcessState.map((exportProcessState) => ({

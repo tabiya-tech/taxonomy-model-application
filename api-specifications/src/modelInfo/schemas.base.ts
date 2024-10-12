@@ -24,6 +24,11 @@ export const _baseProperties: any = {
     type: "string",
     maxLength: ModelInfoConstants.DESCRIPTION_MAX_LENGTH,
   },
+  license: {
+    description: "The license of the model",
+    type: "string",
+    maxLength: ModelInfoConstants.LICENSE_MAX_LENGTH,
+  },
   locale: {
     $ref: `${Locale.Schemas.Payload.$id}`,
   },
@@ -147,6 +152,7 @@ export const _baseResponseSchema = {
     "name",
     "description",
     "locale",
+    "license",
     "id",
     "UUID",
     "path",

@@ -80,7 +80,6 @@ function getRowToSpecificationTransformFn(
       );
     }
 
-
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,

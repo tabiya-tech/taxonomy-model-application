@@ -159,6 +159,7 @@ const ModelDirectory = () => {
         const newModel = await importDirectorService.directImport(
           importData.name,
           importData.description,
+          importData.license,
           importData.locale,
           importData.selectedFiles,
           importData.UUIDHistory,

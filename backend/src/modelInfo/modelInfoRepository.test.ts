@@ -39,6 +39,7 @@ function getNewModelInfoSpec(): INewModelInfoSpec {
       name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
   };
 }

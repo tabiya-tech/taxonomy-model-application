@@ -20,6 +20,7 @@ export const DATA_TEST_ID = {
   MODEL_PROPERTIES_VERSION: `model-properties-version-${uniqueId}`,
   MODEL_PROPERTIES_RELEASED_STATUS: `model-properties-released-status-${uniqueId}`,
   MODEL_PROPERTIES_RELEASE_NOTES: `model-properties-release-notes-${uniqueId}`,
+  MODEL_PROPERTIES_LICENSE: `model-properties-license-${uniqueId}`,
 };
 
 export const FIELD_ID = {
@@ -29,6 +30,7 @@ export const FIELD_ID = {
   VERSION: `version-${uniqueId}`,
   RELEASED_STATUS: `released-status-${uniqueId}`,
   RELEASE_NOTES: `release-notes-${uniqueId}`,
+  LICENSE: `license-${uniqueId}`,
 };
 
 export const FIELD_LABEL_TEXT = {
@@ -37,6 +39,7 @@ export const FIELD_LABEL_TEXT = {
   LABEL_PATH: "Path",
   LABEL_VERSION: "Version",
   LABEL_RELEASE_NOTES: "Release Notes",
+  LABLE_LICENSE: "License",
 };
 
 /**
@@ -97,6 +100,12 @@ const ModelPropertiesVersion: React.FC<ModelPropertiesVersionProps> = (
         text={props.model.releaseNotes}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_RELEASE_NOTES}
         fieldId={FIELD_ID.RELEASE_NOTES}
+      />
+      <MarkdownPropertyField
+        label={FIELD_LABEL_TEXT.LABLE_LICENSE}
+        text={props.model.license}
+        data-testid={DATA_TEST_ID.MODEL_PROPERTIES_LICENSE}
+        fieldId={FIELD_ID.LICENSE}
       />
     </Box>
   );

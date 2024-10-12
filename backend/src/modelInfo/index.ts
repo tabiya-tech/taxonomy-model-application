@@ -105,6 +105,7 @@ class ModelController {
       name: payload.name,
       description: payload.description,
       locale: payload.locale,
+      license: payload.license,
       UUIDHistory: payload.UUIDHistory,
     };
 

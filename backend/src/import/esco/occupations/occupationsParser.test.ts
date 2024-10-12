@@ -149,9 +149,9 @@ describe("test parseOccupations from", () => {
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         3,
         "Warning while importing Occupation row with id:'key_2'. Preferred label 'preferred\n" +
-        "label\n" +
-        "with\n" +
-        "linebreak' is not in the alt labels."
+          "label\n" +
+          "with\n" +
+          "linebreak' is not in the alt labels."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         4,

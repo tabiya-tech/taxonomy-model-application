@@ -73,6 +73,14 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
           `Release notes must be at most ${ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH} chars long`,
         ],
       },
+      license: {
+        type: String,
+        required: stringRequired("license"),
+        maxlength: [
+          ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH,
+          `License must be at most ${ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH} chars long`,
+        ],
+      },
       version: {
         type: String,
         required: stringRequired("version"),

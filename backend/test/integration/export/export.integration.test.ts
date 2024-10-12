@@ -2,6 +2,8 @@
 import "_test_utilities/consoleMock";
 import "_test_utilities/mockSentry";
 
+import  ModelInfoAPISpecs from "api-specifications/modelInfo";
+
 import errorLogger from "common/errorLogger/errorLogger";
 
 jest.mock("archiver", () => {
@@ -53,6 +55,7 @@ import {FILENAMES} from "export/async/modelToS3";
 import {countCSVRecords} from "import/esco/_test_utilities/countCSVRecords";
 import mongoose from "mongoose";
 import {Context} from "aws-lambda";
+import {getRandomString} from "../../../src/_test_utilities/specialCharacters";
 
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -108,7 +111,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   });
 
 
-  async function createTestModel(): Promise<{ modelId: string }> {
+  async function createTestModel(): Promise<{ modelId: string, license: string }> {
 
     // Construct a model
     const givenModel = await getRepositoryRegistry().modelInfo.create({
@@ -119,6 +122,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
         shortCode: "et",
       },
       description: "",
+      license: getRandomString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
       UUIDHistory: [randomUUID()],
     });
 
@@ -185,7 +189,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     // guard to ensure that test data where generated
     expect(actualSkillToSkillRelations.length).toBeGreaterThan(0);
 
-    return { modelId: givenModel.id };
+    return { modelId: givenModel.id, license: givenModel.license };
   }
 
   test("export to file", async () => {
@@ -203,7 +207,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     jest.spyOn(archiver, "create");
 
     // GIVEN a model exists in the db with some data
-    const { modelId } = await createTestModel();
+    const { modelId , license } = await createTestModel();
     // guard to ensure that no error has occurred while creating the test data
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
@@ -303,6 +307,9 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().skillToSkillRelation.relationModel, path.join(extractFolder, FILENAMES.SkillToSkillRelations));
     await assertCollectionExportedSuccessfully(getRepositoryRegistry().modelInfo.Model, path.join(extractFolder, FILENAMES.ModelInfo));
 
+    // AND License file should be created
+    await assertContentsExportedSuccessfuly(license, path.join(extractFolder, FILENAMES.License));
+
     // AND All resources have been released
     await assertThanAllResourcesAreReleased();
   });
@@ -361,4 +368,11 @@ async function assertThanAllResourcesAreReleased() {
      const stream = await ((module as jest.Mock).mock.results[0].value) as Readable;
     await assertStreamIsClosedAndDestroyed(stream);
   }
+}
+
+async function assertContentsExportedSuccessfuly (content: string, file: string) {
+  // read the content from file.
+  const fileContent = fs.readFileSync(file, "utf-8");
+  // compare content
+  expect(fileContent).toEqual(content);
 }

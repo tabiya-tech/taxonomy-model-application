@@ -52,6 +52,7 @@ export namespace ModelInfoTypes {
     name: string;
     locale: Locale;
     description: string;
+    license: string;
     path: string;
     tabiyaPath: string;
     exportProcessState: ExportProcessState[];

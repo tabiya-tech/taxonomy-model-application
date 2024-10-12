@@ -16,6 +16,7 @@ import OccupationToSkillRelationToCSVTransform from "export/esco/occupationToSki
 import SkillToSkillRelationToCSVTransform from "export/esco/skillToSkillRelation/skillToSkillRelationToCSVTransform";
 import ModelInfoToCSVTransform from "export/modelInfo/modelInfoToCSVTransform";
 import OccupationsToCSVTransform from "export/esco/occupation/OccupationsToCSVTransform";
+import LicenseToFileTransform from "export/license/licenseToFileTransform";
 
 /**
  * Exports a model into a zip file containing all the entities in the database pertaining to that model,
@@ -115,6 +116,18 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
       }
     });
 
+    // for license since it is asynchronous,
+    // and it is one string we are going to write in its own file.
+    const licenseStream = await LicenseToFileTransform(event.modelId);
+    streamResources.push(licenseStream);
+    CSVtoZipPipeline("LICENSE", FILENAMES.License, licenseStream, zipper, (error?: Error) => {
+      if (error) {
+        // If the pipeline failed then the passThrough must be destroyed as the archiver does not handle the clean-up of the streams
+        // If the passThrough is not destroyed, the uploadZipToS3 will hang waiting for the stream to end
+        passThrough.destroy();
+      }
+    });
+
     const finalizePromise = zipper.finalize();
 
     const uploadPromise = uploadZipToS3(
@@ -127,7 +140,7 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
     await Promise.all([finalizePromise, uploadPromise]);
   } catch (e: unknown) {
     zipper.abort();
-    const err = new Error("An error occurred while streaming data from the DB to the csv zip file on S3", { cause: e });
+    const err = new Error("An error occurred while streaming data from the DB to the zip file on S3", { cause: e });
     console.error(err);
     throw err;
   } finally {
@@ -160,4 +173,5 @@ export const FILENAMES = {
   OccupationToSkillRelations: "occupation_to_skill_relations.csv",
   SkillToSkillRelations: "skill_to_skill_relations.csv",
   ModelInfo: "model_info.csv",
+  License: "LICENSE",
 };

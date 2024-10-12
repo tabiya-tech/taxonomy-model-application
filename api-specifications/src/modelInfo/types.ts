@@ -15,6 +15,7 @@ interface IModelInfoResponse {
   }[];
   name: string;
   description: string;
+  license: string;
   locale: Locale.Types.Payload;
   path: string;
   tabiyaPath: string;
@@ -53,6 +54,7 @@ interface IModelInfoRequest {
   name: string;
   description: string;
   locale: Locale.Types.Payload;
+  license: string;
   UUIDHistory: string[];
 }
 

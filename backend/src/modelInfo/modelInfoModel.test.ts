@@ -46,6 +46,7 @@ describe("Test the definition of the ModelInfo Model", () => {
         },
         description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
         released: false,
+        license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
         releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
         version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
         importProcessState: getMockObjectId(2),
@@ -63,6 +64,7 @@ describe("Test the definition of the ModelInfo Model", () => {
           shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
         },
         description: "",
+        license: "",
         released: false,
         releaseNotes: "",
         importProcessState: getMockObjectId(2),
@@ -346,6 +348,34 @@ describe("Test the definition of the ModelInfo Model", () => {
       });
 
       testObjectIdField(() => ModelInfoModel, "importProcessState");
+    });
+
+    describe("Test validation of 'license'", () => {
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [
+          CaseType.Failure,
+          "Too long description",
+          getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH + 1),
+          `License must be at most ${ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH} chars long`,
+        ],
+        [CaseType.Success, "empty", "", undefined],
+        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+        [CaseType.Success, "one character", "a", undefined],
+        [CaseType.Success, "the longest", getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH), undefined],
+      ])(
+        "(%s) Validate 'license' when it is %s",
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<IModelInfoDoc>({
+            model: ModelInfoModel,
+            propertyNames: "license",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+          });
+        }
+      );
     });
 
     test("should have correct indexes", async () => {
