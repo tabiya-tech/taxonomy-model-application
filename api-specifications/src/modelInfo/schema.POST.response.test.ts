@@ -85,6 +85,7 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
     tabiyaPath: "https://path/to/tabiya",
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     description: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
     locale: {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
@@ -199,6 +200,15 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
       testStringField<ModelInfoAPISpecs.Types.POST.Response.Payload>(
         "description",
         ModelInfoConstants.DESCRIPTION_MAX_LENGTH,
+        ModelInfoAPISpecs.Schemas.POST.Response.Payload,
+        [LocaleAPISpecs.Schemas.Payload]
+      );
+    });
+
+    describe("Test validation of 'license'", () => {
+      testStringField<ModelInfoAPISpecs.Types.POST.Response.Payload>(
+        "license",
+        ModelInfoConstants.LICENSE_MAX_LENGTH,
         ModelInfoAPISpecs.Schemas.POST.Response.Payload,
         [LocaleAPISpecs.Schemas.Payload]
       );

@@ -41,5 +41,11 @@ exports[`ModelPropertiesVersion should render correctly with the provided model 
   >
     Markdown Property Field Mock
   </div>
+  <div
+    data-testid="model-properties-license-8d3b0caa-95e2-4f11-a98c-054208e72438"
+    id="license-8d3b0caa-95e2-4f11-a98c-054208e72438"
+  >
+    Markdown Property Field Mock
+  </div>
 </div>
 `;

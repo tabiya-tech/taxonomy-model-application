@@ -43,6 +43,7 @@ jest.mock("./components/ModelPropertiesContent/ModelPropertiesContent", () => {
 const testModel: ModelInfoTypes.ModelInfo = {
   name: "foo",
   description: "",
+  license: "",
   id: "",
   UUID: "",
   modelHistory: [],

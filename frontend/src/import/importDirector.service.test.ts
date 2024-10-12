@@ -71,9 +71,10 @@ describe("Test the import director service", () => {
     const uploadService = new UploadService();
     const importService = new ImportService("foo");
 
-    // AND a name, description, locale and files
+    // AND a name, description, license, locale and files
     const givenName = getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH);
     const givenDescription = getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH);
+    const givenLicense = getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH);
     const givenLocale = {
       name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
@@ -96,6 +97,7 @@ describe("Test the import director service", () => {
     const actualModel = await manager.directImport(
       givenName,
       givenDescription,
+      givenLicense,
       givenLocale,
       givenFiles,
       givenUUIDHistory,
@@ -110,6 +112,7 @@ describe("Test the import director service", () => {
       name: givenName,
       description: givenDescription,
       locale: givenLocale,
+      license: givenLicense,
       UUIDHistory: givenUUIDHistory,
     });
 

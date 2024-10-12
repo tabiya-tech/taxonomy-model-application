@@ -34,6 +34,7 @@ export const DATA_TEST_ID = {
 export interface ImportData {
   name: string;
   description: string;
+  license: string;
   locale: LocaleAPISpecs.Types.Payload;
   selectedFiles: ImportFiles;
   UUIDHistory: string[];
@@ -68,6 +69,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     description: "",
     locale: {} as any,
     selectedFiles: {},
+    license: "",
     UUIDHistory: [],
     isOriginalESCOModel: false,
   });
@@ -88,6 +90,10 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
 
   const handleUUIDHistoryChange = (newUUIDHistory: string[]) => {
     data.current.UUIDHistory = newUUIDHistory;
+  };
+
+  const handleLicenseChange = (newLicense: string) => {
+    data.current.license = newLicense;
   };
 
   const handleOriginalESCOChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +161,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
           <ImportFilesSelection
             notifySelectedFileChange={handleSelectedFileChange}
             notifyUUIDHistoryChange={handleUUIDHistoryChange}
+            notifyOnLicenseChange={handleLicenseChange}
           />
         </Stack>
       </DialogContent>

@@ -48,6 +48,7 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
         i % 2 === 0
           ? getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)
           : getRandomLorem(CELL_MAX_LENGTH / 2), // 50% chance of long description
+      license: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
       released: i % 2 === 0, // 50% chance of released
       releaseNotes: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: faker.system.semver().substring(0, ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
@@ -88,6 +89,7 @@ export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.Mod
         shortCode: getRandomLorem(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
       description: getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+      license: getRandomLorem(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
       released: i % 2 === 0, // 50% chance of released
       releaseNotes: getRandomLorem(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: getRandomLorem(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
@@ -129,6 +131,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
         shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
       description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+      license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
       released: i % 2 === 0,
       releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
       version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
@@ -156,6 +159,7 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
     },
   ],
   description: "aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm",
+  license: "Praesentium quia",
   id: "000000000000000000000001",
   importProcessState: {
     id: "000000000000000000000001",

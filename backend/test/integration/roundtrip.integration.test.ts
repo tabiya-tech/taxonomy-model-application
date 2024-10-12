@@ -110,7 +110,7 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
       // 1.2 Export the data from the database into CSV files
       const exportFolderFirst = await doExport(firstImportedModel.id);
       // 1.3 Assert that the exported CSV files have the same content as the imported CSV files from 1.1
-      await assertCSVFilesHaveTheSameContent(sourceFolder, exportFolderFirst);
+      await assertCSVFilesHaveTheSameContent(sourceFolder, exportFolderFirst, firstImportedModel);
       // Second pass
       if (!doTwoPasses) {
         return;
@@ -120,7 +120,7 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
       // 2.2 Export the data from the database into CSV files
       const exportFolderSecond = await doExport(secondImportedModel.id);
       // 2.3 Assert that the exported CSV files have the same content as the imported CSV files from 2.1
-      await assertCSVFilesHaveTheSameContent(exportFolderFirst, exportFolderSecond);
+      await assertCSVFilesHaveTheSameContent(exportFolderFirst, exportFolderSecond, firstImportedModel);
     },
     90000 // Approximate timeout for the one-pass roundtrip full ESCO test is 1.5 minutes
   );
@@ -130,6 +130,7 @@ async function doImport(dataFolder: string): Promise<IModelInfo> {
   const newModel: IModelInfo = await getRepositoryRegistry().modelInfo.create({
     name: "CSVImport",
     description: "CSVImport",
+    license: "CSVImport License",
     UUIDHistory: [randomUUID()],
     locale: {
       name: "en",
@@ -248,7 +249,7 @@ async function doExport(modelId: string) {
   return extractFolder;
 }
 
-async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string) {
+async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string, model: IModelInfo) {
   const map1 = new Mapper();
   mapOccupationCSVFile(`${folder1}/occupations.csv`, map1);
   mapEntityCSVFile(`${folder1}/occupation_groups.csv`, CSVObjectTypes.OccupationGroup, map1);
@@ -280,6 +281,7 @@ async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string
   compareOccupationsContent(`${folder1}/occupations.csv`, `${folder2}/occupations.csv`);
   compareCSVContent(`${folder1}/skill_groups.csv`, `${folder2}/skill_groups.csv`);
   compareCSVContent(`${folder1}/skills.csv`, `${folder2}/skills.csv`);
+  checkFileIncludesContent(model.license, `${folder2}/LICENSE`);
 }
 
 function mapOccupationCSVFile(file: string, mapper: Mapper) {
@@ -603,6 +605,15 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
   // also expect that the size of entities with no UUID from file 1 are the same as
   // the size of entities with no UUID from file 2
   expect(entitiesMissingUUID1.length).toEqual(entitiesMissingUUID2.length);
+}
+
+function checkFileIncludesContent(content: string, file: string) {
+  // read from file.
+  const fileContent = fs.readFileSync(file, {
+    encoding: "utf8",
+  });
+  // check content matches the file content.
+  expect(fileContent).toEqual(content);
 }
 
 class Mapper {

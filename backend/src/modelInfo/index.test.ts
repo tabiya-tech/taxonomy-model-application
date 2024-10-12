@@ -76,6 +76,7 @@ describe("Test for model handler", () => {
           shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
         },
         description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        license: getRandomString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
         UUIDHistory: [randomUUID()],
       };
       const givenEvent = {
@@ -153,6 +154,7 @@ describe("Test for model handler", () => {
           name: "ZA",
           shortCode: "SA",
         },
+        license: "some random license",
         description: "some text",
         UUIDHistory: [randomUUID()],
       };

@@ -29,9 +29,7 @@ jest.mock("src/theme/PropertyFieldLayout/PropertyFieldLayout", () => {
 jest.mock("react-markdown", () => {
   return jest.fn().mockImplementation((props) => {
     const { remarkPlugins, urlTransform, components, ...rest } = props;
-    return (
-      <span {...rest} />
-    );
+    return <span {...rest} />;
   });
 });
 

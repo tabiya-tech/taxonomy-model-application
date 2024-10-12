@@ -71,6 +71,7 @@ export namespace GET {
         released: i % 2 === 0, // 50% chance of released
         releaseNotes: getRandomLorem(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
         version: getRandomLorem(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+        license: getRandomString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
         path: faker.internet.url(),
         tabiyaPath: faker.internet.url(),
         exportProcessState: [
@@ -138,6 +139,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
     released: _id % 2 === 0,
     releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),

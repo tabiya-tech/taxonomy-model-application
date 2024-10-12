@@ -9,6 +9,7 @@ import { DATA_TEST_ID as MODEL_DESCRIPTION_FIELD_DATA_TEST_ID } from "src/import
 import { DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID } from "src/import/components/ImportFilesSelection";
 import { DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID } from "src/import/components/FileEntry";
 import { DATA_TEST_ID as MODEL_INFO_DATA_TEST_ID } from "src/import/components/ModelInfoFileEntry";
+import { DATA_TEST_ID as LICENSE_DATA_TEST_ID } from "src/import/components/LicenseFileEntry";
 import HelpTip from "src/theme/HelpTip/HelpTip";
 import ImportAPISpecs from "api-specifications/import";
 import { clickDebouncedButton, typeDebouncedInput } from "src/_test_utilities/userEventFakeTimer";
@@ -29,11 +30,9 @@ jest.mock("src/theme/HelpTip/HelpTip", () => {
   return {
     __esModule: true,
     ...actual,
-    default: jest.fn().mockImplementation((props) => (
-      <div data-testid={props["data-testid"]} />
-    ))
-  }
-})
+    default: jest.fn().mockImplementation((props) => <div data-testid={props["data-testid"]} />),
+  };
+});
 
 const notifyOnCloseMock = jest.fn();
 const testProps: ImportModelDialogProps = {
@@ -57,6 +56,7 @@ function getImportDataTestValues(): ImportData {
   return {
     name: "foo model name",
     description: "foo model description",
+    license: "foo model license",
     locale: testProps.availableLocales[1],
     selectedFiles: Object.values(ImportAPISpecs.Constants.ImportFileTypes).reduce((acc, fileType) => {
       acc[fileType] = new File([fileType], fileType, { type: "text/plain" });
@@ -106,6 +106,20 @@ async function fillInImportDialog(inputData: ImportData): Promise<void> {
       target: { files: [new File(inputData.UUIDHistory, elementFileType as string, { type: "text/csv" })] },
     });
   }
+
+  // Select the license file.
+  if (inputData.license.length > 0) {
+    const licenseElement = screen.getByTestId(LICENSE_DATA_TEST_ID.FILE_INPUT);
+    const elementFileType = licenseElement.getAttribute("data-filetype");
+    // pass a valid LICENSE file to the licenseElement
+    const file = new File([new Blob([inputData.license])], elementFileType as string, { type: "txt" });
+
+    // mock the file.text() function to return the license text
+    file.text = jest.fn().mockResolvedValue(inputData.license);
+
+    fireEvent.change(licenseElement, { target: { files: [file] } });
+  }
+
   // Select the Original ESCO checkbox
   const originalESCOCheckboxElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX);
   if (inputData.isOriginalESCOModel) {
@@ -255,11 +269,14 @@ describe("ImportModel dialog render tests", () => {
     render(<ImportModelDialog {...testProps} />);
 
     // AND expect the HelpTip to have the correct message and data test id
-    expect(HelpTip).toHaveBeenCalledWith({
-      children: "Check this if you are importing these CSVs for the very first time.",
-      "data-testid": DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP
-    }, {})
-  })
+    expect(HelpTip).toHaveBeenCalledWith(
+      {
+        children: "Check this if you are importing these CSVs for the very first time.",
+        "data-testid": DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP,
+      },
+      {}
+    );
+  });
 });
 
 describe("ImportModel dialog action tests", () => {
@@ -306,6 +323,7 @@ describe("ImportModel dialog action tests", () => {
         importData: {
           name: givenData.name,
           description: givenData.description,
+          license: givenData.license,
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
@@ -355,6 +373,7 @@ describe("ImportModel dialog action tests", () => {
       importData: {
         name: givenData.name,
         description: givenData.description,
+        license: givenData.license,
         locale: givenData.locale,
         selectedFiles: expectedFiles,
         UUIDHistory: givenData.UUIDHistory,

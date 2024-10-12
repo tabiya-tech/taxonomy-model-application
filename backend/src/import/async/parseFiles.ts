@@ -89,8 +89,10 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
     const ICATUS_LEVEL_1_GROUPS = 3;
     const ESCO_LEVEL_1_GROUPS = 10;
 
-    const expectedOccupationHierarchyEntriesWithoutICATUS = countOccupationGroups + countOccupations - (ESCO_LEVEL_1_GROUPS);
-    const expectedOccupationHierarchyEntriesWithICATUS = expectedOccupationHierarchyEntriesWithoutICATUS - ICATUS_LEVEL_1_GROUPS;
+    const expectedOccupationHierarchyEntriesWithoutICATUS =
+      countOccupationGroups + countOccupations - ESCO_LEVEL_1_GROUPS;
+    const expectedOccupationHierarchyEntriesWithICATUS =
+      expectedOccupationHierarchyEntriesWithoutICATUS - ICATUS_LEVEL_1_GROUPS;
 
     // For now there are two possible cases:
     // 1. The import contains both ESCO and ICATUS data (10 level 1 isco groups and 3 level 1 icatus groups)
@@ -101,11 +103,7 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
       stats.rowsSuccess !== expectedOccupationHierarchyEntriesWithICATUS
     ) {
       errorLogger.logWarning(
-        `Expected to successfully process either ${
-          expectedOccupationHierarchyEntriesWithoutICATUS
-        } or ${expectedOccupationHierarchyEntriesWithICATUS} hierarchy entries. Instead processed ${
-          stats.rowsSuccess
-        } entries.`
+        `Expected to successfully process either ${expectedOccupationHierarchyEntriesWithoutICATUS} or ${expectedOccupationHierarchyEntriesWithICATUS} hierarchy entries. Instead processed ${stats.rowsSuccess} entries.`
       );
     }
   }

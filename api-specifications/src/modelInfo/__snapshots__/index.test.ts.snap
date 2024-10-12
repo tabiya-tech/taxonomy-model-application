@@ -4,7 +4,8 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
 {
   "Constants": {
     "DESCRIPTION_MAX_LENGTH": 4000,
-    "MAX_PAYLOAD_LENGTH": 6000,
+    "LICENSE_MAX_LENGTH": 100000,
+    "MAX_PAYLOAD_LENGTH": 218884,
     "MAX_URI_LENGTH": 4096,
     "NAME_MAX_LENGTH": 256,
     "RELEASE_NOTES_MAX_LENGTH": 100000,
@@ -206,6 +207,11 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 ],
                 "type": "object",
               },
+              "license": {
+                "description": "The license of the model",
+                "maxLength": 100000,
+                "type": "string",
+              },
               "locale": {
                 "$ref": "/components/schemas/LocaleSchema",
               },
@@ -309,6 +315,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "name",
               "description",
               "locale",
+              "license",
               "id",
               "UUID",
               "path",
@@ -348,6 +355,11 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "maxLength": 4000,
               "type": "string",
             },
+            "license": {
+              "description": "The license of the model",
+              "maxLength": 100000,
+              "type": "string",
+            },
             "locale": {
               "$ref": "/components/schemas/LocaleSchema",
             },
@@ -362,6 +374,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "name",
             "description",
             "locale",
+            "license",
             "UUIDHistory",
           ],
           "type": "object",
@@ -543,6 +556,11 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               ],
               "type": "object",
             },
+            "license": {
+              "description": "The license of the model",
+              "maxLength": 100000,
+              "type": "string",
+            },
             "locale": {
               "$ref": "/components/schemas/LocaleSchema",
             },
@@ -646,6 +664,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "name",
             "description",
             "locale",
+            "license",
             "id",
             "UUID",
             "path",

@@ -198,6 +198,9 @@ function getTestImportData(): ImportData {
     }
   );
 
+  // model license
+  const license = "MIT";
+
   //The locale
   const locale: LocaleAPISpecs.Types.Payload = {
     UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a",
@@ -208,7 +211,7 @@ function getTestImportData(): ImportData {
   const UUIDHistory = [randomUUID()];
   // and the isOriginalESCOModel
   const isOriginalESCOModel = false;
-  return { name, description, locale, selectedFiles, UUIDHistory, isOriginalESCOModel };
+  return { name, description, locale, license, selectedFiles, UUIDHistory, isOriginalESCOModel };
 }
 
 describe("ModelDirectory", () => {
@@ -1040,6 +1043,7 @@ describe("ModelDirectory", () => {
       expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(
         givenImportData.name,
         givenImportData.description,
+        givenImportData.license,
         givenImportData.locale,
         givenImportData.selectedFiles,
         givenImportData.UUIDHistory,
@@ -1126,6 +1130,7 @@ describe("ModelDirectory", () => {
       expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(
         givenImportData.name,
         givenImportData.description,
+        givenImportData.license,
         givenImportData.locale,
         givenImportData.selectedFiles,
         givenImportData.UUIDHistory,
@@ -1191,6 +1196,7 @@ describe("ModelDirectory", () => {
       expect(ImportDirectorService.prototype.directImport).toHaveBeenCalledWith(
         givenImportData.name,
         givenImportData.description,
+        givenImportData.license,
         givenImportData.locale,
         givenImportData.selectedFiles,
         givenImportData.UUIDHistory,

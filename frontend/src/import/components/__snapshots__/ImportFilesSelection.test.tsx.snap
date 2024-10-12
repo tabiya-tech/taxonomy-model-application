@@ -154,6 +154,52 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
         </div>
       </div>
     </div>
+    <div
+      class="MuiBox-root css-8ghero"
+    >
+      <div
+        data-filetype="LICENSE"
+        data-testid="license-file-entry-16c54d56-b091-48ce-826a-c721b0c3643f"
+      >
+        <div>
+          <input
+            accept="*"
+            data-filetype="LICENSE"
+            data-testid="license-file-input-16c54d56-b091-48ce-826a-c721b0c3643f"
+            id="16c54d56-b091-48ce-826a-c721b0c3643f-license"
+            style="display: none;"
+            type="file"
+          />
+          <div
+            aria-label="Add LICENSE file"
+            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+            data-testid="license-select-file-button-16c54d56-b091-48ce-826a-c721b0c3643f"
+            role="button"
+            tabindex="0"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+              data-testid="AddCircleOutlinedIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+              />
+            </svg>
+            <span
+              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+            >
+              LICENSE
+            </span>
+            <span
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 `;

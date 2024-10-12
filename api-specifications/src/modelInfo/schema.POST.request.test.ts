@@ -27,6 +27,7 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.POST.Request.Payloa
   const givenValidModelInfoPOSTRequest = {
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
     description: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
     UUIDHistory: [randomUUID()],
     locale: {
       name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -79,6 +80,15 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.POST.Request.Payloa
       testStringField<ModelInfoAPISpecs.Types.POST.Request.Payload>(
         "description",
         ModelInfoConstants.DESCRIPTION_MAX_LENGTH,
+        ModelInfoAPISpecs.Schemas.POST.Request.Payload,
+        [LocaleAPISpecs.Schemas.Payload]
+      );
+    });
+
+    describe("Test validation of 'license'", () => {
+      testStringField<ModelInfoAPISpecs.Types.POST.Request.Payload>(
+        "license",
+        ModelInfoConstants.LICENSE_MAX_LENGTH,
         ModelInfoAPISpecs.Schemas.POST.Request.Payload,
         [LocaleAPISpecs.Schemas.Payload]
       );

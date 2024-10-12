@@ -32,6 +32,7 @@ const getMockModelInfo = (i: number): IModelInfo => {
       name: `name_${i}`,
     },
     description: `description_${i}_${getTestString(10)}`,
+    license: `description_${i}_${getTestString(10)}`,
     version: `version_${i}`,
     released: true,
     releaseNotes: `releaseNotes_${i}_${getTestString(10)}`,
