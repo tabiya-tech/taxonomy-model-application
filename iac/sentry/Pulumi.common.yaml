@@ -1,0 +1,4 @@
+# sentry will be common across all environments
+config:
+  sentry-cfg:organization: "tabiya" # sentry-cfg key is used since sentry is a provider, which causes a conflict
+  sentry-cfg:team: "taxonomy-dev"

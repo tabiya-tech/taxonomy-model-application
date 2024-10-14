@@ -50,13 +50,19 @@ jobs:
       version: $GITHUB_REF_NAME
 
   # Auth
-  deploy-auth:
+  deploy-sentry:
     needs: [ setup-infrastructure ]
+    uses: ./.github/workflows/deploy-sentry.yml
+    secrets: inherit
+
+  deploy-auth:
+    needs: [ setup-infrastructure, deploy-sentry ]
     uses: ./.github/workflows/deploy-auth.yml
     secrets: inherit
     with:
       target-environment: ${{ inputs.target-environment }}
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
+      sentry-backend-dsn: ${{ needs.deploy-sentry.outputs.sentry-backend-dsn }}
 
   deploy-locales:
     needs: [ setup-infrastructure ]
@@ -67,7 +73,7 @@ jobs:
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
 
   deploy-backend:
-    needs: [ setup-infrastructure, deploy-auth ]
+    needs: [ setup-infrastructure, deploy-auth, deploy-sentry ]
     uses: ./.github/workflows/deploy-backend.yml
     secrets: inherit
     with:
@@ -76,6 +82,7 @@ jobs:
       target-domain-name: ${{ needs.setup-infrastructure.outputs.target-domain-name }}
       user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
       user-pool-client-id: ${{ needs.deploy-auth.outputs.clientId }}
+      sentry-backend-dsn: ${{ needs.deploy-sentry.outputs.sentry-backend-dsn }}
 
   deploy-frontend:
     needs: [ setup-infrastructure, deploy-auth ]

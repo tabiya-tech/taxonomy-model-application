@@ -6,8 +6,9 @@ import { initOnce } from "server/init";
 import { AsyncExportEvent } from "./async.types";
 import * as Sentry from "@sentry/aws-serverless";
 import { initializeSentry } from "initializeSentry";
+import {Lambdas} from "common/lambda.types";
 
-initializeSentry();
+initializeSentry(Lambdas.EXPORT);
 
 /**
  * Lambda function handler for asynchronous export.

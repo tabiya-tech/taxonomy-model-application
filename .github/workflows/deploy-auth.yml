@@ -16,6 +16,9 @@ on:
       target-domain-name:
         required: true
         type: string
+      sentry-backend-dsn:
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -56,3 +59,4 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DOMAIN_NAME: ${{ inputs.target-domain-name }}
+          SENTRY_BACKEND_DSN: ${{ inputs.sentry-backend-dsn }}
