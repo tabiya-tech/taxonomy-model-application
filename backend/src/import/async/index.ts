@@ -9,8 +9,9 @@ import { parseFiles } from "./parseFiles";
 import errorLogger from "common/errorLogger/errorLogger";
 import { initializeSentry } from "initializeSentry";
 import * as Sentry from "@sentry/aws-serverless";
+import {Lambdas} from "../../common/lambda.types";
 
-initializeSentry();
+initializeSentry(Lambdas.IMPORT);
 
 /**
  * Lambda function handler for asynchronous import.

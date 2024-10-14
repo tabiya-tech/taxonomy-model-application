@@ -18,6 +18,9 @@ on:
       user-pool-client-id:
         required: true
         type: string
+      sentry-backend-dsn:
+        required: true
+        type: string
     outputs:
       backedRestApiURLBase:
         description: "The backend api url"
@@ -73,4 +76,4 @@ jobs:
           DOMAIN_NAME: ${{ inputs.target-domain-name }}
           USER_POOL_ID: ${{ inputs.user-pool-id }}
           USER_POOL_CLIENT_ID: ${{ inputs.user-pool-client-id }}
-          SENTRY_BACKEND_DSN: ${{ secrets.SENTRY_BACKEND_DSN }}
+          SENTRY_BACKEND_DSN: ${{ inputs.sentry-backend-dsn }}

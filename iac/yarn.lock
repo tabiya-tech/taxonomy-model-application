@@ -751,6 +751,13 @@
   dependencies:
     "@pulumi/pulumi" "^3.0.0"
 
+"@pulumiverse/sentry@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@pulumiverse/sentry/-/sentry-0.0.8.tgz#5b2884c2b4818f14ed4db29bbe0aa5434b036736"
+  integrity sha512-nOeKSbAeHebnGqxtI7Jt8CQNbaz9I3F78i5jFBIynOuYswEhDOeViS5cn3TSpGQWcpRYP310sl66jewg/lU3cQ==
+  dependencies:
+    "@pulumi/pulumi" "^3.0.0"
+
 "@smithy/abort-controller@^2.0.14":
   version "2.0.14"
   resolved "https://registry.yarnpkg.com/@smithy/abort-controller/-/abort-controller-2.0.14.tgz#0608c34e35289e66ba839bbdda0c2ccd971e8d26"

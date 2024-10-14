@@ -10,8 +10,9 @@ import { initOnce } from "server/init";
 import { Routes } from "routes.constant";
 import { initializeSentry } from "initializeSentry";
 import * as Sentry from "@sentry/aws-serverless";
+import {Lambdas} from "common/lambda.types";
 
-initializeSentry();
+initializeSentry(Lambdas.API);
 
 export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = Sentry.wrapHandler(
   async (event: APIGatewayProxyEvent) => {

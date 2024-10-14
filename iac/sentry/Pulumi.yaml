@@ -1,0 +1,3 @@
+name: taxonomy-model-application-sentry
+runtime: nodejs
+description: The sentry infrastructure for the taxonomy application
