@@ -219,40 +219,40 @@ exports[`ModelsTable render tests should render the table with the single model 
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
           scope="row"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             1/1 - fysmros tcgcnjbbrrev
-          </p>
+          </span>
         </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             Palestine
              (
             ETH
             )
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             0.2.2
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-sqwehr-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             <svg
@@ -269,13 +269,13 @@ exports[`ModelsTable render tests should render the table with the single model 
                 Released
               </title>
             </svg>
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             <span
@@ -283,7 +283,7 @@ exports[`ModelsTable render tests should render the table with the single model 
             >
               aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
             </span>
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
@@ -456,40 +456,40 @@ exports[`ModelsTable render tests should render the table with the single model 
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
           scope="row"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             1/1 - fysmros tcgcnjbbrrev
-          </p>
+          </span>
         </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             Palestine
              (
             ETH
             )
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             0.2.2
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-sqwehr-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             <svg
@@ -506,13 +506,13 @@ exports[`ModelsTable render tests should render the table with the single model 
                 Released
               </title>
             </svg>
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             <span
@@ -520,7 +520,7 @@ exports[`ModelsTable render tests should render the table with the single model 
             >
               aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
             </span>
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
@@ -682,40 +682,40 @@ exports[`ModelsTable render tests should render the table with the single model 
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
           scope="row"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             1/1 - fysmros tcgcnjbbrrev
-          </p>
+          </span>
         </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             Palestine
              (
             ETH
             )
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             0.2.2
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-sqwehr-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             <svg
@@ -732,13 +732,13 @@ exports[`ModelsTable render tests should render the table with the single model 
                 Released
               </title>
             </svg>
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-o137ke-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         >
-          <p
+          <span
             class="MuiTypography-root MuiTypography-body1 css-10uhpti-MuiTypography-root"
           >
             <span
@@ -746,7 +746,7 @@ exports[`ModelsTable render tests should render the table with the single model 
             >
               aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
             </span>
-          </p>
+          </span>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
