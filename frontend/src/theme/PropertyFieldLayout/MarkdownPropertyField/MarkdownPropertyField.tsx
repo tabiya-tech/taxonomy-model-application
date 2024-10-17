@@ -57,6 +57,7 @@ const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
   return (
     <PropertyFieldLayout title={props.label ?? ""} data-testid={props["data-testid"]} fieldId={props?.fieldId ?? ""}>
       <Typography
+        component="span"
         sx={{
           "& > *": { margin: "0" },
           ...props.style,

@@ -8,7 +8,7 @@ exports[`MarkdownPropertyField should render with provided markdown 1`] = `
     foo
   </span>
   <span>
-    <p
+    <span
       class="MuiTypography-root MuiTypography-body1 css-swfwp-MuiTypography-root"
       data-testid="markdown-property-field-text-0af822fc-07e3-4032-8276-d7ebf6dc4631"
     >
@@ -20,7 +20,7 @@ This is a paragraph with **bold** and *italic* text.
 - item 1
 - item 2
       </span>
-    </p>
+    </span>
   </span>
 </div>
 `;
