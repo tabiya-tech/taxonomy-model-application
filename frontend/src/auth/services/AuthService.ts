@@ -14,6 +14,19 @@ let isRefreshingTokens = false;
  * Service for handling authentication
  */
 export class AuthService {
+  private static instance: AuthService;
+
+  /**
+   * Returns the instance of the AuthService
+   * @returns AuthService
+   */
+  public static getInstance() {
+    if (!AuthService.instance) {
+      AuthService.instance = new AuthService();
+    }
+    return AuthService.instance;
+  }
+
   /**
    * Handles refreshing the tokens
    * @returns TRefreshTokenResponse
