@@ -103,6 +103,7 @@ const StyledBodyCell = ({ cellSx, typoSx, ...props }: Readonly<StyledCellProps>)
       {...props}
     >
       <Typography
+        component="span"
         sx={{
           ...typoSx,
         }}
