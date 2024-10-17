@@ -14,6 +14,19 @@ let isRefreshingTokens = false;
  * Service for handling authentication
  */
 export class AuthService {
+  private static instance: AuthService;
+
+  /**
+   * Returns the instance of the AuthService
+   * @returns AuthService
+   */
+  public static getInstance() {
+    if (!AuthService.instance) {
+      AuthService.instance = new AuthService();
+    }
+    return AuthService.instance;
+  }
+
   /**
    * Handles refreshing the tokens
    * @returns TRefreshTokenResponse
@@ -21,6 +34,11 @@ export class AuthService {
    */
   async handleRefreshingTokens(refreshToken: string): Promise<TRefreshTokenResponse> {
     const errorFactory = getServiceErrorFactory("AuthService", "handleRefreshingTokens", "POST", "");
+
+    console.debug({
+      message: "trying to refresh the tokens tokens",
+      time_stamp: new Date()
+    })
 
     if (!refreshToken || refreshToken === "undefined")
       throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Invalid refresh token", new Error("Invalid Refresh Token"));
