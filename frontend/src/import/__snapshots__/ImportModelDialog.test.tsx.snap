@@ -35,661 +35,675 @@ exports[`ImportModel dialog render tests should render the dialog visible 1`] = 
       <div
         class="MuiDialogContent-root css-ypiqx9-MuiDialogContent-root"
       >
-        <div
-          class="MuiStack-root css-1aflh0e-MuiStack-root"
-        >
-          <div
-            class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
-            data-testid="model-name-field-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-          >
-            <div
-              class="MuiStack-root css-gbnj3n-MuiStack-root"
-            >
-              <label
-                class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
-                data-testid="model-name-label-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                for="d2bc4d5d-7760-450d-bac6-a8857affeb89"
-              >
-                Model Name
-                <span
-                  aria-hidden="true"
-                  class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
-                >
-                   
-                  *
-                </span>
-              </label>
+        <div>
+          <div>
+            <div>
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1wyjlvd-MuiInputBase-root-MuiInput-root"
+                class="MuiStack-root css-5qh8qt-MuiStack-root"
               >
-                <input
-                  aria-invalid="false"
-                  class="MuiInputBase-input MuiInput-input css-8gll8g-MuiInputBase-input-MuiInput-input"
-                  data-testid="model-name-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                  id="d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                  placeholder="Enter model name"
-                  type="text"
-                  value=""
-                />
+                <div
+                  class="MuiStack-root css-gbnj3n-MuiStack-root"
+                  data-testid="import-files-selection-e60583c2-9ce5-47e0-bb8f-d2a4349dde15"
+                >
+                  <label
+                    class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
+                  >
+                    Select files to import
+                    <span
+                      aria-hidden="true"
+                      class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
+                    >
+                       
+                      *
+                    </span>
+                  </label>
+                  <div
+                    class="MuiGrid-root css-7053uj-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="OCCUPATION_GROUPS"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="OCCUPATION_GROUPS"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="OCCUPATION_GROUPS"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Occupation Groups csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Occupation Groups
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="OCCUPATIONS"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="OCCUPATIONS"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="OCCUPATIONS"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Occupations csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Occupations
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="ESCO_SKILL_GROUPS"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="ESCO_SKILL_GROUPS"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="ESCO_SKILL_GROUPS"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Skill Groups csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Skill Groups
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="ESCO_SKILLS"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="ESCO_SKILLS"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="ESCO_SKILLS"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Skills csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Skills
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="OCCUPATION_HIERARCHY"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="OCCUPATION_HIERARCHY"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="OCCUPATION_HIERARCHY"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Occupation Hierarchy csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Occupation Hierarchy
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="ESCO_SKILL_HIERARCHY"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="ESCO_SKILL_HIERARCHY"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="ESCO_SKILL_HIERARCHY"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Skill Hierarchy csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Skill Hierarchy
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="ESCO_SKILL_SKILL_RELATIONS"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="ESCO_SKILL_SKILL_RELATIONS"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="ESCO_SKILL_SKILL_RELATIONS"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Skill-To-Skill Relations csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Skill-To-Skill Relations
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="OCCUPATION_SKILL_RELATIONS"
+                        data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="OCCUPATION_SKILL_RELATIONS"
+                            data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            id="OCCUPATION_SKILL_RELATIONS"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add Occupation-To-Skill Relations csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Occupation-To-Skill Relations
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="MODEL_INFO"
+                        data-testid="modelInfo-file-entry-16c54d56-b091-48ce-826a-c721b0c3643d"
+                      >
+                        <div>
+                          <input
+                            accept=".csv"
+                            data-filetype="MODEL_INFO"
+                            data-testid="modelInfo-file-input-16c54d56-b091-48ce-826a-c721b0c3643d"
+                            id="16c54d56-b091-48ce-826a-c721b0c3643d-model-info"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add MODEL_INFO csv file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="modelInfo-select-file-button-16c54d56-b091-48ce-826a-c721b0c3643d"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              Model info
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiBox-root css-8ghero"
+                    >
+                      <div
+                        data-filetype="LICENSE"
+                        data-testid="license-file-entry-16c54d56-b091-48ce-826a-c721b0c3643f"
+                      >
+                        <div>
+                          <input
+                            accept="*"
+                            data-filetype="LICENSE"
+                            data-testid="license-file-input-16c54d56-b091-48ce-826a-c721b0c3643f"
+                            id="16c54d56-b091-48ce-826a-c721b0c3643f-license"
+                            style="display: none;"
+                            type="file"
+                          />
+                          <div
+                            aria-label="Add LICENSE file"
+                            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+                            data-testid="license-select-file-button-16c54d56-b091-48ce-826a-c721b0c3643f"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
+                              data-testid="AddCircleOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            >
+                              LICENSE
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div
-            class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
-            data-testid="model-locale-select-field-dfdbbef3-ec63-44f4-9945-a757d9c81269"
-          >
-            <div
-              class="MuiStack-root css-gbnj3n-MuiStack-root"
-            >
-              <label
-                class="MuiFormLabel-root MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required css-1k0yz6l-MuiFormLabel-root"
-                data-testid="model-locale-label-dfdbbef3-ec63-44f4-9945-a757d9c81269"
-                id="dfdbbef3-ec63-44f4-9945-a757d9c81269"
-              >
-                Select Model Locale
-                <span
-                  aria-hidden="true"
-                  class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
-                >
-                   
-                  *
-                </span>
-              </label>
+          <div>
+            <div>
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl  css-4949pz-MuiInputBase-root-MuiInput-root-MuiSelect-root"
-                data-testid="model-locale-input-dropdown-dfdbbef3-ec63-44f4-9945-a757d9c81269"
+                class="MuiStack-root css-1aflh0e-MuiStack-root"
               >
                 <div
-                  aria-controls=":r1:"
-                  aria-expanded="false"
-                  aria-haspopup="listbox"
-                  aria-labelledby="dfdbbef3-ec63-44f4-9945-a757d9c81269"
-                  class="MuiSelect-select MuiSelect-standard MuiInputBase-input MuiInput-input css-wrly8k-MuiSelect-select-MuiInputBase-input-MuiInput-input"
-                  role="combobox"
-                  tabindex="0"
+                  class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
+                  data-testid="model-name-field-d2bc4d5d-7760-450d-bac6-a8857affeb89"
                 >
-                  foo
-                     (
-                  foo
-                  )
+                  <div
+                    class="MuiStack-root css-gbnj3n-MuiStack-root"
+                  >
+                    <label
+                      class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
+                      data-testid="model-name-label-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                      for="d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                    >
+                      Model Name
+                      <span
+                        aria-hidden="true"
+                        class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
+                      >
+                         
+                        *
+                      </span>
+                    </label>
+                    <div
+                      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1wyjlvd-MuiInputBase-root-MuiInput-root"
+                    >
+                      <input
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiInput-input css-8gll8g-MuiInputBase-input-MuiInput-input"
+                        data-testid="model-name-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                        id="d2bc4d5d-7760-450d-bac6-a8857affeb89"
+                        placeholder="Enter model name"
+                        type="text"
+                        value=""
+                      />
+                    </div>
+                  </div>
                 </div>
-                <input
-                  aria-hidden="true"
-                  aria-invalid="false"
-                  class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
-                  data-testid="model-locale-input-dfdbbef3-ec63-44f4-9945-a757d9c81269"
-                  tabindex="-1"
-                  value="foo"
-                />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconStandard css-b9pvgf-MuiSvgIcon-root-MuiSelect-icon"
-                  data-testid="ArrowDropDownIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
+                <div
+                  class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
+                  data-testid="model-locale-select-field-dfdbbef3-ec63-44f4-9945-a757d9c81269"
                 >
-                  <path
-                    d="M7 10l5 5 5-5z"
+                  <div
+                    class="MuiStack-root css-gbnj3n-MuiStack-root"
+                  >
+                    <label
+                      class="MuiFormLabel-root MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required css-1k0yz6l-MuiFormLabel-root"
+                      data-testid="model-locale-label-dfdbbef3-ec63-44f4-9945-a757d9c81269"
+                      id="dfdbbef3-ec63-44f4-9945-a757d9c81269"
+                    >
+                      Select Model Locale
+                      <span
+                        aria-hidden="true"
+                        class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
+                      >
+                         
+                        *
+                      </span>
+                    </label>
+                    <div
+                      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl  css-4949pz-MuiInputBase-root-MuiInput-root-MuiSelect-root"
+                      data-testid="model-locale-input-dropdown-dfdbbef3-ec63-44f4-9945-a757d9c81269"
+                    >
+                      <div
+                        aria-controls=":r1:"
+                        aria-expanded="false"
+                        aria-haspopup="listbox"
+                        aria-labelledby="dfdbbef3-ec63-44f4-9945-a757d9c81269"
+                        class="MuiSelect-select MuiSelect-standard MuiInputBase-input MuiInput-input css-wrly8k-MuiSelect-select-MuiInputBase-input-MuiInput-input"
+                        role="combobox"
+                        tabindex="0"
+                      >
+                        foo
+                           (
+                        foo
+                        )
+                      </div>
+                      <input
+                        aria-hidden="true"
+                        aria-invalid="false"
+                        class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
+                        data-testid="model-locale-input-dfdbbef3-ec63-44f4-9945-a757d9c81269"
+                        tabindex="-1"
+                        value="foo"
+                      />
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconStandard css-b9pvgf-MuiSvgIcon-root-MuiSelect-icon"
+                        data-testid="ArrowDropDownIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M7 10l5 5 5-5z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
+                  data-testid="model-desc-field-110643ab-593e-47dc-b398-ecc98518660e"
+                >
+                  <div
+                    class="MuiStack-root css-gbnj3n-MuiStack-root"
+                  >
+                    <label
+                      class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1k0yz6l-MuiFormLabel-root"
+                      data-testid="model-desc-label-110643ab-593e-47dc-b398-ecc98518660e"
+                      for="110643ab-593e-47dc-b398-ecc98518660e"
+                    >
+                      Model Description
+                    </label>
+                    <div
+                      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-1skjrer-MuiInputBase-root-MuiInput-root"
+                      style="max-width: 100%; min-width: 100%; max-height: 20rem; min-height: 6rem;"
+                    >
+                      <textarea
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
+                        data-testid="model-desc-input-110643ab-593e-47dc-b398-ecc98518660e"
+                        id="110643ab-593e-47dc-b398-ecc98518660e"
+                        placeholder="Enter model description"
+                        rows="10"
+                        style="height: 0px; overflow: hidden;"
+                      />
+                      <textarea
+                        aria-hidden="true"
+                        class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
+                        readonly=""
+                        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
+                        tabindex="-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiStack-root css-1fs2sbw-MuiStack-root"
+                >
+                  <label
+                    class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-1us57sh-MuiFormControlLabel-root"
+                    data-testid="import-original-esco-checkbox-label-72be571e-b635-4c15-85c6-897dab60d59f"
+                  >
+                    <span
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-koselh-MuiButtonBase-root-MuiCheckbox-root"
+                      data-testid="import-original-esco-checkbox-72be571e-b635-4c15-85c6-897dab60d59f"
+                    >
+                      <input
+                        class="PrivateSwitchBase-input css-1m9pwf3"
+                        data-indeterminate="false"
+                        type="checkbox"
+                      />
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+                        data-testid="CheckBoxOutlineBlankIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                        />
+                      </svg>
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </span>
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-3ahvbo-MuiTypography-root"
+                    >
+                      I'm importing a base ESCO model
+                    </span>
+                  </label>
+                  <div
+                    data-testid="import-original-esco-checkbox-tooltip-72be571e-b635-4c15-85c6-897dab60d59f"
                   />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div
-            class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
-            data-testid="model-desc-field-110643ab-593e-47dc-b398-ecc98518660e"
-          >
-            <div
-              class="MuiStack-root css-gbnj3n-MuiStack-root"
-            >
-              <label
-                class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1k0yz6l-MuiFormLabel-root"
-                data-testid="model-desc-label-110643ab-593e-47dc-b398-ecc98518660e"
-                for="110643ab-593e-47dc-b398-ecc98518660e"
-              >
-                Model Description
-              </label>
-              <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-1skjrer-MuiInputBase-root-MuiInput-root"
-                style="max-width: 100%; min-width: 100%; max-height: 20rem; min-height: 6rem;"
-              >
-                <textarea
-                  aria-invalid="false"
-                  class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
-                  data-testid="model-desc-input-110643ab-593e-47dc-b398-ecc98518660e"
-                  id="110643ab-593e-47dc-b398-ecc98518660e"
-                  placeholder="Enter model description"
-                  rows="10"
-                  style="height: 0px; overflow: hidden;"
-                />
-                <textarea
-                  aria-hidden="true"
-                  class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
-                  readonly=""
-                  style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
-                  tabindex="-1"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            class="MuiStack-root css-1fs2sbw-MuiStack-root"
-          >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-1us57sh-MuiFormControlLabel-root"
-              data-testid="import-original-esco-checkbox-label-72be571e-b635-4c15-85c6-897dab60d59f"
-            >
-              <span
-                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-koselh-MuiButtonBase-root-MuiCheckbox-root"
-                data-testid="import-original-esco-checkbox-72be571e-b635-4c15-85c6-897dab60d59f"
-              >
-                <input
-                  class="PrivateSwitchBase-input css-1m9pwf3"
-                  data-indeterminate="false"
-                  type="checkbox"
-                />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
-                  data-testid="CheckBoxOutlineBlankIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                  />
-                </svg>
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </span>
-              <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-3ahvbo-MuiTypography-root"
-              >
-                I'm importing a base ESCO model
-              </span>
-            </label>
-            <div
-              data-testid="import-original-esco-checkbox-tooltip-72be571e-b635-4c15-85c6-897dab60d59f"
-            />
-          </div>
-          <div
-            class="MuiStack-root css-gbnj3n-MuiStack-root"
-            data-testid="import-files-selection-e60583c2-9ce5-47e0-bb8f-d2a4349dde15"
-          >
-            <label
-              class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
-            >
-              Select files to import
-              <span
-                aria-hidden="true"
-                class="MuiFormLabel-asterisk css-1th3aq5-MuiFormLabel-asterisk"
-              >
-                 
-                *
-              </span>
-            </label>
-            <div
-              class="MuiGrid-root css-7053uj-MuiGrid-root"
-            >
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="OCCUPATION_GROUPS"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="OCCUPATION_GROUPS"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="OCCUPATION_GROUPS"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Occupation Groups csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Occupation Groups
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="OCCUPATIONS"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="OCCUPATIONS"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="OCCUPATIONS"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Occupations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Occupations
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="ESCO_SKILL_GROUPS"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="ESCO_SKILL_GROUPS"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="ESCO_SKILL_GROUPS"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Skill Groups csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Skill Groups
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="ESCO_SKILLS"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="ESCO_SKILLS"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="ESCO_SKILLS"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Skills csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Skills
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="OCCUPATION_HIERARCHY"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="OCCUPATION_HIERARCHY"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="OCCUPATION_HIERARCHY"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Occupation Hierarchy csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Occupation Hierarchy
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="ESCO_SKILL_HIERARCHY"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="ESCO_SKILL_HIERARCHY"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="ESCO_SKILL_HIERARCHY"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Skill Hierarchy csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Skill Hierarchy
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="ESCO_SKILL_SKILL_RELATIONS"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="ESCO_SKILL_SKILL_RELATIONS"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="ESCO_SKILL_SKILL_RELATIONS"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Skill-To-Skill Relations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Skill-To-Skill Relations
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="OCCUPATION_SKILL_RELATIONS"
-                  data-testid="file-entry-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="OCCUPATION_SKILL_RELATIONS"
-                      data-testid="file-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      id="OCCUPATION_SKILL_RELATIONS"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add Occupation-To-Skill Relations csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="select-file-button-d2bc4d5d-7760-450d-bac6-a8857affeb89"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Occupation-To-Skill Relations
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="MODEL_INFO"
-                  data-testid="modelInfo-file-entry-16c54d56-b091-48ce-826a-c721b0c3643d"
-                >
-                  <div>
-                    <input
-                      accept=".csv"
-                      data-filetype="MODEL_INFO"
-                      data-testid="modelInfo-file-input-16c54d56-b091-48ce-826a-c721b0c3643d"
-                      id="16c54d56-b091-48ce-826a-c721b0c3643d-model-info"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add MODEL_INFO csv file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="modelInfo-select-file-button-16c54d56-b091-48ce-826a-c721b0c3643d"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        Model info
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="MuiBox-root css-8ghero"
-              >
-                <div
-                  data-filetype="LICENSE"
-                  data-testid="license-file-entry-16c54d56-b091-48ce-826a-c721b0c3643f"
-                >
-                  <div>
-                    <input
-                      accept="*"
-                      data-filetype="LICENSE"
-                      data-testid="license-file-input-16c54d56-b091-48ce-826a-c721b0c3643f"
-                      id="16c54d56-b091-48ce-826a-c721b0c3643f-license"
-                      style="display: none;"
-                      type="file"
-                    />
-                    <div
-                      aria-label="Add LICENSE file"
-                      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
-                      data-testid="license-select-file-button-16c54d56-b091-48ce-826a-c721b0c3643f"
-                      role="button"
-                      tabindex="0"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorPrimary css-etbowg-MuiSvgIcon-root"
-                        data-testid="AddCircleOutlinedIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                      >
-                        LICENSE
-                      </span>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
