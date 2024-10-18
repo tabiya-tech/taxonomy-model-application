@@ -116,7 +116,8 @@ describe("ModelInfoFileEntry action tests", () => {
     const givenParsedUUIDHistory = ["uuid1", "uuid2"];
     jest
       .spyOn(require("./parseSelectedModelInfoFile"), "default")
-      .mockImplementationOnce(() => Promise.resolve(givenParsedUUIDHistory));
+      .mockImplementationOnce(() => Promise.resolve({ UUIDHistory: givenParsedUUIDHistory }));
+
     render(<ModelInfoFileEntry notifyUUIDHistoryChange={givenMockNotification} />);
     // AND a file is chosen
     const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
@@ -129,6 +130,29 @@ describe("ModelInfoFileEntry action tests", () => {
     expect(givenMockNotification).toHaveBeenCalledWith(givenParsedUUIDHistory);
   });
 
+  it("should correctly notify the notifyDescriptionChange handler when file is selected", async () => {
+    // GIVEN some file
+    const givenFile = new File([], "foo.csv", { type: "text/csv" });
+    // AND a notification handler
+    const givenMockNotification = jest.fn();
+
+    // WHEN ModelInfoFileEntry is rendered
+    const givenDescription = "given-description";
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.resolve({ description: givenDescription }));
+    render(<ModelInfoFileEntry notifyOnDescriptionChange={givenMockNotification} />);
+    // AND a file is chosen
+    const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    fireEvent.change(fileInput, { target: { files: [givenFile] } });
+    // THEN expect the parseSelectedModelInfoFile to have been called with the given file
+    await waitFor(() => {
+      expect(parseSelectedModelInfoFile).toHaveBeenCalledWith(givenFile);
+    });
+    // THEN expect notification to have been called with the given filetype and file
+    expect(givenMockNotification).toHaveBeenCalledWith(givenDescription);
+  });
+
   it("should correctly notify the notifyUUIDHistoryChange handler when file is removed", async () => {
     // GIVEN some file
     const givenFile = new File([], "foo.csv", { type: "text/csv" });
@@ -136,7 +160,9 @@ describe("ModelInfoFileEntry action tests", () => {
     const givenMockNotification = jest.fn();
 
     // When ModelInfoFileEntry is rendered
-    jest.spyOn(require("./parseSelectedModelInfoFile"), "default").mockImplementationOnce(() => Promise.resolve([]));
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.resolve({ UUIDHistory: [] }));
     render(<ModelInfoFileEntry notifyUUIDHistoryChange={givenMockNotification} />);
     // AND the given file has been selected
     let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
@@ -149,6 +175,35 @@ describe("ModelInfoFileEntry action tests", () => {
     await clickDebouncedButton(fileRemoverFab);
     // THEN expect notificationHandler to have been called with givenFileType and null,
     expect(givenMockNotification).toHaveBeenLastCalledWith([]);
+  });
+
+  it("should correctly notify the notifyDescriptionChange handler when file is removed", async () => {
+    // GIVEN some file
+    const givenFile = new File([], "foo.csv", { type: "text/csv" });
+
+    // AND a notification handler
+    const givenMockNotification = jest.fn();
+
+    // When ModelInfoFileEntry is rendered
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.resolve({ description: "" }));
+    render(<ModelInfoFileEntry notifyOnDescriptionChange={givenMockNotification} />);
+
+    // AND the given file has been selected
+    let fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    fireEvent.change(fileInput, { target: { files: [givenFile] } });
+
+    expect(fileInput.files).toHaveLength(1);
+
+    // WHEN the remove selected file button is clicked
+    const fileRemoverFab = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON);
+
+    // wait for the component's state to update
+    await clickDebouncedButton(fileRemoverFab);
+
+    // THEN expect notificationHandler to have been called with givenFileType and null,
+    expect(givenMockNotification).toHaveBeenLastCalledWith("");
   });
 
   it("should handle file changes even if notifyUUIDHistoryChange handler is not set", async () => {
@@ -199,5 +254,32 @@ describe("ModelInfoFileEntry action tests", () => {
       `Error parsing file: ${givenFile.name}. Please review the file and try again.`,
       { variant: "error" }
     );
+  });
+
+  it("should not call notifiers if there are not passed", async () => {
+    // GIVEN a parseSelectedModelInfoFile that returns an empty UUIDHistory
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.resolve({ UUIDHistory: ["given-UUID"] }));
+
+    (console.error as jest.Mock).mockClear();
+
+    // GIVEN some file
+    const givenFile = new File([], "foo.csv", { type: "text/csv" });
+
+    // When ModelInfoFileEntry is rendered
+    render(<ModelInfoFileEntry />);
+
+    // AND a file is chosen
+    const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    fireEvent.change(fileInput, { target: { files: [givenFile] } });
+
+    // THEN expect the parseSelectedModelInfoFile to have been called with the given file
+    await waitFor(() => {
+      expect(parseSelectedModelInfoFile).toHaveBeenCalledWith(givenFile);
+    });
+
+    // THEN expect the notification handler not to have been called
+    expect(console.error).not.toHaveBeenCalled();
   });
 });

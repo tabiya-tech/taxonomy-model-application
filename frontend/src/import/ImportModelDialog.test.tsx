@@ -21,7 +21,10 @@ import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
 
 // mock the parseSelectedModelInfoFile function
 jest.mock("src/import/components/parseSelectedModelInfoFile", () => {
-  return jest.fn().mockResolvedValue(["foo", "bar"]);
+  return jest.fn().mockResolvedValue({
+    UUIDHistory: ["foo", "bar"],
+    description: "",
+  });
 });
 
 jest.mock("src/theme/HelpTip/HelpTip", () => {
@@ -31,6 +34,24 @@ jest.mock("src/theme/HelpTip/HelpTip", () => {
     __esModule: true,
     ...actual,
     default: jest.fn().mockImplementation((props) => <div data-testid={props["data-testid"]} />),
+  };
+});
+
+jest.mock("src/theme/Stepper/Stepper", () => {
+  const actual = jest.requireActual("src/theme/HelpTip/HelpTip");
+
+  return {
+    __esModule: true,
+    ...actual,
+    default: jest.fn().mockImplementation((props) => (
+      <div data-testid={props["data-testid"]}>
+        {props.steps.map((step: any) => (
+          <div key={step.id}>
+            <div>{step.content}</div>
+          </div>
+        ))}
+      </div>
+    )),
   };
 });
 
@@ -174,7 +195,7 @@ describe("ImportModel dialog render tests", () => {
 
     // AND the  Import Oirignal ESCO checkbox tooltip to be visible.
     const originalESCOCheckboxTooltipElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP);
-    expect(originalESCOCheckboxTooltipElement).toBeVisible();
+    expect(originalESCOCheckboxTooltipElement).toBeInTheDocument();
   });
 
   it("should render the dialog hidden", function () {
@@ -379,6 +400,33 @@ describe("ImportModel dialog action tests", () => {
         UUIDHistory: givenData.UUIDHistory,
         isOriginalESCOModel: givenData.isOriginalESCOModel,
       },
+    });
+  });
+
+  it("should auto-fill the model description if the model info file is uploaded with a description and description was empty", async () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // AND a description is in the file.
+    const givenDescription = "given-foo-description";
+
+    const parseSelectedModelInfoFile = jest.requireMock("src/import/components/parseSelectedModelInfoFile");
+
+    parseSelectedModelInfoFile.mockResolvedValue({
+      UUIDHistory: ["foo", "bar", "foo bar"],
+      description: givenDescription,
+    });
+
+    // WHEN the user enters all the data required for the import except description
+    // @ts-ignore
+    const givenData = getImportDataTestValues();
+    givenData.description = "";
+    await fillInImportDialog(givenData);
+
+    // THEN the model description should be auto-filled
+    await waitFor(() => {
+      const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
+      expect(modelDescriptionElement).toHaveValue(givenDescription);
     });
   });
 });

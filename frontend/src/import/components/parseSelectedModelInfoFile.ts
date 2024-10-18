@@ -2,9 +2,15 @@ import Papa from "papaparse";
 
 interface CsvRow {
   UUIDHistory?: string;
+  DESCRIPTION?: string;
 }
 
-const parseSelectedModelInfoFile = (file: File): Promise<string[]> => {
+type ModelInfoDetails = {
+  UUIDHistory: string[];
+  description: string;
+};
+
+const parseSelectedModelInfoFile = (file: File): Promise<ModelInfoDetails> => {
   return new Promise((resolve, reject) => {
     // Check if the file is a CSV
     if (file.type !== "text/csv" && file.type !== "application/vnd.ms-excel") {
@@ -24,7 +30,12 @@ const parseSelectedModelInfoFile = (file: File): Promise<string[]> => {
 
         // Split the UUIDHistory string into an array of UUIDs
         const uuidHistory: string[] = records[0].UUIDHistory.split("\n");
-        resolve(uuidHistory);
+        const description = records[0].DESCRIPTION || "";
+
+        resolve({
+          UUIDHistory: uuidHistory,
+          description: description,
+        });
       },
       error: (error) => reject(new Error("Error parsing the file: " + error.message)),
       header: true,

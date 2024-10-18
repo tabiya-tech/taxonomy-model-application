@@ -1,4 +1,4 @@
-import react from "react";
+import React from "react";
 import { FormControl, FormLabel, Input, Stack, useTheme } from "@mui/material";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
@@ -19,10 +19,13 @@ export interface ModelDescriptionFieldProps {
   notifyModelDescriptionChanged?: (newDescription: string) => void;
 }
 
-export const ModelDescriptionField = (props: Readonly<ModelDescriptionFieldProps>) => {
+export const ModelDescriptionField = (
+  props: Readonly<ModelDescriptionFieldProps>,
+  ref: React.ForwardedRef<HTMLTextAreaElement>
+) => {
   const debounceHandleTextInputChange = debounce(handleTextInputChange, DEBOUNCE_INTERVAL);
 
-  function handleTextInputChange(e: react.ChangeEvent<HTMLTextAreaElement>) {
+  function handleTextInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     if (props.notifyModelDescriptionChanged) {
       props.notifyModelDescriptionChanged(e.target.value);
     }
@@ -38,6 +41,7 @@ export const ModelDescriptionField = (props: Readonly<ModelDescriptionFieldProps
         <Input
           multiline
           rows={10}
+          inputRef={ref}
           inputProps={{ "data-testid": DATA_TEST_ID.MODEL_DESC_INPUT }}
           placeholder={TEXT.MODEL_DESC_PLACEHOLDER}
           id={uniqueId}
@@ -48,4 +52,5 @@ export const ModelDescriptionField = (props: Readonly<ModelDescriptionFieldProps
     </FormControl>
   );
 };
-export default ModelDescriptionField;
+
+export default React.forwardRef(ModelDescriptionField);

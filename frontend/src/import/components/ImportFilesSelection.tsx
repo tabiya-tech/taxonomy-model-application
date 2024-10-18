@@ -9,6 +9,7 @@ export interface ImportFilesSelectionProps {
   notifySelectedFileChange?: (fileType: ImportAPISpecs.Constants.ImportFileTypes, newFile: File | null) => void;
   notifyUUIDHistoryChange?: (newUUIDHistory: string[]) => void;
   notifyOnLicenseChange?: (license: string) => void;
+  notifyOnDescriptionChange?: (description: string) => void;
 }
 
 const uniqueId = "e60583c2-9ce5-47e0-bb8f-d2a4349dde15";
@@ -47,7 +48,10 @@ const ImportFilesSelection = (props: Readonly<ImportFilesSelectionProps>) => {
             marginRight: (theme) => theme.tabiyaRounding.sm,
           }}
         >
-          <ModelInfoFileEntry notifyUUIDHistoryChange={props.notifyUUIDHistoryChange} />
+          <ModelInfoFileEntry
+            notifyUUIDHistoryChange={props.notifyUUIDHistoryChange}
+            notifyOnDescriptionChange={props.notifyOnDescriptionChange}
+          />
         </Box>
         <Box
           key={`${uniqueId}-license`}
