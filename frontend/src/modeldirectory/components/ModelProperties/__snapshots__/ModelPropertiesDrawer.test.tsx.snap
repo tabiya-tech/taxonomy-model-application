@@ -42,7 +42,7 @@ exports[`ModelPropertiesDrawer component render tests should render the drawer w
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-item css-1d81fg3-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-item css-nqjhly-MuiGrid-root"
             >
               <div
                 data-testid="model-properties-content-ee760560-4d1a-4555-89a7-1c1d0b5cbd5b"
