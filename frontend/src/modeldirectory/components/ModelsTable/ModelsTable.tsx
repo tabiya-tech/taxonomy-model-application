@@ -189,7 +189,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
         alignItems: "center",
         width: "100%",
         height: "100%",
-        marginTop: `${paperElevation}px`, // to compensate for the elevation of the paper
+        paddingTop: `${paperElevation}px`, // to compensate for the elevation of the paper
       }}
     >
       <TableContainer

@@ -82,7 +82,7 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
                 margin: (theme) => theme.tabiyaSpacing.none,
                 padding: (theme) => theme.tabiyaSpacing.none,
                 flex: "1",
-                overflowY: "clip",
+                overflowY: "auto",
                 backgroundColor: "none", //"magenta"
               }}
             >
