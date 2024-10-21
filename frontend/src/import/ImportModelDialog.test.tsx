@@ -10,6 +10,7 @@ import { DATA_TEST_ID as IMPORT_FILE_SELECTION_DATA_TEST_ID } from "src/import/c
 import { DATA_TEST_ID as FILE_ENTRY_DATA_TEST_ID } from "src/import/components/FileEntry";
 import { DATA_TEST_ID as MODEL_INFO_DATA_TEST_ID } from "src/import/components/ModelInfoFileEntry";
 import { DATA_TEST_ID as LICENSE_DATA_TEST_ID } from "src/import/components/LicenseFileEntry";
+import { DATA_TEST_ID as APPROVE_MODAL_DATA_TEST_ID } from "src/theme/ApproveModal/ApproveModal";
 import HelpTip from "src/theme/HelpTip/HelpTip";
 import ImportAPISpecs from "api-specifications/import";
 import { clickDebouncedButton, typeDebouncedInput } from "src/_test_utilities/userEventFakeTimer";
@@ -18,10 +19,11 @@ import { isSpecified } from "src/utils/isUnspecified";
 import userEvent from "@testing-library/user-event";
 import { unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
+import parseSelectedModelInfoFile from "./components/parseSelectedModelInfoFile";
 
 // mock the parseSelectedModelInfoFile function
 jest.mock("src/import/components/parseSelectedModelInfoFile", () => {
-  return jest.fn().mockResolvedValue(["foo", "bar"]);
+  return jest.fn().mockResolvedValue({ UUIDHistory: ["foo", "bar"], description: "" });
 });
 
 jest.mock("src/theme/HelpTip/HelpTip", () => {
@@ -379,6 +381,247 @@ describe("ImportModel dialog action tests", () => {
         UUIDHistory: givenData.UUIDHistory,
         isOriginalESCOModel: givenData.isOriginalESCOModel,
       },
+    });
+  });
+
+  it("should update the description field when the user uploads a model info file", async () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // AND description is empty string for now
+    const givenData = getImportDataTestValues();
+    givenData.description = "";
+
+    // AND the user uploads a model info file
+    const givenDescriptionFromFile = "foo model description";
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      description: givenDescriptionFromFile,
+    });
+
+    await fillInImportDialog(givenData);
+
+    // AND the model description field.value should have the description from the file
+    await waitFor(() => {
+      const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
+      expect(modelDescriptionElement).toHaveValue(givenDescriptionFromFile);
+    });
+
+    // AND the user clicks the import button
+    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
+    fireEvent.click(importButton);
+
+    // THEN the notifyOnClose is called with event name IMPORT and the data the user entered
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: {
+          name: givenData.name,
+          description: givenDescriptionFromFile,
+          license: givenData.license,
+          locale: givenData.locale,
+          selectedFiles: givenData.selectedFiles,
+          UUIDHistory: givenData.UUIDHistory,
+          isOriginalESCOModel: givenData.isOriginalESCOModel,
+        },
+      });
+    });
+  });
+
+  it("should not update the description field when the user uploads a model info file with an empty description", async () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // AND description is empty string for now
+    const givenData = getImportDataTestValues();
+    givenData.description = "";
+
+    // AND the user uploads a model info file
+    const givenDescriptionFromFile = "";
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      description: givenDescriptionFromFile,
+    });
+
+    await fillInImportDialog(givenData);
+
+    // AND the model description field.value should have the description from the file
+    await waitFor(() => {
+      const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
+      expect(modelDescriptionElement).toHaveValue(givenDescriptionFromFile);
+    });
+
+    // AND the user clicks the import button
+    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
+    fireEvent.click(importButton);
+
+    // THEN the notifyOnClose is called with event name IMPORT and the data the user entered
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: {
+          name: givenData.name,
+          description: givenDescriptionFromFile,
+          license: givenData.license,
+          locale: givenData.locale,
+          selectedFiles: givenData.selectedFiles,
+          UUIDHistory: givenData.UUIDHistory,
+          isOriginalESCOModel: givenData.isOriginalESCOModel,
+        },
+      });
+    });
+  });
+
+  it("should not update the description field when the user uploads a model info and the user has already entered a description", async () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // AND description is empty string for now
+    const givenData = getImportDataTestValues();
+    givenData.description = "foo model description";
+
+    // AND the user uploads a model info file
+    const givenDescriptionFromFile = "bar model description";
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      description: givenDescriptionFromFile,
+    });
+
+    await fillInImportDialog(givenData);
+
+    // AND the model description field.value should have the description from the file
+    await waitFor(() => {
+      const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
+      expect(modelDescriptionElement).toHaveValue(givenData.description);
+    });
+
+    // AND the user clicks the import button
+    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
+    fireEvent.click(importButton);
+
+    // THEN the notifyOnClose is called with event name IMPORT and the data the user entered
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: {
+          name: givenData.name,
+          description: givenData.description,
+          license: givenData.license,
+          locale: givenData.locale,
+          selectedFiles: givenData.selectedFiles,
+          UUIDHistory: givenData.UUIDHistory,
+          isOriginalESCOModel: givenData.isOriginalESCOModel,
+        },
+      });
+    });
+  });
+
+  // Approve Modal tests
+  it("should not update the description field if the user keeps current description on approve modal", async () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // AND description is empty string for now
+    const givenData = getImportDataTestValues();
+    givenData.description = "foo model description";
+
+    // AND the user uploads a model info file
+    const givenDescriptionFromFile = "bar model description";
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      description: givenDescriptionFromFile,
+    });
+
+    await fillInImportDialog(givenData);
+
+    // AND the model description field.value should have the description from the file
+    await waitFor(() => {
+      const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
+      expect(modelDescriptionElement).toHaveValue(givenData.description);
+    });
+
+    // AND the user clicks the import button
+    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
+    fireEvent.click(importButton);
+
+    // AND modal is in the DOM
+    await waitFor(() => {
+      const approveModal = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL);
+      expect(approveModal).toBeInTheDocument();
+    });
+
+    // AND the user clicks the approve button
+    const approveButton = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CONFIRM);
+    fireEvent.click(approveButton);
+
+    // THEN the notifyOnClose is called with event name IMPORT and the data the user entered
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: {
+          name: givenData.name,
+          description: givenData.description,
+          license: givenData.license,
+          locale: givenData.locale,
+          selectedFiles: givenData.selectedFiles,
+          UUIDHistory: givenData.UUIDHistory,
+          isOriginalESCOModel: givenData.isOriginalESCOModel,
+        },
+      });
+    });
+  });
+
+  it("should override the description field if the user changes the description on approve modal", async () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // AND description is empty string for now
+    const givenData = getImportDataTestValues();
+    givenData.description = "foo model description";
+
+    // AND the user uploads a model info file
+    const givenDescriptionFromFile = "bar model description";
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      description: givenDescriptionFromFile,
+    });
+
+    await fillInImportDialog(givenData);
+
+    // AND modal is in the DOM
+    await waitFor(() => {
+      const approveModal = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL);
+      expect(approveModal).toBeInTheDocument();
+    });
+
+    // AND the user clicks the approve button
+    const approveButton = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CANCEL);
+    fireEvent.click(approveButton);
+
+    // AND the model description field.value should have the description from the file
+    await waitFor(() => {
+      const modelDescriptionElement = screen.getByTestId(MODEL_DESCRIPTION_FIELD_DATA_TEST_ID.MODEL_DESC_INPUT);
+      expect(modelDescriptionElement).toHaveValue(givenDescriptionFromFile);
+    });
+
+    // AND the user clicks the import button
+    const importButton = screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON);
+    fireEvent.click(importButton);
+
+    // THEN the notifyOnClose is called with event name IMPORT and the data the user entered
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: {
+          name: givenData.name,
+          description: givenDescriptionFromFile,
+          license: givenData.license,
+          locale: givenData.locale,
+          selectedFiles: givenData.selectedFiles,
+          UUIDHistory: givenData.UUIDHistory,
+          isOriginalESCOModel: givenData.isOriginalESCOModel,
+        },
+      });
     });
   });
 });

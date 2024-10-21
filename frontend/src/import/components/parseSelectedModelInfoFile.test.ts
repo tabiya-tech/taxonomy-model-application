@@ -14,8 +14,35 @@ describe("parseSelectedModelInfoFile tests", () => {
     const uuidHistory = await parseSelectedModelInfoFile(file);
 
     // THEN it should return the UUIDs as an array
-    expect(uuidHistory).toEqual(["UUID1", "UUID2", "UUID3"]);
+    expect(uuidHistory.UUIDHistory).toEqual(["UUID1", "UUID2", "UUID3"]);
+
+    // AND description should be empty
+    expect(uuidHistory.description).toEqual("");
   });
+
+  it("should parse description from a CSV file and return it as a string", async () => {
+    // GIVEN a CSV file with a description
+    const givenDescription = "This is a description";
+    const givenUUIDHistory = ["UUID1", "UUID2", "UUID3"];
+    const testFileName = "test.csv";
+    const testFileContent = `Name,UUIDHistory,DESCRIPTION\nJohn Doe,"${givenUUIDHistory.join(
+      "\n"
+    )}","${givenDescription}"`; // Sample CSV content
+
+    // AND the file is read into a File object
+    const blob = new Blob([testFileContent], { type: "text/csv" });
+    const file = new File([blob], testFileName, { type: "text/csv" });
+
+    // WHEN parseSelectedModelInfoFile is called with the file
+    const { description, UUIDHistory } = await parseSelectedModelInfoFile(file);
+
+    // THEN it should return the description as a string
+    expect(description).toEqual(givenDescription);
+
+    // AND UUIDHistory should be an empty array
+    expect(UUIDHistory).toEqual(givenUUIDHistory);
+  });
+
   it("should throw an error if the file is not a CSV", async () => {
     // GIVEN a non-CSV file
     const testFileName = "test.json";

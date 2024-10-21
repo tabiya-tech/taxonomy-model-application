@@ -9,6 +9,7 @@ import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 
 export interface ModelInfoFileEntryProps {
   notifyUUIDHistoryChange?: (newUUIDHistory: string[]) => void;
+  notifyOnDescriptionChange?: (description: string) => void;
 }
 
 const uniqueId = "16c54d56-b091-48ce-826a-c721b0c3643d";
@@ -42,24 +43,40 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
     await updateSelectedFile(null);
   };
 
+  const notifyOnModelInfoChanges = (details: Awaited<ReturnType<typeof parseSelectedModelInfoFile>>) => {
+    if (props.notifyUUIDHistoryChange) {
+      props.notifyUUIDHistoryChange(details.UUIDHistory);
+    }
+
+    if (props.notifyOnDescriptionChange) {
+      props.notifyOnDescriptionChange(details.description);
+    }
+  };
+
   const updateSelectedFile = async (file: File | null) => {
     setSelectedFile(file); // update internal state
     // notify the parent component if it has provided handler
-    if (props.notifyUUIDHistoryChange) {
-      if (file) {
-        try {
-          const newUUIDHistory = await parseSelectedModelInfoFile(file);
-          props.notifyUUIDHistoryChange(newUUIDHistory);
-        } catch (e) {
-          console.error(e);
-          enqueueSnackbar(`Error parsing file: ${file.name}. Please review the file and try again.`, {
-            variant: "error",
-          });
-          setSelectedFile(null);
-        }
-      } else {
-        props.notifyUUIDHistoryChange([]);
+    if (file) {
+      try {
+        const modelInfoDetails = await parseSelectedModelInfoFile(file);
+        notifyOnModelInfoChanges(modelInfoDetails);
+      } catch (e) {
+        notifyOnModelInfoChanges({
+          UUIDHistory: [],
+          description: "",
+        });
+
+        console.error(e);
+        enqueueSnackbar(`Error parsing file: ${file.name}. Please review the file and try again.`, {
+          variant: "error",
+        });
+        setSelectedFile(null);
       }
+    } else {
+      notifyOnModelInfoChanges({
+        UUIDHistory: [],
+        description: "",
+      });
     }
   };
 

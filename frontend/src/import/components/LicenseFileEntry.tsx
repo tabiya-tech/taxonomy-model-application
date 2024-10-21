@@ -89,7 +89,7 @@ export const LicenseFileEntry = (props: Readonly<LicenseFileEntryProps>) => {
             aria-label={`Add ${licenseFileType} file`}
             data-testid={DATA_TEST_ID.SELECT_FILE_BUTTON}
             onClick={() => {
-              document.getElementById(`${uniqueId}-license`)!.click()
+              document.getElementById(`${uniqueId}-license`)!.click();
             }}
             icon={<AddCircleOutlined />}
             label={licenseFileTypeName}

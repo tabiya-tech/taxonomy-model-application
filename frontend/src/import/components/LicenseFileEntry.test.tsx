@@ -231,7 +231,7 @@ describe("LicenseFileEntry action tests", () => {
 
     // AND We have a file input in the content
     const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
-    const fileInputClickSpy = jest.spyOn(fileInput, 'click'); // Spy on the click method
+    const fileInputClickSpy = jest.spyOn(fileInput, "click"); // Spy on the click method
 
     // WHEN the select file button is clicked
     const selectFileButton = screen.getByTestId(DATA_TEST_ID.SELECT_FILE_BUTTON);
@@ -239,5 +239,5 @@ describe("LicenseFileEntry action tests", () => {
 
     // THEN the file input should be clicked
     expect(fileInputClickSpy).toHaveBeenCalled();
-  })
+  });
 });

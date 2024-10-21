@@ -1,4 +1,4 @@
-import React, { KeyboardEvent, useRef } from "react";
+import React, { KeyboardEvent, useRef, useState } from "react";
 import {
   Checkbox,
   Dialog,
@@ -7,6 +7,7 @@ import {
   DialogTitle,
   FormControlLabel,
   Stack,
+  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -20,6 +21,7 @@ import ModelLocalSelectField from "./components/ModelLocalSelectField";
 import LocaleAPISpecs from "api-specifications/locale";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import HelpTip from "src/theme/HelpTip/HelpTip";
+import ApproveModal from "../theme/ApproveModal/ApproveModal";
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f";
 export const DATA_TEST_ID = {
@@ -52,6 +54,11 @@ export interface ImportModelDialogProps {
 const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
   // state to enable disabling the import button when the user has not selected all the required files
   const [isImportButtonDisabled, setIsImportButtonDisabled] = React.useState(true);
+
+  const [showApproveDescriptionOverride, setShowApproveDescriptionOverride] = useState(false);
+
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const tempDescription = useRef<string>("");
 
   const handleClose = (event: CloseEvent) => {
     props.notifyOnClose(event);
@@ -88,6 +95,19 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     data.current.description = newDescription;
   };
 
+  const handleFromModelInfoDescriptionChange = (newDescription: string) => {
+    if (!newDescription) return;
+
+    if (data.current.description) {
+      setShowApproveDescriptionOverride(true);
+      tempDescription.current = newDescription;
+      return;
+    }
+
+    data.current.description = newDescription;
+    descriptionRef.current!.value = newDescription;
+  };
+
   const handleUUIDHistoryChange = (newUUIDHistory: string[]) => {
     data.current.UUIDHistory = newUUIDHistory;
   };
@@ -119,6 +139,20 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     setIsImportButtonDisabled(invalid);
   };
 
+  const handleCancelOverride = () => {
+    tempDescription.current = "";
+    setShowApproveDescriptionOverride(false);
+  };
+
+  const handleApproveOverride = () => {
+    data.current.description = tempDescription.current;
+
+    descriptionRef.current!.value = tempDescription.current;
+
+    tempDescription.current = "";
+    setShowApproveDescriptionOverride(false);
+  };
+
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   return (
@@ -135,7 +169,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         <Stack margin={theme.tabiyaSpacing.xs} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
-          <ModelDescriptionField notifyModelDescriptionChanged={handleDescriptionChange} />
+          <ModelDescriptionField ref={descriptionRef} notifyModelDescriptionChanged={handleDescriptionChange} />
           <Stack direction={"row"} gap={theme.tabiyaSpacing.xs}>
             <FormControlLabel
               data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL}
@@ -162,6 +196,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
             notifySelectedFileChange={handleSelectedFileChange}
             notifyUUIDHistoryChange={handleUUIDHistoryChange}
             notifyOnLicenseChange={handleLicenseChange}
+            notifyOnDescriptionChange={handleFromModelInfoDescriptionChange}
           />
         </Stack>
       </DialogContent>
@@ -181,6 +216,22 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
           Import
         </PrimaryButton>
       </DialogActions>
+      {/* cancel and approve are swapped because we want the primary action to be keep current
+      as we don't want our users to be forced into overwriting as it is not reversible */}
+      <ApproveModal
+        title={"Do you want to overwrite model description?"}
+        content={
+          <Typography>
+            You have already entered a description, uploaded model info.csv contains another description, do you want to
+            overwrite it?
+          </Typography>
+        }
+        isOpen={showApproveDescriptionOverride}
+        onCancel={handleApproveOverride}
+        onApprove={handleCancelOverride}
+        cancelButtonText={"Overwrite"}
+        approveButtonText={"Keep current"}
+      />
     </Dialog>
   );
 };
