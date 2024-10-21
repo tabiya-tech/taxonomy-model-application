@@ -540,7 +540,7 @@ describe("Auth Context", () => {
 
       // AND: AuthPersistentStorage.clear should not be called
       expect(clear).not.toHaveBeenCalled();
-    })
+    });
   });
 
   describe("AuthProvider - Authorization Code Exchange", () => {

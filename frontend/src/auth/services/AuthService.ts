@@ -37,8 +37,8 @@ export class AuthService {
 
     console.debug({
       message: "trying to refresh the tokens tokens",
-      time_stamp: new Date()
-    })
+      time_stamp: new Date(),
+    });
 
     if (!refreshToken || refreshToken === "undefined")
       throw errorFactory(0, ErrorCodes.FAILED_TO_FETCH, "Invalid refresh token", new Error("Invalid Refresh Token"));

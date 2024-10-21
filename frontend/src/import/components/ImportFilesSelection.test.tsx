@@ -1,4 +1,5 @@
 import { FileEntryProps } from "./FileEntry";
+import { ModelInfoFileEntry } from "src/import/components/ModelInfoFileEntry";
 
 jest.mock("./FileEntry", () => {
   const mFileEntry = (props: FileEntryProps) => (
@@ -10,6 +11,8 @@ jest.mock("./FileEntry", () => {
   };
 });
 
+jest.mock("src/import/components/ModelInfoFileEntry");
+
 // mute the console
 import "src/_test_utilities/consoleMock";
 
@@ -17,6 +20,7 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import ImportAPISpecs from "api-specifications/import";
 import ImportFilesSelection, { DATA_TEST_ID } from "./ImportFilesSelection";
 import React from "react";
+import { waitFor } from "@testing-library/react";
 
 describe("ImportFilesSelection render tests", () => {
   beforeEach(() => {
@@ -70,6 +74,31 @@ describe("ImportFilesSelection action tests", () => {
         {
           fileType: fileType,
           notifySelectedFileChange: givenNotifySelectedFileChangeMock,
+        },
+        {}
+      );
+    });
+  });
+
+  it("should send the same notification functions related to model info file entry", async () => {
+    // GIVEN some notification functions
+    const givenNotifyUUIDHistoryChangeMock = jest.fn();
+    const givenNotifyOnDescriptionChangeMock = jest.fn();
+
+    // WHEN the import files selection is rendered with the notification functions
+    render(
+      <ImportFilesSelection
+        notifyUUIDHistoryChange={givenNotifyUUIDHistoryChangeMock}
+        notifyOnDescriptionChange={givenNotifyOnDescriptionChangeMock}
+      />
+    );
+
+    // THEN ModelInfoFileEntry should be rendered with the same notification functions
+    await waitFor(() => {
+      expect(ModelInfoFileEntry).toHaveBeenCalledWith(
+        {
+          notifyUUIDHistoryChange: givenNotifyUUIDHistoryChangeMock,
+          notifyOnDescriptionChange: givenNotifyOnDescriptionChangeMock,
         },
         {}
       );
