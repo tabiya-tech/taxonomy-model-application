@@ -54,6 +54,7 @@ The IaC is divided into four subprojects.
 - [Locales](locales): Sets up the locales infrastructure, which is a S3 bucket for storing the locales.
 - [Frontend](frontend): Sets up the frontend application's infrastructure, which is a static website hosted on S3.
 - [Backend](backend): Sets up the backend application's infrastructure, which is a serverless application hosted on AWS Lambda. It also Deploys the Authorizer Lambda function.
+- [Sentry](sentry): Sets up the Sentry infrastructure, which is a Sentry project, and team. Sentry infrastructure is shared across all environments.
 - [Common](common): Sets up the foundational infrastructure such as DNS records, CloudFront distributions.
 
 The projects are deployed in the following order:
@@ -86,7 +87,6 @@ flowchart RL
     common--->backend;
     locales
 
-
     auth ---> certificate
 
     nameservers ---> hosted-zone
@@ -95,8 +95,10 @@ flowchart RL
     certificate --dns validation--> nameservers
 
     common--->locales
-    authorizer--user pool id\nuser pool client id-->auth
-    frontend--user pool secret id\nuser pool client id\nauth url-->auth
+    authorizer--"` -> user pool id</br>  -> user pool client id </br>   **(baked in during build process)**`"-->auth
+    frontend--"`-> user pool secret id </br>  -> user pool client id </br> -> auth url </br> **(baked in during build process)**`"-->auth
+
+    backend --"` -> sentry backend dsn </br> **(baked in during build process)**`"-->sentry
 ```
 
 The image below shows the solution architecture and how it relates to the IaC.
@@ -107,6 +109,16 @@ The image below shows the solution architecture and how it relates to the IaC.
 ## Gotchas
 - Avoid deploying changes to the infrastructure from your local machine. The deployment is automated using GitHub Actions and changes will be overwritten by the automated deployment.
 - Avoid changing managed resources manually. This will cause a drift in the infrastructure's state and resources will most likely be overwritten by the automated deployment or cause unexpected errors in the system.
+- If you really want to deploy infrastructure from your local machine, then be aware of the following:
+    - The various pulumi stacks reference each other and require inputs from one another to deploy properly. Please refer to the [mermaid diagram above](#) and be sure to deploy the stacks in the appropriate order.
+    - There are some required environment variables that have to be set in order for the resources to be correctly deployed. Some of them require the output of other stacks.
+        -`DOMAIN_NAME`: The domain name of the environment.
+        - `MONGODB_URI`: The MongoDB URI for the environment.
+        - `USER_POOL_CLIENT_ID`: The user pool client ID for the environment. [** from the output of the auth stack **]
+        - `USER_POOL_SECRET_ID`: The user pool secret ID for the environment. [** from the output of the auth stack **]
+        - `SENTRY_AUTH_TOKEN`: The Sentry auth token.
+        - `SENTRY_BACKEND_DSN`: The Sentry backend DSN. [** from the output of the sentry stack **]
+    - The sentry stack is shared across all environments. This means that any changes to the sentry stack will affect all environments. Special care should be taken when making changes to the sentry stack.
 
 ## Contribution
 Your input in this project is greatly appreciated.
