@@ -49,7 +49,9 @@ jobs:
       backend-url: ${{ needs.setup-infrastructure.outputs.backend-url }}
       version: $GITHUB_REF_NAME
 
-  # Auth
+
+  # Sentry project is shared across all environments, since sentry has a built in way to manage environments
+  # All updates to sentry will be reflected in all environments, special care should be taken when updating sentry
   deploy-sentry:
     needs: [ setup-infrastructure ]
     uses: ./.github/workflows/deploy-sentry.yml
