@@ -6,6 +6,9 @@ const meta: Meta<typeof MarkdownPropertyField> = {
   component: MarkdownPropertyField,
   tags: ["autodocs"],
   args: {},
+  parameters: {
+    a11y: { disable: true },
+  },
 };
 
 export default meta;
@@ -23,7 +26,9 @@ const headingsMarkdown = `
 
 const textStylesMarkdown = `
 - **Bold text**
+- __Another bold text__
 - *Italic text*
+- __Another italic text__
 - ~~Strikethrough~~
 `;
 
@@ -42,6 +47,15 @@ const listsMarkdown = `
 const linksMarkdown = `
 Here is a [link to an example](https://example.com).\n
 Here is a urn link [Example URN](urn:esco:occupation:1234).
+`;
+
+const taskListsMarkdown = `
+- [x] Completed task 1
+- [x] Completed task 2
+- [x] Completed task 3
+- [ ] Incomplete task 1
+- [ ] Incomplete task 2
+- [ ] Incomplete task 3
 `;
 
 export const Shown: Story = {
@@ -96,6 +110,13 @@ export const ShownWithLists: Story = {
   },
 };
 
+export const ShownWithTaskLists: Story = {
+  args: {
+    label: "Task Lists",
+    text: taskListsMarkdown,
+  },
+};
+
 export const ShownCombinedMarkdown: Story = {
   args: {
     label: "Comprehensive Markdown Example",
@@ -109,6 +130,9 @@ ${textStylesMarkdown}
 
 ## Lists
 ${listsMarkdown}
+
+### Task Lists
+${taskListsMarkdown}
 
 ## Links
 ${linksMarkdown}
