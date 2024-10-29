@@ -95,10 +95,9 @@ flowchart RL
     certificate --dns validation--> nameservers
 
     common--->locales
-    authorizer--"` -> user pool id</br>  -> user pool client id </br>   **(baked in during build process)**`"-->auth
-    frontend--"`-> user pool secret id </br>  -> user pool client id </br> -> auth url </br> **(baked in during build process)**`"-->auth
-
-    backend --"` -> sentry backend dsn </br> **(baked in during build process)**`"-->sentry
+    authorizer--"`• user pool id</br> • user pool client id </br> **(baked in during build process)**`"-->auth
+    frontend-- "`• user pool secret id</br>• user pool client id </br>• auth url </br> **(baked in during build process)**`"-->auth
+    backend --"`• sentry backend dsn </br> **(baked in during build process)**`"-->sentry
 ```
 
 The image below shows the solution architecture and how it relates to the IaC.
