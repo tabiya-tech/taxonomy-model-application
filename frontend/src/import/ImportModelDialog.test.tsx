@@ -550,8 +550,8 @@ describe("ImportModel dialog action tests", () => {
       expect(approveModal).toBeInTheDocument();
     });
 
-    // AND the user clicks the approve button
-    const approveButton = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CONFIRM);
+    // AND the user clicks the cancel button
+    const approveButton = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CANCEL);
     fireEvent.click(approveButton);
 
     // THEN the notifyOnClose is called with event name IMPORT and the data the user entered
@@ -595,7 +595,7 @@ describe("ImportModel dialog action tests", () => {
     });
 
     // AND the user clicks the approve button
-    const approveButton = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CANCEL);
+    const approveButton = screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CONFIRM);
     fireEvent.click(approveButton);
 
     // AND the model description field.value should have the description from the file

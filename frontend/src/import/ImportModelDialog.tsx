@@ -216,21 +216,19 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
           Import
         </PrimaryButton>
       </DialogActions>
-      {/* cancel and approve are swapped because we want the primary action to be keep current
-      as we don't want our users to be forced into overwriting as it is not reversible */}
       <ApproveModal
         title={"Do you want to overwrite model description?"}
         content={
           <Typography>
-            You have already entered a description, uploaded model info.csv contains another description, do you want to
-            overwrite it?
+            You have already entered a model description. The uploaded model info.csv contains a different model
+            description. Which one would you like to keep?
           </Typography>
         }
         isOpen={showApproveDescriptionOverride}
-        onCancel={handleApproveOverride}
-        onApprove={handleCancelOverride}
-        cancelButtonText={"Overwrite"}
-        approveButtonText={"Keep current"}
+        onCancel={handleCancelOverride}
+        onApprove={handleApproveOverride}
+        cancelButtonText={"Keep current"}
+        approveButtonText={"Overwrite"}
       />
     </Dialog>
   );
