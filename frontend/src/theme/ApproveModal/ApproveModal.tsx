@@ -1,6 +1,7 @@
 import React from "react";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
-import { Dialog, DialogActions, DialogContent, DialogTitle, useTheme } from "@mui/material";
+import CancelButton from "src/theme/CancelButton/CancelButton";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
 interface ApproveModalProps {
   title: string;
@@ -23,8 +24,6 @@ export const DATA_TEST_ID = {
 };
 
 const ApproveModal: React.FC<ApproveModalProps> = (props) => {
-  const theme = useTheme();
-
   return (
     <Dialog
       open={props.isOpen}
@@ -42,14 +41,9 @@ const ApproveModal: React.FC<ApproveModalProps> = (props) => {
         {props.content}
       </DialogContent>
       <DialogActions>
-        <PrimaryButton
-          variant="text"
-          onClick={props.onCancel}
-          sx={{ color: theme.palette.text.secondary }}
-          data-testid={DATA_TEST_ID.APPROVE_MODEL_CANCEL}
-        >
+        <CancelButton onClick={props.onCancel} data-testid={DATA_TEST_ID.APPROVE_MODEL_CANCEL}>
           {props.cancelButtonText}
-        </PrimaryButton>
+        </CancelButton>
         <PrimaryButton onClick={props.onApprove} data-testid={DATA_TEST_ID.APPROVE_MODEL_CONFIRM}>
           {props.approveButtonText}
         </PrimaryButton>
