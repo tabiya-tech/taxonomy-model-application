@@ -26,6 +26,8 @@ exports[`ModelDirectory ModelDirectory Render ModelDirectory initial render test
         </div>
         <div
           class="MuiGrid-root MuiGrid-item css-nqjhly-MuiGrid-root"
+          data-testid="content-layout-main-14c01398-e7fc-4b09-8dcb-3195acdf120a"
+          tabindex="0"
         >
           <div
             data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"
@@ -70,6 +72,8 @@ exports[`ModelDirectory ModelDirectory Render should re-render the modelTable wh
         </div>
         <div
           class="MuiGrid-root MuiGrid-item css-nqjhly-MuiGrid-root"
+          data-testid="content-layout-main-14c01398-e7fc-4b09-8dcb-3195acdf120a"
+          tabindex="0"
         >
           <div
             data-testid="models-table-ae03cd11-e992-4313-9a9e-49f497cc92d0"

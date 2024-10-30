@@ -2,7 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import ContentLayout, { DATA_TEST_ID } from "./ContentLayout";
-import { render, screen, waitFor } from "src/_test_utilities/test-utils";
+import { render, screen, waitFor, fireEvent } from "src/_test_utilities/test-utils";
 
 describe("ContentLayout", () => {
   beforeEach(() => {
@@ -10,7 +10,7 @@ describe("ContentLayout", () => {
     (console.warn as jest.Mock).mockClear();
   });
 
-  it("should render", async () => {
+  test("should render", async () => {
     // GIVEN a header component with a given test id
     const givenHeaderComponentTestId = "header-test-id";
     const givenHeaderComponent = <div data-testid={givenHeaderComponentTestId}></div>;
@@ -45,5 +45,46 @@ describe("ContentLayout", () => {
     await waitFor(() => expect(screen.getByTestId(givenMainComponentTestId)).toBeVisible());
     // AND the child component is rendered visible
     await waitFor(() => expect(screen.getByTestId(givenChildComponentTestId)).toBeVisible());
+  });
+
+  test("should show the entire content when the main component contains long text or content", async () => {
+    // GIVEN header component with a given test id
+    const givenHeaderComponentTestId = "header-test-id";
+    const givenHeaderComponent = <div data-testid={givenHeaderComponentTestId}></div>;
+
+    // AND a main component with a given test id and long text
+    const lastSentence = "last test sentence"; // last sentence to be used to verify the full content is displayed
+    const givenLongText = (
+      <>
+        {/*Use numbers so that the snapshot will be consistent*/}
+        {Array.from(Array(100000).keys()).join(" ")}
+        {lastSentence}
+      </>
+    );
+
+    // WHEN the ContentLayout is rendered
+    render(<ContentLayout headerComponent={givenHeaderComponent} mainComponent={givenLongText} />);
+
+    // THEN expect the content layout to be in the document
+    expect(screen.getByTestId(DATA_TEST_ID.CONTENT_LAYOUT)).toBeInTheDocument();
+
+    // AND the header component to be in the document
+    expect(screen.getByTestId(givenHeaderComponentTestId)).toBeInTheDocument();
+
+    // AND the main component to be in the document
+    const mainComponent = screen.getByTestId(DATA_TEST_ID.CONTENT_LAYOUT_MAIN);
+    expect(mainComponent).toBeInTheDocument();
+
+    // AND the content to scrollable
+    expect(mainComponent).toHaveStyle("overflow-y: auto;");
+
+    // AND the user can scroll to see the full content
+    fireEvent.scroll(mainComponent, { deltaY: mainComponent.scrollHeight });
+
+    // AND the last sentence should be in the view port
+    expect(mainComponent).toBeVisible();
+
+    // AND to match the snapshot
+    expect(mainComponent).toMatchSnapshot();
   });
 });

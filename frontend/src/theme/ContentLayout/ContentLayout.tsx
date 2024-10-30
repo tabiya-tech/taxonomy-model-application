@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 const uniqueId = "14c01398-e7fc-4b09-8dcb-3195acdf120a";
 export const DATA_TEST_ID = {
   CONTENT_LAYOUT: `content-layout-root-${uniqueId}`,
+  CONTENT_LAYOUT_MAIN: `content-layout-main-${uniqueId}`,
 };
 
 type ContentLayoutProps = {
@@ -76,6 +77,7 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
             </Grid>
             <Grid
               item
+              tabIndex={0}
               sx={{
                 width: "100%",
                 height: "100%",
@@ -85,6 +87,7 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
                 overflowY: "auto",
                 backgroundColor: "none", //"magenta"
               }}
+              data-testid={DATA_TEST_ID.CONTENT_LAYOUT_MAIN}
             >
               {props.mainComponent}
             </Grid>
