@@ -31,7 +31,7 @@ jobs:
         with:
           work-dir: iac/sentry
           command: up
-          stack-name: tabiya-tech/taxonomy-model-application-sentry/common
+          stack-name: tabiya-tech/taxonomy-model-application-sentry/all
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
