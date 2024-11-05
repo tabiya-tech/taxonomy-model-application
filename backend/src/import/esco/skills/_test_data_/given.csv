@@ -1,10 +1,10 @@
-"ORIGINURI","ID","UUIDHISTORY","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SKILLTYPE","REUSELEVEL","SCOPENOTE","DEGREECENTRALITY","INTEROCCUPATIONTRANSFERABILITY","UNSEENTOSEENTRANSFERABILITY"
-"","","","","","","","","","","","",""
-"","","","","","","","","","","","",""
+"ORIGINURI","ID","UUIDHISTORY","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SKILLTYPE","REUSELEVEL","SCOPENOTE","DEGREECENTRALITY","INTEROCCUPATIONTRANSFERABILITY","UNSEENTOSEENTRANSFERABILITY","ISLOCALIZED"
+"","","","","","","","","","","","","",""
+"","","","","","","","","","","","","",""
 "origin uri","key_1","b69710e0-7e7d-43ea-a645-26dab12faf8d
 b69710e0-7e7d-43ea-a645-26dab12faf83","preferred label","label1
 label2
-preferred label","description","definition","skill/competence","sector-specific","scopeNote","","",""
+preferred label","description","definition","skill/competence","sector-specific","scopeNote","","","","FALSE"
 "origin
 uri
 with
@@ -18,31 +18,33 @@ linebreak","definition
 with
 linebreak","knowledge","cross-sector","scopeNote
 with
-linebreak","","",""
-"","key_3","","","","","","","","","","",""
+linebreak","","","","FALSE"
+"","key_3","","","","","","","","","","","","FALSE"
 "origin uri","key_4","","preferred label","label1
 label2
-preferred label","description","definition","skill/competence","sector-specific","scopeNote","","",""
+preferred label","description","definition","skill/competence","sector-specific","scopeNote","","","","FALSE"
 "origin uri","key_5","","preferred label","label1
 label2
-preferred label","description","definition","skill/competence","sector-specific","scopeNote","","",""
+preferred label","description","definition","skill/competence","sector-specific","scopeNote","","","","TRUE"
 "origin uri","key_6","","preferred label","label1
 label2
-preferred label","description","definition","INVALID","sector-specific","scopeNote","","",""
+preferred label","description","definition","INVALID","sector-specific","scopeNote","","","","FALSE"
 "origin uri","key_7","","preferred label","label1
 label2
-preferred label","description","definition","skill/competence","INVALID","scopeNote","","",""
+preferred label","description","definition","skill/competence","INVALID","scopeNote","","","","FALSE"
 "origin uri","key_8","b69710e0-7e7d-43ea-a645-26dab12faf8d
 b69710e0-7e7d-43ea-a645-26dab12faf56","duplicate altLabels","label1
 label2
 label1
-duplicate altLabels","description","definition","skill/competence","sector-specific","scopeNote","","",""
+duplicate altLabels","description","definition","skill/competence","sector-specific","scopeNote","","","","true"
 "origin uri","key_9","","preferred label","label1
 label2
-preferred label","description","definition","skill/competence","sector-specific","scopeNote","0.5","",""
+preferred label","description","definition","skill/competence","sector-specific","scopeNote","0.5","","","false"
 "origin uri","key_10","","preferred label","label1
 label2
-preferred label","description","definition","skill/competence","sector-specific","scopeNote","","0.80",""
+preferred label","description","definition","skill/competence","sector-specific","scopeNote","","0.80","","false"
 "origin uri","key_11","","preferred label","label1
 label2
-preferred label","description","definition","skill/competence","sector-specific","scopeNote","foo","bar","0.5"
+preferred label","description","definition","skill/competence","sector-specific","scopeNote","foo","bar","0.5","false"
+"origin uri","key_12","","preferred label","label1
+preferred label","isLocalized is neither true nor false","definition","skill/competence","sector-specific","scopeNote","","","","foo"

@@ -2781,7 +2781,7 @@ Examples:
 - Define roles of team members
 - Supervise children"
 "http://data.europa.eu/esco/skill/c5b71c57-6f78-4c54-b332-ec75848f1095","key_19323","b7996469-b798-474f-8575-61fa71c2a89d","S2.1","conducting studies, investigations and examinations","conducting studies, investigations and examinations","Conducting studies, investigations, and examinations to increase knowledge and understanding, diagnose problems or identify needs and requirements.",""
-"http://data.europa.eu/esco/skill/c5ff50d7-97d3-401e-90ac-e5ae756a52de","key_19324","70d5a61b-abc4-47d7-b9dc-5288d17774d4","S2.8.6","monitoring health conditions of humans and animals ","monitoring health conditions of humans and animals ","Monitoring health conditions of humans or animals throughout their lifecycle or during specific occasions, such as pregnancy or surgery.","Excludes:
+"http://data.europa.eu/esco/skill/c5ff50d7-97d3-401e-90ac-e5ae756a52de","key_19324","70d5a61b-abc4-47d7-b9dc-5288d17774d4","S2.8.6",monitoring health conditions of humans and animals,"monitoring health conditions of humans and animals","Monitoring health conditions of humans or animals throughout their lifecycle or during specific occasions, such as pregnancy or surgery.","Excludes:
 - Testing and analysing substances
 
 Examples:
@@ -3186,7 +3186,7 @@ using digital tools for collaboration, content creation and problem solving","Us
 
 Examples:
 - Drive at high speed"
-"http://data.europa.eu/esco/skill/f7fc7bf8-f41d-44af-81e3-09b88e9779e6","key_19412","cd1db074-e7f6-4c88-b247-b36679f9c6b4","S2.8.1","testing electrical and mechanical systems or equipment ","testing electrical and mechanical systems or equipment ","Inspecting and monitoring functionality of electrical and mechanic systems and equipment.","Examples:
+"http://data.europa.eu/esco/skill/f7fc7bf8-f41d-44af-81e3-09b88e9779e6","key_19412","cd1db074-e7f6-4c88-b247-b36679f9c6b4","S2.8.1",testing electrical and mechanical systems or equipment,"testing electrical and mechanical systems or equipment","Inspecting and monitoring functionality of electrical and mechanic systems and equipment.","Examples:
 - Perform test run
 
 Excludes:

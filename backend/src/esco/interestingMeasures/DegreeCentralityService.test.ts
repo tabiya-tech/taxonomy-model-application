@@ -6,7 +6,7 @@ import { Connection } from "mongoose";
 import { ISkillRepository } from "esco/skill/skillRepository";
 import { INewSkillSpec, ISkill } from "esco/skill/skills.types";
 import { getNewConnection } from "server/connection/newConnection";
-import { generateRandomNumber } from "_test_utilities/specialCharacters";
+import { generateRandomNumber } from "_test_utilities/getMockRandomData";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getMockStringId } from "_test_utilities/mockMongoId";

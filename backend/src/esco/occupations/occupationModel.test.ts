@@ -12,7 +12,7 @@ import {
   initializeSchemaAndModel,
 } from "./occupationModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import {
   DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,

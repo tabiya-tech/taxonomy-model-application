@@ -6,7 +6,7 @@ import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./skillGroupModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import {
   DESCRIPTION_MAX_LENGTH,

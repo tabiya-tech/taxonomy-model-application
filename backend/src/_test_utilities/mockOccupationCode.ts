@@ -1,4 +1,4 @@
-import { generateRandomDigitString } from "./specialCharacters";
+import { generateRandomDigitString } from "./getMockRandomData";
 
 const currentSegments: number[] = [0];
 const MAX_SEGMENT_ITEMS = 15;

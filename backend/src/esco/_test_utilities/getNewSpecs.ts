@@ -1,5 +1,5 @@
 import { INewOccupationGroupSpec, OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
-import { generateRandomUrl, getRandomString, getTestString } from "_test_utilities/specialCharacters";
+import {generateRandomUrl, getRandomBoolean, getRandomString, getTestString} from "_test_utilities/getMockRandomData";
 import {
   DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
@@ -202,6 +202,7 @@ export function getNewSkillSpec(): INewSkillSpec {
     reuseLevel: ReuseLevel.CrossSector,
     altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
+    isLocalized: getRandomBoolean()
   };
 }
 
@@ -222,5 +223,6 @@ export function getSimpleNewSkillSpec(modelId: string, preferredLabel: string): 
     reuseLevel: ReuseLevel.CrossSector,
     altLabels: [],
     importId: getMockStringId(Math.random() * 1000),
+    isLocalized: false,
   };
 }

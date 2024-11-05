@@ -52,9 +52,11 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       description: DescriptionProperty,
       scopeNote: ScopeNoteProperty,
       importId: ImportIDProperty,
-
+      isLocalized: {
+        type: Boolean,
+        required: true
+      },
       // Metrics
-
       degreeCentrality: PositiveNumberProperty,
       interOccupationTransferability: PositiveNumberProperty,
       unseenToSeenTransferability: PositiveNumberProperty,

@@ -87,6 +87,7 @@ export const getSampleSkillsSpecs = (givenModelId: string): INewSkillSpec[] => {
     reuseLevel: ReuseLevel.CrossSector,
     altLabels: i % 2 ? [`altLabel_1`, `altLabel_2`] : [],
     importId: `importId_${i}`,
+    isLocalized: i % 2 === 0,
   }));
 };
 

@@ -7,7 +7,7 @@ import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./importProcessStateModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { WHITESPACE } from "_test_utilities/specialCharacters";
+import { WHITESPACE } from "_test_utilities/getMockRandomData";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { IImportProcessStateDoc } from "./importProcessState.types";
 import { testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";

@@ -5,11 +5,11 @@ import { Readable } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { IOccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import OccupationGroupsToCSVTransform, * as OccupationGroupsToCSVTransformModule from "./OccupationGroupsToCSVTransform";
 import { IUnpopulatedOccupationGroup } from "./OccupationGroupsToCSVTransform";
 import { parse } from "csv-parse/sync";
-import { OccupationGroupType } from "../../../esco/occupationGroup/OccupationGroup.types";
+import { OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
 
 const OccupationGroupRepository = jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get");
 

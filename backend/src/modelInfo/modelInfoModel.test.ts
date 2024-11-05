@@ -6,7 +6,7 @@ import { initializeSchemaAndModel } from "./modelInfoModel";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { randomUUID } from "crypto";
-import { getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { getNewConnection } from "server/connection/newConnection";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";

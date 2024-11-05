@@ -13,7 +13,8 @@ export function uniqueArrayFromString(str: string | null | undefined): {
   if (str === undefined || str === null || str.length === 0) {
     return { uniqueArray: [], duplicateCount: 0 };
   }
-  const strArray = str.split("\n");
+  // we trim here since we want to consider "foo" and "foo " as the same string
+  const strArray = str.split("\n").map((s) => s.trim());
   const uniqueArray = Array.from(new Set(strArray));
   return { uniqueArray: uniqueArray, duplicateCount: strArray.length - uniqueArray.length };
 }

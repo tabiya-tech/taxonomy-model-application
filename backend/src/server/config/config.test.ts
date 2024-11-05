@@ -14,7 +14,7 @@ import {
   getDownloadBucketName,
   getDomainName,
 } from "./config";
-import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
+import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import * as process from "process";
 
 describe("Test read Configuration()", () => {
