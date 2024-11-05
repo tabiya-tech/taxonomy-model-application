@@ -3,12 +3,12 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import ModelInfoToCSVTransform, * as SKillsToCSVTransformModule from "./modelInfoToCSVTransform";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { parse } from "csv-parse/sync";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
-import { IModelInfo } from "../../modelInfo/modelInfo.types";
+import { IModelInfo } from "modelInfo/modelInfo.types";
 
 const ModelInfoRepository = jest.spyOn(getRepositoryRegistry(), "modelInfo", "get");
 

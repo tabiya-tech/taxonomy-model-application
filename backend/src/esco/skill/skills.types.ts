@@ -42,6 +42,7 @@ export interface ISkillDoc extends ImportIdentifiable {
   scopeNote: string;
   skillType: SkillType;
   reuseLevel: ReuseLevel;
+  isLocalized: boolean;
   // Metrics
   degreeCentrality: number;
   interOccupationTransferability: number;
@@ -85,7 +86,7 @@ export type INewSkillSpec = Omit<
 /**
  * Describes how a reference to a skill is returned from the API
  */
-export interface ISkillReference extends Pick<ISkill, "id" | "UUID" | "preferredLabel"> {
+export interface ISkillReference extends Pick<ISkill, "id" | "UUID" | "preferredLabel" | "isLocalized"> {
   objectType: ObjectTypes.Skill;
 }
 
@@ -93,7 +94,7 @@ export interface ISkillReference extends Pick<ISkill, "id" | "UUID" | "preferred
  * Describes how a reference to a skill is populated within repository functions.
  * This is not returned from the API.
  */
-export interface ISkillReferenceDoc extends Pick<ISkillDoc, "modelId" | "UUID" | "preferredLabel"> {
+export interface ISkillReferenceDoc extends Pick<ISkillDoc, "modelId" | "UUID" | "preferredLabel" | "isLocalized"> {
   id: string;
   objectType: ObjectTypes.Skill;
 }

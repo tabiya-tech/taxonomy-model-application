@@ -55,7 +55,7 @@ import {FILENAMES} from "export/async/modelToS3";
 import {countCSVRecords} from "import/esco/_test_utilities/countCSVRecords";
 import mongoose from "mongoose";
 import {Context} from "aws-lambda";
-import {getRandomString} from "../../../src/_test_utilities/specialCharacters";
+import {getRandomString} from "../../../src/_test_utilities/getMockRandomData";
 
 describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
   const originalEnv: { [key: string]: string } = {};

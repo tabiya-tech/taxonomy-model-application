@@ -68,6 +68,7 @@ export function expectedSkillReference(givenSkill: ISkill): ISkillReference {
     UUID: givenSkill.UUID,
     objectType: ObjectTypes.Skill,
     preferredLabel: givenSkill.preferredLabel,
+    isLocalized: givenSkill.isLocalized,
   };
 }
 

@@ -33,6 +33,7 @@ export const transformSkillSpecToCSVRow = (skill: IUnpopulatedSkill): ISkillExpo
     DEFINITION: skill.definition,
     REUSELEVEL,
     SKILLTYPE,
+    ISLOCALIZED: skill.isLocalized.toString(),
     DEGREECENTRALITY: skill.degreeCentrality.toString(),
     INTEROCCUPATIONTRANSFERABILITY: skill.interOccupationTransferability.toString(),
     UNSEENTOSEENTRANSFERABILITY: skill.unseenToSeenTransferability.toString(),

@@ -51,6 +51,16 @@ describe("uniqueArrayFromString", () => {
     //THEN an array with the unique values is returned in the order of the first occurrence of each value
     expect(result).toEqual({ uniqueArray: ["one", "two", "three", "four", "five"], duplicateCount: 6 });
   });
+  test("should remove leading and trailing whitespace from the values", () => {
+    //GIVEN a string with values separated by \n that have leading and trailing whitespace including duplicates
+    const given = "one\n one\none \n one \ntwo";
+
+    //WHEN the string is parsed
+    const result = uniqueArrayFromString(given);
+
+    //THEN an array with the unique values is returned with leading and trailing whitespace removed
+    expect(result).toEqual({ uniqueArray: ["one", "two"], duplicateCount: 3 });
+  });
   test.each([[""], [null], [undefined]])("should return an empty array for '%s'", (given) => {
     //GIVEN an empty string or null or undefined
     const result = uniqueArrayFromString(given);

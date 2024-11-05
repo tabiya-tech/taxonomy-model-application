@@ -25,6 +25,10 @@ export function getRandomString(length: number) {
   return result;
 }
 
+export function getRandomBoolean() {
+  return Math.random() > 0.5; // NOSONAR
+}
+
 export function generateRandomUrl() {
   const letters = "abcdefghijklmnopqrstuvwxyz";
   const tlds = [".com", ".net", ".org", ".io"]; // List of top-level domains

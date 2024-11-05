@@ -49,13 +49,14 @@ function getRowToSpecificationTransformFn(
         `Warning while importing Skill row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
       );
     }
-
-    // warning if the preferred label is not in the alt labels
+    //TODO: add the preferred label to the alt labels if it is not there (in addition to logging a warning)
+    // and disallow preferred labels with line breaks ( if it does, throw an error )
     if (row.PREFERREDLABEL && !uniqueAltLabels.includes(row.PREFERREDLABEL)) {
       errorLogger.logWarning(
         `Warning while importing Skill row with id:'${row.ID}'. Preferred label '${row.PREFERREDLABEL}' is not in the alt labels.`
       );
     }
+    const isLocalized = row.ISLOCALIZED.trim().toLowerCase() === "true";
 
     return {
       originUri: row.ORIGINURI,
@@ -69,6 +70,7 @@ function getRowToSpecificationTransformFn(
       reuseLevel: reuseLevel,
       skillType: skillType,
       importId: row.ID,
+      isLocalized: isLocalized,
     };
   };
 }

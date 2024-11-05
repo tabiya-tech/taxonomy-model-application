@@ -1,7 +1,7 @@
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 

@@ -5,7 +5,7 @@ import { Readable } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import SkillGroupsToCSVTransform, * as SKillGroupsToCSVTransformModule from "./SkillGroupsToCSVTransform";
 import { IUnpopulatedSkillGroup } from "./SkillGroupsToCSVTransform";
 import { parse } from "csv-parse/sync";

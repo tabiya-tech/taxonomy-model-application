@@ -9,7 +9,7 @@ import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./exportProcessStateModel";
 import { testObjectIdField } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
-import { WHITESPACE } from "_test_utilities/specialCharacters";
+import { WHITESPACE } from "_test_utilities/getMockRandomData";
 
 describe("Test the definition of ExportProcessState Model", () => {
   let dbConnection: mongoose.Connection;

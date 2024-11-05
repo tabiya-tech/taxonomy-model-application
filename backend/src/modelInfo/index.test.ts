@@ -8,7 +8,7 @@ import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 
 import { randomUUID } from "crypto";
 import ErrorAPISpecs from "api-specifications/error";
-import { getRandomString } from "_test_utilities/specialCharacters";
+import { getRandomString } from "_test_utilities/getMockRandomData";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { getIModelInfoMockData } from "./testDataHelper";

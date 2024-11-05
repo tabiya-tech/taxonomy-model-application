@@ -8,7 +8,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { IOccupationRepository } from "esco/occupations/occupationRepository";
 import { parse } from "csv-parse/sync";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 const OccupationRepositorySpy = jest.spyOn(getRepositoryRegistry(), "occupation", "get");

@@ -5,7 +5,7 @@ import { Readable } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillRepository } from "esco/skill/skillRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import SkillsToCSVTransform, * as SKillsToCSVTransformModule from "./SkillsToCSVTransform";
 import { IUnpopulatedSkill } from "./SkillsToCSVTransform";
 import { parse } from "csv-parse/sync";
@@ -62,6 +62,7 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
     reuseLevel: getReuseLevel(i), // we should test all skill types, so we have to ensure that the length of the array is >= 5
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
+    isLocalized: i % 2 === 0,
     degreeCentrality: i % 10,
     interOccupationTransferability: i % 10,
     unseenToSeenTransferability: i % 10,

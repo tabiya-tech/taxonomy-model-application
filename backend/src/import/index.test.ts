@@ -14,7 +14,7 @@ import {
   testTooLargePayload,
   testUnsupportedMediaType,
 } from "_test_utilities/stdRESTHandlerTests";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import AuthAPISpecs from "api-specifications/auth";
 
 jest.mock("import/removeGeneratedUUID/removeGeneratedUUID", () => {

@@ -1,6 +1,6 @@
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
-import { getRandomString } from "_test_utilities/specialCharacters";
+import { getRandomString } from "_test_utilities/getMockRandomData";
 import { DESCRIPTION_MAX_LENGTH } from "esco/common/modelSchema";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";

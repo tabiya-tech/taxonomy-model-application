@@ -8,7 +8,7 @@ import { Connection } from "mongoose";
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 
-import { getRandomString, getTestString } from "_test_utilities/specialCharacters";
+import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { handler as modelHandler } from "./index";
 import addFormats from "ajv-formats";

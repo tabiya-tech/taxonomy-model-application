@@ -5,7 +5,7 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { Connection } from "mongoose";
 import { ModelRepository } from "./modelInfoRepository";
 import { randomUUID } from "crypto";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import { getNewConnection } from "server/connection/newConnection";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";

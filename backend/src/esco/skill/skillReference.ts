@@ -20,6 +20,7 @@ export function getSkillDocReference(skill: SkillDocument): ISkillReferenceDoc {
     objectType: ObjectTypes.Skill,
     UUID: skill.UUID,
     preferredLabel: skill.preferredLabel,
+    isLocalized: skill.isLocalized,
   };
 }
 

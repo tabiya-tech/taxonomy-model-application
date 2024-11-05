@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
-import { getRandomString, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { getRandomString, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import {
   ATL_LABELS_MAX_ITEMS,
   DESCRIPTION_MAX_LENGTH,

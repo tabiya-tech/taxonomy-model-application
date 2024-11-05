@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import { Connection } from "mongoose";
 import { randomUUID } from "crypto";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 import { getNewConnection } from "server/connection/newConnection";
 import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";

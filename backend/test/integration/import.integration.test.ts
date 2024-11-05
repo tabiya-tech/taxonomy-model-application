@@ -22,7 +22,7 @@ import { parseSkillToSkillRelationFromFile } from "import/esco/skillToSkillRelat
 import { parseOccupationToSkillRelationFromFile } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
 import mongoose from "mongoose";
 import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString } from "_test_utilities/getMockRandomData";
 
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 

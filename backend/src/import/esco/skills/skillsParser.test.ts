@@ -116,7 +116,7 @@ describe("test parseSkills from", () => {
         rowsFailed: expectedCSVFileRowCount - expectedResults.length,
       });
       // AND the non-empty import ids to have been mapped to the db id
-      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(9);
+      expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(10);
       expectedResults
         .filter((res: Omit<INewSkillSpec, "modelId">) => isSpecified(res.importId))
         .forEach((expectedSpec: Omit<INewSkillSpec, "modelId">, index: number) => {

@@ -6,7 +6,7 @@ import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { initializeSchemaAndModel } from "./OccupationGroupModel";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
+import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import { DESCRIPTION_MAX_LENGTH, IMPORT_ID_MAX_LENGTH, LABEL_MAX_LENGTH } from "esco/common/modelSchema";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";

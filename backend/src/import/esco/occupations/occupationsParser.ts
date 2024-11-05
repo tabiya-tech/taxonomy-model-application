@@ -34,7 +34,7 @@ function getRowToSpecificationTransformFn(
 ): TransformRowToSpecificationFunction<IOccupationImportRow, INewOccupationSpec> {
   return (row: IOccupationImportRow) => {
     const occupationType = getOccupationTypeFromCSVObjectType(row.OCCUPATIONTYPE);
-    const isLocalized = row.ISLOCALIZED?.trim().toLowerCase() === "true";
+    const isLocalized = row.ISLOCALIZED.trim().toLowerCase() === "true";
 
     if (occupationType === null) {
       //check that the occupationType exists

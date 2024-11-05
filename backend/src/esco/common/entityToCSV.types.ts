@@ -12,14 +12,15 @@ import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/oc
 import { OccupationGroupType } from "../occupationGroup/OccupationGroup.types";
 
 const HEADER_NAMES = {
-  UPDATED_AT: "UPDATEDAT",
-  CREATED_AT: "CREATEDAT",
   ID: "ID",
   UUIDHISTORY: "UUIDHISTORY",
   ORIGINURI: "ORIGINURI",
   PREFERREDLABEL: "PREFERREDLABEL",
   ALTLABELS: "ALTLABELS",
   DESCRIPTION: "DESCRIPTION",
+  ISLOCALIZED: "ISLOCALIZED",
+  UPDATED_AT: "UPDATEDAT",
+  CREATED_AT: "CREATEDAT",
 };
 /*
  * ----------------------------- *
@@ -81,6 +82,7 @@ export const skillImportHeaders = [
   HEADER_NAMES.PREFERREDLABEL,
   HEADER_NAMES.ALTLABELS,
   HEADER_NAMES.DESCRIPTION,
+  HEADER_NAMES.ISLOCALIZED,
 ];
 
 export const skillExportHeaders = [
@@ -96,6 +98,7 @@ export const skillExportHeaders = [
  * Interface for the skill row in the CSV file
  */
 export interface ISkillImportRow {
+  ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
   PREFERREDLABEL: string;
@@ -105,10 +108,11 @@ export interface ISkillImportRow {
   SCOPENOTE: string;
   REUSELEVEL: ReuseLevel;
   SKILLTYPE: SkillType;
-  ID: string;
+  ISLOCALIZED: string;
 }
 
 export interface ISkillExportRow {
+  ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
   PREFERREDLABEL: string;
@@ -118,12 +122,12 @@ export interface ISkillExportRow {
   SCOPENOTE: string;
   REUSELEVEL: CSVReuseLevel;
   SKILLTYPE: CSVSkillType;
-  ID: string;
   CREATEDAT: string;
   UPDATEDAT: string;
   DEGREECENTRALITY: string;
   INTEROCCUPATIONTRANSFERABILITY: string;
   UNSEENTOSEENTRANSFERABILITY: string;
+  ISLOCALIZED: string;
 }
 
 /*
@@ -176,7 +180,7 @@ export const occupationImportHeaders = [
   "SCOPENOTE",
   "REGULATEDPROFESSIONNOTE",
   "OCCUPATIONTYPE",
-  "ISLOCALIZED",
+  HEADER_NAMES.ISLOCALIZED,
   HEADER_NAMES.PREFERREDLABEL,
   HEADER_NAMES.ALTLABELS,
   HEADER_NAMES.DESCRIPTION,
