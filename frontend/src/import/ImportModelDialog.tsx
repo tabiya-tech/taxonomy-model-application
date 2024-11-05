@@ -220,8 +220,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         title={"Do you want to overwrite model description?"}
         content={
           <Typography>
-            You have already entered a model description. The uploaded model info.csv contains a different model
-            description. Which one would you like to keep?
+            You have already entered a model description, but the uploaded model info.csv contains a different description. What do you want to do?
           </Typography>
         }
         isOpen={showApproveDescriptionOverride}
