@@ -97,10 +97,10 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
   // The full ESCO data with a two-pass roundtrip import, takes up to 3 minutes to complete (or longer)
   // For this reason we run the one-pass roundtrip full ESCO test and the two-pass samples test on GitHub.
   test.each([
-    [DataTestType.ESCO, false, "../data-sets/csv/tabiya-esco-v1.1.1/"],
-    //[DataTestType.SAMPLE, false , "../data-sets/csv/tabiya-sample/"],
-    //[DataTestType.ESCO, true , "../data-sets/csv/tabiya-esco-v1.1.1/"],
-    [DataTestType.SAMPLE, true, "../data-sets/csv/tabiya-sample/"],
+    [DataTestType.ESCO, false, "../data-sets/csv/esco-1.1.1 v1.0.0/"],
+    //[DataTestType.SAMPLE, false , "../data-sets/csv/sample/"],
+    //[DataTestType.ESCO, true , "../data-sets/csv/esco-1.1.1 v1.0.0/"],
+    [DataTestType.SAMPLE, true, "../data-sets/csv/sample/"],
   ])(
     "should [CSV -Import-> DB -Export-> CSV | optional second pass: %s | 0 DB -Export-> CSV] for %s data test type",
     async (_dataTestType, doTwoPasses, sourceFolder) => {
