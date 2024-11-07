@@ -2,17 +2,13 @@
 "4ed45ec6-6235-40a3-acec-f65cae78611a
 2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","EU-en","This model builds on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with numerous enhancements by Tabiya, including the addition of new occupations and labels to create a more inclusive taxonomy of jobs and skills. It incorporates previously overlooked activities such as micro-entrepreneurship and housework, which are often absent from conventional taxonomies. To ensure greater accessibility, we also introduced alternative labels, making this version more semantically approachable. See the release notes for more details.
 
-### License
-This taxonomy is licensed under the [Creative Commons Attribution 4.0 International (CC BY 4.0) licence](https://creativecommons.org/licenses/by/4.0/).
-
 This means that reuse is allowed, provided you give appropriate credit to [tabiya.org](https://tabiya.org), provide a link to the license, and indicate if changes were made to the data.","v1.0.0","TRUE","The model is based on the ESCO v1.1.1 and has the following changes:
 - Add: New Micro-entrepreneur occupation (code:5221_2  uuid:d76f0bac-7145-4acc-a53e-259b96a6346b)
 - Add: Unseen economy occupations/activities from the [ICATUS 2016 classification](https://unstats.un.org/unsd/demographic-social/time-use/icatus-2016/)
-  - 15 Occupations Groups ( I3, I4, I5 etc)
-  - 48 Occupations (I31_1, I31_2 etc)
-  - 60 Occupation hierarchy entries
-  - 3673 Occupations
-  - Skills Relations
+  - 12 Occupations Groups (I3, I31, I32, I33, I34, I35, I36, I37,I4, I41, I42, I43, I44, I5, I51, I52)
+  - 60 Occupations (I31_0..., I32_0..., I33_0..., I34_0..., I35_0..., I36_0..., I37_0..., I41_0..., I42_0..., I43_0..., I44_0..., I51_..., I52_...)
+  - 72 Occupation hierarchy entries
+  - 3689 Skills Relations
 - Fix: Add missing preferred labels. Preferred labels were missing from the altLabels of isco-groups, skill-groups, some occupations, some skills.
 - Fix: Several alt-labels had duplicate entries
 - Fix: Several text fields have invisible characters such as \t, nbsp and others
