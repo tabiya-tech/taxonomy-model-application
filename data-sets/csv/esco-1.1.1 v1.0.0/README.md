@@ -1,4 +1,4 @@
-# tabiya-esco-v1.1.1 (en)
+# esco-v1.1.1 (en) v1.0.0
 
 This model is essentially the original ESCO v1.1.1 (en) model from the official [ESCO website](https://esco.ec.europa.eu/en).
 
