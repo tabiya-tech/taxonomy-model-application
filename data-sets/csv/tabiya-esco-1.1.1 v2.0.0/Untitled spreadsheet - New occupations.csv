@@ -1,0 +1,619 @@
+ORIGINURI,"ID","UUIDHISTORY","OCCUPATIONGROUPCODE","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SCOPENOTE","REGULATEDPROFESSIONNOTE","OCCUPATIONTYPE",ISLOCALIZED
+"urn:icatus:2016:34","key_i12242","","I34","I34_0","cleaning or fixing clothes and shoes","cleaning or fixing clothes and shoes
+drying, hanging out, bringing in wash
+laundry drying and handling
+hand/machine-washing
+washing clothes by hand or machine
+ironing, pressing, folding
+smoothing out laundry
+mending/repairing and care of clothes and shoes, cleaning and polishing shoes
+clothes and shoes maintenance
+textile repair and maintenance","Refers to caring and maintaining of textiles and footwear for household and family members.
+
+Examples:
+- Hung out laundry
+- Put clothes in the dryer machine
+- Loaded clothes dryer
+- Hand washing, loading and unloading washing machine, sorting wash
+- Hand-washing, soaking, rinsing
+- Sorting of laundry
+- Ironing and pressing
+- Tasks connected with ironing and pressing
+- Folding and putting things away
+- Put laundry in closet/drawer
+- Sorting/folding clothes
+- Ironed shirt
+- Folding sheets and putting them into the cupboard
+- Emptied the drying rack
+- Mending, repairing clothing and shoes
+- Mending, repairing other textiles such as bedsheets, table cloths, curtains, etc.
+- Polishing footwear
+- Repairing clothes
+- Repairing and polishing shoes
+- Putting seasonal clothes into storage
+- Unspecified making and care for textiles
+- Alteration of clothes (including ironing on transferes to t-shirts, dyeing clothing)
+- Changed a zipper
+- Cleaned boots","","Includes:
+- [Hand/machine-washing](urn:icatus:2016:341)
+- [Drying; hanging out, bringing in wash](urn:icatus:2016:342)
+- [Ironing/pressing/folding](urn:icatus:2016:343)
+- [Mending/repairing and care of clothes and shoes; cleaning and polishing shoes](urn:icatus:2016:344)
+
+Excludes:
+- [Other activities related to care of textiles and footwear](urn:icatus:2016:349)
+- [Providing paid domestic services](urn:icatus:2016:136)
+- [Food and meals management and preparation](urn:icatus:2016:31)
+- [Cleaning and maintaining of own dwelling and surroundings](urn:icatus:2016:32)
+- [Do-it-yourself decoration, maintenance and repair](urn:icatus:2016:33)
+- [Household management for own final use](urn:icatus:2016:35)
+- [Pet care](urn:icatus:2016:36)
+- [Shopping for own household and family members](urn:icatus:2016:37)
+- [Travelling, moving, transporting or accompanying goods or persons related to unpaid domestic services for household and family members](urn:icatus:2016:38)
+- [Other unpaid domestic services for household and family members](urn:icatus:2016:39)
+- [Unpaid direct volunteering for other households](urn:icatus:2016:51)
+","","localoccupation","FALSE"
+"urn:icatus:2016:42","key_i12243","","I42","I42_0","helping adults who need care or are sick","helping adults who need care or are sick
+affective/emotional support for dependent adults
+emotional care for dependent adults
+supporting the emotional well-being of dependent adults
+providing companionship to dependent adults
+assisting dependent adults with forms, administration, accounts
+assisting dependent adults with financial matters and administration
+assisting dependent adults with finances and paperwork
+managing paperwork for dependent adults
+helping dependent adults manage their affairs
+assisting dependent adults with medical care
+supporting dependent adults in healthcare
+supporting dependent adults with medical needs
+assisting dependent adults with tasks of daily living
+supporting dependent adults with daily activities
+meetings and arrangements with adult care service providers
+scheduling and coordinating care services for dependent adults
+passive care of dependent adults
+monitoring dependent adults
+providing passive supervision for dependent adultsniors","Refers to the assistance and care provided to dependent adults.
+Dependent adults refers to persons suffering any physical or mental illness or any disability or impairment who require assistance or help from other person to undertake daily activities including older persons.
+This does not include adults who require temporary assistance.
+
+Examples:
+- Cheered up my grandmother
+- Completed insurance claim for my grandfather
+- Collected pension for my father
+- Paid taxes for my father
+- Feeding elderly grandfather
+- Assisted with showering dependent adult
+- Made bed and cleaned room for dependent adult
+- Met with dad's carer
+- Supervised my dad
+- Talking and listening to dependent adults
+- Completing documents for the dependent adult
+- Reading forms to the dependent adult
+- Giving personal care to adults
+- Feeding, washing, dressing, preparing them for bed
+- Calls to institutions
+- Visit institutions
+- Meeting carers
+- Monitoring dependent adults while undertaking activities or sleeping, preserving a safe environment
+- Being a presence to turn to in need
+- Supervising activities","","Includes:
+- [Assisting dependent adults with tasks of daily living](urn:icatus:2016:421)
+- [Assisting dependent adults with medical care](urn:icatus:2016:422)
+- [Assisting dependent adults with forms, administration, accounts](urn:icatus:2016:423)
+- [Affective/emotional support for dependent adults](urn:icatus:2016:424)
+- [Passive care of dependent adult](urn:icatus:2016:425)
+- [Meetings and arrangements with adult care service providers](urn:icatus:2016:426)
+Excludes:
+- [Other activities related to care for dependent adults](urn:icatus:2016:429)
+- [Employment in corporations, government and non-profit institutions](urn:icatus:2016:11)
+- [Providing paid personal care services in households and household enterprises](urn:icatus:2016:135)
+- [Childcare and instruction](urn:icatus:2016:41)
+- [Help to non-dependent adult household and family members](urn:icatus:2016:43)
+- [Travelling and accompanying goods or persons related to unpaid caregiving services for household and family members](urn:icatus:2016:44)
+- [Other activities related to unpaid caregiving services for household and family members](urn:icatus:2016:49)
+- [Unpaid direct volunteering for other households](urn:icatus:2016:51)
+","","localoccupation","FALSE"
+"urn:icatus:2016:41","key_i12244","","I41","I41_0","caring for and teaching children in your family","caring for and teaching children in your family
+caring for children including feeding, cleaning, physical care
+providing physical care for children
+instructing, teaching, training, helping children
+tutoring and mentoring children
+providing educational assistance to children
+meetings and arrangements with schools and childcare service providers
+school and daycare coordination
+minding children (passive care)
+supervising children
+ensuring safety for children
+playing and sports with children
+recreational activities for children
+providing medical care to children
+managing medical needs of children
+talking with and reading to children
+reading and storytelling for children
+communication and literacy support for children","Refers to the provision of care (physical and medical) and instruction to children.
+
+Examples:
+- Fed child
+- Bathed child
+- Dressed kids
+- Babysat little sibling
+- Cuddling with my child
+- Braided hair and sewed button to get child ready for school
+- Putting children to bed
+- Getting children ready for pre-school/playcentre/kindergarten/school/education facility
+- Giving personal care to children
+- Helped my child with homework
+- Provided guidance to my kid
+- Tutored my child
+- Teaching children (in the role of a caregiver)
+- Other specified teaching, training, helping activities
+- Visited schools
+- Interviewed babysitters
+- Talked to teachers
+- Attended Parent-Teacher (PTA) meeting
+- Hiring nanny
+- Teaching children (in the role of a caregiver)
+- Other specified teaching, training, helping activities
+- Watching my kid playing in garden
+- Monitoring children playing outside or sleeping, preserving a safe environment
+- Being an adult presence for children to turn to in need
+- Supervising games
+- Played soccer with my child
+- Did puzzles with my kids
+- Played board games with my grandchildren
+- Did fingerpainting with children
+- Games
+- Sports
+- Took care of my sick child
+- Gave medicine to my child
+- Bandaging my child's knee
+- Giving medical/health-care to children
+- Talking to children
+- Reading to children
+- Providing emotional support (cheering up) to children","","Includes:
+- [Caring for children including feeding, cleaning, physical care](urn:icatus:2016:411)
+- [Providing medical care to children](urn:icatus:2016:412)
+- [Instructing, teaching, training, helping children](urn:icatus:2016:413)
+- [Talking with and reading to children](urn:icatus:2016:414)
+- [Playing and sports with children](urn:icatus:2016:415)
+- [Minding children (passive care)](urn:icatus:2016:416)
+- [Meetings and arrangements with schools and child care service providers](urn:icatus:2016:417)
+
+Excludes:
+- [Other activities related to childcare and instruction](urn:icatus:2016:419)
+- [Employment in corporations, government and non-profit institutions](urn:icatus:2016:11)
+- [Providing paid personal care services in households and household enterprises](urn:icatus:2016:135)
+- [Care for dependent adults](urn:icatus:2016:42)
+- [Help to non-dependent adult household and family members](urn:icatus:2016:43)
+- [Travelling and accompanying goods or persons related to unpaid caregiving services for household and family members](urn:icatus:2016:44)
+- [Other activities related to unpaid caregiving services for household and family members](urn:icatus:2016:49)
+- [Unpaid volunteer childcare and instruction](urn:icatus:2016:513)","","localoccupation","FALSE"
+"urn:icatus:2016:32","key_i12245","","I32","I32_0","cleaning and looking after your home or garden","cleaning and looking after your home or garden
+indoor cleaning
+house cleaning
+room and space tidying
+outdoor cleaning
+yard upkeep
+yard and garden cleaning
+recycling and disposal of garbage
+waste sorting
+upkeep of in/outdoor plants, hedges, garden, grounds, landscape, etc
+plant care
+garden and plant care
+lawn and landscape maintenance
+tending furnace, boiler, fireplace for heating and water supply
+heating system maintenance
+residential heating care
+fuel-based heating preperation","Refers to the cleaning and maintenance of the dwelling and surroundings.
+
+Examples:
+- Polished floors
+- Tidied up kids room
+- Routine cleaning of rooms, bathrooms, kitchen, etc.
+- Sweeping, vacuuming, washing, scrubbing, making beds, tidying, picking up, dusting, washing windows, arranging the home
+- Polishing/waxing floors and furniture
+- Seasonal cleaning
+- Cleaning after renovations
+- Cleaning before/after having guests
+- Swept entrance
+- Routine outdoor cleaning of garage, yard, pool, frontage, pavement and lawns, outhouse, etc.
+- Raking of leaves, snow shovelling, putting on storm windows
+- Sorting garbage
+- Separating papers, bottles, tins, etc.
+- Took out garbage, waste
+- Bringing large trash to scrap yard
+- Watered plants
+- Trimmed/mowing grass
+- Planted trees in my garden; or on the hedge
+- Planted trees outside own home for shade
+- Care of indoor and outdoor plants
+- Care of outdoor garden, landscaping, trimming, grounds/yard/lawn maintenance
+- Checked the boiler
+- Heated up sauna
+- Lit the boiler
+- Prepared the heating material
+- Warmed water for bath
+- Went down into the cellar and put firewood in the boiler
+- Tending furnace, boiler, fireplace for heating","","Includes:
+- [Indoor cleaning](urn:icatus:2016:321)
+- [Outdoor cleaning](urn:icatus:2016:322)
+- [Recycling and disposal of garbage](urn:icatus:2016:323)
+- [Upkeep of in/outdoor plants, hedges, garden, grounds, landscape, etc.](urn:icatus:2016:324)
+- [Tending furnace, boiler, fireplace for heating and water supply](urn:icatus:2016:325)
+
+Excludes:
+- [Other activities related to cleaning and upkeep of dwelling and surroundings](urn:icatus:2016:329)
+- [Providing paid domestic services](urn:icatus:2016:136)
+- [Food and meals management and preparation](urn:icatus:2016:31)
+- [Do-it-yourself decoration, maintenance and repair](urn:icatus:2016:33)
+- [Care and maintenance of textiles and footwear](urn:icatus:2016:34)
+- [Household management for own final use](urn:icatus:2016:35)
+- [Pet care](urn:icatus:2016:36)
+- [Shopping for own household and family members](urn:icatus:2016:37)
+- [Travelling, moving, transporting or accompanying goods or persons related to unpaid domestic services for household and family members](urn:icatus:2016:38)
+- [Other unpaid domestic services for household and family members](urn:icatus:2016:39)
+- [Unpaid volunteer household maintenance, management, construction, renovation and repair](urn:icatus:2016:511)
+","","localoccupation","FALSE"
+"urn:icatus:2016:33","key_i12246","","I33","I33_0","fixing things in your home or car","fixing things in your home or car
+do-it-yourself improvement, maintenance and repair of own dwelling
+DIY home repairs
+home renovation and repairs
+self-maintenance of home
+installation, servicing and repair of personal and household goods including ICT equipment
+household tech setup and repair
+household equipment setup
+gadget installation and repair
+ICT and appliance servicing
+home appliance installation and maintenance
+servicing personal electronic devices
+vehicle maintenance and repairs
+DIY Vehicle Upkeep","Refers to the cleaning and maintenance of the dwelling and surroundings.
+
+Examples:
+- Painted walls of living room
+- Decorating own house by painting designs and fixing artistic objects
+- Decorating child's bedroom
+- Re-wallpapering
+- Covered floors with wet clay to maintain them
+- Applied clay on walls to maintain them
+- Repaired boiler, oil tank, etc.
+- Painting, plastering, minor repairs to ceiling, floor, walls, roof; paving of driveway, carpentry work, plumbing, wiring
+- Installed my desktop
+- Installed washing machine
+- Repaired own laptop/note book
+- Installed printer
+- Installed Playstation/Xbox
+- Assembling of household equipment and appliances, cleaning/servicing/repairing of household appliances, furniture and other durable goods
+- Installing computers or other devices
+- Installing media equipment
+- Checked the air of the car tyres (myself/at home)
+- Serviced lawn mower (myself)
+- Changed oil and filters in car engine
+- Replaced broken fan belt
+- Cleaning, greasing, other maintenance and repair of cars, motorcycles, bicycles, etc.
+","","Includes:
+- [Do-it-yourself improvement, maintenance and repair of own dwelling](urn:icatus:2016:331)
+- [Installation, servicing and repair of personal and household goods including ICT equipment](urn:icatus:2016:332)
+- [Vehicle maintenance and repairs](urn:icatus:2016:333)
+
+Excludes:
+- [Other activities related to do-it-yourself decoration, maintenance and repair](urn:icatus:2016:339)
+- [Providing paid domestic services](urn:icatus:2016:136)
+- [Food and meals management and preparation](urn:icatus:2016:31)
+- [Cleaning and maintaining of own dwelling and surroundings](urn:icatus:2016:32)
+- [Care and maintenance of textiles and footwear](urn:icatus:2016:34)
+- [Household management for own final use](urn:icatus:2016:35)
+- [Pet care](urn:icatus:2016:36)
+- [Shopping for own household and family members](urn:icatus:2016:37)
+- [Travelling, moving, transporting or accompanying goods or persons related to unpaid domestic services for household and family members](urn:icatus:2016:38)
+- [Other unpaid domestic services for household and family members](urn:icatus:2016:39)
+- [Unpaid volunteer household maintenance, management, construction, renovation and repair](urn:icatus:2016:511)
+","","localoccupation","FALSE"
+"urn:icatus:2016:31","key_i12247","","I31","I31_0","cooking and planning meals","cooking and planning meals
+cleaning up after preparation of food, meals and snacks
+clearing up after cooking
+kitchen tidying and dishwashing
+preparing meals and snacks
+home cooking
+family meal preparation
+preparing coffee, snacks, aperitifs, meals
+serving meals and snacks
+serving food
+storing, arranging, preserving food stocks
+managing food supplies","Refers to all activities in connection with food and meals management and preparation for household and family members
+
+Examples:
+- Loaded/unloaded the dishwasher
+- Cleared the table after breakfast/lunch/snacks/dinner/supper/coffee
+- Washed dishes
+- Washed own kitchen after meals
+- Cleaning table
+- Cooked dinner
+- Preparing family lunches
+- Cooking
+- Heated up some food
+- Made meals, snacks, drinks for own children
+- Preparation of coffee, snacks, aperitifs, meals, etc.
+- Prepared a lunch box
+- Serving food
+- Cleared the food back to the fridge
+- Cleaned the vegetables/fruits, canned tomatoes
+- Sorting out berries for preserving
+","","Includes:
+– 311 Preparing meals/snacks(urn:icatus:2016:311)
+– 312 Serving meals/snacks(urn:icatus:2016:312)
+– 313 Cleaning up after food preparation/meals/snacks(urn:icatus:2016:313)
+– 314 Storing, arranging, preserving food stocks(urn:icatus:2016:314)
+
+Excludes:
+- [Other activities related to food and meals management and preparation](urn:icatus:2016:319)
+- [Providing paid domestic services](urn:icatus:2016:136)
+- [Making, processing food products, beverages and tobacco for own final use](urn:icatus:2016:221)
+- [Cleaning and maintaining of own dwelling and surroundings](urn:icatus:2016:32)
+- [Do-it-yourself decoration, maintenance and repair](urn:icatus:2016:33)
+- [Care and maintenance of textiles and footwear](urn:icatus:2016:34)
+- [Household management for own final use](urn:icatus:2016:35)
+- [Pet care](urn:icatus:2016:36)
+- [Shopping for own household and family members](urn:icatus:2016:37)
+- [Travelling, moving, transporting or accompanying goods or persons related to unpaid domestic services for household and family members](urn:icatus:2016:38)
+- [Other unpaid domestic services for household and family members](urn:icatus:2016:39)
+- [Unpaid volunteer household maintenance, management, construction, renovation and repair](urn:icatus:2016:511)","","localoccupation","FALSE"
+"urn:icatus:2016:43",key_i12248,"","I43","I43_0","helping other adults in the house or family","helping other adults in the house or family
+affective/emotional support for non-dependent adult household and family members
+emotional support for family members
+offering encouragement and support
+feeding, cleaning, physical care for non-dependent adult household and family members including for temporary illness","Refers to the provision of help to non-dependent adult household and family members.
+
+Examples:
+- Cheering up non-dependent adults
+- Talking and listening to non-dependent adults
+- Took care of my (non-dependent) mother with flu
+- Giving personal care to temporary sick adults
+- Giving medical/health-care to temporary sick adults
+- Other specified physical care of temporary sick adults
+","","Includes:
+- [Feeding, cleaning, physical care for non-dependent adult household and family members including for temporary illness](urn:icatus:2016:431)
+- [Affective/emotional support for non-dependent adult household and family members](urn:icatus:2016:432)
+
+Excludes:
+- [Other activities related to care for non-dependent adult household and family members](urn:icatus:2016:439)
+- [Employment in corporations, government and non-profit institutions](urn:icatus:2016:11)
+- [Providing paid personal care services in households and household enterprises](urn:icatus:2016:135)
+- [Childcare and instruction](urn:icatus:2016:41)
+- [Care for dependent adults](urn:icatus:2016:42)
+- [Travelling and accompanying goods or persons related to unpaid caregiving services for household and family members](urn:icatus:2016:44)
+- [Other activities related to unpaid caregiving services for household and family members](urn:icatus:2016:49)
+- [Unpaid direct volunteering for other households](urn:icatus:2016:51)
+","","localoccupation","FALSE"
+"urn:icatus:2016:35",key_i12249,"","I35","I35_0","managing and planning for your household","managing and planning for your household
+budgeting, planning, organizing duties and activities in the household
+financial planning for the household
+organizing home activities
+planning monthly budget
+planning holidays
+planning chores
+paying household bills","Refers to the management of the household. Activities can be undertaken outside or from home.
+
+Examples:
+- Planning family trip
+- Borrowed for household expenses
+- Organized repayments
+- Planning monthly budget
+- Planning holidays
+- Planning chores
+- Paid internet online
+- Paid electricity bill
+- Paid for fuel/cooking gas
+- Paying rent, utilities, cable television, internet, etc.","","Includes:
+- [Paying household bills](urn:icatus:2016:351)
+- [Budgeting, planning, organizing duties and activities in the household](urn:icatus:2016:352)
+
+Excludes:
+- [Other activities related to household management](urn:icatus:2016:359)
+- [Providing paid domestic services](urn:icatus:2016:136)
+- [Food and meals management and preparation](urn:icatus:2016:31)
+- [Cleaning and maintaining of own dwelling and surroundings](urn:icatus:2016:32)
+- [Do-it-yourself decoration, maintenance and repair](urn:icatus:2016:33)
+- [Care and maintenance of textiles and footwear](urn:icatus:2016:34)
+- [Pet care](urn:icatus:2016:36)
+- [Shopping for own household and family members](urn:icatus:2016:37)
+- [Travelling, moving, transporting or accompanying goods or persons related to unpaid domestic services for household and family members](urn:icatus:2016:38)
+- [Other unpaid domestic services for household and family members](urn:icatus:2016:39)
+- [Unpaid volunteer household maintenance, management, construction, renovation and repair](urn:icatus:2016:511)","","localoccupation","FALSE"
+"urn:icatus:2016:36",key_i12250,"","I36","I36_0","taking care of pets","taking care of pets
+daily pet care
+pet care routine
+using veterinary care or other pet care services (grooming, stabling, holiday or day care)
+using pet care services","Refers to the care of own household or family member's pets.
+
+Examples:
+- Cleaned aquarium
+- Walked dog
+- Cooked food for pet
+- Trained pet
+- Played with cat
+- Feeding, cleaning, grooming, walking, training and playing with pets
+- Vet visit
+- Using veterinary care
+- Use of other pet care services including grooming, stabling, holiday or day care","","Includes:
+- [Daily pet care](urn:icatus:2016:361)
+- [Using veterinary care or other pet care services (grooming, stabling, holiday or day care)](urn:icatus:2016:362)
+
+Excludes:
+- [Other activities related to pet care](urn:icatus:2016:369)
+- [Providing paid domestic services](urn:icatus:2016:136)
+- [Food and meals management and preparation](urn:icatus:2016:31)
+- [Cleaning and maintaining of own dwelling and surroundings](urn:icatus:2016:32)
+- [Do-it-yourself decoration, maintenance and repair](urn:icatus:2016:33)
+- [Care and maintenance of textiles and footwear](urn:icatus:2016:34)
+- [Household management for own final use](urn:icatus:2016:35)
+- [Shopping for own household and family members](urn:icatus:2016:37)
+- [Travelling, moving, transporting or accompanying goods or persons related to unpaid domestic services for household and family members](urn:icatus:2016:38)
+- [Other unpaid domestic services for household and family members](urn:icatus:2016:39)
+- [Unpaid direct volunteering for other households](urn:icatus:2016:51)
+- Shopping for pets [(37)](urn:icatus:2016:37)
+- Travel and waiting time related to pet care [(38)](urn:icatus:2016:38)
+","","localoccupation","FALSE"
+"urn:icatus:2016:37",key_i12251,"","I37","I37_0","shopping for your family or household","shopping for your family or household
+shopping for/availing of services and related activity
+shopping services
+acquiringing services
+ordering services
+availing of administrative services","Refers to the purchase of consumer and capital goods, and services for own household and family members.
+
+Examples:
+- Got internet installed at home
+- Bought tickets for concert
+- Shopping for/availing of repair and maintenance services
+- Shopping for/availing of administrative services including banking, legal, renting, using automated teller machine (ATM), posting letter (including meetings/discussions with financial planners and advisers)
+- Shopping for personal care services (not for oneself)
+- Shopping for medical and health-care services (not for oneself)
+- Shopping for/availing of childcare services
+- Shopping for educational services
+- Availing of government/public services
+- Other specified shopping/availing of services
+- Shopped for groceries
+- Shopped for gas
+- Shopped for microwave
+- Searching online bookshops for a particular book
+- Ordering clothes/shoes online
+- Buying tickets to a show
+- Shopping for/purchasing of consumer goods including shopping for/purchasing of consumer goods: food products and household supplies (groceries); takeout food; medical supplies; school supplies; gasoline; clothes
+- Shopping for/purchasing of durable/capital goods including cars, household appliances, articles and equipment; furniture; house
+","","Includes:
+- [Shopping for/purchasing of goods and related activities](urn:icatus:2016:371)
+- [Shopping for/availing of services and related activity](urn:icatus:2016:372)
+
+Excludes:
+- [Providing paid domestic services](urn:icatus:2016:136)
+- [Acquiring supplies and disposing of products and other activities related to making and processing goods for own final use](urn:icatus:2016:229)
+- [Food and meals management and preparation](urn:icatus:2016:31)
+- [Cleaning and maintaining of own dwelling and surroundings](urn:icatus:2016:32)
+- [Do-it-yourself decoration, maintenance and repair](urn:icatus:2016:33)
+- [Care and maintenance of textiles and footwear](urn:icatus:2016:34)
+- [Household management for own final use](urn:icatus:2016:35)
+- [Pet care](urn:icatus:2016:36)
+- [Travelling, moving, transporting or accompanying goods or persons related to unpaid domestic services for household and family members](urn:icatus:2016:38)
+- [Other unpaid domestic services for household and family members](urn:icatus:2016:39)
+- [Unpaid volunteer shopping/purchasing goods and services](urn:icatus:2016:512)","","localoccupation","FALSE"
+"urn:icatus:2016:523","key_i2138","a76206f2-604c-4f18-9569-5cc6821b998f","I52","I52_3","helping with sports, music or other cultural activities without getting paid","helping with sports, music or other cultural activities without getting paid
+unpaid volunteer cultural activities recreation and sports activities
+unpaid volunteer work in sports and cultural activities
+community-based cultural and sports unpaid volunteering","Refers to unpaid, non-compulsory activities to work in cultural activities, recreation and sports activities as help, arranged by the community or an organization.
+
+Examples:
+- Coached my kid's soccer team
+- Volunteered to assist runners after marathon (unpaid)
+- Performed dance at a public festival (not for pay or profit)
+- Played an instrument in an orchestra/classical music programme (not for pay or profit)","","Includes unpaid volunteer activities such as:
+- Coaching, refereeing etc. in sports and gymnastics as help
+- Leading youth group, for example, scout or boy/girl guide leader as help
+- Volunteer participation in cultural activities such as theatrical performance as help","","localoccupation","FALSE"
+"urn:icatus:2016:524","key_i2139","aceab90e-e12a-4d75-9073-949b3e2726e5","I52","I52_4","helping with office work without getting paid","helping with office work without getting paid
+unpaid volunteer office/administrative work
+community office/administrative work
+providing unpaid volunteer help to non-profits
+unpaid volunteer office support work","Refers to unpaid, non-compulsory activities to undertake office/administrative work as help, arranged by the community or an organization.
+
+Examples:
+- Volunteered at the church office (unpaid)","","Includes unpaid volunteer activities such as:
+- Preparing correspondence, assistance repairs and other odd jobs for the organization as help
+- Giving information, distributing leaflets as help
+- Work as committee member, fund-raising activities as help
+- Participation in civic, professional, fraternal, political etc. organizations as help","","localoccupation","FALSE"
+"urn:icatus:2016:522","key_i2140",8bddc3f3-54f3-49fb-9c0d-568bd010276d,"I52","I52_2","cooking or cleaning for other people's homes without getting paid","cooking or cleaning for other people's homes without getting paid
+unpaid volunteer preparing/serving meals, cleaning up
+community meal preparation, service and cleaning up support
+unpaid meal preparation and service
+unpaid volunteer food and cleanup activities","Refers to unpaid, non-compulsory activities to preparing/serving meals, cleaning up as help, arranged by the community or an organization.
+
+Examples:
+- Prepared food for community festival (as an unpaid volunteer)
+- Cleaned up after school potluck (as an unpaid volunteer)
+- Served dinner at a homeless shelter (as an unpaid volunteer)
+- Prepared cake for school bake sale (as an unpaid volunteer)
+- Assist with cooking at a funeral (as an unpaid volunteer)","","Includes unpaid volunteer activities such as:
+- Organizing, planning and preparing meals/snacks as help
+- Serving meals/snacks as help
+- Cleaning up after food preparation/meals/snacks as help","","localoccupation","FALSE"
+"urn:icatus:2016:521","key_i2141",18ced3ad-8224-4290-8b4d-78de2fe50add,"I52","I52_1","cleaning or fixing roads or buildings without getting paid","cleaning or fixing roads or buildings without getting paid
+unpaid volunteer work on road/building repair, clearing and preparing land, cleaning (streets, markets, etc.), and construction
+community cleanup and repair volunteering
+unpaid construction and land preparation work
+volunteer maintenance and renovation activities","Refers to unpaid, non-compulsory activities to work on road/building repair, clearing and preparing land, cleaning (streets, markets, etc.), and construction as help, arranged by the community or an organization.
+
+Examples:
+- Volunteered cleaning the streets in the town (unpaid)
+- Volunteered to pick up litter (unpaid)
+- Volunteered to clear brush from trail (unpaid)
+- Volunteered to help renovate home (unpaid)","","Includes unpaid volunteer activities such as:
+- Work on construction, road repairs, building bridges, dams, etc. as help
+- Work on clearing and preparing community land, cleaning (streets, markets, etc.) as help","","localoccupation","FALSE"
+"urn:icatus:2016:514","key_i2242",44c0087d-d35f-4798-9ba5-a0aa8aebd3d0,"I51","I51_4","helping adults outside of your home who need care without getting paid","helping adults outside of your home who need care without getting paid
+unpaid volunteer care for adults
+assisting adults with daily needs
+unpaid adult caregiving
+community caregiving for adults","Refers to unpaid, non-compulsory activities to take care of adults as help to other households, not arranged by an organization.
+
+Examples:
+- Cooked food to my sick neighbour","","Includes unpaid volunteer activities such as:
+- Assisting adults with tasks of daily living as help
+- Assisting adults with medical care as help
+- Assisting adults with forms, administration, accounts as help
+- Affective/emotional support for adults as help
+- Passive care as help","","localoccupation","FALSE"
+"urn:icatus:2016:513","key_i2243","df87305f-77d9-4ed9-b25f-aa22688bc662","I51","I51_3","caring for and teaching for children outside of your home without getting paid","caring for and teaching for children outside of your home without getting paid
+unpaid volunteer childcare and instruction
+unpaid volunteer childcare and teaching
+community childcare and instruction
+babysitting and child supervision","Refers to unpaid, non-compulsory activities to take care and instruct children as help to other households, not arranged by an organization.
+
+Examples:
+- Took care of neighbour's child","","Includes unpaid volunteer activities such as:
+- Caring for children including feeding, cleaning, physical care as help
+- Providing health/medical care to children as help
+- Instructing, teaching, training, helping children as help
+- Talking with and reading to children (including emotional support) as help
+- Playing and sports with children as help
+- Minding children (passive care) as help","","localoccupation","FALSE"
+"urn:icatus:2016:511","key_i2244",3fc52351-01df-4948-9bdb-9db806202fb0,"I51","I51_1","fixing and building things in other people's homes without getting paid","fixing and building things in other people's homes without getting paid
+unpaid volunteer household maintenance, management, construction, renovation and repair
+household volunteering
+housekeeping volunteering
+unpaid home repair and management
+community household assistance","Refers to unpaid, non-compulsory activities to provide household maintenance, management, construction, renovation and repair as help to other households, not arranged by an organization.
+
+Examples:
+- Cleaned neighbour's house
+- Helping with neighbour's garden
+- Walking neighbour's dog","","Includes unpaid volunteer activities such as:
+- Preparing and serving meals as help to other households
+- Cleaning and upkeep as help to other households
+- Care of textiles as help to other households
+- Household management as help to other households
+- Pet care as help to other households
+- Other specified help to other households
+- Construction, renovation and repairs of dwellings and other structures as help to other households","","localoccupation","FALSE"
+"urn:icatus:2016:512","key_i2245","addfeece-c28d-41f8-bca3-95a0ee3e1fa0","I51","I51_2","shopping for others without getting paid","shopping for others without getting paid
+unpaid volunteer shopping/purchasing goods and services
+assisting with shopping and errands","Refers to unpaid, non-compulsory activities to shop/purchase goods and services as help to other households, not arranged by an organization.
+
+Examples:
+- Shopped (including online) groceries for neighbour","","Includes unpaid volunteer activities such as:
+- Shopping for/purchasing of goods as help
+- Shopping for/purchasing of services as help
+- Other specified shopping/purchasing as help
+
+Excludes:
+- [Shopping for/purchasing of goods and related activities](urn:icatus:2016:371)
+- [Shopping for/availing of services and related activity](urn:icatus:2016:372)","","localoccupation","FALSE"
+"urn:icatus:2016:515","key_i2246",77cc4a9f-1df8-4312-8f6f-eaea9e2d726d,"I51","I51_5","helping in other people's businesses without getting paid","helping in other people's businesses without getting paid
+unpaid volunteer unpaid help in enterprises owned by other households
+unpaid assistance in household enterprises","Refers to unpaid, non-compulsory activities to help in enterprises owned by other households as help to other households, not arranged by an organization.
+
+Examples:
+- Help my neighbour in his business","","Includes unpaid volunteer activities such as:
+- Production of goods as help
+- Provision of services as help
+- Purchasing inputs as help
+- Disposing or selling outputs as help","","localoccupation","FALSE"
