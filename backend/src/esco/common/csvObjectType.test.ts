@@ -25,7 +25,8 @@ import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/oc
 
 describe("getObjectTypeFromCSVObjectType", () => {
   test.each([
-    [ObjectTypes.OccupationGroup, CSVObjectTypes.OccupationGroup],
+    [ObjectTypes.ISCOGroup, CSVObjectTypes.ISCOGroup],
+    [ObjectTypes.LocalGroup, CSVObjectTypes.LocalGroup],
     [ObjectTypes.ESCOOccupation, CSVObjectTypes.ESCOOccupation],
     [ObjectTypes.LocalOccupation, CSVObjectTypes.LocalOccupation],
     [ObjectTypes.SkillGroup, CSVObjectTypes.SkillGroup],
@@ -46,7 +47,8 @@ describe("getObjectTypeFromCSVObjectType", () => {
 });
 describe("getCSVTypeFromObjectObjectType", () => {
   test.each([
-    [CSVObjectTypes.OccupationGroup, ObjectTypes.OccupationGroup],
+    [CSVObjectTypes.ISCOGroup, ObjectTypes.ISCOGroup],
+    [CSVObjectTypes.LocalGroup, ObjectTypes.LocalGroup],
     [CSVObjectTypes.ESCOOccupation, ObjectTypes.ESCOOccupation],
     [CSVObjectTypes.LocalOccupation, ObjectTypes.LocalOccupation],
     [CSVObjectTypes.SkillGroup, ObjectTypes.SkillGroup],

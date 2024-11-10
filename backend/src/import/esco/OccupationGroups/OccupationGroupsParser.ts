@@ -11,6 +11,7 @@ import { getProcessEntityBatchFunction } from "import/esco/common/processEntityB
 import { IOccupationGroupImportRow, OccupationGroupImportHeaders } from "esco/common/entityToCSV.types";
 import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
+import { getOccupationGroupTypeFromCSVObjectType } from "import/esco/common/getEntityTypeFromCSVObjectType";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, OccupationGroupImportHeaders);
@@ -29,7 +30,7 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 function getRowToSpecificationTransformFn(
   modelId: string
 ): TransformRowToSpecificationFunction<IOccupationGroupImportRow, INewOccupationGroupSpec> {
-  return (row: IOccupationGroupImportRow): INewOccupationGroupSpec => {
+  return (row: IOccupationGroupImportRow): INewOccupationGroupSpec | null => {
     const { uniqueArray: uniqueAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
     if (duplicateCount) {
       errorLogger.logWarning(
@@ -44,12 +45,20 @@ function getRowToSpecificationTransformFn(
       );
     }
 
+    const groupType = getOccupationGroupTypeFromCSVObjectType(row.GROUPTYPE);
+
+    if (groupType === null) {
+      //check that the occupationType exists
+      errorLogger.logWarning(`Failed to import Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`);
+      return null;
+    }
+
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
       code: row.CODE,
-      groupType: row.GROUPTYPE,
+      groupType: groupType,
       preferredLabel: row.PREFERREDLABEL,
       altLabels: uniqueAltLabels,
       description: row.DESCRIPTION,

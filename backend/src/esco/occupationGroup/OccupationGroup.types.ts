@@ -3,14 +3,6 @@ import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 
 /**
- * Describes the type of OccupationGroup.
- */
-export enum OccupationGroupType {
-  ISCOGroup = "iscogroup",
-  ICATUSGroup = "icatusgroup",
-}
-
-/**
  * Describes how an OccupationGroup is saved in the database.
  */
 export interface IOccupationGroupDoc extends ImportIdentifiable {
@@ -21,7 +13,7 @@ export interface IOccupationGroupDoc extends ImportIdentifiable {
   originUri: string;
   preferredLabel: string;
   altLabels: string[];
-  groupType: OccupationGroupType;
+  groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
   description: string;
 }
 
@@ -49,7 +41,7 @@ export type INewOccupationGroupSpec = Omit<
  * Describes how a reference to an OccupationGroup is returned from the API.
  */
 export interface IOccupationGroupReference extends Pick<IOccupationGroup, "id" | "UUID" | "code" | "preferredLabel"> {
-  objectType: ObjectTypes.OccupationGroup;
+  objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
 }
 
 /**
@@ -59,5 +51,5 @@ export interface IOccupationGroupReference extends Pick<IOccupationGroup, "id" |
 export interface IOccupationGroupReferenceDoc
   extends Pick<IOccupationGroupDoc, "modelId" | "UUID" | "code" | "preferredLabel"> {
   id: string;
-  objectType: ObjectTypes.OccupationGroup;
+  objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
 }

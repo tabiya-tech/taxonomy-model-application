@@ -9,7 +9,6 @@ import {
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
 
 const HEADER_NAMES = {
   ID: "ID",
@@ -60,7 +59,7 @@ export interface IOccupationGroupImportRow {
   PREFERREDLABEL: string;
   ALTLABELS: string;
   DESCRIPTION: string;
-  GROUPTYPE: OccupationGroupType;
+  GROUPTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.LocalGroup;
 }
 
 export interface IOccupationGroupExportRow extends IOccupationGroupImportRow {
@@ -316,17 +315,33 @@ export const occupationHierarchyExportHeaders = [
  */
 
 export interface IOccupationHierarchyImportRow {
-  PARENTOBJECTTYPE: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  PARENTOBJECTTYPE:
+    | ObjectTypes.ISCOGroup
+    | ObjectTypes.LocalGroup
+    | ObjectTypes.ESCOOccupation
+    | ObjectTypes.LocalOccupation;
   PARENTID: string;
   CHILDID: string;
-  CHILDOBJECTTYPE: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  CHILDOBJECTTYPE:
+    | ObjectTypes.ISCOGroup
+    | ObjectTypes.LocalGroup
+    | ObjectTypes.ESCOOccupation
+    | ObjectTypes.LocalOccupation;
 }
 
 export interface IOccupationHierarchyExportRow {
-  PARENTOBJECTTYPE: CSVObjectTypes.OccupationGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  PARENTOBJECTTYPE:
+    | CSVObjectTypes.ISCOGroup
+    | CSVObjectTypes.LocalGroup
+    | CSVObjectTypes.ESCOOccupation
+    | CSVObjectTypes.LocalOccupation;
   PARENTID: string;
   CHILDID: string;
-  CHILDOBJECTTYPE: CSVObjectTypes.OccupationGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  CHILDOBJECTTYPE:
+    | CSVObjectTypes.ISCOGroup
+    | CSVObjectTypes.LocalGroup
+    | CSVObjectTypes.ESCOOccupation
+    | CSVObjectTypes.LocalOccupation;
   CREATEDAT: string;
   UPDATEDAT: string;
 }

@@ -4,7 +4,8 @@ import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkill
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 export const enum CSVObjectTypes {
-  OccupationGroup = "occupationgroup",
+  ISCOGroup = "iscogroup",
+  LocalGroup = "localgroup",
   ESCOOccupation = "escooccupation",
   LocalOccupation = "localoccupation",
   Skill = "skill",
@@ -13,8 +14,10 @@ export const enum CSVObjectTypes {
 
 export const getObjectTypeFromCSVObjectType = (type: string): ObjectTypes | null => {
   switch (type?.toLowerCase()) {
-    case CSVObjectTypes.OccupationGroup:
-      return ObjectTypes.OccupationGroup;
+    case CSVObjectTypes.ISCOGroup:
+      return ObjectTypes.ISCOGroup;
+    case CSVObjectTypes.LocalGroup:
+      return ObjectTypes.LocalGroup;
     case CSVObjectTypes.ESCOOccupation:
       return ObjectTypes.ESCOOccupation;
     case CSVObjectTypes.LocalOccupation:
@@ -30,8 +33,10 @@ export const getObjectTypeFromCSVObjectType = (type: string): ObjectTypes | null
 
 export const getCSVTypeFromObjectType = (type: string): CSVObjectTypes | null => {
   switch (type?.toLowerCase()) {
-    case ObjectTypes.OccupationGroup:
-      return CSVObjectTypes.OccupationGroup;
+    case ObjectTypes.ISCOGroup:
+      return CSVObjectTypes.ISCOGroup;
+    case ObjectTypes.LocalGroup:
+      return CSVObjectTypes.LocalGroup;
     case ObjectTypes.ESCOOccupation:
       return CSVObjectTypes.ESCOOccupation;
     case ObjectTypes.LocalOccupation:

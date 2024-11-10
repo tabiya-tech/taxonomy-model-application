@@ -14,6 +14,7 @@ import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { OccupationGroupModelPaths } from "esco/occupationGroup/OccupationGroupModel";
 import { OccupationModelPaths } from "esco/occupations/occupationModel";
 
 export interface IOccupationHierarchyRepository {
@@ -71,10 +72,10 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       //  get all Occupation groups
       const _existingOccupationgroupIds = await this.occupationGroupModel
         .find({ modelId: { $eq: modelId } })
-        .select("_id")
+        .select(`_id ${OccupationGroupModelPaths.groupType}`)
         .exec();
       _existingOccupationgroupIds.forEach((occupationGroup) =>
-        existingIds.set(occupationGroup._id.toString(), [ObjectTypes.OccupationGroup])
+        existingIds.set(occupationGroup._id.toString(), [occupationGroup.groupType])
       );
 
       //  get all Occupations

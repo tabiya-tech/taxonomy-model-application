@@ -127,26 +127,26 @@ describe("test parseOccupationHierarchy from", () => {
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND warning should be logged fo reach of the failed rows
-      expect(errorLogger.logWarning).toHaveBeenCalledTimes(6); // 6 entries are constructed in the csv to fail
+      expect(errorLogger.logWarning).toHaveBeenCalledTimes(5); // 5 entries are constructed in the csv to fail
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
-        `Failed to import OccupationHierarchy row with parentType:'LOCALOCCUPATION' and childType:'ISCOOCCUPATION'`
-      );
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        2,
         `Failed to import OccupationHierarchy row with parentType:'invalid should be ignored' and childType:'ESCOOCCUPATION'`
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        2,
+        `Failed to import OccupationHierarchy row with parentType:'ISCOGROUP' and childType:'invalid should be ignored'`
+      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         3,
-        `Failed to import OccupationHierarchy row with parentType:'OCCUPATIONGROUP' and childType:'invalid should be ignored'`
+        `Failed to import OccupationHierarchy row with parent importId:'' and child importId:'key_32'`
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         4,
-        `Failed to import OccupationHierarchy row with parent importId:'' and child importId:'key_23'`
+        `Failed to import OccupationHierarchy row with parent importId:'key_33' and child importId:''`
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         5,
-        `Failed to import OccupationHierarchy row with parent importId:'key_24' and child importId:''`
+        `Failed to import OccupationHierarchy row with parent importId:'key_i34' and child importId:''`
       );
     }
   );

@@ -73,7 +73,7 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       const actualNewOccupationGroups: IOccupationGroup[] = [];
       const createOccupationGroupsInDBPromise = async () => {
         const docs = await repositoryRegistry.OccupationGroup.createMany(
-          Array.from({ length: N }, (_, index) => getSimpleNewOccupationGroupSpec(getMockStringId(1), `group_${index}`))
+          Array.from({ length: N }, (_, index) => getSimpleNewOccupationGroupSpec(getMockStringId(1), `group_${index}`, ObjectTypes.ISCOGroup))
         );
         actualNewOccupationGroups.push(...docs);
         // delete all the created entries to avoid unique index violations
@@ -158,7 +158,7 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       const N = 1000;
       const givenModelId = getMockStringId(1);
       const givenOccupationGroups = await repositoryRegistry.OccupationGroup.createMany(
-        Array.from({ length: N }, (_, index) => getSimpleNewOccupationGroupSpec(givenModelId, `group_${index}`))
+        Array.from({ length: N }, (_, index) => getSimpleNewOccupationGroupSpec(givenModelId, `group_${index}`, ObjectTypes.ISCOGroup))
       );
       // AND N ESCO Occupations exist in the database
       const givenOccupations = await repositoryRegistry.occupation.createMany(
@@ -181,7 +181,7 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
         givenNewHierarchySpecs.push(
           {
             parentId: occupationGroup.id,
-            parentType: ObjectTypes.OccupationGroup,
+            parentType: ObjectTypes.ISCOGroup,
             childId: occupation.id,
             childType: occupation.occupationType,
           },

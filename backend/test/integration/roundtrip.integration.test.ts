@@ -99,7 +99,8 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
   test.each([
     [DataTestType.ESCO, false, "../data-sets/csv/esco-1.1.1 v1.0.0/"],
     //[DataTestType.SAMPLE, false , "../data-sets/csv/sample/"],
-    //[DataTestType.ESCO, true , "../data-sets/csv/esco-1.1.1 v1.0.0/"],
+    // [DataTestType.ESCO, false , "../data-sets/csv/tabiya-esco-1.1.1 v1.0.0/"],
+    // [DataTestType.ESCO, true , "../data-sets/csv/tabiya-sa-1.1.1 v0.0.0/"],
     [DataTestType.SAMPLE, true, "../data-sets/csv/sample/"],
   ])(
     "should [CSV -Import-> DB -Export-> CSV | optional second pass: %s | 0 DB -Export-> CSV] for %s data test type",
@@ -252,13 +253,13 @@ async function doExport(modelId: string) {
 async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string, model: IModelInfo) {
   const map1 = new Mapper();
   mapOccupationCSVFile(`${folder1}/occupations.csv`, map1);
-  mapEntityCSVFile(`${folder1}/occupation_groups.csv`, CSVObjectTypes.OccupationGroup, map1);
+  mapOccupationGroupCSVFile(`${folder1}/occupation_groups.csv`, map1);
   mapEntityCSVFile(`${folder1}/skill_groups.csv`, CSVObjectTypes.SkillGroup, map1);
   mapEntityCSVFile(`${folder1}/skills.csv`, CSVObjectTypes.Skill, map1);
 
   const map2 = new Mapper();
   mapOccupationCSVFile(`${folder2}/occupations.csv`, map2);
-  mapEntityCSVFile(`${folder2}/occupation_groups.csv`, CSVObjectTypes.OccupationGroup, map2);
+  mapOccupationGroupCSVFile(`${folder2}/occupation_groups.csv`, map2);
   mapEntityCSVFile(`${folder2}/skill_groups.csv`, CSVObjectTypes.SkillGroup, map2);
   mapEntityCSVFile(`${folder2}/skills.csv`, CSVObjectTypes.Skill, map2);
 
@@ -290,6 +291,15 @@ function mapOccupationCSVFile(file: string, mapper: Mapper) {
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     const uuid = uuidHistory[uuidHistory.length - 1];
     mapper.addIdMapping(row.ID, row.OCCUPATIONTYPE, uuid);
+  });
+}
+
+function mapOccupationGroupCSVFile(file: string, mapper: Mapper) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parse(fs.readFileSync(path.resolve(file)), { columns: true }).forEach((row: any) => {
+    const uuidHistory = arrayFromString(row.UUIDHISTORY);
+    const uuid = uuidHistory[uuidHistory.length - 1];
+    mapper.addIdMapping(row.ID, row.groupType, uuid);
   });
 }
 

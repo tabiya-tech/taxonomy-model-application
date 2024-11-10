@@ -21,7 +21,7 @@ export function expectedOccupationGroupReference(givenOccupationGroup: IOccupati
   return {
     id: givenOccupationGroup.id,
     UUID: givenOccupationGroup.UUID,
-    objectType: ObjectTypes.OccupationGroup,
+    objectType: givenOccupationGroup.groupType,
     code: givenOccupationGroup.code,
     preferredLabel: givenOccupationGroup.preferredLabel,
   };

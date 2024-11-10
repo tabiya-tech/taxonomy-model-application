@@ -21,7 +21,8 @@ export enum MongooseModelName {
 
 export function getModelName(objectType: ObjectTypes): MongooseModelName {
   switch (objectType) {
-    case ObjectTypes.OccupationGroup:
+    case ObjectTypes.ISCOGroup:
+    case ObjectTypes.LocalGroup:
       return MongooseModelName.OccupationGroup;
     case ObjectTypes.ESCOOccupation:
     case ObjectTypes.LocalOccupation:

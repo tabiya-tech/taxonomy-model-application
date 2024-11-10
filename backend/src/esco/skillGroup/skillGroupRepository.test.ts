@@ -520,7 +520,8 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // The non-SkillGroup in this case an Occupation group
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getSimpleNewOccupationGroupSpec(
           getMockStringId(1),
-          "group_1"
+          "group_1",
+          ObjectTypes.ISCOGroup
         );
         const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
@@ -532,7 +533,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           parentType: ObjectTypes.SkillGroup,
 
           //@ts-ignore
-          childType: ObjectTypes.OccupationGroup, // <- This is the inconsistency
+          childType: ObjectTypes.ISCOGroup, // <- This is an example of an inconsistency
           childDocModel: MongooseModelName.OccupationGroup, // <- This is the inconsistency
           childId: new mongoose.Types.ObjectId(givenOccupationGroup.id), // <- This is the inconsistency
 
