@@ -1,4 +1,3 @@
-import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationGroupDoc, IOccupationGroupReferenceDoc } from "./OccupationGroup.types";
 import mongoose from "mongoose";
 
@@ -9,7 +8,7 @@ export function getOccupationGroupDocReference(occupationGroup: OccupationGroupD
   return {
     modelId: occupationGroup.modelId,
     id: occupationGroup.id,
-    objectType: ObjectTypes.OccupationGroup,
+    objectType: occupationGroup.groupType,
     UUID: occupationGroup.UUID,
     code: occupationGroup.code,
     preferredLabel: occupationGroup.preferredLabel,

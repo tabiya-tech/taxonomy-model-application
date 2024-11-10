@@ -12,7 +12,7 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { RegExESCOOccupationCode, RegExICATUSOccupationCode, RegExLocalOccupationCode } from "esco/common/modelSchema";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationImportRow, occupationImportHeaders } from "esco/common/entityToCSV.types";
-import { getOccupationTypeFromCSVObjectType } from "import/esco/common/getOccupationTypeFromCSVObjectType";
+import { getEntityTypeFromCSVObjectType } from "import/esco/common/getEntityTypeFromCSVObjectType";
 import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
@@ -33,7 +33,7 @@ function getRowToSpecificationTransformFn(
   modelId: string
 ): TransformRowToSpecificationFunction<IOccupationImportRow, INewOccupationSpec> {
   return (row: IOccupationImportRow) => {
-    const occupationType = getOccupationTypeFromCSVObjectType(row.OCCUPATIONTYPE);
+    const occupationType = getEntityTypeFromCSVObjectType(row.OCCUPATIONTYPE);
     const isLocalized = row.ISLOCALIZED.trim().toLowerCase() === "true";
 
     if (occupationType === null) {

@@ -19,7 +19,7 @@ export function initializeSchemaAndModel(
       parentType: {
         type: String,
         required: true,
-        enum: [ObjectTypes.OccupationGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
+        enum: [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
       },
       parentDocModel: {
         type: String,
@@ -39,7 +39,7 @@ export function initializeSchemaAndModel(
       childType: {
         type: String,
         required: true,
-        enum: [ObjectTypes.OccupationGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
+        enum: [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup, ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
       },
       childDocModel: {
         type: String,

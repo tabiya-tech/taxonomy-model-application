@@ -532,7 +532,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           parentType: ObjectTypes.SkillGroup,
 
           //@ts-ignore
-          childType: ObjectTypes.OccupationGroup, // <- This is the inconsistency
+          childType: ObjectTypes.ISCOGroup, // <- This is an example of an inconsistency
           childDocModel: MongooseModelName.OccupationGroup, // <- This is the inconsistency
           childId: new mongoose.Types.ObjectId(givenOccupationGroup.id), // <- This is the inconsistency
 

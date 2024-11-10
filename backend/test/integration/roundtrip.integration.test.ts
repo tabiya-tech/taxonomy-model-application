@@ -252,13 +252,13 @@ async function doExport(modelId: string) {
 async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string, model: IModelInfo) {
   const map1 = new Mapper();
   mapOccupationCSVFile(`${folder1}/occupations.csv`, map1);
-  mapEntityCSVFile(`${folder1}/occupation_groups.csv`, CSVObjectTypes.OccupationGroup, map1);
+  mapEntityCSVFile(`${folder1}/occupation_groups.csv`, CSVObjectTypes.ISCOGroup, map1);
   mapEntityCSVFile(`${folder1}/skill_groups.csv`, CSVObjectTypes.SkillGroup, map1);
   mapEntityCSVFile(`${folder1}/skills.csv`, CSVObjectTypes.Skill, map1);
 
   const map2 = new Mapper();
   mapOccupationCSVFile(`${folder2}/occupations.csv`, map2);
-  mapEntityCSVFile(`${folder2}/occupation_groups.csv`, CSVObjectTypes.OccupationGroup, map2);
+  mapEntityCSVFile(`${folder2}/occupation_groups.csv`, CSVObjectTypes.ISCOGroup, map2);
   mapEntityCSVFile(`${folder2}/skill_groups.csv`, CSVObjectTypes.SkillGroup, map2);
   mapEntityCSVFile(`${folder2}/skills.csv`, CSVObjectTypes.Skill, map2);
 

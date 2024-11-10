@@ -16,7 +16,7 @@ import {
   IOccupationToSkillRelationImportRow,
   occupationToSkillRelationImportHeaders,
 } from "esco/common/entityToCSV.types";
-import { getOccupationTypeFromCSVObjectType } from "import/esco/common/getOccupationTypeFromCSVObjectType";
+import { getEntityTypeFromCSVObjectType } from "import/esco/common/getEntityTypeFromCSVObjectType";
 import {
   getOccupationToSkillRelationTypeFromCSVRelationType,
   getSignallingValueFromCSVSignallingValue,
@@ -70,7 +70,7 @@ function getRowToSpecificationTransformFn(
     }
 
     // Check if occupation type is valid
-    const occupationType = getOccupationTypeFromCSVObjectType(row.OCCUPATIONTYPE);
+    const occupationType = getEntityTypeFromCSVObjectType(row.OCCUPATIONTYPE);
     if (occupationType === null) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`

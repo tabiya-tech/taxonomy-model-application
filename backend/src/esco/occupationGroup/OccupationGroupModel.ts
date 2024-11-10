@@ -9,7 +9,7 @@ import {
   PreferredLabelProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { IOccupationGroupDoc, OccupationGroupType } from "./OccupationGroup.types";
+import { IOccupationGroupDoc } from "./OccupationGroup.types";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { RegExp_UUIDv4 } from "server/regex";
@@ -35,7 +35,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       groupType: {
         type: String,
         required: true,
-        enum: [OccupationGroupType.ICATUSGroup, OccupationGroupType.ISCOGroup],
+        enum: [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup],
       },
       importId: ImportIDProperty,
     },
@@ -52,7 +52,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     foreignField: OccupationHierarchyModelPaths.childId,
     match: (occupationGroup: IOccupationGroupDoc) => ({
       modelId: { $eq: occupationGroup.modelId },
-      childType: { $eq: ObjectTypes.OccupationGroup },
+      childType: { $eq: occupationGroup.groupType },
     }),
     justOne: true,
   });
@@ -63,7 +63,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     foreignField: OccupationHierarchyModelPaths.parentId,
     match: (occupationGroup: IOccupationGroupDoc) => ({
       modelId: { $eq: occupationGroup.modelId },
-      parentType: { $eq: ObjectTypes.OccupationGroup },
+      parentType: { $eq: occupationGroup.groupType },
     }),
   });
 

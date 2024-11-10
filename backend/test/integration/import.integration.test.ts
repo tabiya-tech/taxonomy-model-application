@@ -94,6 +94,7 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
   // and it should not be run as part of the pipeline on GitHub
   test.each([
     // [DataTestType.ESCO, "../data-sets/csv/esco-1.1.1 v1.0.0/"],
+    // [DataTestType.ESCO, "../data-sets/csv/tabiya-esco-1.1.1 v2.0.0/"],
     [DataTestType.SAMPLE, "../data-sets/csv/sample/"],
   ])(
     "should import the %s CSV files",

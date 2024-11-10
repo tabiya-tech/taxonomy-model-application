@@ -1,15 +1,16 @@
 // Mute chatty console logs
 import "_test_utilities/consoleMock";
 
-import { Readable } from "stream";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { IOccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
-import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getTestString } from "_test_utilities/getMockRandomData";
-import OccupationGroupsToCSVTransform, * as OccupationGroupsToCSVTransformModule from "./OccupationGroupsToCSVTransform";
-import { IUnpopulatedOccupationGroup } from "./OccupationGroupsToCSVTransform";
-import { parse } from "csv-parse/sync";
-import { OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
+import {Readable} from "stream";
+import {getRepositoryRegistry} from "server/repositoryRegistry/repositoryRegistry";
+import {IOccupationGroupRepository} from "esco/occupationGroup/OccupationGroupRepository";
+import {getMockStringId} from "_test_utilities/mockMongoId";
+import {getTestString} from "_test_utilities/getMockRandomData";
+import OccupationGroupsToCSVTransform, * as OccupationGroupsToCSVTransformModule
+  from "./OccupationGroupsToCSVTransform";
+import {IUnpopulatedOccupationGroup} from "./OccupationGroupsToCSVTransform";
+import {parse} from "csv-parse/sync";
+import {ObjectTypes} from "esco/common/objectTypes";
 
 const OccupationGroupRepository = jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get");
 
@@ -23,7 +24,7 @@ const getMockOccupationGroups = (): IUnpopulatedOccupationGroup[] => {
     altLabels: i % 2 ? [`altLabel_1_${getTestString(80)}`, `altLabel_2_${getTestString(80)}`] : [],
     description: `description_${i}_${getTestString(80)}`,
     modelId: getMockStringId(1),
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: i % 2 ? ObjectTypes.ISCOGroup : ObjectTypes.LocalGroup,
     originUri: `originUri_${i}_${getTestString(80)}`,
     importId: `importId_${i}`,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable

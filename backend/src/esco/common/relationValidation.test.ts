@@ -5,7 +5,7 @@ function getValidArguments() {
   // GIVEN some valid type pairs
   const givenValidTypePairs: ValidPairTypes = [
     { firstPartnerType: ObjectTypes.Skill, secondPartnerType: ObjectTypes.Skill },
-    { firstPartnerType: ObjectTypes.ESCOOccupation, secondPartnerType: ObjectTypes.OccupationGroup },
+    { firstPartnerType: ObjectTypes.ESCOOccupation, secondPartnerType: ObjectTypes.ISCOGroup },
   ];
   // AND a Valid pair
   const givenPair = {
@@ -41,7 +41,7 @@ describe("isRelationPairValid", () => {
     const givenValidTypePairs: ValidPairTypes = [
       {
         firstPartnerType: ObjectTypes.Skill,
-        secondPartnerType: ObjectTypes.OccupationGroup,
+        secondPartnerType: ObjectTypes.ISCOGroup,
       },
     ];
     // AND a Valid pair where the first and second partner ids are the same
@@ -49,12 +49,12 @@ describe("isRelationPairValid", () => {
     const givenPair = {
       firstPartnerType: ObjectTypes.Skill,
       firstPartnerId: givenObjectId,
-      secondPartnerType: ObjectTypes.OccupationGroup,
+      secondPartnerType: ObjectTypes.ISCOGroup,
       secondPartnerId: givenObjectId,
     };
     // AND some existingIds than contains the first and second partner ids
     const givenExistingIds = new Map<string, ObjectTypes[]>();
-    givenExistingIds.set(givenObjectId, [ObjectTypes.Skill, ObjectTypes.OccupationGroup]);
+    givenExistingIds.set(givenObjectId, [ObjectTypes.Skill, ObjectTypes.ISCOGroup]);
 
     // WHEN isRelationPairValid is called with the pair, existingIds and valid type pairs
     const actualResult = isRelationPairValid(givenPair, givenExistingIds, givenValidTypePairs);
@@ -101,7 +101,7 @@ describe("isRelationPairValid", () => {
       const { givenPair, givenExistingIds, givenValidTypePairs } = getValidArguments();
 
       const givenInvalidTypePairs = givenValidTypePairs;
-      givenInvalidTypePairs[0].firstPartnerType = ObjectTypes.OccupationGroup;
+      givenInvalidTypePairs[0].firstPartnerType = ObjectTypes.ISCOGroup;
 
       // WHEN isRelationPairValid is called with an invalid pair, existingIds and the valid pairs
       const actualResult = isRelationPairValid(givenPair, givenExistingIds, givenInvalidTypePairs);
@@ -116,7 +116,7 @@ describe("isRelationPairValid", () => {
       const { givenPair, givenExistingIds, givenValidTypePairs } = getValidArguments();
 
       const givenInvalidTypePairs = givenValidTypePairs;
-      givenInvalidTypePairs[0].secondPartnerType = ObjectTypes.OccupationGroup;
+      givenInvalidTypePairs[0].secondPartnerType = ObjectTypes.ISCOGroup;
 
       // WHEN isRelationPairValid is called with an invalid pair, existingIds and the valid pairs
       const actualResult = isRelationPairValid(givenPair, givenExistingIds, givenInvalidTypePairs);
@@ -159,7 +159,7 @@ describe("isRelationPairValid", () => {
       // GIVEN the firstPartner type does not match the type found in the existing ids
       // AND all other arguments are valid
       const { givenPair, givenExistingIds, givenValidTypePairs } = getValidArguments();
-      givenExistingIds.set(givenPair.firstPartnerId, [ObjectTypes.OccupationGroup]);
+      givenExistingIds.set(givenPair.firstPartnerId, [ObjectTypes.ISCOGroup]);
 
       // WHEN isRelationPairValid is called with the pair, existingIds and valid type pairs
       const actualResult = isRelationPairValid(givenPair, givenExistingIds, givenValidTypePairs);

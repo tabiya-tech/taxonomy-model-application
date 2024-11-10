@@ -460,7 +460,8 @@ describe("Test the definition of the Occupation Model", () => {
         ["undefined", undefined],
         ["null", null],
         ["unknown type", "foo"],
-        [ObjectTypes.OccupationGroup, ObjectTypes.OccupationGroup],
+        [ObjectTypes.ISCOGroup, ObjectTypes.ISCOGroup],
+        [ObjectTypes.LocalGroup, ObjectTypes.LocalGroup],
         [ObjectTypes.SkillGroup, ObjectTypes.SkillGroup],
         [ObjectTypes.Skill, ObjectTypes.Skill],
       ])(`should fail validation with reason when occupation type is %s `, (desc, givenOccupationType) => {

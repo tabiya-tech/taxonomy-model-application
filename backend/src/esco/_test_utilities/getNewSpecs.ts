@@ -1,4 +1,4 @@
-import { INewOccupationGroupSpec, OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
+import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
 import {generateRandomUrl, getRandomBoolean, getRandomString, getTestString} from "_test_utilities/getMockRandomData";
 import {
   DEFINITION_MAX_LENGTH,
@@ -30,7 +30,7 @@ export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
-    groupType: OccupationGroupType.ICATUSGroup,
+    groupType: Math.random() > 0.5 ? ObjectTypes.ISCOGroup : ObjectTypes.LocalGroup,
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
@@ -39,8 +39,10 @@ export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {
 /**
  * Helper function to create an INewOccupationGroupSpec with simplest possible values,
  * that can be used for creating a new OccupationGroup
+ * default groupType is ISCOGroup
  */
-export function getSimpleNewOccupationGroupSpec(modelId: string, preferredLabel: string): INewOccupationGroupSpec {
+//TODO: this should not have a default value, instead the caller should specify the groupType
+export function getSimpleNewOccupationGroupSpec(modelId: string, preferredLabel: string, groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup = ObjectTypes.ISCOGroup ): INewOccupationGroupSpec {
   return {
     altLabels: [],
     code: getMockRandomOccupationGroupCode(),
@@ -48,7 +50,7 @@ export function getSimpleNewOccupationGroupSpec(modelId: string, preferredLabel:
     modelId: modelId,
     UUIDHistory: [randomUUID()],
     originUri: "",
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: groupType,
     description: "",
     importId: getMockStringId(Math.random() * 1000),
   };

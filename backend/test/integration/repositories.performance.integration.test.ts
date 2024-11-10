@@ -181,7 +181,7 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
         givenNewHierarchySpecs.push(
           {
             parentId: occupationGroup.id,
-            parentType: ObjectTypes.OccupationGroup,
+            parentType: ObjectTypes.ISCOGroup,
             childId: occupation.id,
             childType: occupation.occupationType,
           },

@@ -525,7 +525,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualFoundOccupation).toBeNull();
     });
 
-    test("should return the Occupation with its parent(OccupationGroup) and children (Occupations)", async () => {
+    test.each<[string, ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup]>([["ISCOGroup", ObjectTypes.ISCOGroup], ["LocalGroup", ObjectTypes.LocalGroup]])("should return the Occupation with its parent(%s) and children (Occupations)", async (description, givenParentGroupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup) => {
       // GIVEN three Occupations and one OccupationGroup exists in the database in the same model
       const givenModelId = getMockStringId(1);
       // THE subject (Occupation)
@@ -533,7 +533,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenSubject = await repository.create(givenSubjectSpecs);
 
       // The parent (Occupation Group)
-      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent");
+      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent", givenParentGroupType);
       const givenParent = await repositoryRegistry.OccupationGroup.create(givenParentSpecs);
 
       // The child Occupation
@@ -548,7 +548,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
           // parent of the subject
-          parentType: ObjectTypes.OccupationGroup,
+          parentType: givenParentGroupType,
           parentId: givenParent.id,
           childType: givenSubject.occupationType,
           childId: givenSubject.id,
@@ -1034,7 +1034,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND the subject occupation  is the parent of O_2
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
           {
-            parentType: ObjectTypes.OccupationGroup,
+            parentType: ObjectTypes.ISCOGroup,
             parentId: givenOccupationGroup.id,
             childType: givenOccupation_1.occupationType,
             childId: givenOccupation_1.id,
@@ -1093,9 +1093,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND the Occupation 1 is the parent of the subject occupation
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
           {
-            parentType: ObjectTypes.OccupationGroup,
+            parentType: ObjectTypes.ISCOGroup,
             parentId: givenOccupationGroup_1.id,
-            childType: ObjectTypes.OccupationGroup,
+            childType: ObjectTypes.ISCOGroup,
             childId: givenOccupationGroup_2.id,
           },
           {
@@ -1458,7 +1458,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         repository.findAll(
           givenModelId,
           // @ts-ignore
-          { occupationType: ObjectTypes.OccupationGroup }
+          { occupationType: ObjectTypes.ISCOGroup }
         )
       ).toThrowError("OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL.");
     });

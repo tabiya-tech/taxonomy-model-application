@@ -25,7 +25,7 @@ const getMockOccupationHierarchies = (): IUnpopulatedOccupationHierarchy[] => {
     modelId: getMockStringId(1),
     parentId: getMockStringId(i * 3 + 1),
     childId: getMockStringId(i * 3 + 2),
-    parentType: i % 2 ? ObjectTypes.ESCOOccupation : ObjectTypes.OccupationGroup,
+    parentType: i % 3 === 0 ? ObjectTypes.ESCOOccupation : i % 3 === 1 ? ObjectTypes.ISCOGroup : ObjectTypes.LocalGroup,
     childType: i % 2 ? ObjectTypes.LocalOccupation : ObjectTypes.ESCOOccupation,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable

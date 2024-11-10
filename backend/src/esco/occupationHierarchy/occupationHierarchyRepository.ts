@@ -70,10 +70,10 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       //  get all Occupation groups
       const _existingOccupationgroupIds = await this.occupationGroupModel
         .find({ modelId: { $eq: modelId } })
-        .select("_id")
+        .select("_id groupType")
         .exec();
       _existingOccupationgroupIds.forEach((occupationGroup) =>
-        existingIds.set(occupationGroup._id.toString(), [ObjectTypes.OccupationGroup])
+        existingIds.set(occupationGroup._id.toString(), [occupationGroup.groupType])
       );
 
       //  get all Occupations
