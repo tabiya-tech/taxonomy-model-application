@@ -23,4 +23,4 @@ label1
 duplicate altLabels","description"
 "origin uri","key_i4",b69710e0-7e7d-43ea-a645-26dab12faf8f,"I0102","iscogroup","not duplicate altLabels","label I0102
 not duplicate altLabels","description"
-"icatus urn","key_i5","b69710e0-7e7d-43ea-a645-26dab12faf8g","I0103","icatusgroup","ICATUS Occupation group","label I0103","description"
+"icatus urn","key_i5","b69710e0-7e7d-43ea-a645-26dab12faf8g","I0103",localgroup,"ICATUS Occupation group","label I0103","description"

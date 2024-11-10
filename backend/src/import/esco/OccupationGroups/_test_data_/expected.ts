@@ -1,4 +1,5 @@
-import { INewOccupationGroupSpec, OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
+import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
   {
@@ -8,7 +9,7 @@ export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
     preferredLabel: "preferred label",
     altLabels: ["label1", "label2", "preferred label"],
     description: "description",
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: ObjectTypes.ISCOGroup,
     importId: "key_1",
   },
   {
@@ -17,7 +18,7 @@ export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
     code: "0101",
     preferredLabel: "preferred\nlabel\nwith\nlinebreak",
     altLabels: ["label1", "label2"],
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: ObjectTypes.ISCOGroup,
     description: "description\nwith\nlinebreak",
     importId: "key_2",
   },
@@ -27,7 +28,7 @@ export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
     code: "",
     preferredLabel: "",
     altLabels: [],
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: ObjectTypes.ISCOGroup,
     description: "",
     importId: "key_3",
   },
@@ -37,7 +38,7 @@ export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
     code: "0102",
     preferredLabel: "duplicate altLabels",
     altLabels: ["label1", "label2", "duplicate altLabels"],
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: ObjectTypes.ISCOGroup,
     description: "description",
     importId: "key_4",
   },
@@ -48,7 +49,7 @@ export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
     preferredLabel: "not duplicate altLabels",
     altLabels: ["label I0102", "not duplicate altLabels"],
     description: "description",
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: ObjectTypes.ISCOGroup,
     importId: "key_i4",
   },
   {
@@ -58,7 +59,7 @@ export const expected: Omit<INewOccupationGroupSpec, "modelId">[] = [
     preferredLabel: "ICATUS Occupation group",
     altLabels: ["label I0103"],
     description: "description",
-    groupType: OccupationGroupType.ICATUSGroup,
+    groupType: ObjectTypes.LocalGroup,
     importId: "key_i5",
   },
 ];

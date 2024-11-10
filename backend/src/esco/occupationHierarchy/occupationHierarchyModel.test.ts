@@ -33,7 +33,7 @@ describe("Test the definition of the OccupationHierarchy Model", () => {
     // GIVEN an Occupation Hierarchy document based on the given object
     const givenObject: IOccupationHierarchyPairDoc = {
       modelId: getMockObjectId(2),
-      parentType: ObjectTypes.OccupationGroup,
+      parentType: ObjectTypes.ISCOGroup,
       parentId: getMockObjectId(2),
       parentDocModel: MongooseModelName.OccupationGroup,
       childId: getMockObjectId(2),
@@ -71,13 +71,15 @@ describe("Test the definition of the OccupationHierarchy Model", () => {
     testObjectIdField<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "childId");
 
     testObjectType<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "parentType", [
-      ObjectTypes.OccupationGroup,
+      ObjectTypes.ISCOGroup,
+      ObjectTypes.LocalGroup,
       ObjectTypes.ESCOOccupation,
       ObjectTypes.LocalOccupation,
     ]);
 
     testObjectType<IOccupationHierarchyPairDoc>(() => OccupationHierarchyModel, "childType", [
-      ObjectTypes.OccupationGroup,
+      ObjectTypes.ISCOGroup,
+      ObjectTypes.LocalGroup,
       ObjectTypes.ESCOOccupation,
       ObjectTypes.LocalOccupation,
     ]);

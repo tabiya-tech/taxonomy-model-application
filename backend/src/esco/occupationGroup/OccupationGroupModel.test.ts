@@ -11,7 +11,7 @@ import { DESCRIPTION_MAX_LENGTH, IMPORT_ID_MAX_LENGTH, LABEL_MAX_LENGTH } from "
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomOccupationGroupCode } from "_test_utilities/mockOccupationGroupCode";
-import { IOccupationGroupDoc, OccupationGroupType } from "./OccupationGroup.types";
+import { IOccupationGroupDoc } from "./OccupationGroup.types";
 import {
   testAltLabelsField,
   testDescription,
@@ -23,6 +23,7 @@ import {
   testUUIDHistoryField,
   testEnumField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 describe("Test the definition of the OccupationGroup Model", () => {
   let dbConnection: Connection;
@@ -42,7 +43,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
     }
   });
 
-  test.each([
+  test.each<[string, IOccupationGroupDoc]>([
     [
       "mandatory fields",
       {
@@ -52,7 +53,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         originUri: generateRandomUrl(),
-        groupType: OccupationGroupType.ISCOGroup,
+        groupType: ObjectTypes.ISCOGroup,
         altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
         description: getTestString(DESCRIPTION_MAX_LENGTH),
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
@@ -66,7 +67,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
         code: getMockRandomOccupationGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
-        groupType: OccupationGroupType.ISCOGroup,
+        groupType: ObjectTypes.ISCOGroup,
         originUri: "",
         altLabels: [],
         description: "",
@@ -179,10 +180,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
 
     testImportId<IOccupationGroupDoc>(() => OccupationGroupModel);
 
-    testEnumField(() => OccupationGroupModel, "groupType", [
-      OccupationGroupType.ISCOGroup,
-      OccupationGroupType.ICATUSGroup,
-    ]);
+    testEnumField(() => OccupationGroupModel, "groupType", [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup]);
   });
 
   describe("Test the indexes of the OccupationGroup Model", () => {

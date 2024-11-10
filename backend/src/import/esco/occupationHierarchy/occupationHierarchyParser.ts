@@ -34,9 +34,9 @@ function getRowToSpecificationTransformFn(
   modelId: string,
   importIdToDBIdMap: Map<string, string>
 ): (row: IOccupationHierarchyImportRow) => null | {
-  childType: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  childType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   childId: string;
-  parentType: ObjectTypes.OccupationGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  parentType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   parentId: string;
 } {
   return (row: IOccupationHierarchyImportRow) => {
@@ -44,10 +44,12 @@ function getRowToSpecificationTransformFn(
     const childType = getObjectTypeFromCSVObjectType(row.CHILDOBJECTTYPE);
 
     if (
-      (parentType !== ObjectTypes.OccupationGroup &&
+      (parentType !== ObjectTypes.ISCOGroup &&
+        parentType !== ObjectTypes.LocalGroup &&
         parentType !== ObjectTypes.ESCOOccupation &&
         parentType !== ObjectTypes.LocalOccupation) ||
-      (childType !== ObjectTypes.OccupationGroup &&
+      (childType !== ObjectTypes.ISCOGroup &&
+        childType !== ObjectTypes.LocalGroup &&
         childType !== ObjectTypes.ESCOOccupation &&
         childType !== ObjectTypes.LocalOccupation)
     ) {

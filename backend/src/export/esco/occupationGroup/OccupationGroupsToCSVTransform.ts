@@ -4,18 +4,23 @@ import { pipeline, Readable, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { stringify } from "csv-stringify";
 import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import { CSVObjectTypes, getCSVTypeFromObjectType } from "esco/common/csvObjectTypes";
 
 export type IUnpopulatedOccupationGroup = Omit<IOccupationGroup, "parent" | "children">;
 
 export const transformOccupationGroupSpecToCSVRow = (
   occupationGroup: IUnpopulatedOccupationGroup
 ): IOccupationGroupExportRow => {
+  const GROUPTYPE = getCSVTypeFromObjectType(occupationGroup.groupType);
+  if (GROUPTYPE !== CSVObjectTypes.ISCOGroup && GROUPTYPE !== CSVObjectTypes.LocalGroup) {
+    throw new Error(`Failed to transform OccupationGroup to CSV row: Invalid groupType: ${occupationGroup.groupType}`);
+  }
   return {
     ORIGINURI: occupationGroup.originUri,
     ID: occupationGroup.id,
     UUIDHISTORY: stringFromArray(occupationGroup.UUIDHistory),
     CODE: occupationGroup.code,
-    GROUPTYPE: occupationGroup.groupType,
+    GROUPTYPE: GROUPTYPE,
     PREFERREDLABEL: occupationGroup.preferredLabel,
     ALTLABELS: stringFromArray(occupationGroup.altLabels),
     DESCRIPTION: occupationGroup.description,

@@ -5,7 +5,6 @@ import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import {
   INewOccupationGroupSpec,
   IOccupationGroup,
-  OccupationGroupType,
 } from "esco/occupationGroup/OccupationGroup.types";
 import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
@@ -65,7 +64,7 @@ export const getSampleOccupationGroupSpecs = (givenModelId: string): INewOccupat
     code: getMockRandomOccupationGroupCode(),
     preferredLabel: `OccupationGroup_${i}`,
     modelId: givenModelId,
-    groupType: OccupationGroupType.ISCOGroup,
+    groupType: ObjectTypes.ISCOGroup,
     UUIDHistory: [randomUUID()],
     altLabels: i % 2 ? [`altLabel_1`, `altLabel_2`] : [],
     originUri: `originUri_${i}`,
@@ -117,7 +116,7 @@ export const getSampleOccupationHierarchy = (
     if (index < esco_occupations.length) {
       specs.push({
         parentId: occupationGroup.id,
-        parentType: ObjectTypes.OccupationGroup,
+        parentType: ObjectTypes.ISCOGroup,
         childType: esco_occupations[index].occupationType,
         childId: esco_occupations[index].id,
       });

@@ -11,10 +11,10 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { IOccupationGroupRepository } from "./OccupationGroupRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import {
+  INewOccupationGroupSpec,
   IOccupationGroup,
   IOccupationGroupDoc,
   IOccupationGroupReference,
-  INewOccupationGroupSpec,
 } from "./OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -22,10 +22,10 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { INewSkillSpec } from "esco/skill/skills.types";
 import {
   getNewOccupationGroupSpec,
-  getSimpleNewOccupationGroupSpec,
   getSimpleNewESCOOccupationSpec,
-  getSimpleNewSkillSpec,
   getSimpleNewLocalOccupationSpec,
+  getSimpleNewOccupationGroupSpec,
+  getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -111,7 +111,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
   async function createOccupationGroupsInDB(modelId: string, batchSize: number = 3) {
     const givenNewOccupationGroupSpecs: INewOccupationGroupSpec[] = [];
     for (let i = 0; i < batchSize; i++) {
-      givenNewOccupationGroupSpecs.push(getSimpleNewOccupationGroupSpec(modelId, `group_${i}`));
+      givenNewOccupationGroupSpecs.push(getSimpleNewOccupationGroupSpec(modelId, `group_${i}`, ObjectTypes.ISCOGroup));
     }
     return await repository.createMany(givenNewOccupationGroupSpecs);
   }
@@ -422,7 +422,11 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
   describe("Test findById()", () => {
     test("should find an OccupationGroup by its id", async () => {
       // GIVEN an OccupationGroup exists in the database
-      const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(getMockStringId(1), "group_1");
+      const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(
+        getMockStringId(1),
+        "group_1",
+        ObjectTypes.ISCOGroup
+      );
       const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
 
       // WHEN searching for the OccupationGroup by its id
@@ -452,19 +456,19 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(actualFoundOccupationGroup).toBeNull();
     });
 
-    test("should return the OccupationGroup with its parent(OccupationGroup) and children(OccupationGroup, ESCOOccupation, LocalOccupation)", async () => {
+    test("should return the OccupationGroup with its parent(ISCOGroup) and children(ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation)", async () => {
       // GIVEN three OccupationGroups and one Occupation exists in the database in the same model
       const givenModelId = getMockStringId(1);
       // THE subject (OccupationGroup)
-      const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "subject");
+      const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "subject", ObjectTypes.ISCOGroup);
       const givenSubject = await repository.create(givenSubjectSpecs);
 
       // The parent (OccupationGroup)
-      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent");
+      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent", ObjectTypes.ISCOGroup);
       const givenParent = await repository.create(givenParentSpecs);
 
-      // The child OccupationGroup
-      const givenChildSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId, "child_1");
+      // The child ISCOGroup
+      const givenChildSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId, "child_1", ObjectTypes.ISCOGroup);
       const givenChild_1 = await repository.create(givenChildSpecs_1);
 
       // The child ESCO Occupation
@@ -472,35 +476,35 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
 
       // The child Local Occupation
-      const givenChildSpecs_3 = getSimpleNewLocalOccupationSpec(givenModelId, "child_2");
+      const givenChildSpecs_3 = getSimpleNewLocalOccupationSpec(givenModelId, "child_3");
       const givenChild_3 = await repositoryRegistry.occupation.create(givenChildSpecs_3);
 
       // AND the subject OccupationGroup has a parent and two children
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
           // parent of the subject
-          parentType: ObjectTypes.OccupationGroup,
+          parentType: ObjectTypes.ISCOGroup,
           parentId: givenParent.id,
-          childType: ObjectTypes.OccupationGroup,
+          childType: ObjectTypes.ISCOGroup,
           childId: givenSubject.id,
         },
         {
           // child 1 of the subject
-          parentType: ObjectTypes.OccupationGroup,
+          parentType: ObjectTypes.ISCOGroup,
           parentId: givenSubject.id,
-          childType: ObjectTypes.OccupationGroup,
+          childType: ObjectTypes.ISCOGroup,
           childId: givenChild_1.id,
         },
         {
           // child 2 of the subject
-          parentType: ObjectTypes.OccupationGroup,
+          parentType: ObjectTypes.ISCOGroup,
           parentId: givenSubject.id,
           childType: ObjectTypes.ESCOOccupation,
           childId: givenChild_2.id,
         },
         {
           // child 3 of the subject
-          parentType: ObjectTypes.OccupationGroup,
+          parentType: ObjectTypes.ISCOGroup,
           parentId: givenSubject.id,
           childType: ObjectTypes.LocalOccupation,
           childId: givenChild_3.id,
@@ -525,6 +529,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         expect.arrayContaining<IOccupationGroupReference | IOccupationReference>([
           expectedOccupationGroupReference(givenChild_1),
           expectedOccupationReference(givenChild_2),
+          expectedOccupationReference(givenChild_3),
         ])
       );
 
@@ -537,7 +542,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
             collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
             filter: {
               modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
-              childType: { $eq: ObjectTypes.OccupationGroup },
+              childType: { $eq: ObjectTypes.ISCOGroup },
               childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
             },
             usedIndex: INDEX_FOR_PARENT,
@@ -547,7 +552,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
             collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
             filter: {
               modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
-              parentType: { $eq: ObjectTypes.OccupationGroup },
+              parentType: { $eq: ObjectTypes.ISCOGroup },
               parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
             },
             usedIndex: INDEX_FOR_CHILDREN,
@@ -559,329 +564,459 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(console.error).toBeCalledTimes(0);
     });
 
-    describe("Test OccupationGroup hierarchy robustness to inconsistencies", () => {
-      test("should ignore parents that are not OccupationGroups", async () => {
-        // GIVEN an inconsistency was introduced, and non-OccupationGroup document is a parent of an OccupationGroup
-        const givenModelId = getMockStringId(1);
-        // The OccupationGroup
-        const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "group_1");
-        const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
-        // The non-OccupationGroup in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
-        const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
-        // it is important to cast the id to ObjectId, otherwise the parents will not be found
-        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
-          modelId: new mongoose.Types.ObjectId(givenOccupationGroup.modelId),
+    test("should return the LocalGroup with its parent(LocalGroup) and children(LocalGroup, LocalOccupation)", async () => {
+      // GIVEN three OccupationGroups and one Occupation exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+      // THE subject (OccupationGroup)
+      const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "subject", ObjectTypes.LocalGroup);
+      const givenSubject = await repository.create(givenSubjectSpecs);
 
-          //@ts-ignore
-          parentType: ObjectTypes.Skill, // <- This is the inconsistency
-          parentDocModel: MongooseModelName.Skill, // <- This is the inconsistency
-          parentId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
+      // The parent (LocalGroup)
+      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent", ObjectTypes.LocalGroup);
+      const givenParent = await repository.create(givenParentSpecs);
 
-          childId: new mongoose.Types.ObjectId(givenOccupationGroup.id),
-          childDocModel: MongooseModelName.OccupationGroup,
-          childType: ObjectTypes.OccupationGroup,
-        };
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+      // The child (LocalGroup)
+      const givenChildSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId, "child_1", ObjectTypes.LocalGroup);
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
 
-        // WHEN searching for the OccupationGroup by its id
-        jest.spyOn(console, "error");
-        const actualFoundGroup = await repository.findById(givenOccupationGroup.id);
+      // The child ESCO Occupation
+      const givenChildSpecs_2 = getSimpleNewLocalOccupationSpec(givenModelId, "child_2");
+      const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
 
-        // THEN expect the OccupationGroup to not contain the inconsistent parent
-        expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup!.parent).toEqual(null);
-        // AND expect an error to be logged
-        expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(
-          `Parent is not an OccupationGroup: ${givenInconsistentPair.parentDocModel}`
-        );
-      });
+      // AND the subject OccupationGroup has a parent and two children
+      const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          // parent of the subject
+          parentType: ObjectTypes.LocalGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.LocalGroup,
+          childId: givenSubject.id,
+        },
+        {
+          // child 1 of the subject
+          parentType: ObjectTypes.LocalGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.LocalGroup,
+          childId: givenChild_1.id,
+        },
+        {
+          // child 2 of the subject
+          parentType: ObjectTypes.LocalGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.LocalOccupation,
+          childId: givenChild_2.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(3);
 
-      test("should ignore children that are not Occupation Groups | ESCO Occupations | Local Occupations", async () => {
-        // GIVEN an inconsistency was introduced, and non-OccupationGroup document is a child of an OccupationGroup
-        const givenModelId = getMockStringId(1);
-        // The OccupationGroup
-        const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(getMockStringId(1), "group_1");
-        const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
-        // The non-OccupationGroup in this case a Skill
-        const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
-        const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
-        // it is import to cast the id to ObjectId, otherwise the parents will not be found
-        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
-          modelId: new mongoose.Types.ObjectId(givenOccupationGroup.modelId),
+      // WHEN searching for the subject by its id
 
-          parentId: new mongoose.Types.ObjectId(givenOccupationGroup.id),
-          parentDocModel: MongooseModelName.OccupationGroup,
-          parentType: ObjectTypes.OccupationGroup,
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<IOccupationGroupDoc>(repository.Model);
+      const actualFoundOccupationGroup = (await repository.findById(givenSubject.id)) as IOccupationGroup;
 
-          //@ts-ignore
-          childType: ObjectTypes.Skill, // <- This is the inconsistency
-          childDocModel: MongooseModelName.Skill, // <- This is the inconsistency
-          childId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
-        };
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+      // THEN expect the OccupationGroup to be found
+      expect(actualFoundOccupationGroup).not.toBeNull();
 
-        // WHEN searching for the OccupationGroup by its id
-        jest.spyOn(console, "error");
-        const actualFoundGroup = await repository.findById(givenOccupationGroup.id);
+      // AND to have the given parent
+      expect(actualFoundOccupationGroup.parent).toEqual(expectedOccupationGroupReference(givenParent));
+      // AND to have the given children
+      expect(actualFoundOccupationGroup.children).toEqual(
+        expect.arrayContaining<IOccupationGroupReference | IOccupationReference>([
+          expectedOccupationGroupReference(givenChild_1),
+          expectedOccupationReference(givenChild_2),
+        ])
+      );
 
-        // THEN expect the OccupationGroup to not contain the inconsistent parent
-        expect(actualFoundGroup).not.toBeNull();
-        expect(actualFoundGroup!.children).toEqual([]);
-        // AND expect an error to be logged
-        expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(
-          `Child is not an OccupationGroup or ESCO Occupation or Local Occupation: ${givenInconsistentPair.childDocModel}`
-        );
-      });
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the parent hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              childType: { $eq: ObjectTypes.LocalGroup },
+              childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_PARENT,
+          }),
+          // populating the child hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              parentType: { $eq: ObjectTypes.LocalGroup },
+              parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_CHILDREN,
+          }),
+        ])
+      );
 
-      test("should not find parent or child if the hierarchy is in a different model", async () => {
-        // GIVEN an inconsistency was introduced, and the child and the parent are in different models
-        // The OccupationGroup 1
-        const givenModelId_1 = getMockStringId(1);
-        const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId_1, "group_1");
-        const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
-        // The OccupationGroup 2
-        const givenModelId_2 = getMockStringId(2);
-        const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(givenModelId_2, "group_2");
-        const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
-
-        // it is import to cast the id to ObjectId, otherwise the parents will not be found
-        // the third model
-        const givenModelId_3 = getMockStringId(3);
-
-        //@ts-ignore
-        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
-          modelId: new mongoose.Types.ObjectId(givenModelId_3), // <-- this is the inconsistency
-
-          parentId: new mongoose.Types.ObjectId(givenOccupationGroup_1.id), // <-- this is the inconsistency
-          parentDocModel: MongooseModelName.OccupationGroup,
-          parentType: ObjectTypes.OccupationGroup,
-
-          childId: new mongoose.Types.ObjectId(givenOccupationGroup_2.id), // <-- this is the inconsistency
-          childDocModel: MongooseModelName.OccupationGroup,
-          childType: ObjectTypes.OccupationGroup,
-        };
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
-
-        // WHEN searching for the Occupation Group_1 by its id
-        const actualFoundGroup_1 = await repository.findById(givenOccupationGroup_1.id);
-
-        // THEN expect the OccupationGroup to not contain the inconsistent children
-        expect(actualFoundGroup_1).not.toBeNull();
-        expect(actualFoundGroup_1!.children).toEqual([]);
-        expect(actualFoundGroup_1!.parent).toEqual(null);
-
-        // WHEN searching for the Occupation Group_1 by its id
-        const actualFoundGroup_2 = await repository.findById(givenOccupationGroup_2.id);
-
-        // THEN expect the OccupationGroup to not contain the inconsistent children
-        expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.children).toEqual([]);
-        expect(actualFoundGroup_2!.parent).toEqual(null);
-      });
-
-      test("should not find parent if it is not is the same model as the child", async () => {
-        // GIVEN an inconsistency was introduced, and the child and the parent are in different models
-        // The OccupationGroup 1
-        const givenModelId_1 = getMockStringId(1);
-        const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId_1, "group_1");
-        const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
-        // The OccupationGroup 2
-        const givenModelId_2 = getMockStringId(2);
-        const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(givenModelId_2, "group_2");
-        const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
-
-        // it is import to cast the id to ObjectId, otherwise the parents will not be found
-
-        //@ts-ignore
-        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
-          modelId: new mongoose.Types.ObjectId(givenModelId_1),
-
-          parentId: new mongoose.Types.ObjectId(givenOccupationGroup_1.id),
-          parentDocModel: MongooseModelName.OccupationGroup,
-          parentType: ObjectTypes.OccupationGroup,
-
-          childId: new mongoose.Types.ObjectId(givenOccupationGroup_2.id), // <-- this is the inconsistency
-          childDocModel: MongooseModelName.OccupationGroup,
-          childType: ObjectTypes.OccupationGroup,
-        };
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
-
-        // WHEN searching for the Occupation Group_1 by its id
-        jest.spyOn(console, "error");
-        const actualFoundGroup_1 = await repository.findById(givenOccupationGroup_1.id);
-
-        // THEN expect the OccupationGroup to not contain the inconsistent children
-        expect(actualFoundGroup_1).not.toBeNull();
-        expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
-        // AND expect an error to be logged
-        expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
-      });
-
-      test("should not find child if it is not is the same model as the parent", async () => {
-        // GIVEN an inconsistency was introduced, and the child and the parent are in different models
-        // The OccupationGroup 1
-        const givenModelId_1 = getMockStringId(1);
-        const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId_1, "group_1");
-        const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
-        // The OccupationGroup 2
-        const givenModelId_2 = getMockStringId(2);
-        const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(givenModelId_2, "group_2");
-        const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
-
-        // it is import to cast the id to ObjectId, otherwise the parents will not be found
-
-        //@ts-ignore
-        const givenInconsistentPair: IOccupationHierarchyPairDoc = {
-          modelId: new mongoose.Types.ObjectId(givenModelId_2),
-
-          parentId: new mongoose.Types.ObjectId(givenOccupationGroup_1.id), // <-- this is the inconsistency
-          parentDocModel: MongooseModelName.OccupationGroup,
-          parentType: ObjectTypes.OccupationGroup,
-
-          childId: new mongoose.Types.ObjectId(givenOccupationGroup_2.id),
-          childDocModel: MongooseModelName.OccupationGroup,
-          childType: ObjectTypes.OccupationGroup,
-        };
-
-        await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
-
-        // WHEN searching for the Occupation Group_2 by its id
-        jest.spyOn(console, "error");
-        const actualFoundGroup_2 = await repository.findById(givenOccupationGroup_2.id);
-
-        // THEN expect the OccupationGroup to not contain the inconsistent parent
-        expect(actualFoundGroup_2).not.toBeNull();
-        expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
-        // AND expect an error to be logged
-        expect(console.error).toBeCalledTimes(1);
-        expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
-      });
-
-      test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
-        // The state of the database that could lead to an inconsistency,
-        // if the populate function is not doing a match based on id and parentType
-        // modelId, parentId, parentType, childId, childType,
-        // 1,        2,        OccupationGroup,  3,        ESCO Occupation
-        // 1,        2,        ESCO Occupation,  4,       ESCO Occupation
-
-        // GIVEN a modelId
-        const givenModelId = getMockStringId(1);
-        // AND a subject Occupation group with the givenId
-        const givenID = new mongoose.Types.ObjectId(2);
-        const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "subject");
-        // @ts-ignore
-        givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
-        // guard to ensure the id is the given one
-        expect(givenSubject.id).toEqual(givenID.toHexString());
-
-        // AND an Occupation givenOccupation_1 with a given ID in the given model
-        const givenOccupation1Specs = getSimpleNewESCOOccupationSpec(givenModelId, "Occupation_1");
-        // @ts-ignore
-        givenOccupation1Specs.id = givenID.toHexString();
-        const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
-        // guard to ensure the id is the given one
-        expect(givenOccupation_1.id).toEqual(givenID.toHexString());
-
-        // AND a second occupation_2 with some ID  in the given model
-        const givenOccupationSpecs_2 = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2");
-        const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
-
-        // AND a third occupation_3 with some ID in the given model
-        const givenOccupationSpecs_3 = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_3");
-        const givenOccupation_3 = await repositoryRegistry.occupation.create(givenOccupationSpecs_3);
-
-        // AND the occupation occupation_1  is the parent of occupation_2
-        // AND the subject OccupationGroup  is the parent of Occupation_3
-        const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
-          {
-            parentType: ObjectTypes.OccupationGroup,
-            parentId: givenSubject.id,
-            childType: ObjectTypes.ESCOOccupation,
-            childId: givenOccupation_3.id,
-          },
-          {
-            parentType: ObjectTypes.ESCOOccupation,
-            parentId: givenOccupation_1.id,
-            childType: ObjectTypes.ESCOOccupation,
-            childId: givenOccupation_2.id,
-          },
-        ]);
-        // Guard assertion
-        expect(actualHierarchy).toHaveLength(2);
-
-        // WHEN we retrieve the subject by its id
-        const actualFoundSubject = await repository.findById(givenSubject.id);
-
-        // THEN we expect to find only occupation 2 as a child
-        expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.children).toEqual([expectedOccupationReference(givenOccupation_3)]);
-      });
-
-      test("should not match entities that have the same ID but are of different types (collections) when populating parent", async () => {
-        // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
-        // modelId, parentId, parentType, childId, childType,
-        // 1,        2,        OccupationGroup,  4,        ESCO Occupation
-        // 1,        3,        OccupationGroup,  4,       OccupationGroup
-
-        // GIVEN a modelId
-        const givenModelId = getMockStringId(1);
-        // AND a subject Occupation group with the givenId
-        const givenID = new mongoose.Types.ObjectId(2);
-        const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "subject");
-        // @ts-ignore
-        givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
-        // guard to ensure the id is the given one
-        expect(givenSubject.id).toEqual(givenID.toHexString());
-
-        // AND an Occupation givenOccupation_1 with a given ID in the given model
-        const givenOccupation1Specs = getSimpleNewESCOOccupationSpec(givenModelId, "Occupation_1");
-        // @ts-ignore
-        givenOccupation1Specs.id = givenID.toHexString();
-        const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
-        // guard to ensure the id is the given one
-        expect(givenOccupation_1.id).toEqual(givenID.toHexString());
-
-        // AND a second occupationGroup with some ID in the given model
-        const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId, "isco_1");
-        const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_1);
-
-        // AND a third occupationGroup with some ID  in the given model
-        const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(givenModelId, "isco_2");
-        const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_2);
-
-        // AND the occupation occupation_1  is the child of occupationGroup_2
-        // AND the subject OccupationGroup  is the child of Occupation_3
-        const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
-          {
-            parentType: ObjectTypes.OccupationGroup,
-            parentId: givenOccupationGroup_1.id,
-            childType: ObjectTypes.ESCOOccupation,
-            childId: givenOccupation_1.id,
-          },
-          {
-            parentType: ObjectTypes.OccupationGroup,
-            parentId: givenOccupationGroup_2.id,
-            childType: ObjectTypes.OccupationGroup,
-            childId: givenSubject.id,
-          },
-        ]);
-        // Guard assertion
-        expect(actualHierarchy).toHaveLength(2);
-
-        // WHEN we retrieve the subject by its id
-        const actualFoundSubject = await repository.findById(givenSubject.id);
-
-        // THEN we expect to find only occupation 2 as a parent
-        expect(actualFoundSubject).not.toBeNull();
-        expect(actualFoundSubject!.parent).toEqual(expectedOccupationGroupReference(givenOccupationGroup_2));
-      });
+      // AND expect no error to be logged
+      expect(console.error).toBeCalledTimes(0);
     });
+
+    describe.each<[string, ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup]>([
+      ["ISCOGroup", ObjectTypes.ISCOGroup],
+      ["LocalGroup", ObjectTypes.LocalGroup],
+    ])(
+      "Test OccupationGroup hierarchy robustness to inconsistencies for %s",
+      (_description, givenGroupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup) => {
+        test("should ignore parents that are not OccupationGroups (ISCOGroup, LocalGroup)", async () => {
+          // GIVEN an inconsistency was introduced, and non-OccupationGroup document is a parent of an OccupationGroup
+          const givenModelId = getMockStringId(1);
+          // The OccupationGroup
+          const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "group_1", givenGroupType);
+          const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+          // The non-OccupationGroup in this case a Skill
+          const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
+          const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+          // it is important to cast the id to ObjectId, otherwise the parents will not be found
+          const givenInconsistentPair: IOccupationHierarchyPairDoc = {
+            modelId: new mongoose.Types.ObjectId(givenOccupationGroup.modelId),
+
+            //@ts-ignore
+            parentType: ObjectTypes.Skill, // <- This is the inconsistency
+            parentDocModel: MongooseModelName.Skill, // <- This is the inconsistency
+            parentId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
+
+            childId: new mongoose.Types.ObjectId(givenOccupationGroup.id),
+            childDocModel: MongooseModelName.OccupationGroup,
+            childType: givenGroupType,
+          };
+          await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+          // WHEN searching for the OccupationGroup by its id
+          jest.spyOn(console, "error");
+          const actualFoundGroup = await repository.findById(givenOccupationGroup.id);
+
+          // THEN expect the OccupationGroup to not contain the inconsistent parent
+          expect(actualFoundGroup).not.toBeNull();
+          expect(actualFoundGroup!.parent).toEqual(null);
+          // AND expect an error to be logged
+          expect(console.error).toBeCalledTimes(1);
+          expect(console.error).toBeCalledWith(
+            `Parent is not an OccupationGroup: ${givenInconsistentPair.parentDocModel}`
+          );
+        });
+
+        test("should ignore children that are not Occupation Groups | ESCO Occupations | Local Occupations", async () => {
+          // GIVEN an inconsistency was introduced, and non-OccupationGroup document is a child of an OccupationGroup
+          const givenModelId = getMockStringId(1);
+          // The OccupationGroup
+          const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(
+            getMockStringId(1),
+            "group_1",
+            givenGroupType
+          );
+          const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+          // The non-OccupationGroup in this case a Skill
+          const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
+          const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+          // it is import to cast the id to ObjectId, otherwise the parents will not be found
+          const givenInconsistentPair: IOccupationHierarchyPairDoc = {
+            modelId: new mongoose.Types.ObjectId(givenOccupationGroup.modelId),
+
+            parentId: new mongoose.Types.ObjectId(givenOccupationGroup.id),
+            parentDocModel: MongooseModelName.OccupationGroup,
+            parentType: givenGroupType,
+
+            //@ts-ignore
+            childType: ObjectTypes.Skill, // <- This is the inconsistency
+            childDocModel: MongooseModelName.Skill, // <- This is the inconsistency
+            childId: new mongoose.Types.ObjectId(givenSkill.id), // <- This is the inconsistency
+          };
+          await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+          // WHEN searching for the OccupationGroup by its id
+          jest.spyOn(console, "error");
+          const actualFoundGroup = await repository.findById(givenOccupationGroup.id);
+
+          // THEN expect the OccupationGroup to not contain the inconsistent parent
+          expect(actualFoundGroup).not.toBeNull();
+          expect(actualFoundGroup!.children).toEqual([]);
+          // AND expect an error to be logged
+          expect(console.error).toBeCalledTimes(1);
+          expect(console.error).toBeCalledWith(
+            `Child is not an OccupationGroup or ESCO Occupation or Local Occupation: ${givenInconsistentPair.childDocModel}`
+          );
+        });
+
+        test("should not find parent or child if the hierarchy is in a different model", async () => {
+          // GIVEN an inconsistency was introduced, and the child and the parent are in different models
+          // The OccupationGroup 1
+          const givenModelId_1 = getMockStringId(1);
+          const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(
+            givenModelId_1,
+            "group_1",
+            givenGroupType
+          );
+          const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
+          // The OccupationGroup 2
+          const givenModelId_2 = getMockStringId(2);
+          const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(
+            givenModelId_2,
+            "group_2",
+            givenGroupType
+          );
+          const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
+
+          // it is import to cast the id to ObjectId, otherwise the parents will not be found
+          // the third model
+          const givenModelId_3 = getMockStringId(3);
+
+          //@ts-ignore
+          const givenInconsistentPair: IOccupationHierarchyPairDoc = {
+            modelId: new mongoose.Types.ObjectId(givenModelId_3), // <-- this is the inconsistency
+
+            parentId: new mongoose.Types.ObjectId(givenOccupationGroup_1.id), // <-- this is the inconsistency
+            parentDocModel: MongooseModelName.OccupationGroup,
+            parentType: givenGroupType,
+
+            childId: new mongoose.Types.ObjectId(givenOccupationGroup_2.id), // <-- this is the inconsistency
+            childDocModel: MongooseModelName.OccupationGroup,
+            childType: givenGroupType,
+          };
+          await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+          // WHEN searching for the Occupation Group_1 by its id
+          const actualFoundGroup_1 = await repository.findById(givenOccupationGroup_1.id);
+
+          // THEN expect the OccupationGroup to not contain the inconsistent children
+          expect(actualFoundGroup_1).not.toBeNull();
+          expect(actualFoundGroup_1!.children).toEqual([]);
+          expect(actualFoundGroup_1!.parent).toEqual(null);
+
+          // WHEN searching for the Occupation Group_1 by its id
+          const actualFoundGroup_2 = await repository.findById(givenOccupationGroup_2.id);
+
+          // THEN expect the OccupationGroup to not contain the inconsistent children
+          expect(actualFoundGroup_2).not.toBeNull();
+          expect(actualFoundGroup_2!.children).toEqual([]);
+          expect(actualFoundGroup_2!.parent).toEqual(null);
+        });
+
+        test("should not find parent if it is not is the same model as the child", async () => {
+          // GIVEN an inconsistency was introduced, and the child and the parent are in different models
+          // The OccupationGroup 1
+          const givenModelId_1 = getMockStringId(1);
+          const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(
+            givenModelId_1,
+            "group_1",
+            givenGroupType
+          );
+          const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
+          // The OccupationGroup 2
+          const givenModelId_2 = getMockStringId(2);
+          const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(
+            givenModelId_2,
+            "group_2",
+            givenGroupType
+          );
+          const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
+
+          // it is import to cast the id to ObjectId, otherwise the parents will not be found
+
+          //@ts-ignore
+          const givenInconsistentPair: IOccupationHierarchyPairDoc = {
+            modelId: new mongoose.Types.ObjectId(givenModelId_1),
+
+            parentId: new mongoose.Types.ObjectId(givenOccupationGroup_1.id),
+            parentDocModel: MongooseModelName.OccupationGroup,
+            parentType: givenGroupType,
+
+            childId: new mongoose.Types.ObjectId(givenOccupationGroup_2.id), // <-- this is the inconsistency
+            childDocModel: MongooseModelName.OccupationGroup,
+            childType: givenGroupType,
+          };
+          await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+          // WHEN searching for the Occupation Group_1 by its id
+          jest.spyOn(console, "error");
+          const actualFoundGroup_1 = await repository.findById(givenOccupationGroup_1.id);
+
+          // THEN expect the OccupationGroup to not contain the inconsistent children
+          expect(actualFoundGroup_1).not.toBeNull();
+          expect(actualFoundGroup_1!.children).toEqual([]); // <-- The inconsistent child is removed
+          // AND expect an error to be logged
+          expect(console.error).toBeCalledTimes(1);
+          expect(console.error).toBeCalledWith(new Error(`Child is not in the same model as the parent`));
+        });
+
+        test("should not find child if it is not is the same model as the parent", async () => {
+          // GIVEN an inconsistency was introduced, and the child and the parent are in different models
+          // The OccupationGroup 1
+          const givenModelId_1 = getMockStringId(1);
+          const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(
+            givenModelId_1,
+            "group_1",
+            givenGroupType
+          );
+          const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
+          // The OccupationGroup 2
+          const givenModelId_2 = getMockStringId(2);
+          const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(
+            givenModelId_2,
+            "group_2",
+            givenGroupType
+          );
+          const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
+
+          // it is import to cast the id to ObjectId, otherwise the parents will not be found
+
+          //@ts-ignore
+          const givenInconsistentPair: IOccupationHierarchyPairDoc = {
+            modelId: new mongoose.Types.ObjectId(givenModelId_2),
+
+            parentId: new mongoose.Types.ObjectId(givenOccupationGroup_1.id), // <-- this is the inconsistency
+            parentDocModel: MongooseModelName.OccupationGroup,
+            parentType: givenGroupType,
+
+            childId: new mongoose.Types.ObjectId(givenOccupationGroup_2.id),
+            childDocModel: MongooseModelName.OccupationGroup,
+            childType: givenGroupType,
+          };
+
+          await repositoryRegistry.occupationHierarchy.hierarchyModel.collection.insertOne(givenInconsistentPair);
+
+          // WHEN searching for the Occupation Group_2 by its id
+          jest.spyOn(console, "error");
+          const actualFoundGroup_2 = await repository.findById(givenOccupationGroup_2.id);
+
+          // THEN expect the OccupationGroup to not contain the inconsistent parent
+          expect(actualFoundGroup_2).not.toBeNull();
+          expect(actualFoundGroup_2!.parent).toEqual(null); // <-- The inconsistent parent is removed
+          // AND expect an error to be logged
+          expect(console.error).toBeCalledTimes(1);
+          expect(console.error).toBeCalledWith(new Error(`Parent is not in the same model as the child`));
+        });
+
+        test("should not match entities that have the same ID but are of different types (collections) when populating children", async () => {
+          // The state of the database that could lead to an inconsistency,
+          // if the populate function is not doing a match based on id and parentType
+          // modelId, parentId, parentType, childId, childType,
+          // 1,        2,        OccupationGroup,  3,        ESCO Occupation
+          // 1,        2,        ESCO Occupation,  4,       ESCO Occupation
+
+          // GIVEN a modelId
+          const givenModelId = getMockStringId(1);
+          // AND a subject Occupation group with the givenId
+          const givenID = new mongoose.Types.ObjectId(2);
+          const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "subject", givenGroupType);
+          // @ts-ignore
+          givenSubjectSpecs.id = givenID.toHexString();
+          const givenSubject = await repository.create(givenSubjectSpecs);
+          // guard to ensure the id is the given one
+          expect(givenSubject.id).toEqual(givenID.toHexString());
+
+          // AND an Occupation givenOccupation_1 with a given ID in the given model
+          const givenOccupation1Specs = getSimpleNewESCOOccupationSpec(givenModelId, "Occupation_1");
+          // @ts-ignore
+          givenOccupation1Specs.id = givenID.toHexString();
+          const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
+          // guard to ensure the id is the given one
+          expect(givenOccupation_1.id).toEqual(givenID.toHexString());
+
+          // AND a second occupation_2 with some ID  in the given model
+          const givenOccupationSpecs_2 = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2");
+          const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
+
+          // AND a third occupation_3 with some ID in the given model
+          const givenOccupationSpecs_3 = getSimpleNewLocalOccupationSpec(givenModelId, "occupation_3");
+          const givenOccupation_3 = await repositoryRegistry.occupation.create(givenOccupationSpecs_3);
+
+          // AND the occupation occupation_1  is the parent of occupation_2
+          // AND the subject OccupationGroup  is the parent of Occupation_3
+          const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+            {
+              parentType: givenGroupType,
+              parentId: givenSubject.id,
+              childType: ObjectTypes.LocalOccupation,
+              childId: givenOccupation_3.id,
+            },
+            {
+              parentType: ObjectTypes.ESCOOccupation,
+              parentId: givenOccupation_1.id,
+              childType: ObjectTypes.ESCOOccupation,
+              childId: givenOccupation_2.id,
+            },
+          ]);
+          // Guard assertion
+          expect(actualHierarchy).toHaveLength(2);
+
+          // WHEN we retrieve the subject by its id
+          const actualFoundSubject = await repository.findById(givenSubject.id);
+
+          // THEN we expect to find only occupation 2 as a child
+          expect(actualFoundSubject).not.toBeNull();
+          expect(actualFoundSubject!.children).toEqual([expectedOccupationReference(givenOccupation_3)]);
+        });
+
+        test("should not match entities that have the same ID but are of different types (collections) when populating parent", async () => {
+          // The state of the database that could lead to an inconsistency, if the populate function is not doing a match based on id and parentType
+          // modelId, parentId, parentType, childId, childType,
+          // 1,        2,        OccupationGroup,  4,        ESCO Occupation
+          // 1,        3,        OccupationGroup,  4,       OccupationGroup
+
+          // GIVEN a modelId
+          const givenModelId = getMockStringId(1);
+          // AND a subject Occupation group with the givenId
+          const givenID = new mongoose.Types.ObjectId(2);
+          const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "subject", givenGroupType);
+          // @ts-ignore
+          givenSubjectSpecs.id = givenID.toHexString();
+          const givenSubject = await repository.create(givenSubjectSpecs);
+          // guard to ensure the id is the given one
+          expect(givenSubject.id).toEqual(givenID.toHexString());
+
+          // AND an Occupation givenOccupation_1 with a given ID in the given model
+          const givenOccupation1Specs = getSimpleNewLocalOccupationSpec(givenModelId, "Occupation_1");
+          // @ts-ignore
+          givenOccupation1Specs.id = givenID.toHexString();
+          const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
+          // guard to ensure the id is the given one
+          expect(givenOccupation_1.id).toEqual(givenID.toHexString());
+
+          // AND a second occupationGroup with some ID in the given model
+          const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(givenModelId, "isco_1", givenGroupType);
+          const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_1);
+
+          // AND a third occupationGroup with some ID  in the given model
+          const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(givenModelId, "isco_2", givenGroupType);
+          const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_2);
+
+          // AND the occupation occupation_1  is the child of occupationGroup_2
+          // AND the subject OccupationGroup  is the child of Occupation_3
+          const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+            {
+              parentType: givenGroupType,
+              parentId: givenOccupationGroup_1.id,
+              childType: ObjectTypes.LocalOccupation,
+              childId: givenOccupation_1.id,
+            },
+            {
+              parentType: givenGroupType,
+              parentId: givenOccupationGroup_2.id,
+              childType: givenGroupType,
+              childId: givenSubject.id,
+            },
+          ]);
+          // Guard assertion
+          expect(actualHierarchy).toHaveLength(2);
+
+          // WHEN we retrieve the subject by its id
+          const actualFoundSubject = await repository.findById(givenSubject.id);
+
+          // THEN we expect to find only occupation 2 as a parent
+          expect(actualFoundSubject).not.toBeNull();
+          expect(actualFoundSubject!.parent).toEqual(expectedOccupationGroupReference(givenOccupationGroup_2));
+        });
+      }
+    );
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.OccupationGroup.findById(getMockStringId(1));

@@ -24,6 +24,7 @@ import {
 import { expectedRelatedSkillReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -340,7 +341,7 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       const givenModelId = getMockStringId(1);
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1")
+        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
       ); // Assuming there's an OccupationGroup model
 
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [

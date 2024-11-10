@@ -17,13 +17,13 @@ import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getNewESCOOccupationSpec,
-  getNewOccupationGroupSpec,
   getNewLocalOccupationSpec,
+  getNewOccupationGroupSpec,
   getNewSkillSpec,
   getSimpleNewESCOOccupationSpec,
-  getSimpleNewOccupationGroupSpec,
   getSimpleNewLocalizedESCOOccupationSpec,
   getSimpleNewLocalOccupationSpec,
+  getSimpleNewOccupationGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -525,7 +525,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actualFoundOccupation).toBeNull();
     });
 
-    test("should return the Occupation with its parent(OccupationGroup) and children (Occupations)", async () => {
+    test("should return the ESCO Occupation with its parent(ISCOGroup) and children (Local/ESCO Occupations)", async () => {
       // GIVEN three Occupations and one OccupationGroup exists in the database in the same model
       const givenModelId = getMockStringId(1);
       // THE subject (Occupation)
@@ -533,11 +533,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenSubject = await repository.create(givenSubjectSpecs);
 
       // The parent (Occupation Group)
-      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent");
+      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent", ObjectTypes.ISCOGroup);
       const givenParent = await repositoryRegistry.OccupationGroup.create(givenParentSpecs);
 
       // The child Occupation
-      const givenChildSpecs_1 = getSimpleNewESCOOccupationSpec(givenModelId, "child_1");
+      const givenChildSpecs_1 = getSimpleNewLocalOccupationSpec(givenModelId, "child_1");
       const givenChild_1 = await repository.create(givenChildSpecs_1);
 
       // The child Occupation
@@ -548,7 +548,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
           // parent of the subject
-          parentType: ObjectTypes.OccupationGroup,
+          parentType: givenParent.groupType,
           parentId: givenParent.id,
           childType: givenSubject.occupationType,
           childId: givenSubject.id,
@@ -587,6 +587,85 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           expectedOccupationReference(givenChild_1),
           expectedOccupationReference(givenChild_2),
         ])
+      );
+      // AND expect the populate query plan to use the correct indexes
+      expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+      expect(actualPlans).toEqual(
+        expect.arrayContaining([
+          // populating the parent hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              childType: { $eq: givenSubject.occupationType },
+              childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_PARENT,
+          }),
+          // populating the child hierarchy
+          getExpectedPlan({
+            collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+            filter: {
+              modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+              parentType: { $eq: givenSubject.occupationType },
+              parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+            },
+            usedIndex: INDEX_FOR_CHILDREN,
+          }),
+        ])
+      );
+      // AND no error to be logged
+      expect(console.error).toBeCalledTimes(0);
+    });
+
+    test("should return the Local Occupation with its parent(LocalGroup) and children (Local Occupations)", async () => {
+      // GIVEN three Occupations and one OccupationGroup exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+      // THE subject (Occupation)
+      const givenSubjectSpecs = getSimpleNewLocalOccupationSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The parent (Occupation Group)
+      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent", ObjectTypes.LocalGroup);
+      const givenParent = await repositoryRegistry.OccupationGroup.create(givenParentSpecs);
+
+      // The child Occupation
+      const givenChildSpecs_1 = getSimpleNewLocalOccupationSpec(givenModelId, "child_1");
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
+
+      // AND the subject Occupation has a parent and two children
+      const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          // parent of the subject
+          parentType: givenParent.groupType,
+          parentId: givenParent.id,
+          childType: givenSubject.occupationType,
+          childId: givenSubject.id,
+        },
+        {
+          // child 1 of the subject
+          parentType: givenSubject.occupationType,
+          parentId: givenSubject.id,
+          childType: givenChild_1.occupationType,
+          childId: givenChild_1.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(2);
+
+      // WHEN searching for the subject by its id
+      // setup populate with explain to assert the populate query plan is using the correct indexes and is not doing a collection scan
+      const actualPlans = setUpPopulateWithExplain<IOccupationDoc>(repository.Model);
+      const actualFoundOccupation = (await repository.findById(givenSubject.id)) as IOccupation;
+
+      // THEN expect the subject to be found
+      expect(actualFoundOccupation).not.toBeNull();
+
+      // AND to have the given parent
+      expect(actualFoundOccupation.parent).toEqual(expectedOccupationGroupReference(givenParent));
+      // AND to have the given child
+      expect(actualFoundOccupation.children).toEqual(
+        expect.arrayContaining<IOccupationReference>([expectedOccupationReference(givenChild_1)])
       );
       // AND expect the populate query plan to use the correct indexes
       expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
@@ -1015,7 +1094,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
         // AND an OccupationGroup G1 with the same ID as the subject occupation in the given model
-        const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "OccupationGroup");
+        const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(
+          givenModelId,
+          "OccupationGroup",
+          ObjectTypes.ISCOGroup
+        );
         // @ts-ignore
         givenOccupationGroupSpecs.id = givenID.toHexString();
         const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs);
@@ -1034,7 +1117,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND the subject occupation  is the parent of O_2
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
           {
-            parentType: ObjectTypes.OccupationGroup,
+            parentType: ObjectTypes.ISCOGroup,
             parentId: givenOccupationGroup.id,
             childType: givenOccupation_1.occupationType,
             childId: givenOccupation_1.id,
@@ -1074,7 +1157,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
         // AND an OccupationGroup with the given ID as the subject occupation in the given model
-        const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(givenModelId, "OccupationGroup 2");
+        const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(
+          givenModelId,
+          "OccupationGroup 2",
+          ObjectTypes.ISCOGroup
+        );
         // @ts-ignore
         givenOccupationGroupSpecs_2.id = givenID.toHexString();
         const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_2);
@@ -1082,7 +1169,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenOccupationGroup_2.id).toEqual(givenID.toHexString());
 
         // AND another OccupationGroup with some ID in the given model
-        const givenOccupationGroupSpec_1 = getSimpleNewOccupationGroupSpec(givenModelId, "OccupationGroup 1");
+        const givenOccupationGroupSpec_1 = getSimpleNewOccupationGroupSpec(
+          givenModelId,
+          "OccupationGroup 1",
+          ObjectTypes.ISCOGroup
+        );
         const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpec_1);
 
         // AND another occupation with some ID in the given model
@@ -1093,9 +1184,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // AND the Occupation 1 is the parent of the subject occupation
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
           {
-            parentType: ObjectTypes.OccupationGroup,
+            parentType: ObjectTypes.ISCOGroup,
             parentId: givenOccupationGroup_1.id,
-            childType: ObjectTypes.OccupationGroup,
+            childType: ObjectTypes.ISCOGroup,
             childId: givenOccupationGroup_2.id,
           },
           {
@@ -1458,7 +1549,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         repository.findAll(
           givenModelId,
           // @ts-ignore
-          { occupationType: ObjectTypes.OccupationGroup }
+          { occupationType: ObjectTypes.ISCOGroup }
         )
       ).toThrowError("OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL.");
     });

@@ -8,7 +8,8 @@ import { IOccupationGroupReferenceDoc } from "esco/occupationGroup/OccupationGro
  * Describes what the ObjectType of the parent of an occupation hierarchy is.
  */
 export type OccupationHierarchyParentType =
-  | ObjectTypes.OccupationGroup
+  | ObjectTypes.ISCOGroup
+  | ObjectTypes.LocalGroup
   | ObjectTypes.ESCOOccupation
   | ObjectTypes.LocalOccupation;
 
@@ -16,7 +17,8 @@ export type OccupationHierarchyParentType =
  * Describes what the ObjectType of the child of an occupation hierarchy is.
  */
 export type OccupationHierarchyChildType =
-  | ObjectTypes.OccupationGroup
+  | ObjectTypes.ISCOGroup
+  | ObjectTypes.LocalGroup
   | ObjectTypes.ESCOOccupation
   | ObjectTypes.LocalOccupation;
 
