@@ -125,7 +125,9 @@ describe("test parseOccupationGroups from", () => {
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
       // AND a warning should be logged for the row with duplicate altLabels
-      expect(errorLogger.logWarning).toHaveBeenCalledWith("Failed to import Occupation row with id:''. OccupationType not found/invalid.")
+      expect(errorLogger.logWarning).toHaveBeenCalledWith(
+        "Failed to import Occupation row with id:''. OccupationType not found/invalid."
+      );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         3,
         "Warning while importing Occupation Group row with id:'key_2'. Preferred label 'preferred\n" +

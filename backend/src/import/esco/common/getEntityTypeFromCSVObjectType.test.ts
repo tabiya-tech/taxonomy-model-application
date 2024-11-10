@@ -5,7 +5,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { CSVObjectTypes } from "esco/common/csvObjectTypes";
 import {
   getEntityTypeFromCSVObjectType,
-  getOccupationGroupTypeFromCSVObjectType
+  getOccupationGroupTypeFromCSVObjectType,
 } from "./getEntityTypeFromCSVObjectType";
 
 describe("getOccupationTypeFromCSVObjectType", () => {

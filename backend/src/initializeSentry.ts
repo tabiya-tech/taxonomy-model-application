@@ -26,6 +26,6 @@ export const initializeSentry = (identifier: string) => {
     attachStacktrace: true,
   });
   Sentry.withScope((scope) => {
-    scope.setTag('lambda::', identifier);
+    scope.setTag("lambda::", identifier);
   });
 };

@@ -11,9 +11,7 @@ import { getProcessEntityBatchFunction } from "import/esco/common/processEntityB
 import { IOccupationGroupImportRow, OccupationGroupImportHeaders } from "esco/common/entityToCSV.types";
 import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
-import {
-  getOccupationGroupTypeFromCSVObjectType,
-} from "import/esco/common/getEntityTypeFromCSVObjectType";
+import { getOccupationGroupTypeFromCSVObjectType } from "import/esco/common/getEntityTypeFromCSVObjectType";
 
 function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
   return getStdHeadersValidator(validatorName, OccupationGroupImportHeaders);

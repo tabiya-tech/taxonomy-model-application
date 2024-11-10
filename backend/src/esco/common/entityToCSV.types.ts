@@ -315,17 +315,33 @@ export const occupationHierarchyExportHeaders = [
  */
 
 export interface IOccupationHierarchyImportRow {
-  PARENTOBJECTTYPE: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  PARENTOBJECTTYPE:
+    | ObjectTypes.ISCOGroup
+    | ObjectTypes.LocalGroup
+    | ObjectTypes.ESCOOccupation
+    | ObjectTypes.LocalOccupation;
   PARENTID: string;
   CHILDID: string;
-  CHILDOBJECTTYPE: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+  CHILDOBJECTTYPE:
+    | ObjectTypes.ISCOGroup
+    | ObjectTypes.LocalGroup
+    | ObjectTypes.ESCOOccupation
+    | ObjectTypes.LocalOccupation;
 }
 
 export interface IOccupationHierarchyExportRow {
-  PARENTOBJECTTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.LocalGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  PARENTOBJECTTYPE:
+    | CSVObjectTypes.ISCOGroup
+    | CSVObjectTypes.LocalGroup
+    | CSVObjectTypes.ESCOOccupation
+    | CSVObjectTypes.LocalOccupation;
   PARENTID: string;
   CHILDID: string;
-  CHILDOBJECTTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.LocalGroup | CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  CHILDOBJECTTYPE:
+    | CSVObjectTypes.ISCOGroup
+    | CSVObjectTypes.LocalGroup
+    | CSVObjectTypes.ESCOOccupation
+    | CSVObjectTypes.LocalOccupation;
   CREATEDAT: string;
   UPDATEDAT: string;
 }

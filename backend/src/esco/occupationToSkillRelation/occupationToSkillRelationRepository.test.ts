@@ -464,7 +464,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId = getMockStringId(1);
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1")
+        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
       ); // Assuming there's an OccupationGroup model
 
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
@@ -492,7 +492,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
       );
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1")
+        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
       ); // Assuming there's an OccupationGroup model
 
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [

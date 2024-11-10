@@ -23,7 +23,7 @@ import {
   testUUIDHistoryField,
   testEnumField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
-import {ObjectTypes} from "esco/common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 describe("Test the definition of the OccupationGroup Model", () => {
   let dbConnection: Connection;
@@ -43,7 +43,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
     }
   });
 
-  test.each<[string,IOccupationGroupDoc]>([
+  test.each<[string, IOccupationGroupDoc]>([
     [
       "mandatory fields",
       {
@@ -180,10 +180,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
 
     testImportId<IOccupationGroupDoc>(() => OccupationGroupModel);
 
-    testEnumField(() => OccupationGroupModel, "groupType", [
-      ObjectTypes.ISCOGroup,
-      ObjectTypes.LocalGroup,
-    ]);
+    testEnumField(() => OccupationGroupModel, "groupType", [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup]);
   });
 
   describe("Test the indexes of the OccupationGroup Model", () => {
