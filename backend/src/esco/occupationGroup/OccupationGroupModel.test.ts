@@ -147,13 +147,13 @@ describe("Test the definition of the OccupationGroup Model", () => {
       });
       describe("Test validation of 'icatus code'", () => {
         test.each([
-          [CaseType.Failure, "more than 4 digits", "I55555", "Validator failed for path `{0}` with value `I55555`"],
-          [CaseType.Failure, "with negative sign", "-I9999", "Validator failed for path `{0}` with value `-I9999`"],
-          [CaseType.Failure, "with negative digits", "I-9999", "Validator failed for path `{0}` with value `I-9999`"],
+          [CaseType.Failure, "more than 2 digits", "I555", "Validator failed for path `{0}` with value `I555`"],
+          [CaseType.Failure, "with negative sign", "-I9", "Validator failed for path `{0}` with value `-I9`"],
+          [CaseType.Failure, "with negative digits", "I-99", "Validator failed for path `{0}` with value `I-99`"],
           [CaseType.Success, "I0", "0", undefined],
-          [CaseType.Success, "max", "I9999", undefined],
-          [CaseType.Success, "leading zero", "I0009", undefined],
-          [CaseType.Success, "in range", "I090", undefined],
+          [CaseType.Success, "max", "I99", undefined],
+          [CaseType.Success, "leading zero", "I09", undefined],
+          [CaseType.Success, "in range", "I43", undefined],
         ])(
           `(%s) Validate 'code' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {

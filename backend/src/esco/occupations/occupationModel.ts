@@ -5,13 +5,13 @@ import {
   DefinitionProperty,
   DescriptionProperty,
   ImportIDProperty,
-  CodeProperty,
   OccupationCodeProperty,
   OriginUriProperty,
   PreferredLabelProperty,
   RegulatedProfessionNoteProperty,
   ScopeNoteProperty,
   UUIDHistoryProperty,
+  OccupationGroupCodeProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationDoc } from "./occupation.types";
@@ -35,7 +35,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       UUIDHistory: UUIDHistoryProperty,
       originUri: OriginUriProperty,
       code: OccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
-      occupationGroupCode: CodeProperty, // TODO: if code OccupationGroupCode is part of the code then make sure that code starts with OccupationGroupCode
+      occupationGroupCode: OccupationGroupCodeProperty, // TODO: if OccupationGroupCode is part of the code, then make sure that code starts with the OccupationGroupCode (e.g. I32_0_1 starts with I32)
       preferredLabel: PreferredLabelProperty,
       altLabels: AltLabelsProperty,
       definition: DefinitionProperty,

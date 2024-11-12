@@ -9820,6 +9820,7 @@ Examples of the occupations classified here:
 Some related occupations classified elsewhere:
 - Parking valet - 8322
 "
-"","key_i1","","I1","iscogroup","ICATUS ISCO Group 1","ICATUS ISCO Group 1","ICATUS Description"
-"","key_i2","","I11","iscogroup","ICATUS ISCO Group 1.1","ICATUS ISCO Group 1.1","ICATUS Description"
-"","key_i3","","I111","iscogroup","ICATUS ISCO Group 1.1.1","ICATUS ISCO Group 1.1.1","ICATUS Description"
+"","key_ig1","","I1","iscogroup","ICATUS ISCO Group 1","ICATUS ISCO Group 1","ICATUS Description"
+"","key_ig11","","I11","iscogroup","ICATUS ISCO Group 11","ICATUS ISCO Group 11","ICATUS Description"
+"","key_ig2","","I2","iscogroup","ICATUS ISCO Group 2","ICATUS ISCO Group 2","ICATUS Description"
+"","key_ig22","","I22","iscogroup","ICATUS ISCO Group 22","ICATUS ISCO Group 22","ICATUS Description"

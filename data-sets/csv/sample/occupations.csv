@@ -33424,6 +33424,7 @@ precision device quality control inspector
 inspector of precision devices
 precision instrument inspector
 precision instrument supervisor","Precision device inspectors make sure precision devices, such as micrometers and gauges, operate according to design specifications. They may adjust the precision devices and their components in case of any faults.","","","http://data.europa.eu/esco/regulated-professions/unregulated","localoccupation","false"
-"","key_i11","","I1","I1_1","ICATUS Occupation","ICATUS Occupation","ICATUS Occupation Description","","","","localoccupation","false"
-"","key_i1111","","I111","I111_1","ICATUS 1 Occupation","ICATUS 1 Occupation","ICATUS Occupation 2 Description","","","","localoccupation","false"
-"","key_i11111","","I111","I1111_1","ICATUS 2 Occupation","ICATUS 2 Occupation","ICATUS Occupation 2.1 Description","","","","localoccupation","false"
+"","key_i11_1","","I11","I11_1","ICATUS Occupation I11_1","ICATUS Occupation I11_1","ICATUS Occupation I11_1 Description","","","","localoccupation","false"
+"","key_i11_2","","I11","I11_2","ICATUS I11_2 Occupation","ICATUS I11_2 Occupation","ICATUS Occupation I11_2 Description","","","","localoccupation","false"
+"","key_i22_0","","I22","I22_0","ICATUS I22_0 Occupation","ICATUS I22_0 Occupation","ICATUS Occupation I22_0 Description","","","","localoccupation","false"
+"","key_i22_0_1","","I22","I22_0_1","ICATUS I22_0_1 Occupation","ICATUS I22_0_1 Occupation","ICATUS Occupation I22_0_1 Description","","","","localoccupation","false"

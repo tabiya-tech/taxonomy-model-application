@@ -208,8 +208,6 @@ describe("Test the definition of the Occupation Model", () => {
 
     testUUIDHistoryField<IOccupationDoc>(() => OccupationModel);
 
-    describe("Test validation of 'code'", () => {});
-
     describe("Test validation of 'OccupationGroupCode'", () => {
       test.each([
         [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
@@ -234,14 +232,17 @@ describe("Test the definition of the Occupation Model", () => {
           });
         }
       );
-      describe("Test validation of 'isco OccupationGroupCode'", () => {
+      // TODO: This is incorrect as the ISCO code of an occupation must be exactly  be 4 digits long
+      describe("Test validation of 'ISCO OccupationGroupCode'", () => {
         test.each([
           [CaseType.Failure, "more than 4 digits", "55555", "Validator failed for path `{0}` with value `55555`"],
           [CaseType.Failure, "with negative sign", "-9999", "Validator failed for path `{0}` with value `-9999`"],
-          [CaseType.Success, "0", "0", undefined],
-          [CaseType.Success, "max", "9999", undefined],
-          [CaseType.Success, "leading zero", "0009", undefined],
-          [CaseType.Success, "in range", "090", undefined],
+          [CaseType.Failure, "at level 1", "9", "Validator failed for path `{0}` with value `9`"],
+          [CaseType.Failure, "at level 2", "99", "Validator failed for path `{0}` with value `99`"],
+          [CaseType.Failure, "at level 3", "999", "Validator failed for path `{0}` with value `999`"],
+          [CaseType.Success, "max level 4", "9999", undefined],
+          [CaseType.Success, "leading zero level 4", "0009", undefined],
+          [CaseType.Success, "some level 5", "4190", undefined],
         ])(
           `(%s) Validate 'OccupationGroupCode' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
@@ -255,15 +256,15 @@ describe("Test the definition of the Occupation Model", () => {
           }
         );
       });
-      describe("Test validation of 'icatus OccupationGroupCode'", () => {
+      describe("Test validation of 'ICATUS OccupationGroupCode'", () => {
         test.each([
-          [CaseType.Failure, "more than 4 digits", "I55555", "Validator failed for path `{0}` with value `I55555`"],
-          [CaseType.Failure, "with negative sign", "-I9999", "Validator failed for path `{0}` with value `-I9999`"],
-          [CaseType.Failure, "with negative digits", "I-9999", "Validator failed for path `{0}` with value `I-9999`"],
-          [CaseType.Success, "I0", "0", undefined],
-          [CaseType.Success, "max", "I9999", undefined],
-          [CaseType.Success, "leading zero", "I0009", undefined],
-          [CaseType.Success, "in range", "I090", undefined],
+          [CaseType.Failure, "more than 2 digits", "I555", "Validator failed for path `{0}` with value `I555`"],
+          [CaseType.Failure, "with negative sign", "-I9", "Validator failed for path `{0}` with value `-I9`"],
+          [CaseType.Failure, "with negative digits", "I-99", "Validator failed for path `{0}` with value `I-99`"],
+          [CaseType.Failure, "at level 1", "I9", "Validator failed for path `{0}` with value `I9`"],
+          [CaseType.Success, "max level 2", "I99", undefined],
+          [CaseType.Success, "leading zero level 2", "I09", undefined],
+          [CaseType.Success, "some level 2", "I43", undefined],
         ])(
           `(%s) Validate 'OccupationGroupCode' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
@@ -388,59 +389,31 @@ describe("Test the definition of the Occupation Model", () => {
             `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
           ],
           [CaseType.Failure, "not matching pattern", "Ifoo1_2", "Validator failed for path `{0}` with value `Ifoo1_2`"],
+          [CaseType.Failure, "extra characters", "I12_1_1x", "Validator failed for path `{0}` with value `I12_1_1x`"],
           [
             CaseType.Failure,
-            "extra characters",
-            "I1234.1_1x",
-            "Validator failed for path `{0}` with value `I1234.1_1x`",
-          ],
-          [
-            CaseType.Failure,
-            "inconsistent ESCO segment",
-            "I1234._01_12",
-            "Validator failed for path `{0}` with value `I1234._01_12`",
+            "inconsistent ICATUS segment",
+            "I12__01_12",
+            "Validator failed for path `{0}` with value `I12__01_12`",
           ],
           [CaseType.Failure, "only underscores", "____", "Validator failed for path `{0}` with value `____`"],
+          [CaseType.Failure, "ICATUS Missing segment", "I_12_1", "Validator failed for path `{0}` with value `I_12_1`"],
           [
             CaseType.Failure,
-            "ISCO Missing segment",
-            "I.1234.1_01_12",
-            "Validator failed for path `{0}` with value `I.1234.1_01_12`",
+            "more than 2 ICATUS digits",
+            "I123_1_1",
+            "Validator failed for path `{0}` with value `I123_1_1`",
           ],
-          [
-            CaseType.Failure,
-            "more than four ISCO digits",
-            "I12345.1_1",
-            "Validator failed for path `{0}` with value `I12345.1_1`",
-          ],
-          [
-            CaseType.Failure,
-            "less than four ISCO digits",
-            "I123.1_1",
-            "Validator failed for path `{0}` with value `I123.1_1`",
-          ],
-          [
-            CaseType.Failure,
-            "we have points/dots",
-            "I1234.1.1",
-            "Validator failed for path `{0}` with value `I1234.1.1`",
-          ],
-          [
-            CaseType.Failure,
-            "ESCO bellow local ",
-            "I1234_1.1",
-            "Validator failed for path `{0}` with value `I1234_1.1`",
-          ],
+          [CaseType.Failure, "we have points/dots", "I12.1.1", "Validator failed for path `{0}` with value `I12.1.1`"],
           [
             CaseType.Failure,
             "small I ('i') is not allowed for code",
-            "i1234_1",
-            "Validator failed for path `{0}` with value `i1234_1`",
+            "i12_1",
+            "Validator failed for path `{0}` with value `i12_1`",
           ],
-          [CaseType.Success, "simplest valid code direct bellow ISCO", "I1234_1", undefined],
-          [CaseType.Success, "simplest valid code direct bellow ESCO", "I12_1", undefined],
-          [CaseType.Success, "typical valid code bellow ISCO", "I1234_01", undefined],
-          [CaseType.Success, "leading zeros", "I000_01", undefined],
+          [CaseType.Success, "simplest valid code direct bellow ICATUS", "I12_1", undefined],
+          [CaseType.Success, "typical valid code bellow ICATUS", "I12_1_2_3", undefined],
+          [CaseType.Success, "leading zeros", "I00_01", undefined],
         ])(
           `(%s) Validate 'code' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {

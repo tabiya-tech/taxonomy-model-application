@@ -130,25 +130,31 @@ export const OriginUriProperty: mongoose.SchemaDefinitionProperty<string> = {
   },
 };
 
-// ISCO Code and ICACTUS Group Code
-// for ISCO Code, the code can contain a number from 1 to 4 digits,
-// and for ICACTUS Group Code, the code can contain a number from 1 to 4 digits prefixed with 'I'
-export const RegExCode = RegExp(/^I?\d{1,4}$/);
-
+// ISCO Code and ICATUS Group Code
+// ISCO Code: the code can contain a number from 1 to 4 digits,
+// ICATUS Group Code: the code can contain a number from 1 to 2 digits prefixed with 'I'
 export const CodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: true,
-  validate: RegExCode,
+  validate: RegExp(/(^I\d{1,2}$)|(^\d{1,4}$)/),
+};
+
+// ESCO occupations can be only at the 4th level
+// ICATUS occupations can be only at the 2nd level
+export const OccupationGroupCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: true,
+  validate: RegExp(/(^I\d{2}$)|(^\d{4}$)/),
 };
 
 // ESCO Occupation Code
 export const RegExESCOOccupationCode = RegExp(/^\d{4}(?:\.\d+)+$/);
 
-// Local Occupation Code
-export const RegExLocalOccupationCode = RegExp(/^\d{4}(?:\.\d+)*(?:_\d+)+$/);
+// ESCO Local Occupation Code
+export const RegExESCOLocalOccupationCode = RegExp(/^\d{4}(?:\.\d+)*(?:_\d+)+$/);
 
 // ICATUS Occupation Code
-export const RegExICATUSOccupationCode = RegExp(/^I\d{1,4}_\d+$/);
+export const RegExICATUSOccupationCode = RegExp(/^I\d{2}(?:_\d+)+$/);
 
 export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
@@ -160,7 +166,7 @@ export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> =
         case ObjectTypes.ESCOOccupation:
           return RegExESCOOccupationCode.test(value);
         case ObjectTypes.LocalOccupation:
-          return RegExLocalOccupationCode.test(value) || RegExICATUSOccupationCode.test(value);
+          return RegExESCOLocalOccupationCode.test(value) || RegExICATUSOccupationCode.test(value);
         default:
           throw new Error("Value of 'occupationType' path is not supported");
       }
