@@ -12,6 +12,7 @@ export interface IRelationshipSpec {
 }
 
 export type ValidPairTypes = { firstPartnerType: ObjectTypes; secondPartnerType: ObjectTypes }[];
+
 /**
  * Validates if the given spec represents a valid relationship based on existing IDs and valid pair types.
  *
@@ -28,6 +29,7 @@ export function isRelationPairValid(
 ): boolean {
   // Return false if first and second partner are the same objects (self-referencing)
   if (spec.firstPartnerId === spec.secondPartnerId && spec.firstPartnerType === spec.secondPartnerType) {
+    console.warn("Self-referencing relationships are not allowed.");
     return false;
   }
 
@@ -36,25 +38,40 @@ export function isRelationPairValid(
     (pairType) =>
       pairType.firstPartnerType === spec.firstPartnerType && pairType.secondPartnerType === spec.secondPartnerType
   );
-  if (!isIncluded) return false;
+  if (!isIncluded) {
+    console.warn("Invalid pair types.");
+    return false;
+  }
 
   // Verify that the first partner ID exists and has the expected type
   // Return false if first partner ID doesn't exist
   const existingFirstPartnerType = existingIds.get(spec.firstPartnerId);
-  if (!existingFirstPartnerType) return false;
+  if (!existingFirstPartnerType) {
+    console.warn("First partner ID does not exist.");
+    return false;
+  }
   // or if its type doesn't match
   // The object id may have multiple types, as objects is different collections can have the same id
   // We only need to make sure that we have at least one object that has the expected type
-  if (!existingFirstPartnerType.includes(spec.firstPartnerType)) return false;
+  if (!existingFirstPartnerType.includes(spec.firstPartnerType)) {
+    console.warn("First partner ID type does not match.");
+    return false;
+  }
 
   // Verify that the first partner ID exists and has the expected type
   // Return false if second partner ID doesn't exist
   const existingSecondPartnerType = existingIds.get(spec.secondPartnerId);
-  if (!existingSecondPartnerType) return false;
+  if (!existingSecondPartnerType) {
+    console.warn("Second partner ID does not exist.");
+    return false;
+  }
   // or if its type doesn't match
   // The object id may have multiple types, as objects is different collections can have the same id
   // We only need to make sure that we have at least one object that has the expected type
-  if (!existingSecondPartnerType.includes(spec.secondPartnerType)) return false;
+  if (!existingSecondPartnerType.includes(spec.secondPartnerType)) {
+    console.warn("Second partner ID type does not match.");
+    return false;
+  }
 
   //  If everything passes return true
   return true;

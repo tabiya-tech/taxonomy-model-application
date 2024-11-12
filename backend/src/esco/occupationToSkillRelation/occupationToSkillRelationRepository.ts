@@ -95,7 +95,13 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
       });
 
       const newOccupationToSkillRelationPairModels = newOccupationToSkillRelationPairSpecs
-        .filter((spec) => isNewOccupationToSkillRelationPairSpecValid(spec, existingIds))
+        .filter((spec) => {
+         const valid = isNewOccupationToSkillRelationPairSpecValid(spec, existingIds);
+          if (!valid) {
+            console.warn("OccupationToSkillRelationRepository.createMany: invalid entry", spec);
+          }
+          return valid;
+        })
         .map((spec) => {
           try {
             return new this.relationModel({

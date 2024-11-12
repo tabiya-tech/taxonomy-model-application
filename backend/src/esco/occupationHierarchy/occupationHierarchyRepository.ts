@@ -94,7 +94,11 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
 
       const newOccupationHierarchyPairModels = newOccupationHierarchyPairSpecs
         .filter((spec) => {
-          return isNewOccupationHierarchyPairSpecValid(spec, existingIds);
+          const valid = isNewOccupationHierarchyPairSpecValid(spec, existingIds);
+          if (!valid) {
+            console.warn("OccupationHierarchyRepository.createMany: invalid entry", spec);
+          }
+          return valid;
         })
         .map((spec) => {
           try {
