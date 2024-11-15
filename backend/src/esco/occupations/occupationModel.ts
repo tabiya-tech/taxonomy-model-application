@@ -24,6 +24,7 @@ export const OccupationModelPaths = {
   parent: "parent",
   children: "children",
   requiresSkills: "requiresSkills",
+  occupationType: "occupationType",
 };
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
@@ -43,7 +44,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       regulatedProfessionNote: RegulatedProfessionNoteProperty,
       scopeNote: ScopeNoteProperty,
       importId: ImportIDProperty,
-      occupationType: {
+      [OccupationModelPaths.occupationType]: {
         type: String,
         required: true,
         enum: [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],

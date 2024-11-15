@@ -9,7 +9,7 @@ import {
 import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { OccupationGroupType } from "../occupationGroup/OccupationGroup.types";
+import { OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
 
 const HEADER_NAMES = {
   ID: "ID",

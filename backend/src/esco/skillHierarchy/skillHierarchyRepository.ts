@@ -83,7 +83,7 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
 
       const newSkillHierarchyPairModels = newSkillHierarchyPairSpecs
         .filter((spec) => {
-          const valid  = isNewSkillHierarchyPairSpecValid(spec, existingIds);
+          const valid = isNewSkillHierarchyPairSpecValid(spec, existingIds);
           if (!valid) {
             console.warn("SkillHierarchyRepository.createMany: invalid entry", spec);
           }

@@ -10,7 +10,7 @@ import { initOnce } from "server/init";
 import { Routes } from "routes.constant";
 import { initializeSentry } from "initializeSentry";
 import * as Sentry from "@sentry/aws-serverless";
-import {Lambdas} from "common/lambda.types";
+import { Lambdas } from "common/lambda.types";
 
 initializeSentry(Lambdas.API);
 

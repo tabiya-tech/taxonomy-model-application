@@ -14,6 +14,7 @@ import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { OccupationModelPaths } from "esco/occupations/occupationModel";
 
 export interface IOccupationHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
@@ -79,7 +80,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       //  get all Occupations
       const _existingOccupations = await this.occupationModel
         .find({ modelId: { $eq: modelId } })
-        .select("_id occupationType")
+        .select(`_id ${OccupationModelPaths.occupationType}`)
         .exec();
 
       // beside the id, we also need to know the occupationType
@@ -109,6 +110,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
               childDocModel: getModelName(spec.childType),
             });
           } catch (e: unknown) {
+            console.warn("OccupationHierarchyRepository.createMany: invalid entry", spec, e);
             return null;
           }
         })

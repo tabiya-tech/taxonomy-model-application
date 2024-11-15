@@ -7,6 +7,8 @@ export function handleInsertManyError<T>(
   // Such an error will occur if a unique index is violated
   if ((error as { name?: string }).name === "MongoBulkWriteError") {
     const bulkWriteError = error as mongoose.mongo.MongoBulkWriteError;
+
+    console.warn(`${callerInfo}: ${(error as Error).message}`);
     return bulkWriteError.insertedDocs;
   }
   const err = new Error(`${callerInfo}: none of the ${expectedCount} documents were inserted.`, { cause: error });

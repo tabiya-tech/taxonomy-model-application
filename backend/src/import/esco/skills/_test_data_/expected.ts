@@ -12,7 +12,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_1",
-    isLocalized: false
+    isLocalized: false,
   },
   {
     originUri: "origin\nuri\nwith\nlinebreak",
@@ -25,7 +25,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.Knowledge,
     reuseLevel: ReuseLevel.CrossSector,
     importId: "key_2",
-    isLocalized: false
+    isLocalized: false,
   },
   {
     originUri: "",
@@ -38,7 +38,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.None,
     reuseLevel: ReuseLevel.None,
     importId: "key_3",
-    isLocalized: false
+    isLocalized: false,
   },
   {
     originUri: "origin uri",
@@ -51,7 +51,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_4",
-    isLocalized: false
+    isLocalized: false,
   },
   {
     originUri: "origin uri",
@@ -64,7 +64,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_5",
-    isLocalized: true
+    isLocalized: true,
   },
   {
     originUri: "origin uri",
@@ -77,7 +77,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_8",
-    isLocalized: true
+    isLocalized: true,
   },
   {
     originUri: "origin uri",
@@ -90,7 +90,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_9",
-    isLocalized: false
+    isLocalized: false,
   },
   {
     originUri: "origin uri",
@@ -103,7 +103,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_10",
-    isLocalized: false
+    isLocalized: false,
   },
   {
     originUri: "origin uri",
@@ -116,7 +116,7 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_11",
-    isLocalized: false
+    isLocalized: false,
   },
   {
     originUri: "origin uri",
@@ -129,6 +129,6 @@ export const expected: Omit<INewSkillSpec, "modelId">[] = [
     skillType: SkillType.SkillCompetence,
     reuseLevel: ReuseLevel.SectorSpecific,
     importId: "key_12",
-    isLocalized: false
+    isLocalized: false,
   },
 ];

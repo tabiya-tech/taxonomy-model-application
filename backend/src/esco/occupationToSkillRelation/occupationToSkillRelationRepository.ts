@@ -96,7 +96,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
 
       const newOccupationToSkillRelationPairModels = newOccupationToSkillRelationPairSpecs
         .filter((spec) => {
-         const valid = isNewOccupationToSkillRelationPairSpecValid(spec, existingIds);
+          const valid = isNewOccupationToSkillRelationPairSpecValid(spec, existingIds);
           if (!valid) {
             console.warn("OccupationToSkillRelationRepository.createMany: invalid entry", spec);
           }

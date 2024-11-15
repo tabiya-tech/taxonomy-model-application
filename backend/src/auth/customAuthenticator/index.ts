@@ -4,7 +4,7 @@ import { CognitoJwtVerifier } from "aws-jwt-verify";
 import AuthAPISpecs from "api-specifications/auth";
 import { initializeSentry } from "initializeSentry";
 import * as Sentry from "@sentry/aws-serverless";
-import {Lambdas} from "common/lambda.types";
+import { Lambdas } from "common/lambda.types";
 
 initializeSentry(Lambdas.AUTH);
 
