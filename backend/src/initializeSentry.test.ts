@@ -52,13 +52,11 @@ describe("initializeSentry", () => {
     );
   });
 
-  test.each(
-    [
-      ["prod", ["warn"]],
-      ["dev", ["warn", "error"]],
-      ["unknown", []],
-    ]
-  )("should initialize Sentry with captureConsoleIntegration for %s environment", (environment, expectedLevels) => {
+  test.each([
+    ["prod", ["warn"]],
+    ["dev", ["warn", "error"]],
+    ["unknown", []],
+  ])("should initialize Sentry with captureConsoleIntegration for %s environment", (environment, expectedLevels) => {
     const givenIdentifier = "foo";
     // GIVEN the environment variable is set
     process.env.TARGET_ENVIRONMENT = environment;

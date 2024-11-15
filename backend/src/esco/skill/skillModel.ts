@@ -54,7 +54,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       importId: ImportIDProperty,
       isLocalized: {
         type: Boolean,
-        required: true
+        required: true,
       },
       // Metrics
       degreeCentrality: PositiveNumberProperty,

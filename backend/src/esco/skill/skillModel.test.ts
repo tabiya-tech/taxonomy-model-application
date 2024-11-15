@@ -216,23 +216,24 @@ describe("Test the definition of the skill Model", () => {
     });
 
     describe("Test validation of 'isLocalized'", () => {
-        test.each([
-          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-          [CaseType.Failure, "null", null, "Path `{0}` is required."],
-          [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
-          [CaseType.Success, "true", true, undefined],
-          [CaseType.Success, "false", false, undefined],
-        ])(
-          "(%s) Validate 'isLocalized' when it is %s",
-          (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-            assertCaseForProperty<ISkillDoc>({
-              model: skillModel,
-              propertyNames: "isLocalized",
-              caseType,
-              testValue: value,
-              expectedFailureMessage,
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+        [CaseType.Failure, "null", null, "Path `{0}` is required."],
+        [CaseType.Failure, "not boolean", "foo", 'Cast to Boolean failed .* path "{0}"'],
+        [CaseType.Success, "true", true, undefined],
+        [CaseType.Success, "false", false, undefined],
+      ])(
+        "(%s) Validate 'isLocalized' when it is %s",
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+          assertCaseForProperty<ISkillDoc>({
+            model: skillModel,
+            propertyNames: "isLocalized",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
           });
-      });
+        }
+      );
     });
 
     describe("Test validation of 'interOccupationTransferability'", () => {

@@ -1,5 +1,5 @@
 import { INewOccupationGroupSpec, OccupationGroupType } from "esco/occupationGroup/OccupationGroup.types";
-import {generateRandomUrl, getRandomBoolean, getRandomString, getTestString} from "_test_utilities/getMockRandomData";
+import { generateRandomUrl, getRandomBoolean, getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import {
   DEFINITION_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
@@ -16,7 +16,7 @@ import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { randomUUID } from "crypto";
-import { ObjectTypes } from "../common/objectTypes";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 /**
  * Helper function to create an INewOccupationGroupSpec with random values,
@@ -202,7 +202,7 @@ export function getNewSkillSpec(): INewSkillSpec {
     reuseLevel: ReuseLevel.CrossSector,
     altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
-    isLocalized: getRandomBoolean()
+    isLocalized: getRandomBoolean(),
   };
 }
 

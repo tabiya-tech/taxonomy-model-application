@@ -1,6 +1,7 @@
 # Create Base Model Script
 
 This script is an internal tool to convert a standard model into a new **_base model_**. It generates unique UUIDs and adds them on top of uuid history for the following CSV files:
+
 - model_info.csv
 - occupation_groups.csv
 - occupations.csv
@@ -18,6 +19,6 @@ The following example reads from a specified source directory (`/path/to/source/
 ```javascript
 createBaseModel({
   source: "/path/to/source/folder",
-  destination: "/path/to/destination/folder/"
+  destination: "/path/to/destination/folder/",
 });
 ```
