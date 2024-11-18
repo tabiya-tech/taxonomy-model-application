@@ -1,7 +1,7 @@
-"UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
 "78956de6-fba2-42ff-8168-bfd8f097a730
 4ed45ec6-6235-40a3-acec-f65cae78611a
-2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","ZA","This model builds on [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a), with numerous enhancements by Tabiya, including the addition of new occupation and skill labels, to create a taxonomy specific to South Africa. See the release notes for more details.","v1.0.0","TRUE","The model is based on the [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) and has the following changes:
+2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","ZA","This model builds on [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a), with numerous enhancements by Tabiya, including the addition of new occupation and skill labels, to create a taxonomy specific to South Africa. See the release notes for more details.","v1.0.0","true","The model is based on the [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) and has the following changes:
 - Remove: [I32_0_5 tending furnace, boiler, fireplace for heating and water supply](urn:tabiya:occupation:8133bf46-2133-49c5-8caf-a93422ec07e3) from the unseen economy occupations/activities.
 - Change: Recalculate the hierarchy, skills relations, and skills' signaling value of [I32_0 cleaning and looking after your home or garden](urn:tabiya:occupation:b6d84895-fa8f-4ea4-9e4f-b9f4c5086e8f) after removing [I32_0_5](urn:tabiya:occupation:8133bf46-2133-49c5-8caf-a93422ec07e3)
 - Adapt the alternative labels of 1184 occupations and 31 skills to be more specific to South Africa."
