@@ -45,7 +45,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
 
   test.each<[string, IOccupationGroupDoc]>([
     [
-      "mandatory fields",
+      "mandatory fields for ISCOGroup",
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
@@ -60,7 +60,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       },
     ],
     [
-      "optional fields",
+      "optional fields for ISCOGroup",
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
@@ -68,6 +68,36 @@ describe("Test the definition of the OccupationGroup Model", () => {
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         groupType: ObjectTypes.ISCOGroup,
+        originUri: "",
+        altLabels: [],
+        description: "",
+        importId: "",
+      },
+    ],
+    [
+      "mandatory fields for LocalGroup",
+      {
+        UUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
+        code: getMockRandomOccupationGroupCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        originUri: generateRandomUrl(),
+        groupType: ObjectTypes.LocalGroup,
+        altLabels: [getTestString(LABEL_MAX_LENGTH, "Label_1"), getTestString(LABEL_MAX_LENGTH, "Label_2")],
+        description: getTestString(DESCRIPTION_MAX_LENGTH),
+        importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      },
+    ],
+    [
+      "optional fields for LocalGroup",
+      {
+        UUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
+        code: getMockRandomOccupationGroupCode(),
+        preferredLabel: getTestString(LABEL_MAX_LENGTH),
+        modelId: getMockObjectId(2),
+        groupType: ObjectTypes.LocalGroup,
         originUri: "",
         altLabels: [],
         description: "",

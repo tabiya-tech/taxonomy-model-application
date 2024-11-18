@@ -18,7 +18,7 @@ import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types
 import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
 import {
   getNewSkillGroupSpec,
-  getSimpleNewOccupationGroupSpec,
+  getSimpleNewISCOGroupSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
@@ -518,10 +518,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
         const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
         // The non-SkillGroup in this case an Occupation group
-        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getSimpleNewOccupationGroupSpec(
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getSimpleNewISCOGroupSpec(
           getMockStringId(1),
-          "group_1",
-          ObjectTypes.ISCOGroup
+          "group_1"
         );
         const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
         // it is import to cast the id to ObjectId, otherwise the parents will not be found

@@ -16,7 +16,7 @@ import { ISkill } from "esco/skill/skills.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "./skillHierarchy.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import {
-  getSimpleNewOccupationGroupSpec,
+  getSimpleNewISCOGroupSpec,
   getSimpleNewESCOOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
@@ -700,7 +700,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "OccupationGroup_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -738,7 +738,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "OccupationGroup_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")

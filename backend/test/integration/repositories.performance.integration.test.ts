@@ -11,7 +11,7 @@ import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import {
   getSimpleNewESCOOccupationSpec,
-  getSimpleNewOccupationGroupSpec,
+  getSimpleNewISCOGroupSpec, getSimpleNewLocalGroupSpec,
   getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
@@ -67,22 +67,25 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
   }
 
   describe("Test OccupationGroup", () => {
-    test("should successfully create many Occupation groups with acceptable performance", async () => {
-      // WHEN N OccupationGroups are created
-      const N = 1000;
-      const actualNewOccupationGroups: IOccupationGroup[] = [];
-      const createOccupationGroupsInDBPromise = async () => {
-        const docs = await repositoryRegistry.OccupationGroup.createMany(
-          Array.from({ length: N }, (_, index) => getSimpleNewOccupationGroupSpec(getMockStringId(1), `group_${index}`, ObjectTypes.ISCOGroup))
-        );
-        actualNewOccupationGroups.push(...docs);
+    test("should successfully create many ISCO & Local groups with acceptable performance", async () => {
+      // WHEN N ISCO and Local groups are created
+      const N = 500;
+      const actualNewGroups: IOccupationGroup[] = [];
+      const newGroupSpecs = Array.from({ length: N }, (_, index) => getSimpleNewISCOGroupSpec(getMockStringId(1), `isco_${index}`));
+      newGroupSpecs.push(
+        ...Array.from({ length: N }, (_, index) => getSimpleNewLocalGroupSpec(getMockStringId(1), `local_${index}`)
+        )
+      );
+      const createGroupInDBPromise = async () => {
+        const docs = await repositoryRegistry.OccupationGroup.createMany(newGroupSpecs);
+        actualNewGroups.push(...docs);
         // delete all the created entries to avoid unique index violations
         await repositoryRegistry.OccupationGroup.Model.deleteMany({}).exec();
       };
       const ITERATIONS = 3;
-      await expect(createOccupationGroupsInDBPromise).toResolveWithinQuantile(1500, { iterations: ITERATIONS, quantile: 95 });
+      await expect(createGroupInDBPromise).toResolveWithinQuantile(1500, { iterations: ITERATIONS, quantile: 95 });
       // THEN expect the groups to be created without timing out
-      expect(actualNewOccupationGroups).toHaveLength(N * ITERATIONS);
+      expect(actualNewGroups).toHaveLength(2 * N * ITERATIONS);
     });
   });
 
@@ -154,11 +157,16 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
 
   describe("Test occupationHierarchy", () => {
     test("should successfully createMany() Occupation hierarchies with acceptable performance", async () => {
-      // GIVEN N OccupationGroups exist in the database
+      // GIVEN N ISCO Groups exist in the database
       const N = 1000;
       const givenModelId = getMockStringId(1);
       const givenOccupationGroups = await repositoryRegistry.OccupationGroup.createMany(
-        Array.from({ length: N }, (_, index) => getSimpleNewOccupationGroupSpec(givenModelId, `group_${index}`, ObjectTypes.ISCOGroup))
+        Array.from({ length: N }, (_, index) => getSimpleNewISCOGroupSpec(givenModelId, `group_${index}`))
+      );
+      // AND N Local Groups exist in the database
+      const givenLocalGroups = await repositoryRegistry.OccupationGroup.createMany(
+        Array.from({ length: N }, (_, index) => getSimpleNewLocalGroupSpec(givenModelId, `local_group_${index}`)
+        )
       );
       // AND N ESCO Occupations exist in the database
       const givenOccupations = await repositoryRegistry.occupation.createMany(
@@ -175,15 +183,22 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       // AND the OccupationGroups <- ESCO Occupation <- Local Occupation  hierarchy specs
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [];
       for (let i = 0; i < N; i++) {
-        const occupationGroup = givenOccupationGroups[i];
+        const iscoGroup = givenOccupationGroups[i];
+        const localGroup = givenLocalGroups[i];
         const occupation = givenOccupations[i];
         const localOccupation = givenLocalOccupations[i];
         givenNewHierarchySpecs.push(
           {
-            parentId: occupationGroup.id,
-            parentType: ObjectTypes.ISCOGroup,
+            parentId: iscoGroup.id,
+            parentType: iscoGroup.groupType,
             childId: occupation.id,
             childType: occupation.occupationType,
+          },
+          {
+            parentId: localGroup.id,
+            parentType: localGroup.groupType,
+            childId: localOccupation.id,
+            childType: localOccupation.occupationType,
           },
           {
             parentId: occupation.id,
