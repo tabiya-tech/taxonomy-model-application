@@ -18,13 +18,14 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getNewESCOOccupationSpec,
   getNewLocalOccupationSpec,
-  getNewOccupationGroupSpec,
+  getNewISCOGroupSpecs,
   getNewSkillSpec,
   getSimpleNewESCOOccupationSpec,
   getSimpleNewLocalizedESCOOccupationSpec,
   getSimpleNewLocalOccupationSpec,
-  getSimpleNewOccupationGroupSpec,
+  getSimpleNewISCOGroupSpec,
   getSimpleNewSkillSpec,
+  getSimpleNewLocalGroupSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -533,7 +534,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenSubject = await repository.create(givenSubjectSpecs);
 
       // The parent (Occupation Group)
-      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent", ObjectTypes.ISCOGroup);
+      const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
       const givenParent = await repositoryRegistry.OccupationGroup.create(givenParentSpecs);
 
       // The child Occupation
@@ -626,7 +627,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenSubject = await repository.create(givenSubjectSpecs);
 
       // The parent (Occupation Group)
-      const givenParentSpecs = getSimpleNewOccupationGroupSpec(givenModelId, "parent", ObjectTypes.LocalGroup);
+      const givenParentSpecs = getSimpleNewLocalGroupSpec(givenModelId, "parent");
       const givenParent = await repositoryRegistry.OccupationGroup.create(givenParentSpecs);
 
       // The child Occupation
@@ -1094,11 +1095,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
         // AND an OccupationGroup G1 with the same ID as the subject occupation in the given model
-        const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(
-          givenModelId,
-          "OccupationGroup",
-          ObjectTypes.ISCOGroup
-        );
+        const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup");
         // @ts-ignore
         givenOccupationGroupSpecs.id = givenID.toHexString();
         const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs);
@@ -1157,11 +1154,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
         // AND an OccupationGroup with the given ID as the subject occupation in the given model
-        const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(
-          givenModelId,
-          "OccupationGroup 2",
-          ObjectTypes.ISCOGroup
-        );
+        const givenOccupationGroupSpecs_2 = getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup 2");
         // @ts-ignore
         givenOccupationGroupSpecs_2.id = givenID.toHexString();
         const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_2);
@@ -1169,11 +1162,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         expect(givenOccupationGroup_2.id).toEqual(givenID.toHexString());
 
         // AND another OccupationGroup with some ID in the given model
-        const givenOccupationGroupSpec_1 = getSimpleNewOccupationGroupSpec(
-          givenModelId,
-          "OccupationGroup 1",
-          ObjectTypes.ISCOGroup
-        );
+        const givenOccupationGroupSpec_1 = getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup 1");
         const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpec_1);
 
         // AND another occupation with some ID in the given model
@@ -1276,7 +1265,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenOccupation = await repository.create(givenOccupationSpecs);
 
         // The non-Skill in this case an OccupationGroup
-        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec();
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewISCOGroupSpecs();
         const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found

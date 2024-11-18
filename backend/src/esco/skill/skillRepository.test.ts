@@ -26,7 +26,7 @@ import {
 } from "_test_utilities/testDBConnectionFaillure";
 import {
   getNewESCOOccupationSpec,
-  getNewOccupationGroupSpec,
+  getNewISCOGroupSpecs,
   getNewSkillSpec,
   getSimpleNewESCOOccupationSpec,
   getSimpleNewLocalOccupationSpec,
@@ -1276,7 +1276,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkill = await repository.create(givenSkillSpecs);
 
         // The non-Skill in this case an OccupationGroup
-        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec();
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewISCOGroupSpecs();
         const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found

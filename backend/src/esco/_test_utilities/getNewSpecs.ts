@@ -19,10 +19,10 @@ import { randomUUID } from "crypto";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 /**
- * Helper function to create an INewOccupationGroupSpec with random values,
+ * Helper functions to create an INewOccupationGroupSpec with random values,
  * that can be used for creating a new OccupationGroup
  */
-export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {
+export function getNewISCOGroupSpecs(): INewOccupationGroupSpec {
   return {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
     code: getMockRandomOccupationGroupCode(),
@@ -30,7 +30,21 @@ export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
-    groupType: Math.random() > 0.5 ? ObjectTypes.ISCOGroup : ObjectTypes.LocalGroup, // NOSONAR
+    groupType: ObjectTypes.ISCOGroup,
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    importId: getTestString(IMPORT_ID_MAX_LENGTH),
+  };
+}
+
+export function getNewLocalGroupSpecs(): INewOccupationGroupSpec {
+  return {
+    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+    code: getMockRandomOccupationGroupCode(),
+    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
+    modelId: getMockStringId(2),
+    UUIDHistory: [randomUUID()],
+    originUri: generateRandomUrl(),
+    groupType: ObjectTypes.LocalGroup,
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
   };
@@ -40,11 +54,7 @@ export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {
  * Helper function to create an INewOccupationGroupSpec with simplest possible values,
  * that can be used for creating a new OccupationGroup
  */
-export function getSimpleNewOccupationGroupSpec(
-  modelId: string,
-  preferredLabel: string,
-  groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup
-): INewOccupationGroupSpec {
+export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewOccupationGroupSpec {
   return {
     altLabels: [],
     code: getMockRandomOccupationGroupCode(),
@@ -52,14 +62,28 @@ export function getSimpleNewOccupationGroupSpec(
     modelId: modelId,
     UUIDHistory: [randomUUID()],
     originUri: "",
-    groupType: groupType,
+    groupType: ObjectTypes.ISCOGroup,
+    description: "",
+    importId: getMockStringId(Math.random() * 1000),
+  };
+}
+
+export function getSimpleNewLocalGroupSpec(modelId: string, preferredLabel: string): INewOccupationGroupSpec {
+  return {
+    altLabels: [],
+    code: getMockRandomOccupationGroupCode(),
+    preferredLabel: preferredLabel,
+    modelId: modelId,
+    UUIDHistory: [randomUUID()],
+    originUri: "",
+    groupType: ObjectTypes.LocalGroup,
     description: "",
     importId: getMockStringId(Math.random() * 1000),
   };
 }
 
 /**
- * Helper function to create an INewOccupationSpec with random values,
+ * Helper functions to create an INewOccupationSpec with random values,
  * that can be used for creating a new Occupation
  */
 export function getNewESCOOccupationSpec(): INewOccupationSpec {

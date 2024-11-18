@@ -22,9 +22,10 @@ import {
 import {
   getSimpleNewESCOOccupationSpec,
   getSimpleNewLocalOccupationSpec,
-  getSimpleNewOccupationGroupSpec,
+  getSimpleNewISCOGroupSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
+  getSimpleNewLocalGroupSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailure,
@@ -92,19 +93,31 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
     return await repository.createMany(modelId, newOccupationHierarchyPairSpecs);
   }
 
-  const createEntitiyFromType = (type: ObjectTypes, givenModelId: string) => {
+  const createEntityFromType = (givenModelId: string, type: ObjectTypes) => {
     switch (type) {
       case ObjectTypes.ISCOGroup:
+        return repositoryRegistry.OccupationGroup.create(getSimpleNewISCOGroupSpec(givenModelId, "group_1"));
       case ObjectTypes.LocalGroup:
-        return repositoryRegistry.OccupationGroup.create(
-          getSimpleNewOccupationGroupSpec(givenModelId, "group_1", type)
-        );
+        return repositoryRegistry.OccupationGroup.create(getSimpleNewLocalGroupSpec(givenModelId, "group_1"));
       case ObjectTypes.ESCOOccupation:
         return repositoryRegistry.occupation.create(getSimpleNewESCOOccupationSpec(givenModelId, "esco_occupation_1"));
       case ObjectTypes.LocalOccupation:
         return repositoryRegistry.occupation.create(
           getSimpleNewLocalOccupationSpec(givenModelId, "local_occupation_1")
         );
+      default:
+        throw new Error(`Unexpected type: ${type}`);
+    }
+  };
+
+  const findEntityFromType = (type: ObjectTypes, id: string) => {
+    switch (type) {
+      case ObjectTypes.ISCOGroup:
+      case ObjectTypes.LocalGroup:
+        return repositoryRegistry.OccupationGroup.findById(id);
+      case ObjectTypes.ESCOOccupation:
+      case ObjectTypes.LocalOccupation:
+        return repositoryRegistry.occupation.findById(id);
       default:
         throw new Error(`Unexpected type: ${type}`);
     }
@@ -154,40 +167,11 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       async (description: string, givenParentType: ObjectTypes, givenChildrenTypes: ObjectTypes[]) => {
         const givenModelId = getMockStringId(1);
 
-        const createEntityFromType = (type: ObjectTypes) => {
-          switch (type) {
-            case ObjectTypes.ISCOGroup:
-            case ObjectTypes.LocalGroup:
-              return repositoryRegistry.OccupationGroup.create(
-                getSimpleNewOccupationGroupSpec(givenModelId, "group_1", type)
-              );
-            case ObjectTypes.ESCOOccupation:
-              return repositoryRegistry.occupation.create(
-                getSimpleNewESCOOccupationSpec(givenModelId, "esco_occupation_1")
-              );
-            case ObjectTypes.LocalOccupation:
-              return repositoryRegistry.occupation.create(
-                getSimpleNewLocalOccupationSpec(givenModelId, "local_occupation_1")
-              );
-            default:
-              throw new Error(`Unexpected type: ${type}`);
-          }
-        };
-        const findEntityFromType = (type: ObjectTypes, id: string) => {
-          switch (type) {
-            case ObjectTypes.ISCOGroup:
-            case ObjectTypes.LocalGroup:
-              return repositoryRegistry.OccupationGroup.findById(id);
-            case ObjectTypes.ESCOOccupation:
-            case ObjectTypes.LocalOccupation:
-              return repositoryRegistry.occupation.findById(id);
-            default:
-              throw new Error(`Unexpected type: ${type}`);
-          }
-        };
         // GIVEN a parent and children that exist in the same model
-        const givenParent = await createEntityFromType(givenParentType);
-        const givenChildren = await Promise.all(givenChildrenTypes.map((type) => createEntityFromType(type)));
+        const givenParent = await createEntityFromType(givenModelId, givenParentType);
+        const givenChildren = await Promise.all(
+          givenChildrenTypes.map((type) => createEntityFromType(givenModelId, type))
+        );
         // AND the following hierarchy
         // @ts-ignore
         const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = givenChildren.map((child, index) => ({
@@ -247,11 +231,11 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       async (description: string, subjectType: ObjectTypes, disallowedChildren: ObjectTypes[]) => {
         // GIVEN a subject that exists in the database
         const givenModelId = getMockStringId(1);
-        const givenSubject = await createEntitiyFromType(subjectType, givenModelId);
+        const givenSubject = await createEntityFromType(givenModelId, subjectType);
 
         // AND children that exist in the database
         const givenChildren = await Promise.all(
-          disallowedChildren.map((type) => createEntitiyFromType(type, givenModelId))
+          disallowedChildren.map((type) => createEntityFromType(givenModelId, type))
         );
 
         // AND the following hierarchy
@@ -274,7 +258,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // GIVEN an OccupationGroup and Occupation exist in the database in the same model and share the same id
       const givenModelId = getMockStringId(1);
       const givenObjectId = getMockStringId(2);
-      const givenGroupSpec = getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup);
+      const givenGroupSpec = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
       // @ts-ignore
       givenGroupSpec._id = givenObjectId;
       const givenGroup = await repositoryRegistry.OccupationGroup.create(givenGroupSpec);
@@ -317,13 +301,13 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // GIVEN 3 OccupationGroups exist in the database
       const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenGroup_1_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1_1")
       );
       const givenGroup_1_1_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1_1_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1_1_1")
       );
       // AND the following hierarchy
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
@@ -390,7 +374,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // AND linked with a parent-child relationship
       const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -449,7 +433,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup and 1 Occupation exist in the database in the same model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -481,7 +465,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup and 1 Occupation exist in the database in that model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -507,7 +491,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup and 1 Occupation exist in the database in that model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -539,7 +523,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup and 1 Occupation exist in the database in that model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -565,7 +549,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup and 1 Occupation exist in the database in that model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -591,7 +575,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup and 1 Occupation exist in the database in that model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -617,7 +601,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup, 1 Occupation  and 1 SkillGroup and a Skill exist in the database in that model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -655,7 +639,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenModelId = getMockStringId(1);
       // AND 1 OccupationGroup, 1 Occupation  and 1 SkillGroup and a Skill exist in the database in that model
       const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
@@ -692,11 +676,11 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // GIVEN 2 OccupationGroups exist in the database in the same model
       const givenModelId = getMockStringId(1);
       // AND the parent occupation is an isco group
-      const iscoGroup_1_spec = getSimpleNewOccupationGroupSpec(givenModelId, "isco_group_1", ObjectTypes.ISCOGroup); //<---- this is the inconsistency
+      const iscoGroup_1_spec = getSimpleNewISCOGroupSpec(givenModelId, "isco_group_1"); //<---- this is the inconsistency
       const givenIscoGroup_1 = await repositoryRegistry.OccupationGroup.create(iscoGroup_1_spec);
       // AND the child occupation is a local group
       const givenLocalGroup_1_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "local_group_1_1", ObjectTypes.LocalGroup)
+        getSimpleNewLocalGroupSpec(givenModelId, "local_group_1_1")
       );
       // AND the following hierarchy
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
@@ -744,11 +728,11 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // GIVEN 2 OccupationGroups exist in the database in the same model
       const givenModelId = getMockStringId(1);
       // AND the parent occupation is a local occupation
-      const localGroup_1_spec = getSimpleNewOccupationGroupSpec(givenModelId, "local_group_1", ObjectTypes.LocalGroup); //<---- this is the inconsistency
+      const localGroup_1_spec = getSimpleNewLocalGroupSpec(givenModelId, "local_group_1"); //<---- this is the inconsistency
       const givenLocalGroup_1 = await repositoryRegistry.OccupationGroup.create(localGroup_1_spec);
       // AND the child occupation is an esco occupation
       const givenIscoGroup_1_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewOccupationGroupSpec(givenModelId, "isco_group_1_1", ObjectTypes.ISCOGroup)
+        getSimpleNewISCOGroupSpec(givenModelId, "isco_group_1_1")
       );
       // AND the following hierarchy
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
@@ -771,7 +755,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // GIVEN 2 OccupationGroups exist in the database in the same model
       const givenModelId = getMockStringId(1);
       // AND the parent occupation is a local occupation
-      const localGroup_1_spec = getSimpleNewOccupationGroupSpec(givenModelId, "local_group_1", ObjectTypes.LocalGroup); //<---- this is the inconsistency
+      const localGroup_1_spec = getSimpleNewLocalGroupSpec(givenModelId, "local_group_1"); //<---- this is the inconsistency
       const givenLocalGroup_1 = await repositoryRegistry.OccupationGroup.create(localGroup_1_spec);
       // AND the child occupation is an esco occupation
       const givenEscoOccupation_1_1 = await repositoryRegistry.occupation.create(
@@ -806,16 +790,16 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         // GIVEN 4 OccupationGroups exist in the database in the same model
         const givenModelId = getMockStringId(1);
         const givenGroup_1 = await repositoryRegistry.OccupationGroup.create(
-          getSimpleNewOccupationGroupSpec(givenModelId, "group_1", ObjectTypes.ISCOGroup)
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1")
         );
         const givenGroup_1_1 = await repositoryRegistry.OccupationGroup.create(
-          getSimpleNewOccupationGroupSpec(givenModelId, "group_1_1", ObjectTypes.ISCOGroup)
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1_1")
         );
         const givenGroup_1_2 = await repositoryRegistry.OccupationGroup.create(
-          getSimpleNewOccupationGroupSpec(givenModelId, "group_1_2", ObjectTypes.ISCOGroup)
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1_2")
         );
         const givenGroup_1_2_1 = await repositoryRegistry.OccupationGroup.create(
-          getSimpleNewOccupationGroupSpec(givenModelId, "group_1_2_1", ObjectTypes.ISCOGroup)
+          getSimpleNewISCOGroupSpec(givenModelId, "group_1_2_1")
         );
         // AND the following hierarchy
         const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
