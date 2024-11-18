@@ -1,7 +1,7 @@
 import Papa from "papaparse";
 
 interface CsvRow {
-  UUIDHistory?: string;
+  UUIDHISTORY?: string;
   DESCRIPTION?: string;
 }
 
@@ -23,13 +23,13 @@ const parseSelectedModelInfoFile = (file: File): Promise<ModelInfoDetails> => {
         const records = result.data;
 
         // Check if the UUIDHistory column is found and not empty
-        if (records.length === 0 || !records[0].UUIDHistory) {
+        if (records.length === 0 || !records[0].UUIDHISTORY) {
           reject(new Error("UUIDHistory column not found or empty in the first row"));
           return;
         }
 
         // Split the UUIDHistory string into an array of UUIDs
-        const uuidHistory: string[] = records[0].UUIDHistory.split("\n");
+        const uuidHistory: string[] = records[0].UUIDHISTORY.split("\n");
         const description = records[0].DESCRIPTION || "";
 
         resolve({

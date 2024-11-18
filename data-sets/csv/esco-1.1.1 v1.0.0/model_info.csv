@@ -1,5 +1,5 @@
-"UUIDHistory","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
-"2e00af88-dc74-43e1-a0e0-caed41c95bce","ESCO 1.1.1","EU-en","This model is based on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with minor corrections. See the release notes for more details.","v1.0.0","TRUE","The model is based on the ESCO v1.1.1 and has the following changes:
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"2e00af88-dc74-43e1-a0e0-caed41c95bce","ESCO 1.1.1","EU-en","This model is based on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with minor corrections. See the release notes for more details.","v1.0.0","true","The model is based on the ESCO v1.1.1 and has the following changes:
 - Fix: Add missing preferred labels. Preferred labels were missing from the altLabels of isco-groups, skill-groups, some occupations, some skills.
 - Fix: Several alt-labels had duplicate entries
 - Fix: Several text fields have invisible characters such as \t, nbsp and others

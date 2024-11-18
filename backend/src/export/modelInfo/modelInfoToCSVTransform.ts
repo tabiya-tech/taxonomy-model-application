@@ -5,7 +5,7 @@ import { IModelInfo } from "modelInfo/modelInfo.types";
 import { Readable } from "node:stream";
 
 const modelInfoHeaders = [
-  "UUIDHistory",
+  "UUIDHISTORY",
   "NAME",
   "LOCALE",
   "DESCRIPTION",
@@ -17,12 +17,12 @@ const modelInfoHeaders = [
 ];
 
 interface IModelInfoRow {
-  UUIDHistory: string;
+  UUIDHISTORY: string;
   NAME: string;
   LOCALE: string;
   DESCRIPTION: string;
   VERSION: string;
-  RELEASED: "TRUE" | "FALSE";
+  RELEASED: "true" | "false";
   RELEASENOTES: string;
   CREATEDAT: string;
   UPDATEDAT: string;
@@ -30,12 +30,12 @@ interface IModelInfoRow {
 
 export const transformModelInfoSpecToCSVRow = (modelInfo: IModelInfo): IModelInfoRow => {
   return {
-    UUIDHistory: modelInfo.UUIDHistory.join("\n"),
+    UUIDHISTORY: modelInfo.UUIDHistory.join("\n"),
     NAME: modelInfo.name,
     LOCALE: modelInfo.locale.shortCode,
     DESCRIPTION: modelInfo.description,
     VERSION: modelInfo.version,
-    RELEASED: modelInfo.released ? "TRUE" : "FALSE",
+    RELEASED: modelInfo.released ? "true" : "false",
     RELEASENOTES: modelInfo.releaseNotes,
     CREATEDAT: modelInfo.createdAt.toISOString(),
     UPDATEDAT: modelInfo.updatedAt.toISOString(),
