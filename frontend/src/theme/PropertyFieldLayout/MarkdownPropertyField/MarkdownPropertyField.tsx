@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import React from "react";
+import React, {useMemo} from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
@@ -21,6 +21,11 @@ export const DATA_TEST_ID = {
 enum UrnType {
   ESCO = "esco",
 }
+
+enum KEYWORDS {
+  NO_MARKDOWN = "%%NO_MARKDOWN",
+}
+
 
 export const handleLink = (props: any) => {
   let href = props.href;
@@ -53,7 +58,36 @@ export const handleTransform = (url: string) => {
   return url;
 };
 
+function sanitize(string: string) {
+  // remove all keywords
+  return string
+    .replace(new RegExp(KEYWORDS.NO_MARKDOWN, "g"), "");
+}
+
 const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
+
+  const formattedText = useMemo(() => {
+    let formattedText = [];
+
+    for (let i = 0; i < props.text.length; i++) {
+      if (props?.text[i] == "\n"){
+        formattedText.push(<br key={i} />);
+      }
+      if (props?.text[i] == " "){
+        formattedText.push(<>&nbsp;</>);
+      }
+
+      formattedText.push(props.text[i]);
+    }
+
+    return formattedText;
+  }, [props.text])
+
+  const useMarkdown = useMemo(() => {
+    return !props.text.startsWith("%%NO_MARKDOWN");
+
+  }, [props.text])
+
   return (
     <PropertyFieldLayout title={props.label ?? ""} data-testid={props["data-testid"]} fieldId={props?.fieldId ?? ""}>
       <Typography
@@ -64,15 +98,15 @@ const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
         }}
         data-testid={DATA_TEST_ID.MARKDOWN_PROPERTY_FIELD_TEXT}
       >
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          urlTransform={handleTransform}
-          components={{
-            a: handleLink,
-          }}
-        >
-          {props.text}
-        </ReactMarkdown>
+        {useMarkdown ? (
+          <ReactMarkdown
+            children={props.text}
+            remarkPlugins={[remarkGfm]}
+            components={{ a: handleLink }}
+          />
+        ) : (
+          formattedText
+        )}
       </Typography>
     </PropertyFieldLayout>
   );
