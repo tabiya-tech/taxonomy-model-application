@@ -67,26 +67,25 @@ function sanitize(string: string) {
 const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
 
   const formattedText = useMemo(() => {
-    let formattedText = [];
+    const sanitizedText = sanitize(props.text);
+    const formattedText = [];
 
-    for (let i = 0; i < props.text.length; i++) {
-      if (props?.text[i] == "\n"){
+    for (let i = 0; i < sanitizedText.length; i++) {
+      if (sanitizedText[i] === "\n") {
         formattedText.push(<br key={i} />);
       }
-      if (props?.text[i] == " "){
+
+      if (sanitizedText[i] === " ") {
         formattedText.push(<>&nbsp;</>);
       }
 
-      formattedText.push(props.text[i]);
+      formattedText.push(sanitizedText[i]);
     }
 
     return formattedText;
-  }, [props.text])
+  }, [props.text]);
 
-  const useMarkdown = useMemo(() => {
-    return !props.text.startsWith("%%NO_MARKDOWN");
-
-  }, [props.text])
+  const useMarkdown = useMemo(() => !props.text.includes(KEYWORDS.NO_MARKDOWN), [props.text]);
 
   return (
     <PropertyFieldLayout title={props.label ?? ""} data-testid={props["data-testid"]} fieldId={props?.fieldId ?? ""}>
@@ -100,7 +99,7 @@ const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
       >
         {useMarkdown ? (
           <ReactMarkdown
-            children={props.text}
+            children={sanitize(props.text)}
             remarkPlugins={[remarkGfm]}
             components={{ a: handleLink }}
           />
