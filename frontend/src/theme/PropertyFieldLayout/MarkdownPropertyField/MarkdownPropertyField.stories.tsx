@@ -157,9 +157,7 @@ You can contact us at [fake@example.com](mailto:fake@example.com).
 };
 
 const LICENSE_TEXT =
-`
-%%NO_MARKDOWN
-Attribution 4.0 International
+`Attribution 4.0 International
 
 =======================================================================
 
@@ -560,13 +558,14 @@ Creative Commons may be contacted at creativecommons.org.
 export const ShownWithoutMarkdown: Story = {
   args: {
     label: "Sections",
-    text: LICENSE_TEXT
+    text:`%%NO_MARKDOWN
+${LICENSE_TEXT}`
   }
 };
 
 export const ShownWithMarkdown: Story = {
   args: {
     label: "Sections",
-    text: LICENSE_TEXT
+    text: LICENSE_TEXT,
   }
 };

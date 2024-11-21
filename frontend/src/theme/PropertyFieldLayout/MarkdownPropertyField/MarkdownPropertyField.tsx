@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import React, {useMemo} from "react";
+import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
@@ -24,6 +24,7 @@ enum UrnType {
 
 enum KEYWORDS {
   NO_MARKDOWN = "%%NO_MARKDOWN",
+  MARKDOWN = "%%MARKDOWN",
 }
 
 
@@ -61,12 +62,18 @@ export const handleTransform = (url: string) => {
 function sanitize(string: string) {
   // remove all keywords
   return string
-    .replace(new RegExp(KEYWORDS.NO_MARKDOWN, "g"), "");
+    .replace(new RegExp(KEYWORDS.NO_MARKDOWN, "g"), "")
+    .replace(new RegExp(KEYWORDS.MARKDOWN, "g"), "");
 }
 
 const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
 
+  const useMarkdown = useMemo(() => !props.text.includes(KEYWORDS.NO_MARKDOWN), [props.text]);
+
   const formattedText = useMemo(() => {
+    if(useMarkdown)
+      return props.text;
+
     const sanitizedText = sanitize(props.text);
     const formattedText = [];
 
@@ -83,9 +90,8 @@ const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
     }
 
     return formattedText;
-  }, [props.text]);
+  }, [props.text, useMarkdown]);
 
-  const useMarkdown = useMemo(() => !props.text.includes(KEYWORDS.NO_MARKDOWN), [props.text]);
 
   return (
     <PropertyFieldLayout title={props.label ?? ""} data-testid={props["data-testid"]} fieldId={props?.fieldId ?? ""}>
