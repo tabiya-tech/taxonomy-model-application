@@ -69,6 +69,18 @@ export function generateRandomDigitString(minDigits: number, maxDigits: number):
   return result;
 }
 
+export function generateRandomAlphabeticalString(minDigits: number, maxDigits: number) {
+  let result = "";
+  const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const digitCount = Math.floor(Math.random() * (maxDigits - minDigits + 1)) + minDigits; // NOSONAR
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < digitCount; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength)); // NOSONAR
+  }
+  return result;
+}
+
 export function generateRandomNumber(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min; // NOSONAR
 }

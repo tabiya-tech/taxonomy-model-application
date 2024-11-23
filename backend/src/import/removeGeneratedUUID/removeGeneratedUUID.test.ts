@@ -13,7 +13,8 @@ import LocaleAPISpecs from "api-specifications/locale";
 import { randomUUID } from "crypto";
 import {
   getNewESCOOccupationSpec,
-  getNewISCOGroupSpecs, getNewLocalGroupSpecs,
+  getNewISCOGroupSpecs,
+  getNewLocalGroupSpecs,
   getNewLocalOccupationSpec,
   getNewSkillGroupSpec,
   getNewSkillSpec,
@@ -235,7 +236,9 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewLocalOccupationGroupSpec = getNewLocalGroupSpecs();
     givenNewLocalOccupationGroupSpec.modelId = givenCreatedModel.id;
     givenNewLocalOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(0);
-    const givenCreatedLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewLocalOccupationGroupSpec);
+    const givenCreatedLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+      givenNewLocalOccupationGroupSpec
+    );
     // AND a new UUID Item is added
     expect(givenCreatedOccupationGroup.UUIDHistory).toHaveLength(1);
 
@@ -366,7 +369,9 @@ describe("RemoveGeneratedUUID", () => {
       const givenNewLocalOccupationGroupSpec = getNewLocalGroupSpecs();
       givenNewLocalOccupationGroupSpec.modelId = givenCreatedModel.id;
       givenNewLocalOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(count);
-      const givenCreatedLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewLocalOccupationGroupSpec);
+      const givenCreatedLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+        givenNewLocalOccupationGroupSpec
+      );
 
       // AND UUIDHistory is increaased by 1 (1 new UUID is added)
       expect(givenCreatedOccupationGroup.UUIDHistory).toHaveLength(count + 1);
@@ -492,7 +497,9 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewLocalOccupationGroupSpec = getNewLocalGroupSpecs();
     givenNewLocalOccupationGroupSpec.modelId = actualNewModel.id;
     givenNewLocalOccupationGroupSpec.UUIDHistory = [randomUUID()];
-    const actualNewLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewLocalOccupationGroupSpec);
+    const actualNewLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+      givenNewLocalOccupationGroupSpec
+    );
 
     // AND a different model exists in the database
     const givenNewModelInfoSpec2: INewModelInfoSpec = getNewModelInfoSpec();

@@ -25,6 +25,7 @@ export const OccupationModelPaths = {
   children: "children",
   requiresSkills: "requiresSkills",
   occupationType: "occupationType",
+  code: "code",
 };
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
@@ -35,7 +36,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       UUIDHistory: UUIDHistoryProperty,
       originUri: OriginUriProperty,
-      code: OccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
+      [OccupationModelPaths.code]: OccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
       occupationGroupCode: OccupationGroupCodeProperty, // TODO: if OccupationGroupCode is part of the code, then make sure that code starts with the OccupationGroupCode (e.g. I32_0_1 starts with I32)
       preferredLabel: PreferredLabelProperty,
       altLabels: AltLabelsProperty,

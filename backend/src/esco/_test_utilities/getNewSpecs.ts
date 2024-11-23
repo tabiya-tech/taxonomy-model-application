@@ -8,7 +8,7 @@ import {
   REGULATED_PROFESSION_NOTE_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH,
 } from "esco/common/modelSchema";
-import { getMockRandomOccupationGroupCode } from "_test_utilities/mockOccupationGroupCode";
+import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
@@ -22,10 +22,10 @@ import { ObjectTypes } from "esco/common/objectTypes";
  * Helper functions to create an INewOccupationGroupSpec with random values,
  * that can be used for creating a new OccupationGroup
  */
-export function getNewISCOGroupSpecs(): INewOccupationGroupSpec {
+export function getNewISCOGroupSpecs(leafNode: boolean = false): INewOccupationGroupSpec {
   return {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getMockRandomOccupationGroupCode(),
+    code: leafNode ? getMockRandomISCOGroupCode().padStart(4, "0") : getMockRandomISCOGroupCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
@@ -39,7 +39,7 @@ export function getNewISCOGroupSpecs(): INewOccupationGroupSpec {
 export function getNewLocalGroupSpecs(): INewOccupationGroupSpec {
   return {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
-    code: getMockRandomOccupationGroupCode(),
+    code: getMockRandomLocalGroupCode(),
     preferredLabel: getRandomString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
@@ -54,10 +54,14 @@ export function getNewLocalGroupSpecs(): INewOccupationGroupSpec {
  * Helper function to create an INewOccupationGroupSpec with simplest possible values,
  * that can be used for creating a new OccupationGroup
  */
-export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: string): INewOccupationGroupSpec {
+export function getSimpleNewISCOGroupSpec(
+  modelId: string,
+  preferredLabel: string,
+  leafNode: boolean = false
+): INewOccupationGroupSpec {
   return {
     altLabels: [],
-    code: getMockRandomOccupationGroupCode(),
+    code: leafNode ? getMockRandomISCOGroupCode().padStart(4, "0") : getMockRandomISCOGroupCode(),
     preferredLabel: preferredLabel,
     modelId: modelId,
     UUIDHistory: [randomUUID()],
@@ -71,7 +75,7 @@ export function getSimpleNewISCOGroupSpec(modelId: string, preferredLabel: strin
 export function getSimpleNewLocalGroupSpec(modelId: string, preferredLabel: string): INewOccupationGroupSpec {
   return {
     altLabels: [],
-    code: getMockRandomOccupationGroupCode(),
+    code: getMockRandomLocalGroupCode(),
     preferredLabel: preferredLabel,
     modelId: modelId,
     UUIDHistory: [randomUUID()],
@@ -83,12 +87,44 @@ export function getSimpleNewLocalGroupSpec(modelId: string, preferredLabel: stri
 }
 
 /**
+ * Helper function to create an ISCO group that obeys the rules about the code needing to start with it's parent's code
+ */
+export function getSimpleNewISCOGroupSpecWithParentCode(
+  modelId: string,
+  preferredLabel: string,
+  parentCode: string,
+  leafNode: boolean = false
+): INewOccupationGroupSpec {
+  const ISCOGroupSpec = getSimpleNewISCOGroupSpec(modelId, preferredLabel, leafNode);
+  const code = leafNode ? parentCode + ISCOGroupSpec.code.slice(parentCode.length) : parentCode + ISCOGroupSpec.code;
+  return {
+    ...ISCOGroupSpec,
+    code: code,
+  };
+}
+
+/**
+ * Helper function to create a Local group that obeys the rules about the code needing to start with it's parent's code
+ */
+export function getSimpleNewLocalGroupSpecWithParentCode(
+  modelId: string,
+  preferredLabel: string,
+  parentCode: string
+): INewOccupationGroupSpec {
+  const LocalGroupSpec = getSimpleNewLocalGroupSpec(modelId, preferredLabel);
+  return {
+    ...LocalGroupSpec,
+    code: parentCode + LocalGroupSpec.code,
+  };
+}
+
+/**
  * Helper functions to create an INewOccupationSpec with random values,
  * that can be used for creating a new Occupation
  */
 export function getNewESCOOccupationSpec(): INewOccupationSpec {
   return {
-    occupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
@@ -113,7 +149,7 @@ export function getNewLocalizedESCOOccupationSpec(): INewOccupationSpec {
 
 export function getNewLocalOccupationSpec(): INewOccupationSpec {
   return {
-    occupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     definition: getTestString(DESCRIPTION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
@@ -136,7 +172,7 @@ export function getNewLocalOccupationSpec(): INewOccupationSpec {
  */
 export function getSimpleNewESCOOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
-    occupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",
@@ -160,7 +196,7 @@ export function getSimpleNewLocalizedESCOOccupationSpec(modelId: string, preferr
 }
 export function getSimpleNewLocalOccupationSpec(modelId: string, preferredLabel: string): INewOccupationSpec {
   return {
-    occupationGroupCode: getMockRandomOccupationGroupCode(),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     definition: "",
     regulatedProfessionNote: "",
     scopeNote: "",
@@ -174,6 +210,57 @@ export function getSimpleNewLocalOccupationSpec(modelId: string, preferredLabel:
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
     occupationType: ObjectTypes.LocalOccupation,
     isLocalized: false,
+  };
+}
+
+/**
+ * Helper function to create an esco occupation that obeys the rules about the code needing to start with it's parent's code
+ */
+export function getSimpleNewESCOOccupationSpecWithParentCode(
+  modelId: string,
+  preferredLabel: string,
+  parentCode: string
+): INewOccupationSpec {
+  const ESCOOccupationSpec = getSimpleNewESCOOccupationSpec(modelId, preferredLabel);
+  const separator = ".";
+  const lastSegment = ESCOOccupationSpec.code.split(separator).pop();
+  return {
+    ...ESCOOccupationSpec,
+    code: parentCode + separator + lastSegment,
+  };
+}
+
+/**
+ * Helper function to create an esco localized occupation that obeys the rules about the code needing to start with it's parent's code
+ */
+export function getSimpleNewLocalizedESCOOccupationSpecWithParentCode(
+  parentCode: string,
+  modelId: string,
+  preferredLabel: string
+): INewOccupationSpec {
+  const ESCOOccupationSpec = getSimpleNewLocalizedESCOOccupationSpec(modelId, preferredLabel);
+  const separator = ".";
+  const lastSegment = ESCOOccupationSpec.code.split(separator).pop();
+  return {
+    ...ESCOOccupationSpec,
+    code: parentCode + separator + lastSegment,
+  };
+}
+
+/**
+ * Helper function to create an local occupation that obeys the rules about the code needing to start with it's parent's code
+ */
+export function getSimpleNewLocalOccupationSpecWithParentCode(
+  modelId: string,
+  preferredLabel: string,
+  parentCode: string
+): INewOccupationSpec {
+  const LocalOccupationSpec = getSimpleNewLocalOccupationSpec(modelId, preferredLabel);
+  const separator = "_";
+  const lastSegment = LocalOccupationSpec.code.split(separator).pop();
+  return {
+    ...LocalOccupationSpec,
+    code: parentCode + separator + lastSegment,
   };
 }
 

@@ -52,7 +52,7 @@ import {
   INDEX_FOR_REQUIRED_BY_SKILLS,
   INDEX_FOR_REQUIRES_SKILLS,
 } from "esco/skillToSkillRelation/skillToSkillRelationModel";
-import { INDEX_FOR_REQUIRED_BY_OCCUPATIONS } from "../occupationToSkillRelation/occupationToSkillRelationModel";
+import { INDEX_FOR_REQUIRED_BY_OCCUPATIONS } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 
 jest.mock("crypto", () => {

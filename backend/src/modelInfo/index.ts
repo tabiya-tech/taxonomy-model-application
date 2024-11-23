@@ -11,7 +11,7 @@ import { ValidateFunction } from "ajv";
 import { transform } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
-import { checkRole, RoleRequired } from "../auth/authenticator";
+import { checkRole, RoleRequired } from "auth/authenticator";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
