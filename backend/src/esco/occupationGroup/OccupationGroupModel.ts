@@ -4,7 +4,7 @@ import {
   DescriptionProperty,
   OriginUriProperty,
   ImportIDProperty,
-  CodeProperty,
+  OccupationGroupCodeProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
 } from "esco/common/modelSchema";
@@ -19,6 +19,7 @@ export const OccupationGroupModelPaths = {
   parent: "parent",
   children: "children",
   groupType: "groupType",
+  code: "code",
 };
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationGroupDoc> {
@@ -27,7 +28,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
       UUIDHistory: UUIDHistoryProperty,
-      code: CodeProperty,
+      [OccupationGroupModelPaths.code]: OccupationGroupCodeProperty,
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       originUri: OriginUriProperty,

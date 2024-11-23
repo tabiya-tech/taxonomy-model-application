@@ -1,14 +1,15 @@
-import { generateRandomDigitString } from "./getMockRandomData";
+import { generateRandomAlphabeticalString, generateRandomDigitString } from "./getMockRandomData";
 
 const currentSegments: number[] = [0];
 const MAX_SEGMENT_ITEMS = 15;
 
 export function getMockRandomOccupationCode(local: boolean): string {
   const code = generateRandomDigitString(4, 4);
+  const localCode = generateRandomAlphabeticalString(4, 4) + code;
   // increment the segment counter
   incrementSegment(currentSegments.length - 1);
   const separator = local ? "_" : ".";
-  return code + separator + currentSegments.join(separator);
+  return (local ? localCode : code) + separator + currentSegments.join(separator);
 }
 
 function incrementSegment(index: number) {

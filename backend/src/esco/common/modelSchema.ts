@@ -130,21 +130,34 @@ export const OriginUriProperty: mongoose.SchemaDefinitionProperty<string> = {
   },
 };
 
-// ISCO Code and ICATUS Group Code
-// ISCO Code: the code can contain a number from 1 to 4 digits,
-// ICATUS Group Code: the code can contain a number from 1 to 2 digits prefixed with 'I'
-export const CodeProperty: mongoose.SchemaDefinitionProperty<string> = {
-  type: String,
-  required: true,
-  validate: RegExp(/(^I\d{1,2}$)|(^\d{1,4}$)/),
-};
+// ISCO Code can contain a number from 1 to 4 digits,
+const REGEX_ISCO_GROUP_CODE = RegExp(/(^\d{1,4}$)/);
 
-// ESCO occupations can be only at the 4th level
-// ICATUS occupations can be only at the 2nd level
+// Local code has to start with one or more letters and can be followed by a number
+// - WHEN the Local Group doesnt have any parents it will have a code that starts with one or more letters followed by one or more digits
+// - WHEN the Local Group has a parent that is an ISCO Group it will have a code that starts with the parent code and has one or more letters followed by one or more digits
+// - WHEN the Local Group has a parent that is a Local Group it will have a code that starts with the parent code and has one or more letters or one or more digits
+
+const REGEX_LOCAL_GROUP_CODE = RegExp(/^(?:\d{1,4})?[a-zA-Z]+[a-zA-Z\d]*$/);
+
 export const OccupationGroupCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
   required: true,
-  validate: RegExp(/(^I\d{2}$)|(^\d{4}$)/),
+  validate: {
+    validator: function (value: string) {
+      // @ts-ignore
+      switch (this.groupType) {
+        case ObjectTypes.ISCOGroup:
+          return REGEX_ISCO_GROUP_CODE.test(value);
+        case ObjectTypes.LocalGroup:
+          return REGEX_LOCAL_GROUP_CODE.test(value);
+        default:
+          // since the occupationModel doesn't have a groupType field, we can't check it
+          // the best we can do is to check if the value is a valid ISCO or Local Group code
+          return REGEX_ISCO_GROUP_CODE.test(value) || REGEX_LOCAL_GROUP_CODE.test(value);
+      }
+    },
+  },
 };
 
 // ESCO Occupation Code
@@ -153,8 +166,8 @@ export const RegExESCOOccupationCode = RegExp(/^\d{4}(?:\.\d+)+$/);
 // ESCO Local Occupation Code
 export const RegExESCOLocalOccupationCode = RegExp(/^\d{4}(?:\.\d+)*(?:_\d+)+$/);
 
-// ICATUS Occupation Code
-export const RegExICATUSOccupationCode = RegExp(/^I\d{2}(?:_\d+)+$/);
+// Local Occupation Code
+export const RegExLocalOccupationCode = RegExp(/(^[a-zA-Z\d]+)(?:_\d+)+$/);
 
 export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
@@ -166,7 +179,7 @@ export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> =
         case ObjectTypes.ESCOOccupation:
           return RegExESCOOccupationCode.test(value);
         case ObjectTypes.LocalOccupation:
-          return RegExESCOLocalOccupationCode.test(value) || RegExICATUSOccupationCode.test(value);
+          return RegExESCOLocalOccupationCode.test(value) || RegExLocalOccupationCode.test(value);
         default:
           throw new Error("Value of 'occupationType' path is not supported");
       }

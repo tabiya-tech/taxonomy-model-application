@@ -10,7 +10,7 @@ import { generateRandomUrl, getTestString, WHITESPACE } from "_test_utilities/ge
 import { DESCRIPTION_MAX_LENGTH, IMPORT_ID_MAX_LENGTH, LABEL_MAX_LENGTH } from "esco/common/modelSchema";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { getMockRandomOccupationGroupCode } from "_test_utilities/mockOccupationGroupCode";
+import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { IOccupationGroupDoc } from "./OccupationGroup.types";
 import {
   testAltLabelsField,
@@ -49,7 +49,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
-        code: getMockRandomOccupationGroupCode(),
+        code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         originUri: generateRandomUrl(),
@@ -64,7 +64,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
-        code: getMockRandomOccupationGroupCode(),
+        code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         groupType: ObjectTypes.ISCOGroup,
@@ -79,7 +79,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
-        code: getMockRandomOccupationGroupCode(),
+        code: getMockRandomLocalGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         originUri: generateRandomUrl(),
@@ -94,7 +94,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
-        code: getMockRandomOccupationGroupCode(),
+        code: getMockRandomLocalGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         groupType: ObjectTypes.LocalGroup,
@@ -135,34 +135,31 @@ describe("Test the definition of the OccupationGroup Model", () => {
     testUUIDHistoryField<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     describe("Test validation of 'code'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [CaseType.Failure, "empty", "", "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "only whitespace characters",
-          WHITESPACE,
-          `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
-        ],
-        [CaseType.Failure, "not a string od digits", "foo1", "Validator failed for path `{0}` with value `foo1`"],
-      ])(`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-        assertCaseForProperty<IOccupationGroupDoc>({
-          model: OccupationGroupModel,
-          propertyNames: "code",
-          caseType,
-          testValue: value,
-          expectedFailureMessage,
-        });
-      });
-      describe("Test validation of 'isco code'", () => {
+      describe("Test validation of 'code' for ISCO groups (^\\d{1,4}$)", () => {
         test.each([
-          [CaseType.Failure, "more than 4 digits", "55555", "Validator failed for path `{0}` with value `55555`"],
-          [CaseType.Failure, "with negative sign", "-9999", "Validator failed for path `{0}` with value `-9999`"],
-          [CaseType.Success, "0", "0", undefined],
-          [CaseType.Success, "max", "9999", undefined],
-          [CaseType.Success, "leading zero", "0009", undefined],
-          [CaseType.Success, "in range", "090", undefined],
+          // Common failure cases
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "only whitespace",
+            WHITESPACE,
+            `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+          ],
+
+          // ISCO specific failure cases
+          [CaseType.Failure, "non-numeric characters", "abc1", "Validator failed for path `{0}` with value `abc1`"],
+          [CaseType.Failure, "more than 4 digits", "12345", "Validator failed for path `{0}` with value `12345`"],
+          [CaseType.Failure, "negative number", "-123", "Validator failed for path `{0}` with value `-123`"],
+          [CaseType.Failure, "decimal number", "12.34", "Validator failed for path `{0}` with value `12.34`"],
+
+          // Success cases
+          [CaseType.Success, "single digit", "1", undefined],
+          [CaseType.Success, "two digits", "12", undefined],
+          [CaseType.Success, "three digits", "123", undefined],
+          [CaseType.Success, "four digits", "1234", undefined],
+          [CaseType.Success, "leading zeros", "0001", undefined],
         ])(
           `(%s) Validate 'code' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
@@ -172,19 +169,47 @@ describe("Test the definition of the OccupationGroup Model", () => {
               caseType,
               testValue: value,
               expectedFailureMessage,
+              dependencies: { groupType: ObjectTypes.ISCOGroup },
             });
           }
         );
       });
-      describe("Test validation of 'icatus code'", () => {
+
+      describe("Test validation of 'code' for Local groups (^\\d*[a-zA-Z\\d]+$)", () => {
         test.each([
-          [CaseType.Failure, "more than 2 digits", "I555", "Validator failed for path `{0}` with value `I555`"],
-          [CaseType.Failure, "with negative sign", "-I9", "Validator failed for path `{0}` with value `-I9`"],
-          [CaseType.Failure, "with negative digits", "I-99", "Validator failed for path `{0}` with value `I-99`"],
-          [CaseType.Success, "I0", "0", undefined],
-          [CaseType.Success, "max", "I99", undefined],
-          [CaseType.Success, "leading zero", "I09", undefined],
-          [CaseType.Success, "in range", "I43", undefined],
+          // Common failure cases
+          [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
+          [CaseType.Failure, "null", null, "Path `{0}` is required."],
+          [CaseType.Failure, "empty", "", "Path `{0}` is required."],
+          [
+            CaseType.Failure,
+            "only whitespace",
+            WHITESPACE,
+            `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+          ],
+
+          // Local group specific failure cases
+          [CaseType.Failure, "special characters", "abc#123", "Validator failed for path `{0}` with value `abc#123`"],
+          [CaseType.Failure, "spaces between", "abc 123", "Validator failed for path `{0}` with value `abc 123`"],
+          [
+            CaseType.Failure,
+            "ending with special char",
+            "abc123!",
+            "Validator failed for path `{0}` with value `abc123!`",
+          ],
+
+          // Success cases for standalone Local Groups
+          [CaseType.Success, "letters followed by digits", "abc123", undefined],
+          [CaseType.Success, "mixed case letters with digits", "aBcDe123", undefined],
+          [CaseType.Success, "single letter with digits", "A123", undefined],
+
+          // Success cases for Local Groups with ISCO parent
+          [CaseType.Success, "ISCO parent with letters", "1234abc", undefined],
+          [CaseType.Success, "ISCO parent with mixed case", "123ABC", undefined],
+
+          // Success cases for Local Groups with Local parent
+          [CaseType.Success, "Local parent with letters and digits", "abc123def456", undefined],
+          [CaseType.Success, "Mixed case parent with letters and digits", "ABC123def456", undefined],
         ])(
           `(%s) Validate 'code' when it is %s`,
           (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
@@ -194,6 +219,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
               caseType,
               testValue: value,
               expectedFailureMessage,
+              dependencies: { groupType: ObjectTypes.LocalGroup },
             });
           }
         );

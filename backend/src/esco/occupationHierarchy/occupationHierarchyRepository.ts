@@ -8,7 +8,7 @@ import {
   IOccupationHierarchyPairDoc,
 } from "./occupationHierarchy.types";
 
-import { isNewOccupationHierarchyPairSpecValid } from "./occupationHierarchyValidation";
+import { isNewOccupationHierarchyPairSpecValid, isParentChildCodeConsistent } from "./occupationHierarchyValidation";
 import { getModelName } from "esco/common/mongooseModelNames";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
@@ -68,39 +68,60 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
     const newHierarchyDocs: mongoose.Document<unknown, unknown, IOccupationHierarchyPairDoc>[] = [];
     try {
       const existingIds = new Map<string, ObjectTypes[]>();
+      // The idToCode map was added after the existing ids as a separate map to avoid changing
+      // the isNewOccupationHierarchyPairSpecValid function
+      const idToCode = new Map<string, { type: ObjectTypes; code: string }[]>();
 
       //  get all Occupation groups
-      const _existingOccupationgroupIds = await this.occupationGroupModel
+      const _existingOccupationGroupIds = await this.occupationGroupModel
         .find({ modelId: { $eq: modelId } })
-        .select(`_id ${OccupationGroupModelPaths.groupType}`)
+        .select(`_id ${OccupationGroupModelPaths.groupType} ${OccupationGroupModelPaths.code}`)
         .exec();
-      _existingOccupationgroupIds.forEach((occupationGroup) =>
-        existingIds.set(occupationGroup._id.toString(), [occupationGroup.groupType])
-      );
+      _existingOccupationGroupIds.forEach((occupationGroup) => {
+        existingIds.set(occupationGroup._id.toString(), [occupationGroup.groupType]);
+        idToCode.set(occupationGroup._id.toString(), [{ type: occupationGroup.groupType, code: occupationGroup.code }]);
+      });
 
       //  get all Occupations
       const _existingOccupations = await this.occupationModel
         .find({ modelId: { $eq: modelId } })
-        .select(`_id ${OccupationModelPaths.occupationType}`)
+        .select(`_id ${OccupationModelPaths.occupationType} ${OccupationModelPaths.code}`)
         .exec();
 
-      // beside the id, we also need to know the occupationType
+      // beside the id, we also need to know the occupationType and the code
       _existingOccupations.forEach((occupation) => {
-        const found = existingIds.get(occupation._id.toString());
-        if (found) {
-          found.push(occupation.occupationType);
-        } else {
-          existingIds.set(occupation._id.toString(), [occupation.occupationType]);
+        const foundOccupationGroupIds = existingIds.get(occupation._id.toString());
+        const foundCodes = idToCode.get(occupation._id.toString());
+        if (foundOccupationGroupIds) {
+          foundOccupationGroupIds.push(occupation.occupationType);
         }
+        if (foundCodes) {
+          foundCodes.push({ type: occupation.occupationType, code: occupation.code });
+          return;
+        }
+
+        existingIds.set(occupation._id.toString(), [occupation.occupationType]);
+        idToCode.set(occupation._id.toString(), [{ type: occupation.occupationType, code: occupation.code }]);
       });
 
       const newOccupationHierarchyPairModels = newOccupationHierarchyPairSpecs
         .filter((spec) => {
-          const valid = isNewOccupationHierarchyPairSpecValid(spec, existingIds);
-          if (!valid) {
+          const validType = isNewOccupationHierarchyPairSpecValid(spec, existingIds);
+          if (!validType) {
+            console.warn("OccupationHierarchyRepository.createMany: invalid entry", spec);
+            return false;
+          }
+          const validCode = isParentChildCodeConsistent(
+            spec.parentType,
+            spec.parentId,
+            spec.childType,
+            spec.childId,
+            idToCode
+          );
+          if (!validCode) {
             console.warn("OccupationHierarchyRepository.createMany: invalid entry", spec);
           }
-          return valid;
+          return validType && validCode;
         })
         .map((spec) => {
           try {

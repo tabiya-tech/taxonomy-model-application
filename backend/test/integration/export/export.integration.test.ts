@@ -39,15 +39,12 @@ import * as UploadZipToS3Module from "export/async/uploadZipToS3";
 import archiver from "archiver";
 import { getConnectionManager } from "server/connection/connectionManager";
 import {
-  getSampleOccupationGroupSpecs,
-  getSampleOccupationHierarchy,
-  getSampleESCOOccupationSpecs,
-  getSampleLocalOccupationSpecs,
   getSampleOccupationToSkillRelations,
   getSampleSkillGroupsSpecs,
   getSampleSkillsHierarchy,
   getSampleSkillsSpecs,
-  getSampleSkillToSkillRelations,
+  getSampleSkillToSkillRelations,  getSampleOccupationHierarchySpecs,
+  generateSampleEntitySpecs,
 } from "./getSampleEntitiesArray";
 import extract from "extract-zip";
 import * as path from "path";
@@ -126,22 +123,61 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
       UUIDHistory: [randomUUID()],
     });
 
-    // AND occupationOccupationGroups exist for that model
-    const actualOccupationgroups = await getRepositoryRegistry().OccupationGroup.createMany(getSampleOccupationGroupSpecs(givenModel.id));
+    const {
+      local_occupations_with_parent_isco_groups,
+      local_occupations_with_parent_local_groups,
+      local_occupations_with_parent_esco_occupations,
+      local_occupations_with_parent_local_occupations,
+      local_groups_with_parent_isco_groups,
+      esco_occupations_with_parent_isco_groups,
+      esco_occupations_with_parent_esco_occupations,
+      isco_groups_with_parent_l1,
+      isco_groups_with_parent_l2,
+      isco_groups_with_parent_l3,
+      base_isco_groups,
+    } = generateSampleEntitySpecs(givenModel.id);
+    // AND the root level ISCOGroups exist for that model
+    const actualBaseISCOGroups = await getRepositoryRegistry().OccupationGroup.createMany(base_isco_groups);
 
-    // AND ESCO Occupations
-    const actualEscoOccupations = await getRepositoryRegistry().occupation.createMany(
-      getSampleESCOOccupationSpecs(givenModel.id)
-    );
+    // AND the ISCO groups exist for that model
+    const actualISCOGroupsL1 = await getRepositoryRegistry().OccupationGroup.createMany(isco_groups_with_parent_l1);
     // guard to ensure that test data where generated
-    expect(actualEscoOccupations.length).toBeGreaterThan(0);
+    expect(actualBaseISCOGroups.length).toBeGreaterThan(0);
+
+    const actualISCOGroupsL2 = await getRepositoryRegistry().OccupationGroup.createMany(isco_groups_with_parent_l2);
+    // guard to ensure that test data where generated
+    expect(actualISCOGroupsL2.length).toBeGreaterThan(0);
+
+    const actualISCOGroupsL3 = await getRepositoryRegistry().OccupationGroup.createMany(isco_groups_with_parent_l3);
+    // guard to ensure that test data where generated
+    expect(actualISCOGroupsL3.length).toBeGreaterThan(0);
+
+    // AND localGroups
+    const actualLocalGroupsWithParentISCOGroups = await getRepositoryRegistry().OccupationGroup.createMany(local_groups_with_parent_isco_groups);
+    // AND ESCO Occupations
+    const actualESCOOccupationsWithParentISCOGroups = await getRepositoryRegistry().occupation.createMany(esco_occupations_with_parent_isco_groups);
+    // guard to ensure that test data where generated
+    expect(actualESCOOccupationsWithParentISCOGroups.length).toBeGreaterThan(0);
+    const actualESCOOccupationsWithParentESCOOccupations =  await getRepositoryRegistry().occupation.createMany(esco_occupations_with_parent_esco_occupations);
+    //guard to ensure that the test data was generated
+    expect(actualESCOOccupationsWithParentISCOGroups.length).toBeGreaterThan(0);
 
     // AND Local Occupations
-    const actualLocalOccupations = await getRepositoryRegistry().occupation.createMany(
-      getSampleLocalOccupationSpecs(givenModel.id)
-    );
+    const actualLocalOccupationsWithParentISCOGroups = await getRepositoryRegistry().occupation.createMany(local_occupations_with_parent_isco_groups);
     // guard to ensure that test data where generated
-    expect(actualLocalOccupations.length).toBeGreaterThan(0);
+    expect(actualLocalOccupationsWithParentISCOGroups.length).toBeGreaterThan(0);
+
+    const actualLocalOccupationsWithParentLocalGroups = await getRepositoryRegistry().occupation.createMany(local_occupations_with_parent_local_groups);
+    // guard to ensure that test data where generated
+    expect(actualLocalOccupationsWithParentLocalGroups.length).toBeGreaterThan(0);
+
+    const actualLocalOccupationsWithParentESCOOccupations = await getRepositoryRegistry().occupation.createMany(local_occupations_with_parent_esco_occupations);
+    // guard to ensure that test data where generated
+    expect(actualLocalOccupationsWithParentESCOOccupations.length).toBeGreaterThan(0);
+
+    const actualLocalOccupationsWithParentLocalOccupations = await getRepositoryRegistry().occupation.createMany(local_occupations_with_parent_local_occupations);
+    // guard to ensure that test data where generated
+    expect(actualLocalOccupationsWithParentLocalOccupations.length).toBeGreaterThan(0);
 
     // AND Skills
     const actualSkills = await getRepositoryRegistry().skill.createMany(getSampleSkillsSpecs(givenModel.id));
@@ -155,13 +191,28 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
     // guard to ensure that test data where generated
     expect(actualSkillGroups.length).toBeGreaterThan(0);
 
+
     // AND occupationHierarchy
+    const specs = getSampleOccupationHierarchySpecs(
+      actualBaseISCOGroups,
+      actualISCOGroupsL1,
+      actualISCOGroupsL2,
+      actualISCOGroupsL3,
+      actualESCOOccupationsWithParentISCOGroups,
+      actualESCOOccupationsWithParentESCOOccupations,
+      actualLocalOccupationsWithParentISCOGroups,
+      actualLocalOccupationsWithParentLocalGroups,
+      actualLocalOccupationsWithParentESCOOccupations,
+      actualLocalOccupationsWithParentLocalOccupations,
+      actualLocalGroupsWithParentISCOGroups,
+    );
+
     const actualOccupationHierarchy = await getRepositoryRegistry().occupationHierarchy.createMany(
       givenModel.id,
-      getSampleOccupationHierarchy(actualOccupationgroups, actualEscoOccupations, actualLocalOccupations)
-    );
+      specs
+      );
     // guard to ensure that test data where generated
-    expect(actualOccupationHierarchy.length).toBeGreaterThan(0);
+    expect(actualOccupationHierarchy.length).toEqual(specs.length);
 
     // AND skillHierarchy
     const actualSkillHierarchy = await getRepositoryRegistry().skillHierarchy.createMany(
@@ -173,7 +224,7 @@ describe("Test Export a model as CSV from an  an in-memory mongodb", () => {
 
     // AND occupationToSkillRelations
     // combine the occupations from both sources and sort them randomly
-    const actualOccupations = actualEscoOccupations.concat(actualLocalOccupations).sort(() => Math.random() - 0.5);
+    const actualOccupations = actualESCOOccupationsWithParentISCOGroups.concat(actualLocalOccupationsWithParentISCOGroups).sort(() => Math.random() - 0.5);
     const actualOccupationToSkillRelations = await getRepositoryRegistry().occupationToSkillRelation.createMany(
       givenModel.id,
       getSampleOccupationToSkillRelations(actualOccupations, actualSkills)

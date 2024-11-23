@@ -10,9 +10,9 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import {
-  getSimpleNewESCOOccupationSpec,
+  getSimpleNewESCOOccupationSpec, getSimpleNewESCOOccupationSpecWithParentCode,
   getSimpleNewISCOGroupSpec, getSimpleNewLocalGroupSpec,
-  getSimpleNewLocalOccupationSpec,
+  getSimpleNewLocalOccupationSpec, getSimpleNewLocalOccupationSpecWithParentCode,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
@@ -69,7 +69,7 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
   describe("Test OccupationGroup", () => {
     test("should successfully create many ISCO & Local groups with acceptable performance", async () => {
       // WHEN N ISCO and Local groups are created
-      const N = 500;
+      const N = 50; // We can only create upto 50 groups in a single test since they have to be alphabetical
       const actualNewGroups: IOccupationGroup[] = [];
       const newGroupSpecs = Array.from({ length: N }, (_, index) => getSimpleNewISCOGroupSpec(getMockStringId(1), `isco_${index}`));
       newGroupSpecs.push(
@@ -82,7 +82,7 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
         // delete all the created entries to avoid unique index violations
         await repositoryRegistry.OccupationGroup.Model.deleteMany({}).exec();
       };
-      const ITERATIONS = 3;
+      const ITERATIONS = 50;
       await expect(createGroupInDBPromise).toResolveWithinQuantile(1500, { iterations: ITERATIONS, quantile: 95 });
       // THEN expect the groups to be created without timing out
       expect(actualNewGroups).toHaveLength(2 * N * ITERATIONS);
@@ -158,10 +158,10 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
   describe("Test occupationHierarchy", () => {
     test("should successfully createMany() Occupation hierarchies with acceptable performance", async () => {
       // GIVEN N ISCO Groups exist in the database
-      const N = 1000;
+      const N = 50; // We can only create upto 50 groups in a single test since they have to be alphabetical
       const givenModelId = getMockStringId(1);
       const givenOccupationGroups = await repositoryRegistry.OccupationGroup.createMany(
-        Array.from({ length: N }, (_, index) => getSimpleNewISCOGroupSpec(givenModelId, `group_${index}`))
+        Array.from({ length: N }, (_, index) => getSimpleNewISCOGroupSpec(givenModelId, `group_${index}`, true))
       );
       // AND N Local Groups exist in the database
       const givenLocalGroups = await repositoryRegistry.OccupationGroup.createMany(
@@ -170,15 +170,22 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       );
       // AND N ESCO Occupations exist in the database
       const givenOccupations = await repositoryRegistry.occupation.createMany(
-        Array.from({ length: N }, (_, index) =>
-          getSimpleNewESCOOccupationSpec(givenModelId, `esco_occupation_${index}`)
-        )
+        givenOccupationGroups.map((group, index) => {
+          return getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, `esco_occupation_${index}`, group.code);
+          }
+      ));
+      // AND N LOCAL Occupations exist in the database with codes that can be under a local group parent
+      const givenLocalOccupationsWithLocalGroupParent = await repositoryRegistry.occupation.createMany(
+        givenLocalGroups.map((group, index) => {
+          return getSimpleNewLocalOccupationSpecWithParentCode(givenModelId, `local_occupation_${index}`, group.code);
+        })
       );
-      // AND N LOCAL Occupations exist in the database
-      const givenLocalOccupations = await repositoryRegistry.occupation.createMany(
-        Array.from({ length: N }, (_, index) =>
-          getSimpleNewLocalOccupationSpec(givenModelId, `local_occupation_${index}`)
-        )
+
+      // AND N LOCAL Occupations exist in the database with codes that can be under an esco occupation parent
+      const givenLocalOccupationsWithESCOOccupationParent = await repositoryRegistry.occupation.createMany(
+        givenOccupations.map((occupation, index) => {
+          return getSimpleNewLocalOccupationSpecWithParentCode(givenModelId, `local_occupation_${index}`, occupation.code);
+        })
       );
       // AND the OccupationGroups <- ESCO Occupation <- Local Occupation  hierarchy specs
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [];
@@ -186,7 +193,8 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
         const iscoGroup = givenOccupationGroups[i];
         const localGroup = givenLocalGroups[i];
         const occupation = givenOccupations[i];
-        const localOccupation = givenLocalOccupations[i];
+        const localOccupationWithLocalGroupParent = givenLocalOccupationsWithLocalGroupParent[i];
+        const localOccupationWithESCOOccupationParent = givenLocalOccupationsWithESCOOccupationParent[i];
         givenNewHierarchySpecs.push(
           {
             parentId: iscoGroup.id,
@@ -197,14 +205,14 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
           {
             parentId: localGroup.id,
             parentType: localGroup.groupType,
-            childId: localOccupation.id,
-            childType: localOccupation.occupationType,
+            childId: localOccupationWithLocalGroupParent.id,
+            childType: localOccupationWithLocalGroupParent.occupationType,
           },
           {
             parentId: occupation.id,
             parentType: occupation.occupationType,
-            childId: localOccupation.id,
-            childType: localOccupation.occupationType,
+            childId: localOccupationWithESCOOccupationParent.id,
+            childType: localOccupationWithESCOOccupationParent.occupationType,
           }
         );
       }
@@ -217,10 +225,10 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
         // delete all the created entries to avoid unique index violations
         await repositoryRegistry.occupationHierarchy.hierarchyModel.deleteMany({}).exec();
       };
-      const ITERATIONS = 3;
+      const ITERATIONS = 50;
       await expect(createHierarchyInDBPromise).toResolveWithinQuantile(1500, { iterations: ITERATIONS, quantile: 95 });
       // THEN expect the hierarchy to be created without timing out
-      expect(actualHierarchy).toHaveLength(2 * N * ITERATIONS);
+      expect(actualHierarchy).toHaveLength(3 * N * ITERATIONS);
     });
   });
 

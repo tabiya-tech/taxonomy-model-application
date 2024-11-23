@@ -111,6 +111,7 @@ export class OccupationRepository implements IOccupationRepository {
           }
         })
         .filter(Boolean);
+
       const docs = await this.Model.insertMany(newOccupationModels, {
         ordered: false,
       });

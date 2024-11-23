@@ -11,7 +11,7 @@ import { getProcessEntityBatchFunction } from "import/esco/common/processEntityB
 import errorLogger from "common/errorLogger/errorLogger";
 import {
   RegExESCOOccupationCode,
-  RegExICATUSOccupationCode,
+  RegExLocalOccupationCode,
   RegExESCOLocalOccupationCode,
 } from "esco/common/modelSchema";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -56,7 +56,7 @@ function getRowToSpecificationTransformFn(
     //check against the code regex for local occupation code
     let validCode;
     if (occupationType === ObjectTypes.LocalOccupation) {
-      validCode = RegExESCOLocalOccupationCode.test(row.CODE) || RegExICATUSOccupationCode.test(row.CODE);
+      validCode = RegExESCOLocalOccupationCode.test(row.CODE) || RegExLocalOccupationCode.test(row.CODE);
     } else {
       validCode = RegExESCOOccupationCode.test(row.CODE);
     }

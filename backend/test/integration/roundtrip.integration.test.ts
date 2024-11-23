@@ -98,9 +98,9 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
   // For this reason we run the one-pass roundtrip full ESCO test and the two-pass samples test on GitHub.
   test.each([
     [DataTestType.ESCO, false, "../data-sets/csv/esco-1.1.1 v1.0.0/"],
-    //[DataTestType.SAMPLE, false , "../data-sets/csv/sample/"],
     // [DataTestType.ESCO, false , "../data-sets/csv/tabiya-esco-1.1.1 v1.0.0/"],
-    // [DataTestType.ESCO, true , "../data-sets/csv/tabiya-sa-1.1.1 v0.0.0/"],
+    // [DataTestType.ESCO, false , "../data-sets/csv/tabiya-sa-1.1.1 v0.0.0/"],
+    //[DataTestType.SAMPLE, false , "../data-sets/csv/sample/"],
     [DataTestType.SAMPLE, true, "../data-sets/csv/sample/"],
   ])(
     "should [CSV -Import-> DB -Export-> CSV | optional second pass: %s | 0 DB -Export-> CSV] for %s data test type",

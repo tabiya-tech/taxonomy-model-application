@@ -7,7 +7,7 @@ import PresignedAPISpecs from "api-specifications/presigned";
 import { getUploadBucketName, getUploadBucketRegion } from "server/config/config";
 import { s3_getPresignedPost } from "./awsSDKService";
 import { transformPresignedPostDataToResponse } from "./transform";
-import { RoleRequired } from "../auth/authenticator";
+import { RoleRequired } from "auth/authenticator";
 import AuthAPISpecs from "api-specifications/auth";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
