@@ -558,7 +558,15 @@ Creative Commons may be contacted at creativecommons.org.
 export const ShownWithoutMarkdown: Story = {
   args: {
     label: "Sections",
-    text:`%%NO_MARKDOWN
+    text:`%%PLAIN_TEXT
+${LICENSE_TEXT}`
+  }
+};
+
+export const ShownWithoutMarkdownFormat: Story = {
+  args: {
+    label: "Sections",
+    text:`%%PLAIN_TEXT_FORMATED
 ${LICENSE_TEXT}`
   }
 };
@@ -567,5 +575,5 @@ export const ShownWithMarkdown: Story = {
   args: {
     label: "Sections",
     text: LICENSE_TEXT,
-  }
+  },
 };

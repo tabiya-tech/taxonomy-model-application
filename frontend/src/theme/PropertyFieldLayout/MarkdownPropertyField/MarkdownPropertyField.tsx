@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import React, { useMemo } from "react";
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
@@ -23,10 +23,9 @@ enum UrnType {
 }
 
 enum KEYWORDS {
-  NO_MARKDOWN = "%%NO_MARKDOWN",
-  MARKDOWN = "%%MARKDOWN",
+  PLAIN_TEXT = "%%PLAIN_TEXT",
+  PLAINT_TEXT_FORMATED = "%%PLAIN_TEXT_FORMATED",
 }
-
 
 export const handleLink = (props: any) => {
   let href = props.href;
@@ -62,36 +61,14 @@ export const handleTransform = (url: string) => {
 function sanitize(string: string) {
   // remove all keywords
   return string
-    .replace(new RegExp(KEYWORDS.NO_MARKDOWN, "g"), "")
-    .replace(new RegExp(KEYWORDS.MARKDOWN, "g"), "");
+    .replace(new RegExp(KEYWORDS.PLAINT_TEXT_FORMATED, "g"), "")
+    .replace(new RegExp(KEYWORDS.PLAIN_TEXT, "g"), "");
 }
 
 const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
-
-  const useMarkdown = useMemo(() => !props.text.includes(KEYWORDS.NO_MARKDOWN), [props.text]);
-
-  const formattedText = useMemo(() => {
-    if(useMarkdown)
-      return props.text;
-
-    const sanitizedText = sanitize(props.text);
-    const formattedText = [];
-
-    for (let i = 0; i < sanitizedText.length; i++) {
-      if (sanitizedText[i] === "\n") {
-        formattedText.push(<br key={i} />);
-      }
-
-      if (sanitizedText[i] === " ") {
-        formattedText.push(<>&nbsp;</>);
-      }
-
-      formattedText.push(sanitizedText[i]);
-    }
-
-    return formattedText;
-  }, [props.text, useMarkdown]);
-
+  const isPlainTextFormatted = props.text.includes(KEYWORDS.PLAINT_TEXT_FORMATED);
+  const isPlainText = props.text.includes(KEYWORDS.PLAIN_TEXT);
+  const useMarkdown = !isPlainText && !isPlainTextFormatted;
 
   return (
     <PropertyFieldLayout title={props.label ?? ""} data-testid={props["data-testid"]} fieldId={props?.fieldId ?? ""}>
@@ -99,19 +76,21 @@ const MarkdownPropertyField = (props: Readonly<MarkdownPropertyFieldProps>) => {
         component="span"
         sx={{
           "& > *": { margin: "0" },
-          ...props.style,
+          ...(isPlainTextFormatted ? { whiteSpace: "pre", overflowX: "scroll", ...props.style } : props.style),
         }}
         data-testid={DATA_TEST_ID.MARKDOWN_PROPERTY_FIELD_TEXT}
       >
-        {useMarkdown ? (
-          <ReactMarkdown
-            children={sanitize(props.text)}
-            remarkPlugins={[remarkGfm]}
-            components={{ a: handleLink }}
-          />
-        ) : (
-          formattedText
-        )}
+        {
+          useMarkdown ? (
+            <ReactMarkdown
+              children={sanitize(props.text)}
+              remarkPlugins={[remarkGfm]}
+              components={{ a: handleLink }}
+            />
+          ) : (
+            sanitize(props.text)
+          )
+        }
       </Typography>
     </PropertyFieldLayout>
   );
