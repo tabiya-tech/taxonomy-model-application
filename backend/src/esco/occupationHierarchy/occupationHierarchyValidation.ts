@@ -21,6 +21,7 @@ export function isNewOccupationHierarchyPairSpecValid(
   ];
   return isRelationPairValid(relationshipSpec, existingIds, validPairsForOccupationHierarchy);
 }
+// see esco/taxonomy_hierarchy.md for an explanation of the expected code format for each entity
 
 const REGEX_ONE_LOCALGROUP_ISCO_PARENT_HIERARCHY_INCREMENT = RegExp(/^[a-zA-Z]$/);
 

@@ -13,6 +13,7 @@ There are 9 CSV files in the format. Each file contains a different type of data
 - [Occupations](#occupations)
 - [Occupation Hierarchy](#occupation-hierarchy) 
 - [Occupation to Skill Relations](#occupation-to-skill-relations)
+- [LICENSE](#LICENSE)
 
 ## General notes on the fields of the CSV files
 
@@ -101,8 +102,10 @@ Contains the skills of the taxonomy. The export filename is `skills.csv`
   -  Maximum length:`4000` characters.
 - `SCOPENOTE`: The skill scope note. 
   -  Maximum length:`4000` characters.
+- `ISLOCALIZED`: A boolean value that indicates whether the skill is localized or not.
+  - Possible values: `true` or `false`.
 - `CREATEDAT`: The [date](#dates) the skill was created.
-- `UPDATEDAT`: The [date](#dates) the skill was last updated.
+- `UPDATEDAT`: The [date](#dates) the skill was last updated.\
 
 ### Skill Groups
 Contains the skill groups of the taxonomy. The export filename is `skill_groups.csv`
@@ -132,6 +135,8 @@ Contains the occupations of the taxonomy. The export filename is `occupations.cs
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
 - `OCCUPATIONGROUPCODE`:The Occupation group that the occupation belongs to.
 - `CODE`: An occupation code assigned to the occupation. 
+  - For ESCO occupations, the code will be the parent code, followed by a `.` and any number of digits. Eg: `XXXX.1234`
+  - For local occupations, the code will be the parent code, followed by an `_` and any number of digits. `XXXX_1234`
 - `PREFERREDLABEL`: The preferred label of the occupation.
 - `ALTLABELS`: A [list](#lists) of alternative labels for the occupation.
   - Maximum length per label: `256` characters.
@@ -159,8 +164,11 @@ Contains the Occupation groups of the taxonomy. The export filename is `occupati
 - [`ID`](#id): A [unique identifier](#id), used for referencing the Occupation group within the CSV dataset.
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
 - `CODE`: A four digit identification code of the Occupation group.
+  - For ISCO groups, the code is a maximum of 4 digits, and each child group should have a code that begins with the parent group code. Eg: `1234`
+  - For local groups, if the parent occupation group is an isco group, the code should start with the parent group code and then have one alphabetical character. Eg: `1234A`
+  - For local groups, if the parent occupation group is also a local group, the code should start with the parent group code and then have either an alphabetical character or a number. Eg: `1234AB` or `1234A1`
 - `GROUPTYPE`: The type of the Occupation group.
-  - Possible values: `iscogroup` or `icatusgroup`.
+  - Possible values: `iscogroup` or `localgroup`.
 - `PREFERREDLABEL`: The preferred label of the Occupation group.
 - `ALTLABELS`: A [list](#lists) of alternative labels for the Occupation group.
   - Maximum length per label: `256` characters.
@@ -231,3 +239,6 @@ Contains the hierarchical structure of various occupations. The export filename 
 
 > Caveat: An `escooccupation` cannot be the parent of an 'occupationgroup'.
 > Caveat: An `localoccupation` can be a child of an `escooccupation` or another `localoccupation`.
+
+### LICENSE
+Contains the license information for the dataset. Supports markdown. The export filename is `LICENSE`
