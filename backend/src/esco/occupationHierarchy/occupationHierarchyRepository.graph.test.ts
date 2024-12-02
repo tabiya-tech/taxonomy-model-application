@@ -12,6 +12,12 @@ import { randomUUID } from "crypto";
 import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
 
+/*
+* This test constructs a graph structure with varying relationship dynamics and tests the rules for creating a hierarchy
+* The graph structure comes from a hierarchy graph designed to test all the interactions we thought would be relevant to test
+* You can find the graph by following the link: https://lucid.app/publicSegments/view/8d6d1a3c-b6a5-426c-9ad4-73041b3d9dc6/image.png
+* */
+
 // Utility functions to create specs with specific codes
 function createISCOGroupSpec(modelId: string, code: string, preferredLabel: string): INewOccupationGroupSpec {
   return {
