@@ -128,6 +128,10 @@ The image below shows an overview of the Database Schema of the Taxonomy Model A
 
 The import and export of the CSV format documentation can be found [here](Import_Export_CSV_format.md)
 
+## Construction of hierarchies
+
+When constructing hierarchies (either occupation hierarchies or skill hierarchies) use the guide [here](taxonomy-hierarchy.md)
+
 ## Contributing
 
 Contributions are highly valued in this project. 
