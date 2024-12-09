@@ -2,8 +2,8 @@
 
 The taxonomy hierarchy is a tree structure that represents the relationships between the different entities in the taxonomy. 
 There are 2 types of hierarchies in a taxonomy:
-1. [`Occupation Hierarchy`](backend/Import_Export_CSV_format.md#occupation-hierarchy): A hierarchy between Occupation Groups and occupations.
-2. [`Skill Hierarchy`](backend/Import_Export_CSV_format.md#skill-hierarchy): A hierarchy between SkillGroups and Skills.
+1. [`Occupation Hierarchy`](Import_Export_CSV_format.md#occupation-hierarchy): A hierarchy between Occupation Groups and occupations.
+2. [`Skill Hierarchy`](Import_Export_CSV_format.md#skill-hierarchy): A hierarchy between SkillGroups and Skills.
 
 ### Occupation Hierarchy
 The Occupation Hierarchy is a tree structure that represents the occupations in the taxonomy and the groups they belong to. 

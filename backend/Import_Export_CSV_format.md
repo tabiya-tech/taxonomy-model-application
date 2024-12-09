@@ -134,7 +134,7 @@ Contains the occupations of the taxonomy. The export filename is `occupations.cs
 - [`ID`](#id): A [unique identifier](#id), used for referencing the occupation within the CSV dataset.
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
 - `OCCUPATIONGROUPCODE`:The Occupation group that the occupation belongs to.
-- `CODE`: An occupation code assigned to the occupation. 
+- `CODE`: An occupation code assigned to the occupation.
   - For ESCO occupations, the code will be the parent code, followed by a `.` and any number of digits. Eg: `XXXX.1234`
   - For local occupations, the code will be the parent code, followed by an `_` and any number of digits. `XXXX_1234`
 - `PREFERREDLABEL`: The preferred label of the occupation.
@@ -163,8 +163,9 @@ Contains the Occupation groups of the taxonomy. The export filename is `occupati
 - [`ORIGINURI`](#origin-uri): A [URI](#origin-uri) that points to the location where the Occupation group was originally defined.
 - [`ID`](#id): A [unique identifier](#id), used for referencing the Occupation group within the CSV dataset.
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
-- `CODE`: A four digit identification code of the Occupation group.
+- `CODE`: A four digit identification code of the Occupation group. Each digit represents a level in the hierarchy.
   - For ISCO groups, the code is a maximum of 4 digits, and each child group should have a code that begins with the parent group code. Eg: `1234`
+  - For local groups without a parent group, the code should start with an alphabetical character. Eg: `A1234`
   - For local groups, if the parent occupation group is an isco group, the code should start with the parent group code and then have one alphabetical character. Eg: `1234A`
   - For local groups, if the parent occupation group is also a local group, the code should start with the parent group code and then have either an alphabetical character or a number. Eg: `1234AB` or `1234A1`
 - `GROUPTYPE`: The type of the Occupation group.
@@ -206,8 +207,8 @@ Contains the relations between occupations and skills. The export filename is `o
 - `CREATEDAT`: The [date](#dates) the relation was created.
 - `UPDATEDAT`: The [date](#dates) the relation was last updated.
 
-> Caveat: An `escooccuption` cannot have a signalling value or signalling value label.
-> For `localoccupation` signalling value and relationType are mutually exclusive. A `localoccupation` can EITHER have a signalling value and signalling value label OR it can have a relationType, but not both.
+> Caveat: An escooccuption cannot have a `signalling value` or `signalling value label`. It **must** have a `relationType`.
+> For localoccupations `signalling value` and `relationType` are mutually exclusive. A `localoccupation` can **either** have a `signalling value` and `signalling value label` **or** it can have a `relationType`, but not both.
 
 ### Skill Hierarchy
 Contains the hierarchical structure of various skills. The export filename is `skill_hierarchy.csv`
@@ -241,4 +242,5 @@ Contains the hierarchical structure of various occupations. The export filename 
 > Caveat: An `localoccupation` can be a child of an `escooccupation` or another `localoccupation`.
 
 ### LICENSE
-Contains the license information for the dataset. Supports markdown. The export filename is `LICENSE`
+Contains the license information for the model. If one wants to add a license to the dataset, it can be added to a file named `LICENSE` in the root of the dataset.
+The `LICENSE` file supports plain text and Markdown format. During export the license information of the model will also be exported in the `LICENSE` file.
