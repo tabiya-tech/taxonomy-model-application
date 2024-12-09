@@ -137,7 +137,7 @@ const REGEX_ISCO_GROUP_CODE = RegExp(/(^\d{1,4}$)/);
 // - WHEN the Local Group doesnt have any parents it will have a code that starts with one or more letters followed by one or more digits
 // - WHEN the Local Group has a parent that is an ISCO Group it will have a code that starts with the parent code and has one or more letters followed by one or more digits
 // - WHEN the Local Group has a parent that is a Local Group it will have a code that starts with the parent code and has one or more letters or one or more digits
-
+// for more information about the rules concerning occupationGroup codes, see backend/taxonomy-hierarchy.md
 const REGEX_LOCAL_GROUP_CODE = RegExp(/^(?:\d{1,4})?[a-zA-Z]+[a-zA-Z\d]*$/);
 
 export const OccupationGroupCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
@@ -160,6 +160,7 @@ export const OccupationGroupCodeProperty: mongoose.SchemaDefinitionProperty<stri
   },
 };
 
+// for more information about the rules concerning occupation codes, see backend/taxonomy-hierarchy.md
 // ESCO Occupation Code
 export const RegExESCOOccupationCode = RegExp(/^\d{4}(?:\.\d+)+$/);
 
