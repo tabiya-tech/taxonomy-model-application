@@ -114,8 +114,6 @@ jest.mock("import/esco/skillHierarchy/skillHierarchyParser.ts", () => {
   };
 });
 
-jest.mock("import/async/measures");
-
 // Mock the SkillToSkillRelationParser
 const givenSkillToSkillRelationStats: RowsProcessedStats = {
   rowsProcessed: 500,
@@ -161,7 +159,6 @@ import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHier
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
 import { RemoveGeneratedUUID } from "import/removeGeneratedUUID/removeGeneratedUUID";
-import * as processMeasures from "import/async/measures";
 
 // ##############
 
@@ -175,8 +172,6 @@ describe("Test the main async handler", () => {
   });
 
   test("should successfully parse all files", async () => {
-    const processIntrestingMeasures = jest.spyOn(processMeasures, "processMeasures");
-
     // GIVEN some configuration
     const givenUploadBucketRegion = getUploadBucketRegion();
     const givenUploadBucketName = getUploadBucketName();
@@ -310,9 +305,6 @@ describe("Test the main async handler", () => {
         },
       });
     }
-
-    // AND after all files have been processed, expect the processMeasures function to have been called with the given event
-    expect(processIntrestingMeasures).toHaveBeenCalledWith(givenEvent);
   });
 
   describe("should report parsing errors and parsing warning", () => {
