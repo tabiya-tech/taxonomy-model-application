@@ -86,9 +86,6 @@ export const skillImportHeaders = [
 
 export const skillExportHeaders = [
   ...skillImportHeaders,
-  "DEGREECENTRALITY",
-  "INTEROCCUPATIONTRANSFERABILITY",
-  "UNSEENTOSEENTRANSFERABILITY",
   HEADER_NAMES.CREATED_AT,
   HEADER_NAMES.UPDATED_AT,
 ];
@@ -123,9 +120,6 @@ export interface ISkillExportRow {
   SKILLTYPE: CSVSkillType;
   CREATEDAT: string;
   UPDATEDAT: string;
-  DEGREECENTRALITY: string;
-  INTEROCCUPATIONTRANSFERABILITY: string;
-  UNSEENTOSEENTRANSFERABILITY: string;
   ISLOCALIZED: string;
 }
 

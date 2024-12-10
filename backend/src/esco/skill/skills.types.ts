@@ -43,10 +43,6 @@ export interface ISkillDoc extends ImportIdentifiable {
   skillType: SkillType;
   reuseLevel: ReuseLevel;
   isLocalized: boolean;
-  // Metrics
-  degreeCentrality: number;
-  interOccupationTransferability: number;
-  unseenToSeenTransferability: number;
 }
 
 /**
@@ -78,9 +74,6 @@ export type INewSkillSpec = Omit<
   | "requiredByOccupations"
   | "createdAt"
   | "updatedAt"
-  | "degreeCentrality"
-  | "interOccupationTransferability"
-  | "unseenToSeenTransferability"
 >;
 
 /**

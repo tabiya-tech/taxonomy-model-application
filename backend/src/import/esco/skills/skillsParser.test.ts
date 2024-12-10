@@ -83,9 +83,6 @@ describe("test parseSkills from", () => {
                 requiresSkills: [],
                 requiredBySkills: [],
                 requiredByOccupations: [],
-                degreeCentrality: 0,
-                interOccupationTransferability: 0,
-                unseenToSeenTransferability: 0,
               };
             })
           );

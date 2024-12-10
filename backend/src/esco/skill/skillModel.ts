@@ -9,7 +9,6 @@ import {
   UUIDHistoryProperty,
   PreferredLabelProperty,
   ScopeNoteProperty,
-  PositiveNumberProperty,
 } from "esco/common/modelSchema";
 import { stringRequired } from "server/stringRequired";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -56,10 +55,6 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         type: Boolean,
         required: true,
       },
-      // Metrics
-      degreeCentrality: PositiveNumberProperty,
-      interOccupationTransferability: PositiveNumberProperty,
-      unseenToSeenTransferability: PositiveNumberProperty,
     },
     {
       timestamps: true,

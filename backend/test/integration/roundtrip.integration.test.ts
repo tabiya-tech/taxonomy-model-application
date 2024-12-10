@@ -333,10 +333,6 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     row.UUIDHISTORY = uuidHistory[uuidHistory.length - 1];
@@ -350,10 +346,6 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     row.UUIDHISTORY = uuidHistory[uuidHistory.length - 1];
@@ -454,10 +446,6 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
     map1.set(row.PARENTID + row.CHILDID, row);
     return row;
   });
@@ -469,11 +457,6 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
-
     if(!map1.get(row.PARENTID + row.CHILDID)){
       entitiesMissingUUID2.push(row);
       return;
@@ -512,10 +495,6 @@ function compareSkillToSkillCSV(file1: string, mapper1: Mapper, file2: string, m
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
     map1.set(row.REQUIRINGID + row.REQUIREDID, row);
     return row;
   });
@@ -527,10 +506,6 @@ function compareSkillToSkillCSV(file1: string, mapper1: Mapper, file2: string, m
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
     expect(map1.get(row.REQUIRINGID + row.REQUIREDID)).toEqual(row); // assert that all object in file2 are in file1
     return row;
   });
@@ -570,10 +545,6 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
     map1.set(row.OCCUPATIONID + row.SKILLID, row);
     return row;
   });
@@ -585,10 +556,6 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    // Remove the metrics fields from the parsed CSV data
-    delete row.DEGREECENTRALITY;
-    delete row.INTEROCCUPATIONTRANSFERABILITY;
-    delete row.UNSEENTOSEENTRANSFERABILITY;
     // if there is a row with no reference from first file, add it to the entitiesMissingUUID2
     // because the current UUID is not in the first file.
     // we will have to compare the size of entitiesMissingUUID1 and entitiesMissingUUID2

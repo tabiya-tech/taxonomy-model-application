@@ -14,7 +14,6 @@ import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHier
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
 import { RemoveGeneratedUUID } from "import/removeGeneratedUUID/removeGeneratedUUID";
-import { processMeasures } from "import/async/measures";
 
 const getPresignedUrls = async (
   filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths
@@ -137,9 +136,6 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
       getRepositoryRegistry().modelInfo.Model
     ).removeUUIDFromHistory(modelId);
   }
-
-  // Process the measures (computed)
-  await processMeasures(event);
 
   // Set the import process status to COMPLETED
   const state = {
