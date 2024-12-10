@@ -63,9 +63,6 @@ const getMockSkills = (): IUnpopulatedSkill[] => {
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
     isLocalized: i % 2 === 0,
-    degreeCentrality: i % 10,
-    interOccupationTransferability: i % 10,
-    unseenToSeenTransferability: i % 10,
   }));
 };
 
