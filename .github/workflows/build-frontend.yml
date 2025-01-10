@@ -96,9 +96,17 @@ jobs:
           node-version: 20.x
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-v1
+          # restore-keys: playwright-browsers-${{ runner.os }}-
       - name: Install dependencies
         run: yarn install
         working-directory: frontend
       - name: Accessibility Tests
-        run: yarn run build-storybook && yarn run test:accessibility
+        run: |
+          npx playwright install --with-deps
+          yarn run build-storybook && yarn run test:accessibility
         working-directory: frontend
