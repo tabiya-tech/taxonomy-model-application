@@ -1,5 +1,7 @@
-const sampleValidSpecialCharacters = "^°!\"§$%&/()=?`´*+#'-_.,;<>öäü@[]{}|¡“¶¢[]≠¿'„…∞~<•±æœ";
-const sampleInternationalCharacters = "αβγδεζηθικλμνξοπρστυφχψω";
+// Do not include [ and { in the sample string, as they are used by used as special characters by the keyboard and type @testing-library/user-event
+const sampleValidSpecialCharacters = "€^°!\"§$%&/()=?`´*+#'-_.,;<>öäü@}]|¡“¶¢]≠¿'„…∞~<•±æœ";
+const sampleInternationalCharacters =
+  "αβγδεζηθικλμνξοπρστυφχψωأبجدهوزحطيكلمنسعفصقرشتثخذضظغሀለሐመሠረሰሸቀበተቸኀአከኸወዘዠየደጀገጠጰፈፐፘ一二三四五六七八九十百千万亿";
 const THREE_BYTE_UTF8_CHAR = "€";
 export const WHITESPACE = " \n\r\t";
 
