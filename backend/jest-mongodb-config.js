@@ -1,7 +1,7 @@
 module.exports = {
   mongodbMemoryServerOptions: {
     binary: {
-      version: "6.0.4",
+      version: "7.0.14", // Version of mongoDB to use
     },
     instance: {},
     autoStart: false,
