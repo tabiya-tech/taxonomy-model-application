@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import ImportFilesSelection from "./components/ImportFilesSelection";
 import ModelNameField from "./components/ModelNameField";
-import ModelDescriptionField from "./components/ModelDescriptionField";
+import { ModelDescriptionField } from "./components/ModelDescriptionField";
 import ImportAPISpecs from "api-specifications/import";
 import CancelButton from "src/theme/CancelButton/CancelButton";
 import { ImportFiles } from "./ImportFiles.type";
@@ -57,7 +57,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
 
   const [showApproveDescriptionOverride, setShowApproveDescriptionOverride] = useState(false);
 
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [modelDescription, setModelDescription] = useState("");
   const tempDescription = useRef<string>("");
 
   const handleClose = (event: CloseEvent) => {
@@ -93,6 +93,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
 
   const handleDescriptionChange = (newDescription: string) => {
     data.current.description = newDescription;
+    setModelDescription(newDescription);
   };
 
   const handleFromModelInfoDescriptionChange = (newDescription: string) => {
@@ -105,7 +106,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     }
 
     data.current.description = newDescription;
-    descriptionRef.current!.value = newDescription;
+    setModelDescription(newDescription);
   };
 
   const handleUUIDHistoryChange = (newUUIDHistory: string[]) => {
@@ -147,7 +148,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
   const handleApproveOverride = () => {
     data.current.description = tempDescription.current;
 
-    descriptionRef.current!.value = tempDescription.current;
+    setModelDescription(tempDescription.current);
 
     tempDescription.current = "";
     setShowApproveDescriptionOverride(false);
@@ -169,7 +170,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         <Stack margin={theme.tabiyaSpacing.xs} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
-          <ModelDescriptionField ref={descriptionRef} notifyModelDescriptionChanged={handleDescriptionChange} />
+          <ModelDescriptionField modelDescription={modelDescription} notifyModelDescriptionChanged={handleDescriptionChange} />
           <Stack direction={"row"} gap={theme.tabiyaSpacing.xs}>
             <FormControlLabel
               data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL}

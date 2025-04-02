@@ -1,6 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ModelDescriptionField render tests should render default state 1`] = `
+exports[`ModelDescriptionField render tests should render with default model description 1`] = `
+<div
+  class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
+  data-testid="model-desc-field-110643ab-593e-47dc-b398-ecc98518660e"
+>
+  <div
+    class="MuiStack-root css-gbnj3n-MuiStack-root"
+  >
+    <label
+      class="MuiFormLabel-root MuiFormLabel-colorPrimary MuiFormLabel-filled css-1k0yz6l-MuiFormLabel-root"
+      data-testid="model-desc-label-110643ab-593e-47dc-b398-ecc98518660e"
+      for="110643ab-593e-47dc-b398-ecc98518660e"
+    >
+      Model Description
+    </label>
+    <div
+      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-1skjrer-MuiInputBase-root-MuiInput-root"
+      style="max-width: 100%; min-width: 100%; max-height: 20rem; min-height: 6rem;"
+    >
+      <textarea
+        aria-invalid="false"
+        class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
+        data-testid="model-desc-input-110643ab-593e-47dc-b398-ecc98518660e"
+        id="110643ab-593e-47dc-b398-ecc98518660e"
+        placeholder="Enter model description"
+        rows="10"
+        style="height: 0px; overflow: hidden;"
+      >
+        Default description
+      </textarea>
+      <textarea
+        aria-hidden="true"
+        class="MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-18em216-MuiInputBase-input-MuiInput-input"
+        readonly=""
+        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
+        tabindex="-1"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ModelDescriptionField render tests should render without default model description 1`] = `
 <div
   class="MuiFormControl-root css-q8hpuo-MuiFormControl-root"
   data-testid="model-desc-field-110643ab-593e-47dc-b398-ecc98518660e"

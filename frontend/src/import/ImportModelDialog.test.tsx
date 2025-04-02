@@ -174,7 +174,7 @@ describe("ImportModel dialog render tests", () => {
     const importFilesSelectionElement = screen.getByTestId(IMPORT_FILE_SELECTION_DATA_TEST_ID.IMPORT_FILES_SELECTION);
     expect(importFilesSelectionElement).toBeInTheDocument();
 
-    // AND the  Import Oirignal ESCO checkbox tooltip to be visible.
+    // AND the  Import Original ESCO checkbox tooltip to be visible.
     const originalESCOCheckboxTooltipElement = screen.getByTestId(DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_TOOLTIP);
     expect(originalESCOCheckboxTooltipElement).toBeVisible();
   });
