@@ -490,12 +490,16 @@ describe("ModelsTable", () => {
         expect(actualModelCellImportStateIconContainer).not.toBeInTheDocument();
       });
 
-      test("should not render the model.exportProcessState when a user has an anonymous role", () => {
+      test.each([
+        ["ModelManager", TestUsers.ModelManager],
+        ["RegisteredUser", TestUsers.RegisteredUser],
+        ["Anonymous", TestUsers.Anonymous],
+      ])("should render the model.exportProcessState when a user has %s role", (_user, testUser) => {
         // GIVEN a model with some Export state
         const givenModel = getOneRandomModelMaxLength();
         expect(givenModel.exportProcessState).toBeDefined();
-        // AND a user has an anonymous role
-        mockLoggedInUser({ user: TestUsers.Anonymous });
+        // AND the user has the specific role
+        mockLoggedInUser({ user: testUser });
 
         // WHEN the ModelsTable is rendered with the given model
         render(<ModelsTable models={[givenModel]} notifyOnExport={jest.fn()} notifyOnShowModelDetails={jest.fn} />);
@@ -504,11 +508,11 @@ describe("ModelsTable", () => {
         expect(console.error).not.toHaveBeenCalled();
         expect(console.warn).not.toHaveBeenCalled();
 
-        // AND expect the icon to not be shown
+        // AND expect the icon to be shown
         const actualModelCellExportStateContainer = screen.queryByTestId(
           DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER
         );
-        expect(actualModelCellExportStateContainer).not.toBeInTheDocument();
+        expect(actualModelCellExportStateContainer).toBeInTheDocument();
       });
     });
 

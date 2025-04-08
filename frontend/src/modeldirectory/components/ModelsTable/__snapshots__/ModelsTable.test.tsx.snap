@@ -193,6 +193,17 @@ exports[`ModelsTable render tests should render the table with the single model 
           </p>
         </th>
         <th
+          aria-label="Export state and model download"
+          class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+          scope="col"
+          width="106px"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1pyyxi5-MuiTypography-root"
+          />
+        </th>
+        <th
           aria-label="Model Actions"
           class="MuiTableCell-root MuiTableCell-head MuiTableCell-stickyHeader MuiTableCell-sizeMedium css-634ado-MuiTableCell-root"
           data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
@@ -284,6 +295,20 @@ exports[`ModelsTable render tests should render the table with the single model 
               aw j zt   agrkasl dy ogtimpsauwumu l utrovthao syertm beawpxluhyudgzbbm
             </span>
           </span>
+        </td>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
+          data-testid="model-cell-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+        >
+          <div
+            class="MuiContainer-root MuiContainer-maxWidthLg css-dj5201-MuiContainer-root"
+            data-testid="model-cell-export-state-container-ae03cd11-e992-4313-9a9e-49f497cc92d0"
+            style="display: contents; padding: 0px; margin: 0px;"
+          >
+            <div
+              data-testid="mock-export-state-content"
+            />
+          </div>
         </td>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeMedium css-4vsmxc-MuiTableCell-root"
