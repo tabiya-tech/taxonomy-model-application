@@ -224,9 +224,7 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_VERSION}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(10%)" }}>{TEXT.TABLE_HEADER_LABEL_RELEASED}</StyledHeaderCell>
               <StyledHeaderCell cellSx={{ width: "calc(35%)" }}>{TEXT.TABLE_HEADER_LABEL_DESCRIPTION}</StyledHeaderCell>
-              {!hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) && (
-                <StyledHeaderCell width={EXPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_EXPORT_STATE} />
-              )}
+              <StyledHeaderCell width={EXPORT_STATE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_EXPORT_STATE} />
               <StyledHeaderCell width={MORE_COLUMN_WIDTH} aria-label={TEXT.TABLE_HEADER_LABEL_MODEL_ACTIONS} />
             </TableRow>
           </TableHead>
@@ -292,20 +290,18 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                       }}
                     />
                   </StyledBodyCell>
-                  {!hasRole(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS) && (
-                    <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
-                      <Container
-                        style={{
-                          display: "contents",
-                          padding: 0,
-                          margin: 0,
-                        }}
-                        data-testid={DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER}
-                      >
-                        <ExportStateCellContent model={model} />
-                      </Container>
-                    </TableCell>
-                  )}
+                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
+                    <Container
+                      style={{
+                        display: "contents",
+                        padding: 0,
+                        margin: 0,
+                      }}
+                      data-testid={DATA_TEST_ID.MODEL_CELL_EXPORT_STATE_CONTAINER}
+                    >
+                      <ExportStateCellContent model={model} />
+                    </Container>
+                  </TableCell>
                   <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
                     <Button
                       sx={{
