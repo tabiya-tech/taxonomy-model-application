@@ -1,5 +1,6 @@
 "UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
-"1ea8093e-819d-4321-bcf6-61d4f6093c82
+"a969737f-aae6-4746-ba62-f53808f8644a
+1ea8093e-819d-4321-bcf6-61d4f6093c82
 4ed45ec6-6235-40a3-acec-f65cae78611a
 2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","EU-en","This model builds on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with numerous enhancements by Tabiya, including the addition of new occupations and labels to create a more inclusive taxonomy of jobs and skills. It incorporates previously overlooked activities such as micro-entrepreneurship and housework, which are often absent from conventional taxonomies. To ensure greater accessibility, we also introduced alternative labels, making this version more semantically approachable. See the release notes for more details.","v1.0.2","true","Minor changes to the [Tabiya (ESCO 1.1.1) v1.0.2](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) model:
-WIP: preferred labels of occupations in response to Harambe Researchers "
+WIP: preferred labels of occupations in response to Harambe Researchers"
