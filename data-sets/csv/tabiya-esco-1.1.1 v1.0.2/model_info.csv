@@ -1,12 +1,42 @@
-"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","UUIDHistory"
-"1ea8093e-819d-4321-bcf6-61d4f6093c82
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"7e245bcb-f564-4bba-9ba3-68184164d250
+1ea8093e-819d-4321-bcf6-61d4f6093c82
 4ed45ec6-6235-40a3-acec-f65cae78611a
-2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","EU-en","This model builds on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with numerous enhancements by Tabiya, including the addition of new occupations and labels to create a more inclusive taxonomy of jobs and skills. It incorporates previously overlooked activities such as micro-entrepreneurship and housework, which are often absent from conventional taxonomies. To ensure greater accessibility, we also introduced alternative labels, making this version more semantically approachable. See the release notes for more details.","v1.0.1","true","Minor changes to the [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) model:
+2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","EU-en","This model builds on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with numerous enhancements by Tabiya, including the addition of new occupations and labels to create a more inclusive taxonomy of jobs and skills. It incorporates previously overlooked activities such as micro-entrepreneurship and housework, which are often absent from conventional taxonomies. To ensure greater accessibility, we also introduced alternative labels, making this version more semantically approachable. See the release notes for more details.","v1.0.2","true","-------Version 1.0.2-----
+- Fix(typo): "think innovately" -> "think innovatively" for the skill with UUID fe0c17db-89b4-4200-b9d2-95d8ea054e6d
+- Update: Simplified short descriptions for the preferred labels of the unseen economy occupations/activities from the [ICATUS 2016 classification]
+(https://unstats.un.org/unsd/demographic-social/time-use/icatus-2016/).
+The preferred labels have been made more concise and easier to understand, while still retaining the essence of the original text.
+The changes are as follows:
+
+    | ICATUS ID | From                                                                 | To                                        |
+    |-----------|----------------------------------------------------------------------|-------------------------------------------|
+    | I52_3     | helping with sports, music or other cultural activities without getting paid | helping with sports, music or other cultural activities |
+    | I52_4     | helping with office work without getting paid                        | helping administrative/office work        |
+    | I52_2     | cooking or cleaning for other people's homes without getting paid   | cooking meals                             |
+    | I52_1     | cleaning or fixing roads or buildings without getting paid          | cleaning or fixing roads or buildings     |
+    | I51_4     | helping adults outside of your home who need care without getting paid | caring for adults who are sick            |
+    | I51_3     | caring for and teaching for children outside of your home without getting paid | caring for and teaching children          |
+    | I51_1     | fixing and building things in other people's homes without getting paid | fixing or building things                 |
+    | I51_2     | shopping for others without getting paid                             | shopping for things or hiring people      |
+    | I51_5     | helping in other people's businesses without getting paid           | helping                                   |
+    | I34_0     | cleaning or fixing clothes and shoes                                | washing or fixing clothes                 |
+    | I42_0     | helping adults who need care or are sick                             | caring for adults who are sick            |
+    | I41_0     | caring for and teaching children in your family                     | caring for and teaching children          |
+    | I32_0     | cleaning and looking after your home or garden                      | cleaning or gardening                     |
+    | I33_0     | fixing things in your home or car                                   | fixing or building things                 |
+    | I31_0     | cooking and planning meals                                          | cooking meals                             |
+    | I43_0     | helping other adults in the house or family                         | caring for adults who are not sick        |
+    | I35_0     | managing and planning for your household                            | managing and planning                     |
+    | I37_0     | shopping for your family or household                               | shopping for things or hiring people      |
+
+-----Version 1.0.1-----
+Minor changes to the [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) model:
 - I42_0_3 correct spelling of 'paperwork' in occupation description
 - I42_0_2 remove incorrect examples and scope
 - I33_0_3 correct spelling of 'Examples' in occupation description
 
-
+-------Version 1.0.0-----
 The [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) model is based on the ESCO v1.1.1 and has the following changes:
 - Add: New Micro-entrepreneur occupation (code:5221_2  uuid:d76f0bac-7145-4acc-a53e-259b96a6346b)
 - Add: Unseen economy occupations/activities from the [ICATUS 2016 classification](https://unstats.un.org/unsd/demographic-social/time-use/icatus-2016/)
@@ -18,4 +48,4 @@ The [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae
 - Fix: Several alt-labels had duplicate entries
 - Fix: Several text fields have invisible characters such as \t, nbsp and others
 - Fix: Several text fields have leading and trailing spaces or new lines
-- Fix: Reformat the scope notes of occupations and skills","7e245bcb-f564-4bba-9ba3-68184164d250"
+- Fix: Reformat the scope notes of occupations and skills"
