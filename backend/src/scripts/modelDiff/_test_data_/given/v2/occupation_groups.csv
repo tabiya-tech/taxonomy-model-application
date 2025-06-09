@@ -1,0 +1,16 @@
+"ORIGINURI","ID","UUIDHISTORY","CODE","GROUPTYPE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
+"origin-uri","key_og_1","9a605eb5-9a63-48a1-8df2-bed042b7a726
+9654a309-e48f-4c74-85b7-3dbb52ef0a90","0","iscogroup","group label 1","group label 1","desc 1"
+"origin-uri","key_og_2","c7f90199-043e-45eb-8cc9-5a176319386c
+f8d3c9a7-0e45-42bc-bd83-30fba0ab188c","01","iscogroup","group label 2","group label 2","desc 2"
+"origin-uri","key_og_5","3fd5feb6-2ad6-4605-8d41-2d284f790c5f
+a2ec8c4a-7a36-403d-a2a9-b8f80c13f999","4","iscogroup","group label 5","group label 5
+new label added","desc 5 updated"
+"origin-uri","key_og_6","bf9182f9-7398-42bd-af24-1ccc95f604fb
+a550b179-d957-41db-9d76-5cb969a5d986","45","iscogroup","group label 6","group label 6","desc 6"
+"origin-uri","key_og_7","715eafd6-1c22-4e71-9ed1-7c3cfae530c1
+eb3ad55e-3b5b-4c0d-a22f-0e4900a91a4e","L6","localgroup","group label 7","group label 7","desc 7"
+"origin-uri","key_og_8","4a91c925-2580-4b86-93ed-1af9cf8fd9a5
+0db74ff2-93c1-402b-98cb-8a214053c6e1","L67","localgroup","group label 8","group label 8","desc 8"
+"origin-uri","key_og_11","6297fb48-90f4-4e87-94b1-813280f366c1
+042f8234-e9b1-4f4e-a165-c92cdbd2e6a4","L10","localgroup","group label 11 updated","group label 11 updated","desc 11"

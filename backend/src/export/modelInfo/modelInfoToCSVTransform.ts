@@ -16,7 +16,7 @@ const modelInfoHeaders = [
   "UPDATEDAT",
 ];
 
-interface IModelInfoRow {
+export interface IModelInfoRow {
   UUIDHISTORY: string;
   NAME: string;
   LOCALE: string;
