@@ -1,0 +1,24 @@
+"ORIGINURI","ID","UUIDHISTORY","CODE","GROUPTYPE","PREFERREDLABEL","ALTLABELS","DESCRIPTION"
+"origin-uri","key_og_1","b7cdae19-ac71-43f5-9eb3-fd6d05b4d56d
+9654a309-e48f-4c74-85b7-3dbb52ef0a90","0","iscogroup","group label 1","group label 1","desc 1"
+"origin-uri","key_og_2","ea0daaa8-cc87-418a-8fe1-2ecdbe77ca95
+f8d3c9a7-0e45-42bc-bd83-30fba0ab188c","01","iscogroup","group label 2","group label 2","desc 2"
+"origin-uri","key_og_3","b8845e5f-5423-43fe-bdc3-f15de224dde4
+7cb21e94-ff2e-4d4f-9f42-b50b5e98ec54","2","iscogroup","group label 3","group label 3","desc 3"
+"origin-uri","key_og_4","bce54dd4-e254-4410-9fcc-c9a5c5da8927
+1ed19d15-0c2a-42de-a9f6-35e0fce77368","3","iscogroup","group label 4","group label 4","desc 4"
+"origin-uri","key_og_5","c4e82888-709c-4598-b11a-d8ab8fb50644
+a2ec8c4a-7a36-403d-a2a9-b8f80c13f999","4","iscogroup","group label 5","group label 5","desc 5"
+"origin-uri","key_og_6","3a9d5f8a-139f-4832-8697-fd948269876b
+a550b179-d957-41db-9d76-5cb969a5d986","5","iscogroup","group label 6","group label 6","desc 6"
+"origin-uri","key_og_7","7d4f0fa8-5aa1-4e04-976f-673758d42980
+eb3ad55e-3b5b-4c0d-a22f-0e4900a91a4e","6","iscogroup","group label 7","group label 7","desc 7"
+"origin-uri","key_og_8","480a251a-3da5-4e7d-a37d-bd3ec2cf1687
+0db74ff2-93c1-402b-98cb-8a214053c6e1","7","iscogroup","group label 8","group label 8","desc 8"
+"origin-uri","key_og_9","4e3366af-b9da-44b3-8479-087be83b759a
+d2c74209-6214-42f9-bfa3-70ab0d46b349","8","iscogroup","group label 9","group label 9","desc 9 updated"
+"origin-uri","key_og_10","6ea1608c-947e-45a9-a16c-ff5ce939ab8b
+579c72cf-d80e-49c0-a349-e8fc5f39c2a3","9","iscogroup","group label 10","group label 10
+group label 10 new label","desc 10"
+"origin-uri","key_og_11","e4aae7b7-7e70-4ad6-bd5a-acc971774ea8
+042f8234-e9b1-4f4e-a165-c92cdbd2e6a4","10","iscogroup","group label 11 updated","group label 11 updated","desc 11"

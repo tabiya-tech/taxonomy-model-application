@@ -1,0 +1,745 @@
+{
+  "models": {
+    "left": "Model Diff V1 v1",
+    "right": "Model Diff V0 v0"
+  },
+  "left": {
+    "entities": [],
+    "associations": [
+      {
+        "parentOriginUUID": "1ed19d15-0c2a-42de-a9f6-35e0fce77368",
+        "parentObjectType": "iscogroup",
+        "childOriginUUID": "a2ec8c4a-7a36-403d-a2a9-b8f80c13f999",
+        "childObjectType": "iscogroup",
+        "associationType": "OCCUPATION_HIERARCHY",
+        "identity": {
+          "parentID": {
+            "left": "key_og_4",
+            "right": null
+          },
+          "childID": {
+            "left": "key_og_5",
+            "right": null
+          }
+        }
+      }
+    ]
+  },
+  "right": {
+    "entities": [
+      {
+        "originUUID": "81866c63-97de-4f63-8f2a-84d6b670a20a",
+        "type": "SKILL",
+        "identity": {
+          "id": {
+            "left": null,
+            "right": "key_s_14"
+          },
+          "UUID": {
+            "left": null,
+            "right": "81866c63-97de-4f63-8f2a-84d6b670a20a"
+          }
+        }
+      },
+      {
+        "originUUID": "cd498407-1969-4d26-9613-70734ebc3d1c",
+        "type": "SKILL_GROUP",
+        "identity": {
+          "id": {
+            "left": null,
+            "right": "key_sg_9"
+          },
+          "UUID": {
+            "left": null,
+            "right": "cd498407-1969-4d26-9613-70734ebc3d1c"
+          }
+        }
+      },
+      {
+        "originUUID": "1d41664c-f2d2-4eb0-84e8-3083a127d925",
+        "type": "OCCUPATION",
+        "identity": {
+          "id": {
+            "left": null,
+            "right": "key_o_14"
+          },
+          "UUID": {
+            "left": null,
+            "right": "1d41664c-f2d2-4eb0-84e8-3083a127d925"
+          }
+        }
+      },
+      {
+        "originUUID": "0db74ff2-93c1-402b-98cb-8a214053c6e1",
+        "type": "OCCUPATION_GROUP",
+        "identity": {
+          "id": {
+            "left": null,
+            "right": "key_og_8"
+          },
+          "UUID": {
+            "left": null,
+            "right": "0db74ff2-93c1-402b-98cb-8a214053c6e1"
+          }
+        }
+      }
+    ],
+    "associations": [
+      {
+        "requiredSkillOriginUUID": "81866c63-97de-4f63-8f2a-84d6b670a20a",
+        "requiringSkillOriginUUID": "fcb6e19b-5c23-453a-a493-69783306c1ee",
+        "associationType": "SKILL_TO_SKILL",
+        "identity": {
+          "requiredSkillID": {
+            "left": null,
+            "right": "key_s_14"
+          },
+          "requiringSkillId": {
+            "left": null,
+            "right": "key_s_3"
+          }
+        }
+      },
+      {
+        "requiredSkillOriginUUID": "1c0dfd4b-9a2e-4d5e-87a3-d607cbcb5cfc",
+        "requiringSkillOriginUUID": "81866c63-97de-4f63-8f2a-84d6b670a20a",
+        "associationType": "SKILL_TO_SKILL",
+        "identity": {
+          "requiredSkillID": {
+            "left": null,
+            "right": "key_s_9"
+          },
+          "requiringSkillId": {
+            "left": null,
+            "right": "key_s_14"
+          }
+        }
+      },
+      {
+        "requiredSkillOriginUUID": "7643de99-e994-4c10-b12f-c4ef4c22e8d6",
+        "requiringSkillOriginUUID": "ac4e1621-d5db-4039-8de0-b6586815b1cd",
+        "associationType": "SKILL_TO_SKILL",
+        "identity": {
+          "requiredSkillID": {
+            "left": null,
+            "right": "key_s_17"
+          },
+          "requiringSkillId": {
+            "left": null,
+            "right": "key_s_24"
+          }
+        }
+      },
+      {
+        "parentOriginUUID": "9654a309-e48f-4c74-85b7-3dbb52ef0a90",
+        "parentObjectType": "iscogroup",
+        "childOriginUUID": "f8d3c9a7-0e45-42bc-bd83-30fba0ab188c",
+        "childObjectType": "iscogroup",
+        "associationType": "OCCUPATION_HIERARCHY",
+        "identity": {
+          "parentID": {
+            "left": null,
+            "right": "key_og_1"
+          },
+          "childID": {
+            "left": null,
+            "right": "key_og_2"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "3b20685e-f3c7-4c6a-81a5-f5388dce5f9e",
+        "skillOriginUUID": "1c0dfd4b-9a2e-4d5e-87a3-d607cbcb5cfc",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_3"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_9"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "28a1f943-f46e-43ea-8051-898e6aeaa8ee",
+        "skillOriginUUID": "81866c63-97de-4f63-8f2a-84d6b670a20a",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_5"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_14"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "1d41664c-f2d2-4eb0-84e8-3083a127d925",
+        "skillOriginUUID": "c6b2f7f1-11c2-4a9e-84e6-541207b0c0d1",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_14"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_7"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "1d41664c-f2d2-4eb0-84e8-3083a127d925",
+        "skillOriginUUID": "7c7332c6-0f61-4686-9b20-c16ad56c18f5",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_14"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_8"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "1d41664c-f2d2-4eb0-84e8-3083a127d925",
+        "skillOriginUUID": "1c0dfd4b-9a2e-4d5e-87a3-d607cbcb5cfc",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_14"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_9"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "c6c2726f-c4b1-44d2-bcd9-bc593f3e7e6a",
+        "skillOriginUUID": "81866c63-97de-4f63-8f2a-84d6b670a20a",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_16"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_14"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "4d3535b6-4550-4656-9ed2-8d7b19c8238a",
+        "skillOriginUUID": "1c0dfd4b-9a2e-4d5e-87a3-d607cbcb5cfc",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_24"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_9"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "5ebbd719-3824-4a58-9207-bd8cfcdb35c4",
+        "skillOriginUUID": "a09b5c8c-d58c-4745-a73c-41c1fd5fe706",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_26"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_13"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "5ebbd719-3824-4a58-9207-bd8cfcdb35c4",
+        "skillOriginUUID": "81866c63-97de-4f63-8f2a-84d6b670a20a",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_26"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_14"
+          }
+        }
+      },
+      {
+        "occupationOriginUUID": "5ebbd719-3824-4a58-9207-bd8cfcdb35c4",
+        "skillOriginUUID": "b9a57cd3-4f42-4262-9993-60f443b9ae30",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": null,
+            "right": "key_o_26"
+          },
+          "skillID": {
+            "left": null,
+            "right": "key_s_15"
+          }
+        }
+      }
+    ]
+  },
+  "common": {
+    "entities": [
+      {
+        "originUUID": "05518bd4-4e4f-4fe3-9262-7c6b8f4359ce",
+        "type": "SKILL",
+        "identity": {
+          "id": {
+            "left": "key_s_1",
+            "right": "key_s_1"
+          },
+          "UUID": {
+            "left": "3a310524-e081-4c46-a859-f638e7790de0",
+            "right": "05518bd4-4e4f-4fe3-9262-7c6b8f4359ce"
+          }
+        },
+        "propsDiffs": {
+          "PREFERREDLABEL": {
+            "left": "label-1 updated",
+            "right": "label-1"
+          },
+          "ALTLABELS": {
+            "left": [
+              "label-1 updated"
+            ],
+            "right": [
+              "label-1"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "a02dc7bb-234e-4a61-918f-d4e4a6e67c5e",
+        "type": "SKILL",
+        "identity": {
+          "id": {
+            "left": "key_s_2",
+            "right": "key_s_2"
+          },
+          "UUID": {
+            "left": "d116ac6c-39f7-4120-9cec-01f36861e1a6",
+            "right": "a02dc7bb-234e-4a61-918f-d4e4a6e67c5e"
+          }
+        },
+        "propsDiffs": {
+          "ALTLABELS": {
+            "left": [
+              "label-2",
+              "label-2 added"
+            ],
+            "right": [
+              "label-2"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "fcb6e19b-5c23-453a-a493-69783306c1ee",
+        "type": "SKILL",
+        "identity": {
+          "id": {
+            "left": "key_s_3",
+            "right": "key_s_3"
+          },
+          "UUID": {
+            "left": "6770c6be-7046-47bd-8e3c-437ae34c49fe",
+            "right": "fcb6e19b-5c23-453a-a493-69783306c1ee"
+          }
+        },
+        "propsDiffs": {
+          "DESCRIPTION": {
+            "left": "desc-3 updated",
+            "right": "desc-3"
+          }
+        }
+      },
+      {
+        "originUUID": "d55f9d2f-6340-41ad-b0aa-cbdb5d43dc52",
+        "type": "SKILL",
+        "identity": {
+          "id": {
+            "left": "key_s_4",
+            "right": "key_s_4"
+          },
+          "UUID": {
+            "left": "b91d9ccc-c2ad-4d3d-9686-cdd4c4e21b2a",
+            "right": "d55f9d2f-6340-41ad-b0aa-cbdb5d43dc52"
+          }
+        },
+        "propsDiffs": {
+          "DEFINITION": {
+            "left": "def-4 updated",
+            "right": "def-4"
+          }
+        }
+      },
+      {
+        "originUUID": "7d2d6c6e-065e-404f-a810-bf42f305f3a4",
+        "type": "SKILL",
+        "identity": {
+          "id": {
+            "left": "key_s_5",
+            "right": "key_s_5"
+          },
+          "UUID": {
+            "left": "bf9662df-90b3-4939-a8d3-4f341ebccefd",
+            "right": "7d2d6c6e-065e-404f-a810-bf42f305f3a4"
+          }
+        },
+        "propsDiffs": {
+          "SCOPENOTE": {
+            "left": "note-5 updated",
+            "right": "note-5"
+          }
+        }
+      },
+      {
+        "originUUID": "bd740c9a-f49d-42ff-bc5d-fce02f91c0e0",
+        "type": "SKILL_GROUP",
+        "identity": {
+          "id": {
+            "left": "key_sg_1",
+            "right": "key_sg_1"
+          },
+          "UUID": {
+            "left": "b70a33b3-40f0-4825-8f43-ceaf66f1a370",
+            "right": "bd740c9a-f49d-42ff-bc5d-fce02f91c0e0"
+          }
+        },
+        "propsDiffs": {
+          "PREFERREDLABEL": {
+            "left": "label-1 updated",
+            "right": "label-1"
+          },
+          "ALTLABELS": {
+            "left": [
+              "label-1 updated"
+            ],
+            "right": [
+              "label-1"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "6c7ef449-8005-4127-9c51-14517a45cf0c",
+        "type": "SKILL_GROUP",
+        "identity": {
+          "id": {
+            "left": "key_sg_2",
+            "right": "key_sg_2"
+          },
+          "UUID": {
+            "left": "64c3d98f-88c9-4696-9df4-1956a2fa896a",
+            "right": "6c7ef449-8005-4127-9c51-14517a45cf0c"
+          }
+        },
+        "propsDiffs": {
+          "ALTLABELS": {
+            "left": [
+              "label-2",
+              "label 2 new added"
+            ],
+            "right": [
+              "label-2"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "d4af880b-52be-49c9-8e15-bf22e7ec0295",
+        "type": "SKILL_GROUP",
+        "identity": {
+          "id": {
+            "left": "key_sg_3",
+            "right": "key_sg_3"
+          },
+          "UUID": {
+            "left": "fe18b00b-3578-4354-839d-ce98b49709d7",
+            "right": "d4af880b-52be-49c9-8e15-bf22e7ec0295"
+          }
+        },
+        "propsDiffs": {
+          "DESCRIPTION": {
+            "left": "desc-3 updated",
+            "right": "desc-3"
+          }
+        }
+      },
+      {
+        "originUUID": "d04ea7fc-b477-4e88-9563-87a3d97a1e65",
+        "type": "SKILL_GROUP",
+        "identity": {
+          "id": {
+            "left": "key_sg_4",
+            "right": "key_sg_4"
+          },
+          "UUID": {
+            "left": "a78213c4-d59f-4227-9589-70d4b40bea41",
+            "right": "d04ea7fc-b477-4e88-9563-87a3d97a1e65"
+          }
+        },
+        "propsDiffs": {
+          "SCOPENOTE": {
+            "left": "note-4 updated",
+            "right": "note-4"
+          }
+        }
+      },
+      {
+        "originUUID": "1b6a75c1-82e1-4b67-8abf-2365b8e4e2c2",
+        "type": "OCCUPATION",
+        "identity": {
+          "id": {
+            "left": "key_o_2",
+            "right": "key_o_2"
+          },
+          "UUID": {
+            "left": "a230a091-acd6-42f2-9e40-85add3277f19",
+            "right": "1b6a75c1-82e1-4b67-8abf-2365b8e4e2c2"
+          }
+        },
+        "propsDiffs": {
+          "PREFERREDLABEL": {
+            "left": "occupation label 2 updated",
+            "right": "occupation label 2"
+          },
+          "ALTLABELS": {
+            "left": [
+              "occupation label 2 updated"
+            ],
+            "right": [
+              "occupation label 2"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "3b20685e-f3c7-4c6a-81a5-f5388dce5f9e",
+        "type": "OCCUPATION",
+        "identity": {
+          "id": {
+            "left": "key_o_3",
+            "right": "key_o_3"
+          },
+          "UUID": {
+            "left": "b4432ee2-a643-4158-8f22-f59ab18d1301",
+            "right": "3b20685e-f3c7-4c6a-81a5-f5388dce5f9e"
+          }
+        },
+        "propsDiffs": {
+          "ALTLABELS": {
+            "left": [
+              "occupation label 3",
+              "occupation label 3 added"
+            ],
+            "right": [
+              "occupation label 3"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "4969dcf9-93b4-47d5-bdab-7dd410c72b2e",
+        "type": "OCCUPATION",
+        "identity": {
+          "id": {
+            "left": "key_o_4",
+            "right": "key_o_4"
+          },
+          "UUID": {
+            "left": "0e00e467-174a-4665-ad8e-50058008209f",
+            "right": "4969dcf9-93b4-47d5-bdab-7dd410c72b2e"
+          }
+        },
+        "propsDiffs": {
+          "DESCRIPTION": {
+            "left": "desc 4 updated",
+            "right": "desc 4"
+          }
+        }
+      },
+      {
+        "originUUID": "28a1f943-f46e-43ea-8051-898e6aeaa8ee",
+        "type": "OCCUPATION",
+        "identity": {
+          "id": {
+            "left": "key_o_5",
+            "right": "key_o_5"
+          },
+          "UUID": {
+            "left": "29dced39-9208-4cdb-b5ff-b2c77e1a7333",
+            "right": "28a1f943-f46e-43ea-8051-898e6aeaa8ee"
+          }
+        },
+        "propsDiffs": {
+          "DEFINITION": {
+            "left": "def 5 updated",
+            "right": "def 5"
+          }
+        }
+      },
+      {
+        "originUUID": "66b90a45-6799-4e14-8e34-c8d20f4621b2",
+        "type": "OCCUPATION",
+        "identity": {
+          "id": {
+            "left": "key_o_6",
+            "right": "key_o_6"
+          },
+          "UUID": {
+            "left": "efdf13fc-ef6f-4781-bb9a-1ab6dc4f4d89",
+            "right": "66b90a45-6799-4e14-8e34-c8d20f4621b2"
+          }
+        },
+        "propsDiffs": {
+          "SCOPENOTE": {
+            "left": "scope note 6 updated",
+            "right": "scope note 6"
+          }
+        }
+      },
+      {
+        "originUUID": "eb7d9d03-4b58-4f3e-abe0-e27993a2ff2d",
+        "type": "OCCUPATION",
+        "identity": {
+          "id": {
+            "left": "key_o_7",
+            "right": "key_o_7"
+          },
+          "UUID": {
+            "left": "f7f8cf27-00c1-405a-80fa-68796b768e80",
+            "right": "eb7d9d03-4b58-4f3e-abe0-e27993a2ff2d"
+          }
+        },
+        "propsDiffs": {
+          "REGULATEDPROFESSIONNOTE": {
+            "left": "reg prof note 7 updated",
+            "right": "reg prof note 7"
+          }
+        }
+      },
+      {
+        "originUUID": "9654a309-e48f-4c74-85b7-3dbb52ef0a90",
+        "type": "OCCUPATION_GROUP",
+        "identity": {
+          "id": {
+            "left": "key_og_1",
+            "right": "key_og_1"
+          },
+          "UUID": {
+            "left": "76c835c3-d380-4151-a246-a042e9da05f7",
+            "right": "9654a309-e48f-4c74-85b7-3dbb52ef0a90"
+          }
+        },
+        "propsDiffs": {
+          "PREFERREDLABEL": {
+            "left": "group label 1 updated",
+            "right": "group label 1"
+          },
+          "ALTLABELS": {
+            "left": [
+              "group label 1 updated"
+            ],
+            "right": [
+              "group label 1"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "f8d3c9a7-0e45-42bc-bd83-30fba0ab188c",
+        "type": "OCCUPATION_GROUP",
+        "identity": {
+          "id": {
+            "left": "key_og_2",
+            "right": "key_og_2"
+          },
+          "UUID": {
+            "left": "18bf0517-4e54-45bb-ba36-0ee68092e308",
+            "right": "f8d3c9a7-0e45-42bc-bd83-30fba0ab188c"
+          }
+        },
+        "propsDiffs": {
+          "ALTLABELS": {
+            "left": [
+              "group label 2",
+              "group label 2 added new"
+            ],
+            "right": [
+              "group label 2"
+            ]
+          }
+        }
+      },
+      {
+        "originUUID": "7cb21e94-ff2e-4d4f-9f42-b50b5e98ec54",
+        "type": "OCCUPATION_GROUP",
+        "identity": {
+          "id": {
+            "left": "key_og_3",
+            "right": "key_og_3"
+          },
+          "UUID": {
+            "left": "a59b2667-5924-4bbb-843a-0f08cbec2ba3",
+            "right": "7cb21e94-ff2e-4d4f-9f42-b50b5e98ec54"
+          }
+        },
+        "propsDiffs": {
+          "DESCRIPTION": {
+            "left": "desc 3 updated",
+            "right": "desc 3"
+          }
+        }
+      }
+    ],
+    "associations": [
+      {
+        "occupationOriginUUID": "8df61b3e-b2c1-4df6-bc49-1d85c169ad8d",
+        "skillOriginUUID": "6f9fe28b-6483-4863-b845-6431d49cb1d8",
+        "associationType": "OCCUPATION_TO_SKILL",
+        "identity": {
+          "occupationID": {
+            "left": "key_o_30",
+            "right": "key_o_30"
+          },
+          "skillID": {
+            "left": "key_s_25",
+            "right": "key_s_25"
+          }
+        },
+        "propsDiffs": {
+          "SIGNALLINGVALUELABEL": {
+            "left": "low",
+            "right": "high"
+          },
+          "SIGNALLINGVALUE": {
+            "left": "2",
+            "right": "8"
+          }
+        }
+      }
+    ]
+  }
+}

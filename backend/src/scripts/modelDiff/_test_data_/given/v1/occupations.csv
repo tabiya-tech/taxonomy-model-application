@@ -1,0 +1,60 @@
+"ORIGINURI","ID","UUIDHISTORY","OCCUPATIONGROUPCODE","CODE","PREFERREDLABEL","ALTLABELS","DESCRIPTION","DEFINITION","SCOPENOTE","REGULATEDPROFESSIONNOTE","OCCUPATIONTYPE","ISLOCALIZED"
+"origin-uri-1","key_o_1","7cd15b1c-373f-4f1a-8676-8d2563612bdd
+a7e3aabd-2c3f-4a63-ad88-00d0e6025458","0","0000.1","occupation label 1","occupation label 1","desc 1","def 1","scope note 1","reg prof note 1","escooccupation","true"
+"origin-uri-1","key_o_2","a230a091-acd6-42f2-9e40-85add3277f19
+1b6a75c1-82e1-4b67-8abf-2365b8e4e2c2","1","I1_1","occupation label 2 updated","occupation label 2 updated","desc 2","def 2","scope note 2","reg prof note 2","localoccupation","false"
+"origin-uri-1","key_o_3","b4432ee2-a643-4158-8f22-f59ab18d1301
+3b20685e-f3c7-4c6a-81a5-f5388dce5f9e","2","0002.1","occupation label 3","occupation label 3
+occupation label 3 added","desc 3","def 3","scope note 3","reg prof note 3","escooccupation","true"
+"origin-uri-1","key_o_4","0e00e467-174a-4665-ad8e-50058008209f
+4969dcf9-93b4-47d5-bdab-7dd410c72b2e","3","I3_1","occupation label 4","occupation label 4","desc 4 updated","def 4","scope note 4","reg prof note 4","localoccupation","false"
+"origin-uri-1","key_o_5","29dced39-9208-4cdb-b5ff-b2c77e1a7333
+28a1f943-f46e-43ea-8051-898e6aeaa8ee","4","0004.1","occupation label 5","occupation label 5","desc 5","def 5 updated","scope note 5","reg prof note 5","escooccupation","true"
+"origin-uri-1","key_o_6","efdf13fc-ef6f-4781-bb9a-1ab6dc4f4d89
+66b90a45-6799-4e14-8e34-c8d20f4621b2","5","0005.1","occupation label 6","occupation label 6","desc 6","def 6","scope note 6 updated","reg prof note 6","escooccupation","true"
+"origin-uri-1","key_o_7","f7f8cf27-00c1-405a-80fa-68796b768e80
+eb7d9d03-4b58-4f3e-abe0-e27993a2ff2d","6","0006.1","occupation label 7","occupation label 7","desc 7","def 7","scope note 7","reg prof note 7 updated","escooccupation","true"
+"origin-uri-1","key_o_8","d649a5c8-2d80-4917-b86b-9535c9063c79
+741693b9-1593-4084-b622-29d591c070f9","7","0007.1","occupation label 8","occupation label 8","desc 8","def 8","scope note 8","reg prof note 8","escooccupation","true"
+"origin-uri-1","key_o_9","78854ca8-24cf-44a7-9e2f-bbe216d9e09c
+b7eae5c6-9605-4718-92f2-155d8e5f336c","8","0008.1","occupation label 9","occupation label 9","desc 9","def 9","scope note 9","reg prof note 9","escooccupation","true"
+"origin-uri-1","key_o_10","4b9ae59e-1e0a-45fa-84ac-4540c3ae7c1e
+508f8036-5e35-4899-9275-345eb81ae707","9","0009.1","occupation label 10","occupation label 10","desc 10","def 10","scope note 10","reg prof note 10","escooccupation","true"
+"origin-uri-1","key_o_11","fcd0dc74-5719-432c-8a9e-5ec3ec6a10a3
+fbdd3521-5fd0-4c58-a121-fb84d832902e","10","0010.1","occupation label 11","occupation label 11","desc 11","def 11","scope note 11","reg prof note 11","escooccupation","true"
+"origin-uri-1","key_o_12","3fbfc80c-66fc-4981-8585-b7d4078399da
+45b81f74-53f3-4a7b-a4c1-ea1288b39a66","11","0011.1","occupation label 12","occupation label 12","desc 12","def 12","scope note 12","reg prof note 12","escooccupation","true"
+"origin-uri-1","key_o_13","6278e28b-bc75-48f5-9bb2-f65ab36c0d6f
+b21c4c0c-f35a-4ff1-9f3c-d2dff3c6c1e6","12","0012.1","occupation label 13","occupation label 13","desc 13","def 13","scope note 13","reg prof note 13","escooccupation","true"
+"origin-uri-1","key_o_15","4c038079-ac6f-482c-a56b-e279f643212a
+d08d8599-4f5b-4d94-b4e4-0e31a32a364f","14","0014.1","occupation label 15","occupation label 15","desc 15","def 15","scope note 15","reg prof note 15","escooccupation","false"
+"origin-uri-1","key_o_16","29bc1090-763d-484f-992e-4fadb4aad321
+c6c2726f-c4b1-44d2-bcd9-bc593f3e7e6a","15","0015_1","occupation label 16","occupation label 16","desc 16","def 16","scope note 16","reg prof note 16","localoccupation","false"
+"origin-uri-1","key_o_17","5e56d24a-5108-45d1-92de-327a218b8ffb
+69e66b50-61a3-49c4-83b2-c2f00a4aa3ad","16","0016.1","occupation label 17","occupation label 17","desc 17","def 17","scope note 17","reg prof note 17","escooccupation","true"
+"origin-uri-1","key_o_18","f008fbb3-6358-42b3-8345-a403707c121e
+3dcf9f68-7f02-4868-aec1-3a4df0cc67d0","17","0017.1","occupation label 18","occupation label 18","desc 18","def 18","scope note 18","reg prof note 18","escooccupation","true"
+"origin-uri-1","key_o_19","78595d9c-bcda-4e58-96f0-85af26f9836f
+79b9a68f-bff8-4c92-8b5b-f0e7232b4c4d","18","0018.1","occupation label 19","occupation label 19","desc 19","def 19","scope note 19","reg prof note 19","escooccupation","true"
+"origin-uri-1","key_o_20","b210be21-252d-4f6f-be72-bcb3ea3f8a5e
+2f8b8939-bccd-4a31-b993-59705d46efcf","19","0019.1","occupation label 20","occupation label 20","desc 20","def 20","scope note 20","reg prof note 20","escooccupation","true"
+"origin-uri-1","key_o_21","e897e32c-22c0-4559-8e02-0acc056e0537
+9ed1866e-90c7-4a5b-84a0-8e55bdf33b68","20","0020.1","occupation label 21","occupation label 21","desc 21","def 21","scope note 21","reg prof note 21","escooccupation","true"
+"origin-uri-1","key_o_22","05aa8a55-0682-46a1-a94e-0963d7d6f989
+45a3b6ec-e89b-4f68-8b3b-d0bbca32842d","21","0021.1","occupation label 22","occupation label 22","desc 22","def 22","scope note 22","reg prof note 22","escooccupation","true"
+"origin-uri-1","key_o_23","e0110619-8e70-43f6-905c-813747e9b326
+40e934c4-3663-4a34-9c24-33e27c60102b","22","0022.1","occupation label 23","occupation label 23","desc 23","def 23","scope note 23","reg prof note 23","escooccupation","true"
+"origin-uri-1","key_o_24","06f6e04d-342d-48c9-9127-3caee95bd880
+4d3535b6-4550-4656-9ed2-8d7b19c8238a","23","0023.1","occupation label 24","occupation label 24","desc 24","def 24","scope note 24","reg prof note 24","escooccupation","false"
+"origin-uri-1","key_o_25","2e9a0374-f196-445f-bc66-f3ca2333e3e0
+beee705c-d60c-472f-83d4-7d0d3f3c7d08","24","0024.1","occupation label 25","occupation label 25","desc 25","def 25","scope note 25","reg prof note 25","escooccupation","true"
+"origin-uri-1","key_o_26","5bfa5705-da77-4e24-a2f4-ce77139e19e8
+5ebbd719-3824-4a58-9207-bd8cfcdb35c4","25","0025.1","occupation label 26","occupation label 26","desc 26","def 26","scope note 26","reg prof note 26","escooccupation","true"
+"origin-uri-1","key_o_27","bd87384b-b331-4197-b605-b421df86d354
+f3781676-5c34-4e92-b07f-091180f4a8ff","26","0026.1","occupation label 27","occupation label 27","desc 27","def 27","scope note 27","reg prof note 27","escooccupation","true"
+"origin-uri-1","key_o_28","fe9df724-c078-4111-9ffa-27f4e64b24b8
+9a5ce32b-16c0-490e-9343-3ccfd47614a3","27","0027_1","occupation label 28","occupation label 28","desc 28","def 28","scope note 28","reg prof note 28","localoccupation","false"
+"origin-uri-1","key_o_29","fec33709-2ccb-4529-9d98-ce95ca3c1964
+4c57e0c1-d689-4571-87d8-f3cd9d9c0bd8","28","0028_1","occupation label 29","occupation label 29","desc 29","def 29","scope note 29","reg prof note 29","localoccupation","false"
+"origin-uri-1","key_o_30","7a3a1c07-7636-4ec6-8d03-eb80131af451
+8df61b3e-b2c1-4df6-bc49-1d85c169ad8d","29","0029_1","occupation label 30","occupation label 30","desc 30","def 30","scope note 30","reg prof note 30","localoccupation","false"
