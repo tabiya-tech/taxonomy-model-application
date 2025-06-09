@@ -1,0 +1,18 @@
+{
+  "models": {
+    "left": "",
+    "right": ""
+  },
+  "left": {
+    "entities": [],
+    "associations": []
+  },
+  "right": {
+    "entities": [],
+    "associations": []
+  },
+  "common": {
+    "entities": [],
+    "associations": []
+  }
+}
