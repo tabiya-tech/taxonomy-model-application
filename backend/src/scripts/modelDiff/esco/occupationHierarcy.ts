@@ -60,7 +60,7 @@ export class OccupationHierarchyService extends TaxonomyRelationService {
   }
 
   /**
-   * Loads original UUIDs for occupation and occupation group entities referenced in the hierarchy
+   * Loads origin UUIDs for occupation and occupation group entities referenced in the hierarchy
    * This must be called after occupations and occupation groups have been loaded into the model.
    *
    * @throws Error if referenced entities cannot be found

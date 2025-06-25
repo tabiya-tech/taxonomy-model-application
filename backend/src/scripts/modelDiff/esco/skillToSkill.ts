@@ -49,7 +49,7 @@ export class SkillToSkillService extends TaxonomyRelationService {
   }
 
   /**
-   * Loads original UUIDs for skill entities referenced in the relations
+   * Loads origin UUIDs for skill entities referenced in the relations
    * This must be called after skills have been loaded into the model.
    *
    * @throws Error if referenced skills cannot be found
