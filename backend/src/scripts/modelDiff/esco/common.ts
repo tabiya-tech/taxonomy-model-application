@@ -27,7 +27,7 @@ type CSVFileContent<T extends CSVFileRecordType> = {
  *
  * @param UUIDHistory - A string containing the history of UUIDs
  *
- * @returns Parsed UUID history with recent and original UUIDs identified,
+ * @returns Parsed UUID history with recent and origin UUIDs identified,
  */
 export function parseUUIDHistory(UUIDHistory: string): UUIDHistoryParsed {
   if (!UUIDHistory || UUIDHistory.trim().length === 0) {

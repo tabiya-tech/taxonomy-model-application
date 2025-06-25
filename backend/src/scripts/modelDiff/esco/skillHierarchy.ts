@@ -65,7 +65,7 @@ export class SkillHierarchyService extends TaxonomyRelationService {
   }
 
   /**
-   * Loads original UUIDs for skill and skill group entities referenced in the hierarchy
+   * Loads origin UUIDs for skill and skill group entities referenced in the hierarchy
    * This must be called after skills and skill groups have been loaded into the model.
    *
    * @throws Error if referenced entities cannot be found

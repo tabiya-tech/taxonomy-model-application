@@ -30,7 +30,7 @@ export type UUIDHistoryParsed = {
   /** Most recent UUID (first in history) */
   recentUUID: string;
 
-  /** Original UUID (last in history) */
+  /** Origin UUID (last in history) */
   originUUID: string;
 };
 

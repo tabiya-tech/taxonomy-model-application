@@ -98,7 +98,7 @@ export class ModelManager implements IModelManager {
    * 1. Clears existing caches
    * 2. Loads all entity types (skills, occupations, etc.)
    * 3. Loads all relationship types
-   * 4. Resolves original UUIDs for relationships
+   * 4. Resolves origin UUIDs for relationships
    * 5. Updates memory status to LOADED.
    *
    * @throws Error if any CSV files cannot be loaded or processed
@@ -141,10 +141,10 @@ export class ModelManager implements IModelManager {
       skillHierarchyService,
     ];
 
-    // Then, load the original UUIDs for the relations.
+    // Then, load the origin UUIDs for the relations.
     await Promise.all(taxonomyRelationsServices.map(async (service) => service.loadFromCSV()));
 
-    this.logger.info("Original UUIDs loaded in the relations");
+    this.logger.info("Origin UUIDs loaded in the relations");
 
     this.state.memoryStatus = MemoryStatus.LOADED;
   }
@@ -218,9 +218,9 @@ export class ModelManager implements IModelManager {
   }
 
   /**
-   * Retrieves a skill entity by its original UUID with caching
+   * Retrieves a skill entity by its origin UUID with caching
    *
-   * @param OriginUUID - The original UUID of the skill to retrieve
+   * @param OriginUUID - The origin UUID of the skill to retrieve
    * @returns The skill entity if found, undefined otherwise
    */
   getSKillByOriginUUID(OriginUUID: string) {
@@ -235,9 +235,9 @@ export class ModelManager implements IModelManager {
   }
 
   /**
-   * Retrieves an occupation entity by its original UUID with caching
+   * Retrieves an occupation entity by its origin UUID with caching
    *
-   * @param OriginUUID - The original UUID of the occupation to retrieve
+   * @param OriginUUID - The origin UUID of the occupation to retrieve
    * @returns The occupation entity if found, undefined otherwise
    */
   getOccupationByOriginUUID(OriginUUID: string) {
@@ -252,9 +252,9 @@ export class ModelManager implements IModelManager {
   }
 
   /**
-   * Retrieves a skill group entity by its original UUID with caching
+   * Retrieves a skill group entity by its origin UUID with caching
    *
-   * @param OriginUUID - The original UUID of the skill group to retrieve
+   * @param OriginUUID - The origin UUID of the skill group to retrieve
    * @returns The skill group entity if found, undefined otherwise
    */
   getSkillGroupByOriginUUID(OriginUUID: string) {
@@ -269,9 +269,9 @@ export class ModelManager implements IModelManager {
   }
 
   /**
-   * Retrieves an occupation group entity by its original UUID with caching
+   * Retrieves an occupation group entity by its origin UUID with caching
    *
-   * @param OriginUUID - The original UUID of the occupation group to retrieve
+   * @param OriginUUID - The origin UUID of the occupation group to retrieve
    * @returns The occupation group entity if found, undefined otherwise
    */
   getOccupationGroupByOriginUUID(OriginUUID: string) {
@@ -286,10 +286,10 @@ export class ModelManager implements IModelManager {
   }
 
   /**
-   * Finds an occupation-to-skill relation by the original UUIDs of both entities
+   * Finds an occupation-to-skill relation by the origin UUIDs of both entities
    *
-   * @param occupationOriginUUID - The original UUID of the occupation
-   * @param skillOriginUUID - The original UUID of the skill
+   * @param occupationOriginUUID - The origin UUID of the occupation
+   * @param skillOriginUUID - The origin UUID of the skill
    * @returns The relation if found, undefined otherwise
    */
   getOccupationToSkillRelationByOriginUUIDs(
@@ -335,10 +335,10 @@ export class ModelManager implements IModelManager {
   }
 
   /**
-   * Finds a skill-to-skill relation by the original UUIDs of both skills
+   * Finds a skill-to-skill relation by the origin UUIDs of both skills
    *
-   * @param requiredSkillOriginUUID - The original UUID of the required skill
-   * @param requiringSkillOriginUUID - The original UUID of the requiring skill
+   * @param requiredSkillOriginUUID - The origin UUID of the required skill
+   * @param requiringSkillOriginUUID - The origin UUID of the requiring skill
    * @returns The relation if found, undefined otherwise
    */
   getSkillToSkillRelationByOriginUUIDs(requiredSkillOriginUUID: string, requiringSkillOriginUUID: string) {
