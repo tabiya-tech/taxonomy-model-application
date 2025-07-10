@@ -11159,6 +11159,18 @@ Excludes activities:
 "67f040cd52c59bbdf744f53a","urn:icatus:2016:51","5a2eb876-8c2a-4bf7-a704-1b5343a8f4d7
 d9ec21bf-8d93-4fe7-8676-d277b7522f46
 0f6019ac-423d-49ff-b32e-a3cc2883584c","I51","localgroup","Unpaid direct volunteering for other households","Unpaid direct volunteering for other households",""
+"key_I513","urn:icatus:2016:3","","I513","localgroup","Unpaid domestic services for other households","Unpaid domestic services for other households", ""
+"key_I5131","urn:icatus:2016:31","","I5131","localgroup","Food and meals management and preparation","Food and meals management and preparation", ""
+"key_I5132","urn:icatus:2016:32","","I5132","localgroup","Cleaning and maintaining of own dwelling and surroundings","Cleaning and maintaining of own dwelling and surroundings", ""
+"key_I5133","urn:icatus:2016:33","","I5133","localgroup","Do-it-yourself decoration, maintenance and repair","Do-it-yourself decoration, maintenance and repair", ""
+"key_I5134","urn:icatus:2016:34","","I5134","localgroup","Care and maintenance of textiles and footwear","Care and maintenance of textiles and footwear", ""
+"key_I5135","urn:icatus:2016:35","","I5135","localgroup","Household management for own final use","Household management for own final use", ""
+"key_I5136","urn:icatus:2016:36","","I5136","localgroup","Pet care","Pet care", ""
+"key_I5137","urn:icatus:2016:37","","I5137","localgroup","Shopping for own household and family members","Shopping for own household and family members", ""
+"key_I514","urn:icatus:2016:4","","I514","localgroup","Unpaid caregiving services for other households","Unpaid caregiving services for other households", ""
+"key_I5141","urn:icatus:2016:41","","I5141","localgroup","Childcare and instruction","Childcare and instruction", ""
+"key_I5142","urn:icatus:2016:42","","I5142","localgroup","Care for dependent adults","Care for dependent adults", ""
+"key_I5143","urn:icatus:2016:43","","I5143","localgroup","Help to non-dependent adults in other households and non-family members","Help to non-dependent adults in other households and non-family members", ""
 "67f040cd52c59bbdf744f53b","urn:icatus:2016:52","a38ec268-9800-4226-b8d6-0aaee3b400c3
 af7042a6-f416-4834-acc6-427a0537a417
 a99743ed-8ec3-4dfa-a5ca-4ebe4f3dd7de","I52","localgroup","Unpaid community- and organization-based volunteering","Unpaid community- and organization-based volunteering",""
