@@ -24,7 +24,7 @@ const parseSelectedModelInfoFile = (file: File): Promise<ModelInfoDetails> => {
 
         // Check if the UUIDHistory column is found and not empty
         if (records.length === 0 || !records[0].UUIDHISTORY) {
-          reject(new Error("UUIDHistory column not found or empty in the first row"));
+          reject(new Error("UUIDHISTORY column not found or empty in the first row"));
           return;
         }
 

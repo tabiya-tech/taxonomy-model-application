@@ -64,7 +64,7 @@ describe("parseSelectedModelInfoFile tests", () => {
 
     // WHEN parseSelectedModelInfoFile is called with the file
     // THEN it should throw an error
-    await expect(parseSelectedModelInfoFile(file)).rejects.toThrow("UUIDHistory column not found or empty");
+    await expect(parseSelectedModelInfoFile(file)).rejects.toThrow("UUIDHISTORY column not found or empty");
   });
   it("should throw an error if the parser fails", async () => {
     // GIVEN a CSV file with invalid content
