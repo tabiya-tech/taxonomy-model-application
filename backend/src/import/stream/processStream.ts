@@ -1,4 +1,5 @@
 import https from "https";
+import { Agent as HttpsAgent } from "https";
 import { IncomingMessage } from "http";
 import { parse, Parser } from "csv-parse";
 import { Readable } from "node:stream";
@@ -12,7 +13,12 @@ export function processDownloadStream<T>(
   rowProcessor: RowProcessor<T>
 ): Promise<RowsProcessedStats> {
   return new Promise<RowsProcessedStats>((resolve, reject) => {
-    const request = https.get(url, (response: IncomingMessage) => {
+    // Use a new agent to avoid issues with stale connections
+    // that may cause a ECONNRESET error
+    console.info("Global agent config is:", https.globalAgent.options);
+    const agent = new HttpsAgent({ keepAlive: false });
+
+    const request = https.get(url, { agent }, (response: IncomingMessage) => {
       (async () => {
         try {
           if (response.statusCode !== 200) {

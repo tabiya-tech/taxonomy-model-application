@@ -202,7 +202,7 @@ describe("test processDownloadStream", () => {
     const givenMockResponse = Readable.from(givenData);
     // @ts-ignore
     givenMockResponse.statusCode = StatusCodes.OK; // Set the status code
-    (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
+    (https.get as jest.Mock).mockImplementationOnce((_url, _options, callback) => {
       callback(givenMockResponse);
       return {
         on: jest.fn(),
@@ -283,7 +283,7 @@ describe("test processDownloadStream", () => {
       const givenMockResponse = Readable.from("");
       // @ts-ignore
       givenMockResponse.statusCode = StatusCodes.NOT_FOUND; // Set the status code
-      (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
+      (https.get as jest.Mock).mockImplementationOnce((_url, _options, callback) => {
         callback(givenMockResponse);
         return {
           // Return a mock request
@@ -324,7 +324,7 @@ describe("test processDownloadStream", () => {
       });
       // @ts-ignore
       givenMockResponse.statusCode = StatusCodes.OK; // Set the status code
-      (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
+      (https.get as jest.Mock).mockImplementationOnce((_url, _options, callback) => {
         callback(givenMockResponse);
         return {
           // Return a mock request
@@ -363,7 +363,7 @@ describe("test processDownloadStream", () => {
       const givenMockResponse = Readable.from(givenData);
       // @ts-ignore
       givenMockResponse.statusCode = StatusCodes.OK; // Set the status code
-      (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
+      (https.get as jest.Mock).mockImplementationOnce((_url, _options, callback) => {
         callback(givenMockResponse);
         return {
           on: jest.fn(),

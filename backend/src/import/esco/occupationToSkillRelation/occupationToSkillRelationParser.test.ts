@@ -27,7 +27,7 @@ const parseFromUrlCallback = (
   const mockResponse = fs.createReadStream(file);
   // @ts-ignore
   mockResponse.statusCode = StatusCodes.OK;
-  (https.get as jest.Mock).mockImplementationOnce((url, callback) => {
+  (https.get as jest.Mock).mockImplementationOnce((_url, _options, callback) => {
     callback(mockResponse);
     return {
       on: jest.fn(),
