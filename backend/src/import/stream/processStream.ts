@@ -6,8 +6,80 @@ import { Readable } from "node:stream";
 import { RowProcessor } from "import/parse/RowProcessor.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
+import { StatusCodes } from "server/httpUtils";
 
-export function processDownloadStream<T>(
+/**
+ * Attempts to check if the first chunk of the file at the given URL can be downloaded.
+ * This is done by sending a HEAD request with a Range header to request the first 1024 bytes.
+ * If the server responds with a 206 Partial Content or 200 OK status code, it is considered healthy.
+ * Retries up to maxAttempts times before failing.
+ * @param url
+ */
+async function checkFirstChunk(url: string): Promise<void> {
+  const timeoutMs = 5000;
+  const maxAttempts = 5;
+  const delayMs = 2000;
+  let lastError: unknown = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      // Use a new agent to avoid issues with stale connections
+      // that may cause a ECONNRESET error
+      const agent = new HttpsAgent({ keepAlive: false });
+      await new Promise<void>((resolve, reject) => {
+        const req = https.request(
+          url,
+          {
+            method: "GET",
+            agent,
+            headers: { Range: "bytes=0-1023" },
+            timeout: timeoutMs,
+          },
+          (resp) => {
+            resp.resume();
+            if (resp.statusCode === StatusCodes.PARTIAL_CONTENT || resp.statusCode === 200) {
+              console.info(`Health check passed for ${url} on attempt ${attempt}`);
+              resolve();
+            } else {
+              reject(new Error(`Range check failed: status ${resp.statusCode}`));
+            }
+          }
+        );
+        req.on("timeout", () => req.destroy(new Error("Timeout during health check")));
+        req.on("error", reject);
+        req.end();
+      });
+      return;
+    } catch (e) {
+      lastError = e;
+      console.warn(new Error(`Health check attempt ${attempt} failed for ${url}`, { cause: e }));
+      if (attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, delayMs));
+      }
+    }
+  }
+  const err = new Error(`All ${maxAttempts} health-check attempts failed for ${url}`, { cause: lastError });
+  errorLogger.logError(err);
+  throw err;
+}
+
+/**
+ * Processes a download stream from the given URL, checking its health first.
+ * If the health check passes, proceeds to stream processing.
+ * @param url
+ * @param streamName
+ * @param rowProcessor
+ */
+export async function processDownloadStream<T>(
+  url: string,
+  streamName: string,
+  rowProcessor: RowProcessor<T>
+): Promise<RowsProcessedStats> {
+  await checkFirstChunk(url);
+  return await safeStreamWithRetry<T>(url, streamName, rowProcessor);
+}
+
+async function safeStreamWithRetry<T>(
   url: string,
   streamName: string,
   rowProcessor: RowProcessor<T>
@@ -15,9 +87,7 @@ export function processDownloadStream<T>(
   return new Promise<RowsProcessedStats>((resolve, reject) => {
     // Use a new agent to avoid issues with stale connections
     // that may cause a ECONNRESET error
-    console.info("Global agent config is:", https.globalAgent.options);
     const agent = new HttpsAgent({ keepAlive: false });
-
     const request = https.get(url, { agent }, (response: IncomingMessage) => {
       (async () => {
         try {

@@ -18,6 +18,7 @@ export enum StatusCodes {
   OK = 200,
   CREATED = 201,
   ACCEPTED = 202,
+  PARTIAL_CONTENT = 206,
   BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
   FORBIDDEN = 403,

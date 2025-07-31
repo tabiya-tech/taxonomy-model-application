@@ -6,12 +6,13 @@ import { parseOccupationGroupsFromFile, parseOccupationGroupsFromUrl } from "./O
 import { IOccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
 import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 import fs from "fs";
-import https from "https";
 import { StatusCodes } from "server/httpUtils";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
 import { countCSVRecords } from "import/esco/_test_utilities/countCSVRecords";
+import { setupMockHTTPS_get, setupMockHTTPS_request } from "_test_utilities/mockHTTPS";
+import { Readable } from "node:stream";
 
 jest.mock("https");
 
@@ -20,15 +21,11 @@ const parseFromUrlCallback = (
   givenModelId: string,
   importIdToDBIdMap: Map<string, string>
 ): Promise<RowsProcessedStats> => {
+  //  the first call to https.request is for the HEAD request to check if the file can be downloaded
+  setupMockHTTPS_request(Readable.from(""), StatusCodes.PARTIAL_CONTENT);
+  // the second call to https.get is for the actual GET request to download the file and process it
   const mockResponse = fs.createReadStream(file);
-  // @ts-ignore
-  mockResponse.statusCode = StatusCodes.OK; // Set the status code
-  (https.get as jest.Mock).mockImplementationOnce((_url, _options, callback) => {
-    callback(mockResponse);
-    return {
-      on: jest.fn(),
-    };
-  });
+  setupMockHTTPS_get(mockResponse, StatusCodes.OK);
   return parseOccupationGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
 };
 
