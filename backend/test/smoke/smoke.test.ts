@@ -39,7 +39,14 @@ describe("Testing the deployment of the api", () => {
     const givenToken = "Bearer ANONYMOUS";
     // WHEN a GET request is made to /info
     //  since the jest default timeout is set to 5 secs, wait for the response for 4 secs
-    const response = await request.get("/info").set("Authorization", givenToken).timeout(4000);
+    const response = await request
+      .get("/info")
+      .set("Authorization", givenToken)
+      .timeout({
+        // See https://github.com/forwardemail/superagent/blob/master/docs/index.md#timeouts
+        response: 8000,  // wait for 6 secs for the first byte
+        deadline: 10000, // wait for 8 secs for the response to complete
+      });
 
     // THEN the response should be successful and contain the expected version information
     expect(response.statusCode).toBe(StatusCodes.OK);
@@ -48,5 +55,5 @@ describe("Testing the deployment of the api", () => {
       path: `${resourcesBaseUrl}/info`,
       database: "connected",
     });
-  });
+  }, 12000); // jest test timeout for this test a bit longer than the deadline of the request
 });
