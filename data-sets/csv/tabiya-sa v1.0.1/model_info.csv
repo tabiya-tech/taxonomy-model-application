@@ -1,0 +1,35 @@
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"156241b2-b460-4c4d-bec8-d984bb09bba0
+c603302e-99af-4c13-bb7e-e8247b9312d6
+7e245bcb-f564-4bba-9ba3-68184164d250
+1ea8093e-819d-4321-bcf6-61d4f6093c82
+4ed45ec6-6235-40a3-acec-f65cae78611a
+2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya South Africa (ESCO 1.1.1)","ZA","This model builds on [Tabiya (ESCO v1.1.1) v2.0.0](urn:tabiya:model:7e245bcb-f564-4bba-9ba3-68184164d250), with several adjustments for the South African labour market.
+
+See the release notes for more details.
+
+For background on how the taxonomy was developed, see [South Africa: Tabiya X Harambee](https://docs.tabiya.org/inclusive-taxonomy-south-africa).","v1.0.1-rc","true","### Version 1.0.1
+
+- Improve the scope note for **5221_2 Microentrepreneur** to better reflect the nature of micro-entrepreneurship.
+
+- Improve the scope notes and descriptions for **unseen economy occupations** to clearly distinguish between:
+
+  (a) activities carried out within the worker’s own household or for family members, and
+
+  (b) activities carried out in other households or for non-family members.
+
+  The following occupations were updated: I31_0, I32_0, I33_0, I34_0, I35_0, I41_0, I42_0, I43_0, I44_0, I5131_0, I5132_0, I5133_0, I5134_0, I5135_0, I5136_0, I5137_0, I5141_0, I5142_0, I5143_0
+
+- Improve the scope notes for I52_5
+
+### Version 1.0.0
+
+The model is based on the [Tabiya (ESCO 1.1.1) v2.0.0](urn:tabiya:model:7e245bcb-f564-4bba-9ba3-68184164d250) and has the following changes:
+
+- Change: Recalculate the hierarchy, skills relations, and skills' signaling value of [I32_0 cleaning or gardening](urn:tabiya:occupation:29adc332-58dc-4772-ab0d-e90eb4715372) and [I5132_0 cleaning or gardening](urn:tabiya:occupation:ff15fe29-3f90-4cec-9344-632820eec349)  after removing [I32_0_5](urn:tabiya:occupation:be886b8d-a8bd-487e-acca-f945ae3a74a2)
+
+- Remove: skills [combine multiple fields of knowledge](urn:tabiya:skill:2c1f8eb5-ba88-4b2c-ad2a-381146a658d7) and [consider social impact of actions on service users](urn:tabiya:skill:87248c57-1f75-403d-8cc3-c4e1e3592ace) and related relationships.
+
+- Remove: [I32_0_5 tending furnace, boiler, fireplace for heating and water supply](urn:tabiya:occupation:be886b8d-a8bd-487e-acca-f945ae3a74a2) from the unseen economy occupations/activities. This also involved removing the related occupation hierarchy and occupation-to-skill relationship records. Also, we adjusted the alternative labels, description, and scope note of aggregated occupations I32_0 and I5132_0
+
+- Adapt the alternative labels of 1184 occupations and 31 skills to be more specific to South Africa."
