@@ -1,0 +1,72 @@
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"c2c4a7c2-e895-4e28-a369-90081859b499
+7e245bcb-f564-4bba-9ba3-68184164d250
+1ea8093e-819d-4321-bcf6-61d4f6093c82
+4ed45ec6-6235-40a3-acec-f65cae78611a
+2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","EU-en","This model builds on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with numerous enhancements by Tabiya, including the addition of new occupations and labels to create a more inclusive taxonomy of jobs and skills. It incorporates previously overlooked activities such as micro-entrepreneurship and housework, which are often absent from conventional taxonomies. To ensure greater accessibility, we also introduced alternative labels, making this version more semantically approachable. See the release notes for more details.","v2.0.1-rc","true","### Version 2.0.1
+
+- Improve the scope note for **5221_2 Microentrepreneur** to better reflect the nature of micro-entrepreneurship.
+
+- Improve the scope notes and descriptions for **unseen economy occupations** to clearly distinguish between:
+
+  (a) activities carried out within the worker’s own household or for family members, and
+
+  (b) activities carried out in other households or for non-family members.
+
+  The following occupations were updated: I31_0, I32_0, I33_0, I34_0, I35_0, I41_0, I42_0, I43_0, I44_0, I5131_0, I5132_0, I5133_0, I5134_0, I5135_0, I5136_0, I5137_0, I5141_0, I5142_0, I5143_0
+
+- Improve the scope notes for I52_5
+
+### Version 2.0.0
+
+- Recalculate the signaling value of the aggregate occupations I31_0 – I37_0, I41_0 – I43_0, I5131_0 – I5137_0, and I5141_0 – I5143_0 to assign higher signaling values to the top 30 activities in each occupation.
+- Copy activities from I3, I31–I37 and I4, I41–I43 to I513, I5131–I5137 and I514, I5141–I5143 as symmetrical counterparts.
+  to the own household and family members activities, respectively and replace the activities I51_1, I51_2, I51_3, and I51_4, along with their hierarchies and skill associations.
+- Introduce I52_5 (caring for and teaching children in the community) as a copy of I41_0 adjusted to refer to the community instead of family.
+- Introduce occupation groups I513, I5131–I5137 and I514, I5141–I5143 as symmetrical counterparts to I3, I31–I37 and I4, I41–I43, but for other households and non-family members instead of own household and family members.
+- **Breaking Change!**: Remove activities I51_1, I51_2, I51_3, and I51_4, along with their hierarchies and skill associations.
+- Add descriptions of occupation groups I3, I4 and I5
+- Fix(typo): ""think innovately"" -> ""think innovatively"" for the skill with UUID fe0c17db-89b4-4200-b9d2-95d8ea054e6d
+- Update: Simplified short descriptions for the preferred labels of the unseen economy occupations/activities from the [ICATUS 2016 classification]
+(https://unstats.un.org/unsd/demographic-social/time-use/icatus-2016/).
+The preferred labels have been made more concise and easier to understand, while still retaining the essence of the original text.
+The changes are as follows:
+
+    | ICATUS ID | From                                                                 | To                                        |
+    |-----------|----------------------------------------------------------------------|-------------------------------------------|
+    | I31_0     | cooking and planning meals                                          | cooking meals                             |
+    | I32_0     | cleaning and looking after your home or garden                      | cleaning or gardening                     |
+    | I33_0     | fixing things in your home or car                                   | fixing or building things                 |
+    | I34_0     | cleaning or fixing clothes and shoes                                | washing or fixing clothes                 |
+    | I35_0     | managing and planning for your household                            | managing and planning                     |
+    | I37_0     | shopping for your family or household                               | shopping for things or hiring people      |
+    | I41_0     | caring for and teaching children in your family                     | caring for and teaching children          |
+    | I42_0     | helping adults who need care or are sick                            | caring for adults who are sick            |
+    | I43_0     | helping other adults in the house or family                         | caring for adults who are not sick        |
+    | I51_5     | helping in other people's businesses without getting paid           | helping                                   |
+    | I52_1     | cleaning or fixing roads or buildings without getting paid          | cleaning or fixing roads or buildings     |
+    | I52_2     | cooking or cleaning for other people's homes without getting paid   | cooking meals                             |
+    | I52_3     | helping with sports, music or other cultural activities without getting paid | helping with sports, music or other cultural activities |
+    | I52_4     | helping with office work without getting paid                       | helping administrative/office work        |
+
+### Version 1.0.1
+
+Minor changes to the [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) model:
+- I42_0_3 correct spelling of 'paperwork' in occupation description
+- I42_0_2 remove incorrect examples and scope
+- I33_0_3 correct spelling of 'Examples' in occupation description
+
+### Version 1.0.0
+
+The [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) model is based on the ESCO v1.1.1 and has the following changes:
+- Add: New Micro-entrepreneur occupation (code:5221_2  uuid:d76f0bac-7145-4acc-a53e-259b96a6346b)
+- Add: Unseen economy occupations/activities from the [ICATUS 2016 classification](https://unstats.un.org/unsd/demographic-social/time-use/icatus-2016/)
+  - 12 Occupations Groups (I3, I31, I32, I33, I34, I35, I36, I37,I4, I41, I42, I43, I44, I5, I51, I52)
+  - 60 Occupations (I31_0..., I32_0..., I33_0..., I34_0..., I35_0..., I36_0..., I37_0..., I41_0..., I42_0..., I43_0..., I44_0..., I51_..., I52_...)
+  - 72 Occupation hierarchy entries
+  - 3689 Skills Relations
+- Fix: Add missing preferred labels. Preferred labels were missing from the altLabels of isco-groups, skill-groups, some occupations, some skills.
+- Fix: Several alt-labels had duplicate entries
+- Fix: Several text fields have invisible characters such as \t, nbsp and others
+- Fix: Several text fields have leading and trailing spaces or new lines
+- Fix: Reformat the scope notes of occupations and skills"
