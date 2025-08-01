@@ -1,0 +1,10 @@
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"c603302e-99af-4c13-bb7e-e8247b9312d6
+7e245bcb-f564-4bba-9ba3-68184164d250
+1ea8093e-819d-4321-bcf6-61d4f6093c82
+4ed45ec6-6235-40a3-acec-f65cae78611a
+2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya South Africa","ZA","This model builds on [Tabiya (ESCO v1.1.1) v2.0.0](urn:tabiya:model:7e245bcb-f564-4bba-9ba3-68184164d250), with several adjustments for the South African labour market.
+
+See the release notes for more details.
+
+For background on how the taxonomy was developed, see [South Africa: Tabiya X Harambee](https://docs.tabiya.org/inclusive-taxonomy-south-africa).","v1.0.1","false","This model applies the changes on [Tabiya (ESCO 1.1.1) v2.0.1-beta](urn:tabiya:model:c2c4a7c2-e895-4e28-a369-90081859b499) on top of [Tabiya South Africa v1.0.0](urn:tabiya:model:c603302e-99af-4c13-bb7e-e8247b9312d6) taxonomy model"
