@@ -2,6 +2,10 @@ name: Smoke Test the version of the backend/frontend
 on:
   workflow_call:
     inputs:
+      name:
+        description: The name of the workflow
+        required: true
+        type: string
       component:
         description: Either 'frontend' or 'backend'
         required: true
@@ -20,7 +24,7 @@ on:
         type: string
 jobs:
   smoke-test:
-    name: Smoke tests - ${{ inputs.component }}
+    name: ${{ inputs.name }}
     runs-on: ubuntu-latest
     steps:
       - id: checkout-code

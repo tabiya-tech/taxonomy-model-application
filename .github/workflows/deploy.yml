@@ -121,6 +121,7 @@ jobs:
       component: frontend
       expected-version-info: ${{ inputs.frontend-version-info }}
       component-url: ${{ needs.deploy-frontend.outputs.frontendBucketWebsiteURLBase }}
+      name: Smoke Test Frontend (pre CDN) - ${{ inputs.target-environment }}
 
   smoke-test-backend:
     needs: [ deploy-backend ]
@@ -131,6 +132,7 @@ jobs:
       expected-version-info: ${{ inputs.backend-version-info }}
       component-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}
       resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
+      name: Smoke Test Backend (pre CDN) - ${{ inputs.target-environment }}
 
   deploy-common:
     needs: [ deploy-frontend, deploy-backend, setup-infrastructure, deploy-locales, setup-infrastructure ]
@@ -150,6 +152,7 @@ jobs:
       component: frontend
       expected-version-info: ${{ inputs.frontend-version-info }}
       component-url: ${{ needs.deploy-common.outputs.frontendURLBase }}
+      name: Smoke Test Frontend (CDN) - ${{ inputs.target-environment }}
 
   smoke-test-backend-cdn:
     needs: [  deploy-backend, deploy-common ]
@@ -160,3 +163,4 @@ jobs:
       expected-version-info: ${{ inputs.backend-version-info }}
       resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
       component-url: ${{ needs.deploy-common.outputs.backendURLBase }}
+      name: Smoke Test Backend (CDN) - ${{ inputs.target-environment }}
