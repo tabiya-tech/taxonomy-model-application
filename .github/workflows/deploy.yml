@@ -101,7 +101,7 @@ jobs:
       cognito-client-secret: ${{ needs.deploy-auth.outputs.clientSecret }}
 
   e2e-test-backend:
-    if: ${{ inputs.target-environment == 'dev' }} || ${{ inputs.target-environment == 'test' }}
+    if: ${{ inputs.target-environment == 'dev' || inputs.target-environment == 'test' }}
     needs: [ deploy-auth, deploy-backend, smoke-test-backend ]
     uses: ./.github/workflows/e2e-test.yml
     secrets: inherit
