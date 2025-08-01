@@ -18,6 +18,10 @@ jobs:
     if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[pulumi up]') || startsWith(github.ref, 'refs/tags/')) || github.event_name == 'release' && startsWith(github.ref, 'refs/tags/')
     needs: [ build ]
     uses: ./.github/workflows/deploy.yml
+    concurrency:
+      # This concurrency group ensures that only one deployment can happen at a time for the same environment.
+      group: ${{ github.workflow }}-${{ startsWith(github.ref, 'refs/tags/') && 'test' || 'dev' }}
+      cancel-in-progress: false
     secrets: inherit
     with:
       target-environment: ${{ startsWith(github.ref, 'refs/tags/') && 'test' || 'dev'  }}
@@ -36,6 +40,9 @@ jobs:
   deploy-production:
     needs: [ build, require-approval, deploy ]
     uses: ./.github/workflows/deploy.yml
+    concurrency:
+      # This concurrency group ensures that only one deployment to production can happen at a time.
+      group: ${{ github.workflow }}-deploying
     secrets: inherit
     with:
       target-environment: production
