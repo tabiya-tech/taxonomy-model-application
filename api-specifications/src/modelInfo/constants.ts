@@ -1,4 +1,4 @@
-import LocaleConstants  from "../locale/constants";
+import LocaleConstants from "../locale/constants";
 
 namespace ModelInfoConstants {
   export const NAME_MAX_LENGTH = 256;
