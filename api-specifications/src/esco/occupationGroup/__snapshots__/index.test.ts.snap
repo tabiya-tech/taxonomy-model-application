@@ -1,0 +1,437 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the occupationGroup module The export module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "ALT_LABELS_MAX_ITEMS": 100,
+    "ALT_LABEL_MAX_LENGTH": 256,
+    "CODE_MAX_LENGTH": 256,
+    "DESCRIPTION_MAX_LENGTH": 4000,
+    "IMPORT_ID_MAX_LENGTH": 256,
+    "MAX_PAYLOAD_LENGTH": 23732,
+    "MAX_URI_LENGTH": 4096,
+    "PREFERRED_LABEL_MAX_LENGTH": 256,
+  },
+  "Enums": {
+    "ENUMS": {
+      "GroupType": {
+        "ISCOGroup": "iscogroup",
+        "LocalGroup": "localgroup",
+      },
+    },
+    "GET": {
+      "Response": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
+        },
+      },
+    },
+    "POST": {
+      "Response": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_CREATE_OCCUPATION_GROUP": "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
+          "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
+        },
+      },
+    },
+  },
+  "Schemas": {
+    "GET": {
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/OccupationGroupResponseSchemaGET",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "UUID": {
+                "description": "The UUID of the occupation group. It can be used to identify the occupation group across systems.",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "UUIDHistory": {
+                "description": "The UUiDs history of the occupation group.",
+                "items": {
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string",
+                },
+                "minItems": 0,
+                "type": "array",
+              },
+              "altLabels": {
+                "description": "The alternative labels of the occupation group.",
+                "items": {
+                  "maxLength": 256,
+                  "type": "string",
+                },
+                "maxItems": 100,
+                "minItems": 0,
+                "type": "array",
+              },
+              "code": {
+                "description": "The code of the occupation group.",
+                "maxLength": 256,
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "createdAt": {
+                "format": "date-time",
+                "type": "string",
+              },
+              "description": {
+                "description": "The description of the occupation group.",
+                "maxLength": 4000,
+                "type": "string",
+              },
+              "groupType": {
+                "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+                "enum": [
+                  "iscogroup",
+                  "localgroup",
+                ],
+                "type": "string",
+              },
+              "id": {
+                "description": "The id of the occupation group. It can be used to retrieve the occupation group from the server.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+              "importId": {
+                "description": "The import ID of the occupation group.",
+                "maxLength": 256,
+                "type": "string",
+              },
+              "modelId": {
+                "additionalProperties": false,
+                "description": "The model information of the occupation group.",
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the model. It can be used to identify the model across systems.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The id of the model. It can be used to retrieve the model from the server.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "localeShortCode": {
+                    "description": "The short code of the locale",
+                    "maxLength": 20,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "name": {
+                    "description": "The name of the model",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "version": {
+                    "description": "The version of the model. It should follow the conventions of semantic versioning.",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "name",
+                  "id",
+                  "localeShortCode",
+                  "version",
+                  "UUID",
+                ],
+                "type": "object",
+              },
+              "originUri": {
+                "description": "The origin URI of the occupation group.",
+                "format": "uri",
+                "maxLength": 4096,
+                "pattern": "^https://.*",
+                "type": "string",
+              },
+              "path": {
+                "description": "The path to the occupation group resource using the resource id",
+                "format": "uri",
+                "maxLength": 4096,
+                "pattern": "^https://.*",
+                "type": "string",
+              },
+              "preferredLabel": {
+                "description": "The preferred label of the occupation group.",
+                "maxLength": 256,
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "tabiyaPath": {
+                "description": "The path to the occupation group resource using the resource UUID",
+                "format": "uri",
+                "maxLength": 4096,
+                "pattern": "^https://.*",
+                "type": "string",
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "type": "string",
+              },
+            },
+            "required": [
+              "id",
+              "UUID",
+              "path",
+              "tabiyaPath",
+              "originUri",
+              "code",
+              "description",
+              "preferredLabel",
+              "altLabels",
+              "groupType",
+              "importId",
+              "modelId",
+              "createdAt",
+              "updatedAt",
+            ],
+            "type": "object",
+          },
+          "type": "array",
+        },
+      },
+    },
+    "POST": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/OccupationGroupRequestSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "UUIDHistory": {
+              "description": "The UUiDs history of the occupation group.",
+              "items": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
+            "altLabels": {
+              "description": "The alternative labels of the occupation group.",
+              "items": {
+                "maxLength": 256,
+                "type": "string",
+              },
+              "maxItems": 100,
+              "minItems": 0,
+              "type": "array",
+            },
+            "code": {
+              "description": "The code of the occupation group.",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "description": {
+              "description": "The description of the occupation group.",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "groupType": {
+              "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+              "enum": [
+                "iscogroup",
+                "localgroup",
+              ],
+              "type": "string",
+            },
+            "importId": {
+              "description": "The import ID of the occupation group.",
+              "maxLength": 256,
+              "type": "string",
+            },
+            "modelId": {
+              "description": "The identifier of the model for occupation group.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "originUri": {
+              "description": "The origin URI of the occupation group.",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
+              "type": "string",
+            },
+            "preferredLabel": {
+              "description": "The preferred label of the occupation group.",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+          },
+          "required": [
+            "preferredLabel",
+            "originUri",
+            "UUIDHistory",
+            "code",
+            "description",
+            "altLabels",
+            "importId",
+            "modelId",
+          ],
+          "type": "object",
+        },
+      },
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/OccupationGroupResponseSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "UUID": {
+              "description": "The UUID of the occupation group. It can be used to identify the occupation group across systems.",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string",
+            },
+            "UUIDHistory": {
+              "description": "The UUiDs history of the occupation group.",
+              "items": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
+            "altLabels": {
+              "description": "The alternative labels of the occupation group.",
+              "items": {
+                "maxLength": 256,
+                "type": "string",
+              },
+              "maxItems": 100,
+              "minItems": 0,
+              "type": "array",
+            },
+            "code": {
+              "description": "The code of the occupation group.",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+            "description": {
+              "description": "The description of the occupation group.",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "groupType": {
+              "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+              "enum": [
+                "iscogroup",
+                "localgroup",
+              ],
+              "type": "string",
+            },
+            "id": {
+              "description": "The id of the occupation group. It can be used to retrieve the occupation group from the server.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "importId": {
+              "description": "The import ID of the occupation group.",
+              "maxLength": 256,
+              "type": "string",
+            },
+            "modelId": {
+              "additionalProperties": false,
+              "description": "The model information of the occupation group.",
+              "properties": {
+                "UUID": {
+                  "description": "The UUID of the model. It can be used to identify the model across systems.",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string",
+                },
+                "id": {
+                  "description": "The id of the model. It can be used to retrieve the model from the server.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+                "localeShortCode": {
+                  "description": "The short code of the locale",
+                  "maxLength": 20,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "name": {
+                  "description": "The name of the model",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "version": {
+                  "description": "The version of the model. It should follow the conventions of semantic versioning.",
+                  "maxLength": 256,
+                  "type": "string",
+                },
+              },
+              "required": [
+                "name",
+                "id",
+                "localeShortCode",
+                "version",
+                "UUID",
+              ],
+              "type": "object",
+            },
+            "originUri": {
+              "description": "The origin URI of the occupation group.",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
+              "type": "string",
+            },
+            "path": {
+              "description": "The path to the occupation group resource using the resource id",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
+              "type": "string",
+            },
+            "preferredLabel": {
+              "description": "The preferred label of the occupation group.",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "tabiyaPath": {
+              "description": "The path to the occupation group resource using the resource UUID",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
+              "type": "string",
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string",
+            },
+          },
+          "required": [
+            "id",
+            "UUID",
+            "path",
+            "tabiyaPath",
+            "originUri",
+            "code",
+            "description",
+            "preferredLabel",
+            "altLabels",
+            "groupType",
+            "importId",
+            "modelId",
+            "createdAt",
+            "updatedAt",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;
