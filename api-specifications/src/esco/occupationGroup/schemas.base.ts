@@ -1,14 +1,9 @@
-import ModelInfoConstants from "modelInfo/constants";
 import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID } from "../../regex";
 import OccupationGroupConstants from "./constants";
 import OccupationGroupEnums from "./enums";
-import LocaleConstants from "locale/constants";
 
-/**
- * Common properties for occupation group schemas
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const _baseCommonProperties: any = {
+export const _baseProperties: any = {
   UUIDHistory: {
     description: "The UUiDs history of the occupation group.",
     type: "array",
@@ -22,7 +17,7 @@ const _baseCommonProperties: any = {
     description: "The origin URI of the occupation group.",
     type: "string",
     format: "uri",
-    pattern: "^https://.*", // accept only https
+    pattern: "^https://.*",
     maxLength: OccupationGroupConstants.MAX_URI_LENGTH,
   },
   code: {
@@ -60,55 +55,12 @@ const _baseCommonProperties: any = {
   groupType: {
     description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
     type: "string",
-    enum: Object.values(OccupationGroupEnums.ENUMS.GroupType),
+    enum: Object.values(OccupationGroupEnums.ENUMS.ObjectTypes),
   },
-};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const _baseProperties: any = {
-  ...JSON.parse(JSON.stringify(_baseCommonProperties)), // deep copy the common properties of OccupationGroup
   modelId: {
     description: "The identifier of the model for occupation group.",
     type: "string",
     pattern: RegExp_Str_ID,
-  },
-};
-
-export const _baseResponseBasicSchema = {
-  ...JSON.parse(JSON.stringify(_baseCommonProperties)),
-  modelId: {
-    description: "The model information of the occupation group.",
-    type: "object",
-    additionalProperties: false,
-    properties: {
-      id: {
-        description: "The id of the model. It can be used to retrieve the model from the server.",
-        type: "string",
-        pattern: RegExp_Str_ID,
-      },
-      UUID: {
-        description: "The UUID of the model. It can be used to identify the model across systems.",
-        type: "string",
-        pattern: RegExp_Str_UUIDv4,
-      },
-      name: {
-        description: "The name of the model",
-        type: "string",
-        pattern: RegExp_Str_NotEmptyString,
-        maxLength: ModelInfoConstants.NAME_MAX_LENGTH,
-      },
-      localeShortCode: {
-        description: "The short code of the locale",
-        type: "string",
-        pattern: RegExp_Str_NotEmptyString,
-        maxLength: LocaleConstants.LOCALE_SHORTCODE_MAX_LENGTH,
-      },
-      version: {
-        description: "The version of the model. It should follow the conventions of semantic versioning.",
-        type: "string",
-        maxLength: ModelInfoConstants.VERSION_MAX_LENGTH,
-      },
-    },
-    required: ["name", "id", "localeShortCode", "version", "UUID"],
   },
 };
 
@@ -140,7 +92,79 @@ export const _baseResponseSchema = {
       pattern: "^https://.*", // accept only https
       maxLength: OccupationGroupConstants.MAX_URI_LENGTH,
     },
-    ...JSON.parse(JSON.stringify(_baseResponseBasicSchema)), // deep copy the basic response schema of OccupationGroup
+    parent: {
+      description: "The parent occupation group of this occupation group.",
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        id: {
+          description: "The id of the parent occupation group.",
+          type: "string",
+          pattern: RegExp_Str_ID,
+        },
+        UUID: {
+          description: "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+          type: "string",
+          pattern: RegExp_Str_UUIDv4,
+        },
+        code: {
+          description: "The code of the parent occupation group.",
+          type: "string",
+          maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+          pattern: RegExp_Str_NotEmptyString,
+        },
+        preferredLabel: {
+          description: "The preferred label of the parent occupation group.",
+          type: "string",
+          maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+          pattern: RegExp_Str_NotEmptyString,
+        },
+        objectType: {
+          description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+          type: "string",
+          enum: Object.values(OccupationGroupEnums.ENUMS.ObjectTypes),
+        },
+      },
+    },
+    children: {
+      description: "The children of this occupation group, which can be either occupation groups or occupations.",
+      type: "array",
+      minItems: 0,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: {
+            description: "The id of the parent occupation group.",
+            type: "string",
+            pattern: RegExp_Str_ID,
+          },
+          UUID: {
+            description: "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+            type: "string",
+            pattern: RegExp_Str_UUIDv4,
+          },
+          code: {
+            description: "The code of the parent occupation group.",
+            type: "string",
+            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
+          },
+          preferredLabel: {
+            description: "The preferred label of the parent occupation group.",
+            type: "string",
+            maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
+          },
+          objectType: {
+            description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+            type: "string",
+            enum: Object.values(OccupationGroupEnums.ENUMS.ObjectTypes),
+          },
+        },
+      },
+    },
+    ...JSON.parse(JSON.stringify(_baseProperties)),
     createdAt: { type: "string", format: "date-time" },
     updatedAt: { type: "string", format: "date-time" },
   },
@@ -153,6 +177,8 @@ export const _baseResponseSchema = {
     "code",
     "description",
     "preferredLabel",
+    "parent",
+    "children",
     "altLabels",
     "groupType",
     "importId",

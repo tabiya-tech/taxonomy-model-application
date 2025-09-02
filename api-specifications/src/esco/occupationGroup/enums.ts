@@ -1,10 +1,18 @@
-import { ObjectTypes } from "../common/objectTypes";
-
 namespace OccupationGroupEnums {
   export namespace ENUMS {
-    export enum GroupType {
-      ISCOGroup = ObjectTypes.ISCOGroup,
-      LocalGroup = ObjectTypes.LocalGroup,
+    export enum ObjectTypes {
+      ISCOGroup = "iscogroup",
+      LocalGroup = "localgroup",
+      ESCOOccupation = "escooccupation",
+      LocalOccupation = "localoccupation",
+      Skill = "skill",
+      SkillGroup = "skillgroup",
+    }
+    export enum SignallingValueLabel {
+      NONE = "",
+      HIGH = "high",
+      MEDIUM = "medium",
+      LOW = "low",
     }
   }
   export namespace GET {

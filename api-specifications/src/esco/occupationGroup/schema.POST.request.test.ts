@@ -16,8 +16,6 @@ import { CaseType, assertCaseForProperty, constructSchemaError } from "_test_uti
 import OccupationGroupAPISpecs from "./index";
 import OccupationGroupConstants from "./constants";
 import { getMockId } from "_test_utilities/mockMongoId";
-import LocaleAPISpecs from "locale";
-import ModelInfoAPISpecs from "modelInfo";
 
 // ----------------------------------------------
 // Test POST Request schema
@@ -28,8 +26,7 @@ describe("Test OccupationGroupAPISpecs.Schemas.POST.Response.Payload validity", 
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationGroupAPISpecs.Schemas.POST.Request.Payload",
-    OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-    [LocaleAPISpecs.Schemas.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload]
+    OccupationGroupAPISpecs.Schemas.POST.Response.Payload
   );
 });
 
@@ -50,8 +47,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
   testSchemaWithValidObject(
     "OccupationGroupAPISpecs.Schemas.POST.Request.Payload",
     OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
-    validRequestPayload,
-    [LocaleAPISpecs.Schemas.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload]
+    validRequestPayload
   );
 
   // GIVEN the object has an empty UUIDHistory
@@ -62,8 +58,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
   testSchemaWithValidObject(
     "OccupationGroupAPISpecs.Schemas.POST.Request.Payload",
     OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
-    givenOccupationGroupPOSTRequestWithEmptyUUIDHistory,
-    [LocaleAPISpecs.Schemas.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload]
+    givenOccupationGroupPOSTRequestWithEmptyUUIDHistory
   );
 
   // AND WHEN the object has additional properties
@@ -71,8 +66,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
   testSchemaWithAdditionalProperties(
     "OccupationGroupAPISpecs.Schemas.POST.Request.Payload",
     OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
-    validRequestPayload,
-    [LocaleAPISpecs.Schemas.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload]
+    validRequestPayload
   );
 
   describe("Validate OccupationGroupAPISpecs.Schemas.POST.Request.Payload fields", () => {
@@ -80,8 +74,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
       testURIField<OccupationGroupAPISpecs.Types.POST.Request.Payload>(
         "originUri",
         OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
-        [LocaleAPISpecs.Schemas.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Request.Payload
       );
     });
 

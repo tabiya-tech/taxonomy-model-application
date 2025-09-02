@@ -15,32 +15,36 @@ import { getMockId } from "_test_utilities/mockMongoId";
 import OccupationGroupEnums from "./enums";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
-import ModelInfoAPISpecs from "modelInfo";
 import {
   getStdNonEmptyStringTestCases,
-  getStdStringTestCases,
+  getStdObjectIdTestCases,
   getStdUUIDTestCases,
 } from "_test_utilities/stdSchemaTestCases";
-import LocaleAPISpecs from "locale";
-import ModelInfoConstants from "modelInfo/constants";
 
 describe("Test OccupationGroupAPISpecs schema validity", () => {
   // WHEN the OccupationGroupAPISpecs.POST.Response.Schema.Payload schema
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationGroupAPISpecs.Schemas.POST.Request.Payload",
-    OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
-    [LocaleAPISpecs.Schemas.Payload, ModelInfoAPISpecs.Schemas.GET.Response.Payload]
+    OccupationGroupAPISpecs.Schemas.POST.Request.Payload
   );
 });
 
 describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response.Payload schema", () => {
-  const givenModel = {
+  const givenParent = {
     id: getMockId(1),
     UUID: randomUUID(),
-    name: getTestString(ModelInfoConstants.NAME_MAX_LENGTH),
-    localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-    version: getTestString(ModelInfoConstants.VERSION_MAX_LENGTH),
+    code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup,
+  };
+
+  const givenChild = {
+    id: getMockId(1),
+    UUID: randomUUID(),
+    code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
   };
 
   const givenValidOccupationGroupPOSTResponse = {
@@ -48,7 +52,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     UUID: randomUUID(),
     path: "https://path/to/tabiya",
     tabiyaPath: "https://path/to/tabiya",
-    groupType: OccupationGroupEnums.ENUMS.GroupType.LocalGroup,
+    groupType: OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     originUri: "https://foo/bar",
@@ -57,7 +61,9 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     preferredLabel: getTestString(20),
     altLabels: [getTestString(15), getTestString(25)],
     importId: getTestString(10),
-    modelId: givenModel,
+    modelId: getMockId(1),
+    parent: givenParent,
+    children: [givenChild],
   };
 
   // WHEN the object is valid
@@ -65,8 +71,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
   testSchemaWithValidObject(
     "OccupationGroupAPISpecs.Schemas.POST.Response.Payload",
     OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-    givenValidOccupationGroupPOSTResponse,
-    [LocaleAPISpecs.Schemas.Payload]
+    givenValidOccupationGroupPOSTResponse
   );
 
   // AND WHEN the object has additional properties
@@ -74,20 +79,18 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
   testSchemaWithAdditionalProperties(
     "OccupationGroupAPISpecs.Schemas.POST.Response.Payload",
     OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-    givenValidOccupationGroupPOSTResponse,
-    [LocaleAPISpecs.Schemas.Payload]
+    givenValidOccupationGroupPOSTResponse
   );
 
   describe("Validate OccupationGroupAPISpecs.Schemas.POST.Response.Payload fields", () => {
     describe("Test validate of 'id'", () => {
-      testObjectIdField("id", OccupationGroupAPISpecs.Schemas.POST.Response.Payload, [LocaleAPISpecs.Schemas.Payload]);
+      testObjectIdField("id", OccupationGroupAPISpecs.Schemas.POST.Response.Payload);
     });
 
     describe("Test validate of 'UUID'", () => {
       testUUIDField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "UUID",
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
 
@@ -95,8 +98,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
       testURIField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "path",
         OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
 
@@ -104,8 +106,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
       testURIField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "tabiyaPath",
         OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
 
@@ -130,7 +131,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
           "invalidGroupType",
           constructSchemaError("/groupType", "enum", "must be equal to one of the allowed values"),
         ],
-        [CaseType.Success, "a valid groupType", OccupationGroupEnums.ENUMS.GroupType.ISCOGroup, undefined],
+        [CaseType.Success, "a valid groupType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
       ])("%s Validate 'groupType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
         // GIVEN an object with given value
         const givenObject = {
@@ -143,8 +144,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
           givenObject,
           OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
           caseType,
-          failureMessage,
-          [LocaleAPISpecs.Schemas.Payload]
+          failureMessage
         );
       });
     });
@@ -152,47 +152,41 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     describe("Test validate of 'createdAt'", () => {
       testTimestampField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "createdAt",
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
     describe("Test validate of 'updatedAt'", () => {
       testTimestampField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "updatedAt",
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
     describe("Test validation of 'originUri'", () => {
       testURIField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "originUri",
         OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
     describe("Test validate of 'code'", () => {
       testNonEmptyStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "code",
         OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
     describe("Test validate of 'description'", () => {
       testStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "description",
         OccupationGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
     describe("Test validate of 'preferredLabel'", () => {
       testNonEmptyStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "preferredLabel",
         OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
     describe("Test validate of 'altLabels'", () => {
@@ -235,8 +229,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
           givenObject,
           OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
           caseType,
-          failureMessage,
-          [LocaleAPISpecs.Schemas.Payload]
+          failureMessage
         );
       });
     });
@@ -245,147 +238,376 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
       testStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "importId",
         OccupationGroupAPISpecs.Constants.IMPORT_ID_MAX_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-        [LocaleAPISpecs.Schemas.Payload]
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
-    describe("Test validate of 'modelId'", () => {
+
+    describe("Test validation of 'modelId'", () => {
+      testObjectIdField("modelId", OccupationGroupAPISpecs.Schemas.POST.Response.Payload);
+    });
+    describe("Test validation of 'parent'", () => {
       test.each([
         [
           CaseType.Failure,
           "undefined",
           undefined,
-          constructSchemaError("", "required", "must have required property 'modelId'"),
+          constructSchemaError("", "required", "must have required property 'parent'"),
         ],
-        [CaseType.Failure, "null", null, constructSchemaError("/modelId", "type", "must be object")],
-        [CaseType.Failure, "a string", "foo", constructSchemaError("/modelId", "type", "must be object")],
-        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/modelId", "type", "must be object")],
-        [CaseType.Success, "a valid modelId object", givenValidOccupationGroupPOSTResponse.modelId, undefined],
-      ])("(%s) Validate 'modelId' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        [CaseType.Failure, "null", null, constructSchemaError("/parent", "type", "must be object")],
+        [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object")],
+        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object")],
+        [CaseType.Success, "a valid parent object", givenParent, undefined],
+      ])("(%s) Validate 'parent' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        // GIVEN an object with the given value
         const givenObject = {
-          modelId: givenValue,
+          parent: givenValue,
         };
-
+        // THEN expect the object to validate accordingly
         assertCaseForProperty(
-          "modelId",
+          "parent",
           givenObject,
           OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
           caseType,
-          failureMessages,
-          [LocaleAPISpecs.Schemas.Payload]
+          failureMessages
         );
       });
     });
 
-    describe("Test validate of 'modelId' properties", () => {
-      describe("Test validation of 'modelId/id'", () => {
-        testObjectIdField("modelId/id", OccupationGroupAPISpecs.Schemas.POST.Response.Payload, [
-          LocaleAPISpecs.Schemas.Payload,
-        ]);
-      });
+    describe("Test validation of parent fields", () => {
+      describe("Test validation of 'parent/id'", () => {
+        const testCases = getStdObjectIdTestCases("/parent/id").filter((testCase) => testCase[1] !== "undefined");
 
-      describe("Test validation of 'modelId/UUID'", () => {
-        test.each([...getStdUUIDTestCases("/modelId/UUID")])(
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          `(%s) Validate 'id' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              parent: {
+                id: givenValue,
+              },
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/parent/id",
+              givenObject,
+              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages
+            );
+          }
+        );
+      });
+      describe("Test validation of 'parent/UUID'", () => {
+        const testCases = getStdUUIDTestCases("/parent/UUID").filter((testCase) => testCase[1] !== "undefined");
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
           `(%s) Validate 'UUID' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
+            // GIVEN an object with given value
             const givenObject = {
-              modelId: {
+              parent: {
                 UUID: givenValue,
               },
             };
             // THEN expect the object to validate accordingly
             assertCaseForProperty(
-              "/modelId/UUID",
+              "/parent/UUID",
               givenObject,
               OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
               caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
+              failureMessages
             );
           }
         );
       });
-
-      describe("Test validation of 'modelId/name'", () => {
-        // filter out the null case since the field can be null, and then replace it with our own case
+      describe("Test validation of 'parent/code'", () => {
         const testCases = getStdNonEmptyStringTestCases(
-          "/modelId/name",
-          ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH
-        ).filter((testCase) => testCase[1] !== "null");
+          "/parent/code",
+          OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "undefined");
+
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          `(%s) Validate 'code' when it is %s`,
+          (caseType, _description, givenValue, failureMessage) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              parent: {
+                code: givenValue,
+              },
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/parent/code",
+              givenObject,
+              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessage
+            );
+          }
+        );
+      });
+      describe("Test validation of 'parent/preferredLabel'", () => {
+        const testCases = getStdNonEmptyStringTestCases(
+          "/parent/preferredLabel",
+          OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "undefined");
+
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          `(%s) Validate 'preferredLabel' when it is %s`,
+          (caseType, _description, givenValue, failureMessage) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              parent: {
+                preferredLabel: givenValue,
+              },
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/parent/preferredLabel",
+              givenObject,
+              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessage
+            );
+          }
+        );
+      });
+      describe("Test validate of '/parent/objectType'", () => {
         test.each([
-          ...testCases,
-          [CaseType.Failure, "null", null, constructSchemaError("/modelId/name", "type", "must be string")],
-        ])(`(%s) Validate 'name' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
+          [CaseType.Success, "undefined", undefined, undefined],
+          [CaseType.Failure, "null", null, constructSchemaError("/parent/objectType", "type", "must be string")],
+          [
+            CaseType.Failure,
+            "empty string",
+            "",
+            constructSchemaError("/parent/objectType", "enum", "must be equal to one of the allowed values"),
+          ],
+          [
+            CaseType.Failure,
+            "an invalid objectType",
+            "invalidObjectType",
+            constructSchemaError("/parent/objectType", "enum", "must be equal to one of the allowed values"),
+          ],
+          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+        ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+          // GIVEN an object with given value
           const givenObject = {
-            modelId: {
-              name: givenValue,
+            parent: {
+              objectType: givenValue,
             },
           };
-          // THEN expect the object to validate accordingly
+
+          // THEN export the object to validate accordingly
           assertCaseForProperty(
-            "/modelId/name",
+            "/parent/objectType",
             givenObject,
             OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
             caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
+            failureMessage
           );
         });
       });
+    });
+    describe("Test validation of 'children'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'children'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/children", "type", "must be array")],
+        [CaseType.Failure, "a string", "foo", constructSchemaError("/children", "type", "must be array")],
+        [
+          CaseType.Failure,
+          "an array of strings",
+          ["foo", "bar"],
+          [
+            constructSchemaError("/children/0", "type", "must be object"),
+            constructSchemaError("/children/1", "type", "must be object"),
+          ],
+        ],
 
-      describe("Test validation of 'modelId/localeShortCode'", () => {
-        const testCases = getStdNonEmptyStringTestCases(
-          "/modelId/localeShortCode",
-          LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH
-        ).filter((testCase) => testCase[1] !== "null");
-        test.each([
-          ...testCases,
-          [CaseType.Failure, "null", null, constructSchemaError("/modelId/localeShortCode", "type", "must be string")],
-        ])(`(%s) Validate 'localeShortCode' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          const givenObject = {
-            modelId: {
-              localeShortCode: givenValue,
+        [
+          CaseType.Failure,
+          "a valid children object",
+          {
+            id: getMockId(1),
+            UUID: randomUUID(),
+            code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+            preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+            objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
+          },
+          constructSchemaError("/children", "type", "must be array"),
+        ],
+        [
+          CaseType.Success,
+          "a valid children object array",
+          [
+            {
+              id: getMockId(1),
+              UUID: randomUUID(),
+              code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+              preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+              objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
             },
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty(
-            "/modelId/localeShortCode",
-            givenObject,
-            OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
-          );
-        });
+          ],
+          undefined,
+        ],
+      ])("(%s) Validate 'children' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        // GIVEN an object with the given value
+        const givenObject = {
+          children: givenValue,
+        };
+        // THEN expect the object to validate accordingly
+        assertCaseForProperty(
+          "children",
+          givenObject,
+          OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+          caseType,
+          failureMessages
+        );
       });
+    });
 
-      describe("Test validation of 'modelId/version'", () => {
-        // filter out the null case since the field can be null, and then replace it with our own case
-        const testCases = getStdStringTestCases(
-          "/modelId/version",
-          ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH
-        ).filter((testCase) => testCase[1] !== "null");
+    describe("Test validation of children fields", () => {
+      describe("Test validation of 'children/id'", () => {
+        const testCases = getStdObjectIdTestCases("/children/0/id").filter((testCase) => testCase[1] !== "undefined");
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          `(%s) Validate 'id' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              children: [
+                {
+                  id: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/children/0/id",
+              givenObject,
+              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages
+            );
+          }
+        );
+      });
+      describe("Test validation of 'children/UUID'", () => {
+        const testCases = getStdUUIDTestCases("/children/0/UUID").filter((testCase) => testCase[1] !== "undefined");
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          `(%s) Validate 'UUID' when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              children: [
+                {
+                  UUID: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/children/0/UUID",
+              givenObject,
+              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages
+            );
+          }
+        );
+      });
+      describe("Test validation of 'children/code'", () => {
+        const testCases = getStdNonEmptyStringTestCases(
+          "/children/0/code",
+          OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "undefined");
+
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          `(%s) Validate 'code' when it is %s`,
+          (caseType, _description, givenValue, failureMessage) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              children: [
+                {
+                  code: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/children/0/code",
+              givenObject,
+              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessage
+            );
+          }
+        );
+      });
+      describe("Test validation of 'children/preferredLabel'", () => {
+        const testCases = getStdNonEmptyStringTestCases(
+          "/children/0/preferredLabel",
+          OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH
+        ).filter((testCase) => testCase[1] !== "undefined");
+
+        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          `(%s) Validate 'preferredLabel' when it is %s`,
+          (caseType, _description, givenValue, failureMessage) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              children: [
+                {
+                  preferredLabel: givenValue,
+                },
+              ],
+            };
+            // THEN expect the object to validate accordingly
+            assertCaseForProperty(
+              "/children/0/preferredLabel",
+              givenObject,
+              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessage
+            );
+          }
+        );
+      });
+      describe("Test validate of '/children/objectType'", () => {
         test.each([
-          ...testCases,
-          [CaseType.Failure, "null", null, constructSchemaError("/modelId/version", "type", "must be string")],
-        ])(`(%s) Validate 'version' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
+          [CaseType.Success, "undefined", undefined, undefined],
+          [CaseType.Failure, "null", null, constructSchemaError("/children/0/objectType", "type", "must be string")],
+          [
+            CaseType.Failure,
+            "empty string",
+            "",
+            constructSchemaError("/children/0/objectType", "enum", "must be equal to one of the allowed values"),
+          ],
+          [
+            CaseType.Failure,
+            "an invalid objectType",
+            "invalidObjectType",
+            constructSchemaError("/children/0/objectType", "enum", "must be equal to one of the allowed values"),
+          ],
+          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+        ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+          // GIVEN an object with given value
           const givenObject = {
-            modelId: {
-              version: givenValue,
-            },
+            children: [
+              {
+                objectType: givenValue,
+              },
+            ],
           };
-          // THEN expect the object to validate accordingly
+
+          // THEN export the object to validate accordingly
           assertCaseForProperty(
-            "/modelId/version",
+            "/children/0/objectType",
             givenObject,
             OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
             caseType,
-            failureMessages,
-            [LocaleAPISpecs.Schemas.Payload]
+            failureMessage
           );
         });
       });

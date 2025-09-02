@@ -5,20 +5,32 @@ interface IOccupationGroupResponse {
   UUID: string;
   path: string;
   tabiyaPath: string;
+  parent: {
+    id: string;
+    UUID: string;
+    code: string;
+    preferredLabel: string;
+    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup | OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup;
+  };
+  children: {
+    id: string;
+    UUID: string;
+    code: string;
+    preferredLabel: string;
+    objectType:
+      | OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup
+      | OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup
+      | OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation
+      | OccupationGroupEnums.ENUMS.ObjectTypes.LocalOccupation;
+  }[];
   originUri: string;
   code: string;
   description: string;
   preferredLabel: string;
   altLabels: string[];
-  groupType: OccupationGroupEnums.ENUMS.GroupType.ISCOGroup | OccupationGroupEnums.ENUMS.GroupType.LocalGroup;
   importId: string;
-  modelId: {
-    id: string | null;
-    UUID: string;
-    name: string | null;
-    localeShortCode: string | null;
-    version: string | null;
-  };
+  groupType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup | OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup;
+  modelId: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,9 +47,6 @@ interface IOccupationGroupRequest {
 }
 
 namespace OccupationGroupTypes {
-  // This is here to make sure the namespace is not empty and the:
-  //    "Cannot use 'export import' on a type or type-only namespace when the '--isolatedModules' flag is provided"
-  // error is not thrown.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _ = 0;
   export namespace Response {
