@@ -1,5 +1,4 @@
 import {
-  testArraySchemaFailureWithValidObject,
   testNonEmptyStringField,
   testObjectIdField,
   testSchemaWithAdditionalProperties,
@@ -7,6 +6,8 @@ import {
   testStringField,
   testTimestampField,
   testURIField,
+  testURIOrURNField,
+  testUUIDArray,
   testUUIDField,
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
@@ -30,12 +31,13 @@ describe("Test OccupationGroup Schema Validity", () => {
 });
 
 describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.Payload schema", () => {
+  // GIVEN a valid response payload object
   const givenParent = {
     id: getMockId(1),
     UUID: randomUUID(),
     code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
     preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup,
+    objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup,
   };
 
   const givenChild = {
@@ -43,13 +45,15 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
     UUID: randomUUID(),
     code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
     preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
+    objectType: OccupationGroupEnums.ObjectTypes.ESCOOccupation,
   };
 
-  const givenValidOccupationGroupGETResponse = {
+  const ValidOccupationGroupData = {
     id: getMockId(1),
     modelId: getMockId(1),
     UUID: randomUUID(),
+    originUUID: randomUUID(),
+    UUIDHistory: [],
     code: getTestString(10),
     preferredLabel: getTestString(20),
     originUri: "https://foo/bar",
@@ -57,37 +61,41 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
     tabiyaPath: "https://path/to/tabiya",
     description: getTestString(50),
     altLabels: [getTestString(15), getTestString(25)],
-    groupType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup,
-    importId: getTestString(10),
+    groupType: OccupationGroupEnums.ObjectTypes.ISCOGroup,
     parent: givenParent,
     children: [givenChild],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+
+  const givenValidOccupationGroupGETResponse = {
+    data: [ValidOccupationGroupData],
+    limit: 1,
+    nextCursor: null,
+  };
+
+  // WHEN the object is valid
+  // THEN expect the object to validate successfully
   testSchemaWithValidObject(
-    "OccupationGroupAPISpecs.Schema.GET.Response.Payload",
-    OccupationGroupAPISpecs.Schemas.GET.Response.Payload,
-    [givenValidOccupationGroupGETResponse]
-  );
-
-  testSchemaWithAdditionalProperties(
-    "OccupationGroupAPISpecs.Schema.GET.Response.Payload",
-    OccupationGroupAPISpecs.Schemas.GET.Response.Payload,
-    [givenValidOccupationGroupGETResponse]
-  );
-
-  testArraySchemaFailureWithValidObject(
-    "OccupationGroupAPISpecs.Schema.GET.Response.Payload",
+    "OccupationGroupAPISpecs.Schemas.GET.Response.Payload",
     OccupationGroupAPISpecs.Schemas.GET.Response.Payload,
     givenValidOccupationGroupGETResponse
+  );
+
+  // AND WHEN the object has additional properties
+  // THEN expect the object to not validate
+  testSchemaWithAdditionalProperties(
+    "OccupationGroupAPISpecs.Schemas.GET.Response.Payload",
+    OccupationGroupAPISpecs.Schemas.GET.Response.Payload,
+    { ...givenValidOccupationGroupGETResponse, extraProperty: "foo" }
   );
 
   describe("Validate OccupationGroupAPISpecs.Schemas.GET.Response.Payload fields", () => {
     // spread the items of the schema into the schema itself
     // we do this because we want to test the fields, not the fact that they are in an array
     // and in cases where we use reusable test functions we do not have control over the givenObject
-    const { items, ...rest } = OccupationGroupAPISpecs.Schemas.GET.Response.Payload;
-    const givenSchema = { ...rest, ...items };
+    const { properties, ...rest } = OccupationGroupAPISpecs.Schemas.GET.Response.Payload;
+    const givenSchema = { ...rest, ...properties.data.items };
 
     describe("Test validate of 'id' ", () => {
       testObjectIdField("id", givenSchema);
@@ -97,10 +105,18 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
       testUUIDField<OccupationGroupAPISpecs.Types.GET.Response.Payload>("UUID", givenSchema);
     });
 
+    describe("Test validate of 'originUUID'", () => {
+      testUUIDField<OccupationGroupAPISpecs.Types.GET.Response.Payload>("originUUID", givenSchema);
+    });
+
+    describe("Test validate of 'UUIDHistory'", () => {
+      testUUIDArray<OccupationGroupAPISpecs.Types.GET.Response.Payload>("UUIDHistory", givenSchema, [], true);
+    });
+
     describe("Test validate of 'path'", () => {
       testURIField<OccupationGroupAPISpecs.Types.GET.Response.Payload>(
         "path",
-        OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
+        OccupationGroupAPISpecs.Constants.MAX_PATH_URI_LENGTH,
         givenSchema
       );
     });
@@ -108,15 +124,15 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
     describe("Test validate of 'tabiyaPath'", () => {
       testURIField<OccupationGroupAPISpecs.Types.GET.Response.Payload>(
         "tabiyaPath",
-        OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
+        OccupationGroupAPISpecs.Constants.MAX_TABIYA_PATH_LENGTH,
         givenSchema
       );
     });
 
     describe("Test validate of 'originUri'", () => {
-      testURIField<OccupationGroupAPISpecs.Types.GET.Response.Payload>(
+      testURIOrURNField<OccupationGroupAPISpecs.Types.GET.Response.Payload>(
         "originUri",
-        OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
+        OccupationGroupAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
         givenSchema
       );
     });
@@ -143,20 +159,6 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
         givenSchema
       );
     });
-    describe("Test validate of 'createdAt'", () => {
-      testTimestampField<OccupationGroupAPISpecs.Types.GET.Response.Payload>("createdAt", givenSchema);
-    });
-    describe("Test validate of 'updatedAt'", () => {
-      testTimestampField<OccupationGroupAPISpecs.Types.GET.Response.Payload>("updatedAt", givenSchema);
-    });
-
-    describe("Test validate of 'importId'", () => {
-      testStringField<OccupationGroupAPISpecs.Types.GET.Response.Payload>(
-        "importId",
-        OccupationGroupAPISpecs.Constants.IMPORT_ID_MAX_LENGTH,
-        givenSchema
-      );
-    });
 
     describe("Test validate of 'groupType'", () => {
       test.each([
@@ -179,7 +181,8 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
           "invalidGroupType",
           constructSchemaError("/groupType", "enum", "must be equal to one of the allowed values"),
         ],
-        [CaseType.Success, "a valid groupType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+        [CaseType.Success, "a valid groupType", OccupationGroupEnums.ObjectTypes.ISCOGroup, undefined],
+        [CaseType.Success, "a valid groupType:localGroup", OccupationGroupEnums.ObjectTypes.LocalGroup, undefined],
       ])("%s Validate 'groupType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
         // GIVEN an object with given value
         const givenObject = {
@@ -233,6 +236,12 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
     describe("Test validation of 'modelId'", () => {
       testObjectIdField("modelId", givenSchema);
     });
+    describe("Test validate of 'createdAt'", () => {
+      testTimestampField<OccupationGroupAPISpecs.Types.GET.Response.Payload>("createdAt", givenSchema);
+    });
+    describe("Test validate of 'updatedAt'", () => {
+      testTimestampField<OccupationGroupAPISpecs.Types.GET.Response.Payload>("updatedAt", givenSchema);
+    });
 
     describe("Test validation of 'parent'", () => {
       test.each([
@@ -245,7 +254,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
         [CaseType.Failure, "null", null, constructSchemaError("/parent", "type", "must be object")],
         [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object")],
         [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object")],
-        [CaseType.Success, "a valid parent object", givenValidOccupationGroupGETResponse.parent, undefined],
+        [CaseType.Success, "a valid parent object", ValidOccupationGroupData.parent, undefined],
       ])("(%s) Validate 'parent' when it is %s", (caseType, _description, givenValue, failureMessages) => {
         // GIVEN an object with the given value
         const givenObject = {
@@ -349,7 +358,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
             "invalidObjectType",
             constructSchemaError("/parent/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ObjectTypes.ISCOGroup, undefined],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           // GIVEN an object with given value
           const givenObject = {
@@ -392,7 +401,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
             UUID: randomUUID(),
             code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
             preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-            objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
+            objectType: OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           },
           constructSchemaError("/children", "type", "must be array"),
         ],
@@ -405,7 +414,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
               UUID: randomUUID(),
               code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
               preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-              objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
+              objectType: OccupationGroupEnums.ObjectTypes.ESCOOccupation,
             },
           ],
           undefined,
@@ -518,7 +527,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
             "invalidObjectType",
             constructSchemaError("/children/0/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ObjectTypes.ISCOGroup, undefined],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           // GIVEN an object with given value
           const givenObject = {

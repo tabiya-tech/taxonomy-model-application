@@ -7,6 +7,8 @@ import {
   testStringField,
   testTimestampField,
   testURIField,
+  testURIOrURNField,
+  testUUIDArray,
   testUUIDField,
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
@@ -36,7 +38,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     UUID: randomUUID(),
     code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
     preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup,
+    objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup,
   };
 
   const givenChild = {
@@ -44,15 +46,17 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     UUID: randomUUID(),
     code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
     preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
+    objectType: OccupationGroupEnums.ObjectTypes.ESCOOccupation,
   };
 
   const givenValidOccupationGroupPOSTResponse = {
     id: getMockId(1),
     UUID: randomUUID(),
+    originUUID: randomUUID(),
+    UUIDHistory: [],
     path: "https://path/to/tabiya",
     tabiyaPath: "https://path/to/tabiya",
-    groupType: OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup,
+    groupType: OccupationGroupEnums.ObjectTypes.LocalGroup,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     originUri: "https://foo/bar",
@@ -60,7 +64,6 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     description: getTestString(50),
     preferredLabel: getTestString(20),
     altLabels: [getTestString(15), getTestString(25)],
-    importId: getTestString(10),
     modelId: getMockId(1),
     parent: givenParent,
     children: [givenChild],
@@ -79,7 +82,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
   testSchemaWithAdditionalProperties(
     "OccupationGroupAPISpecs.Schemas.POST.Response.Payload",
     OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-    givenValidOccupationGroupPOSTResponse
+    { ...givenValidOccupationGroupPOSTResponse, extraProperty: "foo" }
   );
 
   describe("Validate OccupationGroupAPISpecs.Schemas.POST.Response.Payload fields", () => {
@@ -94,10 +97,26 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
       );
     });
 
+    describe("Test validate of 'originUUID'", () => {
+      testUUIDField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
+        "originUUID",
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'UUIDHistory'", () => {
+      testUUIDArray<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
+        "UUIDHistory",
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+        [],
+        true
+      );
+    });
+
     describe("Test validation of 'path'", () => {
       testURIField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "path",
-        OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
+        OccupationGroupAPISpecs.Constants.MAX_PATH_URI_LENGTH,
         OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
@@ -105,7 +124,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     describe("Test validation of 'tabiyaPath'", () => {
       testURIField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "tabiyaPath",
-        OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
+        OccupationGroupAPISpecs.Constants.MAX_TABIYA_PATH_LENGTH,
         OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
@@ -131,7 +150,8 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
           "invalidGroupType",
           constructSchemaError("/groupType", "enum", "must be equal to one of the allowed values"),
         ],
-        [CaseType.Success, "a valid groupType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+        [CaseType.Success, "a valid groupType", OccupationGroupEnums.ObjectTypes.ISCOGroup, undefined],
+        [CaseType.Success, "a valid groupType:localGroup", OccupationGroupEnums.ObjectTypes.LocalGroup, undefined],
       ])("%s Validate 'groupType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
         // GIVEN an object with given value
         const givenObject = {
@@ -149,22 +169,10 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
       });
     });
 
-    describe("Test validate of 'createdAt'", () => {
-      testTimestampField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
-        "createdAt",
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
-      );
-    });
-    describe("Test validate of 'updatedAt'", () => {
-      testTimestampField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
-        "updatedAt",
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
-      );
-    });
     describe("Test validation of 'originUri'", () => {
-      testURIField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
+      testURIOrURNField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "originUri",
-        OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
+        OccupationGroupAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
         OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
@@ -234,16 +242,21 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
       });
     });
 
-    describe("Test validate of 'importId'", () => {
-      testStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
-        "importId",
-        OccupationGroupAPISpecs.Constants.IMPORT_ID_MAX_LENGTH,
+    describe("Test validation of 'modelId'", () => {
+      testObjectIdField("modelId", OccupationGroupAPISpecs.Schemas.POST.Response.Payload);
+    });
+
+    describe("Test validate of 'createdAt'", () => {
+      testTimestampField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
+        "createdAt",
         OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
-
-    describe("Test validation of 'modelId'", () => {
-      testObjectIdField("modelId", OccupationGroupAPISpecs.Schemas.POST.Response.Payload);
+    describe("Test validate of 'updatedAt'", () => {
+      testTimestampField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
+        "updatedAt",
+        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
+      );
     });
     describe("Test validation of 'parent'", () => {
       test.each([
@@ -387,7 +400,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
             "invalidObjectType",
             constructSchemaError("/parent/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ObjectTypes.ISCOGroup, undefined],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           // GIVEN an object with given value
           const givenObject = {
@@ -435,7 +448,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
             UUID: randomUUID(),
             code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
             preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-            objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
+            objectType: OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           },
           constructSchemaError("/children", "type", "must be array"),
         ],
@@ -448,7 +461,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
               UUID: randomUUID(),
               code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
               preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-              objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation,
+              objectType: OccupationGroupEnums.ObjectTypes.ESCOOccupation,
             },
           ],
           undefined,
@@ -590,7 +603,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
             "invalidObjectType",
             constructSchemaError("/children/0/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup, undefined],
+          [CaseType.Success, "a valid objectType", OccupationGroupEnums.ObjectTypes.ISCOGroup, undefined],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           // GIVEN an object with given value
           const givenObject = {

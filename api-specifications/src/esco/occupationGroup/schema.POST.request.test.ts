@@ -1,12 +1,12 @@
 import {
   testStringField,
   testNonEmptyStringField,
-  testURIField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
   testObjectIdField,
   testUUIDArray,
+  testURIOrURNField,
 } from "_test_utilities/stdSchemaTests";
 
 import { randomUUID } from "crypto";
@@ -21,23 +21,23 @@ import { getMockId } from "_test_utilities/mockMongoId";
 // Test POST Request schema
 // ----------------------------------------------
 
-describe("Test OccupationGroupAPISpecs.Schemas.POST.Response.Payload validity", () => {
+describe("Test OccupationGroupAPISpecs.Schemas.POST.Request.Payload validity", () => {
   // WHEN the OccupationGroupAPISpecs.POST.Request.Schema.Payload schema
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationGroupAPISpecs.Schemas.POST.Request.Payload",
-    OccupationGroupAPISpecs.Schemas.POST.Response.Payload
+    OccupationGroupAPISpecs.Schemas.POST.Request.Payload
   );
 });
 
 describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.Payload schema", () => {
+  // GIVEN a valid request payload object
   const validRequestPayload = {
     originUri: "https://path/to/group",
     code: getTestString(OccupationGroupConstants.CODE_MAX_LENGTH),
     description: getTestString(OccupationGroupConstants.DESCRIPTION_MAX_LENGTH),
     preferredLabel: getTestString(OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH),
     altLabels: [getTestString(OccupationGroupConstants.ALT_LABEL_MAX_LENGTH)],
-    importId: getTestString(OccupationGroupConstants.IMPORT_ID_MAX_LENGTH),
     modelId: getMockId(1),
     UUIDHistory: [randomUUID(), randomUUID()],
   };
@@ -66,14 +66,14 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
   testSchemaWithAdditionalProperties(
     "OccupationGroupAPISpecs.Schemas.POST.Request.Payload",
     OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
-    validRequestPayload
+    { ...validRequestPayload, UUID: randomUUID() }
   );
 
   describe("Validate OccupationGroupAPISpecs.Schemas.POST.Request.Payload fields", () => {
     describe("Test validation of 'originUri'", () => {
-      testURIField<OccupationGroupAPISpecs.Types.POST.Request.Payload>(
+      testURIOrURNField<OccupationGroupAPISpecs.Types.POST.Request.Payload>(
         "originUri",
-        OccupationGroupAPISpecs.Constants.MAX_URI_LENGTH,
+        OccupationGroupAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
         OccupationGroupAPISpecs.Schemas.POST.Request.Payload
       );
     });
@@ -143,14 +143,6 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
           failureMessage
         );
       });
-    });
-
-    describe("Test validation of 'importId'", () => {
-      testStringField<OccupationGroupAPISpecs.Types.POST.Request.Payload>(
-        "importId",
-        OccupationGroupAPISpecs.Constants.IMPORT_ID_MAX_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Request.Payload
-      );
     });
 
     describe("Test validation of 'modelId'", () => {

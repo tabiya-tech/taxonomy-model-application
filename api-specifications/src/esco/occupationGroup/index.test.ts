@@ -16,8 +16,13 @@ describe("Test the occupationGroup module", () => {
     expect(Constants.PREFERRED_LABEL_MAX_LENGTH).toBeDefined();
     expect(Constants.ALT_LABELS_MAX_ITEMS).toBeDefined();
     expect(Constants.ALT_LABEL_MAX_LENGTH).toBeDefined();
-    expect(Constants.MAX_URI_LENGTH).toBeDefined();
-    expect(Constants.IMPORT_ID_MAX_LENGTH).toBeDefined();
+    expect(Constants.ORIGIN_URI_MAX_LENGTH).toBeDefined();
+    expect(Constants.UUID_HISTORY_MAX_ITEMS).toBeDefined();
+    expect(Constants.MAX_LIMIT).toBeDefined();
+    expect(Constants.MAX_UUID_HISTORY_ITEM_LENGTH).toBeDefined();
+    expect(Constants.MAX_PATH_URI_LENGTH).toBeDefined();
+    expect(Constants.MAX_TABIYA_PATH_LENGTH).toBeDefined();
+    expect(Constants.MAX_JSON_OVERHEAD).toBeDefined();
     expect(Constants.MAX_PAYLOAD_LENGTH).toBeDefined();
   });
 

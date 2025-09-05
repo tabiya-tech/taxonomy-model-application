@@ -3,6 +3,8 @@ import OccupationGroupEnums from "./enums";
 interface IOccupationGroupResponse {
   id: string;
   UUID: string;
+  UUIDHistory: string[];
+  originUUID: string;
   path: string;
   tabiyaPath: string;
   parent: {
@@ -10,29 +12,30 @@ interface IOccupationGroupResponse {
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup | OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup;
+    objectType: OccupationGroupEnums.ObjectTypes;
   };
   children: {
     id: string;
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType:
-      | OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup
-      | OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup
-      | OccupationGroupEnums.ENUMS.ObjectTypes.ESCOOccupation
-      | OccupationGroupEnums.ENUMS.ObjectTypes.LocalOccupation;
+    objectType: OccupationGroupEnums.ObjectTypes;
   }[];
   originUri: string;
   code: string;
   description: string;
   preferredLabel: string;
   altLabels: string[];
-  importId: string;
-  groupType: OccupationGroupEnums.ENUMS.ObjectTypes.ISCOGroup | OccupationGroupEnums.ENUMS.ObjectTypes.LocalGroup;
+  groupType: OccupationGroupEnums.ObjectTypes;
   modelId: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface PaginatedOccupationGroupResponse {
+  data: IOccupationGroupResponse[];
+  limit: number;
+  nextCursor: string | null;
 }
 
 interface IOccupationGroupRequest {
@@ -41,9 +44,22 @@ interface IOccupationGroupRequest {
   description: string;
   preferredLabel: string;
   altLabels: string[];
-  importId: string;
   modelId: string;
   UUIDHistory: string[];
+}
+
+interface IOccupationGroupParam {
+  modelId: string;
+}
+
+interface IOccupationGroupDetailParam {
+  modelId: string;
+  id: string;
+}
+
+interface IOccupationGroupQueryParams {
+  limit?: number;
+  cursor?: string;
 }
 
 namespace OccupationGroupTypes {
@@ -66,7 +82,20 @@ namespace OccupationGroupTypes {
   export namespace GET {
     export namespace Response {
       export type OccupationGroupItem = IOccupationGroupResponse;
-      export type Payload = OccupationGroupItem[];
+      export type Payload = PaginatedOccupationGroupResponse;
+    }
+    export namespace Request {
+      export namespace Param {
+        export type Payload = IOccupationGroupParam;
+      }
+      export namespace Query {
+        export type Payload = IOccupationGroupQueryParams;
+      }
+      export namespace Detail {
+        export namespace Param {
+          export type Payload = IOccupationGroupDetailParam;
+        }
+      }
     }
   }
 }

@@ -1,24 +1,18 @@
 namespace OccupationGroupEnums {
-  export namespace ENUMS {
-    export enum ObjectTypes {
-      ISCOGroup = "iscogroup",
-      LocalGroup = "localgroup",
-      ESCOOccupation = "escooccupation",
-      LocalOccupation = "localoccupation",
-      Skill = "skill",
-      SkillGroup = "skillgroup",
-    }
-    export enum SignallingValueLabel {
-      NONE = "",
-      HIGH = "high",
-      MEDIUM = "medium",
-      LOW = "low",
-    }
+  export enum ObjectTypes {
+    ISCOGroup = "iscogroup",
+    LocalGroup = "localgroup",
+    ESCOOccupation = "escooccupation",
+    LocalOccupation = "localoccupation",
+    Skill = "skill",
+    SkillGroup = "skillgroup",
   }
   export namespace GET {
     export namespace Response {
       export enum ErrorCodes {
         DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS = "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
+        INVALID_LIMIT_PARAMETER = "INVALID_LIMIT_PARAMETER",
+        INVALID_NEXT_CURSOR_PARAMETER = "INVALID_NEXT_CURSOR_PARAMETER",
       }
     }
   }
