@@ -21,7 +21,7 @@ module.exports = {
   testEnvironment: "node",
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}",
-    "!src/_test_utilities/*"
+    "!src/**/_test_utilities/*"
   ],
   "coverageReporters": [
     ["lcov", {"projectRoot": "../"}],
