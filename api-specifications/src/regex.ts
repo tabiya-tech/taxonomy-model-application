@@ -40,3 +40,7 @@ export const RegExp_Str_UUIDv4_Or_Empty = `^(${hexOctet(4)}-${hexOctet(2)}-${hex
   6
 )}|)$`;
 export const RegExp_UUIDv4_Or_Empty: RegExp = RegExp(RegExp_Str_UUIDv4_Or_Empty);
+
+// Base64 string regex (standard Base64, optional padding)
+export const RegExp_Str_Base64 = `^(?:[A-Za-z0-9+/]{4})*` + `(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|)?$`;
+export const RegExp_Base64 = new RegExp(RegExp_Str_Base64);
