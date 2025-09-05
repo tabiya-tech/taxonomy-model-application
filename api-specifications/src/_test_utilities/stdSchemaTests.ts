@@ -16,6 +16,7 @@ import {
   getStdStringTestCases,
   getStdTimestampFieldTestCases,
   getStdURIFieldTestCases,
+  getStdURIOrURNFieldTestCases,
   getStdUUIDTestCases,
 } from "./stdSchemaTestCases";
 
@@ -306,6 +307,26 @@ export function testUUIDArray<T>(
     // THEN expect the object to validate accordingly
     assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
   });
+}
+
+export function testURIOrURNField<T>(
+  fieldName: string,
+  maxLength: number,
+  givenSchema: SchemaObject,
+  dependencies: SchemaObject[] = []
+) {
+  test.each(getStdURIOrURNFieldTestCases(fieldName, maxLength))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
 }
 
 export function testURIField<T>(
