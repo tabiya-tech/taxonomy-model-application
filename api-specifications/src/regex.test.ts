@@ -5,6 +5,7 @@ import {
   RegExp_NotEmptyString,
   RegExp_UUIDv4,
   RegExp_UUIDv4_Or_Empty,
+  RegExp_Base64,
 } from "./regex";
 
 import "jest-performance-matchers";
@@ -241,4 +242,38 @@ describe("Test RegExp_UUIDv4_Or_Empty", () => {
       });
     }
   );
+});
+
+describe("Test RegExp_Base64", () => {
+  // Valid Base64 strings
+  test.each([
+    ["empty string", ""],
+    ["simple string", "YWJj"], // "abc"
+    ["padded string =", "YWJjZA=="], // "abcd"
+    ["padded string ==", "YWJjZGU="], // "abcde"
+    ["long string", "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo".repeat(1000)],
+  ])("It should successfully test true for '%s'", (_desc, value) => {
+    expect(RegExp_Base64.test(value)).toBe(true);
+  });
+
+  // Invalid Base64 strings
+  test.each([
+    ["invalid char", "YWJj$"],
+    ["invalid length", "YWJj="],
+    ["whitespace", "YWJ j"],
+    ["non-base64 chars", "abc!@#"],
+    ["long invalid", "!!!".repeat(1000)],
+  ])("It should successfully test false for '%s'", (_desc, value) => {
+    expect(RegExp_Base64.test(value)).toBe(false);
+  });
+
+  // Performance test
+  test.each([
+    ["long valid string", "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo=".repeat(1000)],
+    ["long invalid string", "!!!".repeat(1000)],
+  ])(`It performs fast (<=${PERF_DURATION}ms) for '%s'`, async (_desc, value) => {
+    expect(() => {
+      RegExp_Base64.test(value);
+    }).toCompleteWithinQuantile(PERF_DURATION, { iterations: 10, quantile: 90 });
+  });
 });
