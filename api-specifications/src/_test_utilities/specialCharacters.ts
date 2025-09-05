@@ -8,3 +8,8 @@ export function getTestString(length: number, prefix: string = ""): string {
     .slice(0, length)
     .padEnd(length, THREE_BYTE_UTF8_CHAR);
 }
+
+export function getTestBase64String(length: number): string {
+  const rawLength = Math.floor(length / 4) * 3;
+  return Buffer.from("a".repeat(rawLength)).toString("base64").slice(0, length);
+}
