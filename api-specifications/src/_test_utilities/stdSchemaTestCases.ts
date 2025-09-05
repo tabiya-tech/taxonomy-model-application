@@ -101,6 +101,77 @@ export function getStdObjectIdTestCases(
   ];
 }
 
+export function getStdURIOrURNFieldTestCases(
+  instancePath: string,
+  maxLength: number,
+  allowEmpty?: boolean
+): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
+  const { propertyName, canonicalPropertyPath, canonicalParentPath, canonicalChildPath } =
+    getCanonicalPath(instancePath);
+
+  const emptyTestCase = allowEmpty
+    ? [CaseType.Success, "empty string", "", undefined]
+    : [
+        CaseType.Failure,
+        "empty string",
+        "",
+        constructSchemaError(canonicalPropertyPath, "anyOf", "must match a schema in anyOf"),
+      ];
+  return [
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
+    [
+      CaseType.Failure,
+      `Too long ${propertyName}`,
+      getTestString(maxLength + 1),
+      constructSchemaError(canonicalPropertyPath, "maxLength", `must NOT have more than ${maxLength} characters`),
+    ],
+    [
+      CaseType.Failure,
+      "only whitespace characters",
+      WHITESPACE,
+      constructSchemaError(canonicalPropertyPath, "anyOf", "must match a schema in anyOf"),
+    ],
+    [
+      CaseType.Failure,
+      "random string",
+      "foo",
+      constructSchemaError(canonicalPropertyPath, "anyOf", "must match a schema in anyOf"),
+    ],
+    // @ts-ignore
+    emptyTestCase,
+    [
+      CaseType.Failure,
+      "a valid HTTP URL",
+      "http://foo.bar.com",
+      constructSchemaError(canonicalPropertyPath, "anyOf", "must match a schema in anyOf"),
+    ],
+    [
+      CaseType.Failure,
+      "a valid FTP URL",
+      "ftp://foo.bar.com",
+      constructSchemaError(canonicalPropertyPath, "anyOf", "must match a schema in anyOf"),
+    ],
+    [CaseType.Success, "a valid HTTPS URL", "https://www.example.com", undefined],
+    [CaseType.Success, "a valid complex HTTPS URL", "https://u:p@foo.bar.com:8080/%25?25#%25", undefined],
+
+    // --- URN-specific checks ---
+    [CaseType.Success, "a valid URN", "urn:isbn:0451450523", undefined],
+    [CaseType.Success, "a valid URN with UUID", "urn:uuid:123e4567-e89b-12d3-a456-426614174000", undefined],
+    [
+      CaseType.Failure,
+      "invalid URN format",
+      "urn://not.valid",
+      constructSchemaError(canonicalPropertyPath, "anyOf", "must match a schema in anyOf"),
+    ],
+  ];
+}
+
 export function getStdURIFieldTestCases(
   instancePath: string,
   maxLength: number,
@@ -242,6 +313,37 @@ export function getStdUUIDTestCases(
       ),
     ],
     [CaseType.Success, "Valid UUID", randomUUID(), undefined],
+  ];
+}
+
+export function getStdNonEmptyURIStringTestCases(
+  instancePath: string,
+  maxLength: number
+): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
+  const { propertyName, canonicalParentPath, canonicalChildPath } = getCanonicalPath(instancePath);
+  return [
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
+    [CaseType.Failure, "empty", "", constructSchemaError(canonicalChildPath, "pattern", 'must match pattern "\\S"')],
+    [
+      CaseType.Failure,
+      `Too long ${propertyName}`,
+      getTestString(maxLength + 1),
+      constructSchemaError(canonicalChildPath, "maxLength", `must NOT have more than ${maxLength} characters`),
+    ],
+    [
+      CaseType.Failure,
+      "only whitespace characters",
+      WHITESPACE,
+      constructSchemaError(canonicalChildPath, "pattern", 'must match pattern "\\S"'),
+    ],
+    [CaseType.Success, "a valid URI", "http://foo.com", undefined],
+    [CaseType.Success, "a valid URN", "urn:isbn:0451450523", undefined],
   ];
 }
 

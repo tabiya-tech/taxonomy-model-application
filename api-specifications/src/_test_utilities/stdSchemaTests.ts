@@ -12,10 +12,12 @@ import { randomUUID } from "crypto";
 import {
   getStdEnumTestCases,
   getStdNonEmptyStringTestCases,
+  getStdNonEmptyURIStringTestCases,
   getStdObjectIdTestCases,
   getStdStringTestCases,
   getStdTimestampFieldTestCases,
   getStdURIFieldTestCases,
+  getStdURIOrURNFieldTestCases,
   getStdUUIDTestCases,
 } from "./stdSchemaTestCases";
 
@@ -171,6 +173,26 @@ export function testTimestampField<T>(fieldName: string, givenSchema: SchemaObje
   );
 }
 
+export function testNonEmptyURIStringField<T>(
+  fieldName: string,
+  maxLength: number,
+  givenSchema: SchemaObject,
+  dependencies: SchemaObject[] = []
+) {
+  test.each(getStdNonEmptyURIStringTestCases(fieldName, maxLength))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
+}
+
 export function testNonEmptyStringField<T>(
   fieldName: string,
   maxLength: number,
@@ -258,7 +280,8 @@ export function testUUIDArray<T>(
   fieldName: string,
   givenSchema: SchemaObject,
   dependencies: SchemaObject[] = [],
-  allowEmpty: boolean = true
+  allowEmpty: boolean = true,
+  uniqueItems: boolean = false
 ) {
   test.each([
     [
@@ -295,6 +318,21 @@ export function testUUIDArray<T>(
           [],
           constructSchemaError(`/${fieldName}`, "minItems", "must NOT have fewer than 1 items"),
         ],
+    uniqueItems
+      ? (() => {
+          const duplicateUUID = randomUUID();
+          return [
+            CaseType.Failure,
+            "not unique UUIDs",
+            [duplicateUUID, duplicateUUID],
+            constructSchemaError(
+              `/${fieldName}`,
+              "uniqueItems",
+              "must NOT have duplicate items (items ## 1 and 0 are identical)"
+            ),
+          ];
+        })()
+      : [CaseType.Success, "unique UUIDs", [randomUUID(), randomUUID()], undefined],
     [CaseType.Success, "an array with a single valid UUID", [randomUUID()], undefined],
     [CaseType.Success, "an array with many valid UUIDs", [randomUUID(), randomUUID(), randomUUID()], undefined],
   ])(`(%s) Validate ${fieldName} when it is %s`, (caseType, _description, givenValue, failureMessages) => {
@@ -306,6 +344,26 @@ export function testUUIDArray<T>(
     // THEN expect the object to validate accordingly
     assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
   });
+}
+
+export function testURIOrURNField<T>(
+  fieldName: string,
+  maxLength: number,
+  givenSchema: SchemaObject,
+  dependencies: SchemaObject[] = []
+) {
+  test.each(getStdURIOrURNFieldTestCases(fieldName, maxLength))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
 }
 
 export function testURIField<T>(
