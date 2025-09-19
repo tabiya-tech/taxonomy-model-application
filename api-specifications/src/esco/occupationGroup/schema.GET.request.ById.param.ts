@@ -2,7 +2,7 @@ import { SchemaObject } from "ajv";
 import { _detailOccupationGroupURLParameter } from "./schemas.base";
 
 const SchemaGETDetailRequestParam: SchemaObject = {
-  $id: "/components/schemas/OccupationGroupRequestDetailParamSchemaGET",
+  $id: "/components/schemas/OccupationGroupRequestByIdParamSchemaGET",
   type: "object",
   additionalProperties: false,
   properties: {

@@ -1,12 +1,13 @@
 import OccupationGroupConstants from "./constants";
 import OccupationGroupEnums from "./enums";
 import OccupationGroupTypes from "./types";
+import OccupationGroupRegexes from "./regex";
 
 import SchemaGETResponse from "./schema.GET.response";
 import SchemaPOSTRequest from "./schema.POST.request";
 import SchemaPOSTResponse from "./schema.POST.response";
 import SchemaGETRequestParam from "./schema.GET.request.param";
-import SchemaGETDetailRequestParam from "./schema.GET.request.detail.param";
+import SchemaGETByIdRequestParam from "./schema.GET.request.ById.param";
 import SchemaGETRequestQueryParam from "./schema.GET.request.query.param";
 
 namespace OccupationGroupSchemas {
@@ -21,9 +22,9 @@ namespace OccupationGroupSchemas {
       export namespace Query {
         export const Payload = SchemaGETRequestQueryParam;
       }
-      export namespace Detail {
+      export namespace ById {
         export namespace Param {
-          export const Payload = SchemaGETDetailRequestParam;
+          export const Payload = SchemaGETByIdRequestParam;
         }
       }
     }
@@ -43,6 +44,7 @@ namespace OccupationGroupAPISpecs {
   export import Types = OccupationGroupTypes;
   export import Constants = OccupationGroupConstants;
   export import Schemas = OccupationGroupSchemas;
+  export import Patterns = OccupationGroupRegexes;
 }
 
 export default OccupationGroupAPISpecs;

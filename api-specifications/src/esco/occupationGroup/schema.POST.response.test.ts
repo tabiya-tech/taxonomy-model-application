@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import {
   testNonEmptyStringField,
+  testNonEmptyURIStringField,
   testObjectIdField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testStringField,
   testTimestampField,
   testURIField,
-  testURIOrURNField,
   testUUIDArray,
   testUUIDField,
   testValidSchema,
@@ -15,13 +15,21 @@ import {
 import OccupationGroupAPISpecs from ".";
 import { getMockId } from "_test_utilities/mockMongoId";
 import OccupationGroupEnums from "./enums";
-import { getTestString } from "_test_utilities/specialCharacters";
+import {
+  getTestESCOLocalOccupationCode,
+  getTestESCOOccupationCode,
+  getTestISCOGroupCode,
+  getTestLocalGroupCode,
+  getTestLocalOccupationCode,
+  getTestString,
+} from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import {
   getStdNonEmptyStringTestCases,
   getStdObjectIdTestCases,
   getStdUUIDTestCases,
 } from "_test_utilities/stdSchemaTestCases";
+import OccupationGroupRegexes from "./regex";
 
 describe("Test OccupationGroupAPISpecs schema validity", () => {
   // WHEN the OccupationGroupAPISpecs.POST.Response.Schema.Payload schema
@@ -33,22 +41,25 @@ describe("Test OccupationGroupAPISpecs schema validity", () => {
 });
 
 describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response.Payload schema", () => {
+  // GIVEN a valid parent response payload object
   const givenParent = {
     id: getMockId(1),
     UUID: randomUUID(),
-    code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    code: getTestISCOGroupCode(),
     preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
     objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup,
   };
 
+  // GIVEN a valid child response payload object
   const givenChild = {
     id: getMockId(1),
     UUID: randomUUID(),
-    code: getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    code: getTestESCOLocalOccupationCode(),
     preferredLabel: getTestString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationGroupEnums.ObjectTypes.ESCOOccupation,
+    objectType: OccupationGroupEnums.ObjectTypes.LocalOccupation,
   };
 
+  // GIVEN a valid response payload object
   const givenValidOccupationGroupPOSTResponse = {
     id: getMockId(1),
     UUID: randomUUID(),
@@ -60,7 +71,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     originUri: "https://foo/bar",
-    code: getTestString(10),
+    code: getTestLocalGroupCode(),
     description: getTestString(50),
     preferredLabel: getTestString(20),
     altLabels: [getTestString(15), getTestString(25)],
@@ -170,18 +181,56 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
     });
 
     describe("Test validation of 'originUri'", () => {
-      testURIOrURNField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
+      testNonEmptyURIStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "originUri",
         OccupationGroupAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
         OccupationGroupAPISpecs.Schemas.POST.Response.Payload
       );
     });
     describe("Test validate of 'code'", () => {
-      testNonEmptyStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
-        "code",
-        OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Response.Payload
-      );
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'code'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/code", "type", "must be string")],
+        [
+          CaseType.Failure,
+          "empty string",
+          "",
+          constructSchemaError(
+            "/code",
+            "pattern",
+            `must match pattern "${OccupationGroupRegexes.Str.LOCAL_GROUP_CODE}"`
+          ),
+        ],
+        [
+          CaseType.Failure,
+          "an invalid code",
+          "1234",
+          constructSchemaError(
+            "/code",
+            "pattern",
+            `must match pattern "${OccupationGroupRegexes.Str.LOCAL_GROUP_CODE}"`
+          ),
+        ],
+        [CaseType.Success, "a valid code", getTestLocalGroupCode(), undefined],
+      ])("%s Validate 'code' when it is %s", (caseType, _description, givenValue, failureMessage) => {
+        const givenObject = {
+          ...givenValidOccupationGroupPOSTResponse,
+          code: givenValue,
+        };
+
+        assertCaseForProperty(
+          "code",
+          givenObject,
+          OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+          caseType,
+          failureMessage
+        );
+      });
     });
     describe("Test validate of 'description'", () => {
       testStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
@@ -217,11 +266,21 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
           ],
         ],
         [
+          CaseType.Failure,
+          "an array of same strings",
+          ["foo", "foo"],
+          constructSchemaError(
+            "/altLabels",
+            "uniqueItems",
+            "must NOT have duplicate items (items ## 1 and 0 are identical)"
+          ),
+        ],
+        [
           CaseType.Success,
           "an array of valid altLabels strings",
           [
             getTestString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-            getTestString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
+            getTestString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1),
           ],
           undefined,
         ],
@@ -332,31 +391,58 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
           }
         );
       });
-      describe("Test validation of 'parent/code'", () => {
-        const testCases = getStdNonEmptyStringTestCases(
-          "/parent/code",
-          OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH
-        ).filter((testCase) => testCase[1] !== "undefined");
-
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
-          `(%s) Validate 'code' when it is %s`,
-          (caseType, _description, givenValue, failureMessage) => {
-            // GIVEN an object with given value
-            const givenObject = {
-              parent: {
-                code: givenValue,
-              },
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
+      describe("Test validation of '/parent/code'", () => {
+        test.each([
+          [CaseType.Success, "undefined", undefined, undefined],
+          [CaseType.Failure, "null", null, constructSchemaError("/parent/code", "type", "must be string")],
+          [
+            CaseType.Failure,
+            "empty string",
+            "",
+            constructSchemaError(
               "/parent/code",
-              givenObject,
-              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-              caseType,
-              failureMessage
-            );
-          }
-        );
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ISCO_GROUP_CODE}"`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "an invalid code",
+            "invalidCode",
+            constructSchemaError(
+              "/parent/code",
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ISCO_GROUP_CODE}"`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "Too long code",
+            getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH + 1),
+            constructSchemaError(
+              "/parent/code",
+              "maxLength",
+              `must NOT have more than ${OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH} characters`
+            ),
+          ],
+          [CaseType.Success, "a valid code", getTestISCOGroupCode(), undefined],
+        ])("%s Validate '/parent/code' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+          // GIVEN an object with given value
+          const givenObject = {
+            parent: {
+              code: givenValue,
+            },
+          };
+
+          // THEN export the object to validate accordingly
+          assertCaseForProperty(
+            "/parent/code",
+            givenObject,
+            OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+            caseType,
+            failureMessage
+          );
+        });
       });
       describe("Test validation of 'parent/preferredLabel'", () => {
         const testCases = getStdNonEmptyStringTestCases(
@@ -532,32 +618,102 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Response
         );
       });
       describe("Test validation of 'children/code'", () => {
-        const testCases = getStdNonEmptyStringTestCases(
-          "/children/0/code",
-          OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH
-        ).filter((testCase) => testCase[1] !== "undefined");
-
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
-          `(%s) Validate 'code' when it is %s`,
-          (caseType, _description, givenValue, failureMessage) => {
-            // GIVEN an object with given value
-            const givenObject = {
-              children: [
-                {
-                  code: givenValue,
-                },
-              ],
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
+        test.each([
+          [CaseType.Success, "undefined", undefined, undefined],
+          [CaseType.Failure, "null", null, constructSchemaError("/children/0/code", "type", "must be string")],
+          [
+            CaseType.Failure,
+            "empty string",
+            "",
+            constructSchemaError(
               "/children/0/code",
-              givenObject,
-              OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
-              caseType,
-              failureMessage
-            );
-          }
-        );
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE}"`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "a random string",
+            getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+            constructSchemaError(
+              "/children/0/code",
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE}"`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "an invalid code",
+            "invalidCode",
+            constructSchemaError(
+              "/children/0/code",
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE}"`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "Too long code",
+            getTestString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH + 1),
+            constructSchemaError(
+              "/children/0/code",
+              "maxLength",
+              `must NOT have more than ${OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH} characters`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "an invalid local occupation code",
+            getTestESCOOccupationCode(),
+            constructSchemaError(
+              "/children/0/code",
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE}"`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "an invalid local occupation code",
+            getTestISCOGroupCode(),
+            constructSchemaError(
+              "/children/0/code",
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE}"`
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "an invalid local occupation code",
+            getTestLocalGroupCode(),
+            constructSchemaError(
+              "/children/0/code",
+              "pattern",
+              `must match pattern "${OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE}"`
+            ),
+          ],
+          [CaseType.Success, "valid local occupation code", getTestLocalOccupationCode(), undefined],
+          [CaseType.Success, "valid local occupation code", getTestESCOLocalOccupationCode(), undefined],
+        ])("%s Validate '/children/0/code' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+          // GIVEN an object with given value
+          const givenObject = {
+            ...givenValidOccupationGroupPOSTResponse,
+            children: [
+              {
+                code: givenValue,
+                objectType: givenValidOccupationGroupPOSTResponse.children[0].objectType,
+              },
+            ],
+          };
+
+          // THEN export the object to validate accordingly
+          assertCaseForProperty(
+            "/children/0/code",
+            givenObject,
+            OccupationGroupAPISpecs.Schemas.POST.Response.Payload,
+            caseType,
+            failureMessage
+          );
+        });
       });
       describe("Test validation of 'children/preferredLabel'", () => {
         const testCases = getStdNonEmptyStringTestCases(

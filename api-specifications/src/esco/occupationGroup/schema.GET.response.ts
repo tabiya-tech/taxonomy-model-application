@@ -18,7 +18,8 @@ const SchemaGETResponse: SchemaObject = {
     },
     nextCursor: {
       type: ["string", "null"],
-      description: "A base64 string representing the cursor for the next page of results.",
+      description:
+        "A base64 string representing the cursor for the next page of results. Null if there is no next page.",
     },
   },
   required: ["data", "limit"],

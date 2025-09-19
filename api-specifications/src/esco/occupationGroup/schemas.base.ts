@@ -1,14 +1,16 @@
-import { RegExp_Str_NotEmptyString, RegExp_Str_Base64, RegExp_Str_UUIDv4, RegExp_Str_ID } from "../../regex";
+import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID } from "../../regex";
 import OccupationGroupConstants from "./constants";
 import OccupationGroupEnums from "./enums";
+import OccupationGroupRegexes from "./regex";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const _baseProperties: any = {
   UUIDHistory: {
-    description: "The UUiDs history of the occupation group.",
+    description: "The UUIDs history of the occupation group.",
     type: "array",
     minItems: 0,
     maxItems: OccupationGroupConstants.UUID_HISTORY_MAX_ITEMS,
+    uniqueItems: true,
     items: {
       type: "string",
       pattern: RegExp_Str_UUIDv4,
@@ -19,21 +21,13 @@ export const _baseProperties: any = {
     description: "The origin URI of the occupation group.",
     type: "string",
     maxLength: OccupationGroupConstants.ORIGIN_URI_MAX_LENGTH,
-    anyOf: [
-      {
-        format: "uri",
-        pattern: "^https://.*", // accept only https URIs
-      },
-      {
-        pattern: "^urn:[a-zA-Z0-9][a-zA-Z0-9-]*:.*$", // generic URN pattern
-      },
-    ],
+    format: "uri",
+    pattern: RegExp_Str_NotEmptyString,
   },
   code: {
     description: "The code of the occupation group.",
     type: "string",
     maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
-    pattern: RegExp_Str_NotEmptyString,
   },
   description: {
     description: "The description of the occupation group.",
@@ -51,6 +45,7 @@ export const _baseProperties: any = {
     type: "array",
     minItems: 0,
     maxItems: OccupationGroupConstants.ALT_LABELS_MAX_ITEMS,
+    uniqueItems: true,
     items: {
       type: "string",
       maxLength: OccupationGroupConstants.ALT_LABEL_MAX_LENGTH,
@@ -97,7 +92,7 @@ export const _baseQueryParameterSchema = {
     description: "A base64 string representing the cursor for pagination.",
     type: "string",
     maxLength: OccupationGroupConstants.MAX_CURSOR_LENGTH,
-    pattern: RegExp_Str_Base64,
+    pattern: RegExp_Str_NotEmptyString,
   },
 };
 
@@ -154,7 +149,6 @@ export const _baseResponseSchema = {
           description: "The code of the parent occupation group.",
           type: "string",
           maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
-          pattern: RegExp_Str_NotEmptyString,
         },
         preferredLabel: {
           description: "The preferred label of the parent occupation group.",
@@ -166,6 +160,29 @@ export const _baseResponseSchema = {
           description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
           type: "string",
           enum: Object.values(OccupationGroupEnums.ObjectTypes),
+        },
+      },
+      if: {
+        properties: {
+          objectType: { enum: [OccupationGroupEnums.ObjectTypes.ISCOGroup] },
+        },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+            pattern: OccupationGroupRegexes.Str.ISCO_GROUP_CODE,
+          },
+        },
+      },
+      else: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+            pattern: OccupationGroupRegexes.Str.LOCAL_GROUP_CODE,
+          },
         },
       },
     },
@@ -191,7 +208,6 @@ export const _baseResponseSchema = {
             description: "The code of the parent occupation group.",
             type: "string",
             maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
-            pattern: RegExp_Str_NotEmptyString,
           },
           preferredLabel: {
             description: "The preferred label of the parent occupation group.",
@@ -200,16 +216,90 @@ export const _baseResponseSchema = {
             pattern: RegExp_Str_NotEmptyString,
           },
           objectType: {
-            description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+            description:
+              "The type of the occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
             type: "string",
             enum: Object.values(OccupationGroupEnums.ObjectTypes),
           },
         },
+        allOf: [
+          {
+            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.ISCOGroup } } },
+            then: {
+              properties: {
+                code: {
+                  type: "string",
+                  maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+                  pattern: OccupationGroupRegexes.Str.ISCO_GROUP_CODE,
+                },
+              },
+            },
+          },
+          {
+            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.LocalGroup } } },
+            then: {
+              properties: {
+                code: {
+                  type: "string",
+                  maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+                  pattern: OccupationGroupRegexes.Str.LOCAL_GROUP_CODE,
+                },
+              },
+            },
+          },
+          {
+            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.ESCOOccupation } } },
+            then: {
+              properties: {
+                code: {
+                  type: "string",
+                  maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+                  pattern: OccupationGroupRegexes.Str.ESCO_OCCUPATION_CODE,
+                },
+              },
+            },
+          },
+          {
+            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.LocalOccupation } } },
+            then: {
+              properties: {
+                code: {
+                  type: "string",
+                  maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+                  pattern: OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+                },
+              },
+            },
+          },
+        ],
       },
     },
     ...JSON.parse(JSON.stringify(_baseProperties)),
     createdAt: { type: "string", format: "date-time" },
     updatedAt: { type: "string", format: "date-time" },
+  },
+  if: {
+    properties: {
+      groupType: { enum: [OccupationGroupEnums.ObjectTypes.ISCOGroup] },
+    },
+  },
+  then: {
+    properties: {
+      code: {
+        type: "string",
+        maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+        pattern: OccupationGroupRegexes.Str.ISCO_GROUP_CODE,
+      },
+    },
+  },
+  else: {
+    properties: {
+      code: {
+        type: "string",
+        maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+        pattern: OccupationGroupRegexes.Str.LOCAL_GROUP_CODE,
+      },
+    },
   },
   required: [
     "id",

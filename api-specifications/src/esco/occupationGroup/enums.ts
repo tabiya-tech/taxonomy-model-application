@@ -1,12 +1,13 @@
+import { ObjectTypes as CommonGroupTypes } from "../common/objectTypes";
+
 namespace OccupationGroupEnums {
   export enum ObjectTypes {
-    ISCOGroup = "iscogroup",
-    LocalGroup = "localgroup",
-    ESCOOccupation = "escooccupation",
-    LocalOccupation = "localoccupation",
-    Skill = "skill",
-    SkillGroup = "skillgroup",
+    ISCOGroup = CommonGroupTypes.ISCOGroup,
+    LocalGroup = CommonGroupTypes.LocalGroup,
+    ESCOOccupation = CommonGroupTypes.ESCOOccupation,
+    LocalOccupation = CommonGroupTypes.LocalOccupation,
   }
+
   export namespace GET {
     export namespace Response {
       export enum ErrorCodes {

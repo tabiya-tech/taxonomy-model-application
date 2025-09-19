@@ -7,10 +7,6 @@ import {
 import OccupationGroupAPISpecs from "./index";
 import { getMockId } from "_test_utilities/mockMongoId";
 
-// ----------------------------------------------
-// Test GET Request Param schema
-// ----------------------------------------------
-
 describe("Test OccupationGroupAPISpecs.Schemas.GET.Request.Param validity", () => {
   // WHEN the OccupationGroupAPISpecs.GET.Request.Param schema
   // THEN expect the givenSchema to be valid

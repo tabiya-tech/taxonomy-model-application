@@ -12,7 +12,7 @@ interface IOccupationGroupResponse {
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType: OccupationGroupEnums.ObjectTypes;
+    objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
   };
   children: {
     id: string;
@@ -26,7 +26,7 @@ interface IOccupationGroupResponse {
   description: string;
   preferredLabel: string;
   altLabels: string[];
-  groupType: OccupationGroupEnums.ObjectTypes;
+  groupType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
   modelId: string;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +40,7 @@ interface PaginatedOccupationGroupResponse {
 
 interface IOccupationGroupRequest {
   originUri: string;
+  groupType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
   code: string;
   description: string;
   preferredLabel: string;

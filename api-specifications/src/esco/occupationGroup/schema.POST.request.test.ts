@@ -6,20 +6,18 @@ import {
   testValidSchema,
   testObjectIdField,
   testUUIDArray,
-  testURIOrURNField,
+  testNonEmptyURIStringField,
 } from "_test_utilities/stdSchemaTests";
 
 import { randomUUID } from "crypto";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestLocalGroupCode, getTestString } from "_test_utilities/specialCharacters";
 import { CaseType, assertCaseForProperty, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 
 import OccupationGroupAPISpecs from "./index";
 import OccupationGroupConstants from "./constants";
 import { getMockId } from "_test_utilities/mockMongoId";
-
-// ----------------------------------------------
-// Test POST Request schema
-// ----------------------------------------------
+import OccupationGroupEnums from "./enums";
+import OccupationGroupRegexes from "./regex";
 
 describe("Test OccupationGroupAPISpecs.Schemas.POST.Request.Payload validity", () => {
   // WHEN the OccupationGroupAPISpecs.POST.Request.Schema.Payload schema
@@ -34,7 +32,8 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
   // GIVEN a valid request payload object
   const validRequestPayload = {
     originUri: "https://path/to/group",
-    code: getTestString(OccupationGroupConstants.CODE_MAX_LENGTH),
+    groupType: OccupationGroupEnums.ObjectTypes.LocalGroup,
+    code: getTestLocalGroupCode(),
     description: getTestString(OccupationGroupConstants.DESCRIPTION_MAX_LENGTH),
     preferredLabel: getTestString(OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH),
     altLabels: [getTestString(OccupationGroupConstants.ALT_LABEL_MAX_LENGTH)],
@@ -71,7 +70,7 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
 
   describe("Validate OccupationGroupAPISpecs.Schemas.POST.Request.Payload fields", () => {
     describe("Test validation of 'originUri'", () => {
-      testURIOrURNField<OccupationGroupAPISpecs.Types.POST.Request.Payload>(
+      testNonEmptyURIStringField<OccupationGroupAPISpecs.Types.POST.Response.Payload>(
         "originUri",
         OccupationGroupAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
         OccupationGroupAPISpecs.Schemas.POST.Request.Payload
@@ -79,11 +78,49 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
     });
 
     describe("Test validation of 'code'", () => {
-      testNonEmptyStringField<OccupationGroupAPISpecs.Types.POST.Request.Payload>(
-        "code",
-        OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH,
-        OccupationGroupAPISpecs.Schemas.POST.Request.Payload
-      );
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'code'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/code", "type", "must be string")],
+        [
+          CaseType.Failure,
+          "empty string",
+          "",
+          constructSchemaError(
+            "/code",
+            "pattern",
+            `must match pattern "${OccupationGroupRegexes.Str.LOCAL_GROUP_CODE}"`
+          ),
+        ],
+        [
+          CaseType.Failure,
+          "an invalid code",
+          "1234",
+          constructSchemaError(
+            "/code",
+            "pattern",
+            `must match pattern "${OccupationGroupRegexes.Str.LOCAL_GROUP_CODE}"`
+          ),
+        ],
+        [CaseType.Success, "a valid code", getTestLocalGroupCode(), undefined],
+      ])("%s Validate 'code' when it is %s", (caseType, _description, givenValue, failureMessage) => {
+        const givenObject = {
+          ...validRequestPayload,
+          code: givenValue,
+        };
+
+        assertCaseForProperty(
+          "code",
+          givenObject,
+          OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
+          caseType,
+          failureMessage
+        );
+      });
     });
 
     describe("Test validation of 'description'", () => {
@@ -122,11 +159,21 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
           ],
         ],
         [
+          CaseType.Failure,
+          "an array of same strings",
+          ["foo", "foo"],
+          constructSchemaError(
+            "/altLabels",
+            "uniqueItems",
+            "must NOT have duplicate items (items ## 1 and 0 are identical)"
+          ),
+        ],
+        [
           CaseType.Success,
           "an array of valid altLabels strings",
           [
             getTestString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-            getTestString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
+            getTestString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1),
           ],
           undefined,
         ],
@@ -154,6 +201,51 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.POST.Request.
         "UUIDHistory",
         OccupationGroupAPISpecs.Schemas.POST.Request.Payload
       );
+    });
+
+    describe("Test validate of 'groupType'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'groupType'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/groupType", "type", "must be string")],
+        [
+          CaseType.Failure,
+          "empty string",
+          "",
+          constructSchemaError("/groupType", "enum", "must be equal to one of the allowed values"),
+        ],
+        [
+          CaseType.Failure,
+          "an invalid groupType",
+          "invalidGroupType",
+          constructSchemaError("/groupType", "enum", "must be equal to one of the allowed values"),
+        ],
+        [CaseType.Success, "a valid groupType", OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup, undefined],
+        [
+          CaseType.Success,
+          "a valid groupType:localGroup",
+          OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
+          undefined,
+        ],
+      ])("%s Validate 'groupType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+        // GIVEN an object with given value
+        const givenObject = {
+          groupType: givenValue,
+        };
+
+        // THEN export the object to validate accordingly
+        assertCaseForProperty(
+          "groupType",
+          givenObject,
+          OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
+          caseType,
+          failureMessage
+        );
+      });
     });
   });
 });

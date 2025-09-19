@@ -33,8 +33,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       "ISCOGroup": "iscogroup",
       "LocalGroup": "localgroup",
       "LocalOccupation": "localoccupation",
-      "Skill": "skill",
-      "SkillGroup": "skillgroup",
     },
     "POST": {
       "Response": {
@@ -45,13 +43,33 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       },
     },
   },
+  "Patterns": {
+    "RegExp": {
+      "BASE64": /\\^\\(\\?:\\[A-Za-z0-9\\+/\\]\\{4\\}\\)\\*\\(\\?:\\[A-Za-z0-9\\+/\\]\\{2\\}==\\|\\[A-Za-z0-9\\+/\\]\\{3\\}=\\|\\)\\?\\$/,
+      "ESCO_LOCAL_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\$/,
+      "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": /\\^\\(\\?:\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\|\\[a-zA-Z\\\\d\\]\\+\\(\\?:_\\\\d\\+\\)\\+\\)\\$/,
+      "ESCO_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\+\\$/,
+      "ISCO_GROUP_CODE": /\\^\\\\d\\{1,4\\}\\$/,
+      "LOCAL_GROUP_CODE": /\\^\\(\\?:\\\\d\\{1,4\\}\\)\\?\\[a-zA-Z\\]\\+\\[a-zA-Z\\\\d\\]\\*\\$/,
+      "LOCAL_OCCUPATION_CODE": /\\(\\^\\[a-zA-Z\\\\d\\]\\+\\)\\(\\?:_\\\\d\\+\\)\\+\\$/,
+    },
+    "Str": {
+      "BASE64": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|)?$",
+      "ESCO_LOCAL_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)*(?:_\\d+)+$",
+      "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+      "ESCO_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)+$",
+      "ISCO_GROUP_CODE": "^\\d{1,4}$",
+      "LOCAL_GROUP_CODE": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+      "LOCAL_OCCUPATION_CODE": "(^[a-zA-Z\\d]+)(?:_\\d+)+$",
+    },
+  },
   "Schemas": {
     "GET": {
       "Request": {
-        "Detail": {
+        "ById": {
           "Param": {
             "Payload": {
-              "$id": "/components/schemas/OccupationGroupRequestDetailParamSchemaGET",
+              "$id": "/components/schemas/OccupationGroupRequestByIdParamSchemaGET",
               "additionalProperties": false,
               "properties": {
                 "id": {
@@ -98,7 +116,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "cursor": {
                 "description": "A base64 string representing the cursor for pagination.",
                 "maxLength": 1720,
-                "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|)?$",
+                "pattern": "\\S",
                 "type": "string",
               },
               "limit": {
@@ -124,6 +142,24 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
             "data": {
               "items": {
                 "additionalProperties": false,
+                "else": {
+                  "properties": {
+                    "code": {
+                      "maxLength": 256,
+                      "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                      "type": "string",
+                    },
+                  },
+                },
+                "if": {
+                  "properties": {
+                    "groupType": {
+                      "enum": [
+                        "iscogroup",
+                      ],
+                    },
+                  },
+                },
                 "properties": {
                   "UUID": {
                     "description": "The UUID of the occupation group. It can be used to identify the occupation group across systems.",
@@ -131,7 +167,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "type": "string",
                   },
                   "UUIDHistory": {
-                    "description": "The UUiDs history of the occupation group.",
+                    "description": "The UUIDs history of the occupation group.",
                     "items": {
                       "maxLength": 36,
                       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
@@ -140,6 +176,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "maxItems": 10000,
                     "minItems": 0,
                     "type": "array",
+                    "uniqueItems": true,
                   },
                   "altLabels": {
                     "description": "The alternative labels of the occupation group.",
@@ -150,11 +187,86 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "maxItems": 100,
                     "minItems": 0,
                     "type": "array",
+                    "uniqueItems": true,
                   },
                   "children": {
                     "description": "The children of this occupation group, which can be either occupation groups or occupations.",
                     "items": {
                       "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "iscogroup",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{1,4}$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localgroup",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "escooccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localoccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                      ],
                       "properties": {
                         "UUID": {
                           "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
@@ -164,7 +276,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                         "code": {
                           "description": "The code of the parent occupation group.",
                           "maxLength": 256,
-                          "pattern": "\\S",
                           "type": "string",
                         },
                         "id": {
@@ -173,14 +284,12 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                           "type": "string",
                         },
                         "objectType": {
-                          "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+                          "description": "The type of the occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
                           "enum": [
                             "iscogroup",
                             "localgroup",
                             "escooccupation",
                             "localoccupation",
-                            "skill",
-                            "skillgroup",
                           ],
                           "type": "string",
                         },
@@ -199,7 +308,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                   "code": {
                     "description": "The code of the occupation group.",
                     "maxLength": 256,
-                    "pattern": "\\S",
                     "type": "string",
                   },
                   "createdAt": {
@@ -218,8 +326,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                       "localgroup",
                       "escooccupation",
                       "localoccupation",
-                      "skill",
-                      "skillgroup",
                     ],
                     "type": "string",
                   },
@@ -239,22 +345,33 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "type": "string",
                   },
                   "originUri": {
-                    "anyOf": [
-                      {
-                        "format": "uri",
-                        "pattern": "^https://.*",
-                      },
-                      {
-                        "pattern": "^urn:[a-zA-Z0-9][a-zA-Z0-9-]*:.*$",
-                      },
-                    ],
                     "description": "The origin URI of the occupation group.",
+                    "format": "uri",
                     "maxLength": 4096,
+                    "pattern": "\\S",
                     "type": "string",
                   },
                   "parent": {
                     "additionalProperties": false,
                     "description": "The parent occupation group of this occupation group.",
+                    "else": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "enum": [
+                            "iscogroup",
+                          ],
+                        },
+                      },
+                    },
                     "properties": {
                       "UUID": {
                         "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
@@ -264,7 +381,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                       "code": {
                         "description": "The code of the parent occupation group.",
                         "maxLength": 256,
-                        "pattern": "\\S",
                         "type": "string",
                       },
                       "id": {
@@ -279,8 +395,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                           "localgroup",
                           "escooccupation",
                           "localoccupation",
-                          "skill",
-                          "skillgroup",
                         ],
                         "type": "string",
                       },
@@ -289,6 +403,15 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                         "maxLength": 256,
                         "pattern": "\\S",
                         "type": "string",
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^\\d{1,4}$",
+                          "type": "string",
+                        },
                       },
                     },
                     "type": "object",
@@ -337,6 +460,15 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                   "createdAt",
                   "updatedAt",
                 ],
+                "then": {
+                  "properties": {
+                    "code": {
+                      "maxLength": 256,
+                      "pattern": "^\\d{1,4}$",
+                      "type": "string",
+                    },
+                  },
+                },
                 "type": "object",
               },
               "type": "array",
@@ -347,7 +479,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "type": "integer",
             },
             "nextCursor": {
-              "description": "A base64 string representing the cursor for the next page of results.",
+              "description": "A base64 string representing the cursor for the next page of results. Null if there is no next page.",
               "type": [
                 "string",
                 "null",
@@ -367,9 +499,27 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
         "Payload": {
           "$id": "/components/schemas/OccupationGroupRequestSchemaPOST",
           "additionalProperties": false,
+          "else": {
+            "properties": {
+              "code": {
+                "maxLength": 256,
+                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                "type": "string",
+              },
+            },
+          },
+          "if": {
+            "properties": {
+              "groupType": {
+                "enum": [
+                  "iscogroup",
+                ],
+              },
+            },
+          },
           "properties": {
             "UUIDHistory": {
-              "description": "The UUiDs history of the occupation group.",
+              "description": "The UUIDs history of the occupation group.",
               "items": {
                 "maxLength": 36,
                 "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
@@ -378,6 +528,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "maxItems": 10000,
               "minItems": 0,
               "type": "array",
+              "uniqueItems": true,
             },
             "altLabels": {
               "description": "The alternative labels of the occupation group.",
@@ -388,11 +539,11 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "maxItems": 100,
               "minItems": 0,
               "type": "array",
+              "uniqueItems": true,
             },
             "code": {
               "description": "The code of the occupation group.",
               "maxLength": 256,
-              "pattern": "\\S",
               "type": "string",
             },
             "description": {
@@ -407,8 +558,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "localgroup",
                 "escooccupation",
                 "localoccupation",
-                "skill",
-                "skillgroup",
               ],
               "type": "string",
             },
@@ -418,17 +567,10 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "type": "string",
             },
             "originUri": {
-              "anyOf": [
-                {
-                  "format": "uri",
-                  "pattern": "^https://.*",
-                },
-                {
-                  "pattern": "^urn:[a-zA-Z0-9][a-zA-Z0-9-]*:.*$",
-                },
-              ],
               "description": "The origin URI of the occupation group.",
+              "format": "uri",
               "maxLength": 4096,
+              "pattern": "\\S",
               "type": "string",
             },
             "preferredLabel": {
@@ -440,6 +582,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
           },
           "required": [
             "preferredLabel",
+            "groupType",
             "originUri",
             "UUIDHistory",
             "code",
@@ -447,6 +590,15 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
             "altLabels",
             "modelId",
           ],
+          "then": {
+            "properties": {
+              "code": {
+                "maxLength": 256,
+                "pattern": "^\\d{1,4}$",
+                "type": "string",
+              },
+            },
+          },
           "type": "object",
         },
       },
@@ -454,6 +606,24 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
         "Payload": {
           "$id": "/components/schemas/OccupationGroupResponseSchemaPOST",
           "additionalProperties": false,
+          "else": {
+            "properties": {
+              "code": {
+                "maxLength": 256,
+                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                "type": "string",
+              },
+            },
+          },
+          "if": {
+            "properties": {
+              "groupType": {
+                "enum": [
+                  "iscogroup",
+                ],
+              },
+            },
+          },
           "properties": {
             "UUID": {
               "description": "The UUID of the occupation group. It can be used to identify the occupation group across systems.",
@@ -461,7 +631,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "type": "string",
             },
             "UUIDHistory": {
-              "description": "The UUiDs history of the occupation group.",
+              "description": "The UUIDs history of the occupation group.",
               "items": {
                 "maxLength": 36,
                 "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
@@ -470,6 +640,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "maxItems": 10000,
               "minItems": 0,
               "type": "array",
+              "uniqueItems": true,
             },
             "altLabels": {
               "description": "The alternative labels of the occupation group.",
@@ -480,11 +651,86 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "maxItems": 100,
               "minItems": 0,
               "type": "array",
+              "uniqueItems": true,
             },
             "children": {
               "description": "The children of this occupation group, which can be either occupation groups or occupations.",
               "items": {
                 "additionalProperties": false,
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "const": "iscogroup",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^\\d{1,4}$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "const": "localgroup",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "const": "escooccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "const": "localoccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                ],
                 "properties": {
                   "UUID": {
                     "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
@@ -494,7 +740,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                   "code": {
                     "description": "The code of the parent occupation group.",
                     "maxLength": 256,
-                    "pattern": "\\S",
                     "type": "string",
                   },
                   "id": {
@@ -503,14 +748,12 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "type": "string",
                   },
                   "objectType": {
-                    "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+                    "description": "The type of the occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
                     "enum": [
                       "iscogroup",
                       "localgroup",
                       "escooccupation",
                       "localoccupation",
-                      "skill",
-                      "skillgroup",
                     ],
                     "type": "string",
                   },
@@ -529,7 +772,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
             "code": {
               "description": "The code of the occupation group.",
               "maxLength": 256,
-              "pattern": "\\S",
               "type": "string",
             },
             "createdAt": {
@@ -548,8 +790,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "localgroup",
                 "escooccupation",
                 "localoccupation",
-                "skill",
-                "skillgroup",
               ],
               "type": "string",
             },
@@ -569,22 +809,33 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "type": "string",
             },
             "originUri": {
-              "anyOf": [
-                {
-                  "format": "uri",
-                  "pattern": "^https://.*",
-                },
-                {
-                  "pattern": "^urn:[a-zA-Z0-9][a-zA-Z0-9-]*:.*$",
-                },
-              ],
               "description": "The origin URI of the occupation group.",
+              "format": "uri",
               "maxLength": 4096,
+              "pattern": "\\S",
               "type": "string",
             },
             "parent": {
               "additionalProperties": false,
               "description": "The parent occupation group of this occupation group.",
+              "else": {
+                "properties": {
+                  "code": {
+                    "maxLength": 256,
+                    "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                    "type": "string",
+                  },
+                },
+              },
+              "if": {
+                "properties": {
+                  "objectType": {
+                    "enum": [
+                      "iscogroup",
+                    ],
+                  },
+                },
+              },
               "properties": {
                 "UUID": {
                   "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
@@ -594,7 +845,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "code": {
                   "description": "The code of the parent occupation group.",
                   "maxLength": 256,
-                  "pattern": "\\S",
                   "type": "string",
                 },
                 "id": {
@@ -609,8 +859,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "localgroup",
                     "escooccupation",
                     "localoccupation",
-                    "skill",
-                    "skillgroup",
                   ],
                   "type": "string",
                 },
@@ -619,6 +867,15 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                   "maxLength": 256,
                   "pattern": "\\S",
                   "type": "string",
+                },
+              },
+              "then": {
+                "properties": {
+                  "code": {
+                    "maxLength": 256,
+                    "pattern": "^\\d{1,4}$",
+                    "type": "string",
+                  },
                 },
               },
               "type": "object",
@@ -667,6 +924,15 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
             "createdAt",
             "updatedAt",
           ],
+          "then": {
+            "properties": {
+              "code": {
+                "maxLength": 256,
+                "pattern": "^\\d{1,4}$",
+                "type": "string",
+              },
+            },
+          },
           "type": "object",
         },
       },

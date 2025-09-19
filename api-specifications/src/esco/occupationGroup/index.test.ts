@@ -36,5 +36,3 @@ describe("Test the occupationGroup module", () => {
     }).not.toThrowError();
   });
 });
-
-export {};
