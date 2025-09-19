@@ -316,6 +316,37 @@ export function getStdUUIDTestCases(
   ];
 }
 
+export function getStdNonEmptyURIStringTestCases(
+  instancePath: string,
+  maxLength: number
+): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
+  const { propertyName, canonicalParentPath, canonicalChildPath } = getCanonicalPath(instancePath);
+  return [
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
+    [CaseType.Failure, "empty", "", constructSchemaError(canonicalChildPath, "pattern", 'must match pattern "\\S"')],
+    [
+      CaseType.Failure,
+      `Too long ${propertyName}`,
+      getTestString(maxLength + 1),
+      constructSchemaError(canonicalChildPath, "maxLength", `must NOT have more than ${maxLength} characters`),
+    ],
+    [
+      CaseType.Failure,
+      "only whitespace characters",
+      WHITESPACE,
+      constructSchemaError(canonicalChildPath, "pattern", 'must match pattern "\\S"'),
+    ],
+    [CaseType.Success, "a valid URI", "http://foo.com", undefined],
+    [CaseType.Success, "a valid URN", "urn:isbn:0451450523", undefined],
+  ];
+}
+
 export function getStdNonEmptyStringTestCases(
   instancePath: string,
   maxLength: number

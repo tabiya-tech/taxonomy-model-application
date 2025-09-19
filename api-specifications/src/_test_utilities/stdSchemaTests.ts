@@ -12,6 +12,7 @@ import { randomUUID } from "crypto";
 import {
   getStdEnumTestCases,
   getStdNonEmptyStringTestCases,
+  getStdNonEmptyURIStringTestCases,
   getStdObjectIdTestCases,
   getStdStringTestCases,
   getStdTimestampFieldTestCases,
@@ -160,6 +161,26 @@ export function testObjectIdField(fieldName: string, givenSchema: SchemaObject, 
 export function testTimestampField<T>(fieldName: string, givenSchema: SchemaObject, dependencies: SchemaObject[] = []) {
   test.each(getStdTimestampFieldTestCases(fieldName))(
     "(%s) Validate 'timestamp' when it is %s",
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
+}
+
+export function testNonEmptyURIStringField<T>(
+  fieldName: string,
+  maxLength: number,
+  givenSchema: SchemaObject,
+  dependencies: SchemaObject[] = []
+) {
+  test.each(getStdNonEmptyURIStringTestCases(fieldName, maxLength))(
+    `(%s) Validate ${fieldName} when it is %s`,
     (caseType, _description, givenValue, failureMessages) => {
       // GIVEN an object with the given value
       //@ts-ignore
