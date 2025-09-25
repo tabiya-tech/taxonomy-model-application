@@ -361,13 +361,14 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Response.
           undefined,
           constructSchemaError("", "required", "must have required property 'parent'"),
         ],
-        [CaseType.Failure, "null", null, constructSchemaError("/parent", "type", "must be object")],
-        [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object")],
-        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object")],
+        [CaseType.Success, "null", null, undefined],
+        [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object,null")],
+        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object,null")],
         [CaseType.Success, "a valid parent object", ValidOccupationGroupData.parent, undefined],
       ])("(%s) Validate 'parent' when it is %s", (caseType, _description, givenValue, failureMessages) => {
         // GIVEN an object with the given value
         const givenObject = {
+          ...ValidOccupationGroupData,
           parent: givenValue,
         };
         // THEN expect the object to validate accordingly
