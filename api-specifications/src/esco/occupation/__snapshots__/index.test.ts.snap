@@ -576,7 +576,10 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                         "type": "string",
                       },
                     },
-                    "type": "object",
+                    "type": [
+                      "object",
+                      "null",
+                    ],
                   },
                   "path": {
                     "description": "Resource path using the occupation's ID.",
@@ -1287,7 +1290,10 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   "type": "string",
                 },
               },
-              "type": "object",
+              "type": [
+                "object",
+                "null",
+              ],
             },
             "path": {
               "description": "Resource path using the occupation's ID.",

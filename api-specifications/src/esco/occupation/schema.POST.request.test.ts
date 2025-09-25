@@ -11,7 +11,13 @@ import {
 
 import { randomUUID } from "crypto";
 import { getTestString } from "_test_utilities/specialCharacters";
-import { getTestLocalGroupCode, getTestESCOOccupationCode, getTestISCOGroupCode, getTestLocalOccupationCode, getTestESCOLocalOccupationCode } from "../_test_utilities/testUtils";
+import {
+  getTestLocalGroupCode,
+  getTestESCOOccupationCode,
+  getTestISCOGroupCode,
+  getTestLocalOccupationCode,
+  getTestESCOLocalOccupationCode,
+} from "../_test_utilities/testUtils";
 import { CaseType, assertCaseForProperty, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import OccupationAPISpecs from "./index";
 import OccupationConstants from "./constants";
@@ -29,9 +35,15 @@ describe("OccupationAPISpecs.Schemas.POST.Request.Payload schema", () => {
 describe("Test objects against the OccupationAPISpecs.Schemas.POST.Request.Payload schema", () => {
   // GIVEN a function to create valid request payload objects
   const createValidRequestPayload = (occupationType: OccupationEnums.OccupationType) => ({
-    code: occupationType === OccupationEnums.OccupationType.ESCOOccupation ? getTestESCOOccupationCode() : getTestLocalOccupationCode(),
+    code:
+      occupationType === OccupationEnums.OccupationType.ESCOOccupation
+        ? getTestESCOOccupationCode()
+        : getTestLocalOccupationCode(),
     originUri: "https://example.com",
-    occupationGroupCode: occupationType === OccupationEnums.OccupationType.ESCOOccupation ? getTestISCOGroupCode() : getTestLocalGroupCode(),
+    occupationGroupCode:
+      occupationType === OccupationEnums.OccupationType.ESCOOccupation
+        ? getTestISCOGroupCode()
+        : getTestLocalGroupCode(),
     description: getTestString(OccupationConstants.DESCRIPTION_MAX_LENGTH),
     preferredLabel: getTestString(OccupationConstants.PREFERRED_LABEL_MAX_LENGTH),
     altLabels: [getTestString(OccupationConstants.ALT_LABEL_MAX_LENGTH)],
@@ -180,20 +192,23 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Request.Paylo
           OccupationEnums.OccupationType.LocalOccupation,
           undefined,
         ],
-      ] as const)("%s Validate 'code' when it is %s with %s occupationType", (caseType, _description, givenValue, occupationType, failureMessage) => {
-        const givenObject = {
-          ...createValidRequestPayload(occupationType),
-          code: givenValue,
-        };
+      ] as const)(
+        "%s Validate 'code' when it is %s with %s occupationType",
+        (caseType, _description, givenValue, occupationType, failureMessage) => {
+          const givenObject = {
+            ...createValidRequestPayload(occupationType),
+            code: givenValue,
+          };
 
-        assertCaseForProperty(
-          "code",
-          givenObject,
-          OccupationAPISpecs.Schemas.POST.Request.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+          assertCaseForProperty(
+            "code",
+            givenObject,
+            OccupationAPISpecs.Schemas.POST.Request.Payload,
+            caseType,
+            failureMessage
+          );
+        }
+      );
     });
 
     describe("Test validation of 'occupationGroupCode'", () => {
@@ -292,20 +307,23 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Request.Paylo
           OccupationEnums.OccupationType.LocalOccupation,
           undefined,
         ],
-      ] as const)("%s Validate 'occupationGroupCode' when it is %s with %s occupationType", (caseType, _description, givenValue, occupationType, failureMessage) => {
-        const givenObject = {
-          ...createValidRequestPayload(occupationType),
-          occupationGroupCode: givenValue,
-        };
+      ] as const)(
+        "%s Validate 'occupationGroupCode' when it is %s with %s occupationType",
+        (caseType, _description, givenValue, occupationType, failureMessage) => {
+          const givenObject = {
+            ...createValidRequestPayload(occupationType),
+            occupationGroupCode: givenValue,
+          };
 
-        assertCaseForProperty(
-          "occupationGroupCode",
-          givenObject,
-          OccupationAPISpecs.Schemas.POST.Request.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+          assertCaseForProperty(
+            "occupationGroupCode",
+            givenObject,
+            OccupationAPISpecs.Schemas.POST.Request.Payload,
+            caseType,
+            failureMessage
+          );
+        }
+      );
     });
 
     describe("Test validation of description", () => {

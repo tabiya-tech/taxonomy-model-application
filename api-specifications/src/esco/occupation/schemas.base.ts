@@ -265,7 +265,7 @@ export const _baseResponseSchema = {
     },
     parent: {
       description: "The parent occupation of this occupation.",
-      type: "object",
+      type: ["object", "null"],
       additionalProperties: false,
       properties: {
         id: {

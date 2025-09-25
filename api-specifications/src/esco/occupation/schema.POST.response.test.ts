@@ -298,21 +298,24 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           OccupationEnums.OccupationType.LocalOccupation,
           undefined,
         ],
-      ] as const)("%s Validate 'code' when it is %s with %s occupationType", (caseType, _description, givenValue, occupationType, failureMessage) => {
-        const givenObject = {
-          ...givenValidOccupationPOSTResponse,
-          code: givenValue,
-          occupationType,
-        };
+      ] as const)(
+        "%s Validate 'code' when it is %s with %s occupationType",
+        (caseType, _description, givenValue, occupationType, failureMessage) => {
+          const givenObject = {
+            ...givenValidOccupationPOSTResponse,
+            code: givenValue,
+            occupationType,
+          };
 
-        assertCaseForProperty(
-          "code",
-          givenObject,
-          OccupationAPISpecs.Schemas.POST.Response.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+          assertCaseForProperty(
+            "code",
+            givenObject,
+            OccupationAPISpecs.Schemas.POST.Response.Payload,
+            caseType,
+            failureMessage
+          );
+        }
+      );
     });
 
     describe("Test validation of 'occupationGroupCode'", () => {
@@ -415,21 +418,24 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           OccupationEnums.OccupationType.LocalOccupation,
           undefined,
         ],
-      ] as const)("%s Validate 'occupationGroupCode' when it is %s with %s occupationType", (caseType, _description, givenValue, occupationType, failureMessage) => {
-        const givenObject = {
-          ...givenValidOccupationPOSTResponse,
-          occupationGroupCode: givenValue,
-          occupationType,
-        };
+      ] as const)(
+        "%s Validate 'occupationGroupCode' when it is %s with %s occupationType",
+        (caseType, _description, givenValue, occupationType, failureMessage) => {
+          const givenObject = {
+            ...givenValidOccupationPOSTResponse,
+            occupationGroupCode: givenValue,
+            occupationType,
+          };
 
-        assertCaseForProperty(
-          "occupationGroupCode",
-          givenObject,
-          OccupationAPISpecs.Schemas.POST.Response.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+          assertCaseForProperty(
+            "occupationGroupCode",
+            givenObject,
+            OccupationAPISpecs.Schemas.POST.Response.Payload,
+            caseType,
+            failureMessage
+          );
+        }
+      );
     });
 
     describe("Test validation of 'description'", () => {
@@ -545,12 +551,12 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           undefined,
           constructSchemaError("", "required", "must have required property 'parent'"),
         ],
-        [CaseType.Failure, "null", null, constructSchemaError("/parent", "type", "must be object")],
-        [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object")],
-        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object")],
+        [CaseType.Success, "null", null, undefined],
+        [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object,null")],
+        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object,null")],
         [CaseType.Success, "a valid parent object", givenParent, undefined],
       ])("(%s) Validate 'parent' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        const givenObject = { parent: givenValue };
+        const givenObject = { ...givenValidOccupationPOSTResponse, parent: givenValue };
         assertCaseForProperty(
           "parent",
           givenObject,
@@ -599,7 +605,13 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
       describe("Test validation of '/parent/code'", () => {
         test.each([
           [CaseType.Success, "undefined", undefined, ObjectTypes.ISCOGroup, undefined],
-          [CaseType.Failure, "null", null, ObjectTypes.ISCOGroup, constructSchemaError("/parent/code", "type", "must be string")],
+          [
+            CaseType.Failure,
+            "null",
+            null,
+            ObjectTypes.ISCOGroup,
+            constructSchemaError("/parent/code", "type", "must be string"),
+          ],
           [
             CaseType.Failure,
             "empty string",
@@ -635,13 +647,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           //     `must match pattern "${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
           //   ),
           // ],
-          [
-            CaseType.Success,
-            "a valid code",
-            getTestISCOGroupCode(),
-            ObjectTypes.ISCOGroup,
-            undefined,
-          ],
+          [CaseType.Success, "a valid code", getTestISCOGroupCode(), ObjectTypes.ISCOGroup, undefined],
           [
             CaseType.Failure,
             "empty string",
@@ -677,13 +683,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
               `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
             ),
           ],
-          [
-            CaseType.Success,
-            "a valid code",
-            getTestLocalGroupCode(),
-            ObjectTypes.LocalGroup,
-            undefined,
-          ],
+          [CaseType.Success, "a valid code", getTestLocalGroupCode(), ObjectTypes.LocalGroup, undefined],
           [
             CaseType.Failure,
             "empty string",
@@ -717,13 +717,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
               `must match pattern "${OccupationAPISpecs.Patterns.Str.ESCO_OCCUPATION_CODE}"`
             ),
           ],
-          [
-            CaseType.Success,
-            "a valid code",
-            getTestESCOOccupationCode(),
-            ObjectTypes.ESCOOccupation,
-            undefined,
-          ],
+          [CaseType.Success, "a valid code", getTestESCOOccupationCode(), ObjectTypes.ESCOOccupation, undefined],
           [
             CaseType.Failure,
             "empty string",
@@ -771,26 +765,29 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             ObjectTypes.LocalOccupation,
             undefined,
           ],
-        ] as const)("%s Validate '/parent/code' when it is %s with %s(%s) objectType", (caseType, __description, givenValue, objectType, failureMessage) => {
-          // GIVEN an object with given value
-          const givenObject = {
-            ...givenValidOccupationPOSTResponse,
-            parent: {
-              ...givenValidOccupationPOSTResponse.parent,
-              code: givenValue,
-              objectType,
-            },
-          };
+        ] as const)(
+          "%s Validate '/parent/code' when it is %s with %s(%s) objectType",
+          (caseType, __description, givenValue, objectType, failureMessage) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              ...givenValidOccupationPOSTResponse,
+              parent: {
+                ...givenValidOccupationPOSTResponse.parent,
+                code: givenValue,
+                objectType,
+              },
+            };
 
-          // THEN export the object to validation accordingly
-          assertCaseForProperty(
-            "/parent/code",
-            givenObject,
-            OccupationAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessage
-          );
-        });
+            // THEN export the object to validation accordingly
+            assertCaseForProperty(
+              "/parent/code",
+              givenObject,
+              OccupationAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessage
+            );
+          }
+        );
       });
 
       describe("Test validation of 'parent/preferredLabel'", () => {
@@ -913,7 +910,13 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
       describe("Test validation of 'children/code'", () => {
         test.each([
           [CaseType.Success, "undefined", undefined, ObjectTypes.ISCOGroup, undefined],
-          [CaseType.Failure, "null", null, ObjectTypes.ISCOGroup, constructSchemaError("/children/0/code", "type", "must be string")],
+          [
+            CaseType.Failure,
+            "null",
+            null,
+            ObjectTypes.ISCOGroup,
+            constructSchemaError("/children/0/code", "type", "must be string"),
+          ],
           [
             CaseType.Failure,
             "empty string",
@@ -949,13 +952,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           //     `must match pattern "${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
           //   ),
           // ],
-          [
-            CaseType.Success,
-            "a valid code",
-            getTestISCOGroupCode(),
-            ObjectTypes.ISCOGroup,
-            undefined,
-          ],
+          [CaseType.Success, "a valid code", getTestISCOGroupCode(), ObjectTypes.ISCOGroup, undefined],
           [
             CaseType.Failure,
             "empty string",
@@ -993,13 +990,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           //     `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
           //   ),
           // ],
-          [
-            CaseType.Success,
-            "a valid code",
-            getTestLocalGroupCode(),
-            ObjectTypes.LocalGroup,
-            undefined,
-          ],
+          [CaseType.Success, "a valid code", getTestLocalGroupCode(), ObjectTypes.LocalGroup, undefined],
           [
             CaseType.Failure,
             "empty string",
@@ -1033,13 +1024,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
               `must match pattern "${OccupationAPISpecs.Patterns.Str.ESCO_OCCUPATION_CODE}"`
             ),
           ],
-          [
-            CaseType.Success,
-            "a valid code",
-            getTestESCOOccupationCode(),
-            ObjectTypes.ESCOOccupation,
-            undefined,
-          ],
+          [CaseType.Success, "a valid code", getTestESCOOccupationCode(), ObjectTypes.ESCOOccupation, undefined],
           [
             CaseType.Failure,
             "empty string",
@@ -1087,27 +1072,30 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             ObjectTypes.LocalOccupation,
             undefined,
           ],
-        ] as const)("%s Validate '/children/0/code' when it is %s with %s(%s) objectType", (caseType, __description, givenValue, objectType, failureMessage) => {
-          // GIVEN an object with given value
-          const givenObject = {
-            ...givenValidOccupationPOSTResponse,
-            children: [
-              {
-                code: givenValue,
-                objectType,
-              },
-            ],
-          };
+        ] as const)(
+          "%s Validate '/children/0/code' when it is %s with %s(%s) objectType",
+          (caseType, __description, givenValue, objectType, failureMessage) => {
+            // GIVEN an object with given value
+            const givenObject = {
+              ...givenValidOccupationPOSTResponse,
+              children: [
+                {
+                  code: givenValue,
+                  objectType,
+                },
+              ],
+            };
 
-          // THEN export the object to validation accordingly
-          assertCaseForProperty(
-            "/children/0/code",
-            givenObject,
-            OccupationAPISpecs.Schemas.POST.Response.Payload,
-            caseType,
-            failureMessage
-          );
-        });
+            // THEN export the object to validation accordingly
+            assertCaseForProperty(
+              "/children/0/code",
+              givenObject,
+              OccupationAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessage
+            );
+          }
+        );
       });
       describe("Test validation of 'children/preferredLabel'", () => {
         const testCases = getStdNonEmptyStringTestCases(
@@ -1193,36 +1181,46 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
       describe("Test validation of requiresSkills fields", () => {
         describe("Test validation of 'requiresSkills/id'", () => {
           const testCases = getStdObjectIdTestCases("/requiresSkills/0/id").filter((tc) => tc[1] !== "undefined");
-          test.each([...testCases, [CaseType.Failure, "undefined", undefined, constructSchemaError("/requiresSkills/0", "required", "must have required property 'id'")]])(
-            `(%s) Validate 'id' when it is %s`,
-            (caseType, _description, givenValue, failureMessages) => {
-              const givenObject = { requiresSkills: [{ id: givenValue }] };
-              assertCaseForProperty(
-                "/requiresSkills/0/id",
-                givenObject,
-                OccupationAPISpecs.Schemas.POST.Response.Payload,
-                caseType,
-                failureMessages
-              );
-            }
-          );
+          test.each([
+            ...testCases,
+            [
+              CaseType.Failure,
+              "undefined",
+              undefined,
+              constructSchemaError("/requiresSkills/0", "required", "must have required property 'id'"),
+            ],
+          ])(`(%s) Validate 'id' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = { requiresSkills: [{ id: givenValue }] };
+            assertCaseForProperty(
+              "/requiresSkills/0/id",
+              givenObject,
+              OccupationAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages
+            );
+          });
         });
 
         describe("Test validation of 'requiresSkills/UUID'", () => {
           const testCases = getStdUUIDTestCases("/requiresSkills/0/UUID").filter((tc) => tc[1] !== "undefined");
-          test.each([...testCases, [CaseType.Failure, "undefined", undefined, constructSchemaError("/requiresSkills/0", "required", "must have required property 'UUID'")]])(
-            `(%s) Validate 'UUID' when it is %s`,
-            (caseType, _description, givenValue, failureMessages) => {
-              const givenObject = { requiresSkills: [{ UUID: givenValue }] };
-              assertCaseForProperty(
-                "/requiresSkills/0/UUID",
-                givenObject,
-                OccupationAPISpecs.Schemas.POST.Response.Payload,
-                caseType,
-                failureMessages
-              );
-            }
-          );
+          test.each([
+            ...testCases,
+            [
+              CaseType.Failure,
+              "undefined",
+              undefined,
+              constructSchemaError("/requiresSkills/0", "required", "must have required property 'UUID'"),
+            ],
+          ])(`(%s) Validate 'UUID' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = { requiresSkills: [{ UUID: givenValue }] };
+            assertCaseForProperty(
+              "/requiresSkills/0/UUID",
+              givenObject,
+              OccupationAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages
+            );
+          });
         });
 
         describe("Test validation of 'requiresSkills/preferredLabel'", () => {
@@ -1230,19 +1228,24 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             "/requiresSkills/0/preferredLabel",
             OccupationConstants.PREFERRED_LABEL_MAX_LENGTH
           ).filter((tc) => tc[1] !== "undefined");
-          test.each([...testCases, [CaseType.Failure, "undefined", undefined, constructSchemaError("/requiresSkills/0", "required", "must have required property 'preferredLabel'")]])(
-            `(%s) Validate 'preferredLabel' when it is %s`,
-            (caseType, _description, givenValue, failureMessages) => {
-              const givenObject = { requiresSkills: [{ preferredLabel: givenValue }] };
-              assertCaseForProperty(
-                "/requiresSkills/0/preferredLabel",
-                givenObject,
-                OccupationAPISpecs.Schemas.POST.Response.Payload,
-                caseType,
-                failureMessages
-              );
-            }
-          );
+          test.each([
+            ...testCases,
+            [
+              CaseType.Failure,
+              "undefined",
+              undefined,
+              constructSchemaError("/requiresSkills/0", "required", "must have required property 'preferredLabel'"),
+            ],
+          ])(`(%s) Validate 'preferredLabel' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = { requiresSkills: [{ preferredLabel: givenValue }] };
+            assertCaseForProperty(
+              "/requiresSkills/0/preferredLabel",
+              givenObject,
+              OccupationAPISpecs.Schemas.POST.Response.Payload,
+              caseType,
+              failureMessages
+            );
+          });
         });
 
         describe("Test validation of 'requiresSkills/isLocalized'", () => {
@@ -1278,12 +1281,21 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
 
         describe("Test validation of 'requiresSkills/objectType'", () => {
           test.each([
-            [CaseType.Success, "valid Skill objectType", { ...givenSkill, objectType: OccupationEnums.ObjectTypes.Skill }, undefined],
+            [
+              CaseType.Success,
+              "valid Skill objectType",
+              { ...givenSkill, objectType: OccupationEnums.ObjectTypes.Skill },
+              undefined,
+            ],
             [
               CaseType.Failure,
               "invalid objectType",
               { ...givenSkill, objectType: "InvalidType" },
-              constructSchemaError("/requiresSkills/0/objectType", "enum", "must be equal to one of the allowed values"),
+              constructSchemaError(
+                "/requiresSkills/0/objectType",
+                "enum",
+                "must be equal to one of the allowed values"
+              ),
             ],
             [
               CaseType.Failure,
@@ -1308,14 +1320,33 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
 
         describe("Test validation of 'requiresSkills/relationType'", () => {
           test.each([
-            [CaseType.Success, "ESSENTIAL relationType", { ...givenSkill, relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL }, undefined],
-            [CaseType.Success, "OPTIONAL relationType", { ...givenSkill, relationType: OccupationEnums.OccupationToSkillRelationType.OPTIONAL }, undefined],
-            [CaseType.Success, "NONE relationType", { ...givenSkill, relationType: OccupationEnums.OccupationToSkillRelationType.NONE }, undefined],
+            [
+              CaseType.Success,
+              "ESSENTIAL relationType",
+              { ...givenSkill, relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL },
+              undefined,
+            ],
+            [
+              CaseType.Success,
+              "OPTIONAL relationType",
+              { ...givenSkill, relationType: OccupationEnums.OccupationToSkillRelationType.OPTIONAL },
+              undefined,
+            ],
+            [
+              CaseType.Success,
+              "NONE relationType",
+              { ...givenSkill, relationType: OccupationEnums.OccupationToSkillRelationType.NONE },
+              undefined,
+            ],
             [
               CaseType.Failure,
               "invalid relationType",
               { ...givenSkill, relationType: "InvalidRelation" },
-              constructSchemaError("/requiresSkills/0/relationType", "enum", "must be equal to one of the allowed values"),
+              constructSchemaError(
+                "/requiresSkills/0/relationType",
+                "enum",
+                "must be equal to one of the allowed values"
+              ),
             ],
             [
               CaseType.Failure,
