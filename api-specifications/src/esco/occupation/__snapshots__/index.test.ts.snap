@@ -41,6 +41,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "Skill": "skill",
       "SkillGroup": "skillgroup",
     },
+    "OccupationToSkillRelationType": {
+      "ESSENTIAL": "essential",
+      "NONE": "",
+      "OPTIONAL": "optional",
+    },
     "OccupationType": {
       "ESCOOccupation": "escooccupation",
       "LocalOccupation": "localoccupation",
@@ -607,8 +612,15 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "type": "string",
                         },
                         "isLocalized": {
-                          "description": "Indicates if the child occupation is localized.",
+                          "description": "Indicates if the required skill is localized.",
                           "type": "boolean",
+                        },
+                        "objectType": {
+                          "description": "The object type of the required skill.",
+                          "enum": [
+                            "skill",
+                          ],
+                          "type": "string",
                         },
                         "preferredLabel": {
                           "description": "The preferred label of the required skill.",
@@ -616,7 +628,24 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "pattern": "\\S",
                           "type": "string",
                         },
+                        "relationType": {
+                          "description": "The type of relationship between the occupation and the required skill.",
+                          "enum": [
+                            "",
+                            "essential",
+                            "optional",
+                          ],
+                          "type": "string",
+                        },
                       },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "isLocalized",
+                        "objectType",
+                        "relationType",
+                      ],
                       "type": "object",
                     },
                     "minItems": 0,
@@ -1294,8 +1323,15 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "type": "string",
                   },
                   "isLocalized": {
-                    "description": "Indicates if the child occupation is localized.",
+                    "description": "Indicates if the required skill is localized.",
                     "type": "boolean",
+                  },
+                  "objectType": {
+                    "description": "The object type of the required skill.",
+                    "enum": [
+                      "skill",
+                    ],
+                    "type": "string",
                   },
                   "preferredLabel": {
                     "description": "The preferred label of the required skill.",
@@ -1303,7 +1339,24 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "pattern": "\\S",
                     "type": "string",
                   },
+                  "relationType": {
+                    "description": "The type of relationship between the occupation and the required skill.",
+                    "enum": [
+                      "",
+                      "essential",
+                      "optional",
+                    ],
+                    "type": "string",
+                  },
                 },
+                "required": [
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "isLocalized",
+                  "objectType",
+                  "relationType",
+                ],
                 "type": "object",
               },
               "minItems": 0,
