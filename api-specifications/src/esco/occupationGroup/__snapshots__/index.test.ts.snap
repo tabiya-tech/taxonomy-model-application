@@ -414,7 +414,10 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                         },
                       },
                     },
-                    "type": "object",
+                    "type": [
+                      "object",
+                      "null",
+                    ],
                   },
                   "path": {
                     "description": "The path to the occupation group resource using the resource id",
@@ -878,7 +881,10 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                   },
                 },
               },
-              "type": "object",
+              "type": [
+                "object",
+                "null",
+              ],
             },
             "path": {
               "description": "The path to the occupation group resource using the resource id",

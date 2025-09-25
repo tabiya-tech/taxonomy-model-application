@@ -132,7 +132,7 @@ export const _baseResponseSchema = {
     },
     parent: {
       description: "The parent occupation group of this occupation group.",
-      type: "object",
+      type: ["object", "null"],
       additionalProperties: false,
       properties: {
         id: {
