@@ -38,8 +38,18 @@ describe("Test the Occupation module", () => {
     expect(Enums.OccupationType.ESCOOccupation).toBeDefined();
     expect(Enums.OccupationType.LocalOccupation).toBeDefined();
 
-    // You can also check GET response error codes if needed
+    // AND check if GET Response Error Codes are defined
     expect(Enums.GET.Response.ErrorCodes).toBeDefined();
+    expect(Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS).toBeDefined();
+    expect(Enums.GET.Response.ErrorCodes.INVALID_OCCUPATION_ID).toBeDefined();
+    expect(Enums.GET.Response.ErrorCodes.INVALID_LIMIT).toBeDefined();
+    expect(Enums.GET.Response.ErrorCodes.INVALID_NEXT_CURSOR).toBeDefined();
+
+    // AND check if POST Response Error Codes are defined
+    expect(Enums.POST.Response.ErrorCodes).toBeDefined();
+    expect(Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION).toBeDefined();
+    expect(Enums.POST.Response.ErrorCodes.OCCUPATION_COULD_NOT_VALIDATE).toBeDefined();
+    expect(Enums.POST.Response.ErrorCodes.INVALID_MODEL_ID).toBeDefined();
   });
 
   test("The export module matches the snapshot", async () => {
