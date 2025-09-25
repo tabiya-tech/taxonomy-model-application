@@ -8,7 +8,7 @@ interface IOccupationResponse {
   path: string;
   tabiyaPath: string;
   code: string;
-  occupationCode: string;
+  occupationGroupCode: string;
   preferredLabel: string;
   originUri: string;
   altLabels: string[];
@@ -25,7 +25,7 @@ interface IOccupationResponse {
     code: string;
     preferredLabel: string;
     objectType: OccupationEnums.ObjectTypes;
-  };
+  } | null;
   children: {
     id: string;
     UUID: string;
@@ -47,7 +47,7 @@ interface IOccupationResponse {
 
 interface IOccupationRequest {
   code: string;
-  occupationCode: string;
+  occupationGroupCode: string;
   preferredLabel: string;
   originUri: string;
   altLabels: string[];
@@ -62,9 +62,9 @@ interface IOccupationRequest {
 }
 
 interface PaginatedOccupationResponse {
-  data: IOccupationResponse[];
+  items: IOccupationResponse[];
   limit: number;
-  nextCursor: string;
+  next_cursor: string | null;
 }
 
 interface IOccupationParam {
