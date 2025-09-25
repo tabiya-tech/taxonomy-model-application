@@ -38,6 +38,8 @@ interface IOccupationResponse {
     UUID: string;
     preferredLabel: string;
     isLocalized: boolean;
+    objectType: OccupationEnums.ObjectTypes.Skill;
+    relationType: OccupationEnums.OccupationToSkillRelationType;
   }[];
   createdAt: string;
   updatedAt: string;

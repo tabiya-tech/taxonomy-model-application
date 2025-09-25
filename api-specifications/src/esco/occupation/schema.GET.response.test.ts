@@ -64,6 +64,8 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
     UUID: randomUUID(),
     preferredLabel: "Skill Label",
     isLocalized: false,
+    objectType: OccupationEnums.ObjectTypes.Skill,
+    relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL,
   };
 
   const givenValidOccupationGETResponse = {
@@ -1230,7 +1232,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
         describe("Test validation of 'requiresSkills/id'", () => {
           const testCases = getStdObjectIdTestCases("/requiresSkills/0/id").filter((t) => t[1] !== "undefined");
 
-          test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          test.each([...testCases, [CaseType.Failure, "undefined", undefined, constructSchemaError("/requiresSkills/0", "required", "must have required property 'id'")]])(
             `(%s) Validate 'id' when it is %s`,
             (caseType, _description, givenValue, failureMessages) => {
               const givenObject = { requiresSkills: [{ id: givenValue }] };
@@ -1242,7 +1244,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
         describe("Test validation of 'requiresSkills/UUID'", () => {
           const testCases = getStdUUIDTestCases("/requiresSkills/0/UUID").filter((t) => t[1] !== "undefined");
 
-          test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          test.each([...testCases, [CaseType.Failure, "undefined", undefined, constructSchemaError("/requiresSkills/0", "required", "must have required property 'UUID'")]])(
             `(%s) Validate 'UUID' when it is %s`,
             (caseType, _description, givenValue, failureMessages) => {
               const givenObject = { requiresSkills: [{ UUID: givenValue }] };
@@ -1257,7 +1259,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
             OccupationConstants.PREFERRED_LABEL_MAX_LENGTH
           ).filter((t) => t[1] !== "undefined");
 
-          test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+          test.each([...testCases, [CaseType.Failure, "undefined", undefined, constructSchemaError("/requiresSkills/0", "required", "must have required property 'preferredLabel'")]])(
             `(%s) Validate 'preferredLabel' when it is %s`,
             (caseType, _description, givenValue, failureMessage) => {
               const givenObject = { requiresSkills: [{ preferredLabel: givenValue }] };
@@ -1285,6 +1287,50 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
           ])(`(%s) Validate 'isLocalized' when it is %s`, (caseType, _desc, givenValue, failureMessage) => {
             const givenObject = { requiresSkills: [{ isLocalized: givenValue }] };
             assertCaseForProperty("/requiresSkills/0/isLocalized", givenObject, itemSchema, caseType, failureMessage);
+          });
+        });
+
+        describe("Test validation of 'requiresSkills/objectType'", () => {
+          test.each([
+            [CaseType.Success, "valid Skill objectType", OccupationEnums.ObjectTypes.Skill, undefined],
+            [
+              CaseType.Failure,
+              "invalid objectType",
+              "InvalidType",
+              constructSchemaError("/requiresSkills/0/objectType", "enum", "must be equal to one of the allowed values"),
+            ],
+            [
+              CaseType.Failure,
+              "undefined objectType",
+              undefined,
+              constructSchemaError("/requiresSkills/0", "required", "must have required property 'objectType'"),
+            ],
+          ])(`(%s) Validate 'objectType' when it is %s`, (caseType, _desc, givenValue, failureMessage) => {
+            const givenObject = { requiresSkills: [{ objectType: givenValue }] };
+            assertCaseForProperty("/requiresSkills/0/objectType", givenObject, itemSchema, caseType, failureMessage);
+          });
+        });
+
+        describe("Test validation of 'requiresSkills/relationType'", () => {
+          test.each([
+            [CaseType.Success, "ESSENTIAL relationType", OccupationEnums.OccupationToSkillRelationType.ESSENTIAL, undefined],
+            [CaseType.Success, "OPTIONAL relationType", OccupationEnums.OccupationToSkillRelationType.OPTIONAL, undefined],
+            [CaseType.Success, "NONE relationType", OccupationEnums.OccupationToSkillRelationType.NONE, undefined],
+            [
+              CaseType.Failure,
+              "invalid relationType",
+              "InvalidRelation",
+              constructSchemaError("/requiresSkills/0/relationType", "enum", "must be equal to one of the allowed values"),
+            ],
+            [
+              CaseType.Failure,
+              "undefined relationType",
+              undefined,
+              constructSchemaError("/requiresSkills/0", "required", "must have required property 'relationType'"),
+            ],
+          ])(`(%s) Validate 'relationType' when it is %s`, (caseType, _desc, givenValue, failureMessage) => {
+            const givenObject = { requiresSkills: [{ relationType: givenValue }] };
+            assertCaseForProperty("/requiresSkills/0/relationType", givenObject, itemSchema, caseType, failureMessage);
           });
         });
       });

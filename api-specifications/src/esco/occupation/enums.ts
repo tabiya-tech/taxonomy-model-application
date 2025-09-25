@@ -16,6 +16,12 @@ namespace OccupationEnums {
     LocalOccupation = ObjectTypes.LocalOccupation,
   }
 
+  export enum OccupationToSkillRelationType {
+    NONE = "",
+    ESSENTIAL = "essential",
+    OPTIONAL = "optional",
+  }
+
   export namespace GET {
     export namespace Response {
       export enum ErrorCodes {
