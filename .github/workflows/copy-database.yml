@@ -29,7 +29,7 @@ jobs:
         env:
           SOURCE_DB_URL: ${{ secrets.PROD_MONGODB_URI }}
         run: |
-          mongodump --uri="${SOURCE_DB_URL}" --out=/tmp/mongodump 
+          mongodump --uri="${SOURCE_DB_URL}" --out=/tmp/mongodump --compressors=snappy
 
       - name: Restore MongoDB Database
         env:
@@ -38,4 +38,4 @@ jobs:
           export TARGET_FOLDER=$(for dir in /tmp/mongodump/*/; do basename "$dir"; done)
           echo "Restoring database from /tmp/mongodump/${TARGET_FOLDER}"
           ls /tmp/mongodump
-          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${TARGET_FOLDER} --drop
+          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${TARGET_FOLDER} --drop --numInsertionWorkersPerCollection=20 --noIndexRestore --compressors=snappy --numParallelCollections=10
