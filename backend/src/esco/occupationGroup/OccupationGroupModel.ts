@@ -3,7 +3,6 @@ import {
   AltLabelsProperty,
   DescriptionProperty,
   OriginUriProperty,
-  ImportIDProperty,
   OccupationGroupCodeProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
@@ -22,6 +21,8 @@ export const OccupationGroupModelPaths = {
   code: "code",
 };
 
+export const IMPORT_ID_MAX_LENGTH = 256;
+
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationGroupDoc> {
   // Main Schema
   const OccupationGroupSchema = new mongoose.Schema<IOccupationGroupDoc>(
@@ -39,7 +40,11 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         required: true,
         enum: [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup],
       },
-      importId: ImportIDProperty,
+      importId: {
+        type: String,
+        required: false,
+        maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
+      },
     },
     {
       timestamps: true,

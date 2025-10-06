@@ -8,7 +8,6 @@ const SchemaGETRequestQueryParam: SchemaObject = {
   properties: {
     ...JSON.parse(JSON.stringify(_baseQueryParameterSchema)),
   },
-  required: ["cursor"],
 };
 
 export default SchemaGETRequestQueryParam;

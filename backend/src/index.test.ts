@@ -32,6 +32,7 @@ jest.mock("./server/init", () => {
 import * as MainHandler from "index";
 import * as InfoHandler from "applicationInfo";
 import * as ModelHandler from "modelInfo/index";
+import * as OccupationGroupHandler from "esco/occupationGroup";
 import * as PresignedHandler from "presigned/index";
 import * as ImportHandler from "import/index";
 import * as ExportHandler from "export/index";
@@ -40,6 +41,8 @@ import { response, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { APIGatewayEventDefaultAuthorizerContext, Context } from "aws-lambda";
 import { initOnce } from "server/init";
 import { Routes } from "routes.constant";
+import { getMockStringId } from "./_test_utilities/mockMongoId";
+import { buildPathFromRegex } from "./_test_utilities/routeFromRegex";
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -145,11 +148,16 @@ describe("test the handleRouteEvent function", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+  const modelId = getMockStringId(1);
+  const occupationGroupsPathFromRegex = buildPathFromRegex(Routes.OCCUPATION_GROUPS_ROUTE, [
+    [/\[0-9a-f\]\{24\}/, modelId],
+  ]);
   test.each([
     [Routes.APPLICATION_INFO_ROUTE, InfoHandler],
     [Routes.PRESIGNED_ROUTE, PresignedHandler],
     [Routes.IMPORT_ROUTE, ImportHandler],
     [Routes.MODELS_ROUTE, ModelHandler],
+    [occupationGroupsPathFromRegex, OccupationGroupHandler],
     [Routes.EXPORT_ROUTE, ExportHandler],
   ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
     // GIVEN an event with the given path & any HTTP method

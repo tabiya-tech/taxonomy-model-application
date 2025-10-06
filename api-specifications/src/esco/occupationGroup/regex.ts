@@ -1,4 +1,4 @@
-import { RegExp_Base64, RegExp_Str_Base64 } from "regex";
+import { RegExp_Base64, RegExp_Str_Base64 } from "../../regex";
 import {
   RegExp_ESCO_Local_Occupation_Code,
   RegExp_ESCO_Local_Or_Local_Occupation_Code,

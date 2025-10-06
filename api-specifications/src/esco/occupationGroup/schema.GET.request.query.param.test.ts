@@ -1,5 +1,4 @@
 import {
-  testNonEmptyStringField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
@@ -74,11 +73,34 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Request.Q
       });
     });
     describe("Test validate of 'cursor'", () => {
-      testNonEmptyStringField<OccupationGroupAPISpecs.Types.GET.Request.Query.Payload>(
-        "cursor",
-        OccupationGroupAPISpecs.Constants.MAX_CURSOR_LENGTH,
-        OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload
-      );
+      test.each([
+        [CaseType.Success, "undefined", undefined, undefined],
+        [CaseType.Failure, "null", null, constructSchemaError("/cursor", "type", "must be string")],
+        [CaseType.Failure, "empty string", "", constructSchemaError("/cursor", "pattern", 'must match pattern "\\S"')],
+        [CaseType.Failure, "whitespace", " \t", constructSchemaError("/cursor", "pattern", 'must match pattern "\\S"')],
+        [
+          CaseType.Failure,
+          "over max length",
+          getTestBase64String(OccupationGroupAPISpecs.Constants.MAX_CURSOR_LENGTH + 4),
+          constructSchemaError(
+            "/cursor",
+            "maxLength",
+            `must NOT have more than ${OccupationGroupAPISpecs.Constants.MAX_CURSOR_LENGTH} characters`
+          ),
+        ],
+        [CaseType.Success, "valid string", getTestBase64String(10), undefined],
+      ])("%s Validate 'cursor' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+        const givenObject = {
+          cursor: givenValue as unknown as string,
+        } as Partial<OccupationGroupAPISpecs.Types.GET.Request.Query.Payload>;
+        assertCaseForProperty(
+          "cursor",
+          givenObject,
+          OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload,
+          caseType,
+          failureMessage
+        );
+      });
     });
   });
 });

@@ -9,6 +9,7 @@ import APIError from "api-specifications/error";
 import Info from "api-specifications/info";
 import Export from "api-specifications/export";
 import Auth from "api-specifications/auth";
+import OccupationGroup from "api-specifications/esco/occupationGroup";
 
 /**
  *  In ajv the $ref is relative to the root of the schema, while in openapi the $ref is relative to the root of the document.
@@ -35,12 +36,21 @@ delete Info.Schemas.GET.Response.Payload.$id;
 delete APIError.Schemas.Payload.$id;
 delete Export.Schemas.POST.Request.Payload.$id;
 delete Auth.Schemas.Request.Context.$id;
+delete OccupationGroup.Schemas.POST.Request.Payload.$id;
+delete OccupationGroup.Schemas.POST.Response.Payload.$id;
+delete OccupationGroup.Schemas.GET.Response.Payload.$id;
+delete OccupationGroup.Schemas.GET.Request.Param.Payload.$id;
+delete OccupationGroup.Schemas.GET.Request.Query.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
 // @ts-ignore
 import version = require("../src/applicationInfo/version.json");
-const specs = getOpenAPISpecification(`${version.version} build:${version.buildNumber} sha:${version.sha}`, ["./src/**/index.ts"], false);
+const specs = getOpenAPISpecification(
+  `${version.version} build:${version.buildNumber} sha:${version.sha}`,
+  ["./src/**/index.ts"],
+  false
+);
 
 //--------------------------------------------------------------------------------------------------
 // Store the openapi specification in the build folder.
@@ -105,7 +115,8 @@ NOTES:
             },
           },
           UnAuthorizedResponse: {
-            description: "The request failed because it lacks valid authentication credentials for the target resource.",
+            description:
+              "The request failed because it lacks valid authentication credentials for the target resource.",
             content: {
               "application /json": {
                 schema: {
@@ -121,7 +132,8 @@ NOTES:
             },
           },
           ForbiddenResponse: {
-            description: "The request has not been applied because you don't have the right permissions to access this resource.",
+            description:
+              "The request has not been applied because you don't have the right permissions to access this resource.",
             content: {
               "application /json": {
                 schema: {
@@ -143,6 +155,11 @@ NOTES:
           ExportSchema: Export.Schemas.POST.Request.Payload,
           InfoSchema: Info.Schemas.GET.Response.Payload,
           AuthContextSchema: Auth.Schemas.Request.Context,
+          OccupationGroupRequestSchemaPOST: OccupationGroup.Schemas.POST.Request.Payload,
+          OccupationGroupResponseSchemaPOST: OccupationGroup.Schemas.POST.Response.Payload,
+          OccupationGroupRequestParamSchemaGET: OccupationGroup.Schemas.GET.Request.Param.Payload,
+          OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.Schemas.GET.Request.Query.Payload,
+          OccupationGroupResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Payload,
         },
         securitySchemes: {
           // api_key: {

@@ -81,8 +81,13 @@ describe("test parseOccupationGroups from", () => {
             })
           );
         }),
+        findPaginated: jest.fn().mockResolvedValue({}),
+        encodeCursor: jest.fn().mockReturnValue(null),
+        decodeCursor: jest.fn().mockReturnValue({}),
+        getHistory: jest.fn().mockResolvedValue([]),
         findById: jest.fn().mockResolvedValue({}),
         findAll: jest.fn(),
+        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV givenCSVFile to the database ids

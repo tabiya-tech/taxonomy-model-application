@@ -17,4 +17,4 @@ export enum SignallingValueLabel {
   LOW = "low",
 }
 
-export type ImportIdentifiable = { importId: string };
+export type ImportIdentifiable = { importId: string | null };
