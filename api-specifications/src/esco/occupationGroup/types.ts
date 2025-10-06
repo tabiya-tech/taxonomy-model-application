@@ -13,7 +13,7 @@ interface IOccupationGroupResponse {
     code: string;
     preferredLabel: string;
     objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
-  };
+  } | null;
   children: {
     id: string;
     UUID: string;
