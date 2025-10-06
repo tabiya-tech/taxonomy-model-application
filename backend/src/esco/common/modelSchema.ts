@@ -119,6 +119,20 @@ export const UUIDHistoryProperty: mongoose.SchemaDefinitionProperty<string[]> = 
   },
 };
 
+// Origin UUID
+export const OriginUUIDProperty: mongoose.SchemaDefinitionProperty<string> = {
+  type: String,
+  required: false,
+  default: undefined,
+  validate: {
+    validator: function (v: string | null | undefined) {
+      if (v === null || v === undefined || v === "") return true; // allow optional
+      return RegExp_UUIDv4.test(v); // only validate when non-empty
+    },
+    message: (props) => `Validator failed for path \`${props.path}\` with value \`${props.value}\``,
+  },
+};
+
 // Origin Uri
 export const ORIGIN_URI_MAX_LENGTH = 4096;
 export const OriginUriProperty: mongoose.SchemaDefinitionProperty<string> = {
@@ -191,7 +205,7 @@ export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> =
 // Import ID
 export const IMPORT_ID_MAX_LENGTH = 256;
 
-export const ImportIDProperty: mongoose.SchemaDefinitionProperty<string> = {
+export const ImportIDProperty: mongoose.SchemaDefinitionProperty<string | null> = {
   type: String,
   required: stringRequired("importId"),
   maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
