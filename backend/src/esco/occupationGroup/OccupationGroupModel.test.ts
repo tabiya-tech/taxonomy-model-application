@@ -22,6 +22,7 @@ import {
   testUUIDField,
   testUUIDHistoryField,
   testEnumField,
+  testOriginUUIDField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
 
@@ -49,6 +50,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
+        originUUID: randomUUID(),
         code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
@@ -64,6 +66,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
+        originUUID: randomUUID(),
         code: getMockRandomISCOGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
@@ -79,6 +82,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
+        originUUID: randomUUID(),
         code: getMockRandomLocalGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
@@ -94,6 +98,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
       {
         UUID: randomUUID(),
         UUIDHistory: [randomUUID()],
+        originUUID: randomUUID(),
         code: getMockRandomLocalGroupCode(),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
@@ -131,6 +136,8 @@ describe("Test the definition of the OccupationGroup Model", () => {
     testObjectIdField<IOccupationGroupDoc>(() => OccupationGroupModel, "modelId");
 
     testUUIDField<IOccupationGroupDoc>(() => OccupationGroupModel);
+
+    testOriginUUIDField<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     testUUIDHistoryField<IOccupationGroupDoc>(() => OccupationGroupModel);
 
@@ -235,6 +242,10 @@ describe("Test the definition of the OccupationGroup Model", () => {
     testAltLabelsField<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     testImportId<IOccupationGroupDoc>(() => OccupationGroupModel);
+
+    describe("Test validation of 'modelId'", () => {
+      testObjectIdField<IOccupationGroupDoc>(() => OccupationGroupModel, "modelId");
+    });
 
     testEnumField(() => OccupationGroupModel, "groupType", [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup]);
   });

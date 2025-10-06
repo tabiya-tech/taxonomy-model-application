@@ -63,6 +63,7 @@ function expectedFromGivenSpec(givenSpec: INewOccupationGroupSpec, newUUID: stri
     ...givenSpec,
     id: expect.any(String),
     parent: null,
+    originUUID: givenSpec.UUIDHistory[givenSpec.UUIDHistory.length - 1] || "",
     children: [],
     UUID: newUUID,
     UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
@@ -325,7 +326,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     }
   );
 
-  xdescribe.each<ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup>([ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup])(
+  describe.each<ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup>([ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup])(
     "Test createMany() %s ",
     (givenGroupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup) => {
       test("should successfully create a batch of new OccupationGroups", async () => {
@@ -1385,5 +1386,321 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
       repositoryRegistry.OccupationGroup.findAll(getMockStringId(1))
     );
+  });
+
+  describe("Test findPaginated()", () => {
+    test("should return paginated OccupationGroups for a given modelId, limit and cursor", async () => {
+      // GIVEN a modelId to group the occupationGroups together
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroups = [];
+      for (let i = 0; i < 3; i++) {
+        const givenOccupationGroupSpecs = getSimpleNewLocalGroupSpec(givenModelId, `group_${i + 1}`);
+        const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+        givenOccupationGroups.push(givenOccupationGroup);
+      }
+      // WHEN retrieving the occupationGroups with a limit of 2
+      const cursor = givenOccupationGroups[2].id.toString();
+      const cursorAsc = givenOccupationGroups[0].id.toString();
+      const firstPage = await repository.findPaginated(givenModelId, cursor, 2);
+      const actualFirstPageOccupationGroupsArray: IOccupationGroup[] = [];
+      for await (const data of firstPage.stream) {
+        actualFirstPageOccupationGroupsArray.push(data);
+      }
+
+      const expectedOccupationGroups = givenOccupationGroups.slice(-2).map((OccupationGroup) => {
+        const { parent, children, ...OccupationGroupData } = OccupationGroup;
+        return OccupationGroupData;
+      });
+      // THEN the first page should contain the first two occupationGroups ordered by _id descending
+      expect(actualFirstPageOccupationGroupsArray).toHaveLength(2);
+      expect(actualFirstPageOccupationGroupsArray).toEqual(expectedOccupationGroups.reverse());
+      expect(firstPage.nextCursor?._id).toBe(givenOccupationGroups[0].id.toString());
+
+      const firstPageAsc = await repository.findPaginated(givenModelId, cursorAsc, 2, false);
+      const actualFirstPageOccupationGroupsArrayAsc: IOccupationGroup[] = [];
+      for await (const data of firstPageAsc.stream) {
+        actualFirstPageOccupationGroupsArrayAsc.push(data);
+      }
+
+      const expectedOccupationGroupsAsc = givenOccupationGroups.slice(0, 2).map((OccupationGroup) => {
+        const { parent, children, ...OccupationGroupData } = OccupationGroup;
+        return OccupationGroupData;
+      });
+
+      //THEN the first page asc should contain the first two occupationGroups ordered by _id ascending
+      expect(actualFirstPageOccupationGroupsArrayAsc).toHaveLength(2);
+      expect(actualFirstPageOccupationGroupsArrayAsc).toEqual(expectedOccupationGroupsAsc);
+      expect(firstPageAsc.nextCursor?._id).toBe(givenOccupationGroups[2].id.toString());
+
+      // WHEN retrieving the second page with a limit of 2 and the cursor from the previous result
+      const secondPage = await repository.findPaginated(givenModelId, firstPage.nextCursor?._id!, 2);
+      const actualSecondPageOccupationGroupsArray: IOccupationGroup[] = [];
+      for await (const data of secondPage.stream) {
+        actualSecondPageOccupationGroupsArray.push(data);
+      }
+
+      const expectedSecondPageOccupationGroups = givenOccupationGroups.slice(-3).map((OccupationGroup) => {
+        const { parent, children, ...OccupationGroupData } = OccupationGroup;
+        return OccupationGroupData;
+      });
+
+      // THEN the second page should contain the last occupationGroup
+      expect(actualSecondPageOccupationGroupsArray).toHaveLength(1);
+      expect(actualSecondPageOccupationGroupsArray[0]).toEqual(expectedSecondPageOccupationGroups[0]);
+      expect(secondPage.nextCursor?._id).toBeUndefined();
+
+      // WHEN retrieving the second page asc with a limit of 2 and the cursor from the previous asc result
+      const secondPageAsc = await repository.findPaginated(givenModelId, firstPageAsc.nextCursor?._id!, 2, false);
+      const actualSecondPageOccupationGroupsArrayAsc: IOccupationGroup[] = [];
+      for await (const data of secondPageAsc.stream) {
+        actualSecondPageOccupationGroupsArrayAsc.push(data);
+      }
+      const expectedSecondPageOccupationGroupsAsc = givenOccupationGroups.slice(-1).map((OccupationGroup) => {
+        const { parent, children, ...OccupationGroupData } = OccupationGroup;
+        return OccupationGroupData;
+      });
+
+      // THEN the second page asc should contain the last occupationGroup
+      expect(actualSecondPageOccupationGroupsArrayAsc).toHaveLength(1);
+      expect(actualSecondPageOccupationGroupsArrayAsc[0]).toEqual(expectedSecondPageOccupationGroupsAsc[0]);
+      expect(secondPageAsc.nextCursor?._id).toBeUndefined();
+    });
+  });
+
+  describe("Test encodeCursor() & decodeCursor()", () => {
+    test("should encode and decode a cursor", () => {
+      const givenValidCursorObject = {
+        id: getMockStringId(1),
+        createdAt: new Date("2023-01-01T00:00:00Z"),
+      };
+      const cursor = repository.encodeCursor(givenValidCursorObject.id, givenValidCursorObject.createdAt);
+      const decoded = repository.decodeCursor(cursor);
+      expect(decoded).toEqual(givenValidCursorObject);
+    });
+  });
+
+  describe("Test getOccupationGroupByUUID()", () => {
+    test("Should return an existing occupationGroup by occupationGroup uuid", async () => {
+      // GIVEN an OccupationGroup exists in the database
+      const givenOccupationGroupSpecs = getSimpleNewLocalGroupSpec(getMockStringId(1), "group_2");
+      const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+
+      // WHEN search for the OccupationGroup by its uuid
+      const actualFoundOccupationGroup = await repository.getOccupationGroupByUUID(givenOccupationGroup.UUID);
+
+      //THEN expect the OccupationGroup to be found
+      expect(actualFoundOccupationGroup).toEqual(givenOccupationGroup);
+    });
+    test("should return null if no OccupationGroup with the given uuid exists", async () => {
+      // GIVEN no OccupationGroup exists in the database
+
+      // WHEN searching for the OccupationGroup by it's uuid
+      const actualFoundOccupationGroup = await repository.getOccupationGroupByUUID(randomUUID());
+
+      // THEN expect no OccupationGroup to be found
+      expect(actualFoundOccupationGroup).toBeNull();
+    });
+    test("should return null if given uuid is not a valid uuid", async () => {
+      // GIVEN no OccupationGroup exists in the database
+
+      // WHEN searching for the OccupationGroup by it's uuid
+      const actualFoundOccupationGroup = await repository.getOccupationGroupByUUID("non_existing_uuid");
+
+      // THEN expect no OccupationGroup to be found
+      expect(actualFoundOccupationGroup).toBeNull();
+    });
+
+    describe("should return the OccupationGroup with it's parent and children", () => {
+      test("should return the ISCOGroup with its parent(ISCOGroup) and children occupations(ESCOOccupations, LocalOccupations)", async () => {
+        // GIVEN three OccupationGroups and one Occupation exists in the database in the same model
+        const givenModelId = getMockStringId(1);
+
+        // The root parent (OccupationGroup)
+        const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
+        const givenParent = await repository.create(givenParentSpecs);
+        // The 2nd level parent (OccupationGroup)
+        const givenParentSpecs_2 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "parent_2", givenParent.code);
+        const givenParent_2 = await repository.create(givenParentSpecs_2);
+        // The 3rd level parent (OccupationGroup)
+        const givenParentSpecs_3 = getSimpleNewISCOGroupSpecWithParentCode(
+          givenModelId,
+          "parent_3",
+          givenParent_2.code
+        );
+        const givenParent_3 = await repository.create(givenParentSpecs_3);
+
+        // THE subject (OccupationGroup)
+        const givenSubjectSpecs = getSimpleNewISCOGroupSpecWithParentCode(
+          givenModelId,
+          "subject",
+          givenParent_3.code,
+          true
+        );
+        const givenSubject = await repository.create(givenSubjectSpecs);
+
+        // The child ESCO Occupation
+        const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
+          givenModelId,
+          "child_2",
+          givenSubject.code
+        );
+        const givenChild_1 = await repositoryRegistry.occupation.create(givenChildSpecs_1);
+
+        // The child Local Occupation
+        const givenChildSpecs_2 = getSimpleNewLocalOccupationSpecWithParentCode(
+          givenModelId,
+          "child_3",
+          givenSubject.code
+        );
+        const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+
+        // AND the subject OccupationGroup has a parent and two children
+        const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+          {
+            // parent of the subject
+            parentType: ObjectTypes.ISCOGroup,
+            parentId: givenParent_3.id,
+            childType: ObjectTypes.ISCOGroup,
+            childId: givenSubject.id,
+          },
+          {
+            // child 1 of the subject
+            parentType: ObjectTypes.ISCOGroup,
+            parentId: givenSubject.id,
+            childType: ObjectTypes.ESCOOccupation,
+            childId: givenChild_1.id,
+          },
+          {
+            // child 2 of the subject
+            parentType: ObjectTypes.ISCOGroup,
+            parentId: givenSubject.id,
+            childType: ObjectTypes.LocalOccupation,
+            childId: givenChild_2.id,
+          },
+        ]);
+        // Guard assertion
+        expect(actualHierarchy).toHaveLength(3);
+
+        // WHEN searching for the subject by its uuid
+
+        const actualPlans = setUpPopulateWithExplain<IOccupationGroupDoc>(repository.Model);
+        const actualFoundOccupationGroup = (await repository.getOccupationGroupByUUID(
+          givenSubject.UUID
+        )) as IOccupationGroup;
+
+        // THEN expect the OccupationGroup to be found
+        expect(actualFoundOccupationGroup).not.toBeNull();
+
+        // AND to have the given parent
+        expect(actualFoundOccupationGroup.parent).toEqual(expectedOccupationGroupReference(givenParent_3));
+        // AND to have the given children
+        expect(actualFoundOccupationGroup.children).toEqual(
+          expect.arrayContaining<IOccupationGroupReference | IOccupationReference>([
+            expectedOccupationReference(givenChild_1),
+            expectedOccupationReference(givenChild_2),
+          ])
+        );
+
+        // AND expect the populate query plan to use the correct indexes
+        expect(actualPlans).toHaveLength(4); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+        expect(actualPlans).toEqual(
+          expect.arrayContaining([
+            // populating the parent hierarchy
+            getExpectedPlan({
+              collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+              filter: {
+                modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+                childType: { $eq: ObjectTypes.ISCOGroup },
+                childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+              },
+              usedIndex: INDEX_FOR_PARENT,
+            }),
+            // populating the child hierarchy
+            getExpectedPlan({
+              collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+              filter: {
+                modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+                parentType: { $eq: ObjectTypes.ISCOGroup },
+                parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+              },
+              usedIndex: INDEX_FOR_CHILDREN,
+            }),
+          ])
+        );
+
+        // AND expect no error to be logged
+        expect(console.error).toBeCalledTimes(0);
+      });
+      TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+        return repositoryRegistry.OccupationGroup.getOccupationGroupByUUID(getMockStringId(1));
+      });
+    });
+
+    describe("Test getHistory()", () => {
+      test("should return the detailed UUIDHistory of an OccupationGroup", async () => {
+        const givenValidModelId = getMockStringId(1);
+        //GIVEN an OccupationGroup in the database
+        const givenExistingOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenValidModelId, "group_1");
+        const givenExistingOccupationGroup = await repository.create(givenExistingOccupationGroupSpecs);
+
+        // AND a target OccupationGroup with the given OccupationGroup in it's uuid history
+        const givenTargetOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenValidModelId, "group_2");
+        const givenTargetOccupationGroup = await repository.create(givenTargetOccupationGroupSpecs);
+        // AND the target has its own UUID in it's UUIDHistory
+        // AND the target has the given occupationGroup in it's UUIDHistory
+        // AND the target occupationGroup has a random UUID in it's UUIDHistory
+        // AND the target occupationGroup has a uuid that is not the current UUID of the occupationGroup even if it exists in it's history array
+        givenTargetOccupationGroup.UUIDHistory = [
+          givenTargetOccupationGroup.UUID,
+          givenExistingOccupationGroup.UUID,
+          randomUUID(),
+          givenExistingOccupationGroup.UUIDHistory[givenExistingOccupationGroup.UUIDHistory.length - 1],
+        ];
+
+        // WHEN we retrieve the UUIDHistory of the occupationGroup
+        const actualUUIDHistory = await repository.getHistory(givenTargetOccupationGroup.UUIDHistory);
+
+        // THEN expect the UUIDHistory to have the details for the target OccupationGroup and the given OccupationGroup
+        const expectedUUIDHistory = [
+          // the UUID of the target itself occupationGroup
+          {
+            id: givenTargetOccupationGroup.id,
+            UUID: givenTargetOccupationGroup.UUID,
+            preferredLabel: givenTargetOccupationGroup.preferredLabel,
+            code: givenTargetOccupationGroup.code,
+            objectType: givenTargetOccupationGroup.groupType,
+          },
+          // the UUID of the given occupationGroup
+          {
+            id: givenExistingOccupationGroup.id,
+            UUID: givenExistingOccupationGroup.UUID,
+            preferredLabel: givenExistingOccupationGroup.preferredLabel,
+            code: givenExistingOccupationGroup.code,
+            objectType: givenExistingOccupationGroup.groupType,
+          },
+          // AND the randomUUID
+          {
+            id: null,
+            UUID: givenTargetOccupationGroup.UUIDHistory[2],
+            preferredLabel: null,
+            code: null,
+            objectType: null,
+          },
+          // AND the last UUID in the history of the given model
+          {
+            id: null,
+            UUID: givenExistingOccupationGroup.UUIDHistory[givenExistingOccupationGroup.UUIDHistory.length - 1],
+            preferredLabel: null,
+            code: null,
+            objectType: null,
+          },
+        ];
+
+        expect(actualUUIDHistory).toEqual(expectedUUIDHistory);
+      });
+      TestDBConnectionFailureNoSetup((repository) => {
+        return repository.OccupationGroup.getHistory([randomUUID()]);
+      });
+    });
   });
 });

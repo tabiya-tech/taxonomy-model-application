@@ -7,6 +7,7 @@ import {
   OccupationGroupCodeProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
+  OriginUUIDProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationGroupDoc } from "./OccupationGroup.types";
@@ -28,6 +29,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
       UUIDHistory: UUIDHistoryProperty,
+      originUUID: OriginUUIDProperty,
       [OccupationGroupModelPaths.code]: OccupationGroupCodeProperty,
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
