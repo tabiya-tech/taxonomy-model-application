@@ -12,6 +12,7 @@ import { WHITESPACE } from "_test_utilities/specialCharacters";
 import ImportAPI from "import";
 import ExportAPI from "export";
 import ModelInfoAPI from "modelInfo";
+import OccupationGroupAPI from "esco/occupationGroup";
 
 describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.Payload schema
@@ -45,6 +46,8 @@ describe("Validate JSON against the APIError Schema", () => {
         ...Object.values(ImportAPI.Enums.ImportResponseErrorCodes),
         ...Object.values(ExportAPI.Enums.POST.Response.ExportResponseErrorCodes),
         ...Object.values(ModelInfoAPI.Enums.POST.Response.ErrorCodes),
+        ...Object.values(OccupationGroupAPI.Enums.POST.Response.ErrorCodes),
+        ...Object.values(OccupationGroupAPI.Enums.GET.Response.ErrorCodes),
       ];
 
       test.each([

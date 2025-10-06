@@ -493,6 +493,11 @@ describe("Test the main async handler", () => {
         createMany: jest.fn(),
         findById: jest.fn(),
         findAll: jest.fn(),
+        findPaginated: jest.fn(),
+        encodeCursor: jest.fn(),
+        decodeCursor: jest.fn(),
+        getOccupationGroupByUUID: jest.fn(),
+        getHistory: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 

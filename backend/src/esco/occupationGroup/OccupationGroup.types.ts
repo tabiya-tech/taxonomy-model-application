@@ -13,6 +13,7 @@ export interface IOccupationGroupDoc extends ImportIdentifiable {
   originUri: string;
   preferredLabel: string;
   altLabels: string[];
+  importId: string | null;
   groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
   description: string;
 }
@@ -20,11 +21,13 @@ export interface IOccupationGroupDoc extends ImportIdentifiable {
 /**
  * Describes how an OccupationGroup is returned from the API.
  */
-export interface IOccupationGroup extends Omit<IOccupationGroupDoc, "id" | "modelId"> {
+export interface IOccupationGroup extends Omit<IOccupationGroupDoc, "id" | "modelId" | "UUIDHistory"> {
   id: string;
-  modelId: string;
+  UUID: string;
   parent: IOccupationGroupReference | null;
   children: (IOccupationGroupReference | IOccupationReference)[];
+  UUIDHistory: string[];
+  modelId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +39,11 @@ export type INewOccupationGroupSpec = Omit<
   IOccupationGroup,
   "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt"
 >;
+
+/**
+ * Describes how an OccupationGroup is created with the API without import action.
+ */
+export type INewOccupationGroupSpecWithoutImportId = Omit<INewOccupationGroupSpec, "importId">;
 
 /**
  * Describes how a reference to an OccupationGroup is returned from the API.
@@ -52,4 +60,16 @@ export interface IOccupationGroupReferenceDoc
   extends Pick<IOccupationGroupDoc, "modelId" | "UUID" | "code" | "preferredLabel"> {
   id: string;
   objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
+}
+
+/**
+ * Describes how an occupation group history is returned from the API.
+ */
+
+export interface IOccupationGroupHistoryReference {
+  id: string | null;
+  UUID: string;
+  preferredLabel: string | null;
+  code: string | null;
+  objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | null;
 }

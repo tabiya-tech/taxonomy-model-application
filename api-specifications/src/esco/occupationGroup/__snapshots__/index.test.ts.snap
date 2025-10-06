@@ -127,9 +127,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "type": "integer",
               },
             },
-            "required": [
-              "cursor",
-            ],
             "type": "object",
           },
         },
