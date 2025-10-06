@@ -1,8 +1,4 @@
-import {
-  INewOccupationGroupSpecWithoutImportId,
-  IOccupationGroup,
-  IOccupationGroupHistoryReference,
-} from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup, IOccupationGroupHistoryReference } from "esco/occupationGroup/OccupationGroup.types";
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { IOccupationGroupDoc, INewOccupationGroupSpec } from "./OccupationGroup.types";

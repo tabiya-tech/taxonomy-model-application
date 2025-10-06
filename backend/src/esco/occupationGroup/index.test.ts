@@ -280,11 +280,11 @@ describe("Test for occupationGroup handler", () => {
       // const secondPageOccupationGroups = givenOccupationGroups.slice(-3);
 
       const limit = 2;
-      let firstPageCursor = Buffer.from(
+      const firstPageCursor = Buffer.from(
         JSON.stringify({ id: givenOccupationGroups[2].id, createdAt: givenOccupationGroups[2].createdAt })
       ).toString("base64");
 
-      let expectedNextCursor = Buffer.from(
+      const expectedNextCursor = Buffer.from(
         JSON.stringify({ id: givenOccupationGroups[0].id, createdAt: givenOccupationGroups[0].createdAt })
       ).toString("base64");
 
@@ -361,7 +361,7 @@ describe("Test for occupationGroup handler", () => {
         id: getMockStringId(1),
         createdAt: new Date(),
       };
-      let firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+      const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
 
       const givenOccupationGroupRepositoryMock = {
         Model: undefined as never,

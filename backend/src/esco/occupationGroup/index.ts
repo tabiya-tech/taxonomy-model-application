@@ -96,7 +96,7 @@ class OccupationGroupController {
           "modelId is required"
         );
       }
-      let requestPathParameter = {
+      const requestPathParameter = {
         modelId: event.pathParameters?.modelId,
       } as OccupationGroupAPISpecs.Types.GET.Request.Param.Payload;
 
