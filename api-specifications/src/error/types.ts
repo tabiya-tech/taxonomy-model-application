@@ -2,6 +2,7 @@ import ImportAPI from "../import";
 import ExportAPI from "../export";
 import ModelInfo from "../modelInfo";
 import ErrorConstants from "./constants";
+import OccupationGroupAPI from "../esco/occupationGroup";
 
 namespace ErrorTypes {
   // This is here to make sure the namespace is not empty and the:
@@ -17,6 +18,8 @@ namespace ErrorTypes {
       | ImportAPI.Enums.POST.Response.ImportResponseErrorCodes
       | ExportAPI.Enums.POST.Response.ExportResponseErrorCodes
       | ModelInfo.Enums.POST.Response.ErrorCodes
+      | OccupationGroupAPI.Enums.POST.Response.ErrorCodes
+      | OccupationGroupAPI.Enums.GET.Response.ErrorCodes
       | ModelInfo.Enums.GET.Response.ErrorCodes; // The UI could use to display some useful information
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
