@@ -208,6 +208,35 @@ export function testUUIDField<T>(getModel: () => mongoose.Model<T>) {
   });
 }
 
+export function testOriginUUIDField<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'originUUID'", () => {
+    test.each([
+      [CaseType.Success, "undefined", undefined, undefined],
+      [CaseType.Success, "null", null, undefined],
+      [CaseType.Success, "empty", "", undefined],
+      [
+        CaseType.Failure,
+        "only whitespace characters",
+        WHITESPACE,
+        `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+      ],
+      [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+      [CaseType.Success, "Valid UUID", randomUUID(), undefined],
+    ])(
+      `(%s) Validate 'originUUID' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "originUUID",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
+  });
+}
+
 export function testUUIDHistoryField<T>(getModel: () => mongoose.Model<T>) {
   return describe("Test validation of 'UUIDHistory'", () => {
     const randomValidUUID = randomUUID();

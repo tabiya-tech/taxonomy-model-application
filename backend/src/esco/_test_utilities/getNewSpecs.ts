@@ -109,12 +109,14 @@ export function getSimpleNewISCOGroupSpecWithParentCode(
 export function getSimpleNewLocalGroupSpecWithParentCode(
   modelId: string,
   preferredLabel: string,
-  parentCode: string
+  parentCode: string,
+  leafNode: boolean = false
 ): INewOccupationGroupSpec {
   const LocalGroupSpec = getSimpleNewLocalGroupSpec(modelId, preferredLabel);
+  const code = leafNode ? parentCode + LocalGroupSpec.code.slice(parentCode.length) : parentCode + LocalGroupSpec.code;
   return {
     ...LocalGroupSpec,
-    code: parentCode + LocalGroupSpec.code,
+    code: code,
   };
 }
 
