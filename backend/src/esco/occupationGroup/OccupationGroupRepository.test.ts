@@ -1433,7 +1433,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(firstPageAsc.nextCursor?._id).toBe(givenOccupationGroups[2].id.toString());
 
       // WHEN retrieving the second page with a limit of 2 and the cursor from the previous result
-      const secondPage = await repository.findPaginated(givenModelId, firstPage.nextCursor?._id!, 2);
+      const secondPage = await repository.findPaginated(givenModelId, firstPage.nextCursor!._id!, 2);
       const actualSecondPageOccupationGroupsArray: IOccupationGroup[] = [];
       for await (const data of secondPage.stream) {
         actualSecondPageOccupationGroupsArray.push(data);
@@ -1450,7 +1450,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(secondPage.nextCursor?._id).toBeUndefined();
 
       // WHEN retrieving the second page asc with a limit of 2 and the cursor from the previous asc result
-      const secondPageAsc = await repository.findPaginated(givenModelId, firstPageAsc.nextCursor?._id!, 2, false);
+      const secondPageAsc = await repository.findPaginated(givenModelId, firstPageAsc.nextCursor!._id!, 2, false);
       const actualSecondPageOccupationGroupsArrayAsc: IOccupationGroup[] = [];
       for await (const data of secondPageAsc.stream) {
         actualSecondPageOccupationGroupsArrayAsc.push(data);
@@ -1464,6 +1464,41 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(actualSecondPageOccupationGroupsArrayAsc).toHaveLength(1);
       expect(actualSecondPageOccupationGroupsArrayAsc[0]).toEqual(expectedSecondPageOccupationGroupsAsc[0]);
       expect(secondPageAsc.nextCursor?._id).toBeUndefined();
+    });
+    test("should handle errors during paginated data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving dat
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding paginated occupationGroups for some modelId
+      // THEN expect the operation to fail with the given error
+      await expect(repository.findPaginated(getMockStringId(1), getMockStringId(2), 2)).rejects.toThrowError(
+        new Error("OccupationGroupRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
+    });
+    test("should reject when nextDocumentPipeline emits an error", async () => {
+      const mockStream = new Readable({ read() {} });
+      const givenError = new Error("next document stream failure");
+
+      jest.spyOn(repository.Model, "find").mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        cursor: jest.fn().mockReturnValue(mockStream),
+      } as any);
+
+      // Schedule an error to be emitted from the nextDocumentPipeline
+      setImmediate(() => {
+        mockStream.emit("error", givenError);
+      });
+
+      await expect(repository.findPaginated("model1", new mongoose.Types.ObjectId().toString(), 1)).rejects.toThrow(
+        new Error("OccupationGroupRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
+
+      jest.spyOn(repository.Model, "find").mockRestore();
     });
   });
 

@@ -1,9 +1,10 @@
 import { randomUUID } from "crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewOccupationGroupSpec, IOccupationGroup } from "./OccupationGroup.types";
+import { INewOccupationGroupSpec, IOccupationGroup, IOccupationGroupReference } from "./OccupationGroup.types";
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
 
 export function getIOccupationGroupMockData(
   n: number = 1,
@@ -29,8 +30,68 @@ export function getIOccupationGroupMockData(
   };
 }
 
-export function getOccupationMockDataArray(n: number): Array<IOccupationGroup> {
-  return Array.from({ length: n }, (_, index) => getIOccupationGroupMockData(index + 1));
+export function getIOccupationGroupMockDataWithOccupationGroupChildren(
+  n: number = 1,
+  modelId: string = getMockStringId(1000 + n)
+): IOccupationGroup {
+  const children: IOccupationGroupReference = {
+    UUID: randomUUID(),
+    code: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+    id: getMockStringId(n + 1),
+    preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    objectType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+  };
+  return {
+    id: getMockStringId(n),
+    UUID: randomUUID(),
+    UUIDHistory: [randomUUID()],
+    code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    originUri: "https://foo.bar/" + n,
+    preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    altLabels: [getRandomString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+    description: getRandomString(OccupationGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    parent: null,
+    importId: getMockStringId(n),
+    children: [children],
+    modelId: modelId,
+    createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
+    updatedAt: new Date(),
+    originUUID: randomUUID(),
+  };
+}
+
+export function getIOccupationGroupMockDataWithOccupationChildren(
+  n: number = 1,
+  modelId: string = getMockStringId(1000 + n)
+): IOccupationGroup {
+  const children: IOccupationReference = {
+    UUID: randomUUID(),
+    code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    id: getMockStringId(n + 1),
+    preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    occupationType: OccupationGroupAPISpecs.Enums.ObjectTypes.ESCOOccupation,
+    occupationGroupCode: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    isLocalized: false,
+  };
+  return {
+    id: getMockStringId(n),
+    UUID: randomUUID(),
+    UUIDHistory: [randomUUID()],
+    code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    originUri: "https://foo.bar/" + n,
+    preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    altLabels: [getRandomString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+    description: getRandomString(OccupationGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    parent: null,
+    importId: getMockStringId(n),
+    children: [children],
+    modelId: modelId,
+    createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
+    updatedAt: new Date(),
+    originUUID: randomUUID(),
+  };
 }
 
 export function getNewOccupationGroupSpec(): INewOccupationGroupSpec {

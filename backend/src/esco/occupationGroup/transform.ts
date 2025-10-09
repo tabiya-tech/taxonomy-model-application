@@ -23,41 +23,44 @@ export function transform(
     parent:
       data.parent && data.parent?.id
         ? {
-            id: data.parent?.id ?? "",
-            UUID: data.parent?.UUID ?? "",
-            code: data.parent?.code ?? "",
-            preferredLabel: data.parent?.preferredLabel ?? "",
+            id: data.parent.id,
+            UUID: data.parent.UUID,
+            code: data.parent.code,
+            preferredLabel: data.parent.preferredLabel,
             objectType:
-              data.parent?.objectType && data.parent.objectType == ObjectTypes.ISCOGroup
+              data.parent.objectType == ObjectTypes.ISCOGroup
                 ? OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup
                 : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
           }
         : null,
-    children: data.children.map((child) => {
-      if ("objectType" in child) {
-        return {
-          id: child?.id ?? "",
-          UUID: child?.UUID ?? "",
-          code: child?.code ?? "",
-          preferredLabel: child?.preferredLabel ?? "",
-          objectType:
-            child.objectType === ObjectTypes.ISCOGroup
-              ? OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup
-              : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
-        };
-      } else {
-        return {
-          id: child?.id ?? "",
-          UUID: child?.UUID ?? "",
-          code: child?.code ?? "",
-          preferredLabel: child?.preferredLabel ?? "",
-          objectType:
-            child?.occupationType === ObjectTypes.ESCOOccupation
-              ? OccupationGroupAPISpecs.Enums.ObjectTypes.ESCOOccupation
-              : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalOccupation,
-        };
-      }
-    }),
+    children:
+      data.children && data.children.length
+        ? data.children.map((child) => {
+            if ("objectType" in child) {
+              return {
+                id: child.id,
+                UUID: child.UUID,
+                code: child.code,
+                preferredLabel: child.preferredLabel,
+                objectType:
+                  child.objectType === ObjectTypes.ISCOGroup
+                    ? OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup
+                    : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
+              };
+            } else {
+              return {
+                id: child.id,
+                UUID: child.UUID,
+                code: child.code,
+                preferredLabel: child.preferredLabel,
+                objectType:
+                  child?.occupationType === ObjectTypes.ESCOOccupation
+                    ? OccupationGroupAPISpecs.Enums.ObjectTypes.ESCOOccupation
+                    : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalOccupation,
+              };
+            }
+          })
+        : [],
     modelId: data.modelId,
     path: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/occupationGroups/${data.id}`,
     tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/occupationGroups/${data.UUID}`,
@@ -76,6 +79,6 @@ export function transformPaginated(
   return {
     data: data.map((item) => transform(item, baseURL)),
     limit,
-    nextCursor: cursor ? cursor : null,
+    nextCursor: cursor,
   };
 }

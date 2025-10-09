@@ -12,6 +12,7 @@ import { transform, transformPaginated } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 import { IOccupationGroup, INewOccupationGroupSpec } from "./OccupationGroup.types";
 import { RoleRequired } from "auth/authenticator";
+import ErrorAPISpecs from "api-specifications/error";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -29,6 +30,54 @@ export const handler: (
 };
 
 class OccupationGroupController {
+  /**
+   * @openapi
+   *
+   * /occupationGroups/{modelId}:
+   *    post:
+   *      operationId: POSTOccupationGroup
+   *      tags:
+   *        - occupationGroups
+   *      summary: Create a new taxonomy occupation group.
+   *      description: Create a new taxonomy occupation group that can group related occupations and skills.
+   *      security:
+   *       - jwt_auth: []
+   *      parameters:
+   *        - in: path
+   *          name: modelId
+   *          required: true
+   *          schema:
+   *            $ref: '#/components/schemas/OccupationGroupRequestParamSchemaGET'
+   *      requestBody:
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/OccupationGroupRequestSchemaPOST'
+   *         required: true
+   *      responses:
+   *         '201':
+   *           description: Successfully created the occupation group,
+   *           content:
+   *             application/json:
+   *               schema:
+   *                  $ref: '#/components/schemas/OccupationGroupResponseSchemaPOST'
+   *         '400':
+   *           description: |
+   *             Failed to create the occupation group. Additional information can be found in the response body.
+   *           content:
+   *             application/json:
+   *                schema:
+   *                  $ref: '#/components/schemas/ErrorSchema'
+   *         '403':
+   *           $ref: '#/components/responses/ForbiddenResponse'
+   *         '401':
+   *           $ref: '#/components/responses/UnAuthorizedResponse'
+   *         '415':
+   *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
+   *         '500':
+   *           $ref: '#/components/responses/InternalServerErrorResponse'
+   *
+   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
   async postOccupationGroup(event: APIGatewayProxyEvent) {
     if (!event.headers["Content-Type"]?.includes("application/json")) {
@@ -84,6 +133,60 @@ class OccupationGroupController {
       );
     }
   }
+
+  /**
+   * @openapi
+   *
+   * /occupationGroups/{modelId}:
+   *   get:
+   *    operationId: GETOccupationGroups
+   *    tags:
+   *      - occupationGroups
+   *    summary: Get a list of paginated occupation groups and cursor if there is one in a taxonomy model.
+   *    description: Retrieve a list of paginated occupation groups in a specific taxonomy model.
+   *    security:
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationGroupRequestParamSchemaGET'
+   *      - in: query
+   *        name: limit
+   *        required: false
+   *        schema:
+   *          type: integer
+   *          minimum: 1
+   *          maximum: 100
+   *          default: 100
+   *      - in: query
+   *        name: cursor
+   *        required: true
+   *        schema:
+   *          type: string
+   *          maxLength: 1720
+   *          pattern: '^\\S+$'
+   *    responses:
+   *      '200':
+   *        description: Successfully retrieved the paginated occupation groups.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/OccupationGroupResponseSchemaGET'
+   *      '400':
+   *        description: |
+   *          Failed to retrieve the occupation groups. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/ErrorSchema'
+   *      '401':
+   *        $ref: '#/components/responses/UnAuthorizedResponse'
+   *      '500':
+   *        $ref: '#/components/responses/InternalServerErrorResponse'
+   *
+   */
   async getOccupationGroups(event: APIGatewayProxyEvent) {
     // here is where the pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
     try {
@@ -105,14 +208,16 @@ class OccupationGroupController {
       ) as ValidateFunction;
       const isValid = validatePathFunction(requestPathParameter);
       if (!isValid) {
-        const errorDetail = ParseValidationError(validatePathFunction.errors);
-        return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          "Invalid modelId"
+        );
       }
-
-      const rawQueryParams = event.queryStringParameters || {};
-
+      const rawQueryParams = event.queryStringParameters as { limit: string; cursor: string };
       const queryParams = {
-        limit: rawQueryParams.limit ? parseInt(rawQueryParams.limit, 10) : undefined,
+        limit: parseInt(rawQueryParams.limit as string, 10),
         cursor: rawQueryParams.cursor,
       } as OccupationGroupAPISpecs.Types.GET.Request.Query.Payload;
 
@@ -121,57 +226,29 @@ class OccupationGroupController {
       ) as ValidateFunction;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
-        const errorDetail = ParseValidationError(validateQueryFunction.errors);
-        return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
+        // const errorDetail = ParseValidationError(validateQueryFunction.errors);
+        // return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          "Invalid query parameters"
+        );
       }
 
       // extract the nextCursor and the limit from the query parameter
       let limit = 100;
       if (queryParams.limit) {
         limit = queryParams.limit;
-        if (isNaN(limit) || limit <= 0) {
-          return errorResponse(
-            StatusCodes.BAD_REQUEST,
-            OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_LIMIT_PARAMETER,
-            "limit is invalid",
-            "limit should be a positive integer"
-          );
-        }
       }
       // here decode the cursor base64
       let cursor: { id: string; createdAt: Date } | null = null;
-      try {
-        if (typeof queryParams.cursor === "string") {
-          cursor = getRepositoryRegistry().OccupationGroup.decodeCursor(queryParams.cursor);
-        } else if (queryParams.cursor !== undefined) {
-          return errorResponse(
-            StatusCodes.BAD_REQUEST,
-            OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
-            "cursor is invalid",
-            "cursor should be a valid base64 string"
-          );
-        }
-      } catch (error: unknown) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
-          "cursor is invalid",
-          "cursor should be a valid base64 string"
-        );
-      }
+      cursor = getRepositoryRegistry().OccupationGroup.decodeCursor(queryParams.cursor as string);
 
-      if (!cursor?.id) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
-          "cursor is invalid",
-          "cursor should be a valid base64 string"
-        );
-      }
       // here call the repository to get the occupationGroup by limit starting from the cursor id field
       const currentPageOccupationGroups = await getRepositoryRegistry().OccupationGroup.findPaginated(
         requestPathParameter.modelId,
-        cursor?.id,
+        cursor!.id,
         limit
       );
       const occupationGroups: IOccupationGroup[] = [];
@@ -197,7 +274,7 @@ class OccupationGroupController {
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation groups from the DB",
-        e instanceof Error ? e.message : ""
+        ""
       );
     }
   }

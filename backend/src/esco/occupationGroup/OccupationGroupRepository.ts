@@ -117,7 +117,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     const newModel = new this.Model({
       ...newSpec,
       UUID: newUUID,
-      importId: newSpec.importId ? newSpec.importId : undefined,
+      importId: newSpec.importId ? newSpec.importId : null,
       originUUID: newSpec.UUIDHistory[newSpec.UUIDHistory.length - 1] || "",
     });
     // add the new UUID as the first element of the UUIDHistory
@@ -139,7 +139,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       populateEmptyOccupationHierarchy(newOccupationGroupModel);
       return newOccupationGroupModel.toObject();
     } catch (e: unknown) {
-      const err = new Error("OccupationGroupRepository.create: create failed", { cause: e });
+      const err = new Error("OccupationGroupRepository.create: create failed" + e, { cause: e });
       console.error(err);
       throw err;
     }
@@ -260,9 +260,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       );
 
       streamPipeline.on("error", (e) => {
-        const err = new Error("OccupationGroupRepository.findPaginated: stream pipeline failed", { cause: e });
-        console.error(err);
-        throw err;
+        console.error(new Error("OccupationGroupRepository.findPaginated: stream pipeline failed", { cause: e }));
       });
 
       const nextDocumentPipeline = stream.pipeline(
