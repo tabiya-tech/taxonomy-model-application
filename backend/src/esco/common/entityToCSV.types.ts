@@ -20,6 +20,7 @@ const HEADER_NAMES = {
   ISLOCALIZED: "ISLOCALIZED",
   UPDATED_AT: "UPDATEDAT",
   CREATED_AT: "CREATEDAT",
+  ORIGINUUID: "ORIGINUUID",
 };
 /*
  * ----------------------------- *
@@ -46,6 +47,7 @@ export const OccupationGroupExportHeaders = [
   ...OccupationGroupImportHeaders,
   HEADER_NAMES.CREATED_AT,
   HEADER_NAMES.UPDATED_AT,
+  HEADER_NAMES.ORIGINUUID,
 ];
 
 /*
@@ -65,6 +67,7 @@ export interface IOccupationGroupImportRow {
 export interface IOccupationGroupExportRow extends IOccupationGroupImportRow {
   CREATEDAT: string;
   UPDATEDAT: string;
+  ORIGINUUID: string;
 }
 
 /*
@@ -84,11 +87,7 @@ export const skillImportHeaders = [
   HEADER_NAMES.ISLOCALIZED,
 ];
 
-export const skillExportHeaders = [
-  ...skillImportHeaders,
-  HEADER_NAMES.CREATED_AT,
-  HEADER_NAMES.UPDATED_AT,
-];
+export const skillExportHeaders = [...skillImportHeaders, HEADER_NAMES.CREATED_AT, HEADER_NAMES.UPDATED_AT];
 
 /*
  * Interface for the skill row in the CSV file

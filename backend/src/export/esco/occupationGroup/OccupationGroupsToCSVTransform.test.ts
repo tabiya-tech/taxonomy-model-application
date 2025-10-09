@@ -30,6 +30,7 @@ const getMockOccupationGroups = (
     importId: `importId_${i}`,
     createdAt: new Date(i), // use a fixed date to make the snapshot stable
     updatedAt: new Date(i), // use a fixed date to make the snapshot stable
+    originUUID: `uuid_${i}_${getTestString(80)}`,
   }));
 };
 
@@ -40,6 +41,11 @@ function setupOccupationGroupRepositoryMock(findAllImpl: () => Readable) {
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
+    findPaginated: jest.fn().mockResolvedValue({}),
+    encodeCursor: jest.fn().mockReturnValue(null),
+    decodeCursor: jest.fn().mockReturnValue({}),
+    getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+    getHistory: jest.fn().mockResolvedValue([]),
   };
   OccupationGroupRepository.mockReturnValue(mockOccupationGroupRepository);
 }
