@@ -15,7 +15,7 @@ import { IOccupationGroupDoc } from "./OccupationGroup.types";
 import {
   testAltLabelsField,
   testDescription,
-  testImportId,
+  testOptionalImportId,
   testObjectIdField,
   testOriginUri,
   testPreferredLabel,
@@ -241,7 +241,7 @@ describe("Test the definition of the OccupationGroup Model", () => {
 
     testAltLabelsField<IOccupationGroupDoc>(() => OccupationGroupModel);
 
-    testImportId<IOccupationGroupDoc>(() => OccupationGroupModel);
+    testOptionalImportId<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     describe("Test validation of 'modelId'", () => {
       testObjectIdField<IOccupationGroupDoc>(() => OccupationGroupModel, "modelId");

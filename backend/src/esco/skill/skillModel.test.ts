@@ -14,12 +14,7 @@ import {
 } from "esco/common/modelSchema";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import {
-  generateRandomUrl,
-  getRandomString,
-  getTestString,
-  WHITESPACE,
-} from "_test_utilities/getMockRandomData";
+import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "./skills.types";
 import {

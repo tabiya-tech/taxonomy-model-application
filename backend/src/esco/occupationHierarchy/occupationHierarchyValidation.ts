@@ -3,7 +3,6 @@ import { isRelationPairValid } from "esco/common/relationValidation";
 import { toRelationshipPairSpec } from "esco/common/hierarchy";
 import { INewOccupationHierarchyPairSpec } from "./occupationHierarchy.types";
 
-
 /**
  * Check if the given occupation hierarchy pair spec is valid in relation to the existing IDs and their types.
  * Checks that the pair refers to objects that exist in the database and that the types
@@ -42,7 +41,6 @@ const REGEX_ONE_ISCO_GROUP_CODE_HIERARCHY_INCREMENT = RegExp(/^\d$/);
 const REGEX_ONE_ESCO_OCCUPATION_HIERARCHY_INCREMENT = RegExp(/^\.\d+$/);
 
 const REGEX_ONE_LOCAL_OCCUPATION_HIERARCHY_INCREMENT = RegExp(/^_[a-zA-Z\d]*$/);
-
 
 /**
  * Check if the parent-child code relationship is valid in relation to the codes of the parent and child objects.
