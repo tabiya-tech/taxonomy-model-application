@@ -32,6 +32,7 @@ jest.mock("./server/init", () => {
 import * as MainHandler from "index";
 import * as InfoHandler from "applicationInfo";
 import * as ModelHandler from "modelInfo/index";
+import * as OccupationGroupHandler from "esco/occupationGroup";
 import * as PresignedHandler from "presigned/index";
 import * as ImportHandler from "import/index";
 import * as ExportHandler from "export/index";
@@ -150,6 +151,7 @@ describe("test the handleRouteEvent function", () => {
     [Routes.PRESIGNED_ROUTE, PresignedHandler],
     [Routes.IMPORT_ROUTE, ImportHandler],
     [Routes.MODELS_ROUTE, ModelHandler],
+    [Routes.OCCUPATION_GROUPS_ROUTE, OccupationGroupHandler],
     [Routes.EXPORT_ROUTE, ExportHandler],
   ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
     // GIVEN an event with the given path & any HTTP method

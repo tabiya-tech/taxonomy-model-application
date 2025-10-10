@@ -3,10 +3,10 @@ import {
   AltLabelsProperty,
   DescriptionProperty,
   OriginUriProperty,
-  ImportIDProperty,
   OccupationGroupCodeProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
+  OriginUUIDProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationGroupDoc } from "./OccupationGroup.types";
@@ -22,12 +22,15 @@ export const OccupationGroupModelPaths = {
   code: "code",
 };
 
+export const IMPORT_ID_MAX_LENGTH = 256;
+
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationGroupDoc> {
   // Main Schema
   const OccupationGroupSchema = new mongoose.Schema<IOccupationGroupDoc>(
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
       UUIDHistory: UUIDHistoryProperty,
+      originUUID: OriginUUIDProperty,
       [OccupationGroupModelPaths.code]: OccupationGroupCodeProperty,
       preferredLabel: PreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -39,7 +42,11 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         required: true,
         enum: [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup],
       },
-      importId: ImportIDProperty,
+      importId: {
+        type: String,
+        required: false,
+        maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
+      },
     },
     {
       timestamps: true,

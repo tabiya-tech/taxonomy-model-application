@@ -14,7 +14,7 @@ export function getProcessEntityBatchFunction<
   repository: {
     createMany: (specs: SpecificationType[]) => Promise<EntityType[]>;
   },
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string | null, string>
 ): ProcessBatchFunction<SpecificationType> {
   let totalRowsProcessed = 0;
   return async (specs: SpecificationType[]) => {

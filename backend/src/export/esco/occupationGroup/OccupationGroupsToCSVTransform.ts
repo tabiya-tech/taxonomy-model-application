@@ -26,6 +26,7 @@ export const transformOccupationGroupSpecToCSVRow = (
     DESCRIPTION: occupationGroup.description,
     CREATEDAT: occupationGroup.createdAt.toISOString(),
     UPDATEDAT: occupationGroup.updatedAt.toISOString(),
+    ORIGINUUID: occupationGroup.originUUID,
   };
 };
 

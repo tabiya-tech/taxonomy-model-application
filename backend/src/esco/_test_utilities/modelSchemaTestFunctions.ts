@@ -44,6 +44,36 @@ export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   });
 }
 
+export function testOptionalImportId<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'importId'", () => {
+    test.each([
+      [CaseType.Success, "undefined", undefined, undefined],
+      [CaseType.Success, "null", null, undefined],
+      [
+        CaseType.Failure,
+        "Too long importId",
+        getTestString(IMPORT_ID_MAX_LENGTH + 1),
+        `{0} must be at most ${IMPORT_ID_MAX_LENGTH} chars long`,
+      ],
+      [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
+      [CaseType.Success, "empty", "", undefined],
+      [CaseType.Success, "one letter", "a", undefined],
+      [CaseType.Success, "The longest importId", getTestString(IMPORT_ID_MAX_LENGTH), undefined],
+    ])(
+      `(%s) Validate 'importId' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "importId",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
+  });
+}
+
 export function getStdDocModelFailureTestCases(
   acceptedModels: MongooseModelName[]
 ): [CaseType, string, string | null | undefined, string][] {
@@ -205,6 +235,35 @@ export function testUUIDField<T>(getModel: () => mongoose.Model<T>) {
         expectedFailureMessage,
       });
     });
+  });
+}
+
+export function testOriginUUIDField<T>(getModel: () => mongoose.Model<T>) {
+  return describe("Test validation of 'originUUID'", () => {
+    test.each([
+      [CaseType.Success, "undefined", undefined, undefined],
+      [CaseType.Success, "null", null, undefined],
+      [CaseType.Success, "empty", "", undefined],
+      [
+        CaseType.Failure,
+        "only whitespace characters",
+        WHITESPACE,
+        `Validator failed for path \`{0}\` with value \`${WHITESPACE}\``,
+      ],
+      [CaseType.Failure, "not a UUID v4", "foo", "Validator failed for path `{0}` with value `foo`"],
+      [CaseType.Success, "Valid UUID", randomUUID(), undefined],
+    ])(
+      `(%s) Validate 'originUUID' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "originUUID",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
   });
 }
 
