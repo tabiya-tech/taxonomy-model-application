@@ -1487,6 +1487,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         limit: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         cursor: jest.fn().mockReturnValue(mockStream),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       // Schedule an error to be emitted from the nextDocumentPipeline
