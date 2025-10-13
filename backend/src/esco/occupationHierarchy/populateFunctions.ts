@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 export function getOccupationHierarchyChildReference(
   doc: IPopulatedOccupationHierarchyPairDoc
 ): IOccupationGroupReference | IOccupationReference | null {
+  if (!doc) return null;
   if (!doc.childId) return null; // the child was not populated, most likely because it failed to pass the consistency criteria in the transform
   if (!doc.childId.modelId?.equals(doc.modelId)) {
     console.error(new Error(`Child is not in the same model as the parent`));
@@ -21,6 +22,7 @@ export function getOccupationHierarchyParentReference(
   doc: IPopulatedOccupationHierarchyPairDoc
 ): IOccupationGroupReference | IOccupationReference | null {
   // return only the relevant fields
+  if (!doc) return null;
   if (!doc.parentId) return null; // the parent was not populated, most likely because it failed to pass the consistency criteria in the transform
   if (!doc.parentId.modelId?.equals(doc.modelId)) {
     console.error(new Error(`Parent is not in the same model as the child`));
