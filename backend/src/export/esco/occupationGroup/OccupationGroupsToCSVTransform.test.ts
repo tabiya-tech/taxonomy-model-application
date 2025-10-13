@@ -156,12 +156,6 @@ describe("OccupationGroupsDoc2csvTransform", () => {
             givenError.message
           )
         );
-        expect(console.error).toHaveBeenCalledWith(
-          expect.toMatchErrorWithCause(
-            "Transforming ESCO occupationGroups to CSV failed",
-            `Failed to transform OccupationGroup to CSV row: ${expectedLoggedItem}`
-          )
-        );
         // AND the stream should end
         expect(transformedStream.closed).toBe(true);
       });

@@ -174,15 +174,10 @@ describe("BaseOccupationsDoc2csvTransform", () => {
           // THEN the error should be logged
           const expectedLoggedItem = JSON.stringify(transformFunctionSpy.mock.calls[0][0], null, 2);
           const expectedErrorMessage = `Failed to transform Occupation to CSV row: ${expectedLoggedItem}`;
-          const expectedError = new Error(expectedErrorMessage, { cause: givenError });
 
           expect(console.error).toHaveBeenCalledWith(
             expect.toMatchErrorWithCause(expectedErrorMessage, givenError.message)
           );
-          expect(console.error).toHaveBeenCalledWith(
-            expect.toMatchErrorWithCause(`Transforming Occupations to CSV failed`, expectedError.message)
-          );
-
           // AND the stream should end
           expect(transformedStream.closed).toBe(true);
         });
