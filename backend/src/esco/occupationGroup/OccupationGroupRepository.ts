@@ -278,7 +278,9 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       // Separate items and check for next page
       const hasMore = results.length > limit;
       const items = hasMore ? results.slice(0, limit) : results;
-      const nextDoc = hasMore ? results[limit] : null;
+      // Important: the nextCursor should point to the LAST item of the current page,
+      // not the extra fetched one. Using the extra item would skip one element on the next page.
+      const nextCursorDoc = hasMore ? items[items.length - 1] : null;
 
       return {
         items: items.map((doc) => {
@@ -291,10 +293,10 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
             modelId: doc.modelId.toString(),
           } as IOccupationGroup;
         }),
-        nextCursor: nextDoc
+        nextCursor: nextCursorDoc
           ? {
-              _id: nextDoc._id.toString(),
-              createdAt: this.getCreatedAtFromObjectId(nextDoc._id),
+              _id: nextCursorDoc._id.toString(),
+              createdAt: this.getCreatedAtFromObjectId(nextCursorDoc._id),
             }
           : null,
       };
