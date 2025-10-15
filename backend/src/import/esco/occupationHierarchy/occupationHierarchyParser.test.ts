@@ -48,6 +48,25 @@ describe("test parseOccupationHierarchy from", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  test("should handle null/undefined hierarchy doc gracefully in populate helpers", async () => {
+    // GIVEN the populate helpers are imported
+    const {
+      getOccupationHierarchyChildReference,
+      getOccupationHierarchyParentReference,
+    } = await import("esco/occupationHierarchy/populateFunctions");
+
+    // WHEN passing null/undefined to child/parent reference getters
+    // THEN expect them to return null (branch coverage for !doc)
+    // @ts-ignore intentional: simulate null/undefined input branch
+    expect(getOccupationHierarchyChildReference(null)).toBeNull();
+    // @ts-ignore intentional: simulate null/undefined input branch
+    expect(getOccupationHierarchyChildReference(undefined)).toBeNull();
+    // @ts-ignore intentional: simulate null/undefined input branch
+    expect(getOccupationHierarchyParentReference(null)).toBeNull();
+    // @ts-ignore intentional: simulate null/undefined input branch
+    expect(getOccupationHierarchyParentReference(undefined)).toBeNull();
+  });
   test.each([
     ["url file", "./src/import/esco/occupationHierarchy/_test_data_/given.csv", parseFromUrlCallback],
     ["csv file", "./src/import/esco/occupationHierarchy/_test_data_/given.csv", parseFromFileCallback],
