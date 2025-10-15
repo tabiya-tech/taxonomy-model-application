@@ -1404,7 +1404,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       // THEN expect the latest 2 documents by _id (desc)
       const expectedFirstPage = givenOccupationGroups
         .slice(-2)
-        .map(({ parent, children, ...rest }) => rest)
+        .map(({ parent, children, ...rest }) => ({ ...rest, parent: null, children: [] }))
         .reverse();
       expect(actualFirstPage).toHaveLength(2);
       expect(actualFirstPage).toEqual(expectedFirstPage);
@@ -1428,10 +1428,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const actualFirstPageOccupationGroupsArray = firstPage.items;
 
       // THEN the first page should contain group_2 and group_1 (items older than group_3) ordered by _id descending
-      const expectedOccupationGroups = givenOccupationGroups.slice(0, 2).map((OccupationGroup) => {
-        const { parent, children, ...OccupationGroupData } = OccupationGroup;
-        return OccupationGroupData;
-      });
+      const expectedOccupationGroups = givenOccupationGroups
+        .slice(0, 2)
+        .map(({ parent, children, ...rest }) => ({ ...rest, parent: null, children: [] }));
       expect(actualFirstPageOccupationGroupsArray).toHaveLength(2);
       const expectedFirstPageOccupationGroups = expectedOccupationGroups.reverse(); // [group_2, group_1]
       expect(actualFirstPageOccupationGroupsArray).toEqual(expectedFirstPageOccupationGroups);
@@ -1442,10 +1441,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const actualFirstPageOccupationGroupsArrayAsc = firstPageAsc.items;
 
       // THEN should return group_2 and group_3 (items newer than group_1) ordered by _id ascending
-      const expectedOccupationGroupsAsc = givenOccupationGroups.slice(1, 3).map((OccupationGroup) => {
-        const { parent, children, ...OccupationGroupData } = OccupationGroup;
-        return OccupationGroupData;
-      });
+      const expectedOccupationGroupsAsc = givenOccupationGroups
+        .slice(1, 3)
+        .map(({ parent, children, ...rest }) => ({ ...rest, parent: null, children: [] }));
 
       expect(actualFirstPageOccupationGroupsArrayAsc).toHaveLength(2);
       expect(actualFirstPageOccupationGroupsArrayAsc).toEqual(expectedOccupationGroupsAsc); // [group_2, group_3]
@@ -1526,6 +1524,52 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       // AND expect the result to ignore the invalid cursor and return the first page
       expect(result.items).toHaveLength(1);
       expect(result.items[0].id).toBe(createdGroup.id);
+    });
+
+    test("should populate parent and children for items in paginated results", async () => {
+      // GIVEN a modelId and a small hierarchy: parent -> subject -> child
+      const givenModelId = getMockStringId(321);
+
+      // Parent group
+      const parent = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "parent"));
+      // Subject group
+      const subject = await repository.create(
+        getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "subject", parent.code)
+      );
+      // Child group
+      const child = await repository.create(
+        getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child", subject.code)
+      );
+
+      // Build hierarchy relations explicitly
+      const hierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: parent.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: subject.id,
+        },
+        {
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: subject.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: child.id,
+        },
+      ]);
+      expect(hierarchy).toHaveLength(2);
+
+      // WHEN retrieving a page large enough to include all three
+      const page = await repository.findPaginated(givenModelId, undefined, 10);
+
+      // THEN find the subject entry and assert it has populated parent and children
+      const subjectFromPage = page.items.find((i) => i.id === subject.id)!;
+      expect(subjectFromPage).toBeDefined();
+      expect(subjectFromPage.parent).toEqual(expectedOccupationGroupReference(parent));
+      expect(subjectFromPage.children).toEqual(
+        expect.arrayContaining<IOccupationGroupReference | IOccupationReference>([
+          expectedOccupationGroupReference(child),
+        ])
+      );
     });
   });
 

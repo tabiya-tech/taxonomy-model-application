@@ -277,22 +277,26 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
 
       // Separate items and check for next page
       const hasMore = results.length > limit;
-      const items = hasMore ? results.slice(0, limit) : results;
+      const pageDocs = hasMore ? results.slice(0, limit) : results;
       // Important: the nextCursor should point to the LAST item of the current page,
       // not the extra fetched one. Using the extra item would skip one element on the next page.
-      const nextCursorDoc = hasMore ? items[items.length - 1] : null;
+      const nextCursorDoc = hasMore ? pageDocs[pageDocs.length - 1] : null;
+
+      // populate parent and children for the page items using existing populate options
+      const idsInOrder = pageDocs.map((d) => d._id.toString());
+      const objectIds = idsInOrder.map((id) => new mongoose.Types.ObjectId(id));
+      // NOTE: query the page docs and let MongoDB return them already ordered by _id
+      const populated = await this.Model.find({ _id: objectIds })
+        .sort({ _id: desc ? -1 : 1 })
+        .populate(populateOccupationGroupParentOptions)
+        .populate(populateOccupationGroupChildrenOptions)
+        .exec();
+
+      // Convert to plain objects
+      const orderedObjects: IOccupationGroup[] = populated.map((doc) => doc.toObject());
 
       return {
-        items: items.map((doc) => {
-          // Transform MongoDB document to match IOccupationGroup interface
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { _id, __v, ...rest } = doc;
-          return {
-            ...rest,
-            id: _id.toString(),
-            modelId: doc.modelId.toString(),
-          } as IOccupationGroup;
-        }),
+        items: orderedObjects,
         nextCursor: nextCursorDoc
           ? {
               _id: nextCursorDoc._id.toString(),
