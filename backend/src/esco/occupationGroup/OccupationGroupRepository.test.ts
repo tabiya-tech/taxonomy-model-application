@@ -1408,8 +1408,8 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         .reverse();
       expect(actualFirstPage).toHaveLength(2);
       expect(actualFirstPage).toEqual(expectedFirstPage);
-      // AND nextCursor should point to the oldest remaining document
-      expect(firstPage.nextCursor?._id).toBe(givenOccupationGroups[0].id.toString());
+      // AND nextCursor should point to the last item of the current page (older of the 2)
+      expect(firstPage.nextCursor?._id).toBe(givenOccupationGroups[1].id.toString());
     });
 
     test("should return paginated OccupationGroups for a given modelId, limit and cursor", async () => {
@@ -1479,6 +1479,35 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       );
 
       aggregateSpy.mockRestore();
+    });
+
+    test("should paginate consistently across mixed limits and cursor flow", async () => {
+      // GIVEN a modelId and three occupation groups created in order
+      const givenModelId = getMockStringId(1);
+      const given_occupation_group1 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "g1"));
+      const given_occupation_group2 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "g2"));
+      const given_occupation_group3 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "g3"));
+
+      // WHEN requesting first page with limit=3 and no cursor (desc by _id => newest first)
+      const page2 = await repository.findPaginated(givenModelId, undefined, 3);
+      // THEN expect when fetching three items with limit=3, to get all three items in the correct order
+      expect(page2.items).toHaveLength(3);
+      const firstTwoIds = page2.items.map((i) => i.id);
+      expect(firstTwoIds).toEqual([given_occupation_group3.id, given_occupation_group2.id, given_occupation_group1.id]);
+
+      // WHEN requesting first page with limit=1 and no cursor
+      const page1 = await repository.findPaginated(givenModelId, undefined, 1);
+      expect(page1.items).toHaveLength(1);
+      expect(page1.items[0].id).toBe(given_occupation_group3.id);
+      expect(page1.nextCursor?._id).toBe(given_occupation_group3.id);
+
+      // AND then requesting next page with cursor=page1.nextCursor._id and limit=1
+      const page1Next = await repository.findPaginated(givenModelId, page1.nextCursor?._id, 1);
+      expect(page1Next.items).toHaveLength(1);
+
+      // THEN expect the item returned to equal the second item from the first (limit=2) page (g2)
+      expect(page1Next.items[0].id).toBe(page2.items[1].id);
+      expect(page1Next.items[0].id).toBe(given_occupation_group2.id);
     });
 
     test("should warn and ignore invalid cursor", async () => {
