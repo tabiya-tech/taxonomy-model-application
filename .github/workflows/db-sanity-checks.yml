@@ -32,7 +32,11 @@ jobs:
         working-directory: pipeline/scripts
       - name: Run Database Sanity Checks ${{ inputs.command }}
         id: get-current-version
+        env:
+          INPUT_COMMAND: ${{ inputs.command }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_BACKEND_URL: ${{ inputs.backend-url }}
         run: |
-          node ./db-sanity-checks.js ${{ inputs.command }} ${{ inputs.version }} ${{ inputs.backend-url }}/info
+          node ./db-sanity-checks.js "$INPUT_COMMAND" "$INPUT_VERSION" "$INPUT_BACKEND_URL/info"
         working-directory: pipeline/scripts
 
