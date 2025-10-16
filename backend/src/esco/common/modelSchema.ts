@@ -23,7 +23,7 @@ export const RegulatedProfessionNoteProperty: mongoose.SchemaDefinitionProperty<
 };
 
 // Description
-export const DESCRIPTION_MAX_LENGTH = 4000;
+export const DESCRIPTION_MAX_LENGTH = 6000;
 
 export const DescriptionProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,

@@ -6,12 +6,12 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     "ALT_LABELS_MAX_ITEMS": 100,
     "ALT_LABEL_MAX_LENGTH": 256,
     "CODE_MAX_LENGTH": 256,
-    "DESCRIPTION_MAX_LENGTH": 4000,
+    "DESCRIPTION_MAX_LENGTH": 6000,
     "MAX_CURSOR_LENGTH": 1720,
     "MAX_JSON_OVERHEAD": 10000,
     "MAX_LIMIT": 100,
     "MAX_PATH_URI_LENGTH": 4096,
-    "MAX_PAYLOAD_LENGTH": 414220,
+    "MAX_PAYLOAD_LENGTH": 416220,
     "MAX_TABIYA_PATH_LENGTH": 4096,
     "MAX_UUID_HISTORY_ITEM_LENGTH": 36,
     "ORIGIN_URI_MAX_LENGTH": 4096,
@@ -313,7 +313,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                   },
                   "description": {
                     "description": "The description of the occupation group.",
-                    "maxLength": 4000,
+                    "maxLength": 6000,
                     "type": "string",
                   },
                   "groupType": {
@@ -548,7 +548,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
             },
             "description": {
               "description": "The description of the occupation group.",
-              "maxLength": 4000,
+              "maxLength": 6000,
               "type": "string",
             },
             "groupType": {
@@ -780,7 +780,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
             },
             "description": {
               "description": "The description of the occupation group.",
-              "maxLength": 4000,
+              "maxLength": 6000,
               "type": "string",
             },
             "groupType": {

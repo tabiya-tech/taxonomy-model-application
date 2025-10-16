@@ -1,5 +1,5 @@
 namespace OccupationGroupConstants {
-  export const DESCRIPTION_MAX_LENGTH = 4000;
+  export const DESCRIPTION_MAX_LENGTH = 6000;
   export const CODE_MAX_LENGTH = 256;
   export const PREFERRED_LABEL_MAX_LENGTH = 256;
   export const ALT_LABELS_MAX_ITEMS = 100;

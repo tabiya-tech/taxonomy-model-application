@@ -127,7 +127,7 @@ export function getSimpleNewLocalGroupSpecWithParentCode(
 export function getNewESCOOccupationSpec(): INewOccupationSpec {
   return {
     occupationGroupCode: getMockRandomISCOGroupCode(),
-    definition: getTestString(DESCRIPTION_MAX_LENGTH),
+    definition: getTestString(DEFINITION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
@@ -152,7 +152,7 @@ export function getNewLocalizedESCOOccupationSpec(): INewOccupationSpec {
 export function getNewLocalOccupationSpec(): INewOccupationSpec {
   return {
     occupationGroupCode: getMockRandomISCOGroupCode(),
-    definition: getTestString(DESCRIPTION_MAX_LENGTH),
+    definition: getTestString(DEFINITION_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     scopeNote: getRandomString(SCOPE_NOTE_MAX_LENGTH),
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],

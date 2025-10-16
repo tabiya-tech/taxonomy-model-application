@@ -1,6 +1,6 @@
 namespace OccupationConstants {
   // Text field max lengths
-  export const DESCRIPTION_MAX_LENGTH = 4000;
+  export const DESCRIPTION_MAX_LENGTH = 6000;
   export const DEFINITION_MAX_LENGTH = 4000;
   export const PREFERRED_LABEL_MAX_LENGTH = 256;
   export const ALT_LABEL_MAX_LENGTH = 256;
