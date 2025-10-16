@@ -7,11 +7,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "ALT_LABEL_MAX_LENGTH": 256,
     "CODE_MAX_LENGTH": 256,
     "DEFINITION_MAX_LENGTH": 4000,
-    "DESCRIPTION_MAX_LENGTH": 4000,
+    "DESCRIPTION_MAX_LENGTH": 6000,
     "MAX_CURSOR_LENGTH": 1024,
     "MAX_JSON_OVERHEAD": 10000,
     "MAX_LIMIT": 100,
-    "MAX_PAYLOAD_LENGTH": 565780,
+    "MAX_PAYLOAD_LENGTH": 567780,
     "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
     "ORIGIN_URI_MAX_LENGTH": 4096,
     "PATH_URI_MAX_LENGTH": 4096,
@@ -396,7 +396,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   },
                   "description": {
                     "description": "Additional descriptive information about the occupation.",
-                    "maxLength": 4000,
+                    "maxLength": 6000,
                     "type": "string",
                   },
                   "id": {
@@ -788,7 +788,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             },
             "description": {
               "description": "Additional descriptive information about the occupation.",
-              "maxLength": 4000,
+              "maxLength": 6000,
               "type": "string",
             },
             "isLocalized": {
@@ -1110,7 +1110,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             },
             "description": {
               "description": "Additional descriptive information about the occupation.",
-              "maxLength": 4000,
+              "maxLength": 6000,
               "type": "string",
             },
             "id": {

@@ -97,7 +97,7 @@ Contains the skills of the taxonomy. The export filename is `skills.csv`
   - Maximum length per label: `256` characters.
   - Maximum number of labels: `100`.
 - `DESCRIPTION`: The skill description. 
-  -  Maximum length:`4000` characters.
+  -  Maximum length:`6000` characters.
 - `DEFINITION`: The skill definition. 
   -  Maximum length:`4000` characters.
 - `SCOPENOTE`: The skill scope note. 
@@ -120,7 +120,7 @@ Contains the skill groups of the taxonomy. The export filename is `skill_groups.
   - Maximum length per label: `256` characters.
   - Maximum number of labels: `100`.
 - `DESCRIPTION`: The skill group description. 
-  -  Maximum length:`4000` characters.
+  -  Maximum length:`6000` characters.
 - `SCOPENOTE`: The skill group scope note. 
   -  Maximum length:`4000` characters.
 - `CREATEDAT`: The [date](#dates) the skill group was created.
@@ -142,7 +142,7 @@ Contains the occupations of the taxonomy. The export filename is `occupations.cs
   - Maximum length per label: `256` characters.
   - Maximum number of labels: `100`.
 - `DESCRIPTION`: The occupation description.
-  -  Maximum length:`4000` characters.
+  -  Maximum length:`6000` characters.
 - `DEFINITION`: The occupation definition.
   -  Maximum length:`4000` characters.
 - `SCOPENOTE`: The occupation scope note.
@@ -175,7 +175,7 @@ Contains the Occupation groups of the taxonomy. The export filename is `occupati
   - Maximum length per label: `256` characters.
   - Maximum number of labels: `100`.
 - `DESCRIPTION`: The Occupation group description.
-  -  Maximum length:`4000` characters.
+  -  Maximum length:`6000` characters.
 - `CREATEDAT`: The [date](#dates) the Occupation group was created.
 - `UPDATEDAT`: The [date](#dates) the Occupation group was last updated.
 

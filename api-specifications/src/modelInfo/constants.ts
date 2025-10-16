@@ -2,7 +2,7 @@ import LocaleConstants from "../locale/constants";
 
 namespace ModelInfoConstants {
   export const NAME_MAX_LENGTH = 256;
-  export const DESCRIPTION_MAX_LENGTH = 4000;
+  export const DESCRIPTION_MAX_LENGTH = 6000;
   export const RELEASE_NOTES_MAX_LENGTH = 100000;
   export const LICENSE_MAX_LENGTH = 100000;
   export const VERSION_MAX_LENGTH = 256;
