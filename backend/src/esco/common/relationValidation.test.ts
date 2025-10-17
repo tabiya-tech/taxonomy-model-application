@@ -1,3 +1,6 @@
+//mute chatty console
+import "_test_utilities/consoleMock";
+
 import { IRelationshipSpec, isRelationPairValid, ValidPairTypes } from "./relationValidation";
 import { ObjectTypes } from "./objectTypes";
 
