@@ -18,5 +18,10 @@
     "name": "Europe (French)",
     "shortCode": "EU-fr",
     "UUID": "bf73fccb-39a1-4eba-b5a1-845ae55ba86e"
+  },
+  {
+    "name": "Europe (Spanish)",
+    "shortCode": "EU-es",
+    "UUID": "86117f78-0211-458f-8b7e-4a2aef319e49"
   }
 ]
