@@ -45,6 +45,10 @@ function setupOccupationRepositoryMock(findAllImpl: () => Readable) {
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
+    findPaginated: jest.fn().mockResolvedValue({}),
+    encodeCursor: jest.fn().mockReturnValue(null),
+    decodeCursor: jest.fn().mockReturnValue({}),
+    getOccupationByUUID: jest.fn().mockResolvedValue(null),
   };
   OccupationRepositorySpy.mockReturnValue(mockOccupationRepository);
 }

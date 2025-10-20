@@ -501,6 +501,359 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test findPaginated()", () => {
+    test("should return first page when cursor is undefined", async () => {
+      // GIVEN a modelId to group the occupations together
+      const givenModelId = getMockStringId(1);
+      const givenOccupations: IOccupation[] = [];
+      for (let i = 0; i < 3; i++) {
+        const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, `occupation_${i + 1}`);
+        const givenOccupation = await repository.create(givenOccupationSpecs);
+        givenOccupations.push(givenOccupation);
+      }
+
+      // WHEN retrieving the first page with undefined cursor and a limit of 2 (default desc order)
+      const firstPage = await repository.findPaginated(givenModelId, undefined, 2);
+      const actualFirstPage = firstPage.items;
+
+      // THEN expect the latest 2 documents by _id (desc)
+      const expectedFirstPage = givenOccupations
+        .slice(-2)
+        .map(({ parent, children, requiresSkills, ...rest }) => ({
+          ...rest,
+          parent: null,
+          children: [],
+          requiresSkills: [],
+        }))
+        .reverse();
+      expect(actualFirstPage).toHaveLength(2);
+      expect(actualFirstPage).toEqual(expectedFirstPage);
+      // AND nextCursor should point to the last item of the current page (older of the 2)
+      expect(firstPage.nextCursor?._id).toBe(givenOccupations[1].id.toString());
+    });
+
+    test("should return paginated Occupations for a given modelId, limit and cursor", async () => {
+      // GIVEN a modelId to group the occupations together
+      const givenModelId = getMockStringId(1);
+      const givenOccupations = [];
+      for (let i = 0; i < 3; i++) {
+        const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, `occupation_${i + 1}`);
+        const givenOccupation = await repository.create(givenOccupationSpecs);
+        givenOccupations.push(givenOccupation);
+      }
+      // WHEN retrieving the occupations with a cursor pointing to occupation_3 (newest) and a limit of 2
+      const cursor = givenOccupations[2].id.toString(); // occupation_3
+      const cursorAsc = givenOccupations[0].id.toString(); // occupation_1
+      const firstPage = await repository.findPaginated(givenModelId, cursor, 2);
+      const actualFirstPageOccupationsArray = firstPage.items;
+
+      // THEN the first page should contain occupation_2 and occupation_1 (items older than occupation_3) ordered by _id descending
+      const expectedOccupations = givenOccupations.slice(0, 2).map(({ parent, children, requiresSkills, ...rest }) => ({
+        ...rest,
+        parent: null,
+        children: [],
+        requiresSkills: [],
+      }));
+      expect(actualFirstPageOccupationsArray).toHaveLength(2);
+      const expectedFirstPageOccupations = expectedOccupations.reverse(); // [occupation_2, occupation_1]
+      expect(actualFirstPageOccupationsArray).toEqual(expectedFirstPageOccupations);
+      expect(firstPage.nextCursor).toBeNull(); // No more items after occupation_1
+
+      // WHEN retrieving with cursor=occupation_1 (oldest) in ascending order
+      const firstPageAsc = await repository.findPaginated(givenModelId, cursorAsc, 2, false);
+      const actualFirstPageOccupationsArrayAsc = firstPageAsc.items;
+
+      // THEN should return occupation_2 and occupation_3 (items newer than occupation_1) ordered by _id ascending
+      const expectedOccupationsAsc = givenOccupations
+        .slice(1, 3)
+        .map(({ parent, children, requiresSkills, ...rest }) => ({
+          ...rest,
+          parent: null,
+          children: [],
+          requiresSkills: [],
+        }));
+
+      expect(actualFirstPageOccupationsArrayAsc).toHaveLength(2);
+      expect(actualFirstPageOccupationsArrayAsc).toEqual(expectedOccupationsAsc); // [occupation_2, occupation_3]
+      expect(firstPageAsc.nextCursor).toBeNull(); // No more items after occupation_3
+    });
+    test("should handle errors during paginated data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving data
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding paginated occupations for some modelId
+      // THEN expect the operation to fail with the given error
+      await expect(repository.findPaginated(getMockStringId(1), getMockStringId(2), 2)).rejects.toThrowError(
+        new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
+    });
+    test("should reject when database query fails", async () => {
+      const givenError = new Error("database query failure");
+
+      const aggregateSpy = jest.spyOn(repository.Model, "aggregate").mockReturnValue({
+        exec: jest.fn().mockRejectedValue(givenError),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      await expect(
+        repository.findPaginated(getMockStringId(1), new mongoose.Types.ObjectId().toString(), 1)
+      ).rejects.toThrow(new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: givenError }));
+
+      aggregateSpy.mockRestore();
+    });
+
+    test("should paginate consistently across mixed limits and cursor flow", async () => {
+      // GIVEN a modelId and three occupations created in order
+      const givenModelId = getMockStringId(1);
+      const given_occupation1 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o1"));
+      const given_occupation2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o2"));
+      const given_occupation3 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o3"));
+
+      // WHEN requesting first page with limit=3 and no cursor (desc by _id => newest first)
+      const page2 = await repository.findPaginated(givenModelId, undefined, 3);
+      // THEN expect when fetching three items with limit=3, to get all three items in the correct order
+      expect(page2.items).toHaveLength(3);
+      const firstTwoIds = page2.items.map((i) => i.id);
+      expect(firstTwoIds).toEqual([given_occupation3.id, given_occupation2.id, given_occupation1.id]);
+
+      // WHEN requesting first page with limit=1 and no cursor
+      const page1 = await repository.findPaginated(givenModelId, undefined, 1);
+      expect(page1.items).toHaveLength(1);
+      expect(page1.items[0].id).toBe(given_occupation3.id);
+      expect(page1.nextCursor?._id).toBe(given_occupation3.id);
+
+      // AND then requesting next page with cursor=page1.nextCursor._id and limit=1
+      const page1Next = await repository.findPaginated(givenModelId, page1.nextCursor?._id, 1);
+      expect(page1Next.items).toHaveLength(1);
+
+      // THEN expect the item returned to equal the second item from the first (limit=2) page (o2)
+      expect(page1Next.items[0].id).toBe(page2.items[1].id);
+      expect(page1Next.items[0].id).toBe(given_occupation2.id);
+    });
+
+    test("should warn and ignore invalid cursor", async () => {
+      // GIVEN a unique modelId and some occupations
+      const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts
+      const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "test_occupation");
+      const createdOccupation = await repository.create(givenOccupationSpecs);
+
+      // WHEN finding paginated occupations with an invalid cursor
+      const invalidCursor = "invalid-cursor-string";
+      const result = await repository.findPaginated(givenModelId, invalidCursor, 2);
+
+      // THEN expect the warning to be logged
+      expect(console.warn).toHaveBeenCalledWith(`Invalid cursor provided: ${invalidCursor}`);
+
+      // AND expect the result to ignore the invalid cursor and return the first page
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].id).toBe(createdOccupation.id);
+    });
+
+    test("should populate parent and children for items in paginated results", async () => {
+      // GIVEN a modelId and a small hierarchy: parent -> subject -> child
+      const givenModelId = getMockStringId(321);
+
+      // Parent occupation
+      const parent = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "parent"));
+      // Subject occupation
+      const subject = await repository.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "subject", parent.code)
+      );
+      // Child occupation
+      const child = await repository.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", subject.code)
+      );
+
+      // Build hierarchy relations explicitly
+      const hierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.ESCOOccupation,
+          parentId: parent.id,
+          childType: ObjectTypes.ESCOOccupation,
+          childId: subject.id,
+        },
+        {
+          parentType: ObjectTypes.ESCOOccupation,
+          parentId: subject.id,
+          childType: ObjectTypes.ESCOOccupation,
+          childId: child.id,
+        },
+      ]);
+      expect(hierarchy).toHaveLength(2);
+
+      // WHEN retrieving a page large enough to include all three
+      const page = await repository.findPaginated(givenModelId, undefined, 10);
+
+      // THEN find the subject entry and assert it has populated parent and children
+      const subjectFromPage = page.items.find((i) => i.id === subject.id)!;
+      expect(subjectFromPage).toBeDefined();
+      expect(subjectFromPage.parent).toEqual(expectedOccupationReference(parent));
+      expect(subjectFromPage.children).toEqual(
+        expect.arrayContaining<IOccupationReference>([expectedOccupationReference(child)])
+      );
+    });
+  });
+
+  describe("Test encodeCursor() & decodeCursor()", () => {
+    test("should encode and decode a cursor", () => {
+      const givenValidCursorObject = {
+        id: getMockStringId(1),
+        createdAt: new Date("2023-01-01T00:00:00Z"),
+      };
+      const cursor = repository.encodeCursor(givenValidCursorObject.id, givenValidCursorObject.createdAt);
+      const decoded = repository.decodeCursor(cursor);
+      expect(decoded).toEqual(givenValidCursorObject);
+    });
+  });
+
+  describe("Test getOccupationByUUID()", () => {
+    test("Should return an existing occupation by occupation uuid", async () => {
+      // GIVEN an Occupation exists in the database
+      const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_2");
+      const givenOccupation = await repository.create(givenOccupationSpecs);
+
+      // WHEN search for the Occupation by its uuid
+      const actualFoundOccupation = await repository.getOccupationByUUID(givenOccupation.UUID);
+
+      //THEN expect the Occupation to be found
+      expect(actualFoundOccupation).toEqual(givenOccupation);
+    });
+    test("should return null if no Occupation with the given uuid exists", async () => {
+      // GIVEN no Occupation exists in the database
+
+      // WHEN searching for the Occupation by it's uuid
+      const actualFoundOccupation = await repository.getOccupationByUUID(randomUUID());
+
+      // THEN expect no Occupation to be found
+      expect(actualFoundOccupation).toBeNull();
+    });
+    test("should return null if given uuid is not a valid uuid", async () => {
+      // GIVEN no Occupation exists in the database
+
+      // WHEN searching for the Occupation by it's uuid
+      const actualFoundOccupation = await repository.getOccupationByUUID("non_existing_uuid");
+
+      // THEN expect no Occupation to be found
+      expect(actualFoundOccupation).toBeNull();
+    });
+
+    describe("should return the Occupation with it's parent and children", () => {
+      test("should return the ESCOOccupation with its parent(ESCOOccupation) and children occupations(ESCOOccupations)", async () => {
+        // GIVEN three Occupations in the database in the same model
+        const givenModelId = getMockStringId(1);
+
+        // The parent (Occupation)
+        const givenParentSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "parent");
+        const givenParent = await repository.create(givenParentSpecs);
+
+        // THE subject (Occupation)
+        const givenSubjectSpecs = getSimpleNewESCOOccupationSpecWithParentCode(
+          givenModelId,
+          "subject",
+          givenParent.code
+        );
+        const givenSubject = await repository.create(givenSubjectSpecs);
+
+        // The child Occupation
+        const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
+          givenModelId,
+          "child_1",
+          givenSubject.code
+        );
+        const givenChild_1 = await repository.create(givenChildSpecs_1);
+
+        // The child Occupation
+        const givenChildSpecs_2 = getSimpleNewESCOOccupationSpecWithParentCode(
+          givenModelId,
+          "child_2",
+          givenSubject.code
+        );
+        const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+
+        // AND the subject Occupation has a parent and two children
+        const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+          {
+            // parent of the subject
+            parentType: givenParent.occupationType,
+            parentId: givenParent.id,
+            childType: givenSubject.occupationType,
+            childId: givenSubject.id,
+          },
+          {
+            // child 1 of the subject
+            parentType: givenSubject.occupationType,
+            parentId: givenSubject.id,
+            childType: givenChild_1.occupationType,
+            childId: givenChild_1.id,
+          },
+          {
+            // child 2 of the subject
+            parentType: givenSubject.occupationType,
+            parentId: givenSubject.id,
+            childType: givenChild_2.occupationType,
+            childId: givenChild_2.id,
+          },
+        ]);
+        // Guard assertion
+        expect(actualHierarchy).toHaveLength(3);
+
+        // WHEN searching for the subject by its uuid
+
+        const actualPlans = setUpPopulateWithExplain<IOccupationDoc>(repository.Model);
+        const actualFoundOccupation = (await repository.getOccupationByUUID(givenSubject.UUID)) as IOccupation;
+
+        // THEN expect the Occupation to be found
+        expect(actualFoundOccupation).not.toBeNull();
+
+        // AND to have the given parent
+        expect(actualFoundOccupation.parent).toEqual(expectedOccupationReference(givenParent));
+        // AND to have the given children
+        expect(actualFoundOccupation.children).toEqual(
+          expect.arrayContaining<IOccupationReference>([
+            expectedOccupationReference(givenChild_1),
+            expectedOccupationReference(givenChild_2),
+          ])
+        );
+
+        // AND expect the populate query plan to use the correct indexes
+        expect(actualPlans).toHaveLength(5); // 1 for the parent and 1 for the child hierarchies, 1 for the parent and 2 for the children references
+        expect(actualPlans).toEqual(
+          expect.arrayContaining([
+            // populating the parent hierarchy
+            getExpectedPlan({
+              collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+              filter: {
+                modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+                childType: { $eq: givenSubject.occupationType },
+                childId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+              },
+              usedIndex: INDEX_FOR_PARENT,
+            }),
+            // populating the child hierarchy
+            getExpectedPlan({
+              collectionName: repositoryRegistry.occupationHierarchy.hierarchyModel.collection.name,
+              filter: {
+                modelId: { $eq: new mongoose.Types.ObjectId(givenModelId) },
+                parentType: { $eq: givenSubject.occupationType },
+                parentId: { $in: [new mongoose.Types.ObjectId(givenSubject.id)] },
+              },
+              usedIndex: INDEX_FOR_CHILDREN,
+            }),
+          ])
+        );
+
+        // AND expect no error to be logged
+        expect(console.error).toBeCalledTimes(0);
+      });
+      TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+        return repositoryRegistry.occupation.getOccupationByUUID(getMockStringId(1));
+      });
+    });
+  });
+
   describe("Test findById()", () => {
     test("should find an Occupation by its id", async () => {
       // GIVEN an Occupation exists in the database
