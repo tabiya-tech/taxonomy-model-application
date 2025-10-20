@@ -4,7 +4,6 @@ import {
   AltLabelsProperty,
   DefinitionProperty,
   DescriptionProperty,
-  ImportIDProperty,
   OccupationCodeProperty,
   OriginUriProperty,
   PreferredLabelProperty,
@@ -27,6 +26,7 @@ export const OccupationModelPaths = {
   occupationType: "occupationType",
   code: "code",
 };
+export const IMPORT_ID_MAX_LENGTH = 256;
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IOccupationDoc> {
   // Main Schema
@@ -44,7 +44,6 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       description: DescriptionProperty,
       regulatedProfessionNote: RegulatedProfessionNoteProperty,
       scopeNote: ScopeNoteProperty,
-      importId: ImportIDProperty,
       [OccupationModelPaths.occupationType]: {
         type: String,
         required: true,
@@ -59,6 +58,11 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
             }
           },
         },
+      },
+      importId: {
+        type: String,
+        required: false,
+        maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
       },
       isLocalized: {
         type: Boolean,
