@@ -5,6 +5,7 @@ import ExportAPI from "../export";
 import ModelInfoAPI from "../modelInfo";
 import ErrorConstants from "./constants";
 import OccupationGroupAPI from "../esco/occupationGroup";
+import OccupationAPI from "../esco/occupation";
 
 export const ErrorSchema: SchemaObject = {
   $id: "/components/schemas/ErrorSchema",
@@ -20,6 +21,8 @@ export const ErrorSchema: SchemaObject = {
         Object.values(ModelInfoAPI.Enums.POST.Response.ErrorCodes),
         Object.values(OccupationGroupAPI.Enums.POST.Response.ErrorCodes),
         Object.values(OccupationGroupAPI.Enums.GET.Response.ErrorCodes),
+        Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
+        Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
       ].flat(),
       pattern: RegExp_Str_NotEmptyString,
     },

@@ -29,13 +29,13 @@ import { IOccupationDoc } from "./occupation.types";
 import {
   testAltLabelsField,
   testDescription,
-  testImportId,
   testObjectIdField,
   testObjectType,
   testOriginUri,
   testPreferredLabel,
   testUUIDField,
   testUUIDHistoryField,
+  testOptionalImportId,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
 
@@ -565,7 +565,7 @@ describe("Test the definition of the Occupation Model", () => {
       );
     });
 
-    testImportId<IOccupationDoc>(() => OccupationModel);
+    testOptionalImportId<IOccupationDoc>(() => OccupationModel);
 
     testObjectType(() => OccupationModel, "occupationType", [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation], {
       isLocalized: false,

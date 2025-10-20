@@ -23,6 +23,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   regulatedProfessionNote: string;
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   isLocalized: boolean;
+  importId: string | null;
 }
 
 /**
@@ -37,6 +38,11 @@ export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
   updatedAt: Date;
   requiresSkills: OccupationToSkillReferenceWithRelationType<ISkillReference>[];
 }
+
+/**
+ * Describes how an OccupationGroup is created with the API without import action.
+ */
+export type INewOccupationSpecWithoutImportId = Omit<INewOccupationSpec, "importId">;
 
 /**
  *  Describes how new occupations are created in the API
