@@ -3,6 +3,7 @@ import { handler as InfoHandler } from "applicationInfo";
 import { handler as ModelHandler } from "modelInfo";
 import { handler as ImportHandler } from "import";
 import { handler as OccupationGroupHandler } from "esco/occupationGroup";
+import { handler as OccupationHandler } from "esco/occupations";
 import { STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { handler as presignedHandler } from "presigned";
 import { handler as ExportHandler } from "export";
@@ -50,6 +51,8 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return OccupationGroupHandler(event);
   } else if (pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.test(path)) {
     return OccupationGroupHandler(event);
+  } else if (Routes.OCCUPATIONS_ROUTE.test(path) || Routes.OCCUPATION_BY_ID_ROUTE.test(path)) {
+    return OccupationHandler(event);
   }
   return STD_ERRORS_RESPONSES.NOT_FOUND;
 };

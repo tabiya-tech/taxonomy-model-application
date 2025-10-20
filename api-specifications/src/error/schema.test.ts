@@ -13,6 +13,7 @@ import ImportAPI from "import";
 import ExportAPI from "export";
 import ModelInfoAPI from "modelInfo";
 import OccupationGroupAPI from "esco/occupationGroup";
+import OccupationAPI from "esco/occupation";
 
 describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.Payload schema
@@ -48,6 +49,8 @@ describe("Validate JSON against the APIError Schema", () => {
         ...Object.values(ModelInfoAPI.Enums.POST.Response.ErrorCodes),
         ...Object.values(OccupationGroupAPI.Enums.POST.Response.ErrorCodes),
         ...Object.values(OccupationGroupAPI.Enums.GET.Response.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
       ];
 
       test.each([

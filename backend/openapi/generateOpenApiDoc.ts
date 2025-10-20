@@ -10,6 +10,7 @@ import Info from "api-specifications/info";
 import Export from "api-specifications/export";
 import Auth from "api-specifications/auth";
 import OccupationGroup from "api-specifications/esco/occupationGroup";
+import Occupation from "api-specifications/esco/occupation";
 
 /**
  *  In ajv the $ref is relative to the root of the schema, while in openapi the $ref is relative to the root of the document.
@@ -42,6 +43,11 @@ delete OccupationGroup.Schemas.GET.Response.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.Param.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.Query.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.ById.Param.Payload.$id;
+delete Occupation.Schemas.POST.Request.Payload.$id;
+delete Occupation.Schemas.POST.Response.Payload.$id;
+delete Occupation.Schemas.GET.Response.Payload.$id;
+delete Occupation.Schemas.GET.Request.Param.Payload.$id;
+delete Occupation.Schemas.GET.Request.Query.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -162,6 +168,11 @@ NOTES:
           OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.Schemas.GET.Request.Query.Payload,
           OccupationGroupResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Payload,
           OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.Schemas.GET.Request.ById.Param.Payload,
+          OccupationRequestSchemaPOST: Occupation.Schemas.POST.Request.Payload,
+          OccupationResponseSchemaPOST: Occupation.Schemas.POST.Response.Payload,
+          OccupationRequestParamSchemaGET: Occupation.Schemas.GET.Request.Param.Payload,
+          OccupationRequestQueryParamSchemaGET: Occupation.Schemas.GET.Request.Query.Payload,
+          OccupationResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Payload,
         },
         securitySchemes: {
           // api_key: {
