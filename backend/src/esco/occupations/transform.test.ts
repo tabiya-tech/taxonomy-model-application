@@ -367,8 +367,8 @@ describe("test the transformation of requiresSkills field", () => {
     // WHEN the transformation function is called
     const actual = transform(givenObject, basePath);
 
-    // THEN expect id to be empty string
-    expect(actual.requiresSkills[0].id).toBe("");
+    // THEN expect id to be null (no fallback to empty string)
+    expect(actual.requiresSkills[0].id).toBe(null);
   });
 
   test("should transform requiresSkills with undefined UUID in skill reference", () => {
@@ -381,8 +381,8 @@ describe("test the transformation of requiresSkills field", () => {
     // WHEN the transformation function is called
     const actual = transform(givenObject, basePath);
 
-    // THEN expect UUID to be empty string
-    expect(actual.requiresSkills[0].UUID).toBe("");
+    // THEN expect UUID to be undefined (no fallback to empty string)
+    expect(actual.requiresSkills[0].UUID).toBe(undefined);
   });
 
   test("should transform requiresSkills with null preferredLabel in skill reference", () => {
@@ -395,8 +395,8 @@ describe("test the transformation of requiresSkills field", () => {
     // WHEN the transformation function is called
     const actual = transform(givenObject, basePath);
 
-    // THEN expect preferredLabel to be empty string
-    expect(actual.requiresSkills[0].preferredLabel).toBe("");
+    // THEN expect preferredLabel to be null (no fallback to empty string)
+    expect(actual.requiresSkills[0].preferredLabel).toBe(null);
   });
 
   test("should transform requiresSkills as empty array when requiresSkills is empty", () => {

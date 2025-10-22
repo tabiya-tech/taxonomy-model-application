@@ -28,10 +28,10 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
     parent:
       data.parent && data.parent.id
         ? {
-            id: data.parent.id ?? "",
-            UUID: data.parent.UUID ?? "",
-            code: data.parent.code ?? "",
-            preferredLabel: data.parent.preferredLabel ?? "",
+            id: data.parent.id,
+            UUID: data.parent.UUID,
+            code: data.parent.code,
+            preferredLabel: data.parent.preferredLabel,
             objectType:
               "occupationType" in data.parent
                 ? data.parent.occupationType === ObjectTypes.ESCOOccupation
@@ -45,20 +45,20 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
     children: (data.children ?? []).map((child) =>
       "occupationType" in child
         ? {
-            id: child.id ?? "",
-            UUID: child.UUID ?? "",
-            code: child.code ?? "",
-            preferredLabel: child.preferredLabel ?? "",
+            id: child.id,
+            UUID: child.UUID,
+            code: child.code,
+            preferredLabel: child.preferredLabel,
             objectType:
               child.occupationType === ObjectTypes.ESCOOccupation
                 ? OccupationAPISpecs.Enums.ObjectTypes.ESCOOccupation
                 : OccupationAPISpecs.Enums.ObjectTypes.LocalOccupation,
           }
         : {
-            id: child.id ?? "",
-            UUID: child.UUID ?? "",
-            code: child.code ?? "",
-            preferredLabel: child.preferredLabel ?? "",
+            id: child.id,
+            UUID: child.UUID,
+            code: child.code,
+            preferredLabel: child.preferredLabel,
             objectType:
               child.objectType === ObjectTypes.ISCOGroup
                 ? OccupationAPISpecs.Enums.ObjectTypes.ISCOGroup
@@ -66,9 +66,9 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
           }
     ),
     requiresSkills: (data.requiresSkills ?? []).map((skillRef) => ({
-      id: skillRef.id ?? "",
-      UUID: skillRef.UUID ?? "",
-      preferredLabel: skillRef.preferredLabel ?? "",
+      id: skillRef.id,
+      UUID: skillRef.UUID,
+      preferredLabel: skillRef.preferredLabel,
       isLocalized: skillRef.isLocalized,
       objectType: OccupationAPISpecs.Enums.ObjectTypes.Skill,
       relationType: skillRef.relationType,

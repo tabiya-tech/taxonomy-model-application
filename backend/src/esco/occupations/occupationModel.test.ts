@@ -572,8 +572,9 @@ describe("Test the definition of the Occupation Model", () => {
     });
 
     describe("Test validation of 'occupationType'", () => {
-      test("(Failure) Validate 'occupationType' when it is LocalOccupation and isLocalized = true", () => {
+      test("(Success) Validate 'occupationType' when it is LocalOccupation and isLocalized = true", () => {
         // GIVEN an LocalOccupation that is set to isLocalized = true
+        // NOTE: occupationType validation was removed - only isLocalized validates this constraint
         const givenOccupation = {
           occupationType: ObjectTypes.LocalOccupation,
           isLocalized: true,
@@ -581,11 +582,8 @@ describe("Test the definition of the Occupation Model", () => {
         assertCaseForProperty({
           model: OccupationModel,
           propertyNames: "occupationType",
-          caseType: CaseType.Failure,
+          caseType: CaseType.Success,
           testValue: givenOccupation.occupationType,
-          expectedFailureMessage: `Validator failed for path \`occupationType\` with value \`${ObjectTypes.LocalOccupation}\``,
-          expectedFailureReason:
-            "Value of `occupationType` is not compatible with value of `isLocalized`. Local occupations cannot be localised",
           dependencies: { occupationType: ObjectTypes.LocalOccupation, isLocalized: true },
         });
       });
@@ -645,7 +643,7 @@ describe("Test the definition of the Occupation Model", () => {
             caseType: CaseType.Failure,
             testValue: true,
             expectedFailureMessage: "Validator failed for path `isLocalized` with value `true`",
-            expectedFailureReason: "Local occupations cannot be localised",
+            expectedFailureReason: "Local occupations cannot be localized. Set isLocalized to false for LocalOccupation type.",
             dependencies: { occupationType: ObjectTypes.LocalOccupation },
           });
         });
