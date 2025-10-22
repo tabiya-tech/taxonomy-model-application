@@ -24,6 +24,8 @@ import {
   testTooLargePayload,
   testUnsupportedMediaType,
 } from "_test_utilities/stdRESTHandlerTests";
+import { IModelInfo } from "modelInfo/modelInfo.types";
+import { getIModelInfoMockData } from "modelInfo/testDataHelper";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockReturnValue(true);
@@ -65,10 +67,15 @@ describe("Test for occupationGroup handler", () => {
 
     test("POST should response with the CREATED status code and the newly created occupationGroup for a valid and max size payload", async () => {
       // GIVEN a valid request (method & header & payload)
-      const givenModelId = getMockStringId(1);
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: false,
+      };
 
       const givenPayload: OccupationGroupAPISpecs.Types.POST.Request.Payload = {
-        modelId: givenModelId,
+        modelId: givenModel.id.toString(),
         code: getMockRandomISCOGroupCode(),
         groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
         preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
@@ -109,6 +116,17 @@ describe("Test for occupationGroup handler", () => {
         },
       ];
 
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(givenModel),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue([]),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
+
       const givenOccupationGroupRepositoryMock = {
         Model: undefined as never,
         create: jest.fn().mockResolvedValue({
@@ -127,6 +145,9 @@ describe("Test for occupationGroup handler", () => {
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // THEN expect the handler to call the model repository to access the model
+      expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
 
       // THEN expect the handler to call the repository with the given payload
       expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: null });
@@ -148,10 +169,15 @@ describe("Test for occupationGroup handler", () => {
     });
     test("POST should respond with the INTERNAL_SERVER_ERROR status code if the repository failed to create the occupationGroup", async () => {
       // GIVEN a valid request {method & header & payload}
-      const givenModelId = getMockStringId(1);
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: false,
+      };
 
       const givenPayload = {
-        modelId: givenModelId,
+        modelId: givenModel.id.toString(),
         code: getMockRandomISCOGroupCode(),
         groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
         preferredLabel: "some random label",
@@ -172,6 +198,85 @@ describe("Test for occupationGroup handler", () => {
       // AND User has the required role
       checkRole.mockReturnValue(true);
 
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(givenModel),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue([]),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
+
+      const givenOccupationGroupRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockRejectedValue(new Error("foo")),
+        createMany: jest.fn().mockResolvedValue([]),
+        findById: jest.fn().mockResolvedValue(null),
+        findAll: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        encodeCursor: jest.fn().mockResolvedValue(""),
+        decodeCursor: jest.fn().mockResolvedValue({}),
+        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
+
+      // WHEN the info handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // THEN expect the handler to call the model repository to access the model
+      expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
+      // AND expect the handler to call the repository with the given payload
+      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: null });
+      // AND to respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        message: "Failed to create the occupation group in the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("POST should respond with the NOT_FOUND status code if the repository failed to find the given model from modelId payload", async () => {
+      // GIVEN a valid request {method & header & payload}
+      const givenModelId = getMockStringId(1);
+
+      const givenPayload = {
+        modelId: givenModelId.toString(),
+        code: getMockRandomISCOGroupCode(),
+        groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+        preferredLabel: "some random label",
+        description: "some random description",
+        altLabels: ["some random alt label 1", "some random alt label 2"],
+        originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+        UUIDHistory: [randomUUID()],
+      };
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
+
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(null),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue([]),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
+
       const givenOccupationGroupRepositoryMock = {
         Model: undefined as never,
         create: jest.fn().mockRejectedValue(new Error("foo")),
@@ -190,14 +295,84 @@ describe("Test for occupationGroup handler", () => {
       const actualResponse = await occupationGroupHandler(givenEvent);
 
       // THEN expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: null });
-      // AND to respond with the INTERNAL_SERVER_ERROR status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModelId);
+      // AND to respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-        message: "Failed to create the occupation group in the DB",
-        details: "",
+        message: "Failed to create the occupation group because the specified modelId does not exist",
+        details: "Model could not be found",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("POST should respond with the BAD_REQUEST status code if the model of the modelId provided is released", async () => {
+      // GIVEN a valid request {method & header & payload}
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: true,
+      };
+      const givenPayload = {
+        modelId: givenModel.id.toString(),
+        code: getMockRandomISCOGroupCode(),
+        groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+        preferredLabel: "some random label",
+        description: "some random description",
+        altLabels: ["some random alt label 1", "some random alt label 2"],
+        originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+        UUIDHistory: [randomUUID()],
+      };
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
+
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(givenModel),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue([]),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
+
+      const givenOccupationGroupRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockRejectedValue(new Error("foo")),
+        createMany: jest.fn().mockResolvedValue([]),
+        findById: jest.fn().mockResolvedValue(null),
+        findAll: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        encodeCursor: jest.fn().mockResolvedValue(""),
+        decodeCursor: jest.fn().mockResolvedValue({}),
+        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
+
+      // WHEN the info handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // THEN expect the handler to call the repository with the given payload
+      expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
+      // AND to respond with the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        message: "Failed to create the occupation group because the specified modelId refers to a released model",
+        details: "Cannot add occupation groups to a released model",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
@@ -289,7 +464,7 @@ describe("Test for occupationGroup handler", () => {
         ).toString("base64");
 
         // AND the user is not model manager
-        checkRole.mockReturnValueOnce(false);
+        checkRole.mockReturnValueOnce(true);
 
         // AND a repository that will successfully get the limited occupationGroups
         const givenOccupationGroupRepositoryMock = {
@@ -395,6 +570,8 @@ describe("Test for occupationGroup handler", () => {
           headers: {},
           queryStringParameters: {},
         };
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(true);
 
         // WHEN the occupationGroup handler is invoked with the given event
         const actualResponse = await occupationGroupHandler({
@@ -444,6 +621,9 @@ describe("Test for occupationGroup handler", () => {
           queryStringParameters: {},
         };
 
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(true);
+
         // WHEN the occupationGroup handler is invoked with the given event
         const actualResponse = await occupationGroupHandler({
           ...givenBadEvent,
@@ -483,6 +663,9 @@ describe("Test for occupationGroup handler", () => {
         jest
           .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
           .mockReturnValue(givenOccupationGroupRepositoryMock);
+
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(true);
 
         // WHEN the occupationGroup handler is invoked with the given event
         const actualResponse = await occupationGroupHandler({
@@ -525,6 +708,9 @@ describe("Test for occupationGroup handler", () => {
           .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
           .mockReturnValue(givenOccupationGroupRepositoryMock);
         const limit = 2;
+
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(true);
 
         // WHEN the occupationGroup handler is invoked with the given event
         const actualResponse = await occupationGroupHandler({
@@ -572,7 +758,7 @@ describe("Test for occupationGroup handler", () => {
         const targetOccupationGroup = givenOccupationGroups[1];
 
         // AND the user is not model manager
-        checkRole.mockReturnValueOnce(false);
+        checkRole.mockReturnValueOnce(true);
         // AND a repository that will successfully get the occupationGroup by id
         const givenOccupationGroupRepositoryMock = {
           Model: undefined as never,
@@ -631,6 +817,8 @@ describe("Test for occupationGroup handler", () => {
         expect(transformSpy).toHaveBeenCalledWith(expectedDetailOccupationGroup, givenResourcesBaseUrl);
       });
       test("GET should respond with the BAD_REQUEST status code if the id is not passed as a path parameter", async () => {
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(true);
         // AND GIVEN the repository fails to get the occupationGroup
         const givenOccupationGroupRepositoryMock = {
           Model: undefined as never,
@@ -672,6 +860,8 @@ describe("Test for occupationGroup handler", () => {
         expect(typeof parsedMissing.details).toBe("string");
       });
       test("GET should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(true);
         // AND GIVEN the repository fails to get the occupationGroup
         const givenOccupationGroupRepositoryMock = {
           Model: undefined as never,
@@ -715,6 +905,8 @@ describe("Test for occupationGroup handler", () => {
         expect(typeof parsedMissing.details).toBe("string");
       });
       test("GET should respond with the INTERNAL_SERVER_ERROR status code if the repository didn't find the occupationGroup", async () => {
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(true);
         // AND GIVEN the repository fails to get the occupationGroup
         const givenOccupationGroupRepositoryMock = {
           Model: undefined as never,

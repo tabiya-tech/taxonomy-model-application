@@ -35,13 +35,8 @@ export const handler: (
       return occupationGroupController.getOccupationGroups(event);
     }
     const [id, subAction] = parts;
-    if (!id) return STD_ERRORS_RESPONSES.NOT_FOUND;
-    if (!subAction) {
+    if (!subAction && id) {
       return occupationGroupController.getOccupationGroup(event);
-    } else if (subAction === "parent") {
-      return occupationGroupController.getOccupationGroupParent(event);
-    } else if (subAction === "children") {
-      return occupationGroupController.getOccupationGroupChildren(event);
     }
   }
 
@@ -136,6 +131,25 @@ class OccupationGroupController {
       return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
     }
 
+    // here first check the model is released or not if it is released do not allow adding occupationGroups for it
+    const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
+    if (!model) {
+      return errorResponse(
+        StatusCodes.NOT_FOUND,
+        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        "Failed to create the occupation group because the specified modelId does not exist",
+        "Model could not be found"
+      );
+    }
+    if (model.released) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        "Failed to create the occupation group because the specified modelId refers to a released model",
+        "Cannot add occupation groups to a released model"
+      );
+    }
+
     const newOccupationGroupSpec: INewOccupationGroupSpec = {
       originUri: payload.originUri,
       code: payload.code,
@@ -208,6 +222,7 @@ class OccupationGroupController {
    *        $ref: '#/components/responses/InternalServerErrorResponse'
    *
    */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroups(event: APIGatewayProxyEvent) {
     // here is where the pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
     try {
@@ -308,9 +323,46 @@ class OccupationGroupController {
   /**
    * @openapi
    *
-   *
+   * /models/{modelId}/occupationGroups/{id}:
+   *  get:
+   *   operationId: GETOccupationGroupById
+   *   tags:
+   *    - occupationGroups
+   *   summary: Get an occupation group by its identifier in a taxonomy model.
+   *   description: Retrieve an occupation group by its unique identifier in a specific taxonomy model.
+   *   security:
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/id'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the occupation group.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/OccupationGroupRequestSchemaPOST'
+   *     '400':
+   *       description: |
+   *         Failed to retrieve the occupation group. Additional information can be found in the response body.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ErrorSchema'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '500':
+   *       $ref: '#/components/responses/InternalServerErrorResponse'
    */
-
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroup(event: APIGatewayProxyEvent) {
     try {
       const idFromParams = event.pathParameters?.id;
@@ -357,11 +409,5 @@ class OccupationGroupController {
         ""
       );
     }
-  }
-  async getOccupationGroupParent(event: APIGatewayProxyEvent) {
-    return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
-  }
-  async getOccupationGroupChildren(event: APIGatewayProxyEvent) {
-    return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
 }
