@@ -51,10 +51,9 @@ describe("test parseOccupationHierarchy from", () => {
 
   test("should handle null/undefined hierarchy doc gracefully in populate helpers", async () => {
     // GIVEN the populate helpers are imported
-    const {
-      getOccupationHierarchyChildReference,
-      getOccupationHierarchyParentReference,
-    } = await import("esco/occupationHierarchy/populateFunctions");
+    const { getOccupationHierarchyChildReference, getOccupationHierarchyParentReference } = await import(
+      "esco/occupationHierarchy/populateFunctions"
+    );
 
     // WHEN passing null/undefined to child/parent reference getters
     // THEN expect them to return null (branch coverage for !doc)

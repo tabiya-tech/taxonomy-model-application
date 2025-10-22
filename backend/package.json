@@ -70,6 +70,7 @@
     "aws-jwt-verify": "^4.0.1",
     "csv-parse": "~5.4.0",
     "csv-stringify": "^6.4.4",
-    "mongoose": "^7.6.3"
+    "mongoose": "^7.6.3",
+    "path-to-regexp": "^8.3.0"
   }
 }

@@ -42,7 +42,7 @@ import { APIGatewayEventDefaultAuthorizerContext, Context } from "aws-lambda";
 import { initOnce } from "server/init";
 import { Routes } from "routes.constant";
 import { getMockStringId } from "./_test_utilities/mockMongoId";
-import { buildPathFromRegex } from "./_test_utilities/routeFromRegex";
+import { buildPathFromPattern } from "./_test_utilities/buildPathFromPattern";
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -149,15 +149,15 @@ describe("test the handleRouteEvent function", () => {
     jest.clearAllMocks();
   });
   const modelId = getMockStringId(1);
-  const occupationGroupsPathFromRegex = buildPathFromRegex(Routes.OCCUPATION_GROUPS_ROUTE, [
-    [/\[0-9a-f\]\{24\}/, modelId],
-  ]);
+  const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, { 
+    modelId: modelId.toString() 
+  });
   test.each([
     [Routes.APPLICATION_INFO_ROUTE, InfoHandler],
     [Routes.PRESIGNED_ROUTE, PresignedHandler],
     [Routes.IMPORT_ROUTE, ImportHandler],
     [Routes.MODELS_ROUTE, ModelHandler],
-    [occupationGroupsPathFromRegex, OccupationGroupHandler],
+    [occupationGroupsPath, OccupationGroupHandler],
     [Routes.EXPORT_ROUTE, ExportHandler],
   ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
     // GIVEN an event with the given path & any HTTP method

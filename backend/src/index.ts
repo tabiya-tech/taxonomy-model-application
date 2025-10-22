@@ -12,6 +12,7 @@ import { Routes } from "routes.constant";
 import { initializeSentry } from "initializeSentry";
 import * as Sentry from "@sentry/aws-serverless";
 import { Lambdas } from "common/lambda.types";
+import { pathToRegexp } from "path-to-regexp";
 
 initializeSentry(Lambdas.API);
 
@@ -45,7 +46,9 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return ImportHandler(event);
   } else if (path === Routes.EXPORT_ROUTE) {
     return ExportHandler(event);
-  } else if (Routes.OCCUPATION_GROUPS_ROUTE.test(path)) {
+  } else if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.test(path)) {
+    return OccupationGroupHandler(event);
+  } else if (pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.test(path)) {
     return OccupationGroupHandler(event);
   }
   return STD_ERRORS_RESPONSES.NOT_FOUND;

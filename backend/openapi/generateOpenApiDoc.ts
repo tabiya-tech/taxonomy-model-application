@@ -41,6 +41,7 @@ delete OccupationGroup.Schemas.POST.Response.Payload.$id;
 delete OccupationGroup.Schemas.GET.Response.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.Param.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.Query.Payload.$id;
+delete OccupationGroup.Schemas.GET.Request.ById.Param.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -160,6 +161,7 @@ NOTES:
           OccupationGroupRequestParamSchemaGET: OccupationGroup.Schemas.GET.Request.Param.Payload,
           OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.Schemas.GET.Request.Query.Payload,
           OccupationGroupResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Payload,
+          OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.Schemas.GET.Request.ById.Param.Payload,
         },
         securitySchemes: {
           // api_key: {
