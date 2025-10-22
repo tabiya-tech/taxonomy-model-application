@@ -48,16 +48,6 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         type: String,
         required: true,
         enum: [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation],
-        validate: {
-          validator: function (value: ObjectTypes) {
-            // @ts-ignore
-            if (value === ObjectTypes.LocalOccupation && this.isLocalized) {
-              throw new Error(
-                "Value of `occupationType` is not compatible with value of `isLocalized`. Local occupations cannot be localised"
-              );
-            }
-          },
-        },
       },
       importId: {
         type: String,
@@ -70,9 +60,9 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         validate: {
           validator: function (value: boolean) {
             // @ts-ignore
-            if (value && this.occupationType === ObjectTypes.LocalOccupation) {
+            if (value === true && this.occupationType === ObjectTypes.LocalOccupation) {
               throw new Error(
-                "Value of `isLocalized` is not compatible with value of `occupationType`. Local occupations cannot be localised"
+                "Local occupations cannot be localized. Set isLocalized to false for LocalOccupation type."
               );
             }
           },
