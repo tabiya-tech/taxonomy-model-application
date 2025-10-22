@@ -50,8 +50,9 @@ export interface IOccupationRepository {
   findById(id: string): Promise<IOccupation | null>;
 
   /**
-   * Returns all occupations as a stream. The Occupations are transformed to objects (via the .toObject()), however
-   * in the current version they are not populated with parents, children or required skills.This will be implemented in a future version.
+   * Returns all occupations as a stream. The Occupations are transformed to objects (via the .toObject()).
+   * Note: This method uses streaming for performance and does not populate relationships (parent, children, required skills).
+   * Use findById or findPaginated if you need populated relationships.
    * @param {string} modelId - The modelId of the occupations.
    * @param {SearchFilter} filter - Used for restricting the search.
    * @return {Readable} - A Readable stream of IOccupations
@@ -60,8 +61,7 @@ export interface IOccupationRepository {
   findAll(modelId: string, filter?: SearchFilter): Readable;
 
   /**
-   * Returns paginated Occupations. The Occupations are transformed to objects (via .lean()), however
-   * in the current version they are not populated with parents or children. This will be implemented in a future version.
+   * Returns paginated Occupations with populated relationships (parent, children, required skills).
    * @param {string} modelId - The modelId of the Occupations.
    * @param {string} cursor - The cursor for pagination.
    * @param {number} limit - The maximum number of Occupations to return.
@@ -221,7 +221,7 @@ export class OccupationRepository implements IOccupationRepository {
         this.Model.find({
           modelId: { $eq: modelId },
           ...(filter?.occupationType !== undefined ? { occupationType: { $eq: filter.occupationType } } : {}),
-        }).cursor(), // in the current version we do not populate the parent, children or requiresSkills
+        }).cursor(), // Note: findAll uses streaming for performance and does not populate relationships
         new DocumentToObjectTransformer<IOccupation>(),
         () => undefined
       );
