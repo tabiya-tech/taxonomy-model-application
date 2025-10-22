@@ -253,288 +253,513 @@ describe("Test for occupationGroup handler", () => {
     const givenResourcesBaseUrl = "https://some/path/to/api/resources";
     jest.spyOn(config, "getResourcesBaseUrl").mockReturnValue(givenResourcesBaseUrl);
 
-    test("GET should return only the occupationGroups for the given modelId", async () => {
-      // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
-      const givenOccupationGroups: Array<IOccupationGroup> = [
-        {
-          ...getIOccupationGroupMockData(1, givenModelId),
-          UUID: "foo",
-          UUIDHistory: ["foo"],
-          importId: null,
-        },
-        {
-          ...getIOccupationGroupMockData(2, givenModelId),
-          UUID: "bar",
-          UUIDHistory: ["bar"],
-          importId: null,
-        },
-        {
-          ...getIOccupationGroupMockData(3, givenModelId),
-          UUID: "baz",
-          UUIDHistory: ["baz"],
-          importId: null,
-        },
-      ];
+    describe("Paginated OccupationGroups", () => {
+      test("GET should return only the occupationGroups for the given modelId", async () => {
+        // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
+        const givenOccupationGroups: Array<IOccupationGroup> = [
+          {
+            ...getIOccupationGroupMockData(1, givenModelId),
+            UUID: "foo",
+            UUIDHistory: ["foo"],
+            importId: null,
+          },
+          {
+            ...getIOccupationGroupMockData(2, givenModelId),
+            UUID: "bar",
+            UUIDHistory: ["bar"],
+            importId: null,
+          },
+          {
+            ...getIOccupationGroupMockData(3, givenModelId),
+            UUID: "baz",
+            UUIDHistory: ["baz"],
+            importId: null,
+          },
+        ];
 
-      const firstPageOccupationGroups = givenOccupationGroups.slice(-2);
+        const firstPageOccupationGroups = givenOccupationGroups.slice(-2);
 
-      const limit = 2;
-      const firstPageCursor = Buffer.from(
-        JSON.stringify({ id: givenOccupationGroups[2].id, createdAt: givenOccupationGroups[2].createdAt })
-      ).toString("base64");
+        const limit = 2;
+        const firstPageCursor = Buffer.from(
+          JSON.stringify({ id: givenOccupationGroups[2].id, createdAt: givenOccupationGroups[2].createdAt })
+        ).toString("base64");
 
-      const expectedNextCursor = Buffer.from(
-        JSON.stringify({ id: givenOccupationGroups[0].id, createdAt: givenOccupationGroups[0].createdAt })
-      ).toString("base64");
+        const expectedNextCursor = Buffer.from(
+          JSON.stringify({ id: givenOccupationGroups[0].id, createdAt: givenOccupationGroups[0].createdAt })
+        ).toString("base64");
 
-      // AND the user is not model manager
-      checkRole.mockReturnValueOnce(false);
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(false);
 
-      // AND a repository that will successfully get the limited occupationGroups
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockResolvedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockReturnValue({
-          items: firstPageOccupationGroups,
-          nextCursor: { _id: givenOccupationGroups[0].id, createdAt: givenOccupationGroups[0].createdAt },
-        }),
-        encodeCursor: jest.fn().mockReturnValue(expectedNextCursor),
-        decodeCursor: jest
-          .fn()
-          .mockReturnValue({ id: givenOccupationGroups[2].id, createdAt: givenOccupationGroups[2].createdAt }),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
+        // AND a repository that will successfully get the limited occupationGroups
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockReturnValue({
+            items: firstPageOccupationGroups,
+            nextCursor: { _id: givenOccupationGroups[0].id, createdAt: givenOccupationGroups[0].createdAt },
+          }),
+          encodeCursor: jest.fn().mockReturnValue(expectedNextCursor),
+          decodeCursor: jest
+            .fn()
+            .mockReturnValue({ id: givenOccupationGroups[2].id, createdAt: givenOccupationGroups[2].createdAt }),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
 
-      jest
-        .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
-        .mockClear()
-        .mockReturnValue(givenOccupationGroupRepositoryMock);
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockClear()
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
 
-      // WHEN the occupationGroup handler is invoked with the given event and the modelId as path parameter
-      const actualResponse = await occupationGroupHandler({
-        ...givenEvent,
-        queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
-      } as never);
+        // WHEN the occupationGroup handler is invoked with the given event and the modelId as path parameter
+        const actualResponse = await occupationGroupHandler({
+          ...givenEvent,
+          queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        } as never);
 
-      const expectedFirstPageOccupationGroups = {
-        data: firstPageOccupationGroups,
-        limit: limit,
-        nextCursor: expectedNextCursor,
-      };
+        const expectedFirstPageOccupationGroups = {
+          data: firstPageOccupationGroups,
+          limit: limit,
+          nextCursor: expectedNextCursor,
+        };
 
-      // THEN expect the handler to return the OK status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      expect(actualResponse.headers).toMatchObject({
-        "Content-Type": "application/json",
+        // THEN expect the handler to return the OK status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers).toMatchObject({
+          "Content-Type": "application/json",
+        });
+
+        // AND the response body contains only the first page OccupationGroups
+        expect(JSON.parse(actualResponse.body)).toMatchObject({
+          ...expectedFirstPageOccupationGroups,
+          data: expect.arrayContaining(
+            expectedFirstPageOccupationGroups.data.map((og) =>
+              expect.objectContaining({
+                UUID: og.UUID,
+                UUIDHistory: og.UUIDHistory,
+                code: og.code,
+                originUri: og.originUri,
+                preferredLabel: og.preferredLabel,
+                altLabels: og.altLabels,
+                groupType: og.groupType,
+                description: og.description,
+                id: og.id,
+                modelId: og.modelId,
+                createdAt: og.createdAt.toISOString(),
+                updatedAt: og.updatedAt.toISOString(),
+                path: `${givenResourcesBaseUrl}/models/${og.modelId}/occupationGroups/${og.id}`,
+                tabiyaPath: `${givenResourcesBaseUrl}/models/${og.modelId}/occupationGroups/${og.UUID}`,
+              })
+            )
+          ),
+        });
+        // AND the transformation function is called correctly
+        expect(transformPaginatedSpy).toHaveBeenCalledWith(
+          firstPageOccupationGroups,
+          givenResourcesBaseUrl,
+          limit,
+          expectedNextCursor
+        );
+      });
+      test("GET should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
+        // AND GIVEN the repository fails to get the occupationGroups
+        const firstPageCursorObject = {
+          id: getMockStringId(1),
+          createdAt: new Date(),
+        };
+        const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
+          encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
+          decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
+        const limit = 2;
+
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          queryStringParameters: {},
+        };
+
+        // WHEN the occupationGroup handler is invoked with the given event
+        const actualResponse = await occupationGroupHandler({
+          ...givenBadEvent,
+          queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        } as never);
+
+        // THEN expect the handler to return the BAD_REQUEST status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        // AND the response body contains the error information
+        const parsedMissing = JSON.parse(actualResponse.body);
+        expect(parsedMissing).toMatchObject({
+          errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          message: "modelId is missing in the path",
+        });
+        expect(typeof parsedMissing.details).toBe("string");
+      });
+      test("GET should respond with the BAD_REQUEST status code if the modelId is not correct model id", async () => {
+        // AND GIVEN the repository fails to get the occupationGroups
+        const firstPageCursorObject = {
+          id: getMockStringId(1),
+          createdAt: new Date(),
+        };
+        const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
+          encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
+          decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
+        const limit = 2;
+
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          pathParameters: { modelId: "foo" },
+          queryStringParameters: {},
+        };
+
+        // WHEN the occupationGroup handler is invoked with the given event
+        const actualResponse = await occupationGroupHandler({
+          ...givenBadEvent,
+          queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        } as never);
+
+        // THEN expect the handler to return the BAD_REQUEST status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        // AND the response body contains the error information
+        const parsedInvalidModel = JSON.parse(actualResponse.body);
+        expect(parsedInvalidModel).toMatchObject({
+          errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        });
+        expect(typeof parsedInvalidModel.details).toBe("string");
+      });
+      test("GET should respond with the BAD_REQUEST status code if the query parameter is not valid query parameter", async () => {
+        // AND GIVEN the repository fails to get the occupationGroups
+        const firstPageCursorObject = {
+          id: getMockStringId(1),
+          createdAt: new Date(),
+        };
+        const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
+          encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
+          decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
+
+        // WHEN the occupationGroup handler is invoked with the given event
+        const actualResponse = await occupationGroupHandler({
+          ...givenEvent,
+          queryStringParameters: { limit: "foo", cursor: firstPageCursor },
+        } as never);
+
+        // THEN expect the handler to return the BAD_REQUEST status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        // AND the response body contains the error information
+        const parsedInvalidQuery = JSON.parse(actualResponse.body);
+        expect(parsedInvalidQuery).toMatchObject({
+          errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        });
+        expect(typeof parsedInvalidQuery.details).toBe("string");
       });
 
-      // AND the response body contains only the first page OccupationGroups
-      expect(JSON.parse(actualResponse.body)).toMatchObject({
-        ...expectedFirstPageOccupationGroups,
-        data: expect.arrayContaining(
-          expectedFirstPageOccupationGroups.data.map((og) =>
-            expect.objectContaining({
-              UUID: og.UUID,
-              UUIDHistory: og.UUIDHistory,
-              code: og.code,
-              originUri: og.originUri,
-              preferredLabel: og.preferredLabel,
-              altLabels: og.altLabels,
-              groupType: og.groupType,
-              description: og.description,
-              id: og.id,
-              modelId: og.modelId,
-              createdAt: og.createdAt.toISOString(),
-              updatedAt: og.updatedAt.toISOString(),
-              path: `${givenResourcesBaseUrl}/models/${og.modelId}/occupationGroups/${og.id}`,
-              tabiyaPath: `${givenResourcesBaseUrl}/models/${og.modelId}/occupationGroups/${og.UUID}`,
-            })
-          )
-        ),
+      test("GET should respond with the INTERNAL_SERVER_ERROR status code if the repository fails to get the occupationGroups", async () => {
+        // AND GIVEN the repository fails to get the occupationGroups
+        const firstPageCursorObject = {
+          id: getMockStringId(1),
+          createdAt: new Date(),
+        };
+        const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
+          encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
+          decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
+        const limit = 2;
+
+        // WHEN the occupationGroup handler is invoked with the given event
+        const actualResponse = await occupationGroupHandler({
+          ...givenEvent,
+          queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        } as never);
+
+        // THEN expect the handler to call the repository to get the occupationGroups
+        expect(getRepositoryRegistry().OccupationGroup.findPaginated).toHaveBeenCalled();
+        // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+        // AND the response body contains the error information
+        const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+          errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          message: "Failed to retrieve the occupation groups from the DB",
+          details: "",
+        };
+        expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
       });
-      // AND the transformation function is called correctly
-      expect(transformPaginatedSpy).toHaveBeenCalledWith(
-        firstPageOccupationGroups,
-        givenResourcesBaseUrl,
-        limit,
-        expectedNextCursor
-      );
     });
-    test("GET should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
-      // AND GIVEN the repository fails to get the occupationGroups
-      const firstPageCursorObject = {
-        id: getMockStringId(1),
-        createdAt: new Date(),
-      };
-      const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
 
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockResolvedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
-        encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
-        decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-      const limit = 2;
+    describe("Single OccupationGroup by id", () => {
+      test("GET should return a single occupationGroup for the given modelId and id", async () => {
+        // AND GIVEN a repository that will successfully get an arbitrary number (N) of models
+        const givenOccupationGroups: Array<IOccupationGroup> = [
+          {
+            ...getIOccupationGroupMockData(1, givenModelId),
+            UUID: "foo",
+            UUIDHistory: ["foo"],
+            importId: null,
+          },
+          {
+            ...getIOccupationGroupMockData(2, givenModelId),
+            UUID: "bar",
+            UUIDHistory: ["bar"],
+            importId: null,
+          },
+          {
+            ...getIOccupationGroupMockData(3, givenModelId),
+            UUID: "baz",
+            UUIDHistory: ["baz"],
+            importId: null,
+          },
+        ];
+        const targetOccupationGroup = givenOccupationGroups[1];
 
-      const givenBadEvent = {
-        httpMethod: HTTP_VERBS.GET,
-        headers: {},
-        queryStringParameters: {},
-      };
+        // AND the user is not model manager
+        checkRole.mockReturnValueOnce(false);
+        // AND a repository that will successfully get the occupationGroup by id
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(targetOccupationGroup),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockReturnValue({}),
+          encodeCursor: jest.fn().mockReturnValue(null),
+          decodeCursor: jest.fn().mockReturnValue({}),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockClear()
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
 
-      // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler({
-        ...givenBadEvent,
-        queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
-      } as never);
+        // GIVEN the event with modelId and id as path parameters
+        const givenDetailEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          pathParameters: { modelId: givenModelId.toString(), id: targetOccupationGroup.id.toString() },
+          path: `/models/${givenModelId}/occupationGroups/${targetOccupationGroup.id}`,
+          queryStringParameters: {},
+        } as never;
 
-      // THEN expect the handler to return the BAD_REQUEST status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-      // AND the response body contains the error information
-      const parsedMissing = JSON.parse(actualResponse.body);
-      expect(parsedMissing).toMatchObject({
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-        message: "modelId is missing in the path",
+        // WHEN the occupationGroup handler is invoked with the given event and the modelId and id as path parameters
+        const actualResponse = await occupationGroupHandler(givenDetailEvent);
+        const expectedDetailOccupationGroup = givenOccupationGroups[1];
+
+        // THEN expect the handler to return the OK status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers).toMatchObject({
+          "Content-Type": "application/json",
+        });
+
+        // AND the response body contains only the expected occupationGroup
+        expect(JSON.parse(actualResponse.body)).toMatchObject({
+          id: expectedDetailOccupationGroup.id,
+          UUID: expectedDetailOccupationGroup.UUID,
+          UUIDHistory: expectedDetailOccupationGroup.UUIDHistory,
+          code: expectedDetailOccupationGroup.code,
+          originUri: expectedDetailOccupationGroup.originUri,
+          preferredLabel: expectedDetailOccupationGroup.preferredLabel,
+          altLabels: expectedDetailOccupationGroup.altLabels,
+          groupType: expectedDetailOccupationGroup.groupType,
+          description: expectedDetailOccupationGroup.description,
+          modelId: expectedDetailOccupationGroup.modelId,
+          createdAt: expectedDetailOccupationGroup.createdAt.toISOString(),
+          updatedAt: expectedDetailOccupationGroup.updatedAt.toISOString(),
+          path: `${givenResourcesBaseUrl}/models/${expectedDetailOccupationGroup.modelId}/occupationGroups/${expectedDetailOccupationGroup.id}`,
+          tabiyaPath: `${givenResourcesBaseUrl}/models/${expectedDetailOccupationGroup.modelId}/occupationGroups/${expectedDetailOccupationGroup.UUID}`,
+        });
+        // AND the transformation function is called correctly
+        expect(transformSpy).toHaveBeenCalledWith(expectedDetailOccupationGroup, givenResourcesBaseUrl);
       });
-      expect(typeof parsedMissing.details).toBe("string");
-    });
-    test("GET should respond with the BAD_REQUEST status code if the modelId is not correct model id", async () => {
-      // AND GIVEN the repository fails to get the occupationGroups
-      const firstPageCursorObject = {
-        id: getMockStringId(1),
-        createdAt: new Date(),
-      };
-      const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+      test("GET should respond with the BAD_REQUEST status code if the id is not passed as a path parameter", async () => {
+        // AND GIVEN the repository fails to get the occupationGroup
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(new Error("foo")),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue({}),
+          encodeCursor: jest.fn().mockReturnValue(null),
+          decodeCursor: jest.fn().mockReturnValue({}),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
 
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockResolvedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
-        encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
-        decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-      const limit = 2;
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
 
-      const givenBadEvent = {
-        httpMethod: HTTP_VERBS.GET,
-        headers: {},
-        pathParameters: { modelId: "foo" },
-        queryStringParameters: {},
-      };
+        const givenDetailEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          pathParameters: { modelId: givenModelId.toString() },
+          path: `/models/${givenModelId}/occupationGroups/foo`,
+          queryStringParameters: {},
+        } as never;
 
-      // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler({
-        ...givenBadEvent,
-        queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
-      } as never);
+        // WHEN the occupationGroup handler is invoked with the given event
+        const actualResponse = await occupationGroupHandler(givenDetailEvent);
 
-      // THEN expect the handler to return the BAD_REQUEST status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-      // AND the response body contains the error information
-      const parsedInvalidModel = JSON.parse(actualResponse.body);
-      expect(parsedInvalidModel).toMatchObject({
-        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
-        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        // THEN expect the handler to return BAD_REQUEST status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+
+        // AND the response body contains the error information
+        const parsedMissing = JSON.parse(actualResponse.body);
+        expect(parsedMissing).toMatchObject({
+          errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        });
+        expect(typeof parsedMissing.details).toBe("string");
       });
-      expect(typeof parsedInvalidModel.details).toBe("string");
-    });
-    test("GET should respond with the BAD_REQUEST status code if the query parameter is not valid query parameter", async () => {
-      // AND GIVEN the repository fails to get the occupationGroups
-      const firstPageCursorObject = {
-        id: getMockStringId(1),
-        createdAt: new Date(),
-      };
-      const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+      test("GET should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
+        // AND GIVEN the repository fails to get the occupationGroup
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(new Error("foo")),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue({}),
+          encodeCursor: jest.fn().mockReturnValue(null),
+          decodeCursor: jest.fn().mockReturnValue({}),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
 
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockResolvedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
-        encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
-        decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
 
-      // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler({
-        ...givenEvent,
-        queryStringParameters: { limit: "foo", cursor: firstPageCursor },
-      } as never);
+        const occupationGroupId = getMockStringId(1);
 
-      // THEN expect the handler to return the BAD_REQUEST status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-      // AND the response body contains the error information
-      const parsedInvalidQuery = JSON.parse(actualResponse.body);
-      expect(parsedInvalidQuery).toMatchObject({
-        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
-        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        const givenDetailEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          pathParameters: { id: occupationGroupId.toString() },
+          path: `/models/foo/occupationGroups/${occupationGroupId.toString()}`,
+          queryStringParameters: {},
+        } as never;
+
+        // WHEN the occupationGroup handler is invoked with the given event
+        const actualResponse = await occupationGroupHandler(givenDetailEvent);
+
+        // THEN expect the handler to return BAD_REQUEST status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+
+        // AND the response body contains the error information
+        const parsedMissing = JSON.parse(actualResponse.body);
+        expect(parsedMissing).toMatchObject({
+          errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          message: "modelId is missing in the path",
+        });
+        expect(typeof parsedMissing.details).toBe("string");
       });
-      expect(typeof parsedInvalidQuery.details).toBe("string");
+      test("GET should respond with the INTERNAL_SERVER_ERROR status code if the repository didn't find the occupationGroup", async () => {
+        // AND GIVEN the repository fails to get the occupationGroup
+        const givenOccupationGroupRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(new Error("foo")),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue({}),
+          encodeCursor: jest.fn().mockReturnValue(null),
+          decodeCursor: jest.fn().mockReturnValue({}),
+          getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
+
+        jest
+          .spyOn(getRepositoryRegistry(), "OccupationGroup", "get")
+          .mockReturnValue(givenOccupationGroupRepositoryMock);
+
+        const occupationGroupId = getMockStringId(1);
+
+        const givenDetailEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          pathParameters: { modelId: givenModelId.toString(), id: occupationGroupId.toString() },
+          path: `/models/${givenModelId.toString()}/occupationGroups/${occupationGroupId.toString()}`,
+          queryStringParameters: {},
+        } as never;
+
+        // WHEN the occupationGroup handler is invoked with the given event
+        const actualResponse = await occupationGroupHandler(givenDetailEvent);
+
+        // THEN expect the handler to call the repository to get the occupationGroup
+        expect(getRepositoryRegistry().OccupationGroup.findById).toHaveBeenCalled();
+        // THEN expect the handler to return the NOT_FOUND status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+        // AND the response body contains the error information
+        const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+          errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          message: "Failed to retrieve the occupation groups from the DB",
+          details: "",
+        };
+        expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+      });
     });
 
-    test("GET should respond with the INTERNAL_SERVER_ERROR status code if the repository fails to get the occupationGroups", async () => {
-      // AND GIVEN the repository fails to get the occupationGroups
-      const firstPageCursorObject = {
-        id: getMockStringId(1),
-        createdAt: new Date(),
-      };
-      const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
-
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockResolvedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
-        encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
-        decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-      const limit = 2;
-
-      // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler({
-        ...givenEvent,
-        queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
-      } as never);
-
-      // THEN expect the handler to call the repository to get the occupationGroups
-      expect(getRepositoryRegistry().OccupationGroup.findPaginated).toHaveBeenCalled();
-      // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-      // AND the response body contains the error information
-      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-        message: "Failed to retrieve the occupation groups from the DB",
-        details: "",
-      };
-      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-    });
     testMethodsNotAllowed(
       [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH],
       occupationGroupHandler

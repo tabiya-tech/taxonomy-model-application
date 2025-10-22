@@ -56,6 +56,9 @@ describe("Test for occupationGroup handler with a DB", () => {
   const validatePOSTResponse: ValidateFunction = ajv.getSchema(
     OccupationGroupAPISpecs.Schemas.POST.Response.Payload.$id as string
   ) as ValidateFunction;
+  const validateGETSingleResponse: ValidateFunction = ajv.getSchema(
+    OccupationGroupAPISpecs.Schemas.POST.Response.Payload.$id as string
+  ) as ValidateFunction;
 
   let dbConnection: Connection | undefined;
   beforeAll(async () => {
@@ -141,7 +144,7 @@ describe("Test for occupationGroup handler with a DB", () => {
     expect(validatePOSTResponse.errors).toBeNull();
   });
 
-  test("GET should respond with the OK status code and the response passes the JSON Schema validation", async () => {
+  test("GET getOccupationGroups should respond with the OK status code and the response passes the JSON Schema validation", async () => {
     // GIVEN several OccupationGroup objects are in the DB
     const modelId = getMockStringId(1);
     const occupationGroups = await createOccupationGroupsInDB(3, modelId);
@@ -176,8 +179,37 @@ describe("Test for occupationGroup handler with a DB", () => {
     expect(validateGETResponse.errors).toBeNull();
   });
 
+  test("GET getOccupationGroup should return with the OK status code and the response passes  the JSON schema validation", async () => {
+    // GIVEN several OccupationGroup objects are in the DB
+    const modelId = getMockStringId(1);
+    const occupationGroups = await createOccupationGroupsInDB(3, modelId);
+    expect(occupationGroups.length).toBeGreaterThan(0); // guard to ensure that we actually have occupationGroup in the DB
+    const targetOccupationGroup = occupationGroups[1];
+
+    // AND a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      pathParameters: { modelId: modelId.toString(), id: targetOccupationGroup.id.toString() },
+      path: `/models/${modelId.toString()}/occupationGroups/${targetOccupationGroup.id.toString()}`,
+    };
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await occupationGroupHandler(givenEvent);
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    // AND an occupationGroup object that validates against the OccupationGroupResponseGET schema
+    validateGETSingleResponse(JSON.parse(actualResponse.body));
+    expect(validateGETSingleResponse.errors).toBeNull();
+  });
+
   // security tests
-  test("GET should return at most the passed limit occupationGroups", async () => {
+  test("GET getOccupationGroups should return at most the passed limit occupationGroups", async () => {
     // GIVEN several OccupationGroup objects are in the DB
     const modelId = getMockStringId(1);
     const occupationGroups = await createOccupationGroupsInDB(10, modelId);
@@ -222,5 +254,40 @@ describe("Test for occupationGroup handler with a DB", () => {
         .reverse() // Reverse to get descending order
         .map((m) => m.UUID)
     );
+  });
+  test("GET getOccupationGroup should return the targeted occupationGroup", async () => {
+    // GIVEN several OccupationGroup objects are in the DB
+    const modelId = getMockStringId(1);
+    const occupationGroups = await createOccupationGroupsInDB(3, modelId);
+    expect(occupationGroups.length).toBeGreaterThan(0);
+    const targetOccupationGroup = { ...occupationGroups[1], importId: null };
+
+    // AND a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      pathParameters: { modelId: modelId.toString(), id: targetOccupationGroup.id.toString() },
+      path: `/models/${modelId.toString()}/occupationGroups/${targetOccupationGroup.id.toString()}`,
+    };
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await occupationGroupHandler(givenEvent);
+
+    //THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    const actualBody = JSON.parse(actualResponse.body);
+    const actualOccupationGroup = actualBody as IOccupationGroup;
+
+    // AND the response occupationGroup should the expected one
+    expect({
+      ...actualOccupationGroup,
+      importId: null,
+      createdAt: new Date(actualOccupationGroup.createdAt),
+      updatedAt: new Date(actualOccupationGroup.updatedAt),
+    }).toMatchObject(targetOccupationGroup);
   });
 });

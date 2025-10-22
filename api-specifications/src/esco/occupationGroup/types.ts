@@ -1,5 +1,20 @@
 import OccupationGroupEnums from "./enums";
 
+interface IOccupationGroupParentResponse {
+  id: string;
+  UUID: string;
+  code: string;
+  preferredLabel: string;
+  objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
+}
+
+interface IOccupationGroupChildResponse {
+  id: string;
+  UUID: string;
+  code: string;
+  preferredLabel: string;
+  objectType: OccupationGroupEnums.ObjectTypes;
+}
 interface IOccupationGroupResponse {
   id: string;
   UUID: string;
@@ -7,20 +22,8 @@ interface IOccupationGroupResponse {
   originUUID: string;
   path: string;
   tabiyaPath: string;
-  parent: {
-    id: string;
-    UUID: string;
-    code: string;
-    preferredLabel: string;
-    objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
-  } | null;
-  children: {
-    id: string;
-    UUID: string;
-    code: string;
-    preferredLabel: string;
-    objectType: OccupationGroupEnums.ObjectTypes;
-  }[];
+  parent: IOccupationGroupParentResponse | null;
+  children: IOccupationGroupChildResponse[];
   originUri: string;
   code: string;
   description: string;
@@ -84,6 +87,8 @@ namespace OccupationGroupTypes {
     export namespace Response {
       export type OccupationGroupItem = IOccupationGroupResponse;
       export type Payload = PaginatedOccupationGroupResponse;
+      export type Parent = IOccupationGroupParentResponse;
+      export type Children = IOccupationGroupChildResponse[];
     }
     export namespace Request {
       export namespace Param {

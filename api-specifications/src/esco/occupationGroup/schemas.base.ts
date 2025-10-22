@@ -95,7 +95,63 @@ export const _baseQueryParameterSchema = {
     pattern: RegExp_Str_NotEmptyString,
   },
 };
+export const _baseOccupationGroupParentSchema = {
+  id: {
+    description: "The id of the parent occupation group.",
+    type: "string",
+    pattern: RegExp_Str_ID,
+  },
+  UUID: {
+    description: "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+    type: "string",
+    pattern: RegExp_Str_UUIDv4,
+  },
+  code: {
+    description: "The code of the parent occupation group.",
+    type: "string",
+    maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+  },
+  preferredLabel: {
+    description: "The preferred label of the parent occupation group.",
+    type: "string",
+    maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString,
+  },
+  objectType: {
+    description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+    type: "string",
+    enum: Object.values(OccupationGroupEnums.ObjectTypes),
+  },
+};
 
+export const _baseOccupationGroupChildSchema = {
+  id: {
+    description: "The id of the parent occupation group.",
+    type: "string",
+    pattern: RegExp_Str_ID,
+  },
+  UUID: {
+    description: "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+    type: "string",
+    pattern: RegExp_Str_UUIDv4,
+  },
+  code: {
+    description: "The code of the parent occupation group.",
+    type: "string",
+    maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+  },
+  preferredLabel: {
+    description: "The preferred label of the parent occupation group.",
+    type: "string",
+    maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString,
+  },
+  objectType: {
+    description: "The type of the occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
+    type: "string",
+    enum: Object.values(OccupationGroupEnums.ObjectTypes),
+  },
+};
 export const _baseResponseSchema = {
   type: "object",
   additionalProperties: false,
@@ -135,32 +191,7 @@ export const _baseResponseSchema = {
       type: ["object", "null"],
       additionalProperties: false,
       properties: {
-        id: {
-          description: "The id of the parent occupation group.",
-          type: "string",
-          pattern: RegExp_Str_ID,
-        },
-        UUID: {
-          description: "The UUID of the occupation group. It can be used to identify the parent occupation group.",
-          type: "string",
-          pattern: RegExp_Str_UUIDv4,
-        },
-        code: {
-          description: "The code of the parent occupation group.",
-          type: "string",
-          maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
-        },
-        preferredLabel: {
-          description: "The preferred label of the parent occupation group.",
-          type: "string",
-          maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
-          pattern: RegExp_Str_NotEmptyString,
-        },
-        objectType: {
-          description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
-          type: "string",
-          enum: Object.values(OccupationGroupEnums.ObjectTypes),
-        },
+        ...JSON.parse(JSON.stringify(_baseOccupationGroupParentSchema)),
       },
       if: {
         properties: {
@@ -194,33 +225,7 @@ export const _baseResponseSchema = {
         type: "object",
         additionalProperties: false,
         properties: {
-          id: {
-            description: "The id of the parent occupation group.",
-            type: "string",
-            pattern: RegExp_Str_ID,
-          },
-          UUID: {
-            description: "The UUID of the occupation group. It can be used to identify the parent occupation group.",
-            type: "string",
-            pattern: RegExp_Str_UUIDv4,
-          },
-          code: {
-            description: "The code of the parent occupation group.",
-            type: "string",
-            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
-          },
-          preferredLabel: {
-            description: "The preferred label of the parent occupation group.",
-            type: "string",
-            maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
-            pattern: RegExp_Str_NotEmptyString,
-          },
-          objectType: {
-            description:
-              "The type of the occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
-            type: "string",
-            enum: Object.values(OccupationGroupEnums.ObjectTypes),
-          },
+          ...JSON.parse(JSON.stringify(_baseOccupationGroupChildSchema)),
         },
         allOf: [
           {

@@ -20,14 +20,40 @@ export const handler: (
 ) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => {
+  const { path, httpMethod } = event;
+  const match = Routes.OCCUPATION_GROUPS_ROUTE.exec(path);
+  const subPath = match?.[2] || "";
   const occupationGroupController = new OccupationGroupController();
-  //POST /occupationGroups
-  if (event?.httpMethod === HTTP_VERBS.POST) {
+
+  if (httpMethod === HTTP_VERBS.POST && subPath == "") {
     return occupationGroupController.postOccupationGroup(event);
-  } else if (event?.httpMethod == HTTP_VERBS.GET) {
-    return occupationGroupController.getOccupationGroups(event);
   }
+
+  if (httpMethod === HTTP_VERBS.GET) {
+    const parts = subPath.split("/").filter(Boolean);
+    if (parts.length === 0) {
+      return occupationGroupController.getOccupationGroups(event);
+    }
+    const [id, subAction] = parts;
+    if (!id) return STD_ERRORS_RESPONSES.NOT_FOUND;
+    if (!subAction) {
+      return occupationGroupController.getOccupationGroup(event);
+    } else if (subAction === "parent") {
+      return occupationGroupController.getOccupationGroupParent(event);
+    } else if (subAction === "children") {
+      return occupationGroupController.getOccupationGroupChildren(event);
+    }
+  }
+
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
+
+  //POST /occupationGroups
+  // if (event?.httpMethod === HTTP_VERBS.POST) {
+  //   return occupationGroupController.postOccupationGroup(event);
+  // } else if (event?.httpMethod == HTTP_VERBS.GET) {
+  //   return occupationGroupController.getOccupationGroups(event);
+  // }
+  // return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };
 
 class OccupationGroupController {
@@ -277,5 +303,65 @@ class OccupationGroupController {
         ""
       );
     }
+  }
+
+  /**
+   * @openapi
+   *
+   *
+   */
+
+  async getOccupationGroup(event: APIGatewayProxyEvent) {
+    try {
+      const idFromParams = event.pathParameters?.id;
+      const modelIdFromParams = event.pathParameters?.modelId;
+      const pathToMatch = event.path || "";
+      const execMatch = Routes.OCCUPATION_GROUPS_ROUTE.exec(pathToMatch);
+      const resolvedOccupationGroupId = idFromParams ?? (execMatch ? execMatch[2] : "");
+      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : "");
+
+      const requestPathParameter: OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload = {
+        modelId: resolvedModelId,
+        id: resolvedOccupationGroupId,
+      };
+
+      const validatePathFunction = ajvInstance.getSchema(
+        OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValid = validatePathFunction(requestPathParameter);
+      if (!isValid) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or occupationGroup Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+      const occupationGroup = await getRepositoryRegistry().OccupationGroup.findById(requestPathParameter.id);
+      if (!occupationGroup || !occupationGroup.id) {
+        // generate error here
+        const err = new Error("Occupation Group not found");
+        throw err;
+      }
+      return responseJSON(StatusCodes.OK, transform(occupationGroup, getResourcesBaseUrl()));
+    } catch (e: unknown) {
+      return errorResponse(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        "Failed to retrieve the occupation groups from the DB",
+        ""
+      );
+    }
+  }
+  async getOccupationGroupParent(event: APIGatewayProxyEvent) {
+    return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
+  }
+  async getOccupationGroupChildren(event: APIGatewayProxyEvent) {
+    return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
 }
