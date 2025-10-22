@@ -14,18 +14,26 @@ import { INewOccupationGroupSpec } from "./OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authenticator";
 import ErrorAPISpecs from "api-specifications/error";
+import { pathToRegexp } from "path-to-regexp";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => {
+  const { path, httpMethod } = event;
   const occupationGroupController = new OccupationGroupController();
-  //POST /occupationGroups
-  if (event?.httpMethod === HTTP_VERBS.POST) {
+
+  if (httpMethod === HTTP_VERBS.POST) {
     return occupationGroupController.postOccupationGroup(event);
-  } else if (event?.httpMethod == HTTP_VERBS.GET) {
-    return occupationGroupController.getOccupationGroups(event);
+  }
+
+  if (httpMethod === HTTP_VERBS.GET) {
+    // Check if it's an individual occupation group request (has ID) or list request
+    const individualMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(path);
+    return individualMatch 
+      ? occupationGroupController.getOccupationGroup(event)
+      : occupationGroupController.getOccupationGroups(event);
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };
@@ -110,6 +118,25 @@ class OccupationGroupController {
       return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
     }
 
+    // here first check the model is released or not if it is released do not allow adding occupationGroups for it
+    const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
+    if (!model) {
+      return errorResponse(
+        StatusCodes.NOT_FOUND,
+        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        "Failed to create the occupation group because the specified modelId does not exist",
+        "Model could not be found"
+      );
+    }
+    if (model.released) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        "Failed to create the occupation group because the specified modelId refers to a released model",
+        "Cannot add occupation groups to a released model"
+      );
+    }
+
     const newOccupationGroupSpec: INewOccupationGroupSpec = {
       originUri: payload.originUri,
       code: payload.code,
@@ -182,6 +209,7 @@ class OccupationGroupController {
    *        $ref: '#/components/responses/InternalServerErrorResponse'
    *
    */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroups(event: APIGatewayProxyEvent) {
     // here is where the pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
     try {
@@ -192,7 +220,7 @@ class OccupationGroupController {
       // we fallback to parse the `event.path` if `pathParameters.modelId` is absent.
       const modelIdFromParams = event.pathParameters?.modelId;
       const pathToMatch = event.path || "";
-      const execMatch = Routes.OCCUPATION_GROUPS_ROUTE.exec(pathToMatch);
+      const execMatch = pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.exec(pathToMatch);
       const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
 
       if (!resolvedModelId) {
@@ -274,6 +302,118 @@ class OccupationGroupController {
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation groups from the DB",
+        ""
+      );
+    }
+  }
+
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupationGroups/{id}:
+   *  get:
+   *   operationId: GETOccupationGroupById
+   *   tags:
+   *    - occupationGroups
+   *   summary: Get an occupation group by its identifier in a taxonomy model.
+   *   description: Retrieve an occupation group by its unique identifier in a specific taxonomy model.
+   *   security:
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/id'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the occupation group.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/OccupationGroupResponseSchemaPOST'
+   *     '400':
+   *       description: |
+   *         Failed to retrieve the occupation group. Additional information can be found in the response body.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ErrorSchema'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '404':
+   *       description: Occupation group not found.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ErrorSchema'
+   *     '500':
+   *       $ref: '#/components/responses/InternalServerErrorResponse'
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getOccupationGroup(event: APIGatewayProxyEvent) {
+    try {
+      const idFromParams = event.pathParameters?.id;
+      const modelIdFromParams = event.pathParameters?.modelId;
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch);
+      const resolvedOccupationGroupId = idFromParams ?? (execMatch ? execMatch[2] : "");
+      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : "");
+
+      const requestPathParameter: OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload = {
+        modelId: resolvedModelId,
+        id: resolvedOccupationGroupId,
+      };
+
+      const validatePathFunction = ajvInstance.getSchema(
+        OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValid = validatePathFunction(requestPathParameter);
+      if (!isValid) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or occupationGroup Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      // Validate that the model exists
+      const model = await getRepositoryRegistry().modelInfo.getModelById(requestPathParameter.modelId);
+      if (!model) {
+        return errorResponse(
+          StatusCodes.NOT_FOUND,
+          OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          "Model not found",
+          `No model found with id: ${requestPathParameter.modelId}`
+        );
+      }
+
+      const occupationGroup = await getRepositoryRegistry().OccupationGroup.findById(requestPathParameter.id);
+      if (!occupationGroup?.id) {
+        return errorResponse(
+          StatusCodes.NOT_FOUND,
+          OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          "Occupation group not found",
+          `No occupation group found with id: ${requestPathParameter.id}`
+        );
+      }
+      return responseJSON(StatusCodes.OK, transform(occupationGroup, getResourcesBaseUrl()));
+    } catch (e: unknown) {
+      return errorResponse(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        "Failed to retrieve the occupation group from the DB",
         ""
       );
     }

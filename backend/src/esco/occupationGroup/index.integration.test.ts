@@ -17,6 +17,22 @@ import { IOccupationGroup } from "./OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LocaleAPISpecs from "api-specifications/locale";
+
+async function createModelInDB() {
+  return await getRepositoryRegistry().modelInfo.create({
+    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+    locale: {
+      UUID: randomUUID(),
+      name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+    },
+    description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
+    UUIDHistory: [randomUUID()],
+  });
+}
 
 async function createOccupationGroupInDB(modelId: string = getMockStringId(1)) {
   return await getRepositoryRegistry().OccupationGroup.create({
@@ -77,13 +93,16 @@ describe("Test for occupationGroup handler with a DB", () => {
     if (dbConnection) {
       // delete all documents in the DB
       await dbConnection.models.OccupationGroupModel.deleteMany({});
+      await dbConnection.models.ModelInfo.deleteMany({});
     }
   });
 
   test("POST should respond with the FORBIDDEN status code if the user is not a model manager", async () => {
     // GIVEN a valid request (method & header & payload)
+    const givenModelInfo = await createModelInDB();
+
     const givenPayload: OccupationGroupAPISpecs.Types.POST.Request.Payload = {
-      modelId: getMockStringId(1),
+      modelId: givenModelInfo.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
       preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
@@ -111,8 +130,9 @@ describe("Test for occupationGroup handler with a DB", () => {
 
   test("POST should respond with the CREATED status code and response passes the JSON schema validation", async () => {
     // GIVEN a valid request (method & header & payload)
+    const givenModelInfo = await createModelInDB();
     const givenPayload: OccupationGroupAPISpecs.Types.POST.Request.Payload = {
-      modelId: getMockStringId(1),
+      modelId: givenModelInfo.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
       preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
