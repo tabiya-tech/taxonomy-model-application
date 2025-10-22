@@ -3,7 +3,7 @@ import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { errorResponse, HTTP_VERBS, responseJSON, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ajvInstance, ParseValidationError } from "validator";
-import AuthAPISpecs from "api-specifications//auth";
+import AuthAPISpecs from "api-specifications/auth";
 
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 
