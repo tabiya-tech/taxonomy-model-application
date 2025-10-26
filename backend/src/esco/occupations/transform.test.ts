@@ -103,6 +103,7 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
         code: givenObject.code,
         occupationGroupCode: givenObject.occupationGroupCode,
         preferredLabel: givenObject.preferredLabel,
+        originUUID: givenObject.UUIDHistory && givenObject.UUIDHistory.length > 0 ? givenObject.UUIDHistory[0] : "",
         originUri: givenObject.originUri,
         altLabels: givenObject.altLabels,
         definition: givenObject.definition,
@@ -121,7 +122,7 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
           objectType: OccupationAPISpecs.Enums.ObjectTypes.Skill,
           relationType: skillRef.relationType,
           signallingValue: skillRef.signallingValue ?? null,
-          signallingValueLabel: skillRef.signallingValueLabel?.toLowerCase() ?? SignallingValueLabel.NONE,
+          signallingValueLabel: skillRef.signallingValueLabel ?? SignallingValueLabel.NONE,
         })),
         children: givenObject.children.map((child) => ({
           id: child.id,
@@ -652,7 +653,7 @@ describe("test the transformation of requiresSkills field", () => {
     const actual = transform(givenObject, basePath);
 
     // THEN expect signallingValue to be null and signallingValueLabel to be NONE (covered by ?? operators)
-    // @ts-ignore - API spec type may not include these fields, but transform adds them
+    // @ts-ignore
     expect(actual.requiresSkills[0].signallingValue).toBe(null);
     // @ts-ignore
     expect(actual.requiresSkills[0].signallingValueLabel).toBe(SignallingValueLabel.NONE);
