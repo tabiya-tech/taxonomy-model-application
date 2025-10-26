@@ -1,7 +1,7 @@
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { IOccupation } from "./occupation.types";
 import { Routes } from "routes.constant";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 
 export function transform(data: IOccupation, baseURL: string): OccupationAPISpecs.Types.Response.IOccupation {
   return {
@@ -74,8 +74,8 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
         data.occupationType === ObjectTypes.ESCOOccupation
           ? skillRef.relationType
           : OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE,
-      signallingValue: data.occupationType === ObjectTypes.LocalOccupation ? skillRef.signallingValue : null,
-      signallingValueLabel: data.occupationType === ObjectTypes.LocalOccupation ? skillRef.signallingValueLabel : null,
+      signallingValue: skillRef.signallingValue ?? null,
+      signallingValueLabel: skillRef.signallingValueLabel ?? SignallingValueLabel.NONE,
     })),
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
