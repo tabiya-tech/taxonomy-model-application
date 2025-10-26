@@ -5,7 +5,7 @@ import { IOccupationReference } from "esco/occupations/occupationReference.types
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { Routes } from "routes.constant";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import {
   getIOccupationMockData,
   getIOccupationMockDataWithOccupationChildren,
@@ -15,6 +15,7 @@ import {
   getIOccupationMockDataWithParentOccupationGroup,
 } from "./testDataHelper";
 import { transform, transformPaginated } from "./transform";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 describe("getNewOccupationSpec", () => {
   test("should return a valid occupation spec object", () => {
@@ -71,6 +72,8 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
           isLocalized: skillRef.isLocalized,
           objectType: OccupationAPISpecs.Enums.ObjectTypes.Skill,
           relationType: skillRef.relationType,
+          signallingValue: skillRef.signallingValue ?? null,
+          signallingValueLabel: skillRef.signallingValueLabel ?? SignallingValueLabel.NONE,
         })),
         path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupations/${givenObject.id}`,
         tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupations/${givenObject.UUID}`,
@@ -117,6 +120,8 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
           isLocalized: skillRef.isLocalized,
           objectType: OccupationAPISpecs.Enums.ObjectTypes.Skill,
           relationType: skillRef.relationType,
+          signallingValue: skillRef.signallingValue ?? null,
+          signallingValueLabel: skillRef.signallingValueLabel?.toLowerCase() ?? SignallingValueLabel.NONE,
         })),
         children: givenObject.children.map((child) => ({
           id: child.id,
@@ -181,8 +186,8 @@ describe("test the transformation of IOccupation[] -> IOccupationResponse[]", ()
           modelId: obj.modelId,
           isLocalized: obj.isLocalized,
           parent: null,
-          requiresSkills: expect.any(Array),
-          children: expect.any(Array),
+          requiresSkills: expect.arrayContaining([]),
+          children: expect.arrayContaining([]),
           path: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/occupations/${obj.id}`,
           tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/occupations/${obj.UUID}`,
           createdAt: obj.createdAt.toISOString(),
@@ -231,11 +236,11 @@ describe("test the transformation of parent and children objectType fields in IO
   test("should transform children with occupationType = LocalOccupation", () => {
     const child: IOccupationReference = {
       UUID: randomUUID(),
-      code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-      id: getMockStringId(4),
-      preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-      occupationType: OccupationAPISpecs.Enums.ObjectTypes.LocalOccupation,
-      occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
+      code: getRandomString(5),
+      id: getMockStringId(1),
+      preferredLabel: getRandomString(15),
+      occupationType: ObjectTypes.LocalOccupation,
+      occupationGroupCode: getRandomString(5),
       isLocalized: false,
     };
     const givenObject: IOccupation = {
@@ -252,11 +257,11 @@ describe("test the transformation of parent and children objectType fields in IO
   test("should transform children with objectType = LocalGroup", () => {
     const child = {
       UUID: randomUUID(),
-      code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-      id: getMockStringId(4),
-      preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      code: getRandomString(5),
+      id: getMockStringId(2),
+      preferredLabel: getRandomString(15),
       objectType: ObjectTypes.LocalGroup,
-      occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
+      occupationGroupCode: getRandomString(5),
       isLocalized: false,
     } as IOccupationReference & { objectType: ObjectTypes.LocalGroup };
     const givenObject: IOccupation = {
@@ -273,11 +278,11 @@ describe("test the transformation of parent and children objectType fields in IO
   test("should transform parent with objectType = LocalGroup", () => {
     const parent = {
       UUID: randomUUID(),
-      code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-      id: getMockStringId(4),
-      preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      code: getRandomString(5),
+      id: getMockStringId(3),
+      preferredLabel: getRandomString(15),
       objectType: ObjectTypes.LocalGroup,
-      occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
+      occupationGroupCode: getRandomString(5),
       isLocalized: false,
     } as IOccupationReference & { objectType: ObjectTypes.LocalGroup };
     const givenObject: IOccupation = {
@@ -294,11 +299,11 @@ describe("test the transformation of parent and children objectType fields in IO
   test("should transform parent with occupationType = LocalOccupation", () => {
     const parent = {
       UUID: randomUUID(),
-      code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
+      code: getRandomString(5),
       id: getMockStringId(4),
-      preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      preferredLabel: getRandomString(15),
       occupationType: ObjectTypes.LocalOccupation,
-      occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
+      occupationGroupCode: getRandomString(5),
       isLocalized: false,
     } as IOccupationReference & { occupationType: ObjectTypes.LocalOccupation };
     const givenObject: IOccupation = {
@@ -335,6 +340,190 @@ describe("test the transformation of occupationType field of IOccupation -> IOcc
   });
 });
 
+describe("test the transformation of null/undefined values in IOccupation -> IOccupationResponse", () => {
+  test("should handle null altLabels", () => {
+    // GIVEN an occupation with null altLabels
+    const givenObject = getIOccupationMockData();
+    // @ts-ignore
+    givenObject.altLabels = null;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect altLabels to be empty array
+    expect(actual.altLabels).toEqual([]);
+  });
+
+  test("should handle undefined altLabels", () => {
+    // GIVEN an occupation with undefined altLabels
+    const givenObject = getIOccupationMockData();
+    // @ts-ignore
+    givenObject.altLabels = undefined;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect altLabels to be empty array
+    expect(actual.altLabels).toEqual([]);
+  });
+
+  test("should handle null children", () => {
+    // GIVEN an occupation with null children
+    const givenObject = getIOccupationMockData();
+    // @ts-ignore
+    givenObject.children = null;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect children to be empty array
+    expect(actual.children).toEqual([]);
+  });
+
+  test("should handle undefined children", () => {
+    // GIVEN an occupation with undefined children
+    const givenObject = getIOccupationMockData();
+    // @ts-ignore
+    givenObject.children = undefined;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect children to be empty array
+    expect(actual.children).toEqual([]);
+  });
+
+  test("should handle null UUIDHistory", () => {
+    // GIVEN an occupation with null UUIDHistory
+    const givenObject = getIOccupationMockData();
+    // @ts-ignore
+    givenObject.UUIDHistory = null;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect UUIDHistory to be empty array
+    expect(actual.UUIDHistory).toEqual([]);
+  });
+
+  test("should handle undefined UUIDHistory", () => {
+    // GIVEN an occupation with undefined UUIDHistory
+    const givenObject = getIOccupationMockData();
+    // @ts-ignore
+    givenObject.UUIDHistory = undefined;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect UUIDHistory to be empty array
+    expect(actual.UUIDHistory).toEqual([]);
+  });
+
+  test("should handle parent with null properties", () => {
+    // GIVEN an occupation with parent that has null properties
+    const givenObject = getIOccupationMockData();
+    givenObject.parent = {
+      id: null,
+      UUID: null,
+      code: null,
+      preferredLabel: null,
+      occupationType: ObjectTypes.ESCOOccupation,
+      occupationGroupCode: getRandomString(5),
+      isLocalized: false,
+    } as unknown as IOccupationReference;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect parent properties to be empty strings (covered by ?? "" operators on lines 31-34)
+    expect(actual.parent!.id).toBe("");
+    expect(actual.parent!.UUID).toBe("");
+    expect(actual.parent!.code).toBe("");
+    expect(actual.parent!.preferredLabel).toBe("");
+  });
+
+  test("should handle parent with valid id but null other properties", () => {
+    // GIVEN an occupation with parent that has valid id but null other properties
+    const givenObject = getIOccupationMockData();
+    givenObject.parent = {
+      id: getMockStringId(5),
+      UUID: null,
+      code: null,
+      preferredLabel: null,
+      occupationType: ObjectTypes.ESCOOccupation,
+      occupationGroupCode: getRandomString(5),
+      isLocalized: false,
+    } as unknown as IOccupationReference;
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect parent properties to be empty strings (covered by ?? "" operators on lines 31-34)
+    expect(actual.parent!.id).toBe(getMockStringId(5));
+    expect(actual.parent!.UUID).toBe("");
+    expect(actual.parent!.code).toBe("");
+    expect(actual.parent!.preferredLabel).toBe("");
+  });
+
+  test("should handle children with null properties", () => {
+    // GIVEN an occupation with children that have null properties
+    const givenObject = getIOccupationMockData();
+    givenObject.children = [
+      {
+        id: null,
+        UUID: null,
+        code: null,
+        preferredLabel: null,
+        occupationType: ObjectTypes.ESCOOccupation,
+        occupationGroupCode: getRandomString(5),
+        isLocalized: false,
+      } as unknown as IOccupationReference,
+    ];
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect children properties to be empty strings (covered by ?? "" operators)
+    expect(actual.children[0].id).toBe("");
+    expect(actual.children[0].UUID).toBe("");
+    expect(actual.children[0].code).toBe("");
+    expect(actual.children[0].preferredLabel).toBe("");
+  });
+
+  test("should handle children with null properties for group children", () => {
+    // GIVEN an occupation with children that have null properties (ISCOGroup type)
+    const givenObject = getIOccupationMockData();
+    givenObject.children = [
+      {
+        id: null,
+        UUID: null,
+        code: null,
+        preferredLabel: null,
+        objectType: ObjectTypes.ISCOGroup,
+      } as unknown as IOccupationReference,
+    ];
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect children properties to be empty strings (covered by ?? "" operators in else branch)
+    expect(actual.children[0].id).toBe("");
+    expect(actual.children[0].UUID).toBe("");
+    expect(actual.children[0].code).toBe("");
+    expect(actual.children[0].preferredLabel).toBe("");
+  });
+});
+
 describe("test the transformation of requiresSkills field", () => {
   test("should transform requiresSkills with populated skill references", () => {
     // GIVEN an occupation with requiresSkills containing populated skill references
@@ -353,6 +542,8 @@ describe("test the transformation of requiresSkills field", () => {
         isLocalized: skillRef.isLocalized,
         objectType: OccupationAPISpecs.Enums.ObjectTypes.Skill,
         relationType: skillRef.relationType,
+        signallingValue: skillRef.signallingValue ?? null,
+        signallingValueLabel: skillRef.signallingValueLabel ?? SignallingValueLabel.NONE,
       }))
     );
   });
@@ -438,6 +629,49 @@ describe("test the transformation of requiresSkills field", () => {
 
     // THEN expect requiresSkills to be empty array
     expect(actual.requiresSkills).toEqual([]);
+  });
+
+  test("should handle requiresSkills with null signallingValue and signallingValueLabel", () => {
+    // GIVEN an occupation with requiresSkills that have null signallingValue and signallingValueLabel
+    const givenObject = getIOccupationMockData();
+    givenObject.requiresSkills = [
+      {
+        id: getMockStringId(6),
+        UUID: randomUUID(),
+        preferredLabel: getRandomString(15),
+        isLocalized: false,
+        objectType: ObjectTypes.Skill,
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        signallingValue: null,
+        signallingValueLabel: undefined,
+      } as unknown as (typeof givenObject.requiresSkills)[0],
+    ];
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect signallingValue to be null and signallingValueLabel to be NONE (covered by ?? operators)
+    // @ts-ignore - API spec type may not include these fields, but transform adds them
+    expect(actual.requiresSkills[0].signallingValue).toBe(null);
+    // @ts-ignore
+    expect(actual.requiresSkills[0].signallingValueLabel).toBe(SignallingValueLabel.NONE);
+  });
+});
+
+describe("test the transformation of paginated results", () => {
+  test("should handle transformPaginated with null cursor", () => {
+    // GIVEN occupations and null cursor
+    const givenObjects: IOccupation[] = [getIOccupationMockData()];
+    const givenBasePath = "https://some/root/path";
+    const limit = 2;
+    const cursor = null;
+
+    // WHEN the transformation function is called
+    const actual = transformPaginated(givenObjects, givenBasePath, limit, cursor);
+
+    // THEN expect next_cursor to be null
+    expect(actual.next_cursor).toBe(null);
   });
 });
 

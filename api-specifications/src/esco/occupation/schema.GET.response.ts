@@ -13,7 +13,7 @@ const SchemaGETResponse: SchemaObject = {
       items: {
         $id: "/components/schemas/OccupationItem",
         ..._baseResponseSchema,
-        additionalProperties: true,
+        additionalProperties: false,
       },
       description: "Array of occupation items for the current page",
     },
@@ -22,7 +22,7 @@ const SchemaGETResponse: SchemaObject = {
       description: "Number of items returned in this page.",
       minimum: 1,
       maximum: OccupationConstants.MAX_LIMIT,
-      default: OccupationConstants.MAX_CURSOR_LENGTH,
+      default: OccupationConstants.MAX_LIMIT,
     },
     next_cursor: {
       type: ["string", "null"],

@@ -1,5 +1,5 @@
 import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupation } from "esco/occupations/occupation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { ISkill, ISkillReference } from "esco/skill/skills.types";
@@ -55,6 +55,8 @@ export function expectedRelatedOccupationReference(
   return {
     ...expectedOccupationReference(givenOccupation),
     relationType,
+    signallingValue: null,
+    signallingValueLabel: SignallingValueLabel.NONE,
   };
 }
 
@@ -86,6 +88,8 @@ export function expectedRelatedSkillReference(
   return {
     ...expectedSkillReference(givenSkill),
     relationType,
+    signallingValue: null,
+    signallingValueLabel: SignallingValueLabel.NONE,
   } as
     | SkillToSkillReferenceWithRelationType<ISkillReference>
     | OccupationToSkillReferenceWithRelationType<ISkillReference>;

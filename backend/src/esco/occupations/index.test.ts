@@ -17,6 +17,7 @@ import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupC
 import { IOccupation } from "./occupation.types";
 import { getIOccupationMockData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { Routes } from "routes.constant";
 import {
   testMethodsNotAllowed,
   testRequestJSONMalformed,
@@ -426,8 +427,8 @@ describe("Test for occupation handler", () => {
         const givenBadEvent = {
           httpMethod: HTTP_VERBS.GET,
           headers: {},
-          path: `/models/${givenModelId}/occupations/${givenId}`,
-          pathParameters: { modelId: givenModelId, id: "" },
+          path: `/models/${givenModelId}/occupations/${givenId}`, // has id segment
+          pathParameters: { modelId: givenModelId, id: "" }, // id is empty string
           queryStringParameters: {},
         };
 
@@ -449,7 +450,7 @@ describe("Test for occupation handler", () => {
         const givenBadEvent = {
           httpMethod: HTTP_VERBS.GET,
           headers: {},
-          path: `/models/foo/occupations/${givenId}`,
+          path: `/models/${getMockStringId(1)}/occupations/${givenId}`,
           pathParameters: { modelId: "foo", id: givenId },
           queryStringParameters: {},
         };
@@ -495,6 +496,78 @@ describe("Test for occupation handler", () => {
           details: "",
         };
         expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+      });
+
+      test("GET /occupations/{id} should respond with BAD_REQUEST if id cannot be extracted from path or pathParameters", async () => {
+        // Mock the route regex to return undefined for ID to cover the unreachable code path
+        const originalExec = Routes.OCCUPATION_BY_ID_ROUTE.exec;
+        Routes.OCCUPATION_BY_ID_ROUTE.exec = jest.fn().mockReturnValue([null, getMockStringId(1), undefined]);
+
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: `/models/${getMockStringId(1)}/occupations/some-id`,
+          pathParameters: { modelId: getMockStringId(1) }, // id missing
+          queryStringParameters: {},
+        } as unknown as APIGatewayProxyEvent;
+
+        const actualResponse = await occupationHandler(givenBadEvent);
+
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        const body = JSON.parse(actualResponse.body);
+        expect(body.message).toBe("id is missing in the path");
+        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS);
+
+        // Restore
+        Routes.OCCUPATION_BY_ID_ROUTE.exec = originalExec;
+      });
+
+      test("GET /occupations/{id} should respond with BAD_REQUEST if modelId cannot be extracted from path or pathParameters", async () => {
+        // Mock the route regex to return undefined for modelId to cover the unreachable code path
+        const originalExec = Routes.OCCUPATION_BY_ID_ROUTE.exec;
+        Routes.OCCUPATION_BY_ID_ROUTE.exec = jest.fn().mockReturnValue([null, undefined, getMockStringId(2)]);
+
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: `/models/some-model/occupations/${getMockStringId(2)}`,
+          pathParameters: { id: getMockStringId(2) }, // modelId missing
+          queryStringParameters: {},
+        } as unknown as APIGatewayProxyEvent;
+
+        const actualResponse = await occupationHandler(givenBadEvent);
+
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        const body = JSON.parse(actualResponse.body);
+        expect(body.message).toBe("modelId is missing in the path");
+        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS);
+
+        // Restore
+        Routes.OCCUPATION_BY_ID_ROUTE.exec = originalExec;
+      });
+
+      test("GET /occupations/{id} should respond with BAD_REQUEST if id cannot be extracted from path or pathParameters", async () => {
+        // Mock the route regex to return undefined for id to cover the unreachable code path
+        const originalExec = Routes.OCCUPATION_BY_ID_ROUTE.exec;
+        Routes.OCCUPATION_BY_ID_ROUTE.exec = jest.fn().mockReturnValue([null, getMockStringId(1), undefined]);
+
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: `/models/${getMockStringId(1)}/occupations/some-id`,
+          pathParameters: { modelId: getMockStringId(1) }, // id missing
+          queryStringParameters: {},
+        } as unknown as APIGatewayProxyEvent;
+
+        const actualResponse = await occupationHandler(givenBadEvent);
+
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        const body = JSON.parse(actualResponse.body);
+        expect(body.message).toBe("id is missing in the path");
+        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS);
+
+        // Restore
+        Routes.OCCUPATION_BY_ID_ROUTE.exec = originalExec;
       });
     });
 
@@ -753,6 +826,147 @@ describe("Test for occupation handler", () => {
         expect(typeof parsedInvalidQuery.details).toBe("string");
       });
 
+      test("GET /occupations (paginated) should respond with BAD_REQUEST if modelId is missing from path and pathParameters", async () => {
+        // Path does NOT include /models/{modelId} at all
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: "/occupations", // ← no modelId segment!
+          pathParameters: {}, // modelId missing
+          queryStringParameters: {},
+        } as unknown as APIGatewayProxyEvent;
+
+        const actualResponse = await occupationHandler(givenBadEvent);
+
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        const body = JSON.parse(actualResponse.body);
+        expect(body.message).toBe("modelId is missing in the path");
+        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS);
+      });
+
+      test("GET /occupations (paginated) should respond with BAD_REQUEST if modelId cannot be extracted from path or pathParameters", async () => {
+        // Mock the route regex to return undefined for modelId to cover the unreachable code path
+        const originalExec = Routes.OCCUPATIONS_ROUTE.exec;
+        Routes.OCCUPATIONS_ROUTE.exec = jest.fn().mockReturnValue([null, undefined]);
+
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: "/models/some-model/occupations",
+          pathParameters: {}, // modelId missing
+          queryStringParameters: {},
+        } as unknown as APIGatewayProxyEvent;
+
+        const actualResponse = await occupationHandler(givenBadEvent);
+
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        const body = JSON.parse(actualResponse.body);
+        expect(body.message).toBe("modelId is missing in the path");
+        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS);
+
+        // Restore
+        Routes.OCCUPATIONS_ROUTE.exec = originalExec;
+      });
+
+      test("GET /occupations (paginated) should respond with BAD_REQUEST if query parameters are invalid", async () => {
+        const givenModelId = getMockStringId(1);
+
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: `/models/${givenModelId}/occupations`,
+          pathParameters: { modelId: givenModelId },
+          queryStringParameters: { limit: "invalid" },
+        } as unknown as APIGatewayProxyEvent;
+
+        const actualResponse = await occupationHandler(givenBadEvent);
+
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        const body = JSON.parse(actualResponse.body);
+        expect(body.message).toBe(ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA);
+        expect(body.errorCode).toBe(ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA);
+      });
+
+      test("GET /occupations (paginated) should respond with BAD_REQUEST if path parameters are invalid", async () => {
+        const givenBadEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: `/models/invalid/occupations`,
+          pathParameters: { modelId: "invalid" },
+          queryStringParameters: {},
+        } as unknown as APIGatewayProxyEvent;
+
+        const actualResponse = await occupationHandler(givenBadEvent);
+
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        const body = JSON.parse(actualResponse.body);
+        expect(body.message).toBe(ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA);
+        expect(body.errorCode).toBe(ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA);
+      });
+
+      test("GET /occupations (paginated) should extract modelId from path when pathParameters.modelId is not set", async () => {
+        // GIVEN a repository that will successfully get an arbitrary number (N) of models
+        const givenModelId = getMockStringId(1);
+        const givenOccupations: Array<IOccupation> = [
+          {
+            ...getIOccupationMockData(1),
+            modelId: givenModelId,
+            UUID: "foo",
+            UUIDHistory: ["foo"],
+            importId: null,
+          },
+        ];
+
+        const givenOccupationRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockReturnValue({
+            items: givenOccupations,
+            nextCursor: null,
+          }),
+          encodeCursor: jest.fn().mockReturnValue(""),
+          decodeCursor: jest.fn().mockReturnValue({}),
+          getOccupationByUUID: jest.fn().mockResolvedValue(null),
+        };
+
+        jest
+          .spyOn(getRepositoryRegistry(), "occupation", "get")
+          .mockClear()
+          .mockReturnValue(givenOccupationRepositoryMock);
+
+        // WHEN the occupation handler is invoked with pathParameters.modelId not set, but path matches regex
+        const actualResponse = await occupationHandler({
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          path: `/models/${givenModelId}/occupations`,
+          pathParameters: {}, // modelId not set
+          queryStringParameters: {},
+        } as never);
+
+        // THEN expect the handler to return the OK status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers).toMatchObject({
+          "Content-Type": "application/json",
+        });
+
+        // AND the response body contains the occupations
+        expect(JSON.parse(actualResponse.body)).toMatchObject({
+          items: expect.arrayContaining(
+            givenOccupations.map((og) =>
+              expect.objectContaining({
+                UUID: og.UUID,
+                modelId: og.modelId,
+              })
+            )
+          ),
+          limit: 100,
+          next_cursor: null,
+        });
+      });
+
       test("GET should respond with the INTERNAL_SERVER_ERROR status code if the repository fails to get the occupations", async () => {
         // AND GIVEN the repository fails to get the occupations
         const firstPageCursorObject = {
@@ -783,6 +997,40 @@ describe("Test for occupation handler", () => {
 
         // THEN expect the handler to call the repository to get the occupations
         expect(getRepositoryRegistry().occupation.findPaginated).toHaveBeenCalled();
+        // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+        // AND the response body contains the error information
+        const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+          errorCode: OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          message: "Failed to retrieve the occupations from the DB",
+          details: "",
+        };
+        expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+      });
+
+      test("GET should respond with the INTERNAL_SERVER_ERROR status code if decodeCursor throws an error", async () => {
+        // AND GIVEN the repository decodeCursor throws an error
+        const givenOccupationRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+          encodeCursor: jest.fn().mockReturnValue(""),
+          decodeCursor: jest.fn().mockImplementation(() => {
+            throw new Error("Invalid cursor");
+          }),
+          getOccupationByUUID: jest.fn().mockResolvedValue(null),
+        };
+        jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
+
+        // WHEN the occupation handler is invoked with invalid cursor
+        const actualResponse = await occupationHandler({
+          ...givenEvent,
+          queryStringParameters: { next_cursor: "invalid_cursor" },
+        } as never);
+
         // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         // AND the response body contains the error information

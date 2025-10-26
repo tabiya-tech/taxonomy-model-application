@@ -73,4 +73,6 @@ export enum OccupationToSkillRelationType {
 
 export type OccupationToSkillReferenceWithRelationType<T> = T & {
   relationType: OccupationToSkillRelationType;
+  signallingValue: number | null;
+  signallingValueLabel: SignallingValueLabel;
 };

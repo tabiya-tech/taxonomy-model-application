@@ -1,11 +1,11 @@
 import {
-  testNonEmptyStringField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import { getTestBase64String } from "_test_utilities/specialCharacters";
+import { RegExp_Str_NotEmptyString } from "../../regex";
 
 import OccupationAPISpecs from "./index";
 
@@ -75,11 +75,40 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Request.Query.
     });
 
     describe("Test validation of 'next_cursor'", () => {
-      testNonEmptyStringField<OccupationAPISpecs.Types.GET.Request.Query.Payload>(
-        "next_cursor",
-        OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH,
-        OccupationAPISpecs.Schemas.GET.Request.Query.Payload
-      );
+      test.each([
+        [CaseType.Success, "undefined", undefined, undefined],
+        [CaseType.Success, "null", null, undefined],
+        [
+          CaseType.Failure,
+          "empty string",
+          "",
+          constructSchemaError("/next_cursor", "pattern", `must match pattern "${RegExp_Str_NotEmptyString}"`),
+        ],
+        [
+          CaseType.Failure,
+          "too long",
+          "a".repeat(OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH + 1),
+          constructSchemaError(
+            "/next_cursor",
+            "maxLength",
+            `must NOT have more than ${OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH} characters`
+          ),
+        ],
+        [
+          CaseType.Success,
+          "valid string",
+          getTestBase64String(OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH),
+          undefined,
+        ],
+      ])(`(%s) Validate 'next_cursor' when it is %s`, (caseType, _desc, value, failureMessage) => {
+        assertCaseForProperty(
+          "next_cursor",
+          { next_cursor: value },
+          OccupationAPISpecs.Schemas.GET.Request.Query.Payload,
+          caseType,
+          failureMessage
+        );
+      });
     });
   });
 });
