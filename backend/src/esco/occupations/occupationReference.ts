@@ -8,6 +8,7 @@ import {
   OccupationToSkillReferenceWithRelationType,
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { SignallingValueLabel } from "esco/common/objectTypes";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
 export type OccupationDocument = _Document<IBaseOccupationDoc>;
@@ -26,10 +27,14 @@ export function getOccupationDocReference(occupation: OccupationDocument): IOccu
 }
 export function getOccupationReferenceWithRelationType(
   occupation: IOccupationReference,
-  relationType: OccupationToSkillRelationType
+  relationType: OccupationToSkillRelationType,
+  signallingValue?: number | null,
+  signallingValueLabel?: SignallingValueLabel
 ): OccupationToSkillReferenceWithRelationType<IOccupationReference> {
   return {
     ...occupation,
     relationType: relationType,
+    signallingValue: signallingValue ?? null,
+    signallingValueLabel: signallingValueLabel ?? SignallingValueLabel.NONE,
   };
 }

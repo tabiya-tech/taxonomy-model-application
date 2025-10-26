@@ -170,7 +170,7 @@ NOTES:
           OccupationResponseSchemaPOST: Occupation.Schemas.POST.Response.Payload,
           OccupationRequestParamSchemaGET: Occupation.Schemas.GET.Request.Param.Payload,
           OccupationRequestQueryParamSchemaGET: Occupation.Schemas.GET.Request.Query.Payload,
-          OccupationResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Payload,
+          OccupationResponseSchemaGET: Occupation.Schemas.GET.Response.Payload,
         },
         securitySchemes: {
           // api_key: {

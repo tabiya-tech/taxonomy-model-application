@@ -88,13 +88,12 @@ class OccupationController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
   async postOccupation(event: APIGatewayProxyEvent) {
-    if (!event.headers["Content-Type"]?.includes("application/json")) {
+    if (!event.headers?.["Content-Type"]?.includes("application/json")) {
       // application/json;charset=utf-8
       return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
     }
 
-    //@ts-ignore
-    if (event.body?.length > OccupationAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
+    if (event.body && event.body.length > OccupationAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
       return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
         `Expected maximum length is ${OccupationAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`
       );
@@ -204,8 +203,8 @@ class OccupationController {
       const idFromParams = event.pathParameters?.id;
       const pathToMatch = event.path || "";
       const execMatch = Routes.OCCUPATION_BY_ID_ROUTE.exec(pathToMatch);
-      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
-      const resolvedId = idFromParams ?? (execMatch ? execMatch[2] : undefined);
+      const resolvedModelId = modelIdFromParams ?? execMatch?.[1];
+      const resolvedId = idFromParams ?? execMatch?.[2];
 
       if (!resolvedModelId) {
         return errorResponse(
@@ -314,7 +313,7 @@ class OccupationController {
    *
    */
   async getOccupations(event: APIGatewayProxyEvent) {
-    // here is where the pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
+    // pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
     try {
       // extract the modelId from the pathParameters
       // NOTE: Since we're using a single '{proxy+}' resource in API Gateway path params
@@ -324,7 +323,7 @@ class OccupationController {
       const modelIdFromParams = event.pathParameters?.modelId;
       const pathToMatch = event.path || "";
       const execMatch = Routes.OCCUPATIONS_ROUTE.exec(pathToMatch);
-      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
+      const resolvedModelId = execMatch?.[1] ?? modelIdFromParams;
 
       if (!resolvedModelId) {
         return errorResponse(

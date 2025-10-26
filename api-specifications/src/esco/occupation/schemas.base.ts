@@ -113,7 +113,7 @@ export const _baseQueryParameterSchema = {
   },
   next_cursor: {
     description: "A base64 string representing the next_cursor for pagination.",
-    type: "string",
+    type: ["string", "null"],
     maxLength: OccupationConstants.MAX_CURSOR_LENGTH,
     pattern: RegExp_Str_NotEmptyString,
   },
@@ -360,19 +360,76 @@ export const _baseResponseSchema = {
             enum: [OccupationEnums.ObjectTypes.Skill],
           },
           relationType: {
-            description: "The type of relationship between the occupation and the required skill.",
-            type: "string",
-            enum: Object.values(OccupationEnums.OccupationToSkillRelationType),
+            description: "Used for ESCOOccupations only.",
+            type: ["string", "null"],
+            enum: [...Object.values(OccupationEnums.OccupationToSkillRelationType), null],
+          },
+          signallingValue: {
+            description: "Used for LocalOccupations only.",
+            type: ["number", "null"],
+            minimum: OccupationConstants.SIGNALLING_VALUE_MIN,
+            maximum: OccupationConstants.SIGNALLING_VALUE_MAX,
+          },
+          signallingValueLabel: {
+            description: "Used for LocalOccupations only.",
+            type: ["string", "null"],
+            maxLength: OccupationConstants.SIGNALLING_VALUE_LABEL_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
           },
         },
-        required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType", "relationType"],
+        required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType"],
       },
     },
     ..._baseProperties,
     createdAt: { description: "Timestamp of record creation.", type: "string", format: "date-time" },
     updatedAt: { description: "Timestamp of last record modification.", type: "string", format: "date-time" },
   },
-  allOf: topLevelOccupationCodeConditions,
+  allOf: [
+    ...topLevelOccupationCodeConditions,
+    {
+      if: {
+        properties: {
+          occupationType: { const: OccupationEnums.OccupationType.ESCOOccupation },
+        },
+      },
+      then: {
+        properties: {
+          requiresSkills: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                relationType: { type: "string" },
+              },
+              required: ["relationType"],
+            },
+          },
+        },
+      },
+    },
+    {
+      if: {
+        properties: {
+          occupationType: { const: OccupationEnums.OccupationType.LocalOccupation },
+        },
+      },
+      then: {
+        properties: {
+          requiresSkills: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                signallingValue: { type: "number" },
+                signallingValueLabel: { type: "string" },
+              },
+              required: ["signallingValue", "signallingValueLabel"],
+            },
+          },
+        },
+      },
+    },
+  ],
   required: [
     "id",
     "UUID",
