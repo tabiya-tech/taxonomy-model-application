@@ -25,23 +25,22 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
         : OccupationAPISpecs.Enums.OccupationType.LocalOccupation,
     modelId: data.modelId,
     isLocalized: data.isLocalized,
-    parent:
-      data.parent && data.parent.id
-        ? {
-            id: data.parent.id,
-            UUID: data.parent.UUID,
-            code: data.parent.code,
-            preferredLabel: data.parent.preferredLabel,
-            objectType:
-              "occupationType" in data.parent
-                ? data.parent.occupationType === ObjectTypes.ESCOOccupation
-                  ? OccupationAPISpecs.Enums.ObjectTypes.ESCOOccupation
-                  : OccupationAPISpecs.Enums.ObjectTypes.LocalOccupation
-                : data.parent.objectType === ObjectTypes.ISCOGroup
-                ? OccupationAPISpecs.Enums.ObjectTypes.ISCOGroup
-                : OccupationAPISpecs.Enums.ObjectTypes.LocalGroup,
-          }
-        : null,
+    parent: data.parent
+      ? {
+          id: data.parent.id,
+          UUID: data.parent.UUID,
+          code: data.parent.code,
+          preferredLabel: data.parent.preferredLabel,
+          objectType:
+            "occupationType" in data.parent
+              ? data.parent.occupationType === ObjectTypes.ESCOOccupation
+                ? OccupationAPISpecs.Enums.ObjectTypes.ESCOOccupation
+                : OccupationAPISpecs.Enums.ObjectTypes.LocalOccupation
+              : data.parent.objectType === ObjectTypes.ISCOGroup
+              ? OccupationAPISpecs.Enums.ObjectTypes.ISCOGroup
+              : OccupationAPISpecs.Enums.ObjectTypes.LocalGroup,
+        }
+      : null,
     children: (data.children ?? []).map((child) =>
       "occupationType" in child
         ? {
@@ -71,7 +70,12 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
       preferredLabel: skillRef.preferredLabel,
       isLocalized: skillRef.isLocalized,
       objectType: OccupationAPISpecs.Enums.ObjectTypes.Skill,
-      relationType: skillRef.relationType,
+      relationType:
+        data.occupationType === ObjectTypes.ESCOOccupation
+          ? skillRef.relationType
+          : OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE,
+      signallingValue: data.occupationType === ObjectTypes.LocalOccupation ? skillRef.signallingValue : null,
+      signallingValueLabel: data.occupationType === ObjectTypes.LocalOccupation ? skillRef.signallingValueLabel : null,
     })),
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),

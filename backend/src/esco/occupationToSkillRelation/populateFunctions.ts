@@ -34,7 +34,9 @@ export function getRequiresSkillReference(
   delete doc.requiredSkillId.modelId;
   return getSkillReferenceWithRelationType(
     doc.requiredSkillId,
-    doc.relationType
+    doc.relationType,
+    doc.signallingValue,
+    doc.signallingValueLabel
   ) as OccupationToSkillReferenceWithRelationType<ISkillReference>;
 }
 

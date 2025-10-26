@@ -39,7 +39,9 @@ interface IOccupationResponse {
     preferredLabel: string;
     isLocalized: boolean;
     objectType: OccupationEnums.ObjectTypes.Skill;
-    relationType: OccupationEnums.OccupationToSkillRelationType;
+    relationType: OccupationEnums.OccupationToSkillRelationType | null;
+    signallingValue: number | null;
+    signallingValueLabel: string | null;
   }[];
   createdAt: string;
   updatedAt: string;

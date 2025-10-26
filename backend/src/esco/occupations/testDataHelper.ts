@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { IOccupation, INewOccupationSpec } from "./occupation.types";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
 import {
@@ -20,6 +20,8 @@ export function getIOccupationMockData(n: number = 1): IOccupation {
     isLocalized: false,
     objectType: ObjectTypes.Skill,
     relationType: OccupationToSkillRelationType.ESSENTIAL,
+    signallingValue: OccupationAPISpecs.Constants.SIGNALLING_VALUE_MAX,
+    signallingValueLabel: SignallingValueLabel.HIGH,
   };
 
   return {

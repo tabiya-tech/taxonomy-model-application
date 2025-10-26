@@ -18,6 +18,9 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "PREFERRED_LABEL_MAX_LENGTH": 256,
     "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
     "SCOPE_NOTE_MAX_LENGTH": 4000,
+    "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
+    "SIGNALLING_VALUE_MAX": 100,
+    "SIGNALLING_VALUE_MIN": 0,
     "TABIYA_PATH_URI_MAX_LENGTH": 4096,
     "UUID_HISTORY_MAX_ITEMS": 10000,
     "UUID_HISTORY_MAX_LENGTH": 50,
@@ -139,12 +142,12 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                 "description": "A base64 string representing the next_cursor for pagination.",
                 "maxLength": 1024,
                 "pattern": "\\S",
-                "type": "string",
+                "type": [
+                  "string",
+                  "null",
+                ],
               },
             },
-            "required": [
-              "next_cursor",
-            ],
             "type": "object",
           },
         },
@@ -158,7 +161,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "description": "Array of occupation items for the current page",
               "items": {
                 "$id": "/components/schemas/OccupationItem",
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "allOf": [
                   {
                     "if": {
@@ -202,6 +205,64 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "maxLength": 256,
                           "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
                           "type": "string",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "occupationType": {
+                          "const": "escooccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "requiresSkills": {
+                          "items": {
+                            "properties": {
+                              "relationType": {
+                                "type": "string",
+                              },
+                            },
+                            "required": [
+                              "relationType",
+                            ],
+                            "type": "object",
+                          },
+                          "type": "array",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "occupationType": {
+                          "const": "localoccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "requiresSkills": {
+                          "items": {
+                            "properties": {
+                              "signallingValue": {
+                                "type": "number",
+                              },
+                              "signallingValueLabel": {
+                                "type": "string",
+                              },
+                            },
+                            "required": [
+                              "signallingValue",
+                              "signallingValueLabel",
+                            ],
+                            "type": "object",
+                          },
+                          "type": "array",
                         },
                       },
                     },
@@ -632,13 +693,35 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "type": "string",
                         },
                         "relationType": {
-                          "description": "The type of relationship between the occupation and the required skill.",
+                          "description": "Used for ESCOOccupations only.",
                           "enum": [
                             "",
                             "essential",
                             "optional",
+                            null,
                           ],
-                          "type": "string",
+                          "type": [
+                            "string",
+                            "null",
+                          ],
+                        },
+                        "signallingValue": {
+                          "description": "Used for LocalOccupations only.",
+                          "maximum": 100,
+                          "minimum": 0,
+                          "type": [
+                            "number",
+                            "null",
+                          ],
+                        },
+                        "signallingValueLabel": {
+                          "description": "Used for LocalOccupations only.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": [
+                            "string",
+                            "null",
+                          ],
                         },
                       },
                       "required": [
@@ -647,7 +730,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                         "preferredLabel",
                         "isLocalized",
                         "objectType",
-                        "relationType",
                       ],
                       "type": "object",
                     },
@@ -702,7 +784,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "type": "array",
             },
             "limit": {
-              "default": 1024,
+              "default": 100,
               "description": "Number of items returned in this page.",
               "maximum": 100,
               "minimum": 1,
@@ -916,6 +998,64 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "maxLength": 256,
                     "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
                     "type": "string",
+                  },
+                },
+              },
+            },
+            {
+              "if": {
+                "properties": {
+                  "occupationType": {
+                    "const": "escooccupation",
+                  },
+                },
+              },
+              "then": {
+                "properties": {
+                  "requiresSkills": {
+                    "items": {
+                      "properties": {
+                        "relationType": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "relationType",
+                      ],
+                      "type": "object",
+                    },
+                    "type": "array",
+                  },
+                },
+              },
+            },
+            {
+              "if": {
+                "properties": {
+                  "occupationType": {
+                    "const": "localoccupation",
+                  },
+                },
+              },
+              "then": {
+                "properties": {
+                  "requiresSkills": {
+                    "items": {
+                      "properties": {
+                        "signallingValue": {
+                          "type": "number",
+                        },
+                        "signallingValueLabel": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "signallingValue",
+                        "signallingValueLabel",
+                      ],
+                      "type": "object",
+                    },
+                    "type": "array",
                   },
                 },
               },
@@ -1346,13 +1486,35 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "type": "string",
                   },
                   "relationType": {
-                    "description": "The type of relationship between the occupation and the required skill.",
+                    "description": "Used for ESCOOccupations only.",
                     "enum": [
                       "",
                       "essential",
                       "optional",
+                      null,
                     ],
-                    "type": "string",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "signallingValue": {
+                    "description": "Used for LocalOccupations only.",
+                    "maximum": 100,
+                    "minimum": 0,
+                    "type": [
+                      "number",
+                      "null",
+                    ],
+                  },
+                  "signallingValueLabel": {
+                    "description": "Used for LocalOccupations only.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
                   },
                 },
                 "required": [
@@ -1361,7 +1523,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   "preferredLabel",
                   "isLocalized",
                   "objectType",
-                  "relationType",
                 ],
                 "type": "object",
               },

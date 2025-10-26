@@ -66,6 +66,8 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
     isLocalized: false,
     objectType: OccupationEnums.ObjectTypes.Skill,
     relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL,
+    signallingValue: null,
+    signallingValueLabel: null,
   };
 
   const givenValidOccupationGETResponse = {
@@ -1362,39 +1364,221 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
 
         describe("Test validation of 'requiresSkills/relationType'", () => {
           test.each([
+            // Success cases for ESCOOccupation
             [
               CaseType.Success,
-              "ESSENTIAL relationType",
-              OccupationEnums.OccupationToSkillRelationType.ESSENTIAL,
+              "ESSENTIAL relationType for ESCOOccupation",
+              {
+                ...givenSkill,
+                relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL,
+                occupationType: OccupationEnums.OccupationType.ESCOOccupation,
+              },
               undefined,
             ],
             [
               CaseType.Success,
-              "OPTIONAL relationType",
-              OccupationEnums.OccupationToSkillRelationType.OPTIONAL,
+              "OPTIONAL relationType for ESCOOccupation",
+              {
+                ...givenSkill,
+                relationType: OccupationEnums.OccupationToSkillRelationType.OPTIONAL,
+                occupationType: OccupationEnums.OccupationType.ESCOOccupation,
+              },
               undefined,
             ],
-            [CaseType.Success, "NONE relationType", OccupationEnums.OccupationToSkillRelationType.NONE, undefined],
+            [
+              CaseType.Success,
+              "NONE relationType for ESCOOccupation",
+              {
+                ...givenSkill,
+                relationType: OccupationEnums.OccupationToSkillRelationType.NONE,
+                occupationType: OccupationEnums.OccupationType.ESCOOccupation,
+              },
+              undefined,
+            ],
             [
               CaseType.Failure,
-              "invalid relationType",
-              "InvalidRelation",
+              "undefined relationType for ESCOOccupation",
+              {
+                ...givenSkill,
+                relationType: undefined,
+                occupationType: OccupationEnums.OccupationType.ESCOOccupation,
+              },
+              constructSchemaError("/requiresSkills/0", "required", "must have required property 'relationType'"),
+            ],
+            [
+              CaseType.Failure,
+              "null relationType for ESCOOccupation",
+              {
+                ...givenSkill,
+                relationType: null,
+                occupationType: OccupationEnums.OccupationType.ESCOOccupation,
+              },
+              constructSchemaError("/requiresSkills/0/relationType", "type", "must be string"),
+            ],
+            [
+              CaseType.Failure,
+              "invalid relationType for ESCOOccupation",
+              {
+                ...givenSkill,
+                relationType: "InvalidRelation",
+                occupationType: OccupationEnums.OccupationType.ESCOOccupation,
+              },
               constructSchemaError(
                 "/requiresSkills/0/relationType",
                 "enum",
                 "must be equal to one of the allowed values"
               ),
             ],
+
+            // Success cases for LocalOccupation
+            [
+              CaseType.Success,
+              "undefined relationType for LocalOccupation",
+              {
+                ...givenSkill,
+                relationType: undefined,
+                occupationType: OccupationEnums.OccupationType.LocalOccupation,
+              },
+              undefined,
+            ],
+            [
+              CaseType.Success,
+              "null relationType for LocalOccupation",
+              {
+                ...givenSkill,
+                relationType: null,
+                occupationType: OccupationEnums.OccupationType.LocalOccupation,
+              },
+              undefined,
+            ],
+            [
+              CaseType.Success,
+              "valid relationType for LocalOccupation (not enforced)",
+              {
+                ...givenSkill,
+                relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL,
+                occupationType: OccupationEnums.OccupationType.LocalOccupation,
+              },
+              undefined,
+            ],
             [
               CaseType.Failure,
-              "undefined relationType",
-              undefined,
-              constructSchemaError("/requiresSkills/0", "required", "must have required property 'relationType'"),
+              "invalid relationType for LocalOccupation",
+              {
+                ...givenSkill,
+                relationType: "InvalidRelation",
+                occupationType: OccupationEnums.OccupationType.LocalOccupation,
+              },
+              constructSchemaError(
+                "/requiresSkills/0/relationType",
+                "enum",
+                "must be equal to one of the allowed values"
+              ),
             ],
-          ])(`(%s) Validate 'relationType' when it is %s`, (caseType, _desc, givenValue, failureMessage) => {
-            const givenObject = { requiresSkills: [{ relationType: givenValue }] };
-            assertCaseForProperty("/requiresSkills/0/relationType", givenObject, itemSchema, caseType, failureMessage);
-          });
+          ])(
+            "%s Validate requiresSkills/0/relationType when it is %s",
+            (caseType, _description, skillValue, expectedError) => {
+              const givenObject = {
+                ...givenValidOccupationGETResponse,
+                occupationType: skillValue.occupationType,
+                requiresSkills: [skillValue],
+              };
+              assertCaseForProperty("requiresSkills/0/relationType", givenObject, itemSchema, caseType, expectedError);
+            }
+          );
+        });
+        describe("Test validation of 'requiresSkills/signallingValue'", () => {
+          test.each([
+            [
+              CaseType.Failure,
+              "undefined",
+              { ...givenSkill, signallingValue: undefined },
+              constructSchemaError("/requiresSkills/0", "required", "must have required property 'signallingValue'"),
+            ],
+            [
+              CaseType.Failure,
+              "null",
+              { ...givenSkill, signallingValue: null },
+              constructSchemaError("/requiresSkills/0/signallingValue", "type", "must be number"),
+            ],
+            [
+              CaseType.Failure,
+              "negative value",
+              { ...givenSkill, signallingValue: -1 },
+              constructSchemaError(
+                "/requiresSkills/0/signallingValue",
+                "minimum",
+                `must be >= ${OccupationConstants.SIGNALLING_VALUE_MIN}`
+              ),
+            ],
+            [
+              CaseType.Failure,
+              "value over max",
+              { ...givenSkill, signallingValue: OccupationConstants.SIGNALLING_VALUE_MAX + 1 },
+              constructSchemaError(
+                "/requiresSkills/0/signallingValue",
+                "maximum",
+                `must be <= ${OccupationConstants.SIGNALLING_VALUE_MAX}`
+              ),
+            ],
+            [CaseType.Success, "valid value", { ...givenSkill, signallingValue: 5 }, undefined],
+          ])(
+            "%s Validate requiresSkills/0/signallingValue when it is %s",
+            (caseType, _description, skillValue, expectedError) => {
+              const givenObject = { requiresSkills: [skillValue] };
+              assertCaseForProperty(
+                "requiresSkills/0/signallingValue",
+                givenObject,
+                itemSchema,
+                caseType,
+                expectedError
+              );
+            }
+          );
+        });
+
+        describe("Test validation of 'requiresSkills/signallingValueLabel'", () => {
+          test.each([
+            [
+              CaseType.Failure,
+              "undefined",
+              { ...givenSkill, signallingValueLabel: undefined },
+              constructSchemaError(
+                "/requiresSkills/0",
+                "required",
+                "must have required property 'signallingValueLabel'"
+              ),
+            ],
+            [
+              CaseType.Failure,
+              "null",
+              { ...givenSkill, signallingValueLabel: null },
+              constructSchemaError("/requiresSkills/0/signallingValueLabel", "type", "must be string"),
+            ],
+            [
+              CaseType.Failure,
+              "empty string",
+              { ...givenSkill, signallingValueLabel: "" },
+              constructSchemaError(
+                "/requiresSkills/0/signallingValueLabel",
+                "pattern",
+                `must match pattern "${RegExp_Str_NotEmptyString}"`
+              ),
+            ],
+            [CaseType.Success, "valid value", { ...givenSkill, signallingValueLabel: "High Priority" }, undefined],
+          ])(
+            "%s Validate requiresSkills/0/signallingValueLabel when it is %s",
+            (caseType, _description, skillValue, expectedError) => {
+              const givenObject = { requiresSkills: [skillValue] };
+              assertCaseForProperty(
+                "requiresSkills/0/signallingValueLabel",
+                givenObject,
+                itemSchema,
+                caseType,
+                expectedError
+              );
+            }
+          );
         });
       });
 

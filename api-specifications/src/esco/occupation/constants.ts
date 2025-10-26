@@ -21,6 +21,11 @@ namespace OccupationConstants {
   export const MAX_LIMIT = 100;
   export const MAX_CURSOR_LENGTH = 1024;
 
+  // Signalling value constraints
+  export const SIGNALLING_VALUE_MIN = 0;
+  export const SIGNALLING_VALUE_MAX = 100;
+  export const SIGNALLING_VALUE_LABEL_MAX_LENGTH = 256;
+
   // Computed totals for internal use
   const TOTAL_ALT_LABELS_MAX_LENGTH = ALT_LABELS_MAX_ITEMS * ALT_LABEL_MAX_LENGTH;
   const TOTAL_UUID_HISTORY_MAX_LENGTH = UUID_HISTORY_MAX_ITEMS * UUID_HISTORY_MAX_LENGTH;

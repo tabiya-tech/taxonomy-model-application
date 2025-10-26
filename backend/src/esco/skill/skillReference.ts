@@ -1,4 +1,4 @@
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { ISkillDoc, ISkillReference, ISkillReferenceDoc } from "./skills.types";
 import mongoose from "mongoose";
 import {
@@ -26,12 +26,16 @@ export function getSkillDocReference(skill: SkillDocument): ISkillReferenceDoc {
 
 export function getSkillReferenceWithRelationType(
   skill: ISkillReference,
-  relationType: SkillToSkillRelationType | OccupationToSkillRelationType
+  relationType: SkillToSkillRelationType | OccupationToSkillRelationType,
+  signallingValue?: number | null,
+  signallingValueLabel?: SignallingValueLabel
 ):
   | SkillToSkillReferenceWithRelationType<ISkillReference>
   | OccupationToSkillReferenceWithRelationType<ISkillReference> {
   return {
     ...skill,
     relationType: relationType,
+    signallingValue: signallingValue ?? null,
+    signallingValueLabel: signallingValueLabel ?? SignallingValueLabel.NONE,
   };
 }
