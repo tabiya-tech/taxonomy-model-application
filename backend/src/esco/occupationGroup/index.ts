@@ -118,6 +118,31 @@ class OccupationGroupController {
       return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
     }
 
+    // Extract modelId from path parameters and validate it matches the payload
+    const modelIdFromParams = event.pathParameters?.modelId;
+    const pathToMatch = event.path || "";
+    const execMatch = pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.exec(pathToMatch);
+    const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
+
+    if (!resolvedModelId) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        "modelId is missing in the path",
+        JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
+      );
+    }
+
+    // Validate that the modelId in the payload matches the modelId in the path
+    if (payload.modelId !== resolvedModelId) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        "modelId in payload does not match modelId in path",
+        `Payload modelId: ${payload.modelId}, Path modelId: ${resolvedModelId}`
+      );
+    }
+
     // here first check the model is released or not if it is released do not allow adding occupationGroups for it
     const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
     if (!model) {

@@ -147,6 +147,8 @@ describe("Test for occupationGroup handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       requestContext: usersRequestContext.MODEL_MANAGER,
     };
 
