@@ -94,6 +94,8 @@ describe("Test for occupationGroup handler", () => {
         headers: {
           "Content-Type": "application/json",
         },
+        pathParameters: { modelId: givenModel.id.toString() },
+        path: `/models/${givenModel.id}/occupationGroups`,
       } as never;
 
       // AND User has the required role
@@ -193,6 +195,8 @@ describe("Test for occupationGroup handler", () => {
         headers: {
           "Content-Type": "application/json",
         },
+        pathParameters: { modelId: givenModel.id.toString() },
+        path: `/models/${givenModel.id}/occupationGroups`,
       } as never;
 
       // AND User has the required role
@@ -261,6 +265,8 @@ describe("Test for occupationGroup handler", () => {
         headers: {
           "Content-Type": "application/json",
         },
+        pathParameters: { modelId: givenModelId.toString() },
+        path: `/models/${givenModelId}/occupationGroups`,
       } as never;
 
       // AND User has the required role
@@ -331,6 +337,8 @@ describe("Test for occupationGroup handler", () => {
         headers: {
           "Content-Type": "application/json",
         },
+        pathParameters: { modelId: givenModel.id.toString() },
+        path: `/models/${givenModel.id}/occupationGroups`,
       } as never;
 
       // AND User has the required role
@@ -373,6 +381,89 @@ describe("Test for occupationGroup handler", () => {
         errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         message: "Failed to create the occupation group because the specified modelId refers to a released model",
         details: "Cannot add occupation groups to a released model",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+
+    test("POST should respond with the BAD_REQUEST status code if modelId in payload does not match modelId in path", async () => {
+      // GIVEN a valid request with mismatched modelIds
+      const givenModelIdInPath = getMockStringId(1);
+      const givenModelIdInPayload = getMockStringId(2);
+      const givenPayload = {
+        modelId: givenModelIdInPayload.toString(),
+        code: getMockRandomISCOGroupCode(),
+        groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+        preferredLabel: "some random label",
+        description: "some random description",
+        altLabels: ["some random alt label 1", "some random alt label 2"],
+        originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+        UUIDHistory: [randomUUID()],
+      };
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        pathParameters: { modelId: givenModelIdInPath.toString() },
+        path: `/models/${givenModelIdInPath}/occupationGroups`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
+
+      // WHEN the info handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // THEN expect the handler to respond with the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        message: "modelId in payload does not match modelId in path",
+        details: `Payload modelId: ${givenModelIdInPayload}, Path modelId: ${givenModelIdInPath}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+
+    test("POST should respond with the BAD_REQUEST status code if modelId is missing in the path", async () => {
+      // GIVEN a valid request with missing modelId in path
+      const givenModelIdInPayload = getMockStringId(1);
+      const givenPayload = {
+        modelId: givenModelIdInPayload.toString(),
+        code: getMockRandomISCOGroupCode(),
+        groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+        preferredLabel: "some random label",
+        description: "some random description",
+        altLabels: ["some random alt label 1", "some random alt label 2"],
+        originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+        UUIDHistory: [randomUUID()],
+      };
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        pathParameters: {},
+        path: "/invalid/path/without/modelId",
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
+
+      // WHEN the info handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // THEN expect the handler to respond with the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        message: "modelId is missing in the path",
+        details: expect.stringContaining('"path":"/invalid/path/without/modelId"'),
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
