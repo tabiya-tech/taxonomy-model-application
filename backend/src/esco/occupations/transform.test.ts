@@ -444,10 +444,10 @@ describe("test the transformation of null/undefined values in IOccupation -> IOc
     const actual = transform(givenObject, basePath);
 
     // THEN expect parent properties to be empty strings (covered by ?? "" operators on lines 31-34)
-    expect(actual.parent!.id).toBe("");
-    expect(actual.parent!.UUID).toBe("");
-    expect(actual.parent!.code).toBe("");
-    expect(actual.parent!.preferredLabel).toBe("");
+    expect(actual.parent!.id).toBeNull();
+    expect(actual.parent!.UUID).toBeNull();
+    expect(actual.parent!.code).toBeNull();
+    expect(actual.parent!.preferredLabel).toBeNull();
   });
 
   test("should handle parent with valid id but null other properties", () => {
@@ -469,9 +469,9 @@ describe("test the transformation of null/undefined values in IOccupation -> IOc
 
     // THEN expect parent properties to be empty strings (covered by ?? "" operators on lines 31-34)
     expect(actual.parent!.id).toBe(getMockStringId(5));
-    expect(actual.parent!.UUID).toBe("");
-    expect(actual.parent!.code).toBe("");
-    expect(actual.parent!.preferredLabel).toBe("");
+    expect(actual.parent!.UUID).toBeNull();
+    expect(actual.parent!.code).toBeNull();
+    expect(actual.parent!.preferredLabel).toBeNull();
   });
 
   test("should handle children with null properties", () => {
@@ -494,10 +494,10 @@ describe("test the transformation of null/undefined values in IOccupation -> IOc
     const actual = transform(givenObject, basePath);
 
     // THEN expect children properties to be empty strings (covered by ?? "" operators)
-    expect(actual.children[0].id).toBe("");
-    expect(actual.children[0].UUID).toBe("");
-    expect(actual.children[0].code).toBe("");
-    expect(actual.children[0].preferredLabel).toBe("");
+    expect(actual.children[0].id).toBeNull();
+    expect(actual.children[0].UUID).toBeNull();
+    expect(actual.children[0].code).toBeNull();
+    expect(actual.children[0].preferredLabel).toBeNull();
   });
 
   test("should handle children with null properties for group children", () => {
@@ -518,10 +518,10 @@ describe("test the transformation of null/undefined values in IOccupation -> IOc
     const actual = transform(givenObject, basePath);
 
     // THEN expect children properties to be empty strings (covered by ?? "" operators in else branch)
-    expect(actual.children[0].id).toBe("");
-    expect(actual.children[0].UUID).toBe("");
-    expect(actual.children[0].code).toBe("");
-    expect(actual.children[0].preferredLabel).toBe("");
+    expect(actual.children[0].id).toBeNull();
+    expect(actual.children[0].UUID).toBeNull();
+    expect(actual.children[0].code).toBeNull();
+    expect(actual.children[0].preferredLabel).toBeNull();
   });
 });
 
@@ -537,14 +537,14 @@ describe("test the transformation of requiresSkills field", () => {
     // THEN expect requiresSkills to be mapped correctly
     expect(actual.requiresSkills).toEqual(
       givenObject.requiresSkills.map((skillRef) => ({
-        id: skillRef.id ?? "",
-        UUID: skillRef.UUID ?? "",
-        preferredLabel: skillRef.preferredLabel ?? "",
+        id: skillRef.id,
+        UUID: skillRef.UUID,
+        preferredLabel: skillRef.preferredLabel,
         isLocalized: skillRef.isLocalized,
         objectType: OccupationAPISpecs.Enums.ObjectTypes.Skill,
         relationType: skillRef.relationType,
         signallingValue: skillRef.signallingValue ?? null,
-        signallingValueLabel: skillRef.signallingValueLabel ?? SignallingValueLabel.NONE,
+        signallingValueLabel: skillRef.signallingValueLabel,
       }))
     );
   });

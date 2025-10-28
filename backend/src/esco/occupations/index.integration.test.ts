@@ -123,8 +123,16 @@ describe("Test for occupation handler with a DB", () => {
 
   test("POST should respond with the CREATED status code and response passes the JSON schema validation", async () => {
     // GIVEN a valid request (method & header & payload)
+    // Ensure model exists in DB
+    const modelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: getTestString(10),
+      locale: { UUID: randomUUID(), name: getTestString(5), shortCode: getTestString(2) },
+      description: getTestString(10),
+      license: getTestString(5),
+      UUIDHistory: [randomUUID()],
+    });
     const givenPayload: OccupationAPISpecs.Types.POST.Request.Payload = {
-      modelId: getMockStringId(1),
+      modelId: modelInfo.id.toString(),
       code: getMockRandomOccupationCode(false),
       occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
       preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
@@ -144,6 +152,8 @@ describe("Test for occupation handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      path: `/models/${modelInfo.id}/occupations`,
+      pathParameters: { modelId: modelInfo.id.toString() },
       requestContext: usersRequestContext.MODEL_MANAGER,
     };
 

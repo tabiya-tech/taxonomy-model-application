@@ -116,6 +116,49 @@ class OccupationController {
       return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
     }
 
+    // Extract modelId from path parameters and validate it matches the payload
+    const modelIdFromParams = event.pathParameters?.modelId;
+    const pathToMatch = event.path || "";
+    const execMatch = Routes.OCCUPATIONS_ROUTE.exec(pathToMatch);
+    const resolvedModelId = modelIdFromParams ?? execMatch?.[1];
+
+    if (!resolvedModelId) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+        "modelId is missing in the path",
+        JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
+      );
+    }
+
+    if (payload.modelId !== resolvedModelId) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+        "modelId in payload does not match modelId in path",
+        `Payload modelId: ${payload.modelId}, Path modelId: ${resolvedModelId}`
+      );
+    }
+
+    // Validate model exists and is not released
+    const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
+    if (!model) {
+      return errorResponse(
+        StatusCodes.NOT_FOUND,
+        OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+        "Failed to create the occupation because the specified modelId does not exist",
+        "Model could not be found"
+      );
+    }
+    if (model.released) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+        "Failed to create the occupation because the specified modelId refers to a released model",
+        "Cannot add occupations to a released model"
+      );
+    }
+
     const newOccupationSpec: INewOccupationSpec = {
       originUri: payload.originUri,
       code: payload.code,
@@ -196,6 +239,7 @@ class OccupationController {
    *        $ref: '#/components/responses/InternalServerErrorResponse'
    *
    */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationById(event: APIGatewayProxyEvent) {
     try {
       // extract the modelId and id from the pathParameters
@@ -238,6 +282,17 @@ class OccupationController {
           ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
           ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
           JSON.stringify({ reason: "Invalid modelId", path: event.path, pathParameters: event.pathParameters })
+        );
+      }
+
+      // Validate that the model exists
+      const model = await getRepositoryRegistry().modelInfo.getModelById(requestPathParameter.modelId);
+      if (!model) {
+        return errorResponse(
+          StatusCodes.NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          "Model not found",
+          `No model found with id: ${requestPathParameter.modelId}`
         );
       }
 
@@ -312,6 +367,7 @@ class OccupationController {
    *        $ref: '#/components/responses/InternalServerErrorResponse'
    *
    */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupations(event: APIGatewayProxyEvent) {
     // pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
     try {
