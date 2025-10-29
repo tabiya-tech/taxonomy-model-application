@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { IOccupation } from "./occupation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";

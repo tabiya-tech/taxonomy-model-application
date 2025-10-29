@@ -13,6 +13,7 @@ import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 export type SearchFilter = {
   occupationType?: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
@@ -258,8 +259,11 @@ export class OccupationRepository implements IOccupationRepository {
             matchStage._id = { $gt: cursorId };
           }
         } catch (error) {
-          // If cursor is not a valid ObjectId, ignore it
-          console.warn(`Invalid cursor provided: ${cursor}`);
+          // If the cursor is not a valid ObjectId, ignore it
+          errorLoggerInstance.logWarning(
+            `Invalid cursor provided: ${cursor}`,
+            error instanceof Error ? error.name : "Unknown error"
+          );
         }
       }
 

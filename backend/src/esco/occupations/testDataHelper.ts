@@ -1,5 +1,5 @@
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { IOccupation, INewOccupationSpec } from "./occupation.types";
 import OccupationAPISpecs from "api-specifications/esco/occupation";

@@ -3,6 +3,21 @@ import { IOccupation } from "./occupation.types";
 import { Routes } from "routes.constant";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 
+/**
+ * Determine the objectType for a parent occupation
+ */
+function getParentObjectType(parent: NonNullable<IOccupation["parent"]>): OccupationAPISpecs.Enums.ObjectTypes {
+  if ("occupationType" in parent) {
+    return parent.occupationType === ObjectTypes.ESCOOccupation
+      ? OccupationAPISpecs.Enums.ObjectTypes.ESCOOccupation
+      : OccupationAPISpecs.Enums.ObjectTypes.LocalOccupation;
+  }
+
+  return parent.objectType === ObjectTypes.ISCOGroup
+    ? OccupationAPISpecs.Enums.ObjectTypes.ISCOGroup
+    : OccupationAPISpecs.Enums.ObjectTypes.LocalGroup;
+}
+
 export function transform(data: IOccupation, baseURL: string): OccupationAPISpecs.Types.Response.IOccupation {
   return {
     id: data.id,
@@ -31,14 +46,7 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
           UUID: data.parent.UUID,
           code: data.parent.code,
           preferredLabel: data.parent.preferredLabel,
-          objectType:
-            "occupationType" in data.parent
-              ? data.parent.occupationType === ObjectTypes.ESCOOccupation
-                ? OccupationAPISpecs.Enums.ObjectTypes.ESCOOccupation
-                : OccupationAPISpecs.Enums.ObjectTypes.LocalOccupation
-              : data.parent.objectType === ObjectTypes.ISCOGroup
-              ? OccupationAPISpecs.Enums.ObjectTypes.ISCOGroup
-              : OccupationAPISpecs.Enums.ObjectTypes.LocalGroup,
+          objectType: getParentObjectType(data.parent),
         }
       : null,
     children: (data.children ?? []).map((child) =>
@@ -93,6 +101,6 @@ export function transformPaginated(
   return {
     items: data.map((item) => transform(item, baseURL)),
     limit,
-    next_cursor: cursor ? cursor : null,
+    next_cursor: cursor,
   };
 }

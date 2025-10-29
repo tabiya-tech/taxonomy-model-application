@@ -15,6 +15,7 @@ import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authenticator";
 import ErrorAPISpecs from "api-specifications/error";
 import { ObjectTypes } from "esco/common/objectTypes";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -180,6 +181,10 @@ class OccupationController {
       return responseJSON(StatusCodes.CREATED, transform(newOccupation, getResourcesBaseUrl()));
     } catch (error: unknown) {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
+      errorLoggerInstance.logError(
+        "Failed to create the occupation in the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
@@ -311,6 +316,10 @@ class OccupationController {
       return responseJSON(StatusCodes.OK, transform(occupation, getResourcesBaseUrl()));
     } catch (e: unknown) {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupation from the DB",
+        e instanceof Error ? e.name : "Unknown error"
+      );
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
@@ -462,6 +471,10 @@ class OccupationController {
       );
     } catch (e: unknown) {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupations from the DB",
+        e instanceof Error ? e.name : "Unknown error"
+      );
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
