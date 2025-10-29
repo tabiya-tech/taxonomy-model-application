@@ -26,6 +26,7 @@ import {
   testTooLargePayload,
   testUnsupportedMediaType,
 } from "_test_utilities/stdRESTHandlerTests";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockReturnValue(true);
@@ -154,6 +155,7 @@ describe("Test for occupation handler", () => {
       // AND the handler to return the expected result
       expect(JSON.parse(actualResponse.body)).toMatchObject(transformSpy.mock.results[0].value);
     });
+
     test("POST should respond with the INTERNAL_SERVER_ERROR status code if the repository failed to create the occupation", async () => {
       // GIVEN a valid request {method & header & payload}
       const givenModelId = getMockStringId(1);
@@ -208,6 +210,7 @@ describe("Test for occupation handler", () => {
         getHistory: jest.fn(),
       } as IModelRepository;
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await occupationHandler(givenEvent);
@@ -223,6 +226,92 @@ describe("Test for occupation handler", () => {
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+      // AND the error is logged
+      expect(logSpy).toHaveBeenCalledWith("Failed to create the occupation in the DB", "Error");
+    });
+
+    test("POST should respond with the INTERNAL_SERVER_ERROR status code and log 'Unknown error' if the repository throws a non-Error value when creating the occupation", async () => {
+      // GIVEN a valid request {method & header & payload}
+      const givenModelId = getMockStringId(1);
+
+      const givenPayload = {
+        modelId: givenModelId,
+        code: "1234.5678",
+        occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+        preferredLabel: "some random label",
+        description: "some random description",
+        altLabels: ["some random alt label 1", "some random alt label 2"],
+        originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+        UUIDHistory: [randomUUID()],
+        occupationGroupCode: getMockRandomISCOGroupCode(),
+        definition: "some definition",
+        scopeNote: "some scope note",
+        regulatedProfessionNote: "some regulated profession note",
+        isLocalized: false,
+      };
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        path: `/models/${givenModelId}/occupations`,
+        pathParameters: { modelId: givenModelId },
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
+
+      // AND the repository throws a non-Error value
+      const givenOccupationRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockRejectedValue("unknown failure"),
+        createMany: jest.fn().mockResolvedValue([]),
+        findById: jest.fn().mockResolvedValue(null),
+        findAll: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        encodeCursor: jest.fn().mockReturnValue(""),
+        decodeCursor: jest.fn().mockReturnValue({}),
+        getOccupationByUUID: jest.fn().mockResolvedValue(null),
+      };
+      jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
+
+      const givenModelInfoRepositoryMock = {
+        getModelById: jest.fn().mockResolvedValue({ id: givenModelId, released: false }),
+        Model: undefined as never,
+        create: jest.fn(),
+        getModelByUUID: jest.fn(),
+        getModels: jest.fn(),
+        getHistory: jest.fn(),
+      } as IModelRepository;
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // AND the logger is mocked
+      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
+
+      // WHEN the occupation handler is invoked with the given event
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect the handler to attempt to create the occupation with the given payload
+      expect(getRepositoryRegistry().occupation.create).toHaveBeenCalledWith({
+        ...givenPayload,
+        importId: null,
+      });
+
+      // AND to respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+
+      // AND the response body contains the expected error information
+      const expectedErrorBody = {
+        errorCode: OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+        message: "Failed to create the occupation in the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+
+      // AND the error is logged as an Unknown error
+      expect(logSpy).toHaveBeenCalledWith("Failed to create the occupation in the DB", "Unknown error");
     });
 
     test("POST should respond with BAD_REQUEST when modelId in path is missing", async () => {
@@ -711,6 +800,7 @@ describe("Test for occupation handler", () => {
           getOccupationByUUID: jest.fn().mockResolvedValue(null),
         };
         jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
+        const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
 
         // WHEN the occupation handler is invoked with the given event
         const actualResponse = await occupationHandler(givenEvent as never);
@@ -724,6 +814,43 @@ describe("Test for occupation handler", () => {
           details: "",
         };
         expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+        // AND the error is logged
+        expect(logSpy).toHaveBeenCalledWith("Failed to retrieve the occupation from the DB", "Error");
+      });
+
+      test("GET /occupations/{id} logs Unknown error and responds with INTERNAL_SERVER_ERROR when repository throws non-Error", async () => {
+        // GIVEN a repository that rejects with a non-Error
+        // AND role check passes for anonymous access
+        checkRole.mockReturnValueOnce(true);
+        const givenOccupationRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockRejectedValue("unknown failure"),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+          encodeCursor: jest.fn().mockReturnValue(""),
+          decodeCursor: jest.fn().mockReturnValue({}),
+          getOccupationByUUID: jest.fn().mockResolvedValue(null),
+        };
+        jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
+
+        const logErrorSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
+
+        // WHEN the occupation handler is invoked
+        const actualResponse = await occupationHandler(givenEvent as never);
+
+        // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+        // AND the response body contains the expected error payload
+        const expectedErrorBody = {
+          errorCode: OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          message: "Failed to retrieve the occupation from the DB",
+          details: "",
+        };
+        expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+        // AND the error is logged with 'Unknown error' detail
+        expect(logErrorSpy).toHaveBeenCalledWith("Failed to retrieve the occupation from the DB", "Unknown error");
       });
 
       test("GET /occupations/{id} should respond with BAD_REQUEST if id cannot be extracted from path or pathParameters", async () => {
@@ -805,6 +932,52 @@ describe("Test for occupation handler", () => {
 
         // Restore
         Routes.OCCUPATION_BY_ID_ROUTE.exec = originalExec;
+      });
+
+      test("GET /models/{modelId}/occupations/{id} should respond with NOT_FOUND if model does not exist", async () => {
+        // GIVEN a valid request with a modelId and occupation id
+        const givenModelId = getMockStringId(1);
+        const givenId = getMockStringId(2);
+
+        // AND the user has the required role
+        checkRole.mockReturnValue(true);
+
+        const givenEvent = {
+          httpMethod: HTTP_VERBS.GET,
+          headers: {},
+          pathParameters: { modelId: givenModelId.toString(), id: givenId.toString() },
+          queryStringParameters: {},
+          path: `/models/${givenModelId}/occupations/${givenId}`,
+        } as never;
+
+        // AND a model repository that will return null (model not found)
+        const givenModelInfoRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          getModelById: jest.fn().mockResolvedValue(null),
+          getModelByUUID: jest.fn().mockResolvedValue(null),
+          getModels: jest.fn().mockResolvedValue([]),
+          getHistory: jest.fn().mockResolvedValue([]),
+        };
+        jest
+          .spyOn(getRepositoryRegistry(), "modelInfo", "get")
+          .mockClear()
+          .mockReturnValue(givenModelInfoRepositoryMock);
+
+        // WHEN the occupation handler is invoked with the given event
+        const actualResponse = await occupationHandler(givenEvent);
+
+        // THEN expect the handler to call the model repository with the correct modelId
+        expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModelId.toString());
+        // AND respond with the NOT_FOUND status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+        // AND the response body contains the error information
+        const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+          errorCode: OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          message: "Model not found",
+          details: `No model found with id: ${givenModelId}`,
+        };
+        expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
       });
     });
 
@@ -1269,6 +1442,58 @@ describe("Test for occupation handler", () => {
         };
         expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
       });
+      test("GET should respond with the INTERNAL_SERVER_ERROR status code and log 'Unknown error' if the repository throws a non-Error value when retrieving occupations", async () => {
+        // AND GIVEN the repository fails to get the occupations with a non-Error value
+        const firstPageCursorObject = {
+          id: getMockStringId(1),
+          createdAt: new Date(),
+        };
+        const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
+
+        const givenOccupationRepositoryMock = {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(null),
+          createMany: jest.fn().mockResolvedValue([]),
+          findById: jest.fn().mockResolvedValue(null),
+          findAll: jest.fn().mockResolvedValue(null),
+          findPaginated: jest.fn().mockRejectedValue("unknown failure"),
+          encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
+          decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
+          getOccupationByUUID: jest.fn().mockResolvedValue(null),
+        };
+        jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
+
+        const limit = 2;
+
+        // AND role check passes for anonymous access
+        checkRole.mockReturnValueOnce(true);
+
+        // AND the logger is mocked
+        const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
+
+        // WHEN the occupation handler is invoked with the given event
+        const actualResponse = await occupationHandler({
+          ...givenEvent,
+          queryStringParameters: { limit: limit.toString(), next_cursor: firstPageCursor },
+        } as never);
+
+        // THEN expect the handler to call the repository to get the occupations
+        expect(getRepositoryRegistry().occupation.findPaginated).toHaveBeenCalled();
+
+        // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+
+        // AND the response body contains the error information
+        const expectedErrorBody = {
+          errorCode: OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          message: "Failed to retrieve the occupations from the DB",
+          details: "",
+        };
+        expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+
+        // AND the error is logged as an Unknown error
+        expect(logSpy).toHaveBeenCalledWith("Failed to retrieve the occupations from the DB", "Unknown error");
+      });
 
       test("GET should respond with the INTERNAL_SERVER_ERROR status code if decodeCursor throws an error", async () => {
         // AND GIVEN the repository decodeCursor throws an error
@@ -1286,6 +1511,7 @@ describe("Test for occupation handler", () => {
           getOccupationByUUID: jest.fn().mockResolvedValue(null),
         };
         jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
+        const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
 
         // AND role check passes for anonymous access
         checkRole.mockReturnValueOnce(true);
@@ -1305,6 +1531,8 @@ describe("Test for occupation handler", () => {
           details: "",
         };
         expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+        // AND the error is logged
+        expect(logSpy).toHaveBeenCalledWith("Failed to retrieve the occupations from the DB", "Error");
       });
       testMethodsNotAllowed(
         [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH],

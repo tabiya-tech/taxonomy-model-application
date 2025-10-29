@@ -15,6 +15,7 @@ import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authenticator";
 import ErrorAPISpecs from "api-specifications/error";
 import { pathToRegexp } from "path-to-regexp";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -31,7 +32,7 @@ export const handler: (
   if (httpMethod === HTTP_VERBS.GET) {
     // Check if it's an individual occupation group request (has ID) or list request
     const individualMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(path);
-    return individualMatch 
+    return individualMatch
       ? occupationGroupController.getOccupationGroup(event)
       : occupationGroupController.getOccupationGroups(event);
   }
@@ -178,6 +179,10 @@ class OccupationGroupController {
       return responseJSON(StatusCodes.CREATED, transform(newOccupationGroup, getResourcesBaseUrl()));
     } catch (error: unknown) {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
+      errorLoggerInstance.logError(
+        "Failed to create the occupation group in the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
@@ -322,6 +327,10 @@ class OccupationGroupController {
         transformPaginated(currentPageOccupationGroups.items, getResourcesBaseUrl(), limit, nextCursor)
       );
     } catch (e: unknown) {
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupation groups from the DB",
+        e instanceof Error ? e.name : "Unknown error"
+      );
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
@@ -435,6 +444,10 @@ class OccupationGroupController {
       }
       return responseJSON(StatusCodes.OK, transform(occupationGroup, getResourcesBaseUrl()));
     } catch (e: unknown) {
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupation group from the DB",
+        e instanceof Error ? e.name : "Unknown error"
+      );
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,

@@ -33,6 +33,7 @@ import * as MainHandler from "index";
 import * as InfoHandler from "applicationInfo";
 import * as ModelHandler from "modelInfo/index";
 import * as OccupationGroupHandler from "esco/occupationGroup";
+import * as OccupationHandler from "esco/occupations";
 import * as PresignedHandler from "presigned/index";
 import * as ImportHandler from "import/index";
 import * as ExportHandler from "export/index";
@@ -149,9 +150,18 @@ describe("test the handleRouteEvent function", () => {
     jest.clearAllMocks();
   });
   const modelId = getMockStringId(1);
-  const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, { 
-    modelId: modelId.toString() 
+  const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, {
+    modelId: modelId.toString(),
   });
+
+  const occupationGroupPath = buildPathFromPattern(Routes.OCCUPATION_GROUP_ROUTE, {
+    modelId: modelId.toString(),
+    id: getMockStringId(2).toString(),
+  });
+
+  const occupationsPath = `/models/${modelId}/occupations`;
+  const occupationByIdPath = `/models/${modelId}/occupations/${getMockStringId(3)}`;
+
   test.each([
     [Routes.APPLICATION_INFO_ROUTE, InfoHandler],
     [Routes.PRESIGNED_ROUTE, PresignedHandler],
@@ -159,6 +169,9 @@ describe("test the handleRouteEvent function", () => {
     [Routes.MODELS_ROUTE, ModelHandler],
     [occupationGroupsPath, OccupationGroupHandler],
     [Routes.EXPORT_ROUTE, ExportHandler],
+    [occupationGroupPath, OccupationGroupHandler],
+    [occupationsPath, OccupationHandler],
+    [occupationByIdPath, OccupationHandler],
   ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
     // GIVEN an event with the given path & any HTTP method
     const givenEvent = {

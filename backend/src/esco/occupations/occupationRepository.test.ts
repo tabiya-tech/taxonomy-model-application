@@ -57,6 +57,7 @@ import { IOccupationReference } from "esco/occupations/occupationReference.types
 import { INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE } from "./occupationModel";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 import { resetMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -555,7 +556,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         requiresSkills: [],
       }));
       expect(actualFirstPageOccupationsArray).toHaveLength(2);
-      const expectedFirstPageOccupations = expectedOccupations.reverse(); // [occupation_2, occupation_1]
+      const expectedFirstPageOccupations = [...expectedOccupations].reverse(); // [occupation_2, occupation_1]
       expect(actualFirstPageOccupationsArray).toEqual(expectedFirstPageOccupations);
       expect(firstPage.nextCursor).toBeNull(); // No more items after occupation_1
 
@@ -639,13 +640,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts
       const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "test_occupation");
       const createdOccupation = await repository.create(givenOccupationSpecs);
+      const warnSpy = jest.spyOn(errorLoggerInstance, "logWarning").mockReturnValue(undefined);
 
       // WHEN finding paginated occupations with an invalid cursor
       const invalidCursor = "invalid-cursor-string";
       const result = await repository.findPaginated(givenModelId, invalidCursor, 2);
 
       // THEN expect the warning to be logged
-      expect(console.warn).toHaveBeenCalledWith(`Invalid cursor provided: ${invalidCursor}`);
+      expect(warnSpy).toHaveBeenCalledWith(`Invalid cursor provided: ${invalidCursor}`, expect.any(String));
 
       // AND expect the result to ignore the invalid cursor and return the first page
       expect(result.items).toHaveLength(1);
