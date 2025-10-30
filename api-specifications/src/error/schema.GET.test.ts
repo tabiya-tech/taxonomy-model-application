@@ -12,7 +12,7 @@ import { WHITESPACE } from "_test_utilities/specialCharacters";
 import ModelInfoAPI from "../modelInfo";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
-
+import SkillGroupAPI from "../esco/skillGroup";
 describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.GET.Payload schema
 
@@ -48,6 +48,9 @@ describe("Validate JSON against the APIError GET Schema", () => {
         ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
         ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
         ...Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
+        ...Object.values(SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
+        ...Object.values(SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
+        ...Object.values(SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
       ];
 
       test.each([

@@ -9,10 +9,16 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { ISkillGroupRepository } from "./skillGroupRepository";
-import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
+import {
+  INewSkillGroupSpec,
+  INewSkillGroupSpecWithoutImportId,
+  ISkillGroup,
+  ISkillGroupDoc,
+  ISkillGroupReference,
+} from "./skillGroup.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { INewSkillSpec } from "esco/skill/skills.types";
+import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
@@ -21,6 +27,7 @@ import {
   getSimpleNewISCOGroupSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
+  getNewSkillGroupSpecWithoutImportId,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -56,6 +63,23 @@ function expectedFromGivenSpec(givenSpec: INewSkillGroupSpec, newUUID: string): 
     UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
+  };
+}
+
+function expectedFromGivenSpecWithoutImportId(
+  givenSpec: INewSkillGroupSpecWithoutImportId,
+  newUUID: string
+): ISkillGroup {
+  return {
+    children: [],
+    parents: [],
+    ...givenSpec,
+    id: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
+    createdAt: expect.any(Date),
+    updatedAt: expect.any(Date),
+    importId: expect.toBeNil(),
   };
 }
 
@@ -148,13 +172,16 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
   describe("Test create() skill group ", () => {
     test("should successfully create a new skill group", async () => {
       // GIVEN a valid SkillGroupSpec
-      const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+      const givenNewSkillGroupSpec: INewSkillGroupSpecWithoutImportId = getNewSkillGroupSpecWithoutImportId();
 
       // WHEN Creating a new skillGroup with given specifications
       const actualNewModel = await repository.create(givenNewSkillGroupSpec);
 
       // THEN expect the new skillGroup to be created with the specific attributes
-      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewModel.UUID);
+      const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpecWithoutImportId(
+        givenNewSkillGroupSpec,
+        actualNewModel.UUID
+      );
       expect(actualNewModel).toEqual(expectedNewSkillGroup);
     });
 
@@ -162,21 +189,24 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       "should successfully create a new skill group when the given specifications have a UUIDHistory with %i items",
       async (count: number) => {
         // GIVEN a valid SkillGroupSpec
-        const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+        const givenNewSkillGroupSpec: INewSkillGroupSpecWithoutImportId = getNewSkillGroupSpecWithoutImportId();
         givenNewSkillGroupSpec.UUIDHistory = generateRandomUUIDs(count);
 
         // WHEN Creating a new skillGroup with given specifications
         const actualNewModel = await repository.create(givenNewSkillGroupSpec);
 
         // THEN expect the new skillGroup to be created with the specific attributes
-        const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpec(givenNewSkillGroupSpec, actualNewModel.UUID);
+        const expectedNewSkillGroup: ISkillGroup = expectedFromGivenSpecWithoutImportId(
+          givenNewSkillGroupSpec,
+          actualNewModel.UUID
+        );
         expect(actualNewModel).toEqual(expectedNewSkillGroup);
       }
     );
 
     test("should reject with an error when creating a skill group and providing a UUID", async () => {
       // GIVEN a valid newSkillGroupSpec
-      const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+      const givenNewSkillGroupSpec: INewSkillGroupSpecWithoutImportId = getNewSkillGroupSpecWithoutImportId();
 
       // WHEN Creating a new skill with the given specifications by providing a UUID
       await expect(
@@ -191,7 +221,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     describe("Test unique indexes", () => {
       test("should reject with an error when creating a skill group with an existing UUID", async () => {
         // GIVEN a SkillGroup record exists in the database
-        const givenNewSkillGroupSpecSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+        const givenNewSkillGroupSpecSpec: INewSkillGroupSpecWithoutImportId = getNewSkillGroupSpecWithoutImportId();
         const givenNewModel = await repository.create(givenNewSkillGroupSpecSpec);
 
         // WHEN Creating a new SkillGroup with the UUID of the existing SkillGroup
@@ -897,5 +927,154 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
       repositoryRegistry.skillGroup.findAll(getMockStringId(1))
     );
+  });
+
+  describe("Test findPaginated()", () => {
+    test("should return first page when cursor is undefined", async () => {
+      // GIVEN a modelId to group the skillGroups together
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroups: ISkillGroup[] = [];
+      for (let i = 0; i < 3; i++) {
+        const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, `group_${i}`);
+        const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+        givenSkillGroups.push(givenSkillGroup);
+      }
+
+      // WHEN retrieving the first page of skillGroups
+      const firstPage = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+      const actualFirstPage = firstPage;
+
+      // THEN expect the latest 2 documents by _id (desc)
+      const expectedFirstPage = givenSkillGroups
+        .slice(-2)
+        .map(({ parents, children, ...rest }) => ({ ...rest, parents: [], children: [] }))
+        .reverse();
+
+      expect(actualFirstPage).toHaveLength(2);
+      expect(actualFirstPage).toEqual(expectedFirstPage);
+    });
+    test("should return paginated SkillGroups for a given modelId, limit, and cursor", async () => {
+      // GIVEN a modelId to group the skillGroups together
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroups: ISkillGroup[] = [];
+      for (let i = 0; i < 3; i++) {
+        const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, `group_${i + 1}`);
+        const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+        givenSkillGroups.push(givenSkillGroup);
+      }
+      // WHEN retrieving the skillGroups with a cursor pointing to group_3 (newest) and limit of 2
+      const firstPage = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+      const actualFirstPageSkillGroupsArray = firstPage;
+      // THEN the first page should contain group_2 and group_1 (items older than group_3) ordered by _id desc
+      const expectedSkillGroups = givenSkillGroups
+        .slice(1, 3)
+        .map(({ parents, children, ...rest }) => ({ ...rest, parents: [], children: [] }))
+        .reverse();
+
+      expect(actualFirstPageSkillGroupsArray).toHaveLength(2);
+      const expectedFirstPageSkillGroups = expectedSkillGroups; // [group_2,group_1]
+      expect(actualFirstPageSkillGroupsArray).toHaveLength(2);
+      expect(actualFirstPageSkillGroupsArray).toEqual(expectedFirstPageSkillGroups);
+    });
+    test("should handle errors during paginated data retrieval", async () => {
+      // GIVEN that an error will occur when retrieving the paginated data
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN find paginated skillGroups for some modelId
+      // THEN expect the operation to fail with the given error
+      await expect(repository.findPaginated(getMockStringId(1), {}, { _id: -1 }, 2)).rejects.toThrowError(
+        new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
+    });
+    test("should reject when database query fails", async () => {
+      const givenError = new Error("database query failure");
+
+      const aggregateSpy = jest.spyOn(repository.Model, "aggregate").mockReturnValue({
+        exec: jest.fn().mockRejectedValue(givenError),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      await expect(repository.findPaginated(getMockStringId(1), {}, { _id: -1 }, 1)).rejects.toThrow(
+        new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
+
+      aggregateSpy.mockRestore();
+    });
+    test("should paginate consistently across mixed limits and cursor flow", async () => {
+      // GIVEN a modelId and three skill groups created in order
+      const givenModelId = getMockStringId(1);
+      const given_skill_group1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g1"));
+      const given_skill_group2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g2"));
+      const given_skill_group3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g3"));
+
+      // WHEN requesting first page with limit=3 and no cursor (desc by _id => newest first)
+      const page2 = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 3);
+      // THEN expect when fetching three items with limit=3, to get all three items in the correct order
+      expect(page2).toHaveLength(3);
+      const firstTwoIds = page2.map((i) => i.id);
+      expect(firstTwoIds).toEqual([given_skill_group3.id, given_skill_group2.id, given_skill_group1.id]);
+
+      // WHEN requesting first page with limit=1 and no cursor
+      const page1 = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 1);
+      expect(page1).toHaveLength(1);
+      expect(page1[0].id).toBe(given_skill_group3.id);
+    });
+    test("should warn and ignore invalid cursor", async () => {
+      // GIVEN a unique modelId and some skill groups
+      const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts
+      const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "test_group");
+      const createdGroup = await repository.create(givenSkillGroupSpecs);
+
+      // WHEN finding paginated skillGroups with an invalid cursor
+      const result = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+
+      // AND expect the result to ignore the invalid cursor and return the first page
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(createdGroup.id);
+    });
+    test("should populate parents and children for items in paginated results", async () => {
+      // GIVEN a modelId and small hierarchy: parent->subject->child
+      const givenModelId = getMockStringId(1);
+
+      // Parent group
+      const parent = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "parent"));
+      // Subject group
+      const subject = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "subject"));
+      // Child group
+      const child = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child"));
+
+      // Build hierarchy relations explicitly
+      const hierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: parent.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: subject.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: subject.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: child.id,
+        },
+      ]);
+      expect(hierarchy).toHaveLength(2);
+
+      // WHEN retrieving a page large enough to include all three
+      const page = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 10);
+
+      // THEN find the subject entry and assert it has populated parent and children
+      const subjectFromPage = page.find((i) => i.id === subject.id);
+      expect(subjectFromPage).toBeDefined();
+      expect(subjectFromPage!.parents).toEqual(
+        expect.arrayContaining<ISkillGroupReference>([expectedSkillGroupReference(parent)])
+      );
+      expect(subjectFromPage!.children).toEqual(
+        expect.arrayContaining<ISkillGroupReference | ISkillReference>([expectedSkillGroupReference(child)])
+      );
+    });
   });
 });

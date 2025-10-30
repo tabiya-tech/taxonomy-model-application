@@ -15,8 +15,8 @@ import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_u
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { INewOccupationSpec } from "esco/occupations/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
-import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
-import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
+import { INewSkillGroupSpec, INewSkillGroupSpecWithoutImportId } from "esco/skillGroup/skillGroup.types";
+import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { randomUUID } from "crypto";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -301,7 +301,7 @@ export function getSimpleNewLocalOccupationSpecWithParentCode(
  */
 export function getNewSkillGroupSpec(): INewSkillGroupSpec {
   return {
-    code: getMockRandomSkillCode(),
+    code: getTestSkillGroupCode(100),
     preferredLabel: getTestString(LABEL_MAX_LENGTH),
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
@@ -313,13 +313,30 @@ export function getNewSkillGroupSpec(): INewSkillGroupSpec {
   };
 }
 
+export function getNewSkillGroupSpecWithoutImportId(): INewSkillGroupSpecWithoutImportId {
+  return {
+    code: getTestSkillGroupCode(100),
+    preferredLabel: getTestString(LABEL_MAX_LENGTH),
+    modelId: getMockStringId(2),
+    UUIDHistory: [randomUUID()],
+    originUri: generateRandomUrl(),
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
+    altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
+  };
+}
+
 /**
  * Helper function to create an INewSkillGroupSpec with simplest possible values,
  * that can be used for creating a new Occupation
  */
-export function getSimpleNewSkillGroupSpec(modelId: string, preferredLabel: string): INewSkillGroupSpec {
+export function getSimpleNewSkillGroupSpec(
+  modelId: string,
+  preferredLabel: string,
+  leafNode: boolean = false
+): INewSkillGroupSpec {
   return {
-    code: getMockRandomSkillCode(),
+    code: leafNode ? getTestSkillGroupCode(100).padStart(4, "0") : getTestSkillGroupCode(100),
     preferredLabel: preferredLabel,
     modelId: modelId,
     UUIDHistory: [randomUUID()],

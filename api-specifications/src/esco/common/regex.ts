@@ -16,3 +16,6 @@ export const RegExp_Local_Occupation_Code = new RegExp(RegExp_Str_Local_Occupati
 // ESCO Local or Local occupation code regex
 export const RegExp_Str_ESCO_Local_Or_Local_Occupation_Code = `^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$`;
 export const RegExp_ESCO_Local_Or_Local_Occupation_Code = new RegExp(RegExp_Str_ESCO_Local_Or_Local_Occupation_Code);
+// Skill Group code regex
+export const RegExp_Str_Skill_Group_Code = `^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$`;
+export const RegExp_Skill_Group_Code = new RegExp(RegExp_Str_Skill_Group_Code);
