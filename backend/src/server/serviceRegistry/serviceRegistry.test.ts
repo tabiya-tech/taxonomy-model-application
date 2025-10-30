@@ -3,6 +3,8 @@ import "_test_utilities/consoleMock";
 
 import { getServiceRegistry, ServiceRegistry } from "./serviceRegistry";
 import { OccupationService } from "esco/occupations/occupationService";
+import { OccupationGroupService } from "esco/occupationGroup/occupationGroupService";
+import { SkillGroupService } from "esco/skillGroup/skillGroupService";
 
 describe("test the ServiceRegistry", () => {
   test("should return a singleton ServiceRegistry", () => {
@@ -25,5 +27,9 @@ describe("test the ServiceRegistry", () => {
     // THEN the services should be initialized
     expect(serviceRegistry.occupation).toBeDefined();
     expect(serviceRegistry.occupation).toBeInstanceOf(OccupationService);
+    expect(serviceRegistry.occupationGroup).toBeDefined();
+    expect(serviceRegistry.occupationGroup).toBeInstanceOf(OccupationGroupService);
+    expect(serviceRegistry.skillGroup).toBeDefined();
+    expect(serviceRegistry.skillGroup).toBeInstanceOf(SkillGroupService);
   });
 });

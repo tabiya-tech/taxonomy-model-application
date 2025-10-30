@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewSkillGroupSpec, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
+import { INewSkillGroupSpec, INewSkillGroupSpecWithoutImportId, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
 import { populateSkillGroupChildrenOptions, populateSkillGroupParentsOptions } from "./populateSkillHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
@@ -14,12 +14,12 @@ export interface ISkillGroupRepository {
   /**
    * Creates a new SkillGroup entry.
    *
-   * @param {INewSkillGroupSpec} newSkillGroupSpec - The specification for the new SkillGroup entry.
+   * @param {INewSkillGroupSpecWithoutImportId} INewSkillGroupSpecWithoutImportId - The specification for the new SkillGroup entry.
    * @return {Promise<ISkillGroup>} - A Promise that resolves to the newly created ISkillGroup entry.
    * Rejects with an error if the SkillGroup entry cannot be created.
    */
 
-  create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup>;
+  create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup>;
 
   /**
    * Creates multiple new SkillGroup entries.
@@ -48,6 +48,23 @@ export interface ISkillGroupRepository {
    * Rejects with an error if the operation fails.
    */
   findAll(modelId: string): Readable;
+
+  /**
+   * Returns paginated SkillGroups. The SkillGroups are transformed to objects (via the .lean()), however
+   * in the current version they are not populated with parents or children. This will be implemented in a future version.
+   * @param {string} modelId - The modelId of the SkillGroups.
+   * @param {Record<string, unknown>} filter - The filter to apply.
+   * @param {number} limit - The maximum number of SkillGroups to return.
+   * @param {boolean} [desc] - Whether to sort the result in descending order. Default is true.
+   * @return {Promise<{items: ISkillGroup[]}>} - An array paginated of ISkillGroups.
+   * Rejects with an error if the operation fails.
+   */
+  findPaginated(
+    modelId: string,
+    filter: Record<string, unknown>,
+    sort: { _id: 1 | -1 },
+    limit: number
+  ): Promise<ISkillGroup[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -68,7 +85,21 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     return newModel;
   }
 
-  async create(newSkillGroupSpec: INewSkillGroupSpec): Promise<ISkillGroup> {
+  private newSpecWithoutImportIdToModel(
+    newSpe: INewSkillGroupSpecWithoutImportId
+  ): mongoose.HydratedDocument<ISkillGroupDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({
+      ...newSpe,
+      UUID: newUUID,
+      importId: null,
+    });
+    // add the new UUID as the first element of the UUIDHistory
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
+  async create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup> {
     //@ts-ignore
     if (newSkillGroupSpec.UUID !== undefined) {
       const err = new Error("SkillGroupRepository.create: create failed. UUID should not be provided");
@@ -77,7 +108,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
 
     try {
-      const newSkillGroupModel = this.newSpecToModel(newSkillGroupSpec);
+      const newSkillGroupModel = this.newSpecWithoutImportIdToModel(newSkillGroupSpec);
       await newSkillGroupModel.save();
       populateEmptySkillHierarchy(newSkillGroupModel);
       return newSkillGroupModel.toObject();
@@ -135,6 +166,45 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return skillGroup != null ? skillGroup.toObject() : null;
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findById: findById failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findPaginated(
+    modelId: string,
+    filter: Record<string, unknown>,
+    sort: { _id: 1 | -1 },
+    limit: number
+  ): Promise<ISkillGroup[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      // Build aggregation pipeline
+      const matchStage: Record<string, unknown> = { modelId: modelIdObj, ...filter };
+      // NOTE: We are sending 2 database queries, this is not efficient. This is because mongoose is throwing
+      //       an error when trying to query by _id, using $gt or $lt: ISSUE: https://github.com/Automattic/mongoose/issues/2277#event-171765301
+      //       We are creating to optimize this luxurious improvement.
+      //       https://tabiya-tech.atlassian.net/browse/TAX-31
+      //TODO: Optimize this luxurious improvement.
+
+      // Get items + 1 to check if there's a next page
+      const results = await this.Model.aggregate([{ $match: matchStage }, { $sort: sort }, { $limit: limit }]).exec();
+
+      // populate parents and children for the page items using existing populate options
+      const idsInOrder = results.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString());
+      const objectIds = idsInOrder.map((id: string) => new mongoose.Types.ObjectId(id));
+      // Note: query the page docs let MongoDB return them already ordered by _id
+      const populated = await this.Model.find({ _id: objectIds })
+        .sort(sort)
+        .populate(populateSkillGroupParentsOptions)
+        .populate(populateSkillGroupChildrenOptions)
+        .exec();
+
+      // Convert to plain objects
+      const orderedObjects: ISkillGroup[] = populated.map((doc) => doc.toObject());
+      return orderedObjects;
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);
       throw err;
     }

@@ -1,3 +1,4 @@
+import { skillGroupExportHeaders } from "esco/common/entityToCSV.types";
 import swaggerJsdoc = require("swagger-jsdoc");
 import * as fs from "fs";
 import * as path from "node:path";
@@ -11,7 +12,7 @@ import Export from "api-specifications/export";
 import Auth from "api-specifications/auth";
 import OccupationGroup from "api-specifications/esco/occupationGroup";
 import Occupation from "api-specifications/esco/occupation";
-
+import SkillGroup from "api-specifications/esco/skillGroup";
 /**
  *  In ajv the $ref is relative to the root of the schema, while in openapi the $ref is relative to the root of the document.
  *  Due to the different way that ajv and openapi handle $ref, we need to fix the $ref in the schema.
@@ -52,6 +53,13 @@ delete Occupation.Schemas.GET.Response.Payload.$id;
 delete Occupation.Schemas.GET.Request.Param.Payload.$id;
 delete Occupation.Schemas.GET.Request.Query.Payload.$id;
 delete Occupation.Schemas.GET.Request.ById.Param.Payload.$id;
+delete SkillGroup.Schemas.POST.Request.Payload.$id;
+delete SkillGroup.Schemas.POST.Response.Payload.$id;
+delete SkillGroup.Schemas.GET.Response.Payload.$id;
+delete SkillGroup.Schemas.GET.Response.ById.Payload.$id;
+delete SkillGroup.Schemas.GET.Request.Param.Payload.$id;
+delete SkillGroup.Schemas.GET.Request.Query.Payload.$id;
+delete SkillGroup.Schemas.GET.Request.ById.Param.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -196,12 +204,18 @@ NOTES:
             404,
             Object.values(OccupationGroup.Enums.GET.Response.Status404.ErrorCodes)
           ),
-          GETOccupationGroups404ErrorSchema: APIError.Schemas.getPayload(
+          GETOccupationGroups404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroups", 404, [
+            OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          ]),
+          GETSkillGroup400ErrorSchema: APIError.Schemas.getPayload(
             "GET",
-            "OccupationGroups",
-            404,
-            [OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND]
+            "SkillGroup",
+            400,
+            Object.values(SkillGroup.Enums.GET.Response.Status400.ErrorCodes)
           ),
+          GETSkillGroups404ErrorSchema: APIError.Schemas.getPayload("GET", "SkillGroups", 404, [
+            SkillGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          ]),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
@@ -223,6 +237,13 @@ NOTES:
           OccupationRequestByIdParamSchemaGET: Occupation.Schemas.GET.Request.ById.Param.Payload,
           OccupationRequestQueryParamSchemaGET: Occupation.Schemas.GET.Request.Query.Payload,
           OccupationResponseSchemaGET: Occupation.Schemas.GET.Response.Payload,
+          SkillGroupRequestSchemaPOST: SkillGroup.Schemas.POST.Request.Payload,
+          SkillGroupResponseSchemaPOST: SkillGroup.Schemas.POST.Response.Payload,
+          SkillGroupResponseSchemaGETById: SkillGroup.Schemas.GET.Response.ById.Payload,
+          SkillGroupRequestParamSchemaGET: SkillGroup.Schemas.GET.Request.Param.Payload,
+          SkillGroupRequestQueryParamSchemaGET: SkillGroup.Schemas.GET.Request.Query.Payload,
+          SkillGroupResponseSchemaGET: SkillGroup.Schemas.GET.Response.Payload,
+          SkillGroupRequestByIdParamSchemaGET: SkillGroup.Schemas.GET.Request.ById.Param.Payload,
         },
         securitySchemes: {
           // api_key: {
