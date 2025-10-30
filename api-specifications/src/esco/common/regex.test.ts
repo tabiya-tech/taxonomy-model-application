@@ -5,7 +5,13 @@ import {
   RegExp_ISCO_Group_Code,
   RegExp_Local_Group_Code,
   RegExp_Local_Occupation_Code,
+  RegExp_Skill_Group_Code,
 } from "./regex";
+import "jest-performance-matchers";
+
+const PERF_DURATION = 15;
+const ITERATIONS = 15;
+const QUANTILE = 90;
 
 describe("Test RegExp_ISCO_Group_Code", () => {
   // Valid ISCO Group codes
@@ -105,4 +111,36 @@ describe("RegExp_ESCO_Local_Or_Local_Occupation_Code", () => {
   ])("It should return %s → %s", (_desc, value, expected) => {
     expect(RegExp_ESCO_Local_Or_Local_Occupation_Code.test(value)).toBe(expected);
   });
+});
+
+describe("Test RegExp_Skill_Group_Code", () => {
+  test.each([["L"], ["l"], ["L9"], ["l9"], ["L9.9"], ["L9.8.8.8"]])(
+    "It should successfully test true to skill group code string '%s'",
+    (s) => {
+      expect(RegExp_Skill_Group_Code.test(s)).toBe(true);
+    }
+  );
+
+  test.each([[""], ["LL"], ["L."], ["L.9"], ["L.9.9"], ["L9.9."], ["L9.9.L"]])(
+    "It should successfully test false to string '%s'",
+    (s) => {
+      expect(RegExp_Skill_Group_Code.test(s)).toBe(false);
+    }
+  );
+
+  test.each([
+    ["long valid code", "L9" + ".9".repeat(65535)],
+    ["long invalid code", "ghi".repeat(65535)],
+    ["long empty code", " ".repeat(65535)],
+  ])(
+    `It performs fast (<=${PERF_DURATION}ms) and does not hang/cause catastrophic backtracking for '%s'`,
+    async (description, value) => {
+      expect(() => {
+        RegExp_Skill_Group_Code.test(value);
+      }).toCompleteWithinQuantile(PERF_DURATION, {
+        iterations: ITERATIONS,
+        quantile: QUANTILE,
+      });
+    }
+  );
 });
