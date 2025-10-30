@@ -658,8 +658,8 @@ describe("Test for occupationGroup handler", () => {
         headers: {},
         queryStringParameters: {},
       };
-        // AND the user is not model manager
-        checkRole.mockReturnValueOnce(true);
+      // AND the user is not model manager
+      checkRole.mockReturnValueOnce(true);
 
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
@@ -708,9 +708,9 @@ describe("Test for occupationGroup handler", () => {
       };
 
       // AND the user is not model manager
-        checkRole.mockReturnValueOnce(true);
+      checkRole.mockReturnValueOnce(true);
 
-        // WHEN the occupationGroup handler is invoked with the given event
+      // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
         ...givenBadEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
@@ -749,9 +749,9 @@ describe("Test for occupationGroup handler", () => {
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 
       // AND the user is not model manager
-        checkRole.mockReturnValueOnce(true);
+      checkRole.mockReturnValueOnce(true);
 
-        // WHEN the occupationGroup handler is invoked with the given event
+      // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: "foo", cursor: firstPageCursor },
@@ -792,9 +792,9 @@ describe("Test for occupationGroup handler", () => {
       const limit = 2;
 
       // AND the user is not model manager
-        checkRole.mockReturnValueOnce(true);
+      checkRole.mockReturnValueOnce(true);
 
-        // WHEN the occupationGroup handler is invoked with the given event
+      // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
@@ -1047,6 +1047,5 @@ describe("Test for occupationGroup handler", () => {
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
-
   });
 });

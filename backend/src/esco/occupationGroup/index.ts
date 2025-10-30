@@ -31,7 +31,7 @@ export const handler: (
   if (httpMethod === HTTP_VERBS.GET) {
     // Check if it's an individual occupation group request (has ID) or list request
     const individualMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(path);
-    return individualMatch 
+    return individualMatch
       ? occupationGroupController.getOccupationGroup(event)
       : occupationGroupController.getOccupationGroups(event);
   }
