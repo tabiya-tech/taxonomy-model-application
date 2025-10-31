@@ -12,13 +12,15 @@ interface ISkillGroupResponse {
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType: SkillGroupEnums.ObjectTypes.SkillGroup;
+    objectType: SkillGroupEnums.Relations.Parents.ObjectTypes.SkillGroup;
   }[];
   children: {
     id: string;
     UUID: string;
     preferredLabel: string;
-    objectType: SkillGroupEnums.ObjectTypes;
+    objectType:
+      | SkillGroupEnums.Relations.Children.ObjectTypes.Skill
+      | SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup;
     code?: string;
     isLocalized?: boolean;
   }[];
@@ -76,6 +78,9 @@ namespace SkillGroupTypes {
     }
     export namespace Request {
       export type Payload = ISkillGroupRequest;
+      export namespace Param {
+        export type Payload = ISkillGroupParam;
+      }
     }
   }
 
@@ -83,6 +88,9 @@ namespace SkillGroupTypes {
     export namespace Response {
       export type SkillGroupItem = ISkillGroupResponse;
       export type Payload = PaginatedSkillGroupResponse;
+      export namespace ById {
+        export type Payload = ISkillGroupResponse;
+      }
     }
 
     export namespace Request {

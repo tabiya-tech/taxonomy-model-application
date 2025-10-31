@@ -80,7 +80,7 @@ export function getTestLocalOccupationCode(
 
 /**
  * Matches: ^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$
- * Examples: "ABC_1", "ABC123_45", "1234_567", "ABC_1_2_3"
+ * Examples: "G7", "x4.7.6", "y7.4.7.7.5.1.2.1.6", "J9.7"
  */
 export function getTestSkillGroupCode(levels: number = 100): string {
   if (levels < 1) {
@@ -102,7 +102,7 @@ export function getTestSkillGroupCode(levels: number = 100): string {
           .map(() => Math.floor(Math.random() * 10).toString()) // single digit per group
           .join(".");
 
-  const code = groups ? `${letter}${groups.replace(/^/, "")}` : letter;
+  const code = groups ? `${letter}${groups}` : letter;
 
   return code;
 }

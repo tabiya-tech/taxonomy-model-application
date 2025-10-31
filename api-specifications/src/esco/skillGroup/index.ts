@@ -14,6 +14,9 @@ namespace SkillGroupSchemas {
   export namespace GET {
     export namespace Response {
       export const Payload = SchemaGETResponse;
+      export namespace ById {
+        export const Payload = SchemaPOSTResponse;
+      }
     }
     export namespace Request {
       export namespace Param {
@@ -34,6 +37,9 @@ namespace SkillGroupSchemas {
       export const Payload = SchemaPOSTResponse;
     }
     export namespace Request {
+      export namespace Param {
+        export const Payload = SchemaGETRequestParam;
+      }
       export const Payload = SchemaPOSTRequest;
     }
   }
