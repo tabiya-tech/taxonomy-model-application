@@ -14,6 +14,8 @@ import ModelInfoAPI from "../modelInfo";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
 import SkillGroupAPI from "../esco/skillGroup";
+import SkillsAPI from "../esco/skill";
+
 describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.POST.Payload schema
 
@@ -59,6 +61,9 @@ describe("Validate JSON against the APIError POST Schema", () => {
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.POST.Response.Status400.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.POST.Response.Status404.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.POST.Response.Status500.ErrorCodes),
       ];
 
       test.each([

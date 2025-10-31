@@ -35,6 +35,9 @@ jobs:
           echo "version-info<<$EOF" >> "$GITHUB_OUTPUT"
           echo "$(cat ./backend/src/applicationInfo/version.json)" >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"
+      - name: Check Format
+        run: yarn run format:check
+        working-directory: backend
       - name: Lint
         run: yarn run lint
         working-directory: backend

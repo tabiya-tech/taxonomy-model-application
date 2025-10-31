@@ -51,6 +51,9 @@ jobs:
       - name: Lint
         run: yarn run lint
         working-directory: frontend
+      - name: Check Format
+        run: yarn run format:check
+        working-directory: frontend
       - name: Build
         run: yarn run build
         working-directory: frontend

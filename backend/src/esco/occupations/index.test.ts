@@ -521,9 +521,7 @@ describe("Test for occupation handler", () => {
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       const body = JSON.parse(actualResponse.body);
-      expect(body.errorCode).toEqual(
-        "DB_FAILED_TO_CREATE_OCCUPATION"
-      );
+      expect(body.errorCode).toEqual("DB_FAILED_TO_CREATE_OCCUPATION");
       expect(body.message).toEqual("Failed to fetch the model details from the DB");
     });
 
@@ -565,9 +563,7 @@ describe("Test for occupation handler", () => {
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       const body = JSON.parse(actualResponse.body);
-      expect(body.errorCode).toEqual(
-        "DB_FAILED_TO_CREATE_OCCUPATION"
-      );
+      expect(body.errorCode).toEqual("DB_FAILED_TO_CREATE_OCCUPATION");
       expect(body.message).toEqual("Failed to create the occupation in the DB");
     });
 
@@ -767,15 +763,15 @@ describe("Test for occupation handler", () => {
         checkRole.mockReturnValueOnce(true);
 
         // WHEN the occupation handler is invoked with the given event
-      const actualResponse = await occupationHandler(givenEvent as never);
+        const actualResponse = await occupationHandler(givenEvent as never);
 
         // THEN expect the handler to return the BAD_REQUEST status
         expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         // AND the response body contains the error information
         const parsedMissing = JSON.parse(actualResponse.body);
         expect(parsedMissing).toMatchObject({
-        errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
-        message: "modelId is missing in the path",
+          errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          message: "modelId is missing in the path",
         });
         expect(typeof parsedMissing.details).toBe("string");
       });
@@ -1394,7 +1390,9 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         const body = JSON.parse(actualResponse.body);
         expect(body.message).toBe("modelId is missing in the path");
-        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS);
+        expect(body.errorCode).toBe(
+          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS
+        );
       });
 
       test("GET /occupations (paginated) should respond with BAD_REQUEST if modelId cannot be extracted from path or pathParameters", async () => {
@@ -1529,9 +1527,7 @@ describe("Test for occupation handler", () => {
           pathParameters: {}, // modelId not set
           queryStringParameters: {},
         } as never);
-      process.stderr.write(
-        `DEBUG_extract_model_from_path ${actualResponse.statusCode} ${actualResponse.body}\n`
-      );
+        process.stderr.write(`DEBUG_extract_model_from_path ${actualResponse.statusCode} ${actualResponse.body}\n`);
 
         // THEN expect the handler to return the OK status
         expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
