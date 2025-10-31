@@ -149,8 +149,8 @@ describe("test the handleRouteEvent function", () => {
     jest.clearAllMocks();
   });
   const modelId = getMockStringId(1);
-  const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, { 
-    modelId: modelId.toString() 
+  const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, {
+    modelId: modelId.toString(),
   });
   test.each([
     [Routes.APPLICATION_INFO_ROUTE, InfoHandler],

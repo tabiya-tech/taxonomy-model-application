@@ -1,5 +1,5 @@
 import { CaseType, constructSchemaError, SchemaError } from "./assertCaseForProperty";
-import { getTestString, WHITESPACE } from "./specialCharacters";
+import { getTestBase64String, getTestString, WHITESPACE } from "./specialCharacters";
 import { getMockId } from "./mockMongoId";
 import { randomUUID } from "crypto";
 
@@ -98,6 +98,70 @@ export function getStdObjectIdTestCases(
       constructSchemaError(instancePath, "pattern", 'must match pattern "^[0-9a-f]{24}$"'),
     ],
     [CaseType.Success, "a valid id", getMockId(1), undefined],
+  ];
+}
+
+export function getStdLimitTestCases(
+  instancePath: string,
+  maxLimit: number
+): [CaseType, string | number, string | null | number | undefined, SchemaError | undefined][] {
+  const { canonicalPropertyPath, canonicalChildPath } = getCanonicalPath(instancePath);
+  return [
+    [CaseType.Success, "undefined", undefined, undefined],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be integer")],
+    [
+      CaseType.Failure,
+      "stringified number",
+      "10",
+      constructSchemaError(canonicalPropertyPath, "type", "must be integer"),
+    ],
+    [CaseType.Failure, "random string", "foo", constructSchemaError(canonicalPropertyPath, "type", "must be integer")],
+    [CaseType.Failure, "float", 1.1, constructSchemaError(canonicalPropertyPath, "type", "must be integer")],
+    [CaseType.Failure, "zero", 0, constructSchemaError(canonicalPropertyPath, "minimum", "must be >= 1")],
+    [
+      CaseType.Failure,
+      "over max",
+      maxLimit + 1,
+      constructSchemaError(canonicalPropertyPath, "maximum", `must be <= ${maxLimit}`),
+    ],
+    [CaseType.Success, "one", 1, undefined],
+    [CaseType.Success, "ten", 10, undefined],
+  ];
+}
+
+export function getStdCursorTestCases(
+  instancePath: string,
+  maxLength: number,
+  allowEmpty?: boolean
+): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
+  const { canonicalPropertyPath, canonicalChildPath } = getCanonicalPath(instancePath);
+  const emptyTestCase = allowEmpty
+    ? [CaseType.Success, "empty string", "", undefined]
+    : [
+        CaseType.Failure,
+        "empty string",
+        "",
+        constructSchemaError(canonicalPropertyPath, "pattern", 'must match pattern "\\S"'),
+      ];
+
+  return [
+    [CaseType.Success, "undefined", undefined, undefined],
+    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
+    // @ts-ignore
+    emptyTestCase,
+    [
+      CaseType.Failure,
+      "whitespace",
+      " \t",
+      constructSchemaError(canonicalPropertyPath, "pattern", 'must match pattern "\\S"'),
+    ],
+    [
+      CaseType.Failure,
+      "over max length",
+      getTestBase64String(maxLength + 4),
+      constructSchemaError(canonicalPropertyPath, "maxLength", `must NOT have more than ${maxLength} characters`),
+    ],
+    [CaseType.Success, "valid string", getTestBase64String(maxLength), undefined],
   ];
 }
 

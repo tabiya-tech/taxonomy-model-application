@@ -77,3 +77,32 @@ export function getTestLocalOccupationCode(
   ).join("");
   return `${prefix}${underscorePart}`;
 }
+
+/**
+ * Matches: ^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$
+ * Examples: "G7", "x4.7.6", "y7.4.7.7.5.1.2.1.6", "J9.7"
+ */
+export function getTestSkillGroupCode(levels: number = 100): string {
+  if (levels < 1) {
+    throw new Error("Skill group code must have at least 1 level");
+  }
+
+  // Start with a random letter (upper or lower case)
+  const letter = String.fromCharCode(
+    Math.random() < 0.5
+      ? 65 + Math.floor(Math.random() * 26) // 'A'-'Z'
+      : 97 + Math.floor(Math.random() * 26) // 'a'-'z'
+  );
+
+  // Generate groups like: 9, 3.5, 8.2.1 etc.
+  const groups =
+    levels === 1
+      ? "" // just a letter, e.g. "L"
+      : Array.from({ length: levels - 1 })
+          .map(() => Math.floor(Math.random() * 10).toString()) // single digit per group
+          .join(".");
+
+  const code = groups ? `${letter}${groups}` : letter;
+
+  return code;
+}

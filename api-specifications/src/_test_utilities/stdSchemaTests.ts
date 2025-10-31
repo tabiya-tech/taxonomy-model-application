@@ -18,6 +18,8 @@ import {
   getStdTimestampFieldTestCases,
   getStdURIFieldTestCases,
   getStdURIOrURNFieldTestCases,
+  getStdCursorTestCases,
+  getStdLimitTestCases,
   getStdUUIDTestCases,
 } from "./stdSchemaTestCases";
 
@@ -344,6 +346,47 @@ export function testUUIDArray<T>(
     // THEN expect the object to validate accordingly
     assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
   });
+}
+
+export function testLimitField<T>(
+  fieldName: string,
+  maxLimit: number,
+  givenSchema: SchemaObject,
+  dependencies: SchemaObject[] = []
+) {
+  test.each(getStdLimitTestCases(fieldName, maxLimit))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
+}
+
+export function testCursorField<T>(
+  fieldName: string,
+  maxLength: number,
+  givenSchema: SchemaObject,
+  dependencies: SchemaObject[] = [],
+  allowEmpty: boolean = false
+) {
+  test.each(getStdCursorTestCases(fieldName, maxLength, allowEmpty))(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      //@ts-ignore
+      const givenObject: T = {
+        [fieldName]: givenValue,
+      };
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
 }
 
 export function testURIOrURNField<T>(
