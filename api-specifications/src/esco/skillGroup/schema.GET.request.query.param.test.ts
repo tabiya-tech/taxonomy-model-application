@@ -1,4 +1,6 @@
 import {
+  testCursorField,
+  testLimitField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
@@ -6,7 +8,6 @@ import {
 
 import SkillGroupAPISpecs from "./index";
 import { getTestBase64String } from "_test_utilities/specialCharacters";
-import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 
 describe("Test SkillGroupAPISpecs.Schemas.GET.Request.Query validity", () => {
   // WHEN the SkillGroupAPISpecs.GET.Request.Query schema
@@ -42,66 +43,18 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.GET.Request.Query.
 
   describe("Validate SkillGroupAPISpecs.Schemas.GET.Request.Query.Payload fields", () => {
     describe("Test validation of 'limit'", () => {
-      test.each([
-        [CaseType.Success, "undefined", undefined, undefined],
-        [CaseType.Failure, "null", null, constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "stringified number", "10", constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "random string", "foo", constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "float", 1.1, constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "zero", 0, constructSchemaError("/limit", "minimum", "must be >= 1")],
-        [
-          CaseType.Failure,
-          "over max",
-          SkillGroupAPISpecs.Constants.MAX_LIMIT + 1,
-          constructSchemaError("/limit", "maximum", `must be <= ${SkillGroupAPISpecs.Constants.MAX_LIMIT}`),
-        ],
-        [CaseType.Success, "one", 1, undefined],
-        [CaseType.Success, "ten", 10, undefined],
-      ])("%s Validate 'limit' when it is %s", (caseType, __description, givenValue, failureMessage) => {
-        // GIVEN an object with given value
-        const givenObject = {
-          limit: givenValue,
-        };
-
-        // THEN export the object to validate accordingly
-        assertCaseForProperty(
-          "limit",
-          givenObject,
-          SkillGroupAPISpecs.Schemas.GET.Request.Query.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+      testLimitField<SkillGroupAPISpecs.Types.GET.Request.Query.Payload>(
+        "limit",
+        SkillGroupAPISpecs.Constants.MAX_LIMIT,
+        SkillGroupAPISpecs.Schemas.GET.Request.Query.Payload
+      );
     });
     describe("Test validate of 'cursor'", () => {
-      test.each([
-        [CaseType.Success, "undefined", undefined, undefined],
-        [CaseType.Failure, "null", null, constructSchemaError("/cursor", "type", "must be string")],
-        [CaseType.Failure, "empty string", "", constructSchemaError("/cursor", "pattern", 'must match pattern "\\S"')],
-        [CaseType.Failure, "whitespace", " \t", constructSchemaError("/cursor", "pattern", 'must match pattern "\\S"')],
-        [
-          CaseType.Failure,
-          "over max length",
-          getTestBase64String(SkillGroupAPISpecs.Constants.MAX_CURSOR_LENGTH + 4),
-          constructSchemaError(
-            "/cursor",
-            "maxLength",
-            `must NOT have more than ${SkillGroupAPISpecs.Constants.MAX_CURSOR_LENGTH} characters`
-          ),
-        ],
-        [CaseType.Success, "valid string", getTestBase64String(10), undefined],
-      ])("%s Validate 'cursor' when it is %s", (caseType, __description, givenValue, failureMessage) => {
-        const givenObject = {
-          cursor: givenValue as unknown as string,
-        } as Partial<SkillGroupAPISpecs.Types.GET.Request.Query.Payload>;
-        assertCaseForProperty(
-          "cursor",
-          givenObject,
-          SkillGroupAPISpecs.Schemas.GET.Request.Query.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+      testCursorField<SkillGroupAPISpecs.Types.GET.Request.Query.Payload>(
+        "cursor",
+        SkillGroupAPISpecs.Constants.MAX_CURSOR_LENGTH,
+        SkillGroupAPISpecs.Schemas.GET.Request.Query.Payload
+      );
     });
   });
 });

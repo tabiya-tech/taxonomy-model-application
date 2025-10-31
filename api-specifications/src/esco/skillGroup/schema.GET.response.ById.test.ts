@@ -28,11 +28,15 @@ import {
 import { getTestSkillGroupCode } from "../_test_utilities/testUtils";
 
 describe("Test SkillGroupAPISpecs schema validity", () => {
-  // WHEN the SkillGroupAPISpecs.POST.Response.Schema.Payload schema
+  // WHEN the SkillGroupAPISpecs.GET.Response.ById.Schema.Payload schema
   // THEN expect the givenSchema to be valid
-  testValidSchema("SkillGroupAPISpecs.Schemas.POST.Request.Payload", SkillGroupAPISpecs.Schemas.POST.Request.Payload);
+  testValidSchema(
+    "SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload",
+    SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
+  );
 });
-describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payload schema", () => {
+
+describe("Test objects against the SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload schema", () => {
   // GIVEN a valid parent response payload schema
   const givenParent = {
     id: getMockId(1),
@@ -73,67 +77,67 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
   // WHEN the object is valid
   // THEN expect the object to validate successfully
   testSchemaWithValidObject(
-    "SkillGroupAPISpecs.Schemas.POST.Response.Payload",
-    SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+    "SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload",
+    SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
     validSkillGroupResponsePayload
   );
 
   // AND WHEN the object has additional properties
   // THEN expect the schema to not validate
   testSchemaWithAdditionalProperties(
-    "SkillGroupAPISpecs.Schemas.POST.Response.Payload",
-    SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+    "SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload",
+    SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
     { ...validSkillGroupResponsePayload, additionalProperty: "foo" }
   );
 
-  describe("Validate SkillGroupAPISpecs.Schemas.POST.Response.Payload fields", () => {
+  describe("Validate SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload fields", () => {
     describe("Test validate of 'id' ", () => {
-      testObjectIdField("id", SkillGroupAPISpecs.Schemas.POST.Response.Payload);
+      testObjectIdField("id", SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload);
     });
     describe("Test validate of 'UUID'", () => {
-      testUUIDField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testUUIDField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "UUID",
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
 
     describe("Test validate of 'originUUID'", () => {
-      testUUIDField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testUUIDField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "originUUID",
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
 
     describe("Test validate of 'UUIDHistory'", () => {
-      testUUIDArray<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testUUIDArray<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "UUIDHistory",
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
         [],
         true
       );
     });
 
     describe("Test validation of 'path'", () => {
-      testURIField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testURIField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "path",
         SkillGroupAPISpecs.Constants.MAX_PATH_URI_LENGTH,
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
 
     describe("Test validation of 'tabiyaPath'", () => {
-      testURIField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testURIField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "tabiyaPath",
         SkillGroupAPISpecs.Constants.MAX_TABIYA_PATH_LENGTH,
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
 
     describe("Test validation of 'originUri'", () => {
-      testNonEmptyURIStringField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testNonEmptyURIStringField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "originUri",
         SkillGroupAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
     describe("Test validate of 'code'", () => {
@@ -178,31 +182,31 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
         assertCaseForProperty(
           "code",
           givenObject,
-          SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+          SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
           caseType,
           failureMessage
         );
       });
     });
     describe("Test validate of 'description'", () => {
-      testStringField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testStringField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "description",
         SkillGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
     describe("Test validate of 'scopeNote'", () => {
-      testStringField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testStringField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "scopeNote",
         SkillGroupAPISpecs.Constants.MAX_SCOPE_NOTE_LENGTH,
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
     describe("Test validate of 'preferredLabel'", () => {
-      testNonEmptyStringField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testNonEmptyStringField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "preferredLabel",
         SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
     describe("Test validate of 'altLabels'", () => {
@@ -253,7 +257,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
         assertCaseForProperty(
           "altLabels",
           givenObject,
-          SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+          SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
           caseType,
           failureMessage
         );
@@ -261,19 +265,19 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
     });
 
     describe("Test validation of 'modelId'", () => {
-      testObjectIdField("modelId", SkillGroupAPISpecs.Schemas.POST.Response.Payload);
+      testObjectIdField("modelId", SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload);
     });
 
     describe("Test validate of 'createdAt'", () => {
-      testTimestampField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testTimestampField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "createdAt",
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
     describe("Test validate of 'updatedAt'", () => {
-      testTimestampField<SkillGroupAPISpecs.Types.POST.Response.Payload>(
+      testTimestampField<SkillGroupAPISpecs.Types.GET.Response.ById.Payload>(
         "updatedAt",
-        SkillGroupAPISpecs.Schemas.POST.Response.Payload
+        SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload
       );
     });
     describe("Test validation of 'parents'", () => {
@@ -331,7 +335,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
         assertCaseForProperty(
           "parents",
           givenObject,
-          SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+          SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
           caseType,
           failureMessages
         );
@@ -355,7 +359,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/parents/0/id",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessages
             );
@@ -379,7 +383,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/parents/0/UUID",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessages
             );
@@ -460,7 +464,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/parents/0/code",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessage
             );
@@ -488,7 +492,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/parents/0/preferredLabel",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessage
             );
@@ -526,7 +530,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
           assertCaseForProperty(
             "/parents/0/objectType",
             givenObject,
-            SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+            SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
             caseType,
             failureMessage
           );
@@ -554,13 +558,13 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
         ],
         [
           CaseType.Failure,
-          "a valid children object",
+          "a valid parents object",
           {
             id: getMockId(1),
             UUID: randomUUID(),
             code: getTestSkillGroupCode(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
             preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-            objectType: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
+            objectType: SkillGroupEnums.Relations.Parents.ObjectTypes.SkillGroup,
           },
           constructSchemaError("/children", "type", "must be array"),
         ],
@@ -573,7 +577,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
               UUID: randomUUID(),
               code: getTestSkillGroupCode(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
               preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-              objectType: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
+              objectType: SkillGroupEnums.Relations.Parents.ObjectTypes.SkillGroup,
             },
             {
               id: getMockId(1),
@@ -594,7 +598,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
         assertCaseForProperty(
           "children",
           givenObject,
-          SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+          SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
           caseType,
           failureMessages
         );
@@ -619,7 +623,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/children/0/id",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessages
             );
@@ -643,7 +647,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/children/0/UUID",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessages
             );
@@ -715,7 +719,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/children/0/isLocalized",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessage
             );
@@ -814,7 +818,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/children/0/code",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessage
             );
@@ -842,7 +846,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
             assertCaseForProperty(
               "/children/0/preferredLabel",
               givenObject,
-              SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+              SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
               caseType,
               failureMessage
             );
@@ -886,7 +890,7 @@ describe("Test objects against the SkillGroupAPISpecs.Schemas.POST.Response.Payl
           assertCaseForProperty(
             "/children/0/objectType",
             givenObject,
-            SkillGroupAPISpecs.Schemas.POST.Response.Payload,
+            SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
             caseType,
             failureMessage
           );

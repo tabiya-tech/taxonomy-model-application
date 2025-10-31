@@ -23,6 +23,7 @@ describe("Test the skillGroup module", () => {
     expect(Constants.ORIGIN_URI_MAX_LENGTH).toBeDefined();
     expect(Constants.UUID_HISTORY_MAX_ITEMS).toBeDefined();
     expect(Constants.MAX_LIMIT).toBeDefined();
+    expect(Constants.DEFAULT_LIMIT).toBeDefined();
     expect(Constants.MAX_UUID_HISTORY_ITEM_LENGTH).toBeDefined();
     expect(Constants.MAX_PATH_URI_LENGTH).toBeDefined();
     expect(Constants.MAX_TABIYA_PATH_LENGTH).toBeDefined();

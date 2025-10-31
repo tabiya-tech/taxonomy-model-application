@@ -40,13 +40,13 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
     UUID: randomUUID(),
     code: getTestSkillGroupCode(),
     preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: SkillGroupEnums.ObjectTypes.SkillGroup,
+    objectType: SkillGroupEnums.Relations.Parents.ObjectTypes.SkillGroup,
   };
   const givenChild = {
     id: getMockId(2),
     UUID: randomUUID(),
     preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: SkillGroupEnums.ObjectTypes.SkillGroup,
+    objectType: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
     code: getTestSkillGroupCode(),
   };
   const validSkillGroupResponsePayload = {
@@ -283,7 +283,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             UUID: randomUUID(),
             code: getTestSkillGroupCode(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
             preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-            objectType: SkillGroupEnums.ObjectTypes.SkillGroup,
+            objectType: SkillGroupEnums.Relations.Parents.ObjectTypes.SkillGroup,
           },
           constructSchemaError("/parents", "type", "must be array"),
         ],
@@ -296,7 +296,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
               UUID: randomUUID(),
               code: getTestSkillGroupCode(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
               preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-              objectType: SkillGroupEnums.ObjectTypes.SkillGroup,
+              objectType: SkillGroupEnums.Relations.Parents.ObjectTypes.SkillGroup,
             },
           ],
           undefined,
@@ -460,7 +460,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             "invalidObjectType",
             constructSchemaError("/parents/0/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", SkillGroupEnums.ObjectTypes.SkillGroup, undefined],
+          [CaseType.Success, "a valid objectType", SkillGroupEnums.Relations.Parents.ObjectTypes.SkillGroup, undefined],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           // GIVEN an object with given value
           const givenObject = {
@@ -503,7 +503,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             UUID: randomUUID(),
             code: getTestSkillGroupCode(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
             preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-            objectType: SkillGroupEnums.ObjectTypes.SkillGroup,
+            objectType: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
           },
           constructSchemaError("/children", "type", "must be array"),
         ],
@@ -516,14 +516,14 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
               UUID: randomUUID(),
               code: getTestSkillGroupCode(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
               preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-              objectType: SkillGroupEnums.ObjectTypes.SkillGroup,
+              objectType: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             },
             {
               id: getMockId(1),
               UUID: randomUUID(),
               isLocalized: false,
               preferredLabel: getTestString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-              objectType: SkillGroupEnums.ObjectTypes.Skill,
+              objectType: SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
             },
           ],
           undefined,
@@ -578,32 +578,50 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
 
       describe("Test validation of 'children/isLocalized'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, SkillGroupEnums.ObjectTypes.SkillGroup, undefined],
+          [
+            CaseType.Success,
+            "undefined",
+            undefined,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
+            undefined,
+          ],
           [
             CaseType.Failure,
             "null",
             null,
-            SkillGroupEnums.ObjectTypes.Skill,
+            SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
             constructSchemaError("/children/0/isLocalized", "type", "must be boolean"),
           ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            SkillGroupEnums.ObjectTypes.Skill,
+            SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
             constructSchemaError("/children/0/isLocalized", "type", "must be boolean"),
           ],
           [
             CaseType.Failure,
             "a random string",
             getTestString(20),
-            SkillGroupEnums.ObjectTypes.Skill,
+            SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
             constructSchemaError("/children/0/isLocalized", "type", "must be boolean"),
           ],
 
           // Valid isLocalized for each objectType
-          [CaseType.Success, "valid isLocalized for group", true, SkillGroupEnums.ObjectTypes.Skill, undefined],
-          [CaseType.Success, "valid isLocalized for group", false, SkillGroupEnums.ObjectTypes.Skill, undefined],
+          [
+            CaseType.Success,
+            "valid isLocalized for group",
+            true,
+            SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "valid isLocalized for group",
+            false,
+            SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
+            undefined,
+          ],
         ])(
           "%s Validate '/children/0/isLocalized' when it is %s with ",
           (caseType, __description, givenValue, objectType, failureMessage) => {
@@ -625,19 +643,19 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
       });
       describe("Test validation of 'children/code'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, SkillGroupEnums.ObjectTypes.Skill, undefined],
+          [CaseType.Success, "undefined", undefined, SkillGroupEnums.Relations.Children.ObjectTypes.Skill, undefined],
           [
             CaseType.Failure,
             "null",
             null,
-            SkillGroupEnums.ObjectTypes.SkillGroup,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             constructSchemaError("/children/0/code", "type", "must be string"),
           ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            SkillGroupEnums.ObjectTypes.SkillGroup,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -648,7 +666,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             CaseType.Failure,
             "a random string",
             getTestString(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
-            SkillGroupEnums.ObjectTypes.SkillGroup,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -659,7 +677,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            SkillGroupEnums.ObjectTypes.SkillGroup,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -670,7 +688,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             CaseType.Failure,
             "Too long code",
             getTestString(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH + 1),
-            SkillGroupEnums.ObjectTypes.SkillGroup,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             constructSchemaError(
               "/children/0/code",
               "maxLength",
@@ -682,7 +700,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             CaseType.Success,
             "valid Skill group code",
             getTestSkillGroupCode(),
-            SkillGroupEnums.ObjectTypes.SkillGroup,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             undefined,
           ],
 
@@ -690,7 +708,7 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             CaseType.Failure,
             "invalid Skill group code",
             getTestString(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH - 2, "9"),
-            SkillGroupEnums.ObjectTypes.SkillGroup,
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -754,8 +772,13 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
             "invalidObjectType",
             constructSchemaError("/children/0/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", SkillGroupEnums.ObjectTypes.SkillGroup, undefined],
-          [CaseType.Success, "a valid objectType", SkillGroupEnums.ObjectTypes.Skill, undefined],
+          [
+            CaseType.Success,
+            "a valid objectType",
+            SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
+            undefined,
+          ],
+          [CaseType.Success, "a valid objectType", SkillGroupEnums.Relations.Children.ObjectTypes.Skill, undefined],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           // GIVEN an object with given value
           const givenObject = {

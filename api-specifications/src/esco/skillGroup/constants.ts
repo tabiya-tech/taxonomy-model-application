@@ -10,6 +10,7 @@ namespace SkillGroupConstants {
   export const UUID_HISTORY_MAX_ITEMS = 10000;
   export const MAX_UUID_HISTORY_ITEM_LENGTH = 36;
   export const MAX_LIMIT = 100;
+  export const DEFAULT_LIMIT = 20;
   export const MAX_CURSOR_LENGTH = 1720;
   export const MAX_SCOPE_NOTE_LENGTH = 6000;
   export const MAX_JSON_OVERHEAD = 10_000;
@@ -23,11 +24,9 @@ namespace SkillGroupConstants {
     TOTAL_ALT_LABELS_MAX_LENGTH +
     ORIGIN_URI_MAX_LENGTH +
     TOTAL_UUID_HISTORY_MAX_LENGTH +
-    MAX_CURSOR_LENGTH +
     MAX_SCOPE_NOTE_LENGTH +
     MAX_PATH_URI_LENGTH +
     MAX_TABIYA_PATH_LENGTH +
-    MAX_LIMIT +
     MAX_JSON_OVERHEAD;
 }
 

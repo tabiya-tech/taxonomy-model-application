@@ -87,7 +87,7 @@ export const _baseQueryParameterSchema = {
     type: "integer",
     minimum: 1,
     maximum: SkillGroupConstants.MAX_LIMIT,
-    default: SkillGroupConstants.MAX_LIMIT,
+    default: SkillGroupConstants.DEFAULT_LIMIT,
   },
   cursor: {
     description: "A base64 string representing the cursor for pagination.",
@@ -164,7 +164,7 @@ export const _baseResponseSchema = {
           objectType: {
             description: "The type of the skill group, e.g., SkillGroup.",
             type: "string",
-            enum: [SkillGroupEnums.ObjectTypes.SkillGroup],
+            enum: Object.values(SkillGroupEnums.Relations.Parents.ObjectTypes),
           },
         },
       },
@@ -197,7 +197,7 @@ export const _baseResponseSchema = {
           objectType: {
             description: "The type of the skill group, e.g., SkillGroup, Skill.",
             type: "string",
-            enum: Object.values(SkillGroupEnums.ObjectTypes),
+            enum: Object.values(SkillGroupEnums.Relations.Children.ObjectTypes),
           },
           code: {
             description: "Code of the skill group child",
@@ -215,7 +215,7 @@ export const _baseResponseSchema = {
             if: {
               properties: {
                 objectType: {
-                  const: SkillGroupEnums.ObjectTypes.SkillGroup,
+                  const: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
                 },
               },
             },
@@ -240,7 +240,7 @@ export const _baseResponseSchema = {
             if: {
               properties: {
                 objectType: {
-                  const: SkillGroupEnums.ObjectTypes.Skill,
+                  const: SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
                 },
               },
             },
