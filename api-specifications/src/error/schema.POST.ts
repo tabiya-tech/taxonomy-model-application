@@ -7,6 +7,7 @@ import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
 import SkillGroupAPI from "../esco/skillGroup";
 import { RegExp_Str_NotEmptyString } from "../regex";
+import SkillsAPI from "../esco/skill";
 
 const ErrorSchemaPOST: SchemaObject = {
   $id: "/components/schemas/ErrorSchemaPOST",
@@ -27,6 +28,9 @@ const ErrorSchemaPOST: SchemaObject = {
           ...Object.values(SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
           ...Object.values(SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
           ...Object.values(SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.POST.Response.Status400.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.POST.Response.Status404.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.POST.Response.Status500.ErrorCodes),
           ...Object.values(OccupationAPI.Enums.POST.Response.Status400.ErrorCodes),
           ...Object.values(OccupationAPI.Enums.POST.Response.Status404.ErrorCodes),
           ...Object.values(OccupationAPI.Enums.POST.Response.Status500.ErrorCodes),

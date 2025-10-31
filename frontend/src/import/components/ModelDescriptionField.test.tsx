@@ -17,9 +17,9 @@ describe("ModelDescriptionField render tests", () => {
   test.each([
     ["without default model description", undefined],
     ["with default model description", "Default description"],
-  ])("should render %s", (_, givenModelDescription: string|undefined ) => {
+  ])("should render %s", (_, givenModelDescription: string | undefined) => {
     // WHEN the model name field is rendered
-    render(<ModelDescriptionField modelDescription={givenModelDescription}/>);
+    render(<ModelDescriptionField modelDescription={givenModelDescription} />);
 
     // THEN expect no errors or warning to have occurred
     expect(console.error).not.toHaveBeenCalled();
@@ -35,7 +35,7 @@ describe("ModelDescriptionField render tests", () => {
     // AND expect the input to have a correct id
     expect(isSpecified(input.id)).toBe(true);
     // AND expect the input to have the empty string as value
-    expect(input).toHaveValue(givenModelDescription?? "");
+    expect(input).toHaveValue(givenModelDescription ?? "");
     // AND expect the placeholder to be correct
     expect(input).toHaveAttribute("placeholder", TEXT.MODEL_DESC_PLACEHOLDER);
     // AND expect label to be visible
@@ -77,7 +77,12 @@ describe("ModelDescriptionField action tests", () => {
     // AND a default model description
     const givenDefaultModelDescription = getTestString(10);
     // AND that the model description field is rendered
-    render(<ModelDescriptionField modelDescription={givenDefaultModelDescription} notifyModelDescriptionChanged={notifyModelDescriptionChangedHandlerMock} />);
+    render(
+      <ModelDescriptionField
+        modelDescription={givenDefaultModelDescription}
+        notifyModelDescriptionChanged={notifyModelDescriptionChangedHandlerMock}
+      />
+    );
 
     // WHEN the user types in the descriptionField
     const givenModelDescription = getTestString(10);
@@ -90,7 +95,9 @@ describe("ModelDescriptionField action tests", () => {
     expect(notifyModelDescriptionChangedHandlerMock).toHaveBeenCalledTimes(1);
 
     // AND expect the notifyModelDescriptionChangedHandlerMock to have been called with the given default value and the new value
-    expect(notifyModelDescriptionChangedHandlerMock).toHaveBeenCalledWith(givenDefaultModelDescription + givenModelDescription);
+    expect(notifyModelDescriptionChangedHandlerMock).toHaveBeenCalledWith(
+      givenDefaultModelDescription + givenModelDescription
+    );
   });
 
   test("should handle text changes even if notifyModelNameChanged handler is notset and the user types", async () => {

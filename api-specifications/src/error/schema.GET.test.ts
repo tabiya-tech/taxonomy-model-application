@@ -13,6 +13,8 @@ import ModelInfoAPI from "../modelInfo";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
 import SkillGroupAPI from "../esco/skillGroup";
+import SkillsAPI from "../esco/skill";
+
 describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.GET.Payload schema
 
@@ -40,20 +42,28 @@ describe("Validate JSON against the APIError GET Schema", () => {
 
   describe("Validate APIError.Schemas.Payload fields", () => {
     describe("Test validate of 'errorCode'", () => {
-      const allValidErrorCodes = [
-        ...Object.values(ErrorConstants.Common.ErrorCodes),
-        ...Object.values(ErrorConstants.GET.ErrorCodes),
-        ...Object.values(ModelInfoAPI.Enums.GET.Response.ErrorCodes),
-        ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
-        ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
-        ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.GET.Response.Status400.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.GET.Response.Status404.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.GET.Response.Status500.ErrorCodes),
-        ...Object.values(SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
-        ...Object.values(SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
-        ...Object.values(SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
-      ];
+      const allValidErrorCodes = Array.from(
+        new Set([
+          ...Object.values(ErrorConstants.Common.ErrorCodes),
+          ...Object.values(ErrorConstants.GET.ErrorCodes),
+          ...Object.values(ModelInfoAPI.Enums.GET.Response.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
+          ...Object.values(OccupationAPI.Enums.GET.Response.Status400.ErrorCodes),
+          ...Object.values(OccupationAPI.Enums.GET.Response.Status404.ErrorCodes),
+          ...Object.values(OccupationAPI.Enums.GET.Response.Status500.ErrorCodes),
+          ...Object.values(SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
+          ...Object.values(SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
+          ...Object.values(SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.GET.List.Response.Status400.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.GET.List.Response.Status404.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.GET.ById.Response.Status400.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.GET.ById.Response.Status404.ErrorCodes),
+          ...Object.values(SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes),
+        ])
+      );
 
       test.each([
         [

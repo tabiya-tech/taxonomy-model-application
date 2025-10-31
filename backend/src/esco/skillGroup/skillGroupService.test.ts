@@ -266,7 +266,7 @@ describe("Test the SkillGroupService", () => {
       const call = mockRepository.findPaginated.mock.calls[0];
       const filterArg = call[1] as Record<string, unknown>;
       expect(filterArg).toHaveProperty("_id");
-      expect((filterArg._id)).toHaveProperty("$gt");
+      expect(filterArg._id).toHaveProperty("$gt");
     });
 
     test("should handle descending sort order", async () => {

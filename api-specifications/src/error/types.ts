@@ -6,6 +6,7 @@ import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
 import SkillGroupAPI from "../esco/skillGroup";
 import { StatusCodes } from "http-status-codes";
+import SkillsAPI from "../esco/skill";
 
 namespace ErrorTypes {
   // This is here to make sure the namespace is not empty and the:
@@ -39,7 +40,16 @@ namespace ErrorTypes {
       | OccupationAPI.Enums.GET.Response.Status400.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status404.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status500.ErrorCodes
-      | ModelInfo.Enums.GET.Response.ErrorCodes; // The UI could use to display some useful information
+      | ModelInfo.Enums.GET.Response.ErrorCodes
+      | SkillsAPI.Enums.POST.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.POST.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.POST.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.GET.List.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.GET.List.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.GET.ById.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.GET.ById.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes; // The UI could use to display some useful information
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
   }
@@ -70,7 +80,10 @@ namespace ErrorTypes {
       | SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes
       | OccupationAPI.Enums.POST.Response.Status400.ErrorCodes
       | OccupationAPI.Enums.POST.Response.Status404.ErrorCodes
-      | OccupationAPI.Enums.POST.Response.Status500.ErrorCodes;
+      | OccupationAPI.Enums.POST.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.POST.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.POST.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.POST.Response.Status500.ErrorCodes;
     message: string;
     details: string;
   }
@@ -87,7 +100,13 @@ namespace ErrorTypes {
       | SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status400.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationAPI.Enums.GET.Response.Status500.ErrorCodes;
+      | OccupationAPI.Enums.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.GET.List.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.GET.List.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.GET.ById.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.GET.ById.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes;
     message: string;
     details: string;
   }

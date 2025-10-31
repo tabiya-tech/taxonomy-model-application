@@ -170,7 +170,10 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         <Stack margin={theme.tabiyaSpacing.xs} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
-          <ModelDescriptionField modelDescription={modelDescription} notifyModelDescriptionChanged={handleDescriptionChange} />
+          <ModelDescriptionField
+            modelDescription={modelDescription}
+            notifyModelDescriptionChanged={handleDescriptionChange}
+          />
           <Stack direction={"row"} gap={theme.tabiyaSpacing.xs}>
             <FormControlLabel
               data-testid={DATA_TEST_ID.IMPORT_ORIGINAL_ESCO_CHECKBOX_LABEL}
@@ -221,7 +224,8 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         title={"Do you want to overwrite model description?"}
         content={
           <Typography>
-            You have already entered a model description, but the uploaded model info.csv contains a different description. What do you want to do?
+            You have already entered a model description, but the uploaded model info.csv contains a different
+            description. What do you want to do?
           </Typography>
         }
         isOpen={showApproveDescriptionOverride}

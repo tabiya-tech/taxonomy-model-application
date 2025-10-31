@@ -1,0 +1,1286 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the Skill module The export module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "ALT_LABELS_MAX_ITEMS": 100,
+    "ALT_LABEL_MAX_LENGTH": 256,
+    "DEFAULT_LIMIT": 10,
+    "DEFINITION_MAX_LENGTH": 4000,
+    "DESCRIPTION_MAX_LENGTH": 6000,
+    "MAX_CURSOR_LENGTH": 1720,
+    "MAX_JSON_OVERHEAD": 10000,
+    "MAX_LIMIT": 100,
+    "MAX_PAYLOAD_LENGTH": 553952,
+    "ORIGIN_URI_MAX_LENGTH": 4096,
+    "PATH_URI_MAX_LENGTH": 4096,
+    "PREFERRED_LABEL_MAX_LENGTH": 256,
+    "SCOPE_NOTE_MAX_LENGTH": 4000,
+    "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
+    "SIGNALLING_VALUE_MAX": 100,
+    "SIGNALLING_VALUE_MIN": 0,
+    "TABIYA_PATH_URI_MAX_LENGTH": 4096,
+    "UUID_HISTORY_MAX_ITEMS": 10000,
+    "UUID_HISTORY_MAX_LENGTH": 50,
+  },
+  "Enums": {
+    "GET": {
+      "ById": {
+        "Response": {
+          "Status400": {
+            "ErrorCodes": {
+              "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+            },
+          },
+          "Status404": {
+            "ErrorCodes": {
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND_FOR_SKILL_GET",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+            },
+          },
+          "Status500": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_SKILL": "DB_FAILED_TO_RETRIEVE_SKILL",
+            },
+          },
+        },
+      },
+      "List": {
+        "Response": {
+          "Status400": {
+            "ErrorCodes": {
+              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+            },
+          },
+          "Status404": {
+            "ErrorCodes": {
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND_FOR_SKILL_LIST",
+            },
+          },
+          "Status500": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_SKILLS": "DB_FAILED_TO_RETRIEVE_SKILLS",
+            },
+          },
+        },
+      },
+    },
+    "ObjectType": "skill",
+    "ObjectTypes": {
+      "Skill": "skill",
+      "SkillGroup": "skillgroup",
+    },
+    "OccupationObjectTypes": {
+      "ESCOOccupation": "escooccupation",
+      "LocalOccupation": "localoccupation",
+    },
+    "OccupationToSkillRelationType": {
+      "ESSENTIAL": "essential",
+      "NONE": "",
+      "OPTIONAL": "optional",
+    },
+    "POST": {
+      "Response": {
+        "Status400": {
+          "ErrorCodes": {
+            "SKILL_COULD_NOT_VALIDATE": "SKILL_COULD_NOT_VALIDATE",
+            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_CREATE_SKILL": "DB_FAILED_TO_CREATE_SKILL",
+          },
+        },
+      },
+    },
+    "Relations": {
+      "Children": {
+        "ObjectTypes": {
+          "Skill": "skill",
+        },
+      },
+      "Parents": {
+        "ObjectTypes": {
+          "Skill": "skill",
+          "SkillGroup": "skillgroup",
+        },
+      },
+    },
+    "ReuseLevel": {
+      "CrossSector": "cross-sector",
+      "None": "",
+      "OccupationSpecific": "occupation-specific",
+      "SectorSpecific": "sector-specific",
+      "Transversal": "transversal",
+    },
+    "SignallingValueLabel": {
+      "HIGH": "high",
+      "LOW": "low",
+      "MEDIUM": "medium",
+      "NONE": "",
+    },
+    "SkillToSkillRelationType": {
+      "ESSENTIAL": "essential",
+      "OPTIONAL": "optional",
+    },
+    "SkillType": {
+      "Attitude": "attitude",
+      "Knowledge": "knowledge",
+      "Language": "language",
+      "None": "",
+      "SkillCompetence": "skill/competence",
+    },
+  },
+  "Schemas": {
+    "GET": {
+      "Request": {
+        "ById": {
+          "Param": {
+            "Payload": {
+              "$id": "/components/schemas/SkillRequestByIdParamSchemaGET",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "description": "The id of the skill. It can be used to retrieve the skill from the server.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+                "modelId": {
+                  "description": "The identifier of the model for skill.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+              },
+              "required": [
+                "modelId",
+                "id",
+              ],
+              "type": "object",
+            },
+          },
+        },
+        "Param": {
+          "Payload": {
+            "$id": "/components/schemas/SkillRequestParamSchemaGET",
+            "additionalProperties": false,
+            "properties": {
+              "modelId": {
+                "description": "The identifier of the model for skill.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+            },
+            "required": [
+              "modelId",
+            ],
+            "type": "object",
+          },
+        },
+        "Query": {
+          "Payload": {
+            "$id": "/components/schemas/SkillRequestQueryParamSchemaGET",
+            "additionalProperties": false,
+            "properties": {
+              "cursor": {
+                "description": "A base64 string representing the cursor for pagination.",
+                "maxLength": 1720,
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "limit": {
+                "default": 100,
+                "description": "The maximum number of items to return.",
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
+              },
+            },
+            "type": "object",
+          },
+        },
+      },
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/SkillResponseSchemaGET",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "Array of skill items for the current page",
+              "items": {
+                "$id": "/components/schemas/SkillItem",
+                "additionalProperties": false,
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the skill for cross-system identification.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "UUIDHistory": {
+                    "description": "The UUIDs history of the skill.",
+                    "items": {
+                      "maxLength": 50,
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "maxItems": 10000,
+                    "minItems": 0,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                  "altLabels": {
+                    "description": "Alternative labels for the skill.",
+                    "items": {
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "maxItems": 100,
+                    "minItems": 0,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                  "children": {
+                    "description": "The children of this skill.",
+                    "items": {
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "skill",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "isLocalized": {
+                                "type": "boolean",
+                              },
+                            },
+                            "required": [
+                              "isLocalized",
+                            ],
+                          },
+                        },
+                      ],
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the child skill.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The id of the child skill.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "isLocalized": {
+                          "description": "Indicates if the child skill is localized.",
+                          "type": "boolean",
+                        },
+                        "objectType": {
+                          "description": "The type of the child, e.g., Skill.",
+                          "enum": [
+                            "skill",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the child skill.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "objectType",
+                      ],
+                      "type": "object",
+                    },
+                    "minItems": 0,
+                    "type": "array",
+                  },
+                  "createdAt": {
+                    "description": "Timestamp of record creation.",
+                    "format": "date-time",
+                    "type": "string",
+                  },
+                  "definition": {
+                    "description": "The formal definition of the skill.",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "description": {
+                    "description": "Additional descriptive information about the skill.",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The unique identifier of the skill.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "isLocalized": {
+                    "description": "Indicates if the skill has localized variants.",
+                    "type": "boolean",
+                  },
+                  "modelId": {
+                    "description": "The identifier of the model containing this skill.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "originUUID": {
+                    "description": "The original UUID of the skill, i.e., the first UUID in UUIDHistory",
+                    "maxLength": 50,
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "originUri": {
+                    "description": "The origin URI of the skill.",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "parent": {
+                    "additionalProperties": false,
+                    "description": "The parent skill or skill group of this skill.",
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "enum": [
+                            "skillgroup",
+                          ],
+                        },
+                      },
+                    },
+                    "properties": {
+                      "UUID": {
+                        "description": "The UUID of the parent skill or skill group.",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                        "type": "string",
+                      },
+                      "code": {
+                        "description": "The code of the parent skill group.",
+                        "maxLength": 256,
+                        "type": "string",
+                      },
+                      "id": {
+                        "description": "The id of the parent skill or skill group.",
+                        "pattern": "^[0-9a-f]{24}$",
+                        "type": "string",
+                      },
+                      "objectType": {
+                        "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                        "enum": [
+                          "skillgroup",
+                          "skill",
+                        ],
+                        "type": "string",
+                      },
+                      "preferredLabel": {
+                        "description": "The preferred label of the parent skill or skill group.",
+                        "maxLength": 256,
+                        "pattern": "\\S",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "id",
+                      "UUID",
+                      "preferredLabel",
+                      "objectType",
+                    ],
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "code",
+                      ],
+                    },
+                    "type": "object",
+                  },
+                  "path": {
+                    "description": "Resource path using the skill's ID.",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "^https://.*",
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the skill.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "requiredByOccupations": {
+                    "description": "Occupations that require this skill with relationship metadata.",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the requiring occupation.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The ID of the requiring occupation.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "isLocalized": {
+                          "description": "Indicates if the requiring occupation is localized.",
+                          "type": "boolean",
+                        },
+                        "objectType": {
+                          "description": "The object type of the requiring occupation.",
+                          "enum": [
+                            "escooccupation",
+                            "localoccupation",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the requiring occupation.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                        "relationType": {
+                          "description": "Used for ESCOOccupations only.",
+                          "enum": [
+                            "essential",
+                            "optional",
+                          ],
+                          "type": [
+                            "string",
+                            "null",
+                          ],
+                        },
+                        "signallingValue": {
+                          "description": "Used for LocalOccupations only.",
+                          "maximum": 100,
+                          "minimum": 0,
+                          "type": [
+                            "number",
+                            "null",
+                          ],
+                        },
+                        "signallingValueLabel": {
+                          "description": "Used for LocalOccupations only.",
+                          "enum": [
+                            "low",
+                            "medium",
+                            "high",
+                          ],
+                          "maxLength": 256,
+                          "type": [
+                            "string",
+                            "null",
+                          ],
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "isLocalized",
+                        "objectType",
+                      ],
+                      "type": "object",
+                    },
+                    "minItems": 0,
+                    "type": "array",
+                  },
+                  "requiredBySkills": {
+                    "description": "Skills that require this skill with relationship metadata.",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the requiring skill.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The ID of the requiring skill.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "isLocalized": {
+                          "description": "Indicates if the requiring skill is localized.",
+                          "type": "boolean",
+                        },
+                        "objectType": {
+                          "description": "The object type of the requiring skill.",
+                          "enum": [
+                            "skill",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the requiring skill.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                        "relationType": {
+                          "description": "The type of relationship between skills.",
+                          "enum": [
+                            "essential",
+                            "optional",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "isLocalized",
+                        "objectType",
+                        "relationType",
+                      ],
+                      "type": "object",
+                    },
+                    "minItems": 0,
+                    "type": "array",
+                  },
+                  "requiresSkills": {
+                    "description": "Skills required by this skill with relationship metadata.",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the required skill.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The ID of the required skill.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "isLocalized": {
+                          "description": "Indicates if the required skill is localized.",
+                          "type": "boolean",
+                        },
+                        "objectType": {
+                          "description": "The object type of the required skill.",
+                          "enum": [
+                            "skill",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the required skill.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                        "relationType": {
+                          "description": "The type of relationship between skills.",
+                          "enum": [
+                            "essential",
+                            "optional",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "isLocalized",
+                        "objectType",
+                        "relationType",
+                      ],
+                      "type": "object",
+                    },
+                    "minItems": 0,
+                    "type": "array",
+                  },
+                  "reuseLevel": {
+                    "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
+                    "enum": [
+                      "sector-specific",
+                      "occupation-specific",
+                      "cross-sector",
+                      "transversal",
+                    ],
+                    "type": "string",
+                  },
+                  "scopeNote": {
+                    "description": "Scope clarification for the skill's application.",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "skillType": {
+                    "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
+                    "enum": [
+                      "skill/competence",
+                      "knowledge",
+                      "language",
+                      "attitude",
+                    ],
+                    "type": "string",
+                  },
+                  "tabiyaPath": {
+                    "description": "Resource path using the skill's UUID.",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "^https://.*",
+                    "type": "string",
+                  },
+                  "updatedAt": {
+                    "description": "Timestamp of last record modification.",
+                    "format": "date-time",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "originUUID",
+                  "UUIDHistory",
+                  "path",
+                  "tabiyaPath",
+                  "preferredLabel",
+                  "originUri",
+                  "altLabels",
+                  "definition",
+                  "description",
+                  "scopeNote",
+                  "skillType",
+                  "reuseLevel",
+                  "isLocalized",
+                  "modelId",
+                  "parent",
+                  "children",
+                  "requiresSkills",
+                  "requiredBySkills",
+                  "requiredByOccupations",
+                  "createdAt",
+                  "updatedAt",
+                ],
+                "type": "object",
+              },
+              "type": "array",
+            },
+            "limit": {
+              "default": 100,
+              "description": "Number of items returned in this page.",
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+            },
+            "nextCursor": {
+              "description": "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
+              "maxLength": 1720,
+              "pattern": "\\S",
+              "type": [
+                "string",
+                "null",
+              ],
+            },
+          },
+          "required": [
+            "data",
+            "limit",
+          ],
+          "type": "object",
+        },
+      },
+    },
+    "POST": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/SkillRequestSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "UUIDHistory": {
+              "description": "The UUIDs history of the skill.",
+              "items": {
+                "maxLength": 50,
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "maxItems": 10000,
+              "minItems": 0,
+              "type": "array",
+              "uniqueItems": true,
+            },
+            "altLabels": {
+              "description": "Alternative labels for the skill.",
+              "items": {
+                "maxLength": 256,
+                "type": "string",
+              },
+              "maxItems": 100,
+              "minItems": 0,
+              "type": "array",
+              "uniqueItems": true,
+            },
+            "definition": {
+              "description": "The formal definition of the skill.",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "description": {
+              "description": "Additional descriptive information about the skill.",
+              "maxLength": 6000,
+              "type": "string",
+            },
+            "isLocalized": {
+              "description": "Indicates if the skill has localized variants.",
+              "type": "boolean",
+            },
+            "modelId": {
+              "description": "The identifier of the model containing this skill.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "originUri": {
+              "description": "The origin URI of the skill.",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "preferredLabel": {
+              "description": "The preferred label of the skill.",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "reuseLevel": {
+              "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
+              "enum": [
+                "sector-specific",
+                "occupation-specific",
+                "cross-sector",
+                "transversal",
+              ],
+              "type": "string",
+            },
+            "scopeNote": {
+              "description": "Scope clarification for the skill's application.",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "skillType": {
+              "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
+              "enum": [
+                "skill/competence",
+                "knowledge",
+                "language",
+                "attitude",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "preferredLabel",
+            "originUri",
+            "UUIDHistory",
+            "altLabels",
+            "definition",
+            "description",
+            "scopeNote",
+            "modelId",
+            "skillType",
+            "reuseLevel",
+            "isLocalized",
+          ],
+          "type": "object",
+        },
+      },
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/SkillResponseSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "UUID": {
+              "description": "The UUID of the skill for cross-system identification.",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string",
+            },
+            "UUIDHistory": {
+              "description": "The UUIDs history of the skill.",
+              "items": {
+                "maxLength": 50,
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "maxItems": 10000,
+              "minItems": 0,
+              "type": "array",
+              "uniqueItems": true,
+            },
+            "altLabels": {
+              "description": "Alternative labels for the skill.",
+              "items": {
+                "maxLength": 256,
+                "type": "string",
+              },
+              "maxItems": 100,
+              "minItems": 0,
+              "type": "array",
+              "uniqueItems": true,
+            },
+            "children": {
+              "description": "The children of this skill.",
+              "items": {
+                "additionalProperties": false,
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "const": "skill",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "isLocalized": {
+                          "type": "boolean",
+                        },
+                      },
+                      "required": [
+                        "isLocalized",
+                      ],
+                    },
+                  },
+                ],
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the child skill.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The id of the child skill.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "isLocalized": {
+                    "description": "Indicates if the child skill is localized.",
+                    "type": "boolean",
+                  },
+                  "objectType": {
+                    "description": "The type of the child, e.g., Skill.",
+                    "enum": [
+                      "skill",
+                    ],
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the child skill.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "objectType",
+                ],
+                "type": "object",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
+            "createdAt": {
+              "description": "Timestamp of record creation.",
+              "format": "date-time",
+              "type": "string",
+            },
+            "definition": {
+              "description": "The formal definition of the skill.",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "description": {
+              "description": "Additional descriptive information about the skill.",
+              "maxLength": 6000,
+              "type": "string",
+            },
+            "id": {
+              "description": "The unique identifier of the skill.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "isLocalized": {
+              "description": "Indicates if the skill has localized variants.",
+              "type": "boolean",
+            },
+            "modelId": {
+              "description": "The identifier of the model containing this skill.",
+              "pattern": "^[0-9a-f]{24}$",
+              "type": "string",
+            },
+            "originUUID": {
+              "description": "The original UUID of the skill, i.e., the first UUID in UUIDHistory",
+              "maxLength": 50,
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string",
+            },
+            "originUri": {
+              "description": "The origin URI of the skill.",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "parent": {
+              "additionalProperties": false,
+              "description": "The parent skill or skill group of this skill.",
+              "if": {
+                "properties": {
+                  "objectType": {
+                    "enum": [
+                      "skillgroup",
+                    ],
+                  },
+                },
+              },
+              "properties": {
+                "UUID": {
+                  "description": "The UUID of the parent skill or skill group.",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string",
+                },
+                "code": {
+                  "description": "The code of the parent skill group.",
+                  "maxLength": 256,
+                  "type": "string",
+                },
+                "id": {
+                  "description": "The id of the parent skill or skill group.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+                "objectType": {
+                  "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                  "enum": [
+                    "skillgroup",
+                    "skill",
+                  ],
+                  "type": "string",
+                },
+                "preferredLabel": {
+                  "description": "The preferred label of the parent skill or skill group.",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+              },
+              "required": [
+                "id",
+                "UUID",
+                "preferredLabel",
+                "objectType",
+              ],
+              "then": {
+                "properties": {
+                  "code": {
+                    "maxLength": 256,
+                    "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "code",
+                ],
+              },
+              "type": "object",
+            },
+            "path": {
+              "description": "Resource path using the skill's ID.",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
+              "type": "string",
+            },
+            "preferredLabel": {
+              "description": "The preferred label of the skill.",
+              "maxLength": 256,
+              "pattern": "\\S",
+              "type": "string",
+            },
+            "requiredByOccupations": {
+              "description": "Occupations that require this skill with relationship metadata.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the requiring occupation.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The ID of the requiring occupation.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "isLocalized": {
+                    "description": "Indicates if the requiring occupation is localized.",
+                    "type": "boolean",
+                  },
+                  "objectType": {
+                    "description": "The object type of the requiring occupation.",
+                    "enum": [
+                      "escooccupation",
+                      "localoccupation",
+                    ],
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the requiring occupation.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "relationType": {
+                    "description": "Used for ESCOOccupations only.",
+                    "enum": [
+                      "essential",
+                      "optional",
+                    ],
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "signallingValue": {
+                    "description": "Used for LocalOccupations only.",
+                    "maximum": 100,
+                    "minimum": 0,
+                    "type": [
+                      "number",
+                      "null",
+                    ],
+                  },
+                  "signallingValueLabel": {
+                    "description": "Used for LocalOccupations only.",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high",
+                    ],
+                    "maxLength": 256,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "isLocalized",
+                  "objectType",
+                ],
+                "type": "object",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
+            "requiredBySkills": {
+              "description": "Skills that require this skill with relationship metadata.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the requiring skill.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The ID of the requiring skill.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "isLocalized": {
+                    "description": "Indicates if the requiring skill is localized.",
+                    "type": "boolean",
+                  },
+                  "objectType": {
+                    "description": "The object type of the requiring skill.",
+                    "enum": [
+                      "skill",
+                    ],
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the requiring skill.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "relationType": {
+                    "description": "The type of relationship between skills.",
+                    "enum": [
+                      "essential",
+                      "optional",
+                    ],
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "isLocalized",
+                  "objectType",
+                  "relationType",
+                ],
+                "type": "object",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
+            "requiresSkills": {
+              "description": "Skills required by this skill with relationship metadata.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the required skill.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The ID of the required skill.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "isLocalized": {
+                    "description": "Indicates if the required skill is localized.",
+                    "type": "boolean",
+                  },
+                  "objectType": {
+                    "description": "The object type of the required skill.",
+                    "enum": [
+                      "skill",
+                    ],
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the required skill.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "relationType": {
+                    "description": "The type of relationship between skills.",
+                    "enum": [
+                      "essential",
+                      "optional",
+                    ],
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "isLocalized",
+                  "objectType",
+                  "relationType",
+                ],
+                "type": "object",
+              },
+              "minItems": 0,
+              "type": "array",
+            },
+            "reuseLevel": {
+              "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
+              "enum": [
+                "sector-specific",
+                "occupation-specific",
+                "cross-sector",
+                "transversal",
+              ],
+              "type": "string",
+            },
+            "scopeNote": {
+              "description": "Scope clarification for the skill's application.",
+              "maxLength": 4000,
+              "type": "string",
+            },
+            "skillType": {
+              "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
+              "enum": [
+                "skill/competence",
+                "knowledge",
+                "language",
+                "attitude",
+              ],
+              "type": "string",
+            },
+            "tabiyaPath": {
+              "description": "Resource path using the skill's UUID.",
+              "format": "uri",
+              "maxLength": 4096,
+              "pattern": "^https://.*",
+              "type": "string",
+            },
+            "updatedAt": {
+              "description": "Timestamp of last record modification.",
+              "format": "date-time",
+              "type": "string",
+            },
+          },
+          "required": [
+            "id",
+            "UUID",
+            "originUUID",
+            "UUIDHistory",
+            "path",
+            "tabiyaPath",
+            "preferredLabel",
+            "originUri",
+            "altLabels",
+            "definition",
+            "description",
+            "scopeNote",
+            "skillType",
+            "reuseLevel",
+            "isLocalized",
+            "modelId",
+            "parent",
+            "children",
+            "requiresSkills",
+            "requiredBySkills",
+            "requiredByOccupations",
+            "createdAt",
+            "updatedAt",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
+  "Types": {},
+}
+`;
