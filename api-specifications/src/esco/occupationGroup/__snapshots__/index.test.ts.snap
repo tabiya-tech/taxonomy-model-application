@@ -37,6 +37,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     "POST": {
       "Response": {
         "ErrorCodes": {
+          "CANNOT_CREATE_OCCUPATION_GROUP_ON_RELEASED_MODEL": "CANNOT_CREATE_OCCUPATION_GROUP_ON_RELEASED_MODEL",
           "DB_FAILED_TO_CREATE_OCCUPATION_GROUP": "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
           "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
         },
