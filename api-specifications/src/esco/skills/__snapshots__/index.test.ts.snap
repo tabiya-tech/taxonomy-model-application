@@ -25,8 +25,8 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
       "Response": {
         "ErrorCodes": {
           "DB_FAILED_TO_RETRIEVE_SKILLS": "DB_FAILED_TO_RETRIEVE_SKILLS",
-          "INVALID_LIMIT": "INVALID_LIMIT",
-          "INVALID_NEXT_CURSOR": "INVALID_NEXT_CURSOR",
+          "INVALID_LIMIT": "INVALID_LIMIT_SKILLS",
+          "INVALID_NEXT_CURSOR": "INVALID_NEXT_CURSOR_SKILLS",
           "INVALID_SKILL_ID": "INVALID_SKILL_ID",
         },
       },
@@ -39,9 +39,9 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
     "POST": {
       "Response": {
         "ErrorCodes": {
-          "CANNOT_CREATE_SKILL_ON_RELEASED_MODEL": "CANNOT_CREATE_SKILL_ON_RELEASED_MODEL",
           "DB_FAILED_TO_CREATE_SKILL": "DB_FAILED_TO_CREATE_SKILL",
-          "INVALID_MODEL_ID": "INVALID_MODEL_ID",
+          "DB_FAILED_TO_CREATE_SKILL_ON_ALREADY_RELEASED_MODEL": "DB_FAILED_TO_CREATE_SKILL_GROUP_ON_ALREADY_RELEASED_MODEL",
+          "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL": "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL_GROUP",
           "SKILL_COULD_NOT_VALIDATE": "SKILL_COULD_NOT_VALIDATE",
         },
       },
