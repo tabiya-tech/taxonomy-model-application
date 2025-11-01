@@ -5,6 +5,7 @@ import ImportAPISpecs from "api-specifications/import";
 import ExportAPISpecs from "api-specifications/export";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import SkillAPISpecs from "api-specifications/esco/skills";
 import process from "process";
 
 export enum HTTP_VERBS {
@@ -81,7 +82,9 @@ export function errorResponse(
     | OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes
     | OccupationAPISpecs.Enums.POST.Response.ErrorCodes
     | OccupationAPISpecs.Enums.GET.Response.ErrorCodes
-    | ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes,
+    | ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes
+    | SkillAPISpecs.Enums.POST.Response.ErrorCodes
+    | SkillAPISpecs.Enums.GET.Response.ErrorCodes,
   message: string,
   details: string
 ): APIGatewayProxyResult {
