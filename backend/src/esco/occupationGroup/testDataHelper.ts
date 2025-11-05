@@ -5,6 +5,7 @@ import { getRandomString, getTestString } from "_test_utilities/getMockRandomDat
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 
 export function getIOccupationGroupMockData(
   n: number = 1,
@@ -35,10 +36,10 @@ export function getIOccupationGroupMockDataWithOccupationGroupChildren(
 ): IOccupationGroup {
   const children: IOccupationGroupReference = {
     UUID: randomUUID(),
-    code: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+    code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
     id: getMockStringId(n + 1),
     preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+    objectType: OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup,
   };
   return {
     id: getMockStringId(n),
@@ -65,10 +66,10 @@ export function getIOccupationGroupMockDataWithOccupationChildren(
 ): IOccupationGroup {
   const children: IOccupationReference = {
     UUID: randomUUID(),
-    code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+    code: getMockRandomOccupationCode(false),
     id: getMockStringId(n + 1),
     preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    occupationType: OccupationGroupAPISpecs.Enums.ObjectTypes.ESCOOccupation,
+    occupationType: OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation,
     occupationGroupCode: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
     isLocalized: false,
   };
