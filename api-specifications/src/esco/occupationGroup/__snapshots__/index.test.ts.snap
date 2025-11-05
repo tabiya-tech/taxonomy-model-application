@@ -29,16 +29,30 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       },
     },
     "ObjectTypes": {
-      "ESCOOccupation": "escooccupation",
       "ISCOGroup": "iscogroup",
       "LocalGroup": "localgroup",
-      "LocalOccupation": "localoccupation",
     },
     "POST": {
       "Response": {
         "ErrorCodes": {
           "DB_FAILED_TO_CREATE_OCCUPATION_GROUP": "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
           "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
+        },
+      },
+    },
+    "Relations": {
+      "Children": {
+        "ObjectTypes": {
+          "ESCOOccupation": "escooccupation",
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+          "LocalOccupation": "localoccupation",
+        },
+      },
+      "Parent": {
+        "ObjectTypes": {
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
         },
       },
     },
@@ -321,8 +335,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "enum": [
                       "iscogroup",
                       "localgroup",
-                      "escooccupation",
-                      "localoccupation",
                     ],
                     "type": "string",
                   },
@@ -390,8 +402,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                         "enum": [
                           "iscogroup",
                           "localgroup",
-                          "escooccupation",
-                          "localoccupation",
                         ],
                         "type": "string",
                       },
@@ -556,8 +566,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "enum": [
                 "iscogroup",
                 "localgroup",
-                "escooccupation",
-                "localoccupation",
               ],
               "type": "string",
             },
@@ -788,8 +796,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "enum": [
                 "iscogroup",
                 "localgroup",
-                "escooccupation",
-                "localoccupation",
               ],
               "type": "string",
             },
@@ -857,8 +863,6 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                   "enum": [
                     "iscogroup",
                     "localgroup",
-                    "escooccupation",
-                    "localoccupation",
                   ],
                   "type": "string",
                 },

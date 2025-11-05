@@ -159,12 +159,12 @@ export const _baseResponseSchema = {
         objectType: {
           description: "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
           type: "string",
-          enum: Object.values(OccupationGroupEnums.ObjectTypes),
+          enum: Object.values(OccupationGroupEnums.Relations.Parent.ObjectTypes),
         },
       },
       if: {
         properties: {
-          objectType: { enum: [OccupationGroupEnums.ObjectTypes.ISCOGroup] },
+          objectType: { enum: [OccupationGroupEnums.Relations.Parent.ObjectTypes.ISCOGroup] },
         },
       },
       then: {
@@ -219,12 +219,14 @@ export const _baseResponseSchema = {
             description:
               "The type of the occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
             type: "string",
-            enum: Object.values(OccupationGroupEnums.ObjectTypes),
+            enum: Object.values(OccupationGroupEnums.Relations.Children.ObjectTypes),
           },
         },
         allOf: [
           {
-            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.ISCOGroup } } },
+            if: {
+              properties: { objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.ISCOGroup } },
+            },
             then: {
               properties: {
                 code: {
@@ -236,7 +238,9 @@ export const _baseResponseSchema = {
             },
           },
           {
-            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.LocalGroup } } },
+            if: {
+              properties: { objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.LocalGroup } },
+            },
             then: {
               properties: {
                 code: {
@@ -248,7 +252,9 @@ export const _baseResponseSchema = {
             },
           },
           {
-            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.ESCOOccupation } } },
+            if: {
+              properties: { objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation } },
+            },
             then: {
               properties: {
                 code: {
@@ -260,7 +266,11 @@ export const _baseResponseSchema = {
             },
           },
           {
-            if: { properties: { objectType: { const: OccupationGroupEnums.ObjectTypes.LocalOccupation } } },
+            if: {
+              properties: {
+                objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.LocalOccupation },
+              },
+            },
             then: {
               properties: {
                 code: {

@@ -12,14 +12,16 @@ interface IOccupationGroupResponse {
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
+    objectType:
+      | OccupationGroupEnums.Relations.Parent.ObjectTypes.ISCOGroup
+      | OccupationGroupEnums.Relations.Parent.ObjectTypes.LocalGroup;
   } | null;
   children: {
     id: string;
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType: OccupationGroupEnums.ObjectTypes;
+    objectType: OccupationGroupEnums.Relations.Children.ObjectTypes;
   }[];
   originUri: string;
   code: string;

@@ -96,12 +96,12 @@ describe("test the transformation of the IOccupationGroup -> IOccupationGroupRes
             preferredLabel: child.preferredLabel,
             objectType:
               "objectType" in child && child.objectType === ObjectTypes.ISCOGroup
-                ? OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
                 : "objectType" in child && child.objectType === ObjectTypes.LocalGroup
-                ? OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup
                 : "occupationType" in child && child.occupationType === ObjectTypes.ESCOOccupation
-                ? OccupationGroupAPISpecs.Enums.ObjectTypes.ESCOOccupation
-                : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalOccupation,
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+                : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation,
           };
         }),
         path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.id}`,
@@ -206,7 +206,7 @@ describe("test the transformation groupType field of IOccupationGroup[] -> IOccu
       UUID: givenObject.parent.UUID,
       code: givenObject.parent.code,
       preferredLabel: givenObject.parent.preferredLabel,
-      objectType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+      objectType: OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup,
     });
   });
   test("should transform parent when parent exists with LocalGroup type", () => {
@@ -227,7 +227,7 @@ describe("test the transformation groupType field of IOccupationGroup[] -> IOccu
       UUID: givenObject.parent.UUID,
       code: givenObject.parent.code,
       preferredLabel: givenObject.parent.preferredLabel,
-      objectType: OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup, // 👈 expected other enum
+      objectType: OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.LocalGroup, // 👈 expected other enum
     });
   });
   test("should transform children with objectType = ISCOGroup", () => {
@@ -245,7 +245,7 @@ describe("test the transformation groupType field of IOccupationGroup[] -> IOccu
     const basePath = "https://some/root/path";
     const actual = transform(givenObject, basePath);
 
-    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup);
+    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup);
   });
   test("should transform children with objectType = LocalGroup", () => {
     const givenObject = getIOccupationGroupMockData();
@@ -262,7 +262,7 @@ describe("test the transformation groupType field of IOccupationGroup[] -> IOccu
     const basePath = "https://some/root/path";
     const actual = transform(givenObject, basePath);
 
-    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup);
+    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup);
   });
   test("should transform children with occupationType = ESCOOccupation", () => {
     const givenObject = getIOccupationGroupMockDataWithOccupationChildren();
@@ -270,7 +270,9 @@ describe("test the transformation groupType field of IOccupationGroup[] -> IOccu
     const basePath = "https://some/root/path";
     const actual = transform(givenObject, basePath);
 
-    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.ObjectTypes.ESCOOccupation);
+    expect(actual.children[0].objectType).toBe(
+      OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+    );
   });
   test("should transform children with occupationType = LocalOccupation", () => {
     const child: IOccupationReference = {
@@ -278,7 +280,7 @@ describe("test the transformation groupType field of IOccupationGroup[] -> IOccu
       code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
       id: getMockStringId(4),
       preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-      occupationType: OccupationGroupAPISpecs.Enums.ObjectTypes.LocalOccupation,
+      occupationType: OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation,
       occupationGroupCode: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
       isLocalized: false,
     };
@@ -303,7 +305,9 @@ describe("test the transformation groupType field of IOccupationGroup[] -> IOccu
     const basePath = "https://some/root/path";
     const actual = transform(givenObject, basePath);
 
-    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.ObjectTypes.LocalOccupation);
+    expect(actual.children[0].objectType).toBe(
+      OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation
+    );
   });
 });
 
