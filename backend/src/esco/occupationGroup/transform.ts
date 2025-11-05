@@ -28,8 +28,8 @@ export function transform(
           preferredLabel: data.parent.preferredLabel,
           objectType:
             data.parent.objectType == ObjectTypes.ISCOGroup
-              ? OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup
-              : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
+              ? OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup
+              : OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.LocalGroup,
         }
       : null,
     children: data.children?.length
@@ -42,8 +42,8 @@ export function transform(
               preferredLabel: child.preferredLabel,
               objectType:
                 child.objectType === ObjectTypes.ISCOGroup
-                  ? OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup
-                  : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
+                  ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
+                  : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup,
             };
           } else {
             return {
@@ -53,8 +53,8 @@ export function transform(
               preferredLabel: child.preferredLabel,
               objectType:
                 child?.occupationType === ObjectTypes.ESCOOccupation
-                  ? OccupationGroupAPISpecs.Enums.ObjectTypes.ESCOOccupation
-                  : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalOccupation,
+                  ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+                  : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation,
             };
           }
         })
