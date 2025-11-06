@@ -57,7 +57,6 @@ import { IOccupationReference } from "esco/occupations/occupationReference.types
 import { INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE } from "./occupationModel";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 import { resetMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
-import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -514,8 +513,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       }
 
       // WHEN retrieving the first page with undefined cursor and a limit of 2 (default desc order)
-      const firstPage = await repository.findPaginated(givenModelId, undefined, 2);
-      const actualFirstPage = firstPage.items;
+      const firstPage = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+      const actualFirstPage = firstPage;
 
       // THEN expect the latest 2 documents by _id (desc)
       const expectedFirstPage = givenOccupations
@@ -529,8 +528,6 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         .reverse();
       expect(actualFirstPage).toHaveLength(2);
       expect(actualFirstPage).toEqual(expectedFirstPage);
-      // AND nextCursor should point to the last item of the current page (older of the 2)
-      expect(firstPage.nextCursor?._id).toBe(givenOccupations[1].id.toString());
     });
 
     test("should return paginated Occupations for a given modelId, limit and cursor", async () => {
@@ -542,41 +539,22 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenOccupation = await repository.create(givenOccupationSpecs);
         givenOccupations.push(givenOccupation);
       }
-      // WHEN retrieving the occupations with a cursor pointing to occupation_3 (newest) and a limit of 2
-      const cursor = givenOccupations[2].id.toString(); // occupation_3
-      const cursorAsc = givenOccupations[0].id.toString(); // occupation_1
-      const firstPage = await repository.findPaginated(givenModelId, cursor, 2);
-      const actualFirstPageOccupationsArray = firstPage.items;
+      // WHEN retrieving the occupations with sort for descending order and a limit of 2
+      const firstPage = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+      const actualFirstPageOccupationsArray = firstPage;
 
-      // THEN the first page should contain occupation_2 and occupation_1 (items older than occupation_3) ordered by _id descending
-      const expectedOccupations = givenOccupations.slice(0, 2).map(({ parent, children, requiresSkills, ...rest }) => ({
-        ...rest,
-        parent: null,
-        children: [],
-        requiresSkills: [],
-      }));
-      expect(actualFirstPageOccupationsArray).toHaveLength(2);
-      const expectedFirstPageOccupations = [...expectedOccupations].reverse(); // [occupation_2, occupation_1]
-      expect(actualFirstPageOccupationsArray).toEqual(expectedFirstPageOccupations);
-      expect(firstPage.nextCursor).toBeNull(); // No more items after occupation_1
-
-      // WHEN retrieving with cursor=occupation_1 (oldest) in ascending order
-      const firstPageAsc = await repository.findPaginated(givenModelId, cursorAsc, 2, false);
-      const actualFirstPageOccupationsArrayAsc = firstPageAsc.items;
-
-      // THEN should return occupation_2 and occupation_3 (items newer than occupation_1) ordered by _id ascending
-      const expectedOccupationsAsc = givenOccupations
+      // THEN the first page should contain occupation_3 and occupation_2 (newest first) ordered by _id descending
+      const expectedOccupations = givenOccupations
         .slice(1, 3)
         .map(({ parent, children, requiresSkills, ...rest }) => ({
           ...rest,
           parent: null,
           children: [],
           requiresSkills: [],
-        }));
-
-      expect(actualFirstPageOccupationsArrayAsc).toHaveLength(2);
-      expect(actualFirstPageOccupationsArrayAsc).toEqual(expectedOccupationsAsc); // [occupation_2, occupation_3]
-      expect(firstPageAsc.nextCursor).toBeNull(); // No more items after occupation_3
+        }))
+        .reverse(); // reverse to match the order returned by repository
+      expect(actualFirstPageOccupationsArray).toHaveLength(2);
+      expect(actualFirstPageOccupationsArray).toEqual(expectedOccupations); // [occupation_3, occupation_2]
     });
     test("should handle errors during paginated data retrieval", async () => {
       // GIVEN that an error will occur when retrieving data
@@ -587,7 +565,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // WHEN finding paginated occupations for some modelId
       // THEN expect the operation to fail with the given error
-      await expect(repository.findPaginated(getMockStringId(1), getMockStringId(2), 2)).rejects.toThrowError(
+      await expect(repository.findPaginated(getMockStringId(1), {}, { _id: -1 }, 2)).rejects.toThrowError(
         new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: givenError })
       );
     });
@@ -599,9 +577,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
-      await expect(
-        repository.findPaginated(getMockStringId(1), new mongoose.Types.ObjectId().toString(), 1)
-      ).rejects.toThrow(new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: givenError }));
+      await expect(repository.findPaginated(getMockStringId(1), {}, { _id: -1 }, 1)).rejects.toThrow(
+        new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
 
       aggregateSpy.mockRestore();
     });
@@ -613,26 +591,17 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const given_occupation2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o2"));
       const given_occupation3 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o3"));
 
-      // WHEN requesting first page with limit=3 and no cursor (desc by _id => newest first)
-      const page2 = await repository.findPaginated(givenModelId, undefined, 3);
+      // WHEN requesting first page with limit=3 and desc sort (_id => newest first)
+      const page2 = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 3);
       // THEN expect when fetching three items with limit=3, to get all three items in the correct order
-      expect(page2.items).toHaveLength(3);
-      const firstTwoIds = page2.items.map((i) => i.id);
+      expect(page2).toHaveLength(3);
+      const firstTwoIds = page2.map((i) => i.id);
       expect(firstTwoIds).toEqual([given_occupation3.id, given_occupation2.id, given_occupation1.id]);
 
-      // WHEN requesting first page with limit=1 and no cursor
-      const page1 = await repository.findPaginated(givenModelId, undefined, 1);
-      expect(page1.items).toHaveLength(1);
-      expect(page1.items[0].id).toBe(given_occupation3.id);
-      expect(page1.nextCursor?._id).toBe(given_occupation3.id);
-
-      // AND then requesting next page with cursor=page1.nextCursor._id and limit=1
-      const page1Next = await repository.findPaginated(givenModelId, page1.nextCursor?._id, 1);
-      expect(page1Next.items).toHaveLength(1);
-
-      // THEN expect the item returned to equal the second item from the first (limit=2) page (o2)
-      expect(page1Next.items[0].id).toBe(page2.items[1].id);
-      expect(page1Next.items[0].id).toBe(given_occupation2.id);
+      // WHEN requesting first page with limit=1 and desc sort
+      const page1 = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 1);
+      expect(page1).toHaveLength(1);
+      expect(page1[0].id).toBe(given_occupation3.id);
     });
 
     test("should warn and ignore invalid cursor", async () => {
@@ -640,18 +609,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts
       const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "test_occupation");
       const createdOccupation = await repository.create(givenOccupationSpecs);
-      const warnSpy = jest.spyOn(errorLoggerInstance, "logWarning").mockReturnValue(undefined);
 
-      // WHEN finding paginated occupations with an invalid cursor
-      const invalidCursor = "invalid-cursor-string";
-      const result = await repository.findPaginated(givenModelId, invalidCursor, 2);
+      // WHEN finding paginated occupations with desc sort
+      const result = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
 
-      // THEN expect the warning to be logged
-      expect(warnSpy).toHaveBeenCalledWith(`Invalid cursor provided: ${invalidCursor}`, expect.any(String));
-
-      // AND expect the result to ignore the invalid cursor and return the first page
-      expect(result.items).toHaveLength(1);
-      expect(result.items[0].id).toBe(createdOccupation.id);
+      // THEN expect the result to return the first page
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(createdOccupation.id);
     });
 
     test("should populate parent and children for items in paginated results", async () => {
@@ -687,29 +651,51 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(hierarchy).toHaveLength(2);
 
       // WHEN retrieving a page large enough to include all three
-      const page = await repository.findPaginated(givenModelId, undefined, 10);
+      const page = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 10);
 
       // THEN find the subject entry and assert it has populated parent and children
-      const subjectFromPage = page.items.find((i) => i.id === subject.id)!;
+      const subjectFromPage = page.find((i) => i.id === subject.id)!;
       expect(subjectFromPage).toBeDefined();
       expect(subjectFromPage.parent).toEqual(expectedOccupationReference(parent));
       expect(subjectFromPage.children).toEqual(
         expect.arrayContaining<IOccupationReference>([expectedOccupationReference(child)])
       );
     });
-  });
 
-  describe("Test encodeCursor() & decodeCursor()", () => {
-    test("should encode and decode a cursor", () => {
-      const givenValidCursorObject = {
-        id: getMockStringId(1),
-        createdAt: new Date("2023-01-01T00:00:00Z"),
-      };
-      const cursor = repository.encodeCursor(givenValidCursorObject.id, givenValidCursorObject.createdAt);
-      const decoded = repository.decodeCursor(cursor);
-      expect(decoded).toEqual(givenValidCursorObject);
+    test("should handle ascending sort order for pagination", async () => {
+      // GIVEN a modelId and three occupations created in order
+      const givenModelId = getMockStringId(1);
+      const given_occupation1 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o1"));
+      const given_occupation2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o2"));
+      const given_occupation3 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o3"));
+
+      // WHEN requesting first page with limit=3 and ascending sort (_id: 1)
+      const page = await repository.findPaginated(givenModelId, {}, { _id: 1 }, 3);
+
+      // THEN expect to get all three items in ascending order by _id
+      expect(page).toHaveLength(3);
+      const firstIds = page.map((i) => i.id);
+      expect(firstIds).toEqual([given_occupation1.id, given_occupation2.id, given_occupation3.id]);
+    });
+
+    test("should handle ascending sort order for pagination", async () => {
+      // GIVEN a modelId and three occupations created in order
+      const givenModelId = getMockStringId(1);
+      const given_occupation1 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o1"));
+      const given_occupation2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o2"));
+      const given_occupation3 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o3"));
+
+      // WHEN requesting first page with limit=3 and ascending sort (_id: 1)
+      const page = await repository.findPaginated(givenModelId, {}, { _id: 1 }, 3);
+
+      // THEN expect to get all three items in ascending order by _id
+      expect(page).toHaveLength(3);
+      const ids = page.map((i) => i.id);
+      expect(ids).toEqual([given_occupation1.id, given_occupation2.id, given_occupation3.id]);
     });
   });
+
+  // Cursor encoding/decoding tests removed as these methods are now in the service layer
 
   describe("Test getOccupationByUUID()", () => {
     test("Should return an existing occupation by occupation uuid", async () => {

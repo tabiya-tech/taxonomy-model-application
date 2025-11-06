@@ -6,12 +6,13 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "ALT_LABELS_MAX_ITEMS": 100,
     "ALT_LABEL_MAX_LENGTH": 256,
     "CODE_MAX_LENGTH": 256,
+    "DEFAULT_LIMIT": 10,
     "DEFINITION_MAX_LENGTH": 4000,
     "DESCRIPTION_MAX_LENGTH": 6000,
     "MAX_CURSOR_LENGTH": 1024,
     "MAX_JSON_OVERHEAD": 10000,
     "MAX_LIMIT": 100,
-    "MAX_PAYLOAD_LENGTH": 567780,
+    "MAX_POST_PAYLOAD_LENGTH": 566656,
     "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
     "ORIGIN_URI_MAX_LENGTH": 4096,
     "PATH_URI_MAX_LENGTH": 4096,
@@ -31,18 +32,12 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "ErrorCodes": {
           "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
           "INVALID_LIMIT": "INVALID_LIMIT",
+          "INVALID_MODEL_ID": "INVALID_MODEL",
           "INVALID_NEXT_CURSOR": "INVALID_NEXT_CURSOR",
           "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
+          "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
         },
       },
-    },
-    "ObjectTypes": {
-      "ESCOOccupation": "escooccupation",
-      "ISCOGroup": "iscogroup",
-      "LocalGroup": "localgroup",
-      "LocalOccupation": "localoccupation",
-      "Skill": "skill",
-      "SkillGroup": "skillgroup",
     },
     "OccupationToSkillRelationType": {
       "ESSENTIAL": "essential",
@@ -58,7 +53,29 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "ErrorCodes": {
           "DB_FAILED_TO_CREATE_OCCUPATION": "DB_FAILED_TO_CREATE_OCCUPATION",
           "INVALID_MODEL_ID": "INVALID_MODEL_ID",
+          "MODEL_ALREADY_RELEASED": "CANNOT_CREATE_OCCUPATION_GROUP_ON_RELEASED_MODEL",
           "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
+        },
+      },
+    },
+    "Relations": {
+      "Children": {
+        "ObjectTypes": {
+          "ESCOOccupation": "escooccupation",
+          "LocalOccupation": "localoccupation",
+        },
+      },
+      "Parent": {
+        "ObjectTypes": {
+          "ESCOOccupation": "escooccupation",
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+          "LocalOccupation": "localoccupation",
+        },
+      },
+      "RequiredSkills": {
+        "ObjectTypes": {
+          "Skill": "skill",
         },
       },
     },
@@ -131,21 +148,21 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "$id": "/components/schemas/OccupationRequestQueryParamSchemaGET",
             "additionalProperties": false,
             "properties": {
-              "limit": {
-                "default": 100,
-                "description": "The maximum number of items to return.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-              },
-              "next_cursor": {
-                "description": "A base64 string representing the next_cursor for pagination.",
+              "cursor": {
+                "description": "A base64 string representing the cursor for pagination.",
                 "maxLength": 1024,
                 "pattern": "\\S",
                 "type": [
                   "string",
                   "null",
                 ],
+              },
+              "limit": {
+                "default": 10,
+                "description": "The maximum number of items to return.",
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
               },
             },
             "type": "object",
@@ -157,8 +174,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
           "$id": "/components/schemas/OccupationResponseSchemaGET",
           "additionalProperties": false,
           "properties": {
-            "items": {
-              "description": "Array of occupation items for the current page",
+            "data": {
+              "description": "Array of occupation data for the current page",
               "items": {
                 "$id": "/components/schemas/OccupationItem",
                 "additionalProperties": false,
@@ -306,52 +323,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "if": {
                             "properties": {
                               "objectType": {
-                                "const": "iscogroup",
-                              },
-                            },
-                          },
-                          "then": {
-                            "properties": {
-                              "code": {
-                                "maxLength": 256,
-                                "pattern": "^\\d{1,4}$",
-                                "type": "string",
-                              },
-                              "occupationGroupCode": {
-                                "maxLength": 256,
-                                "pattern": "^\\d{1,4}$",
-                                "type": "string",
-                              },
-                            },
-                          },
-                        },
-                        {
-                          "if": {
-                            "properties": {
-                              "objectType": {
-                                "const": "localgroup",
-                              },
-                            },
-                          },
-                          "then": {
-                            "properties": {
-                              "code": {
-                                "maxLength": 256,
-                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
-                                "type": "string",
-                              },
-                              "occupationGroupCode": {
-                                "maxLength": 256,
-                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
-                                "type": "string",
-                              },
-                            },
-                          },
-                        },
-                        {
-                          "if": {
-                            "properties": {
-                              "objectType": {
                                 "const": "escooccupation",
                               },
                             },
@@ -414,12 +385,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                         "objectType": {
                           "description": "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
                           "enum": [
-                            "iscogroup",
-                            "localgroup",
                             "escooccupation",
                             "localoccupation",
-                            "skill",
-                            "skillgroup",
                           ],
                           "type": "string",
                         },
@@ -620,8 +587,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "localgroup",
                           "escooccupation",
                           "localoccupation",
-                          "skill",
-                          "skillgroup",
                         ],
                         "type": "string",
                       },
@@ -785,15 +750,14 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             },
             "limit": {
               "default": 100,
-              "description": "Number of items returned in this page.",
+              "description": "Number of data returned in this page.",
               "maximum": 100,
               "minimum": 1,
               "type": "integer",
             },
-            "next_cursor": {
+            "nextCursor": {
               "description": "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
               "maxLength": 1024,
-              "pattern": "\\S",
               "type": [
                 "string",
                 "null",
@@ -801,7 +765,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             },
           },
           "required": [
-            "items",
+            "data",
             "limit",
           ],
           "type": "object",
@@ -1099,52 +1063,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "if": {
                       "properties": {
                         "objectType": {
-                          "const": "iscogroup",
-                        },
-                      },
-                    },
-                    "then": {
-                      "properties": {
-                        "code": {
-                          "maxLength": 256,
-                          "pattern": "^\\d{1,4}$",
-                          "type": "string",
-                        },
-                        "occupationGroupCode": {
-                          "maxLength": 256,
-                          "pattern": "^\\d{1,4}$",
-                          "type": "string",
-                        },
-                      },
-                    },
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "objectType": {
-                          "const": "localgroup",
-                        },
-                      },
-                    },
-                    "then": {
-                      "properties": {
-                        "code": {
-                          "maxLength": 256,
-                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
-                          "type": "string",
-                        },
-                        "occupationGroupCode": {
-                          "maxLength": 256,
-                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
-                          "type": "string",
-                        },
-                      },
-                    },
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "objectType": {
                           "const": "escooccupation",
                         },
                       },
@@ -1207,12 +1125,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   "objectType": {
                     "description": "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
                     "enum": [
-                      "iscogroup",
-                      "localgroup",
                       "escooccupation",
                       "localoccupation",
-                      "skill",
-                      "skillgroup",
                     ],
                     "type": "string",
                   },
@@ -1413,8 +1327,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "localgroup",
                     "escooccupation",
                     "localoccupation",
-                    "skill",
-                    "skillgroup",
                   ],
                   "type": "string",
                 },

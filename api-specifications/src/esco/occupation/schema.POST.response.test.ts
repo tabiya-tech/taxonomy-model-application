@@ -35,7 +35,6 @@ import {
   getTestLocalGroupCode,
   getTestLocalOccupationCode,
 } from "../_test_utilities/testUtils";
-import { ObjectTypes } from "../common/objectTypes";
 
 describe("Test OccupationAPISpecs schema validity", () => {
   // WHEN the OccupationAPISpecs.POST.Response.Schema.Payload schema
@@ -48,9 +47,10 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
   const givenParent = {
     id: getMockId(1),
     UUID: randomUUID(),
-    code: getTestESCOOccupationCode(),
+    code: getTestISCOGroupCode(),
+    occupationGroupCode: getTestISCOGroupCode(),
     preferredLabel: getTestString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationEnums.ObjectTypes.ESCOOccupation, // conditional check passes
+    objectType: OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup,
   };
 
   const givenChild = {
@@ -58,7 +58,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
     UUID: randomUUID(),
     code: getTestLocalOccupationCode(),
     preferredLabel: getTestString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationEnums.ObjectTypes.LocalOccupation,
+    objectType: OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
   };
 
   const givenSkill = {
@@ -66,7 +66,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
     UUID: randomUUID(),
     preferredLabel: getTestString(OccupationConstants.PREFERRED_LABEL_MAX_LENGTH),
     isLocalized: true,
-    objectType: OccupationEnums.ObjectTypes.Skill,
+    objectType: "skill",
     relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL,
   };
 
@@ -605,19 +605,19 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
 
       describe("Test validation of '/parent/code'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, ObjectTypes.ISCOGroup, undefined],
+          [CaseType.Success, "undefined", undefined, OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup, undefined],
           [
             CaseType.Failure,
             "null",
             null,
-            ObjectTypes.ISCOGroup,
+            OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup,
             constructSchemaError("/parent/code", "type", "must be string"),
           ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            ObjectTypes.ISCOGroup,
+            OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -628,7 +628,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            ObjectTypes.ISCOGroup,
+            OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -641,19 +641,25 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           //   CaseType.Failure,
           //   "a valid code of different type",
           //   getTestLocalGroupCode(),
-          //   ObjectTypes.ISCOGroup,
+          //   OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup,
           //   constructSchemaError(
           //     "/parent/code",
           //     "pattern",
           //     `must match pattern "${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
           //   ),
           // ],
-          [CaseType.Success, "a valid code", getTestISCOGroupCode(), ObjectTypes.ISCOGroup, undefined],
+          [
+            CaseType.Success,
+            "a valid code",
+            getTestISCOGroupCode(),
+            OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup,
+            undefined,
+          ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            ObjectTypes.LocalGroup,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalGroup,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -666,7 +672,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           //   CaseType.Failure,
           //   "an invalid code",
           //   "invalidCode",
-          //   ObjectTypes.LocalGroup,
+          //   OccupationEnums.Relations.Parent.ObjectTypes.LocalGroup,
           //   constructSchemaError(
           //     "/parent/code",
           //     "pattern",
@@ -677,19 +683,25 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "a valid code of different type",
             getTestISCOGroupCode(),
-            ObjectTypes.LocalGroup,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalGroup,
             constructSchemaError(
               "/parent/code",
               "pattern",
               `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
             ),
           ],
-          [CaseType.Success, "a valid code", getTestLocalGroupCode(), ObjectTypes.LocalGroup, undefined],
+          [
+            CaseType.Success,
+            "a valid code",
+            getTestLocalGroupCode(),
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalGroup,
+            undefined,
+          ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -700,7 +712,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -711,19 +723,25 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "a valid code of different type",
             getTestLocalOccupationCode(),
-            ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
               `must match pattern "${OccupationAPISpecs.Patterns.Str.ESCO_OCCUPATION_CODE}"`
             ),
           ],
-          [CaseType.Success, "a valid code", getTestESCOOccupationCode(), ObjectTypes.ESCOOccupation, undefined],
+          [
+            CaseType.Success,
+            "a valid code",
+            getTestESCOOccupationCode(),
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            undefined,
+          ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -734,7 +752,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -745,7 +763,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "a valid code of different type",
             getTestESCOOccupationCode(),
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -756,14 +774,14 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Success,
             "a valid local occupation code",
             getTestLocalOccupationCode(),
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             undefined,
           ],
           [
             CaseType.Success,
             "a valid ESCO local occupation code",
             getTestESCOLocalOccupationCode(),
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             undefined,
           ],
         ] as const)(
@@ -827,7 +845,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             "invalidObjectType",
             constructSchemaError("/parent/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", OccupationEnums.ObjectTypes.ISCOGroup, undefined],
+          [CaseType.Success, "a valid objectType", OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup, undefined],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           const givenObject = { parent: { objectType: givenValue } };
           assertCaseForProperty(
@@ -910,93 +928,25 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
 
       describe("Test validation of 'children/code'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, ObjectTypes.ISCOGroup, undefined],
+          [
+            CaseType.Success,
+            "undefined",
+            undefined,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            undefined,
+          ],
           [
             CaseType.Failure,
             "null",
             null,
-            ObjectTypes.ISCOGroup,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
             constructSchemaError("/children/0/code", "type", "must be string"),
           ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            ObjectTypes.ISCOGroup,
-            constructSchemaError(
-              "/children/0/code",
-              "pattern",
-              `must match pattern "${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
-            ),
-          ],
-          [
-            CaseType.Failure,
-            "an invalid code",
-            "invalidCode",
-            ObjectTypes.ISCOGroup,
-            constructSchemaError(
-              "/children/0/code",
-              "pattern",
-              `must match pattern "${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
-            ),
-          ],
-          // Cannot test local group code against ISCO group pattern due to regex overlap
-          // Local group code pattern is too permissive and may match other patterns
-          // [
-          //   CaseType.Failure,
-          //   "a valid code of different type",
-          //   getTestLocalGroupCode(),
-          //   ObjectTypes.ISCOGroup,
-          //   constructSchemaError(
-          //     "/children/0/code",
-          //     "pattern",
-          //     `must match pattern "${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
-          //   ),
-          // ],
-          [CaseType.Success, "a valid code", getTestISCOGroupCode(), ObjectTypes.ISCOGroup, undefined],
-          [
-            CaseType.Failure,
-            "empty string",
-            "",
-            ObjectTypes.LocalGroup,
-            constructSchemaError(
-              "/children/0/code",
-              "pattern",
-              `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
-            ),
-          ],
-          // Cannot test invalid codes against local group pattern due to regex overlap
-          // Local group code pattern is too permissive and accepts many "invalid" codes
-          // [
-          //   CaseType.Failure,
-          //   "an invalid code",
-          //   "invalidCode",
-          //   ObjectTypes.LocalGroup,
-          //   constructSchemaError(
-          //     "/children/0/code",
-          //     "pattern",
-          //     `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
-          //   ),
-          // ],
-          // Cannot test ISCO group code against local group pattern due to regex overlap
-          // Local group code pattern is too permissive and may accept ISCO group codes
-          // [
-          //   CaseType.Failure,
-          //   "a valid code of different type",
-          //   getTestISCOGroupCode(),
-          //   ObjectTypes.LocalGroup,
-          //   constructSchemaError(
-          //     "/children/0/code",
-          //     "pattern",
-          //     `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
-          //   ),
-          // ],
-          [CaseType.Success, "a valid code", getTestLocalGroupCode(), ObjectTypes.LocalGroup, undefined],
-          [
-            CaseType.Failure,
-            "empty string",
-            "",
-            ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -1007,7 +957,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -1018,19 +968,25 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "a valid code of different type",
             getTestLocalOccupationCode(),
-            ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
               `must match pattern "${OccupationAPISpecs.Patterns.Str.ESCO_OCCUPATION_CODE}"`
             ),
           ],
-          [CaseType.Success, "a valid code", getTestESCOOccupationCode(), ObjectTypes.ESCOOccupation, undefined],
+          [
+            CaseType.Success,
+            "a valid code",
+            getTestESCOOccupationCode(),
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            undefined,
+          ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -1041,7 +997,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -1052,7 +1008,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Failure,
             "a valid code of different type",
             getTestESCOOccupationCode(),
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -1063,14 +1019,14 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             CaseType.Success,
             "a valid local occupation code",
             getTestLocalOccupationCode(),
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             undefined,
           ],
           [
             CaseType.Success,
             "a valid ESCO local occupation code",
             getTestESCOLocalOccupationCode(),
-            ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
             undefined,
           ],
         ] as const)(
@@ -1134,7 +1090,12 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             "invalidObjectType",
             constructSchemaError("/children/0/objectType", "enum", "must be equal to one of the allowed values"),
           ],
-          [CaseType.Success, "a valid objectType", OccupationEnums.ObjectTypes.ISCOGroup, undefined],
+          [
+            CaseType.Success,
+            "a valid objectType",
+            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            undefined,
+          ],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           const givenObject = { children: [{ objectType: givenValue }] };
           assertCaseForProperty(
@@ -1285,7 +1246,10 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             [
               CaseType.Success,
               "valid Skill objectType",
-              { ...givenSkill, objectType: OccupationEnums.ObjectTypes.Skill },
+              {
+                ...givenSkill,
+                objectType: "skill",
+              },
               undefined,
             ],
             [

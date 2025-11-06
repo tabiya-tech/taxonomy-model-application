@@ -153,25 +153,22 @@ describe("test the handleRouteEvent function", () => {
   const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, {
     modelId: modelId.toString(),
   });
-
-  const occupationGroupPath = buildPathFromPattern(Routes.OCCUPATION_GROUP_ROUTE, {
+  const occupationsPath = buildPathFromPattern("/models/:modelId/occupations", {
     modelId: modelId.toString(),
-    id: getMockStringId(2).toString(),
   });
-
-  const occupationsPath = `/models/${modelId}/occupations`;
-  const occupationByIdPath = `/models/${modelId}/occupations/${getMockStringId(3)}`;
-
+  const occupationPath = buildPathFromPattern("/models/:modelId/occupations/:id", {
+    modelId: modelId.toString(),
+    id: getMockStringId(2),
+  });
   test.each([
     [Routes.APPLICATION_INFO_ROUTE, InfoHandler],
     [Routes.PRESIGNED_ROUTE, PresignedHandler],
     [Routes.IMPORT_ROUTE, ImportHandler],
     [Routes.MODELS_ROUTE, ModelHandler],
     [occupationGroupsPath, OccupationGroupHandler],
-    [Routes.EXPORT_ROUTE, ExportHandler],
-    [occupationGroupPath, OccupationGroupHandler],
     [occupationsPath, OccupationHandler],
-    [occupationByIdPath, OccupationHandler],
+    [occupationPath, OccupationHandler],
+    [Routes.EXPORT_ROUTE, ExportHandler],
   ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
     // GIVEN an event with the given path & any HTTP method
     const givenEvent = {
@@ -191,7 +188,18 @@ describe("test the handleRouteEvent function", () => {
     expect(actualResponse).toEqual(givenResponse);
   });
 
-  test.each([null, undefined, "/foo", "foo", "", "/"])("should return NOT_FOUND if path is '%s'", async (path) => {
+  test.each([
+    null,
+    undefined,
+    "/foo",
+    "foo",
+    "",
+    "/",
+    `/models/${getMockStringId(24)}/foo`,
+    `models/${getMockStringId(24)}`,
+    `/models/${getMockStringId(24)}/occupations/${getMockStringId(24)}/foo`,
+    `models/${getMockStringId(24)}/occupations/${getMockStringId(24)}`,
+  ])("should return NOT_FOUND if path is '%s'", async (path) => {
     // GIVEN a path that is not defined & any method
     const givenEvent = {
       path: path,

@@ -109,10 +109,10 @@ export const _baseQueryParameterSchema = {
     type: "integer",
     minimum: 1,
     maximum: OccupationConstants.MAX_LIMIT,
-    default: OccupationConstants.MAX_LIMIT,
+    default: OccupationConstants.DEFAULT_LIMIT,
   },
-  next_cursor: {
-    description: "A base64 string representing the next_cursor for pagination.",
+  cursor: {
+    description: "A base64 string representing the cursor for pagination.",
     type: ["string", "null"],
     maxLength: OccupationConstants.MAX_CURSOR_LENGTH,
     pattern: RegExp_Str_NotEmptyString,
@@ -140,78 +140,6 @@ const topLevelOccupationCodeConditions = [
   },
   {
     if: { properties: { occupationType: { const: OccupationEnums.OccupationType.LocalOccupation } } },
-    then: {
-      properties: {
-        code: {
-          type: "string",
-          pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
-          maxLength: OccupationConstants.CODE_MAX_LENGTH,
-        },
-        occupationGroupCode: {
-          type: "string",
-          pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
-          maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-        },
-      },
-    },
-  },
-];
-
-// Parent/children validation for objectType
-const nestedOccupationCodeConditions = [
-  {
-    if: { properties: { objectType: { const: OccupationEnums.ObjectTypes.ISCOGroup } } },
-    then: {
-      properties: {
-        code: {
-          type: "string",
-          pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
-          maxLength: OccupationConstants.CODE_MAX_LENGTH,
-        },
-        occupationGroupCode: {
-          type: "string",
-          pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
-          maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-        },
-      },
-    },
-  },
-  {
-    if: { properties: { objectType: { const: OccupationEnums.ObjectTypes.LocalGroup } } },
-    then: {
-      properties: {
-        code: {
-          type: "string",
-          pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
-          maxLength: OccupationConstants.CODE_MAX_LENGTH,
-        },
-        occupationGroupCode: {
-          type: "string",
-          pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
-          maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-        },
-      },
-    },
-  },
-  {
-    if: { properties: { objectType: { const: OccupationEnums.ObjectTypes.ESCOOccupation } } },
-    then: {
-      properties: {
-        code: {
-          type: "string",
-          pattern: OccupationRegexes.Str.ESCO_OCCUPATION_CODE,
-          maxLength: OccupationConstants.CODE_MAX_LENGTH,
-        },
-        occupationGroupCode: {
-          type: "string",
-          pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
-          maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-        },
-      },
-    },
-  },
-  {
-    if: { properties: { objectType: { const: OccupationEnums.ObjectTypes.LocalOccupation } } },
     then: {
       properties: {
         code: {
@@ -297,10 +225,79 @@ export const _baseResponseSchema = {
         objectType: {
           description: "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
           type: "string",
-          enum: Object.values(OccupationEnums.ObjectTypes),
+          enum: Object.values(OccupationEnums.Relations.Parent.ObjectTypes),
         },
       },
-      allOf: nestedOccupationCodeConditions,
+      allOf: [
+        {
+          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup } } },
+          then: {
+            properties: {
+              code: {
+                type: "string",
+                pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+                maxLength: OccupationConstants.CODE_MAX_LENGTH,
+              },
+              occupationGroupCode: {
+                type: "string",
+                pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+              },
+            },
+          },
+        },
+        {
+          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.LocalGroup } } },
+          then: {
+            properties: {
+              code: {
+                type: "string",
+                pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+                maxLength: OccupationConstants.CODE_MAX_LENGTH,
+              },
+              occupationGroupCode: {
+                type: "string",
+                pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+              },
+            },
+          },
+        },
+        {
+          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation } } },
+          then: {
+            properties: {
+              code: {
+                type: "string",
+                pattern: OccupationRegexes.Str.ESCO_OCCUPATION_CODE,
+                maxLength: OccupationConstants.CODE_MAX_LENGTH,
+              },
+              occupationGroupCode: {
+                type: "string",
+                pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+              },
+            },
+          },
+        },
+        {
+          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation } } },
+          then: {
+            properties: {
+              code: {
+                type: "string",
+                pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+                maxLength: OccupationConstants.CODE_MAX_LENGTH,
+              },
+              occupationGroupCode: {
+                type: "string",
+                pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+              },
+            },
+          },
+        },
+      ],
     },
     children: {
       description: "The children of this occupation.",
@@ -331,10 +328,49 @@ export const _baseResponseSchema = {
           objectType: {
             description: "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
             type: "string",
-            enum: Object.values(OccupationEnums.ObjectTypes),
+            enum: Object.values(OccupationEnums.Relations.Children.ObjectTypes),
           },
         },
-        allOf: nestedOccupationCodeConditions,
+        allOf: [
+          {
+            if: {
+              properties: { objectType: { const: OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation } },
+            },
+            then: {
+              properties: {
+                code: {
+                  type: "string",
+                  pattern: OccupationRegexes.Str.ESCO_OCCUPATION_CODE,
+                  maxLength: OccupationConstants.CODE_MAX_LENGTH,
+                },
+                occupationGroupCode: {
+                  type: "string",
+                  pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+                  maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+                },
+              },
+            },
+          },
+          {
+            if: {
+              properties: { objectType: { const: OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation } },
+            },
+            then: {
+              properties: {
+                code: {
+                  type: "string",
+                  pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+                  maxLength: OccupationConstants.CODE_MAX_LENGTH,
+                },
+                occupationGroupCode: {
+                  type: "string",
+                  pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+                  maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+                },
+              },
+            },
+          },
+        ],
       },
     },
     requiresSkills: {
@@ -357,7 +393,7 @@ export const _baseResponseSchema = {
           objectType: {
             description: "The object type of the required skill.",
             type: "string",
-            enum: [OccupationEnums.ObjectTypes.Skill],
+            enum: Object.values(OccupationEnums.Relations.RequiredSkills.ObjectTypes),
           },
           relationType: {
             description: "Used for ESCOOccupations only.",
