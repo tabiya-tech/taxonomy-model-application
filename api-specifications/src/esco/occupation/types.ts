@@ -24,21 +24,21 @@ interface IOccupationResponse {
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType: OccupationEnums.ObjectTypes;
+    objectType: OccupationEnums.Relations.Parent.ObjectTypes;
   } | null;
   children: {
     id: string;
     UUID: string;
     code: string;
     preferredLabel: string;
-    objectType: OccupationEnums.ObjectTypes;
+    objectType: OccupationEnums.Relations.Children.ObjectTypes;
   }[];
   requiresSkills: {
     id: string;
     UUID: string;
     preferredLabel: string;
     isLocalized: boolean;
-    objectType: OccupationEnums.ObjectTypes.Skill;
+    objectType: OccupationEnums.Relations.RequiredSkills.ObjectTypes;
     relationType: OccupationEnums.OccupationToSkillRelationType | null;
     signallingValue: number | null;
     signallingValueLabel: string | null;
@@ -64,9 +64,9 @@ interface IOccupationRequest {
 }
 
 interface PaginatedOccupationResponse {
-  items: IOccupationResponse[];
+  data: IOccupationResponse[];
   limit: number;
-  next_cursor: string | null;
+  nextCursor: string | null;
 }
 
 interface IOccupationParam {

@@ -1,6 +1,7 @@
 import { getConfiguration, readEnvironmentConfiguration, setConfiguration } from "./config/config";
 import { getConnectionManager } from "./connection/connectionManager";
 import { getRepositoryRegistry } from "./repositoryRegistry/repositoryRegistry";
+import { getServiceRegistry } from "./serviceRegistry/serviceRegistry";
 
 let _initialized = false;
 
@@ -25,6 +26,9 @@ export async function initOnce(): Promise<void> {
     // initialize the repositories
     const connection = getConnectionManager().getCurrentDBConnection();
     await getRepositoryRegistry().initialize(connection);
+
+    // initialize the services
+    await getServiceRegistry().initialize();
   } catch (e: unknown) {
     console.error(new Error("Error initializing the server", { cause: e }));
   }

@@ -51,7 +51,9 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return OccupationGroupHandler(event);
   } else if (pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.test(path)) {
     return OccupationGroupHandler(event);
-  } else if (Routes.OCCUPATIONS_ROUTE.test(path) || Routes.OCCUPATION_BY_ID_ROUTE.test(path)) {
+  } else if (pathToRegexp(Routes.OCCUPATIONS_ROUTE).regexp.test(path)) {
+    return OccupationHandler(event);
+  } else if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.test(path)) {
     return OccupationHandler(event);
   }
   return STD_ERRORS_RESPONSES.NOT_FOUND;

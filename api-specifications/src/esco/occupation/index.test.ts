@@ -26,7 +26,7 @@ describe("Test the Occupation module", () => {
     expect(Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH).toBeDefined();
     expect(Constants.CODE_MAX_LENGTH).toBeDefined();
     expect(Constants.OCCUPATION_GROUP_CODE_MAX_LENGTH).toBeDefined();
-    expect(Constants.MAX_PAYLOAD_LENGTH).toBeDefined();
+    expect(Constants.MAX_POST_PAYLOAD_LENGTH).toBeDefined();
     expect(Constants.MAX_LIMIT).toBeDefined();
     expect(Constants.MAX_CURSOR_LENGTH).toBeDefined();
 

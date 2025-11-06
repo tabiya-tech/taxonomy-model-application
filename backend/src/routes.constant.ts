@@ -4,8 +4,8 @@ export const Routes = {
   PRESIGNED_ROUTE: "/presigned",
   IMPORT_ROUTE: "/import",
   EXPORT_ROUTE: "/export",
-  OCCUPATIONS_ROUTE: /^\/models\/([0-9a-f]{24})\/occupations$/,
-  OCCUPATION_BY_ID_ROUTE: /^\/models\/([0-9a-f]{24})\/occupations\/([0-9a-f]{24})$/,
+  OCCUPATIONS_ROUTE: "/models/:modelId/occupations",
+  OCCUPATION_ROUTE: "/models/:modelId/occupations/:id",
   OCCUPATION_GROUPS_ROUTE: "/models/:modelId/occupationGroups",
   OCCUPATION_GROUP_ROUTE: "/models/:modelId/occupationGroups/:id",
 };

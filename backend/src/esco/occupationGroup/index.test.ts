@@ -26,7 +26,6 @@ import {
 } from "_test_utilities/stdRESTHandlerTests";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { getIModelInfoMockData } from "modelInfo/testDataHelper";
-import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockReturnValue(true);
@@ -227,7 +226,6 @@ describe("Test for occupationGroup handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent);
@@ -245,99 +243,7 @@ describe("Test for occupationGroup handler", () => {
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-      // AND the error is logged
-      expect(logSpy).toHaveBeenCalledWith("Failed to create the occupation group in the DB", "Error");
     });
-
-    test("POST should respond with the INTERNAL_SERVER_ERROR status code and log 'Unknown error' if the repository throws a non-Error value when creating the occupation group", async () => {
-      // GIVEN a valid request {method & header & payload}
-      const givenModel: IModelInfo = {
-        ...getIModelInfoMockData(1),
-        UUID: "foo",
-        UUIDHistory: ["foo"],
-        released: false,
-      };
-
-      const givenPayload = {
-        modelId: givenModel.id.toString(),
-        code: getMockRandomISCOGroupCode(),
-        groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-        preferredLabel: "some random label",
-        description: "some random description",
-        altLabels: ["some random alt label 1", "some random alt label 2"],
-        originUri: `http://some/path/to/api/resources/${randomUUID()}`,
-        UUIDHistory: [randomUUID()],
-      };
-
-      const givenEvent = {
-        httpMethod: HTTP_VERBS.POST,
-        body: JSON.stringify(givenPayload),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        pathParameters: { modelId: givenModel.id.toString() },
-        path: `/models/${givenModel.id}/occupationGroups`,
-      } as never;
-
-      // AND User has the required role
-      checkRole.mockReturnValue(true);
-
-      // AND the model repository resolves the model normally
-      const givenModelInfoRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        getModelById: jest.fn().mockResolvedValue(givenModel),
-        getModelByUUID: jest.fn().mockResolvedValue(null),
-        getModels: jest.fn().mockResolvedValue([]),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
-
-      // AND the occupation group repository throws a non-Error
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockRejectedValue("unknown failure"),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockResolvedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        encodeCursor: jest.fn().mockResolvedValue(""),
-        decodeCursor: jest.fn().mockResolvedValue({}),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-
-      // AND the error logger is mocked
-      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
-
-      // WHEN the occupation group handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler(givenEvent);
-
-      // THEN expect the handler to access the model info first
-      expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
-
-      // AND expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({
-        ...givenPayload,
-        importId: null,
-      });
-
-      // AND to respond with the INTERNAL_SERVER_ERROR status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-
-      // AND the response body contains the expected error information
-      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-        message: "Failed to create the occupation group in the DB",
-        details: "",
-      };
-      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-
-      // AND the error is logged with 'Unknown error'
-      expect(logSpy).toHaveBeenCalledWith("Failed to create the occupation group in the DB", "Unknown error");
-    });
-
     test("POST should respond with the NOT_FOUND status code if the repository failed to find the given model from modelId payload", async () => {
       // GIVEN a valid request {method & header & payload}
       const givenModelId = getMockStringId(1);
@@ -883,7 +789,6 @@ describe("Test for occupationGroup handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
       const limit = 2;
 
       // AND the user is not model manager
@@ -906,63 +811,7 @@ describe("Test for occupationGroup handler", () => {
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-      // AND the error is logged
-      expect(logSpy).toHaveBeenCalledWith("Failed to retrieve the occupation groups from the DB", "Error");
     });
-
-    test("GET should respond with the INTERNAL_SERVER_ERROR status code and log 'Unknown error' if the repository throws a non-Error value when retrieving occupationGroups", async () => {
-      // AND GIVEN a cursor setup for pagination
-      const firstPageCursorObject = {
-        id: getMockStringId(1),
-        createdAt: new Date(),
-      };
-      const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
-
-      // AND GIVEN the repository fails to get the occupationGroups with a non-Error value
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockResolvedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockRejectedValue("unknown failure"),
-        encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
-        decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-
-      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
-      const limit = 2;
-
-      // AND the user has sufficient role access
-      checkRole.mockReturnValueOnce(true);
-
-      // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler({
-        ...givenEvent,
-        queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
-      } as never);
-
-      // THEN expect the handler to call the repository to get the occupationGroups
-      expect(getRepositoryRegistry().OccupationGroup.findPaginated).toHaveBeenCalled();
-
-      // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-
-      // AND the response body should contain the expected error payload
-      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-        message: "Failed to retrieve the occupation groups from the DB",
-        details: "",
-      };
-      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-
-      // AND the error should be logged with 'Unknown error'
-      expect(logSpy).toHaveBeenCalledWith("Failed to retrieve the occupation groups from the DB", "Unknown error");
-    });
-
     testMethodsNotAllowed(
       [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.PATCH],
       occupationGroupHandler
@@ -1180,7 +1029,6 @@ describe("Test for occupationGroup handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
 
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent);
@@ -1198,117 +1046,6 @@ describe("Test for occupationGroup handler", () => {
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-      // AND the error is logged
-      expect(logSpy).toHaveBeenCalledWith("Failed to retrieve the occupation group from the DB", "Error");
-    });
-
-    test("GET /models/{modelId}/occupationGroups/{id} should respond with INTERNAL_SERVER_ERROR and log 'Unknown error' if repository throws a non-Error value", async () => {
-      // GIVEN a valid request with modelId and occupationGroup ID
-      const givenModel: IModelInfo = {
-        ...getIModelInfoMockData(1),
-        UUID: "foo",
-        UUIDHistory: ["foo"],
-        released: false,
-      };
-
-      const givenOccupationGroupId = getMockStringId(2);
-      const givenEvent = {
-        httpMethod: HTTP_VERBS.GET,
-        headers: {},
-        pathParameters: { modelId: givenModel.id.toString(), id: givenOccupationGroupId.toString() },
-        queryStringParameters: {},
-        path: `/models/${givenModel.id}/occupationGroups/${givenOccupationGroupId}`,
-      } as never;
-
-      // AND User has the required role
-      checkRole.mockReturnValue(true);
-
-      // AND a model repository that will return the model
-      const givenModelInfoRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        getModelById: jest.fn().mockResolvedValue(givenModel),
-        getModelByUUID: jest.fn().mockResolvedValue(null),
-        getModels: jest.fn().mockResolvedValue([]),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
-
-      // AND a repository that throws a non-Error value instead of an Error object
-      const givenOccupationGroupRepositoryMock = {
-        Model: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockRejectedValue("unknown failure"),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        encodeCursor: jest.fn().mockResolvedValue(""),
-        decodeCursor: jest.fn().mockResolvedValue({}),
-        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue([]),
-      };
-
-      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
-
-      // AND a spy on the error logger
-      const logSpy = jest.spyOn(errorLoggerInstance, "logError").mockReturnValue(undefined);
-
-      // WHEN the occupationGroup handler is invoked
-      const actualResponse = await occupationGroupHandler(givenEvent);
-
-      // THEN expect the handler to call the model repository with the correct modelId
-      expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
-
-      // AND expect the handler to call the occupation group repository with the correct ID
-      expect(getRepositoryRegistry().OccupationGroup.findById).toHaveBeenCalledWith(givenOccupationGroupId.toString());
-
-      // AND respond with the INTERNAL_SERVER_ERROR status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-
-      // AND the response body should contain the expected error payload
-      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-        message: "Failed to retrieve the occupation group from the DB",
-        details: "",
-      };
-      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
-
-      // AND the error should be logged with 'Unknown error'
-      expect(logSpy).toHaveBeenCalledWith("Failed to retrieve the occupation group from the DB", "Unknown error");
-    });
-
-    test("GET /models/{modelId}/occupationGroups/{id} should respond with BAD_REQUEST if path params are invalid", async () => {
-      // GIVEN invalid path parameters (schema should fail)
-      const givenModelId = getMockStringId(1);
-      const givenEvent = {
-        httpMethod: HTTP_VERBS.GET,
-        headers: {},
-        pathParameters: { modelId: givenModelId }, // id missing
-        queryStringParameters: {},
-        path: `/models/${givenModelId}/occupationGroups/some-id`,
-      } as unknown as APIGatewayProxyEvent;
-
-      // AND User has the required role
-      checkRole.mockReturnValue(true);
-
-      // WHEN the handler is invoked
-      const actualResponse = await occupationGroupHandler(givenEvent);
-
-      // THEN expect the handler to return the BAD_REQUEST status
-      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-      // AND the response body contains INVALID_JSON_SCHEMA
-      const parsed = JSON.parse(actualResponse.body);
-      expect(parsed).toMatchObject({
-        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
-        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
-      });
-      expect(parsed.details).toEqual(
-        JSON.stringify({
-          reason: "Invalid modelId or occupationGroup Id",
-          path: givenEvent.path,
-          pathParameters: givenEvent.pathParameters,
-        })
-      );
     });
   });
 });

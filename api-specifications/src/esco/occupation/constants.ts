@@ -18,6 +18,7 @@ namespace OccupationConstants {
   export const UUID_HISTORY_MAX_LENGTH = 50;
 
   // Pagination constraints
+  export const DEFAULT_LIMIT = 10;
   export const MAX_LIMIT = 100;
   export const MAX_CURSOR_LENGTH = 1024;
 
@@ -36,7 +37,7 @@ namespace OccupationConstants {
   export const MAX_JSON_OVERHEAD = 10_000;
 
   // Max payload length
-  export const MAX_PAYLOAD_LENGTH =
+  export const MAX_POST_PAYLOAD_LENGTH =
     DESCRIPTION_MAX_LENGTH +
     DEFINITION_MAX_LENGTH +
     PREFERRED_LABEL_MAX_LENGTH +
@@ -49,8 +50,6 @@ namespace OccupationConstants {
     CODE_MAX_LENGTH +
     OCCUPATION_GROUP_CODE_MAX_LENGTH +
     TOTAL_UUID_HISTORY_MAX_LENGTH +
-    MAX_LIMIT +
-    MAX_CURSOR_LENGTH +
     MAX_JSON_OVERHEAD;
 }
 

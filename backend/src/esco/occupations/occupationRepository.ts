@@ -13,7 +13,6 @@ import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
-import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 export type SearchFilter = {
   occupationType?: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
@@ -64,33 +63,18 @@ export interface IOccupationRepository {
    * Returns paginated Occupations. The Occupations are transformed to objects (via .lean()), however
    * in the current version they are not populated with parents or children. This will be implemented in a future version.
    * @param {string} modelId - The modelId of the Occupations.
-   * @param {string} cursor - The cursor for pagination.
+   * @param {object} filter - The filter for pagination.
+   * @param {object} sort - The sort order for pagination.
    * @param {number} limit - The maximum number of Occupations to return.
-   * @param {boolean} [desc] - Whether to sort the results in descending order. Default is true.
-   * @return {Promise<{items: IOccupation[], nextCursor: {_id: string, createdAt: Date} | null}>} - An array of IOccupations and the next cursor (if any)
+   * @return {Promise<IOccupation[]>} - An array of IOccupations
    * Rejects with an error if the operation fails.
    */
   findPaginated(
     modelId: string,
-    cursor: string | undefined,
-    limit: number,
-    desc?: boolean
-  ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }>;
-
-  /**
-   * Encode an object {_id: string, createdAt: Date} into a base64 string
-   * @param {string} id - The Document id to encode
-   * @param {Date} createdAt - The Document createdAt date to encode
-   * @return {string} - The base64 encoded string
-   */
-  encodeCursor(id: string, createdAt: Date): string;
-
-  /**
-   * Decode a base64 string into an object {_id: string, createdAt: Date}
-   * @param {string} cursor - The base64 encoded cursor string
-   * @return {{_id: string, createdAt: Date}} - The decoded cursor object
-   */
-  decodeCursor(cursor: string): { id: string; createdAt: Date };
+    filter: Record<string, unknown>,
+    sort: { _id: 1 | -1 },
+    limit: number
+  ): Promise<IOccupation[]>;
 
   /**
    * Finds an Occupation entry by it's UUID.
@@ -107,10 +91,6 @@ export class OccupationRepository implements IOccupationRepository {
 
   constructor(model: mongoose.Model<IOccupationDoc>) {
     this.Model = model;
-  }
-
-  private getCreatedAtFromObjectId(objectId: mongoose.Types.ObjectId): Date {
-    return objectId.getTimestamp();
   }
 
   private newSpecToModel(newSpec: INewOccupationSpec): mongoose.HydratedDocument<IOccupationDoc> {
@@ -240,93 +220,42 @@ export class OccupationRepository implements IOccupationRepository {
 
   async findPaginated(
     modelId: string,
-    cursor: string | undefined,
-    limit: number,
-    desc: boolean = true
-  ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    filter: Record<string, unknown>,
+    sort: { _id: 1 | -1 },
+    limit: number
+  ): Promise<IOccupation[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
 
       // Build aggregation pipeline
-      const matchStage: Record<string, unknown> = { modelId: modelIdObj };
+      const matchStage: Record<string, unknown> = { modelId: modelIdObj, ...filter };
 
-      if (cursor) {
-        try {
-          const cursorId = new mongoose.Types.ObjectId(cursor);
-          if (desc) {
-            matchStage._id = { $lt: cursorId };
-          } else {
-            matchStage._id = { $gt: cursorId };
-          }
-        } catch (error) {
-          // If the cursor is not a valid ObjectId, ignore it
-          errorLoggerInstance.logWarning(
-            `Invalid cursor provided: ${cursor}`,
-            error instanceof Error ? error.name : "Unknown error"
-          );
-        }
-      }
+      // NOTE: We are sending 2 database queries, this is not efficient. This is because mongoose is throwing
+      //       an error when trying to query by _id, using $gt or $lt: ISSUE: https://github.com/Automattic/mongoose/issues/2277#event-171765301
+      //       We are creating to optimize this luxurious improvement.
+      //       https://tabiya-tech.atlassian.net/browse/TAX-31
 
-      // Get items + 1 to check if there's a next page
-      const results = await this.Model.aggregate([
-        { $match: matchStage },
-        { $sort: { _id: desc ? -1 : 1 } },
-        { $limit: limit + 1 },
-      ]).exec();
-
-      // Separate items and check for next page
-      const hasMore = results.length > limit;
-      const pageDocs = hasMore ? results.slice(0, limit) : results;
-      // Important: the nextCursor should point to the LAST item of the current page,
-      // not the extra fetched one. Using the extra item would skip one element on the next page.
-      const nextCursorDoc = hasMore ? pageDocs[pageDocs.length - 1] : null;
+      // Get exactly limit items
+      const results = await this.Model.aggregate([{ $match: matchStage }, { $sort: sort }, { $limit: limit }]).exec();
 
       // populate parent and children for the page items using existing populate options
-      const idsInOrder = pageDocs.map((d) => d._id.toString());
-      const objectIds = idsInOrder.map((id) => new mongoose.Types.ObjectId(id));
+      const idsInOrder = results.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString());
+      const objectIds = idsInOrder.map((id: string) => new mongoose.Types.ObjectId(id));
       // NOTE: query the page docs and let MongoDB return them already ordered by _id
       const populated = await this.Model.find({ _id: objectIds })
-        .sort({ _id: desc ? -1 : 1 })
+        .sort(sort)
         .populate(populateOccupationParentOptions)
         .populate(populateOccupationChildrenOptions)
         .populate(populateOccupationRequiresSkillsOptions)
         .exec();
 
       // Convert to plain objects
-      const orderedObjects: IOccupation[] = populated.map((doc) => doc.toObject());
-
-      return {
-        items: orderedObjects,
-        nextCursor: nextCursorDoc
-          ? {
-              _id: nextCursorDoc._id.toString(),
-              createdAt: this.getCreatedAtFromObjectId(nextCursorDoc._id),
-            }
-          : null,
-      };
+      return populated.map((doc: mongoose.Document<unknown, unknown, IOccupationDoc>) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);
       throw err;
     }
-  }
-
-  encodeCursor(id: string, createdAt: Date): string {
-    const payload = {
-      id: id,
-      createdAt: createdAt.toISOString(),
-    };
-    const json = JSON.stringify(payload);
-    return Buffer.from(json).toString("base64");
-  }
-
-  decodeCursor(cursor: string): { id: string; createdAt: Date } {
-    const json = Buffer.from(cursor, "base64").toString("utf-8");
-    const payload = JSON.parse(json);
-    return {
-      id: payload.id,
-      createdAt: new Date(payload.createdAt),
-    };
   }
 
   async getOccupationByUUID(occupationUUID: string): Promise<IOccupation | null> {
