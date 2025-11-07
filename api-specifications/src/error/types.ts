@@ -4,6 +4,7 @@ import ModelInfo from "../modelInfo";
 import ErrorConstants from "./constants";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
+import SkillAPI from "../esco/skills";
 
 namespace ErrorTypes {
   // This is here to make sure the namespace is not empty and the:
@@ -23,7 +24,9 @@ namespace ErrorTypes {
       | OccupationGroupAPI.Enums.GET.Response.ErrorCodes
       | OccupationAPI.Enums.POST.Response.ErrorCodes
       | OccupationAPI.Enums.GET.Response.ErrorCodes
-      | ModelInfo.Enums.GET.Response.ErrorCodes; // The UI could use to display some useful information
+      | ModelInfo.Enums.GET.Response.ErrorCodes
+      | SkillAPI.Enums.POST.Response.ErrorCodes
+      | SkillAPI.Enums.GET.Response.ErrorCodes; // The UI could use to display some useful information
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
   }
