@@ -5,7 +5,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
   "Constants": {
     "DESCRIPTION_MAX_LENGTH": 6000,
     "LICENSE_MAX_LENGTH": 100000,
-    "MAX_PAYLOAD_LENGTH": 220884,
+    "MAX_POST_PAYLOAD_LENGTH": 220884,
     "MAX_URI_LENGTH": 4096,
     "NAME_MAX_LENGTH": 256,
     "RELEASE_NOTES_MAX_LENGTH": 100000,

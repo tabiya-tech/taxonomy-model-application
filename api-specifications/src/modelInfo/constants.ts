@@ -8,7 +8,7 @@ namespace ModelInfoConstants {
   export const VERSION_MAX_LENGTH = 256;
   export const MAX_URI_LENGTH = 4096;
 
-  export const MAX_PAYLOAD_LENGTH =
+  export const MAX_POST_PAYLOAD_LENGTH =
     NAME_MAX_LENGTH +
     DESCRIPTION_MAX_LENGTH +
     RELEASE_NOTES_MAX_LENGTH +
