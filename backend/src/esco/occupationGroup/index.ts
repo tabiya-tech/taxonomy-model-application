@@ -96,9 +96,9 @@ class OccupationGroupController {
     }
 
     //@ts-ignore
-    if (event.body?.length > OccupationGroupAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
+    if (event.body?.length > OccupationGroupAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH) {
       return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
-        `Expected maximum length is ${OccupationGroupAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`
+        `Expected maximum length is ${OccupationGroupAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH}`
       );
     }
 
@@ -128,7 +128,7 @@ class OccupationGroupController {
     if (!resolvedModelId) {
       return errorResponse(
         StatusCodes.BAD_REQUEST,
-        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "modelId is missing in the path",
         JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
       );
@@ -138,7 +138,7 @@ class OccupationGroupController {
     if (payload.modelId !== resolvedModelId) {
       return errorResponse(
         StatusCodes.BAD_REQUEST,
-        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "modelId in payload does not match modelId in path",
         `Payload modelId: ${payload.modelId}, Path modelId: ${resolvedModelId}`
       );
@@ -149,7 +149,7 @@ class OccupationGroupController {
     if (!model) {
       return errorResponse(
         StatusCodes.NOT_FOUND,
-        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "Failed to create the occupation group because the specified modelId does not exist",
         "Model could not be found"
       );
@@ -157,7 +157,7 @@ class OccupationGroupController {
     if (model.released) {
       return errorResponse(
         StatusCodes.BAD_REQUEST,
-        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "Failed to create the occupation group because the specified modelId refers to a released model",
         "Cannot add occupation groups to a released model"
       );
@@ -172,7 +172,7 @@ class OccupationGroupController {
       groupType: payload.groupType,
       modelId: payload.modelId,
       UUIDHistory: payload.UUIDHistory,
-      importId: null,
+      importId: "",
     };
     try {
       const newOccupationGroup = await getRepositoryRegistry().OccupationGroup.create(newOccupationGroupSpec);
@@ -185,7 +185,7 @@ class OccupationGroupController {
       );
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "Failed to create the occupation group in the DB",
         ""
       );
@@ -256,7 +256,7 @@ class OccupationGroupController {
       if (!resolvedModelId) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
-          OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
           "modelId is missing in the path",
           JSON.stringify({ path: event.path, pathParameters: event.pathParameters, query: event.queryStringParameters })
         );
@@ -334,7 +334,7 @@ class OccupationGroupController {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation groups from the DB",
         ""
       );
@@ -427,7 +427,7 @@ class OccupationGroupController {
       if (!model) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -437,7 +437,7 @@ class OccupationGroupController {
       if (!occupationGroup?.id) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
           "Occupation group not found",
           `No occupation group found with id: ${requestPathParameter.id}`
         );
@@ -450,7 +450,7 @@ class OccupationGroupController {
       );
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation group from the DB",
         ""
       );

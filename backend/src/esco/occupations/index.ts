@@ -201,7 +201,7 @@ export class OccupationController {
       occupationType: payload.occupationType as unknown as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,
       modelId: payload.modelId,
       UUIDHistory: payload.UUIDHistory,
-      importId: null,
+      importId: "",
       occupationGroupCode: payload.occupationGroupCode,
       definition: payload.definition,
       scopeNote: payload.scopeNote,
