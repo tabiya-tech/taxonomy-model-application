@@ -152,7 +152,7 @@ describe("Test for occupationGroup handler", () => {
       expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
 
       // THEN expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: null });
+      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
       // AND respond with the CREATED status code
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
       // AND the handler to return the correct headers
@@ -233,12 +233,13 @@ describe("Test for occupationGroup handler", () => {
       // THEN expect the handler to call the model repository to access the model
       expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
       // AND expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: null });
+      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
       // AND to respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         message: "Failed to create the occupation group in the DB",
         details: "",
       };
@@ -306,7 +307,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         message: "Failed to create the occupation group because the specified modelId does not exist",
         details: "Model could not be found",
       };
@@ -378,7 +380,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         message: "Failed to create the occupation group because the specified modelId refers to a released model",
         details: "Cannot add occupation groups to a released model",
       };
@@ -420,7 +423,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         message: "modelId in payload does not match modelId in path",
         details: `Payload modelId: ${givenModelIdInPayload}, Path modelId: ${givenModelIdInPath}`,
       };
@@ -461,7 +465,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         message: "modelId is missing in the path",
         details: expect.stringContaining('"path":"/invalid/path/without/modelId"'),
       };
@@ -470,7 +475,11 @@ describe("Test for occupationGroup handler", () => {
     testUnsupportedMediaType(occupationGroupHandler);
     testRequestJSONSchema(occupationGroupHandler);
     testRequestJSONMalformed(occupationGroupHandler);
-    testTooLargePayload(HTTP_VERBS.POST, OccupationGroupAPISpecs.Constants.MAX_PAYLOAD_LENGTH, occupationGroupHandler);
+    testTooLargePayload(
+      HTTP_VERBS.POST,
+      OccupationGroupAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH,
+      occupationGroupHandler
+    );
     test("POST should return FORBIDDEN status code if the user does not have the required role", async () => {
       // GIVEN a valid request (method & header & payload)
       const givenModelId = getMockStringId(1);
@@ -526,19 +535,19 @@ describe("Test for occupationGroup handler", () => {
           ...getIOccupationGroupMockData(1, givenModelId),
           UUID: "foo",
           UUIDHistory: ["foo"],
-          importId: null,
+          importId: "",
         },
         {
           ...getIOccupationGroupMockData(2, givenModelId),
           UUID: "bar",
           UUIDHistory: ["bar"],
-          importId: null,
+          importId: "",
         },
         {
           ...getIOccupationGroupMockData(3, givenModelId),
           UUID: "baz",
           UUIDHistory: ["baz"],
-          importId: null,
+          importId: "",
         },
       ];
 
@@ -672,7 +681,8 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const parsedMissing = JSON.parse(actualResponse.body);
       expect(parsedMissing).toMatchObject({
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         message: "modelId is missing in the path",
       });
       expect(typeof parsedMissing.details).toBe("string");
@@ -806,7 +816,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         message: "Failed to retrieve the occupation groups from the DB",
         details: "",
       };
@@ -844,7 +855,7 @@ describe("Test for occupationGroup handler", () => {
         id: givenOccupationGroupId,
         UUID: "test-uuid",
         UUIDHistory: ["test-uuid"],
-        importId: null,
+        importId: "",
       };
 
       const givenOccupationGroupRepositoryMock = {
@@ -913,7 +924,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -977,7 +989,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         message: "Occupation group not found",
         details: `No occupation group found with id: ${givenOccupationGroupId}`,
       };
@@ -1041,7 +1054,8 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         message: "Failed to retrieve the occupation group from the DB",
         details: "",
       };

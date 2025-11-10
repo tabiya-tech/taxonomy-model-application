@@ -23,7 +23,7 @@ export interface IOccupationDoc extends ImportIdentifiable {
   regulatedProfessionNote: string;
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   isLocalized: boolean;
-  importId: string | null;
+  importId: string;
 }
 
 /**

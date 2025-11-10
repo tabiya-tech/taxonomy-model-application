@@ -13,7 +13,7 @@ export interface IOccupationGroupDoc extends ImportIdentifiable {
   originUri: string;
   preferredLabel: string;
   altLabels: string[];
-  importId: string | null;
+  importId: string;
   groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
   description: string;
 }
