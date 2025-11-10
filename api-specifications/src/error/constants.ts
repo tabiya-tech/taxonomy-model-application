@@ -1,4 +1,35 @@
 namespace ErrorConstants {
+  export namespace Common {
+    export enum ErrorCodes {
+      INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR",
+      METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED",
+      NOT_FOUND = "NOT_FOUND",
+      UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE",
+      BAD_REQUEST = "BAD_REQUEST",
+      FORBIDDEN = "FORBIDDEN",
+    }
+  }
+  export namespace POST {
+    export enum ErrorCodes {
+      MALFORMED_BODY = "MALFORMED_BODY",
+      TOO_LARGE_PAYLOAD = "TOO_LARGE_PAYLOAD",
+      INVALID_JSON_SCHEMA = "INVALID_JSON_SCHEMA",
+    }
+  }
+  export namespace GET {
+    export enum ErrorCodes {
+      INVALID_QUERY_PARAMETER = "INVALID_QUERY_PARAMETER",
+    }
+  }
+
+  export namespace PATCH {
+    export enum ErrorCodes {
+      MALFORMED_BODY = "MALFORMED_BODY",
+      TOO_LARGE_PAYLOAD = "TOO_LARGE_PAYLOAD",
+      INVALID_JSON_SCHEMA = "INVALID_JSON_SCHEMA",
+    }
+  }
+
   export enum ErrorCodes {
     MALFORMED_BODY = "MALFORMED_BODY",
     METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED",
