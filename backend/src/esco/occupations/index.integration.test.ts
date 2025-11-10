@@ -30,7 +30,7 @@ async function createOccupationInDB(modelId: string = getMockStringId(1)) {
     altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
-    importId: null,
+    importId: "",
     occupationGroupCode: getMockRandomISCOGroupCode(),
     definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
     scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),

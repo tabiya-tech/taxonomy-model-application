@@ -14,7 +14,7 @@ export function getProcessEntityBatchFunction<
   repository: {
     createMany: (specs: SpecificationType[]) => Promise<EntityType[]>;
   },
-  importIdToDBIdMap: Map<string | null, string>
+  importIdToDBIdMap: Map<string, string>
 ): ProcessBatchFunction<SpecificationType> {
   let totalRowsProcessed = 0;
   return async (specs: SpecificationType[]) => {
@@ -34,16 +34,17 @@ export function getProcessEntityBatchFunction<
       // They will be used in a later stage to build the hierarchy and associations
       entities.forEach((entity) => {
         if (isSpecified(entity.importId)) {
-          importIdToDBIdMap.set(entity.importId, entity.id);
+          // Since the above check has passed, it means that the importId i available. ie: We are assuming importId is set.
+          importIdToDBIdMap.set(entity.importId!, entity.id);
         }
       });
       stats.rowsSuccess = entities.length;
     } catch (e: unknown) {
       errorLogger.logError(new Error(`Failed to process ${entityName}s batch`, { cause: e }));
     }
-    // iterate over the specs and look if the importId is in the map, if it is not then declare that the row has failed
+    // iterate over the specs and look if the importId is in the map or exists, if it is not then declare that the row has failed
     specs.forEach((spec, index) => {
-      if (!importIdToDBIdMap.has(spec.importId)) {
+      if (!spec.importId || !importIdToDBIdMap.has(spec.importId)) {
         errorLogger.logWarning(
           `Failed to import ${entityName} from row:${totalRowsProcessed + index + 1} with importId:${spec.importId}`
         );

@@ -141,7 +141,7 @@ describe("Test for occupation handler", () => {
       const actualResponse = await occupationHandler(givenEvent);
 
       // THEN expect the handler to call the service with the given payload
-      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload, importId: null });
+      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
       // AND respond with the CREATED status code
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
       // AND the handler to return the correct headers
@@ -216,7 +216,7 @@ describe("Test for occupation handler", () => {
       const actualResponse = await occupationHandler(givenEvent);
 
       // THEN expect the handler to call the service with the given payload
-      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload, importId: null });
+      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
       // AND to respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
@@ -1063,21 +1063,21 @@ describe("Test for occupation handler", () => {
             modelId: givenModelId,
             UUID: "foo",
             UUIDHistory: ["foo"],
-            importId: null,
+            importId: "",
           },
           {
             ...getIOccupationMockData(2),
             modelId: givenModelId,
             UUID: "bar",
             UUIDHistory: ["bar"],
-            importId: null,
+            importId: "",
           },
           {
             ...getIOccupationMockData(3),
             modelId: givenModelId,
             UUID: "baz",
             UUIDHistory: ["baz"],
-            importId: null,
+            importId: "",
           },
         ];
 
@@ -1444,7 +1444,7 @@ describe("Test for occupation handler", () => {
             modelId: givenModelId,
             UUID: "foo",
             UUIDHistory: ["foo"],
-            importId: null,
+            importId: "",
           },
         ];
 
