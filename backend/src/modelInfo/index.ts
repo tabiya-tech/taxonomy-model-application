@@ -79,9 +79,9 @@ class ModelController {
     }
 
     // @ts-ignore
-    if (event.body?.length > ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
+    if (event.body?.length > ModelInfoAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH) {
       return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
-        `Expected maximum length is ${ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`
+        `Expected maximum length is ${ModelInfoAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH}`
       );
     }
 

@@ -203,7 +203,7 @@ describe("Test for model handler", () => {
 
     testRequestJSONMalformed(modelHandler);
 
-    testTooLargePayload(HTTP_VERBS.POST, ModelInfoAPISpecs.Constants.MAX_PAYLOAD_LENGTH, modelHandler);
+    testTooLargePayload(HTTP_VERBS.POST, ModelInfoAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH, modelHandler);
 
     test("POST should return FORBIDDEN status code if the user does not have the required role", async () => {
       // GIVEN a valid request (method & header & payload)
