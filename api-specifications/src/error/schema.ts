@@ -7,6 +7,20 @@ import ErrorConstants from "./constants";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const _baseProperties: any = {
+  message: {
+    description: "A human readable description of the error",
+    type: "string",
+    maxLength: ErrorConstants.MAX_MESSAGE_LENGTH,
+  },
+  details: {
+    description: "Additional details about the error. Might be an empty string if no additional details are available",
+    type: "string",
+    maxLength: ErrorConstants.MAX_DETAILS_LENGTH,
+  },
+};
+
 export const ErrorSchema: SchemaObject = {
   $id: "/components/schemas/ErrorSchema",
   type: "object",
@@ -19,24 +33,18 @@ export const ErrorSchema: SchemaObject = {
         Object.values(ImportAPI.Enums.ImportResponseErrorCodes),
         Object.values(ExportAPI.Enums.POST.Response.ExportResponseErrorCodes),
         Object.values(ModelInfoAPI.Enums.POST.Response.ErrorCodes),
-        Object.values(OccupationGroupAPI.Enums.POST.Response.ErrorCodes),
-        Object.values(OccupationGroupAPI.Enums.GET.Response.ErrorCodes),
+        Object.values(OccupationGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
+        Object.values(OccupationGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
+        Object.values(OccupationGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
+        Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
+        Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
+        Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
         Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
         Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
       ].flat(),
       pattern: RegExp_Str_NotEmptyString,
     },
-    message: {
-      description: "A human readable description of the error",
-      type: "string",
-      maxLength: ErrorConstants.MAX_MESSAGE_LENGTH,
-    },
-    details: {
-      description:
-        "Additional details about the error. Might be an empty string if no additional details are available",
-      type: "string",
-      maxLength: ErrorConstants.MAX_DETAILS_LENGTH,
-    },
+    ...JSON.parse(JSON.stringify(_baseProperties)),
   },
   required: ["errorCode", "message", "details"],
   additionalProperties: false,
