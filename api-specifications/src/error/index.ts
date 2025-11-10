@@ -4,6 +4,9 @@
 import ErrorSchema from "./schema";
 import ErrorConstants from "./constants";
 import ErrorTypes from "./types";
+import ErrorSchemaPOST from "./schema.POST";
+import ErrorSchemaGET from "./schema.GET";
+import ErrorSchemaPATCH from "./schema.PATCH";
 
 /**
  * This file should be imported in the following way
@@ -16,6 +19,15 @@ import ErrorTypes from "./types";
 
 namespace ErrorSchemas {
   export const Payload = ErrorSchema;
+  export namespace POST {
+    export const Payload = ErrorSchemaPOST;
+  }
+  export namespace GET {
+    export const Payload = ErrorSchemaGET;
+  }
+  export namespace PATCH {
+    export const Payload = ErrorSchemaPATCH;
+  }
 }
 
 namespace ErrorAPISpecs {

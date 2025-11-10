@@ -3,6 +3,16 @@
 exports[`Test the error module The export module matches the snapshot 1`] = `
 {
   "Constants": {
+    "Common": {
+      "ErrorCodes": {
+        "BAD_REQUEST": "BAD_REQUEST",
+        "FORBIDDEN": "FORBIDDEN",
+        "INTERNAL_SERVER_ERROR": "INTERNAL_SERVER_ERROR",
+        "METHOD_NOT_ALLOWED": "METHOD_NOT_ALLOWED",
+        "NOT_FOUND": "NOT_FOUND",
+        "UNSUPPORTED_MEDIA_TYPE": "UNSUPPORTED_MEDIA_TYPE",
+      },
+    },
     "ErrorCodes": {
       "BAD_REQUEST": "BAD_REQUEST",
       "FORBIDDEN": "FORBIDDEN",
@@ -14,8 +24,27 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
       "TOO_LARGE_PAYLOAD": "TOO_LARGE_PAYLOAD",
       "UNSUPPORTED_MEDIA_TYPE": "UNSUPPORTED_MEDIA_TYPE",
     },
+    "GET": {
+      "ErrorCodes": {
+        "INVALID_QUERY_PARAMETER": "INVALID_QUERY_PARAMETER",
+      },
+    },
     "MAX_DETAILS_LENGTH": 4000,
     "MAX_MESSAGE_LENGTH": 256,
+    "PATCH": {
+      "ErrorCodes": {
+        "INVALID_JSON_SCHEMA": "INVALID_JSON_SCHEMA",
+        "MALFORMED_BODY": "MALFORMED_BODY",
+        "TOO_LARGE_PAYLOAD": "TOO_LARGE_PAYLOAD",
+      },
+    },
+    "POST": {
+      "ErrorCodes": {
+        "INVALID_JSON_SCHEMA": "INVALID_JSON_SCHEMA",
+        "MALFORMED_BODY": "MALFORMED_BODY",
+        "TOO_LARGE_PAYLOAD": "TOO_LARGE_PAYLOAD",
+      },
+    },
     "ReasonPhrases": {
       "BAD_REQUEST": "Bad Request",
       "FORBIDDEN": "Forbidden",
@@ -29,6 +58,144 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
     },
   },
   "Schemas": {
+    "GET": {
+      "Payload": {
+        "$id": "/components/schemas/ErrorSchemaGET",
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "description": "Additional details about the error. Might be an empty string if no additional details are available",
+            "maxLength": 4000,
+            "type": "string",
+          },
+          "errorCode": {
+            "description": "A code that API consumers can use to determine the type of error that occurred on GET method",
+            "enum": [
+              "INTERNAL_SERVER_ERROR",
+              "METHOD_NOT_ALLOWED",
+              "NOT_FOUND",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "BAD_REQUEST",
+              "FORBIDDEN",
+              "INVALID_QUERY_PARAMETER",
+              "DB_FAILED_TO_RETRIEVE_MODELS",
+              "INVALID_LIMIT_PARAMETER",
+              "INVALID_NEXT_CURSOR_PARAMETER",
+              "OCCUPATION_GROUPS_NOT_FOUND",
+              "OCCUPATION_GROUP_NOT_FOUND",
+              "GET_MODEL_NOT_FOUND",
+              "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
+              "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
+              "INVALID_OCCUPATION_ID",
+              "INVALID_LIMIT",
+              "INVALID_NEXT_CURSOR",
+            ],
+            "pattern": "\\S",
+            "type": "string",
+          },
+          "message": {
+            "description": "A human readable description of the error",
+            "maxLength": 256,
+            "type": "string",
+          },
+        },
+        "required": [
+          "errorCode",
+          "message",
+          "details",
+        ],
+        "type": "object",
+      },
+    },
+    "PATCH": {
+      "Payload": {
+        "$id": "/components/schemas/ErrorSchemaPATCH",
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "description": "Additional details about the error. Might be an empty string if no additional details are available",
+            "maxLength": 4000,
+            "type": "string",
+          },
+          "errorCode": {
+            "description": "A code that API consumers can use to determine the type of error that occurred on PATCH method",
+            "enum": [
+              "INTERNAL_SERVER_ERROR",
+              "METHOD_NOT_ALLOWED",
+              "NOT_FOUND",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "BAD_REQUEST",
+              "FORBIDDEN",
+              "MALFORMED_BODY",
+              "TOO_LARGE_PAYLOAD",
+              "INVALID_JSON_SCHEMA",
+            ],
+            "pattern": "\\S",
+            "type": "string",
+          },
+          "message": {
+            "description": "A human readable description of the error",
+            "maxLength": 256,
+            "type": "string",
+          },
+        },
+        "required": [
+          "errorCode",
+          "message",
+          "details",
+        ],
+        "type": "object",
+      },
+    },
+    "POST": {
+      "Payload": {
+        "$id": "/components/schemas/ErrorSchemaPOST",
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "description": "Additional details about the error. Might be an empty string if no additional details are available",
+            "maxLength": 4000,
+            "type": "string",
+          },
+          "errorCode": {
+            "description": "A code that API consumers can use to determine the type of error that occurred on POST method",
+            "enum": [
+              "INTERNAL_SERVER_ERROR",
+              "METHOD_NOT_ALLOWED",
+              "NOT_FOUND",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "BAD_REQUEST",
+              "FORBIDDEN",
+              "MALFORMED_BODY",
+              "TOO_LARGE_PAYLOAD",
+              "INVALID_JSON_SCHEMA",
+              "FAILED_TO_TRIGGER_EXPORT",
+              "DB_FAILED_TO_CREATE_MODEL",
+              "MODEL_COULD_NOT_VALIDATE",
+              "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
+              "POST_MODEL_NOT_FOUND",
+              "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
+              "DB_FAILED_TO_CREATE_OCCUPATION",
+              "OCCUPATION_COULD_NOT_VALIDATE",
+              "INVALID_MODEL_ID",
+            ],
+            "pattern": "\\S",
+            "type": "string",
+          },
+          "message": {
+            "description": "A human readable description of the error",
+            "maxLength": 256,
+            "type": "string",
+          },
+        },
+        "required": [
+          "errorCode",
+          "message",
+          "details",
+        ],
+        "type": "object",
+      },
+    },
     "Payload": {
       "$id": "/components/schemas/ErrorSchema",
       "additionalProperties": false,
@@ -54,11 +221,15 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
             "FAILED_TO_TRIGGER_EXPORT",
             "DB_FAILED_TO_CREATE_MODEL",
             "MODEL_COULD_NOT_VALIDATE",
-            "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
             "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
-            "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
+            "POST_MODEL_NOT_FOUND",
+            "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
             "INVALID_LIMIT_PARAMETER",
             "INVALID_NEXT_CURSOR_PARAMETER",
+            "OCCUPATION_GROUPS_NOT_FOUND",
+            "OCCUPATION_GROUP_NOT_FOUND",
+            "GET_MODEL_NOT_FOUND",
+            "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
             "DB_FAILED_TO_CREATE_OCCUPATION",
             "OCCUPATION_COULD_NOT_VALIDATE",
             "INVALID_MODEL_ID",
