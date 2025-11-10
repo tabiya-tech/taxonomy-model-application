@@ -11,7 +11,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     "MAX_JSON_OVERHEAD": 10000,
     "MAX_LIMIT": 100,
     "MAX_PATH_URI_LENGTH": 4096,
-    "MAX_PAYLOAD_LENGTH": 416220,
+    "MAX_POST_PAYLOAD_LENGTH": 414400,
     "MAX_TABIYA_PATH_LENGTH": 4096,
     "MAX_UUID_HISTORY_ITEM_LENGTH": 36,
     "ORIGIN_URI_MAX_LENGTH": 4096,
@@ -21,10 +21,23 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
   "Enums": {
     "GET": {
       "Response": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
-          "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-          "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+        "Status400": {
+          "ErrorCodes": {
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "GET_MODEL_NOT_FOUND",
+            "OCCUPATION_GROUPS_NOT_FOUND": "OCCUPATION_GROUPS_NOT_FOUND",
+            "OCCUPATION_GROUP_NOT_FOUND": "OCCUPATION_GROUP_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
+          },
         },
       },
     },
@@ -34,9 +47,20 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     },
     "POST": {
       "Response": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_CREATE_OCCUPATION_GROUP": "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
-          "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
+        "Status400": {
+          "ErrorCodes": {
+            "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "POST_MODEL_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_CREATE_OCCUPATION_GROUP": "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
+          },
         },
       },
     },
