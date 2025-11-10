@@ -77,8 +77,12 @@ export function errorResponse(
     | ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes
     | ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes
     | ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.POST.Response.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.GET.Response.ErrorCodes
+    | OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes
+    | OccupationGroupAPISpecs.Enums.POST.Response.Status404.ErrorCodes
+    | OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes
+    | OccupationGroupAPISpecs.Enums.GET.Response.Status400.ErrorCodes
+    | OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+    | OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes
     | OccupationAPISpecs.Enums.POST.Response.ErrorCodes
     | OccupationAPISpecs.Enums.GET.Response.ErrorCodes
     | ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes,
