@@ -1,10 +1,10 @@
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import ErrorAPISpecs from "api-specifications/error";
-import ModelInfoAPISpecs from "api-specifications/modelInfo";
-import ImportAPISpecs from "api-specifications/import";
-import ExportAPISpecs from "api-specifications/export";
-import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import OccupationAPISpecs from "api-specifications/esco/occupation";
+// import ModelInfoAPISpecs from "api-specifications/modelInfo";
+// import ImportAPISpecs from "api-specifications/import";
+// import ExportAPISpecs from "api-specifications/export";
+// import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
+// import OccupationAPISpecs from "api-specifications/esco/occupation";
 import process from "process";
 
 export enum HTTP_VERBS {
@@ -70,22 +70,59 @@ function _errorResponse(statusCode: StatusCodes, error: ErrorAPISpecs.Types.Payl
   return response(statusCode, error);
 }
 
+function _errorResponsePOST(statusCode: StatusCodes, error: ErrorAPISpecs.Types.POST): APIGatewayProxyResult {
+  return response(statusCode, error);
+}
+function _errorResponseGET(statusCode: StatusCodes, error: ErrorAPISpecs.Types.GET): APIGatewayProxyResult {
+  return response(statusCode, error);
+}
+
+function _errorResponsePATCH(statusCode: StatusCodes, error: ErrorAPISpecs.Types.PATCH): APIGatewayProxyResult {
+  return response(statusCode, error);
+}
+
+export function errorResponsePOST(
+  statusCode: StatusCodes,
+  errorCode: ErrorAPISpecs.Types.POST["errorCode"],
+  message: string,
+  details: string
+): APIGatewayProxyResult {
+  return _errorResponsePOST(statusCode, {
+    errorCode: errorCode,
+    message: message ?? "",
+    details: details ?? "",
+  });
+}
+
+export function errorResponseGET(
+  statusCode: StatusCodes,
+  errorCode: ErrorAPISpecs.Types.GET["errorCode"],
+  message: string,
+  details: string
+): APIGatewayProxyResult {
+  return _errorResponseGET(statusCode, {
+    errorCode: errorCode,
+    message: message ?? "",
+    details: details ?? "",
+  });
+}
+
+export function errorResponsePATCH(
+  statusCode: StatusCodes,
+  errorCode: ErrorAPISpecs.Types.PATCH["errorCode"],
+  message: string,
+  details: string
+): APIGatewayProxyResult {
+  return _errorResponsePATCH(statusCode, {
+    errorCode: errorCode,
+    message: message ?? "",
+    details: details ?? "",
+  });
+}
+
 export function errorResponse(
   statusCode: StatusCodes,
-  errorCode:
-    | ErrorAPISpecs.Constants.ErrorCodes
-    | ImportAPISpecs.Enums.POST.Response.ImportResponseErrorCodes
-    | ExportAPISpecs.Enums.POST.Response.ExportResponseErrorCodes
-    | ModelInfoAPISpecs.Enums.POST.Response.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.POST.Response.Status404.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-    | OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes
-    | OccupationAPISpecs.Enums.POST.Response.ErrorCodes
-    | OccupationAPISpecs.Enums.GET.Response.ErrorCodes
-    | ModelInfoAPISpecs.Enums.GET.Response.ErrorCodes,
+  errorCode: ErrorAPISpecs.Types.Payload["errorCode"],
   message: string,
   details: string
 ): APIGatewayProxyResult {
