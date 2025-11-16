@@ -772,7 +772,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const parsedInvalidQuery = JSON.parse(actualResponse.body);
       expect(parsedInvalidQuery).toMatchObject({
-        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        errorCode: ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
         message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
       });
       expect(typeof parsedInvalidQuery.details).toBe("string");

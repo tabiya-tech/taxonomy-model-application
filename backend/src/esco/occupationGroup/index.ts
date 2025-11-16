@@ -1,6 +1,14 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponse, HTTP_VERBS, responseJSON, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
+import {
+  errorResponse,
+  errorResponseGET,
+  errorResponsePOST,
+  HTTP_VERBS,
+  responseJSON,
+  StatusCodes,
+  STD_ERRORS_RESPONSES,
+} from "server/httpUtils";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ajvInstance, ParseValidationError } from "validator";
 import AuthAPISpecs from "api-specifications/auth";
@@ -76,7 +84,7 @@ class OccupationGroupController {
    *           content:
    *             application/json:
    *                schema:
-   *                  $ref: '#/components/schemas/ErrorSchema'
+   *                  $ref: '#/components/schemas/ErrorSchemaPOST'
    *         '403':
    *           $ref: '#/components/responses/ForbiddenResponse'
    *         '401':
@@ -125,7 +133,7 @@ class OccupationGroupController {
     const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
 
     if (!resolvedModelId) {
-      return errorResponse(
+      return errorResponsePOST(
         StatusCodes.BAD_REQUEST,
         OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "modelId is missing in the path",
@@ -135,7 +143,7 @@ class OccupationGroupController {
 
     // Validate that the modelId in the payload matches the modelId in the path
     if (payload.modelId !== resolvedModelId) {
-      return errorResponse(
+      return errorResponsePOST(
         StatusCodes.BAD_REQUEST,
         OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "modelId in payload does not match modelId in path",
@@ -146,7 +154,7 @@ class OccupationGroupController {
     // here first check the model is released or not if it is released do not allow adding occupationGroups for it
     const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
     if (!model) {
-      return errorResponse(
+      return errorResponsePOST(
         StatusCodes.NOT_FOUND,
         OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "Failed to create the occupation group because the specified modelId does not exist",
@@ -154,7 +162,7 @@ class OccupationGroupController {
       );
     }
     if (model.released) {
-      return errorResponse(
+      return errorResponsePOST(
         StatusCodes.BAD_REQUEST,
         OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "Failed to create the occupation group because the specified modelId refers to a released model",
@@ -178,7 +186,7 @@ class OccupationGroupController {
       return responseJSON(StatusCodes.CREATED, transform(newOccupationGroup, getResourcesBaseUrl()));
     } catch (error: unknown) {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
-      return errorResponse(
+      return errorResponsePOST(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "Failed to create the occupation group in the DB",
@@ -227,7 +235,7 @@ class OccupationGroupController {
    *        content:
    *          application/json:
    *            schema:
-   *              $ref: '#/components/schemas/ErrorSchema'
+   *              $ref: '#/components/schemas/ErrorSchemaGET'
    *      '401':
    *        $ref: '#/components/responses/UnAuthorizedResponse'
    *      '500':
@@ -249,7 +257,7 @@ class OccupationGroupController {
       const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
 
       if (!resolvedModelId) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.BAD_REQUEST,
           OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
           "modelId is missing in the path",
@@ -283,9 +291,9 @@ class OccupationGroupController {
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.BAD_REQUEST,
-          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
           ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
           JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
         );
@@ -323,7 +331,7 @@ class OccupationGroupController {
       );
     } catch (e: unknown) {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
-      return errorResponse(
+      return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation groups from the DB",
@@ -368,7 +376,7 @@ class OccupationGroupController {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/ErrorSchema'
+   *             $ref: '#/components/schemas/ErrorSchemaGET'
    *     '401':
    *       $ref: '#/components/responses/UnAuthorizedResponse'
    *     '404':
@@ -376,7 +384,7 @@ class OccupationGroupController {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/ErrorSchema'
+   *             $ref: '#/components/schemas/ErrorSchemaGET'
    *     '500':
    *       $ref: '#/components/responses/InternalServerErrorResponse'
    */
@@ -416,7 +424,7 @@ class OccupationGroupController {
       // Validate that the model exists
       const model = await getRepositoryRegistry().modelInfo.getModelById(requestPathParameter.modelId);
       if (!model) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.NOT_FOUND,
           OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
           "Model not found",
@@ -426,7 +434,7 @@ class OccupationGroupController {
 
       const occupationGroup = await getRepositoryRegistry().OccupationGroup.findById(requestPathParameter.id);
       if (!occupationGroup?.id) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.NOT_FOUND,
           OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
           "Occupation group not found",
@@ -435,7 +443,7 @@ class OccupationGroupController {
       }
       return responseJSON(StatusCodes.OK, transform(occupationGroup, getResourcesBaseUrl()));
     } catch (e: unknown) {
-      return errorResponse(
+      return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation group from the DB",

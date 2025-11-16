@@ -35,6 +35,9 @@ delete Presigned.Schemas.GET.Response.Payload.$id;
 delete Import.Schemas.POST.Request.Payload.$id;
 delete Info.Schemas.GET.Response.Payload.$id;
 delete APIError.Schemas.Payload.$id;
+delete APIError.Schemas.POST.Payload.$id;
+delete APIError.Schemas.GET.Payload.$id;
+delete APIError.Schemas.PATCH.Payload.$id;
 delete Export.Schemas.POST.Request.Payload.$id;
 delete Auth.Schemas.Request.Context.$id;
 delete OccupationGroup.Schemas.POST.Request.Payload.$id;
@@ -154,6 +157,9 @@ NOTES:
         schemas: {
           // Add here all schemas that are used in the api
           ErrorSchema: APIError.Schemas.Payload,
+          ErrorSchemaPOST: APIError.Schemas.POST.Payload,
+          ErrorSchemaGET: APIError.Schemas.GET.Payload,
+          ErrorSchemaPATCH: APIError.Schemas.PATCH.Payload,
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,

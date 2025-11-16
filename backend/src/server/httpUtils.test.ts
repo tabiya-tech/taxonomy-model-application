@@ -6,7 +6,14 @@ import "jest-performance-matchers";
 
 import ErrorAPISpecs from "api-specifications/error";
 import process from "process";
-import { errorResponse, response, STD_ERRORS_RESPONSES } from "./httpUtils";
+import {
+  errorResponse,
+  errorResponseGET,
+  errorResponsePATCH,
+  errorResponsePOST,
+  response,
+  STD_ERRORS_RESPONSES,
+} from "./httpUtils";
 
 describe("test response function", () => {
   const originalEnv: { [key: string]: string } = {};
@@ -111,6 +118,195 @@ describe("test response function", () => {
     expect(result.headers).toEqual({ "Access-Control-Allow-Origin": "*" });
     // AND isBase64Encoded to be false
     expect(result.isBase64Encoded).toEqual(false);
+  });
+});
+
+describe("test the errorResponsePOST function", () => {
+  test("should return correct response for an error", () => {
+    // GIVEN a status code
+    const givenStatusCode = 500;
+    // AND some error details
+    const givenError: ErrorAPISpecs.Types.POST = {
+      errorCode: ErrorAPISpecs.Constants.POST.ErrorCodes.INVALID_JSON_SCHEMA,
+      message: "message",
+      details: "details",
+    };
+
+    // WHEN errorResponsePOST is invoked for the given status and error
+    const result = errorResponsePOST(givenStatusCode, givenError.errorCode, givenError.message, givenError.details);
+
+    // THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of an array than contains given error
+    expect(result.body).toEqual(JSON.stringify(givenError));
+    // AND a body should validate against the APIErrorPOST schema
+    const ajv = new Ajv({
+      validateSchema: true,
+      strict: true,
+      allErrors: true,
+    });
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.POST.Payload);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
+  });
+  test.each([
+    ["undefined", undefined],
+    ["null", null],
+  ])("should return correct response for an error even is some properties are %s", (description, value) => {
+    // GIVEN a status code
+    const givenStatusCode = 500;
+    // AND some error  details
+    const givenError: ErrorAPISpecs.Types.POST = {
+      errorCode: ErrorAPISpecs.Constants.POST.ErrorCodes.INVALID_JSON_SCHEMA,
+      // @ts-ignore
+      message: value,
+      // @ts-ignore
+      details: value,
+    };
+
+    // WHEN errorResponsePOST is invoked for the given status and error
+    const result = errorResponsePOST(givenStatusCode, givenError.errorCode, givenError.message, givenError.details);
+
+    // THEN expect the statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of an array than contains given error
+    expect(result.body).toEqual(JSON.stringify({ ...givenError, message: "", details: "" }));
+    // AND a body should validate against the APIErrorPOST schema
+    const ajv = new Ajv({
+      validateSchema: true,
+      strict: true,
+      allErrors: true,
+    });
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.POST.Payload);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
+  });
+});
+
+describe("test the errorResponseGET function", () => {
+  test("should return correct response for an error", () => {
+    // GIVEN a status code
+    const givenStatusCode = 500;
+    // AND some error details
+    const givenError: ErrorAPISpecs.Types.GET = {
+      errorCode: ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+      message: "message",
+      details: "details",
+    };
+
+    // WHEN errorResponseGET is invoked for the given status and error
+    const result = errorResponseGET(givenStatusCode, givenError.errorCode, givenError.message, givenError.details);
+    // THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND a body should validate against the APIErrorGET schema
+    const ajv = new Ajv({
+      validateSchema: true,
+      strict: true,
+      allErrors: true,
+    });
+
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.GET.Payload);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
+  });
+  test.each([
+    ["undefined", undefined],
+    ["null", null],
+  ])("should return correct response for an error even is some properties are %s", (description, value) => {
+    // GIVEN a status code
+    const givenStatusCode = 500;
+    // AND some error details
+    const givenError: ErrorAPISpecs.Types.GET = {
+      errorCode: ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+      // @ts-ignore
+      message: value,
+      // @ts-ignore
+      details: value,
+    };
+
+    // WHEN errorResponseGET is invoked for the given status and error
+    const result = errorResponseGET(givenStatusCode, givenError.errorCode, givenError.message, givenError.details);
+
+    // THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of an array than contains given error
+    expect(result.body).toEqual(JSON.stringify({ ...givenError, message: "", details: "" }));
+    // AND a body should validate against the APIErrorGET schema
+    const ajv = new Ajv({
+      validateSchema: true,
+      strict: true,
+      allErrors: true,
+    });
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.GET.Payload);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
+  });
+});
+
+describe("test the errorResponsePATCH function", () => {
+  test("should return correct response for an error", () => {
+    // GIVEN a status code
+    const givenStatusCode = 500;
+    // AND some error details
+    const givenError: ErrorAPISpecs.Types.PATCH = {
+      errorCode: ErrorAPISpecs.Constants.PATCH.ErrorCodes.INVALID_JSON_SCHEMA,
+      message: "message",
+      details: "details",
+    };
+
+    // WHEN errorResponsePATCH is invoked for the given status and error
+    const result = errorResponsePATCH(givenStatusCode, givenError.errorCode, givenError.message, givenError.details);
+
+    // THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of an array than contains given error
+    expect(result.body).toEqual(JSON.stringify(givenError));
+    // AND a body should validate against the APIErrorPATCH schema
+    const ajv = new Ajv({
+      validateSchema: true,
+      strict: true,
+      allErrors: true,
+    });
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.PATCH.Payload);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
+  });
+  test.each([
+    ["undefined", undefined],
+    ["null", null],
+  ])("should return correct response for an error even is some properties are %s", (description, value) => {
+    // GIVEN a status code
+    const givenStatusCode = 500;
+    // AND some error details
+    const givenError: ErrorAPISpecs.Types.PATCH = {
+      errorCode: ErrorAPISpecs.Constants.PATCH.ErrorCodes.INVALID_JSON_SCHEMA,
+      // @ts-ignore
+      message: value,
+      // @ts-ignore
+      details: value,
+    };
+    // WHEN errorResponsePATCH is invoked for the given status and error
+    const result = errorResponsePATCH(givenStatusCode, givenError.errorCode, givenError.message, givenError.details);
+
+    // THEN expect statusCode to be
+    expect(result.statusCode).toEqual(givenStatusCode);
+    // AND body to be a json string of an array than contains given error
+    expect(result.body).toEqual(JSON.stringify({ ...givenError, message: "", details: "" }));
+    // AND a body should validate against the APIErrorPATCH schema
+    const ajv = new Ajv({
+      validateSchema: true,
+      strict: true,
+      allErrors: true,
+    });
+    addFormats(ajv);
+    const validateResponse = ajv.compile(ErrorAPISpecs.Schemas.PATCH.Payload);
+    validateResponse(JSON.parse(result.body));
+    expect(validateResponse.errors).toBeNull();
   });
 });
 
