@@ -6,7 +6,6 @@ import ModelInfoAPI from "../modelInfo";
 import ErrorConstants from "./constants";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const _baseProperties: any = {
   message: {

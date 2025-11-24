@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import ErrorSchema from "./schema";
+import { GetErrorSchema } from "./get.schema";
 import ErrorConstants from "./constants";
 import ErrorTypes from "./types";
 import ErrorSchemaPOST from "./schema.POST";
@@ -19,6 +20,12 @@ import ErrorSchemaPATCH from "./schema.PATCH";
 
 namespace ErrorSchemas {
   export const Payload = ErrorSchema;
+  export const GetPayload = (
+    method: ErrorTypes.METHODS,
+    schemaName: string,
+    code: ErrorTypes.Codes,
+    errorCodes: string[]
+  ) => GetErrorSchema(method, schemaName, code, errorCodes);
   export namespace POST {
     export const Payload = ErrorSchemaPOST;
   }
