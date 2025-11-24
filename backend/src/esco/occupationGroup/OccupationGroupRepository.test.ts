@@ -12,9 +12,11 @@ import { IOccupationGroupRepository } from "./OccupationGroupRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import {
   INewOccupationGroupSpec,
+  INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
   IOccupationGroupDoc,
   IOccupationGroupReference,
+  IOccupationGroupWithoutImportId,
 } from "./OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -31,6 +33,8 @@ import {
   getSimpleNewESCOOccupationSpecWithParentCode,
   getSimpleNewLocalOccupationSpecWithParentCode,
   getSimpleNewLocalGroupSpecWithParentCode,
+  getNewISCOGroupSpecsWithoutImportId,
+  getNewLocalGroupSpecsWithoutImportId,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -68,6 +72,23 @@ function expectedFromGivenSpec(givenSpec: INewOccupationGroupSpec, newUUID: stri
     UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
+  };
+}
+
+function expectedFromGivenSpecWithoutImportId(
+  givenSpec: INewOccupationGroupSpecWithoutImportId,
+  newUUID: string
+): IOccupationGroupWithoutImportId {
+  return {
+    ...givenSpec,
+    id: expect.any(String),
+    parent: null,
+    children: [],
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
+    createdAt: expect.any(Date),
+    updatedAt: expect.any(Date),
+    importId: null,
   };
 }
 
@@ -134,6 +155,16 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       return getNewISCOGroupSpecs();
     } else if (groupType === ObjectTypes.LocalGroup) {
       return getNewLocalGroupSpecs();
+    } else {
+      throw new Error(`Unsupported groupType: ${groupType}`);
+    }
+  }
+
+  function getNewOccupationGroupSpecWithoutImportId(groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup) {
+    if (groupType === ObjectTypes.ISCOGroup) {
+      return getNewISCOGroupSpecsWithoutImportId();
+    } else if (groupType === ObjectTypes.LocalGroup) {
+      return getNewLocalGroupSpecsWithoutImportId();
     } else {
       throw new Error(`Unsupported groupType: ${groupType}`);
     }
@@ -211,13 +242,14 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     (givenGroupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup) => {
       test("should successfully create a new %s", async () => {
         // GIVEN a valid OccupationGroupSpec
-        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+          getNewOccupationGroupSpecWithoutImportId(givenGroupType);
 
         // WHEN Creating a new OccupationGroup with given specifications
         const actualNewOccupationGroup: IOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
 
         // THEN expect the new OccupationGroup to be created with the specific attributes
-        const expectedNewISCO: IOccupationGroup = expectedFromGivenSpec(
+        const expectedNewISCO: IOccupationGroupWithoutImportId = expectedFromGivenSpecWithoutImportId(
           givenNewOccupationGroupSpec,
           actualNewOccupationGroup.UUID
         );
@@ -228,14 +260,15 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         "should successfully create a new OccupationGroup when the given specifications have UUIDHistory with %s UUIDs",
         async (count: number) => {
           // GIVEN a valid OccupationGroupSpec
-          const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+          const givenNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+            getNewOccupationGroupSpecWithoutImportId(givenGroupType);
           givenNewOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(count);
 
           // WHEN Creating a new OccupationGroup with given specifications
           const actualNewOccupationGroup: IOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
 
           // THEN expect the new OccupationGroup to be created with the specific attributes
-          const expectedNewISCO: IOccupationGroup = expectedFromGivenSpec(
+          const expectedNewISCO: IOccupationGroupWithoutImportId = expectedFromGivenSpecWithoutImportId(
             givenNewOccupationGroupSpec,
             actualNewOccupationGroup.UUID
           );
@@ -245,7 +278,8 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
       test("should reject with an error when creating a model and providing a UUID", async () => {
         // GIVEN a valid OccupationGroupSpec
-        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+          getNewOccupationGroupSpecWithoutImportId(givenGroupType);
 
         // WHEN Creating a new OccupationGroup with a provided UUID
         const actualNewOccupationGroupPromise = repository.create({
@@ -262,11 +296,13 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       describe("Test unique indexes", () => {
         test("should reject with an error when creating model with an existing UUID", async () => {
           // GIVEN a OccupationGroup record exists in the database
-          const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+          const givenNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+            getNewOccupationGroupSpecWithoutImportId(givenGroupType);
           const givenNewOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
 
           // WHEN Creating a new OccupationGroup with the same UUID as the one the existing OccupationGroup
-          const actualSecondNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+          const actualSecondNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+            getNewOccupationGroupSpecWithoutImportId(givenGroupType);
           (randomUUID as jest.Mock).mockReturnValueOnce(givenNewOccupationGroup.UUID);
           const actualSecondNewOccupationGroupPromise = repository.create(actualSecondNewOccupationGroupSpec);
 
@@ -281,12 +317,13 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         test("should successfully create a second Identical OccupationGroup in a different model", async () => {
           // GIVEN a OccupationGroup record exists in the database for a given model
-          const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+          const givenNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+            getNewOccupationGroupSpecWithoutImportId(givenGroupType);
           await repository.create(givenNewOccupationGroupSpec);
 
           // WHEN Creating an identical OccupationGroup in a new model (new modelId)
           // @ts-ignore
-          const actualSecondNewOccupationGroupSpec: INewOccupationGroupSpec = {
+          const actualSecondNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId = {
             ...givenNewOccupationGroupSpec,
           };
           actualSecondNewOccupationGroupSpec.modelId = getMockStringId(3);
@@ -298,12 +335,14 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         test("should reject with an error when creating a pair of (modelId and code) is duplicated", async () => {
           // GIVEN a OccupationGroup record exists in the database
-          const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+          const givenNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+            getNewOccupationGroupSpecWithoutImportId(givenGroupType);
           const givenNewModel = await repository.create(givenNewOccupationGroupSpec);
 
           // WHEN Creating a new OccupationGroup with the same pair of modelId and code as the ones the existing OccupationGroup
           // @ts-ignore
-          const actualSecondNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+          const actualSecondNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =
+            getNewOccupationGroupSpecWithoutImportId(givenGroupType);
           actualSecondNewOccupationGroupSpec.code = givenNewModel.code;
           actualSecondNewOccupationGroupSpec.modelId = givenNewModel.modelId;
           const actualSecondNewModelPromise = repository.create(actualSecondNewOccupationGroupSpec);
