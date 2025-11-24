@@ -25,5 +25,3 @@ describe("Test the error module", () => {
     }).not.toThrow();
   });
 });
-
-export {};

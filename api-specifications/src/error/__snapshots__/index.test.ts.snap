@@ -107,6 +107,7 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
         "type": "object",
       },
     },
+    "GetPayload": [Function],
     "PATCH": {
       "Payload": {
         "$id": "/components/schemas/ErrorSchemaPATCH",

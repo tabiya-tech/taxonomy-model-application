@@ -31,6 +31,11 @@ namespace ErrorTypes {
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
   }
+  export interface GetPayload {
+    errorCode: string;
+    message: string;
+    details: string;
+  }
   export interface POST {
     errorCode:
       | ErrorConstants.Common.ErrorCodes
@@ -62,6 +67,8 @@ namespace ErrorTypes {
     message: string;
     details: string;
   }
-}
 
+  export type Codes = 400 | 401 | 403 | 404 | 405 | 408 | 409 | 413 | 415 | 419 | 500 | 501 | 502 | 503 | 504 | 505;
+  export type METHODS = "POST" | "GET" | "PATCH" | "PUT" | "DELETE" | "ALL";
+}
 export default ErrorTypes;

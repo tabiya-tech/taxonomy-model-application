@@ -156,10 +156,49 @@ NOTES:
         },
         schemas: {
           // Add here all schemas that are used in the api
+          AllForbidden401ResponseSchema: APIError.Schemas.GetPayload("ALL", "Forbidden", 401, [
+            APIError.Constants.Common.ErrorCodes.FORBIDDEN,
+          ]),
+          AllContentType415ResponseSchema: APIError.Schemas.GetPayload("ALL", "ContentType", 415, [
+            APIError.Constants.POST.ErrorCodes.MALFORMED_BODY,
+          ]),
+          All500ResponseSchema: APIError.Schemas.GetPayload("POST", "All", 500, [
+            APIError.Constants.Common.ErrorCodes.INTERNAL_SERVER_ERROR,
+          ]),
+          AllNotFound404ResponseSchema: APIError.Schemas.GetPayload("ALL", "NotFound", 404, [
+            APIError.Constants.Common.ErrorCodes.NOT_FOUND,
+          ]),
           ErrorSchema: APIError.Schemas.Payload,
           ErrorSchemaPOST: APIError.Schemas.POST.Payload,
           ErrorSchemaGET: APIError.Schemas.GET.Payload,
           ErrorSchemaPATCH: APIError.Schemas.PATCH.Payload,
+          POSTOccupationGroup400ErrorSchema: APIError.Schemas.GetPayload(
+            "POST",
+            "OccupationGroup",
+            400,
+            [
+              ...Object.values(OccupationGroup.Enums.POST.Response.Status400.ErrorCodes),
+              ...Object.values(APIError.Constants.Common.ErrorCodes),
+            ].flat()
+          ),
+          GETOccupationGroup400ErrorSchema: APIError.Schemas.GetPayload(
+            "GET",
+            "OccupationGroup",
+            400,
+            [
+              ...Object.values(OccupationGroup.Enums.GET.Response.Status400.ErrorCodes),
+              ...Object.values(APIError.Constants.Common.ErrorCodes),
+            ].flat()
+          ),
+          GETOccupationGroup404ErrorSchema: APIError.Schemas.GetPayload(
+            "GET",
+            "OccupationGroup",
+            404,
+            [
+              ...Object.values(OccupationGroup.Enums.GET.Response.Status404.ErrorCodes),
+              ...Object.values(APIError.Constants.Common.ErrorCodes),
+            ].flat()
+          ),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
