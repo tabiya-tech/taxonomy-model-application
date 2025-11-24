@@ -152,7 +152,7 @@ describe("Test for occupationGroup handler", () => {
       expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
 
       // THEN expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
+      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload });
       // AND respond with the CREATED status code
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
       // AND the handler to return the correct headers
@@ -233,7 +233,7 @@ describe("Test for occupationGroup handler", () => {
       // THEN expect the handler to call the model repository to access the model
       expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenModel.id.toString());
       // AND expect the handler to call the repository with the given payload
-      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
+      expect(getRepositoryRegistry().OccupationGroup.create).toHaveBeenCalledWith({ ...givenPayload });
       // AND to respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
@@ -535,19 +535,19 @@ describe("Test for occupationGroup handler", () => {
           ...getIOccupationGroupMockData(1, givenModelId),
           UUID: "foo",
           UUIDHistory: ["foo"],
-          importId: "",
+          importId: randomUUID(),
         },
         {
           ...getIOccupationGroupMockData(2, givenModelId),
           UUID: "bar",
           UUIDHistory: ["bar"],
-          importId: "",
+          importId: randomUUID(),
         },
         {
           ...getIOccupationGroupMockData(3, givenModelId),
           UUID: "baz",
           UUIDHistory: ["baz"],
-          importId: "",
+          importId: randomUUID(),
         },
       ];
 
@@ -855,7 +855,7 @@ describe("Test for occupationGroup handler", () => {
         id: givenOccupationGroupId,
         UUID: "test-uuid",
         UUIDHistory: ["test-uuid"],
-        importId: "",
+        importId: randomUUID(),
       };
 
       const givenOccupationGroupRepositoryMock = {

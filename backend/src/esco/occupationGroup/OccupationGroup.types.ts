@@ -32,6 +32,10 @@ export interface IOccupationGroup extends Omit<IOccupationGroupDoc, "id" | "mode
   updatedAt: Date;
 }
 
+export interface IOccupationGroupWithoutImportId extends Omit<IOccupationGroup, "importId"> {
+  importId: string | null;
+}
+
 /**
  * Describes how a new OccupationGroup is created with the API.
  */

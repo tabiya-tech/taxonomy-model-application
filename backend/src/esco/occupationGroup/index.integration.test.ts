@@ -44,7 +44,6 @@ async function createOccupationGroupInDB(modelId: string = getMockStringId(1)) {
     altLabels: [getRandomString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
-    importId: "",
   });
 }
 async function createOccupationGroupsInDB(count: number, modelId: string = getMockStringId(1)) {

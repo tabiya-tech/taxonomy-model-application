@@ -1,4 +1,7 @@
-import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
+import {
+  INewOccupationGroupSpec,
+  INewOccupationGroupSpecWithoutImportId,
+} from "esco/occupationGroup/OccupationGroup.types";
 import { generateRandomUrl, getRandomBoolean, getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import {
   DEFINITION_MAX_LENGTH,
@@ -36,6 +39,19 @@ export function getNewISCOGroupSpecs(leafNode: boolean = false): INewOccupationG
   };
 }
 
+export function getNewISCOGroupSpecsWithoutImportId(leafNode: boolean = false): INewOccupationGroupSpecWithoutImportId {
+  return {
+    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+    code: leafNode ? getMockRandomISCOGroupCode().padStart(4, "0") : getMockRandomISCOGroupCode(),
+    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
+    modelId: getMockStringId(2),
+    UUIDHistory: [randomUUID()],
+    originUri: generateRandomUrl(),
+    groupType: ObjectTypes.ISCOGroup,
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
+  };
+}
+
 export function getNewLocalGroupSpecs(): INewOccupationGroupSpec {
   return {
     altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
@@ -47,6 +63,19 @@ export function getNewLocalGroupSpecs(): INewOccupationGroupSpec {
     groupType: ObjectTypes.LocalGroup,
     description: getTestString(DESCRIPTION_MAX_LENGTH),
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
+  };
+}
+
+export function getNewLocalGroupSpecsWithoutImportId(): INewOccupationGroupSpecWithoutImportId {
+  return {
+    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+    code: getMockRandomLocalGroupCode(),
+    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
+    modelId: getMockStringId(2),
+    UUIDHistory: [randomUUID()],
+    originUri: generateRandomUrl(),
+    groupType: ObjectTypes.LocalGroup,
+    description: getTestString(DESCRIPTION_MAX_LENGTH),
   };
 }
 

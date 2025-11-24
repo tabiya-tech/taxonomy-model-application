@@ -1,7 +1,11 @@
 import { IOccupationGroup, IOccupationGroupHistoryReference } from "esco/occupationGroup/OccupationGroup.types";
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { IOccupationGroupDoc, INewOccupationGroupSpec } from "./OccupationGroup.types";
+import {
+  IOccupationGroupDoc,
+  INewOccupationGroupSpec,
+  INewOccupationGroupSpecWithoutImportId,
+} from "./OccupationGroup.types";
 import {
   populateOccupationGroupChildrenOptions,
   populateOccupationGroupParentOptions,
@@ -22,7 +26,7 @@ export interface IOccupationGroupRepository {
    * @return {Promise<IOccupationGroup>} - A Promise that resolves to the newly created OccupationGroup entry.
    * Rejects with an error if the OccupationGroup entry cannot be created.
    */
-  create(newOccupationGroupSpec: INewOccupationGroupSpec): Promise<IOccupationGroup>;
+  create(newOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId): Promise<IOccupationGroup>;
 
   /**
    * Creates multiple new OccupationGroup entries.
@@ -118,14 +122,28 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     const newModel = new this.Model({
       ...newSpec,
       UUID: newUUID,
-      importId: newSpec.importId ? newSpec.importId : null,
+      importId: newSpec.importId,
     });
     // add the new UUID as the first element of the UUIDHistory
     newModel.UUIDHistory.unshift(newUUID);
     return newModel;
   }
 
-  async create(newOccupationGroupSpec: INewOccupationGroupSpec): Promise<IOccupationGroup> {
+  private newSpecWithoutImportIdToModel(
+    newSpec: INewOccupationGroupSpecWithoutImportId
+  ): mongoose.HydratedDocument<IOccupationGroupDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({
+      ...newSpec,
+      UUID: newUUID,
+      importId: null,
+    });
+    // add the new UUID as the first element of the UUIDHistory
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
+  async create(newOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId): Promise<IOccupationGroup> {
     //@ts-ignore
     if (newOccupationGroupSpec.UUID !== undefined) {
       const err = new Error("OccupationGroupRepository.create: create failed. UUID should not be provided.");
@@ -134,7 +152,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
 
     try {
-      const newOccupationGroupModel = this.newSpecToModel(newOccupationGroupSpec);
+      const newOccupationGroupModel = this.newSpecWithoutImportIdToModel(newOccupationGroupSpec);
       await newOccupationGroupModel.save();
       populateEmptyOccupationHierarchy(newOccupationGroupModel);
       return newOccupationGroupModel.toObject();
