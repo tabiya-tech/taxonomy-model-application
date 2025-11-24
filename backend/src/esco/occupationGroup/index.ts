@@ -18,7 +18,7 @@ import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { ValidateFunction } from "ajv";
 import { transform, transformPaginated } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
-import { INewOccupationGroupSpec } from "./OccupationGroup.types";
+import { INewOccupationGroupSpecWithoutImportId } from "./OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authenticator";
 import ErrorAPISpecs from "api-specifications/error";
@@ -85,15 +85,30 @@ class OccupationGroupController {
    *           content:
    *             application/json:
    *                schema:
-   *                  $ref: '#/components/schemas/ErrorSchemaPOST'
+   *                  $ref: '#/components/schemas/POSTOccupationGroup400ErrorSchema'
    *         '403':
-   *           $ref: '#/components/responses/ForbiddenResponse'
+   *           description: |
+   *             The request has not been applied because you don't have the right permissions to access this resource.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/AllForbidden401ResponseSchema'
    *         '401':
    *           $ref: '#/components/responses/UnAuthorizedResponse'
    *         '415':
-   *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
+   *           description: |
+   *             The request is not supported because the media type is not acceptable.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/AllContentType415ResponseSchema'
    *         '500':
-   *           $ref: '#/components/responses/InternalServerErrorResponse'
+   *           description: |
+   *             The server encountered an unexpected condition.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/All500ResponseSchema'
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
@@ -171,7 +186,7 @@ class OccupationGroupController {
       );
     }
 
-    const newOccupationGroupSpec: INewOccupationGroupSpec = {
+    const newOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId = {
       originUri: payload.originUri,
       code: payload.code,
       description: payload.description,
@@ -180,7 +195,6 @@ class OccupationGroupController {
       groupType: payload.groupType,
       modelId: payload.modelId,
       UUIDHistory: payload.UUIDHistory,
-      importId: "",
     };
     try {
       const newOccupationGroup = await getRepositoryRegistry().OccupationGroup.create(newOccupationGroupSpec);
@@ -240,11 +254,16 @@ class OccupationGroupController {
    *        content:
    *          application/json:
    *            schema:
-   *              $ref: '#/components/schemas/ErrorSchemaGET'
+   *              $ref: '#/components/schemas/GETOccupationGroup400ErrorSchema'
    *      '401':
    *        $ref: '#/components/responses/UnAuthorizedResponse'
    *      '500':
-   *        $ref: '#/components/responses/InternalServerErrorResponse'
+   *        description: |
+   *          The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
@@ -385,7 +404,7 @@ class OccupationGroupController {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/ErrorSchemaGET'
+   *             $ref: '#/components/schemas/AllNotFound404ResponseSchema'
    *     '401':
    *       $ref: '#/components/responses/UnAuthorizedResponse'
    *     '404':
@@ -393,9 +412,14 @@ class OccupationGroupController {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/ErrorSchemaGET'
+   *             $ref: '#/components/schemas/GETOccupationGroup404ErrorSchema'
    *     '500':
-   *       $ref: '#/components/responses/InternalServerErrorResponse'
+   *       description: |
+   *         The server encountered an unexpected condition.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/All500ResponseSchema'
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroup(event: APIGatewayProxyEvent) {
