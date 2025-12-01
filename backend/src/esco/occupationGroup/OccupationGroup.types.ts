@@ -77,3 +77,17 @@ export interface IOccupationGroupHistoryReference {
   code: string | null;
   objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | null;
 }
+/**
+ * These are service level error codes for validating a model for occupation group operations
+ */
+export enum ModalForOccupationGroupValidationErrorCode {
+  FAILED_TO_FETCH_FROM_DB,
+  MODEL_NOT_FOUND_BY_ID,
+  MODEL_IS_RELEASED,
+}
+/**
+ * Base path parameters for occupation group routes
+ */
+export type BasePathParams = {
+  modelId?: string;
+};

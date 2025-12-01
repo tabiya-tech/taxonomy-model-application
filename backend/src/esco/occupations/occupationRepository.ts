@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewOccupationSpec, IOccupation, IOccupationDoc } from "./occupation.types";
+import { INewOccupationSpec, INewOccupationSpecWithoutImportId, IOccupation, IOccupationDoc } from "./occupation.types";
 import {
   populateOccupationChildrenOptions,
   populateOccupationParentOptions,
@@ -24,11 +24,11 @@ export interface IOccupationRepository {
   /**
    * Creates a new Occupation entry.
    *
-   * @param {INewOccupationSpec} newOccupationSpec - The specification for the new Occupation entry.
+   * @param {INewOccupationSpecWithoutImportId} newOccupationSpec - The specification for the new Occupation entry.
    * @return {Promise<IOccupation>} - A Promise that resolves to the newly created Occupation entry.
    * Rejects with an error if the Occupation entry cannot be created ue to reasons other than validation.
    */
-  create(newOccupationSpec: INewOccupationSpec): Promise<IOccupation>;
+  create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation>;
 
   /**
    * Creates multiple new Occupation entries.
@@ -104,7 +104,20 @@ export class OccupationRepository implements IOccupationRepository {
     return newModel;
   }
 
-  async create(newOccupationSpec: INewOccupationSpec): Promise<IOccupation> {
+  private newSpecWithoutImportIdToModel(
+    newSpec: INewOccupationSpecWithoutImportId
+  ): mongoose.HydratedDocument<IOccupationDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({
+      ...newSpec,
+      UUID: newUUID,
+      importId: null,
+    });
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
+  async create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation> {
     //@ts-ignore
     if (newOccupationSpec.UUID !== undefined) {
       const err = new Error("OccupationRepository.create: create failed. UUID should not be provided.");
@@ -113,7 +126,7 @@ export class OccupationRepository implements IOccupationRepository {
     }
 
     try {
-      const newOccupationModel = this.newSpecToModel(newOccupationSpec);
+      const newOccupationModel = this.newSpecWithoutImportIdToModel(newOccupationSpec);
       await newOccupationModel.save();
       populateEmptyOccupationHierarchy(newOccupationModel);
       populateEmptyRequiresSkills(newOccupationModel);

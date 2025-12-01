@@ -146,19 +146,19 @@ describe("Test for occupationGroup handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
       path: `/models/${givenModelInfo.id}/occupationGroups`,
+      pathParameters: { modelId: givenModelInfo.id.toString() },
       requestContext: usersRequestContext.MODEL_MANAGER,
     };
 
     // WHEN the handler is invoked with the given event
     // @ts-ignore
     const actualResponse = await occupationGroupHandler(givenEvent);
-
+    expect(actualResponse.body).toEqual({ test: "value" });
     // THEN expect the handler to respond with the CREATED status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
-    // AND an OccupationGroup object that validates against the OccupationGroupRequest schema
     validatePOSTResponse(JSON.parse(actualResponse.body));
+    // AND an OccupationGroup object that validates against the OccupationGroupRequest schema
     expect(validatePOSTResponse.errors).toBeNull();
   });
 

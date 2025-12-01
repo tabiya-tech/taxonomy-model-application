@@ -14,7 +14,7 @@ import * as authenticatorModule from "auth/authenticator";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
-import { IOccupation } from "./occupation.types";
+import { IOccupation, IOccupationWithoutImportId } from "./occupation.types";
 import { getIOccupationMockData } from "./testDataHelper";
 import {
   IOccupationService,
@@ -141,7 +141,7 @@ describe("Test for occupation handler", () => {
       const actualResponse = await occupationHandler(givenEvent);
 
       // THEN expect the handler to call the service with the given payload
-      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
+      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload });
       // AND respond with the CREATED status code
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
       // AND the handler to return the correct headers
@@ -216,7 +216,7 @@ describe("Test for occupation handler", () => {
       const actualResponse = await occupationHandler(givenEvent);
 
       // THEN expect the handler to call the service with the given payload
-      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload, importId: "" });
+      expect(getServiceRegistry().occupation.create).toHaveBeenCalledWith({ ...givenPayload });
       // AND to respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
@@ -1156,7 +1156,7 @@ describe("Test for occupation handler", () => {
         checkRole.mockReturnValueOnce(true);
 
         const limit = 1;
-        const givenOccupations: Array<IOccupation> = [
+        const givenOccupations: Array<IOccupationWithoutImportId> = [
           {
             ...getIOccupationMockData(1),
             modelId: givenModelId,

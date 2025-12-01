@@ -2,7 +2,7 @@ import { Handler, APIGatewayProxyEvent } from "aws-lambda";
 import { handler as InfoHandler } from "applicationInfo";
 import { handler as ModelHandler } from "modelInfo";
 import { handler as ImportHandler } from "import";
-import { handler as OccupationGroupHandler } from "esco/occupationGroup";
+import { handler as OccupationGroupHandler } from "esco/occupationGroup/index";
 import { handler as OccupationHandler } from "esco/occupations";
 import { STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { handler as presignedHandler } from "presigned";
@@ -47,9 +47,9 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return ImportHandler(event);
   } else if (path === Routes.EXPORT_ROUTE) {
     return ExportHandler(event);
-  } else if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.test(path)) {
-    return OccupationGroupHandler(event);
   } else if (pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.test(path)) {
+    return OccupationGroupHandler(event);
+  } else if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.test(path)) {
     return OccupationGroupHandler(event);
   } else if (pathToRegexp(Routes.OCCUPATIONS_ROUTE).regexp.test(path)) {
     return OccupationHandler(event);

@@ -50,6 +50,7 @@ namespace OccupationGroupEnums {
       export namespace Status400 {
         export enum ErrorCodes {
           OCCUPATION_GROUP_COULD_NOT_VALIDATE = "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
+          MODEL_IS_RELEASED = "POST_MODEL_IS_RELEASED",
         }
       }
       export namespace Status404 {

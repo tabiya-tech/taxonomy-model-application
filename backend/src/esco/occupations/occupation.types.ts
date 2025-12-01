@@ -44,6 +44,10 @@ export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
  */
 export type INewOccupationSpecWithoutImportId = Omit<INewOccupationSpec, "importId">;
 
+export interface IOccupationWithoutImportId extends Omit<IOccupation, "importId"> {
+  importId: string | null;
+}
+
 /**
  *  Describes how new occupations are created in the API
  */

@@ -4,14 +4,14 @@ import {
   ModalForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupationService.types";
-import { INewOccupationSpec, IOccupation } from "./occupation.types";
+import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
 import { IOccupationRepository } from "./occupationRepository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
 export class OccupationService implements IOccupationService {
   constructor(private readonly occupationRepository: IOccupationRepository) {}
 
-  async create(newOccupationSpec: INewOccupationSpec): Promise<IOccupation> {
+  async create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation> {
     // Validate model exists and is not released
     const errorCode = await this.validateModelForOccupation(newOccupationSpec.modelId);
     if (errorCode != null) {

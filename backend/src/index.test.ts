@@ -32,7 +32,7 @@ jest.mock("./server/init", () => {
 import * as MainHandler from "index";
 import * as InfoHandler from "applicationInfo";
 import * as ModelHandler from "modelInfo/index";
-import * as OccupationGroupHandler from "esco/occupationGroup";
+import * as OccupationGroupHandler from "esco/occupationGroup/index";
 import * as OccupationHandler from "esco/occupations";
 import * as PresignedHandler from "presigned/index";
 import * as ImportHandler from "import/index";
@@ -150,8 +150,12 @@ describe("test the handleRouteEvent function", () => {
     jest.clearAllMocks();
   });
   const modelId = getMockStringId(1);
-  const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, {
+  const occupationsGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUPS_ROUTE, {
     modelId: modelId.toString(),
+  });
+  const occupationGroupsPath = buildPathFromPattern(Routes.OCCUPATION_GROUP_ROUTE, {
+    modelId: modelId.toString(),
+    id: getMockStringId(2),
   });
   const occupationsPath = buildPathFromPattern("/models/:modelId/occupations", {
     modelId: modelId.toString(),
@@ -166,6 +170,7 @@ describe("test the handleRouteEvent function", () => {
     [Routes.IMPORT_ROUTE, ImportHandler],
     [Routes.MODELS_ROUTE, ModelHandler],
     [occupationGroupsPath, OccupationGroupHandler],
+    [occupationsGroupsPath, OccupationGroupHandler],
     [occupationsPath, OccupationHandler],
     [occupationPath, OccupationHandler],
     [Routes.EXPORT_ROUTE, ExportHandler],
