@@ -49,6 +49,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       "Response": {
         "Status400": {
           "ErrorCodes": {
+            "MODEL_IS_RELEASED": "POST_MODEL_IS_RELEASED",
             "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
           },
         },

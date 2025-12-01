@@ -1,4 +1,4 @@
-import { INewOccupationSpec, IOccupation } from "./occupation.types";
+import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
 
 export enum ModalForOccupationValidationErrorCode {
   FAILED_TO_FETCH_FROM_DB,
@@ -16,11 +16,11 @@ export interface IOccupationService {
   /**
    * Creates a new Occupation entry.
    *
-   * @param {INewOccupationSpec} newOccupationSpec - The specification for the new Occupation entry.
+   * @param {INewOccupationSpecWithoutImportId} newOccupationSpec - The specification for the new Occupation entry.
    * @return {Promise<IOccupation>} - A Promise that resolves to the newly created Occupation entry.
    * Rejects with an error if the Occupation entry cannot be created due to reasons other than validation.
    */
-  create(newOccupationSpec: INewOccupationSpec): Promise<IOccupation>;
+  create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation>;
 
   /**
    * Finds an Occupation entry by its ID.

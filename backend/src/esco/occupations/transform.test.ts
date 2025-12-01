@@ -47,10 +47,7 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
         id: givenObject.id,
         UUID: givenObject.UUID,
         UUIDHistory: givenObject.UUIDHistory,
-        originUUID:
-          givenObject.UUIDHistory && givenObject.UUIDHistory.length > 0
-            ? givenObject.UUIDHistory.at(-1)
-            : "",
+        originUUID: givenObject.UUIDHistory && givenObject.UUIDHistory.length > 0 ? givenObject.UUIDHistory.at(-1) : "",
         code: givenObject.code,
         occupationGroupCode: givenObject.occupationGroupCode,
         preferredLabel: givenObject.preferredLabel,
@@ -107,10 +104,7 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
         code: givenObject.code,
         occupationGroupCode: givenObject.occupationGroupCode,
         preferredLabel: givenObject.preferredLabel,
-        originUUID:
-          givenObject.UUIDHistory && givenObject.UUIDHistory.length > 0
-            ? givenObject.UUIDHistory.at(-1)
-            : "",
+        originUUID: givenObject.UUIDHistory && givenObject.UUIDHistory.length > 0 ? givenObject.UUIDHistory.at(-1) : "",
         originUri: givenObject.originUri,
         altLabels: givenObject.altLabels,
         definition: givenObject.definition,

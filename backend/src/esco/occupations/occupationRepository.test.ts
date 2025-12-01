@@ -202,7 +202,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the new occupation to be created with the specific attributes
         const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
-        expect(actualNewOccupation).toEqual(expectedNewISCO);
+        expect(actualNewOccupation).toEqual({ ...expectedNewISCO, importId: null });
       }
     );
 
@@ -219,7 +219,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the new occupation to be created with the specific attributes
         const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
-        expect(actualNewOccupation).toEqual(expectedNewISCO);
+        expect(actualNewOccupation).toEqual({ ...expectedNewISCO, importId: null });
       }
     );
 
@@ -236,7 +236,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // THEN expect the new occupation to be created with the specific attributes
         const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
-        expect(actualNewOccupation).toEqual(expectedNewISCO);
+        expect(actualNewOccupation).toEqual({ ...expectedNewISCO, importId: null });
       }
     );
 

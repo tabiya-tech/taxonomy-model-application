@@ -1,6 +1,8 @@
+import { IOccupationGroupService } from "esco/occupationGroup/occupationGroupService.type";
 import { getRepositoryRegistry } from "../repositoryRegistry/repositoryRegistry";
 import { OccupationService } from "esco/occupations/occupationService";
 import { IOccupationService } from "esco/occupations/occupationService.types";
+import { OccupationGroupService } from "esco/occupationGroup/occupationGroupService";
 
 export class ServiceRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,9 +16,14 @@ export class ServiceRegistry {
     this._services.set("OccupationService", service);
   }
 
+  public set occupationGroup(service: IOccupationGroupService) {
+    this._services.set("OccupationGroupService", service);
+  }
+
   async initialize() {
     const repositoryRegistry = getRepositoryRegistry();
     this.occupation = new OccupationService(repositoryRegistry.occupation);
+    this.occupationGroup = new OccupationGroupService(repositoryRegistry.OccupationGroup);
   }
 }
 

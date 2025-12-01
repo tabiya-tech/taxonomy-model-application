@@ -10,7 +10,7 @@ import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { ValidateFunction } from "ajv";
 import { transform, transformPaginated } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
-import { INewOccupationSpec } from "./occupation.types";
+import { INewOccupationSpecWithoutImportId } from "./occupation.types";
 import { Routes } from "routes.constant";
 import { pathToRegexp } from "path-to-regexp";
 import { RoleRequired } from "auth/authenticator";
@@ -192,7 +192,7 @@ export class OccupationController {
       );
     }
 
-    const newOccupationSpec: INewOccupationSpec = {
+    const newOccupationSpec: INewOccupationSpecWithoutImportId = {
       originUri: payload.originUri,
       code: payload.code,
       description: payload.description,
@@ -201,7 +201,6 @@ export class OccupationController {
       occupationType: payload.occupationType as unknown as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,
       modelId: payload.modelId,
       UUIDHistory: payload.UUIDHistory,
-      importId: "",
       occupationGroupCode: payload.occupationGroupCode,
       definition: payload.definition,
       scopeNote: payload.scopeNote,

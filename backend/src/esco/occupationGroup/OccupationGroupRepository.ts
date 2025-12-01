@@ -60,7 +60,7 @@ export interface IOccupationGroupRepository {
    * Returns paginated OccupationGroups. The OccupationGroups are transformed to objects (via .lean()), however
    * in the current version they are not populated with parents or children. This will be implemented in a future version.
    * @param {string} modelId - The modelId of the OccupationGroups.
-   * @param {string} cursor - The cursor for pagination.
+   * @param {Record<string, unknown>} filter - The filter for pagination.
    * @param {number} limit - The maximum number of OccupationGroups to return.
    * @param {boolean} [desc] - Whether to sort the results in descending order. Default is true.
    * @return {Promise<{items: IOccupationGroup[], nextCursor: {_id: string, createdAt: Date} | null}>} - An array of IOccupationGroups and the next cursor (if any)
@@ -68,10 +68,10 @@ export interface IOccupationGroupRepository {
    */
   findPaginated(
     modelId: string,
-    cursor: string | undefined,
-    limit: number,
-    desc?: boolean
-  ): Promise<{ items: IOccupationGroup[]; nextCursor: { _id: string; createdAt: Date } | null }>;
+    filter: Record<string, unknown>,
+    sort: { _id: 1 | -1 },
+    limit: number
+  ): Promise<IOccupationGroup[]>;
 
   /**
    * Encode an object {_id: string, createdAt: Date} into a base64 string
@@ -262,66 +262,68 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
 
   async findPaginated(
     modelId: string,
-    cursor: string | undefined,
-    limit: number,
-    desc: boolean = true
-  ): Promise<{ items: IOccupationGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    filter: Record<string, unknown>,
+    sort: { _id: 1 | -1 },
+    limit: number
+  ): Promise<IOccupationGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
 
       // Build aggregation pipeline
-      const matchStage: Record<string, unknown> = { modelId: modelIdObj };
+      const matchStage: Record<string, unknown> = { modelId: modelIdObj, ...filter };
 
-      if (cursor) {
-        try {
-          const cursorId = new mongoose.Types.ObjectId(cursor);
-          if (desc) {
-            matchStage._id = { $lt: cursorId };
-          } else {
-            matchStage._id = { $gt: cursorId };
-          }
-        } catch (error) {
-          // If cursor is not a valid ObjectId, ignore it
-          console.warn(`Invalid cursor provided: ${cursor}`);
-        }
-      }
+      // if (cursor) {
+      //   try {
+      //     const cursorId = new mongoose.Types.ObjectId(cursor);
+      //     if (desc) {
+      //       matchStage._id = { $lt: cursorId };
+      //     } else {
+      //       matchStage._id = { $gt: cursorId };
+      //     }
+      //   } catch (error) {
+      //     // If cursor is not a valid ObjectId, ignore it
+      //     console.warn(`Invalid cursor provided: ${cursor}`);
+      //   }
+      // }
+
+      // NOTE: We are sending 2 database queries, this is not efficient. This is because mongoose is throwing
+      //       an error when trying to query by _id, using $gt or $lt: ISSUE: https://github.com/Automattic/mongoose/issues/2277#event-171765301
+      //       We are creating to optimize this luxurious improvement.
+      //       https://tabiya-tech.atlassian.net/browse/TAX-31
 
       // Get items + 1 to check if there's a next page
-      const results = await this.Model.aggregate([
-        { $match: matchStage },
-        { $sort: { _id: desc ? -1 : 1 } },
-        { $limit: limit + 1 },
-      ]).exec();
+      const results = await this.Model.aggregate([{ $match: matchStage }, { $sort: sort }, { $limit: limit }]).exec();
 
-      // Separate items and check for next page
-      const hasMore = results.length > limit;
-      const pageDocs = hasMore ? results.slice(0, limit) : results;
-      // Important: the nextCursor should point to the LAST item of the current page,
-      // not the extra fetched one. Using the extra item would skip one element on the next page.
-      const nextCursorDoc = hasMore ? pageDocs[pageDocs.length - 1] : null;
+      // // Separate items and check for next page
+      // const hasMore = results.length > limit;
+      // const pageDocs = hasMore ? results.slice(0, limit) : results;
+      // // Important: the nextCursor should point to the LAST item of the current page,
+      // // not the extra fetched one. Using the extra item would skip one element on the next page.
+      // const nextCursorDoc = hasMore ? pageDocs[pageDocs.length - 1] : null;
 
       // populate parent and children for the page items using existing populate options
-      const idsInOrder = pageDocs.map((d) => d._id.toString());
-      const objectIds = idsInOrder.map((id) => new mongoose.Types.ObjectId(id));
+      const idsInOrder = results.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString());
+      const objectIds = idsInOrder.map((id: string) => new mongoose.Types.ObjectId(id));
       // NOTE: query the page docs and let MongoDB return them already ordered by _id
       const populated = await this.Model.find({ _id: objectIds })
-        .sort({ _id: desc ? -1 : 1 })
+        .sort(sort)
         .populate(populateOccupationGroupParentOptions)
         .populate(populateOccupationGroupChildrenOptions)
         .exec();
 
       // Convert to plain objects
       const orderedObjects: IOccupationGroup[] = populated.map((doc) => doc.toObject());
+      return orderedObjects;
 
-      return {
-        items: orderedObjects,
-        nextCursor: nextCursorDoc
-          ? {
-              _id: nextCursorDoc._id.toString(),
-              createdAt: this.getCreatedAtFromObjectId(nextCursorDoc._id),
-            }
-          : null,
-      };
+      // return {
+      //   items: orderedObjects,
+      //   nextCursor: nextCursorDoc
+      //     ? {
+      //         _id: nextCursorDoc._id.toString(),
+      //         createdAt: this.getCreatedAtFromObjectId(nextCursorDoc._id),
+      //       }
+      //     : null,
+      // };
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);

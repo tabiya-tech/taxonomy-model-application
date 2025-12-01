@@ -9,7 +9,6 @@ import {
   StatusCodes,
   STD_ERRORS_RESPONSES,
 } from "server/httpUtils";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ajvInstance, ParseValidationError } from "validator";
 import AuthAPISpecs from "api-specifications/auth";
 
@@ -18,28 +17,32 @@ import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { ValidateFunction } from "ajv";
 import { transform, transformPaginated } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
-import { INewOccupationGroupSpecWithoutImportId } from "./OccupationGroup.types";
+import {
+  BasePathParams,
+  INewOccupationGroupSpecWithoutImportId,
+  ModalForOccupationGroupValidationErrorCode,
+} from "./OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authenticator";
 import ErrorAPISpecs from "api-specifications/error";
 import { pathToRegexp } from "path-to-regexp";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
+import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroupService.type";
+import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
+import { parsePath } from "common/parsePath/parsePath";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => {
-  const { path, httpMethod } = event;
   const occupationGroupController = new OccupationGroupController();
-
-  if (httpMethod === HTTP_VERBS.POST) {
+  // POST /occupation-groups
+  if (event?.httpMethod === HTTP_VERBS.POST) {
     return occupationGroupController.postOccupationGroup(event);
-  }
-
-  if (httpMethod === HTTP_VERBS.GET) {
-    // Check if it's an individual occupation group request (has ID) or list request
-    const individualMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(path);
+  } else if (event?.httpMethod === HTTP_VERBS.GET) {
+    const pathToMatch = event.path || "";
+    const individualMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch);
     return individualMatch
       ? occupationGroupController.getOccupationGroup(event)
       : occupationGroupController.getOccupationGroups(event);
@@ -47,7 +50,41 @@ export const handler: (
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };
 
-class OccupationGroupController {
+export class OccupationGroupController {
+  private readonly occupationGroupService: IOccupationGroupService;
+  constructor() {
+    this.occupationGroupService = getServiceRegistry().occupationGroup;
+  }
+
+  /**
+   * Encode an object {_id: string, createdAt: Date} into a base64 string
+   * @param {string} id - The Document id to encode
+   * @param {Date} createdAt - The Document creation date to encode
+   * @return {string} - The base64 encoded cursor
+   */
+  private encodeCursor(id: string, createdAt: Date): string {
+    const payload = {
+      id: id,
+      createdAt: createdAt.toISOString(),
+    };
+    const json = JSON.stringify(payload);
+    return Buffer.from(json).toString("base64");
+  }
+
+  /**
+   * Decode a base64 string into an object {_id: string, createdAt: Date}
+   * @param {string} cursor - The base64 encoded cursor
+   * @return {{id: string, createdAt: Date}} - The decoded object
+   */
+  private decodeCursor(cursor: string): { id: string; createdAt: Date } {
+    const json = Buffer.from(cursor, "base64").toString("utf-8");
+    const payload = JSON.parse(json);
+    return {
+      id: payload.id,
+      createdAt: new Date(payload.createdAt),
+    };
+  }
+
   /**
    * @openapi
    *
@@ -126,6 +163,7 @@ class OccupationGroupController {
     }
 
     let payload: OccupationGroupAPISpecs.Types.POST.Request.Payload;
+
     try {
       payload = JSON.parse(event.body as string);
     } catch (error: unknown) {
@@ -141,13 +179,7 @@ class OccupationGroupController {
       const errorDetail = ParseValidationError(validateFunction.errors);
       return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
     }
-
-    // Extract modelId from path parameters and validate it matches the payload
-    const modelIdFromParams = event.pathParameters?.modelId;
-    const pathToMatch = event.path || "";
-    const execMatch = pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.exec(pathToMatch);
-    const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
-
+    const { modelId: resolvedModelId } = parsePath<BasePathParams>(Routes.OCCUPATION_GROUPS_ROUTE, event.path);
     if (!resolvedModelId) {
       return errorResponsePOST(
         StatusCodes.BAD_REQUEST,
@@ -167,50 +199,65 @@ class OccupationGroupController {
       );
     }
 
-    // here first check the model is released or not if it is released do not allow adding occupationGroups for it
-    const model = await getRepositoryRegistry().modelInfo.getModelById(payload.modelId);
-    if (!model) {
-      return errorResponsePOST(
-        StatusCodes.NOT_FOUND,
-        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-        "Failed to create the occupation group because the specified modelId does not exist",
-        "Model could not be found"
-      );
-    }
-    if (model.released) {
-      return errorResponsePOST(
-        StatusCodes.BAD_REQUEST,
-        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-        "Failed to create the occupation group because the specified modelId refers to a released model",
-        "Cannot add occupation groups to a released model"
-      );
-    }
-
     const newOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId = {
       originUri: payload.originUri,
       code: payload.code,
-      description: payload.description,
       preferredLabel: payload.preferredLabel,
       altLabels: payload.altLabels,
-      groupType: payload.groupType,
+      description: payload.description,
       modelId: payload.modelId,
       UUIDHistory: payload.UUIDHistory,
+      groupType: payload.groupType,
     };
     try {
-      const newOccupationGroup = await getRepositoryRegistry().OccupationGroup.create(newOccupationGroupSpec);
+      const newOccupationGroup = await this.occupationGroupService.create(newOccupationGroupSpec);
       return responseJSON(StatusCodes.CREATED, transform(newOccupationGroup, getResourcesBaseUrl()));
     } catch (error: unknown) {
-      // Do not show the error message to the user as it can contain sensitive information such as DB connection string
+      // log an error in the server for debugging purpose
       errorLoggerInstance.logError(
-        "Failed to create the occupation group in the DB",
+        "Failed to create occupation group in the DB",
         error instanceof Error ? error.name : "Unknown error"
       );
-      return errorResponsePOST(
-        StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-        "Failed to create the occupation group in the DB",
-        ""
-      );
+      console.error("Failed to create occupation group:", error);
+      if (error instanceof OccupationGroupModelValidationError) {
+        switch (error.code) {
+          case ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
+            return errorResponsePOST(
+              StatusCodes.NOT_FOUND,
+              OccupationGroupAPISpecs.Enums.POST.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+              "Model not found by the provided ID",
+              ""
+            );
+          case ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
+            return errorResponsePOST(
+              StatusCodes.INTERNAL_SERVER_ERROR,
+              OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+              "Failed to fetch the model detail from the DB",
+              ""
+            );
+          case ModalForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED:
+            return errorResponsePOST(
+              StatusCodes.BAD_REQUEST,
+              OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes.MODEL_IS_RELEASED,
+              "Model is released and cannot be modified",
+              ""
+            );
+          default:
+            return errorResponsePOST(
+              StatusCodes.INTERNAL_SERVER_ERROR,
+              OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+              "Failed to create the occupation group in the DB",
+              ""
+            );
+        }
+      } else {
+        return errorResponsePOST(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+          "Failed to create the occupation group in the DB",
+          error instanceof Error ? error.message : ""
+        );
+      }
     }
   }
 
@@ -268,7 +315,6 @@ class OccupationGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroups(event: APIGatewayProxyEvent) {
-    // here is where the pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
     try {
       // extract the modelId from the pathParameters
       // NOTE: Since we're using a single '{proxy+}' resource in API Gateway path params
@@ -279,7 +325,6 @@ class OccupationGroupController {
       const pathToMatch = event.path || "";
       const execMatch = pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.exec(pathToMatch);
       const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
-
       if (!resolvedModelId) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -304,6 +349,27 @@ class OccupationGroupController {
           JSON.stringify({ reason: "Invalid modelId", path: event.path, pathParameters: event.pathParameters })
         );
       }
+
+      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
+        requestPathParameter.modelId
+      );
+      if (validationResult === ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${requestPathParameter.modelId}`
+        );
+      }
+      if (validationResult === ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
       const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
       const queryParams: OccupationGroupAPISpecs.Types.GET.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
@@ -329,36 +395,44 @@ class OccupationGroupController {
         limit = queryParams.limit;
       }
       // here decode the cursor base64 if provided
-      let cursor: { id: string; createdAt: Date } | null = null;
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
       if (queryParams.cursor) {
-        cursor = getRepositoryRegistry().OccupationGroup.decodeCursor(queryParams.cursor);
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          console.error("Failed to decode cursor:", e);
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
       }
-
-      // here call the repository to get the occupationGroup by limit starting from the cursor id field
-      const currentPageOccupationGroups = await getRepositoryRegistry().OccupationGroup.findPaginated(
+      // here call the service to get the occupation group by limit starting from the cursor
+      const currentPageOccupationGroups = await this.occupationGroupService.findPaginated(
         requestPathParameter.modelId,
-        cursor?.id,
+        decodedCursor,
         limit
       );
 
       let nextCursor: string | null = null;
       if (currentPageOccupationGroups?.nextCursor?._id) {
-        nextCursor = getRepositoryRegistry().OccupationGroup.encodeCursor(
+        nextCursor = this.encodeCursor(
           currentPageOccupationGroups.nextCursor._id,
           currentPageOccupationGroups.nextCursor.createdAt
         );
       }
-
       return responseJSON(
         StatusCodes.OK,
         transformPaginated(currentPageOccupationGroups.items, getResourcesBaseUrl(), limit, nextCursor)
       );
-    } catch (e: unknown) {
+    } catch (error: unknown) {
+      console.error("Failed to retrieve occupation groups:", error);
       errorLoggerInstance.logError(
         "Failed to retrieve the occupation groups from the DB",
-        e instanceof Error ? e.name : "Unknown error"
+        error instanceof Error ? error.name : "Unknown error"
       );
-      // Do not show the error message to the user as it can contain sensitive information such as DB connection string
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
@@ -454,31 +528,41 @@ class OccupationGroupController {
         );
       }
 
-      // Validate that the model exists
-      const model = await getRepositoryRegistry().modelInfo.getModelById(requestPathParameter.modelId);
-      if (!model) {
+      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
+        requestPathParameter.modelId
+      );
+      if (validationResult === ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
+      if (validationResult === ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
 
-      const occupationGroup = await getRepositoryRegistry().OccupationGroup.findById(requestPathParameter.id);
-      if (!occupationGroup?.id) {
+      const occupationGroup = await this.occupationGroupService.findById(requestPathParameter.id);
+      if (!occupationGroup) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND,
           "Occupation group not found",
           `No occupation group found with id: ${requestPathParameter.id}`
         );
       }
       return responseJSON(StatusCodes.OK, transform(occupationGroup, getResourcesBaseUrl()));
-    } catch (e: unknown) {
+    } catch (error: unknown) {
+      console.error("Failed to get occupation group by id:", error);
       errorLoggerInstance.logError(
         "Failed to retrieve the occupation group from the DB",
-        e instanceof Error ? e.name : "Unknown error"
+        error instanceof Error ? error.name : "Unknown error"
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
