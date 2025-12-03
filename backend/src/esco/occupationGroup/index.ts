@@ -255,7 +255,7 @@ export class OccupationGroupController {
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
           "Failed to create the occupation group in the DB",
-          error instanceof Error ? error.message : ""
+          ""
         );
       }
     }
@@ -514,8 +514,8 @@ export class OccupationGroupController {
         OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
 
-      const isValid = validatePathFunction(requestPathParameter);
-      if (!isValid) {
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
           ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,

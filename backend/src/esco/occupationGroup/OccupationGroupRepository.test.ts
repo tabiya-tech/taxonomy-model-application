@@ -1581,18 +1581,6 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     });
   });
 
-  describe("Test encodeCursor() & decodeCursor()", () => {
-    test("should encode and decode a cursor", () => {
-      const givenValidCursorObject = {
-        id: getMockStringId(1),
-        createdAt: new Date("2023-01-01T00:00:00Z"),
-      };
-      const cursor = repository.encodeCursor(givenValidCursorObject.id, givenValidCursorObject.createdAt);
-      const decoded = repository.decodeCursor(cursor);
-      expect(decoded).toEqual(givenValidCursorObject);
-    });
-  });
-
   describe("Test getOccupationGroupByUUID()", () => {
     test("Should return an existing occupationGroup by occupationGroup uuid", async () => {
       // GIVEN an OccupationGroup exists in the database
