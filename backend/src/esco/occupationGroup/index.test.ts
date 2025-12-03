@@ -982,8 +982,6 @@ describe("Test for occupationGroup handler", () => {
         findById: jest.fn().mockResolvedValue(null),
         findAll: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
-        encodeCursor: jest.fn().mockReturnValue(firstPageCursor),
-        decodeCursor: jest.fn().mockReturnValue(firstPageCursorObject),
         getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue([]),
       };
@@ -1280,8 +1278,6 @@ describe("Test for occupationGroup handler", () => {
         findById: jest.fn().mockRejectedValue(new Error("Database connection failed")),
         findAll: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        encodeCursor: jest.fn().mockResolvedValue(""),
-        decodeCursor: jest.fn().mockResolvedValue({}),
         getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue([]),
       };
