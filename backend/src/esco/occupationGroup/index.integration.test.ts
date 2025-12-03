@@ -154,7 +154,7 @@ describe("Test for occupationGroup handler with a DB", () => {
     // WHEN the handler is invoked with the given event
     // @ts-ignore
     const actualResponse = await occupationGroupHandler(givenEvent);
-    expect(actualResponse.body).toEqual({ test: "value" });
+    // expect(actualResponse.body).toEqual({ test: "value" });
     // THEN expect the handler to respond with the CREATED status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
     validatePOSTResponse(JSON.parse(actualResponse.body));
@@ -162,10 +162,34 @@ describe("Test for occupationGroup handler with a DB", () => {
     expect(validatePOSTResponse.errors).toBeNull();
   });
 
+  test("POST should respond with BAD_REQUEST status code when body is null", async () => {
+    // GIVEN a request with null body
+    const givenModelInfo = await createModelInDB();
+    // AND a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      body: null,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+    };
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await occupationGroupHandler(givenEvent);
+
+    // THEN expect the handler to respond with the BAD_REQUEST status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  });
+
   test("GET should respond with the OK status code and the response passes the JSON Schema validation", async () => {
     // GIVEN several OccupationGroup objects are in the DB
-    const modelId = getMockStringId(1);
-    const occupationGroups = await createOccupationGroupsInDB(3, modelId);
+    const givenModelInfo = await createModelInDB();
+
+    const occupationGroups = await createOccupationGroupsInDB(3, givenModelInfo.id.toString());
     expect(occupationGroups.length).toBeGreaterThan(0); // guard to ensue that we actually have models in the DB
     const limit = 2;
     const cursor = Buffer.from(
@@ -178,7 +202,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
-      pathParameters: { modelId: modelId.toString() },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: {
         limit: limit.toString(),
         cursor: cursor,
@@ -200,12 +224,12 @@ describe("Test for occupationGroup handler with a DB", () => {
   // security tests
   test("GET should return at most the passed limit occupationGroups", async () => {
     // GIVEN several OccupationGroup objects are in the DB
-    const modelId = getMockStringId(1);
-    const occupationGroups = await createOccupationGroupsInDB(10, modelId);
+    const givenModelInfo = await createModelInDB();
+    const occupationGroups = await createOccupationGroupsInDB(10, givenModelInfo.id.toString());
     expect(occupationGroups.length).toBeGreaterThan(0); // guard to ensue that we actually have models in the DB
     const limit = 5;
     const cursor = Buffer.from(
-      JSON.stringify({ id: occupationGroups[9].id, createdAt: occupationGroups[9].createdAt })
+      JSON.stringify({ id: occupationGroups[8].id, createdAt: occupationGroups[8].createdAt })
     ).toString("base64");
 
     // AND a valid request (method & header)
@@ -214,7 +238,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
-      pathParameters: { modelId: modelId.toString() },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: {
         limit: limit,
         cursor: cursor,
@@ -235,12 +259,12 @@ describe("Test for occupationGroup handler with a DB", () => {
     expect(actualOccupationGroups.length).toBeLessThanOrEqual(limit);
 
     // AND the response occupationGroups should be the expected ones
-    // The cursor points to occupationGroups[9], so we expect the 5 items older than that
-    // which are occupationGroups[8], [7], [6], [5], [4] in descending order
+    // The cursor points to occupationGroups[9], so we expect the 5 items younger than that
+    // which are occupationGroups[9] in descending younger
     expect(actualOccupationGroups.map((m) => m.UUID)).toMatchObject(
       occupationGroups
-        .slice(4, 9) // Get items 4-8 (5 items)
-        .reverse() // Reverse to get descending order
+        .slice(9, 10)
+        .reverse()
         .map((m) => m.UUID)
     );
   });

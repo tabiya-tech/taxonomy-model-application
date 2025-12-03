@@ -11,6 +11,9 @@ export class ServiceRegistry {
   public get occupation(): IOccupationService {
     return this._services.get("OccupationService");
   }
+  public get occupationGroup(): IOccupationGroupService {
+    return this._services.get("OccupationGroupService");
+  }
 
   public set occupation(service: IOccupationService) {
     this._services.set("OccupationService", service);

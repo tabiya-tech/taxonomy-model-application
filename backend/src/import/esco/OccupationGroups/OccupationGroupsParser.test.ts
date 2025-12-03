@@ -82,8 +82,6 @@ describe("test parseOccupationGroups from", () => {
           );
         }),
         findPaginated: jest.fn().mockResolvedValue({}),
-        encodeCursor: jest.fn().mockReturnValue(null),
-        decodeCursor: jest.fn().mockReturnValue({}),
         getHistory: jest.fn().mockResolvedValue([]),
         findById: jest.fn().mockResolvedValue({}),
         findAll: jest.fn(),
