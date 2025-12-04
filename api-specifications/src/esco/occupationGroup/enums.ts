@@ -33,7 +33,6 @@ namespace OccupationGroupEnums {
       }
       export namespace Status404 {
         export enum ErrorCodes {
-          OCCUPATION_GROUPS_NOT_FOUND = "OCCUPATION_GROUPS_NOT_FOUND",
           OCCUPATION_GROUP_NOT_FOUND = "OCCUPATION_GROUP_NOT_FOUND",
           MODEL_NOT_FOUND = "GET_MODEL_NOT_FOUND",
         }
@@ -50,7 +49,7 @@ namespace OccupationGroupEnums {
       export namespace Status400 {
         export enum ErrorCodes {
           OCCUPATION_GROUP_COULD_NOT_VALIDATE = "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
-          MODEL_IS_RELEASED = "POST_MODEL_IS_RELEASED",
+          UNABLE_TO_ALTER_RELEASED_MODEL = "UNABLE_TO_ALTER_RELEASED_MODEL",
         }
       }
       export namespace Status404 {

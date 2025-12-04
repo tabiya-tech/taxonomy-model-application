@@ -19,7 +19,7 @@ describe("Test the GetErrorSchema function", () => {
   // WHEN the function is validated
   // THEN expect the function to return a valid schema object
   test("APIError.GetErrorSchema returns a valid schema object", () => {
-    const schema = APIError.Schemas.GetPayload("POST", "TestSchema", 500, [
+    const schema = APIError.Schemas.getPayload("POST", "TestSchema", 500, [
       ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
     ]);
     expect(schema).toBeDefined();
@@ -44,14 +44,14 @@ describe("Test the GetErrorSchema function", () => {
   ];
   testValidSchema(
     "APIError.GetErrorSchema",
-    APIError.Schemas.GetPayload("POST", "TestSchema", 500, allValidErrorCodes)
+    APIError.Schemas.getPayload("POST", "TestSchema", 500, allValidErrorCodes)
   );
 });
 
 describe("Validate JSON against the APIError GetErrorSchema function", () => {
   // GIVEN a valid APIError object
   const errorCodes = Object.values(APIError.Constants.Common.ErrorCodes);
-  const schema = APIError.Schemas.GetPayload("POST", "TestSchema", 500, errorCodes);
+  const schema = APIError.Schemas.getPayload("POST", "TestSchema", 500, errorCodes);
   const validPayload: APIError.Types.GetPayload = {
     errorCode: errorCodes[0],
     message: "Test message",
@@ -119,7 +119,7 @@ describe("Validate JSON against the APIError GetErrorSchema function", () => {
         //@ts-ignore
       ])("(%s) Validate errorCode when it is %s", (caseType, _description, givenValue, failureMessages) => {
         // GIVEN an object with the given value
-        const schema = APIError.Schemas.GetPayload("POST", "TestSchema", 500, allValidErrorCodes);
+        const schema = APIError.Schemas.getPayload("POST", "TestSchema", 500, allValidErrorCodes);
         const givenObject: APIError.Types.GetPayload = {
           //@ts-ignore
           errorCode: givenValue,
@@ -130,7 +130,7 @@ describe("Validate JSON against the APIError GetErrorSchema function", () => {
       });
     });
     describe("Test validate of 'message'", () => {
-      const schema = APIError.Schemas.GetPayload(
+      const schema = APIError.Schemas.getPayload(
         "POST",
         "TestSchema",
         500,
@@ -139,7 +139,7 @@ describe("Validate JSON against the APIError GetErrorSchema function", () => {
       testStringField<typeof schema>("message", APIError.Constants.MAX_MESSAGE_LENGTH, schema);
     });
     describe("Test validate of 'details'", () => {
-      const schema = APIError.Schemas.GetPayload(
+      const schema = APIError.Schemas.getPayload(
         "POST",
         "TestSchema",
         500,

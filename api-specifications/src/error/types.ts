@@ -4,6 +4,7 @@ import ModelInfo from "../modelInfo";
 import ErrorConstants from "./constants";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
+import { StatusCodes } from "http-status-codes";
 
 namespace ErrorTypes {
   // This is here to make sure the namespace is not empty and the:
@@ -68,7 +69,7 @@ namespace ErrorTypes {
     details: string;
   }
 
-  export type Codes = 400 | 401 | 403 | 404 | 405 | 408 | 409 | 413 | 415 | 419 | 500 | 501 | 502 | 503 | 504 | 505;
+  export type Codes = StatusCodes;
   export type METHODS = "POST" | "GET" | "PATCH" | "PUT" | "DELETE" | "ALL";
 }
 export default ErrorTypes;
