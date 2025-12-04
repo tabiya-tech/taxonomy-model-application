@@ -3,7 +3,7 @@ import { SchemaObject } from "ajv";
 import { RegExp_Str_NotEmptyString } from "../regex";
 import { _baseProperties } from "./schema";
 
-export const GetErrorSchema = (
+export const getErrorSchema = (
   method: ErrorTypes.METHODS,
   schemaName: string,
   code: ErrorTypes.Codes,

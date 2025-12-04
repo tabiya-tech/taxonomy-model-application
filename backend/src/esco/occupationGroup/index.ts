@@ -129,7 +129,7 @@ export class OccupationGroupController {
    *           content:
    *             application/json:
    *               schema:
-   *                 $ref: '#/components/schemas/AllForbidden401ResponseSchema'
+   *                 $ref: '#/components/schemas/AllForbidden403ResponseSchema'
    *         '401':
    *           $ref: '#/components/responses/UnAuthorizedResponse'
    *         '415':
@@ -238,7 +238,7 @@ export class OccupationGroupController {
           case ModalForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED:
             return errorResponsePOST(
               StatusCodes.BAD_REQUEST,
-              OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes.MODEL_IS_RELEASED,
+              OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
               "Model is released and cannot be modified",
               ""
             );
@@ -304,6 +304,12 @@ export class OccupationGroupController {
    *              $ref: '#/components/schemas/GETOccupationGroup400ErrorSchema'
    *      '401':
    *        $ref: '#/components/responses/UnAuthorizedResponse'
+   *      '404':
+   *        description: Occupation groups not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETOccupationGroups404ErrorSchema'
    *      '500':
    *        description: |
    *          The server encountered an unexpected condition.
@@ -472,13 +478,6 @@ export class OccupationGroupController {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/OccupationGroupResponseSchemaPOST'
-   *     '400':
-   *       description: |
-   *         Failed to retrieve the occupation group. Additional information can be found in the response body.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/AllNotFound404ResponseSchema'
    *     '401':
    *       $ref: '#/components/responses/UnAuthorizedResponse'
    *     '404':

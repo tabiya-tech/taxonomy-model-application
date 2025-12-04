@@ -154,7 +154,6 @@ describe("Test for occupationGroup handler with a DB", () => {
     // WHEN the handler is invoked with the given event
     // @ts-ignore
     const actualResponse = await occupationGroupHandler(givenEvent);
-    // expect(actualResponse.body).toEqual({ test: "value" });
     // THEN expect the handler to respond with the CREATED status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
     validatePOSTResponse(JSON.parse(actualResponse.body));

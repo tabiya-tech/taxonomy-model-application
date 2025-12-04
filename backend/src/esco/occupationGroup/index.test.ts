@@ -367,7 +367,7 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes.MODEL_IS_RELEASED,
+        errorCode: OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
         message: "Model is released and cannot be modified",
         details: "",
       };
@@ -611,7 +611,6 @@ describe("Test for occupationGroup handler", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: {},
       pathParameters: { modelId: givenModelId.toString() },
-      queryStringParameters: {},
     };
 
     // AND a configured base path for resource
