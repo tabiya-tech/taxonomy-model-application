@@ -159,7 +159,7 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
       "Response": {
         "ById": {
           "Payload": {
-            "$id": "/components/schemas/SkillGroupResponseSchemaPOST",
+            "$id": "/components/schemas/SkillGroupResponseSchemaGETById",
             "additionalProperties": false,
             "properties": {
               "UUID": {
@@ -712,7 +712,7 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
       "Request": {
         "Param": {
           "Payload": {
-            "$id": "/components/schemas/SkillGroupRequestParamSchemaGET",
+            "$id": "/components/schemas/SkillGroupRequestParamSchemaPOST",
             "additionalProperties": false,
             "properties": {
               "modelId": {
