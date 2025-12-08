@@ -406,7 +406,6 @@ export class OccupationController {
       return responseJSON(StatusCodes.OK, transform(occupation, getResourcesBaseUrl()));
     } catch (e: unknown) {
       console.error("Failed to retrieve occupation by ID:", e);
-      // Do not show the error message to the user as it can contain sensitive information such as DB connection string
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
@@ -594,9 +593,8 @@ export class OccupationController {
       );
     } catch (e: unknown) {
       console.error("Failed to retrieve occupations:", e);
-      // Do not show the error message to the user as it can contain sensitive information such as DB connection string
       return errorResponse(
-        StatusCodes.INTERNAL_SERVER_ERROR,
+        StatusCodes.BAD_REQUEST,
         OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
         "Failed to retrieve the occupations from the DB",
         ""
