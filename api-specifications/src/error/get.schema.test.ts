@@ -39,8 +39,12 @@ describe("Test the GetErrorSchema function", () => {
     ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
     ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
     ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
-    ...Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
-    ...Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
+    ...Object.values(OccupationAPI.Enums.POST.Response.Status400.ErrorCodes),
+    ...Object.values(OccupationAPI.Enums.POST.Response.Status404.ErrorCodes),
+    ...Object.values(OccupationAPI.Enums.POST.Response.Status500.ErrorCodes),
+    ...Object.values(OccupationAPI.Enums.GET.Response.Status400.ErrorCodes),
+    ...Object.values(OccupationAPI.Enums.GET.Response.Status404.ErrorCodes),
+    ...Object.values(OccupationAPI.Enums.GET.Response.Status500.ErrorCodes),
   ];
   testValidSchema(
     "APIError.GetErrorSchema",
@@ -78,8 +82,12 @@ describe("Validate JSON against the APIError GetErrorSchema function", () => {
         ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
         ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
         ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.POST.Response.Status400.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.POST.Response.Status404.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.POST.Response.Status500.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.GET.Response.Status400.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.GET.Response.Status404.ErrorCodes),
+        ...Object.values(OccupationAPI.Enums.GET.Response.Status500.ErrorCodes),
       ];
       test.each([
         [

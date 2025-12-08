@@ -125,15 +125,30 @@ export class OccupationController {
    *           content:
    *             application/json:
    *                schema:
-   *                  $ref: '#/components/schemas/ErrorSchema'
+   *                  $ref: '#/components/schemas/POSTOccupation400ErrorSchema'
    *         '403':
-   *           $ref: '#/components/responses/ForbiddenResponse'
+   *           description: |
+   *             The request has not been applied because you don't have the right permissions to access this resource.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/AllForbidden403ResponseSchema'
    *         '401':
    *           $ref: '#/components/responses/UnAuthorizedResponse'
    *         '415':
-   *           $ref: '#/components/responses/AcceptOnlyJSONResponse'
+   *           description: |
+   *             The request is not supported because the media type is not acceptable.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/AllContentType415ResponseSchema'
    *         '500':
-   *           $ref: '#/components/responses/InternalServerErrorResponse'
+   *           description: |
+   *             The server encountered an unexpected condition.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/All500ResponseSchema'
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
@@ -177,7 +192,7 @@ export class OccupationController {
     if (!resolvedModelId) {
       return errorResponse(
         StatusCodes.BAD_REQUEST,
-        OccupationAPISpecs.Enums.POST.Response.ErrorCodes.INVALID_MODEL_ID,
+        OccupationAPISpecs.Enums.POST.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
         "modelId is missing in the path",
         JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
       );
@@ -186,7 +201,7 @@ export class OccupationController {
     if (payload.modelId !== resolvedModelId) {
       return errorResponse(
         StatusCodes.BAD_REQUEST,
-        OccupationAPISpecs.Enums.POST.Response.ErrorCodes.INVALID_MODEL_ID,
+        OccupationAPISpecs.Enums.POST.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
         "modelId in payload does not match modelId in path",
         `Payload modelId: ${payload.modelId}, Path modelId: ${resolvedModelId}`
       );
@@ -219,28 +234,28 @@ export class OccupationController {
           case ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
             return errorResponse(
               StatusCodes.NOT_FOUND,
-              OccupationAPISpecs.Enums.POST.Response.ErrorCodes.INVALID_MODEL_ID,
+              OccupationAPISpecs.Enums.POST.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
               "Model not found by the provided ID",
               ""
             );
           case ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
             return errorResponse(
               StatusCodes.INTERNAL_SERVER_ERROR,
-              OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+              OccupationAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
               "Failed to fetch the model details from the DB",
               ""
             );
           case ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED:
             return errorResponse(
               StatusCodes.BAD_REQUEST,
-              OccupationAPISpecs.Enums.POST.Response.ErrorCodes.MODEL_ALREADY_RELEASED,
+              OccupationAPISpecs.Enums.POST.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
               "Cannot add occupations to a released model",
               ""
             );
           default:
             return errorResponse(
               StatusCodes.INTERNAL_SERVER_ERROR,
-              OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+              OccupationAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
               "Failed to create the occupation in the DB",
               ""
             );
@@ -248,7 +263,7 @@ export class OccupationController {
       } else {
         const statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
         const userMessage = "Failed to create the occupation in the DB";
-        const errorCode = OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION;
+        const errorCode = OccupationAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION;
 
         return errorResponse(statusCode, errorCode, userMessage, "");
       }
@@ -292,7 +307,7 @@ export class OccupationController {
    *        content:
    *          application/json:
    *            schema:
-   *              $ref: '#/components/schemas/ErrorSchema'
+   *              $ref: '#/components/schemas/GETOccupation400ErrorSchema'
    *      '401':
    *        $ref: '#/components/responses/UnAuthorizedResponse'
    *      '404':
@@ -300,9 +315,14 @@ export class OccupationController {
    *        content:
    *          application/json:
    *            schema:
-   *              $ref: '#/components/schemas/ErrorSchema'
+   *              $ref: '#/components/schemas/GETOccupation404ErrorSchema'
    *      '500':
-   *        $ref: '#/components/responses/InternalServerErrorResponse'
+   *        description: |
+   *          The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
@@ -319,7 +339,7 @@ export class OccupationController {
       if (!resolvedModelId) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_MODEL_ID,
+          OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
           "modelId is missing in the path",
           JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
         );
@@ -328,7 +348,7 @@ export class OccupationController {
       if (!resolvedId) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_OCCUPATION_ID,
+          OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_OCCUPATION_ID,
           "id is missing in the path",
           JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
         );
@@ -356,7 +376,7 @@ export class OccupationController {
       if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -364,7 +384,7 @@ export class OccupationController {
       if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponse(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -377,7 +397,7 @@ export class OccupationController {
       if (!occupation) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
           "Occupation not found",
           JSON.stringify({ id: resolvedId })
         );
@@ -389,7 +409,7 @@ export class OccupationController {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+        OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
         "Failed to retrieve the occupation from the DB",
         ""
       );
@@ -436,11 +456,22 @@ export class OccupationController {
    *        content:
    *          application/json:
    *            schema:
-   *              $ref: '#/components/schemas/ErrorSchema'
+   *              $ref: '#/components/schemas/GETOccupation400ErrorSchema'
    *      '401':
    *        $ref: '#/components/responses/UnAuthorizedResponse'
+   *      '404':
+   *        description: Occupations not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETOccupations404ErrorSchema'
    *      '500':
-   *        $ref: '#/components/responses/InternalServerErrorResponse'
+   *        description: |
+   *          The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
@@ -460,7 +491,7 @@ export class OccupationController {
       if (!resolvedModelId) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_MODEL_ID,
+          OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
           "modelId is missing in the path",
           JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
         );
@@ -487,7 +518,7 @@ export class OccupationController {
       if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -495,7 +526,7 @@ export class OccupationController {
       if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponse(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -535,7 +566,7 @@ export class OccupationController {
           console.error("Failed to decode the cursor", e);
           return errorResponse(
             StatusCodes.INTERNAL_SERVER_ERROR,
-            OccupationAPISpecs.Enums.GET.Response.ErrorCodes.INVALID_NEXT_CURSOR,
+            OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
             "Failed to decode the cursor provided in the query parameter",
             ""
           );
@@ -566,7 +597,7 @@ export class OccupationController {
       // Do not show the error message to the user as it can contain sensitive information such as DB connection string
       return errorResponse(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+        OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
         "Failed to retrieve the occupations from the DB",
         ""
       );

@@ -240,6 +240,32 @@ describe("test the transformation of parent and children objectType fields in IO
     expect(actual.children[0].objectType).toBe(OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation);
   });
 
+  test("should throw error when child is not an occupation", () => {
+    // GIVEN an occupation with a child that doesn't have occupationType (invalid child)
+    const invalidChild = {
+      UUID: randomUUID(),
+      code: getRandomString(5),
+      id: getMockStringId(1),
+      preferredLabel: getRandomString(15),
+      objectType: ObjectTypes.ISCOGroup, // This makes it not an occupation
+      occupationGroupCode: getRandomString(5),
+      isLocalized: false,
+    } as unknown as IOccupationReference;
+
+    const givenObject: IOccupation = {
+      ...getIOccupationMockData(),
+      children: [invalidChild],
+    };
+
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    // THEN expect it to throw an error
+    expect(() => transform(givenObject, basePath)).toThrow(
+      "An occupation can only have a child of occupation and not occupation groups."
+    );
+  });
+
   test("should transform parent with objectType = LocalGroup", () => {
     const parent = {
       UUID: randomUUID(),
@@ -538,6 +564,79 @@ describe("test the transformation of requiresSkills field", () => {
     expect(actual.requiresSkills[0].signallingValue).toBe(null);
     // @ts-ignore
     expect(actual.requiresSkills[0].signallingValueLabel).toBe(undefined);
+  });
+
+  test("should handle requiresSkills with NONE relation type", () => {
+    // GIVEN an occupation with requiresSkills that have NONE relation type
+    const givenObject = getIOccupationMockData();
+    givenObject.requiresSkills = [
+      {
+        id: getMockStringId(7),
+        UUID: randomUUID(),
+        preferredLabel: getRandomString(15),
+        isLocalized: false,
+        objectType: ObjectTypes.Skill,
+        relationType: OccupationToSkillRelationType.NONE,
+        signallingValue: 50,
+        signallingValueLabel: "Medium",
+      } as unknown as (typeof givenObject.requiresSkills)[0],
+    ];
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect relationType to be NONE
+    expect(actual.requiresSkills[0].relationType).toBe(OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE);
+  });
+
+  test("should handle requiresSkills with OPTIONAL relation type", () => {
+    // GIVEN an occupation with requiresSkills that have OPTIONAL relation type
+    const givenObject = getIOccupationMockData();
+    givenObject.requiresSkills = [
+      {
+        id: getMockStringId(9),
+        UUID: randomUUID(),
+        preferredLabel: getRandomString(15),
+        isLocalized: false,
+        objectType: ObjectTypes.Skill,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValue: 75,
+        signallingValueLabel: "High",
+      } as unknown as (typeof givenObject.requiresSkills)[0],
+    ];
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect relationType to be OPTIONAL
+    expect(actual.requiresSkills[0].relationType).toBe(OccupationAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL);
+  });
+
+  test("should handle requiresSkills with unknown relation type (default case)", () => {
+    // GIVEN an occupation with requiresSkills that have an unknown relation type
+    const givenObject = getIOccupationMockData();
+    const invalidRelationType = 999 as unknown as OccupationToSkillRelationType;
+    givenObject.requiresSkills = [
+      {
+        id: getMockStringId(8),
+        UUID: randomUUID(),
+        preferredLabel: getRandomString(15),
+        isLocalized: false,
+        objectType: ObjectTypes.Skill,
+        relationType: invalidRelationType, // Invalid relation type to trigger default case
+        signallingValue: 50,
+        signallingValueLabel: "Medium",
+      } as unknown as (typeof givenObject.requiresSkills)[0],
+    ];
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect relationType to be NONE (default case)
+    expect(actual.requiresSkills[0].relationType).toBe(OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE);
   });
 });
 

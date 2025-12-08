@@ -381,8 +381,9 @@ describe("Test the OccupationService", () => {
     test("should handle ascending sort order", async () => {
       // GIVEN parameters
       const givenModelId = getMockStringId(1);
+      const givenCursor = { id: getMockStringId(2), createdAt: new Date("2023-01-01T00:00:00.000Z") };
       const givenLimit = 10;
-      const givenDesc = false;
+      const givenDesc = false; // ascending
 
       // AND the repository returns items
       const mockItems = Array.from(
@@ -414,11 +415,16 @@ describe("Test the OccupationService", () => {
       );
       mockRepository.findPaginated.mockResolvedValue(mockItems);
 
-      // WHEN calling service.findPaginated with desc=false
-      const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc);
+      // WHEN calling service.findPaginated with desc=false and cursor
+      const actual = await service.findPaginated(givenModelId, givenCursor, givenLimit, givenDesc);
 
-      // THEN expect repository.findPaginated to be called with ascending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, {}, { _id: 1 }, 11);
+      // THEN expect repository.findPaginated to be called with ascending sort and $gt filter
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        { _id: { $gt: expect.any(Object) } }, // filter should be { _id: { $gt: cursorId } } since sortOrder = 1
+        { _id: 1 },
+        11
+      );
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
