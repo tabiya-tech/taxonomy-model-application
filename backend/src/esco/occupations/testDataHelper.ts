@@ -65,17 +65,6 @@ export function getIOccupationMockDataWithOccupationChildren(n: number = 1): IOc
   return { ...getIOccupationMockData(n), children: [child] };
 }
 
-export function getIOccupationMockDataWithOccupationGroupChildren(n: number = 1): IOccupation {
-  const child: IOccupationGroupReference = {
-    id: getMockStringId(n + 1),
-    UUID: randomUUID(),
-    preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-    objectType: ObjectTypes.ISCOGroup,
-  };
-  return { ...getIOccupationMockData(n), children: [child] };
-}
-
 export function getIOccupationMockDataWithParentOccupation(n: number = 1): IOccupation {
   const parent: IOccupationReference = {
     id: getMockStringId(n + 1),

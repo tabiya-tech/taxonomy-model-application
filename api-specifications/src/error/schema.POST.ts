@@ -27,7 +27,9 @@ const ErrorSchemaPOST: SchemaObject = {
           ...Object.values(SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
           ...Object.values(SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
           ...Object.values(SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
-          ...Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
+          ...Object.values(OccupationAPI.Enums.POST.Response.Status400.ErrorCodes),
+        Object.values(OccupationAPI.Enums.POST.Response.Status404.ErrorCodes),
+        Object.values(OccupationAPI.Enums.POST.Response.Status500.ErrorCodes),
         ])
       ),
       pattern: RegExp_Str_NotEmptyString,
