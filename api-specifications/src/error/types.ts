@@ -26,8 +26,12 @@ namespace ErrorTypes {
       | OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes
       | OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes
       | OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationAPI.Enums.POST.Response.ErrorCodes
-      | OccupationAPI.Enums.GET.Response.ErrorCodes
+      | OccupationAPI.Enums.POST.Response.Status400.ErrorCodes
+      | OccupationAPI.Enums.POST.Response.Status404.ErrorCodes
+      | OccupationAPI.Enums.POST.Response.Status500.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.ErrorCodes
       | ModelInfo.Enums.GET.Response.ErrorCodes; // The UI could use to display some useful information
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
@@ -47,7 +51,9 @@ namespace ErrorTypes {
       | OccupationGroupAPI.Enums.POST.Response.Status400.ErrorCodes
       | OccupationGroupAPI.Enums.POST.Response.Status404.ErrorCodes
       | OccupationGroupAPI.Enums.POST.Response.Status500.ErrorCodes
-      | OccupationAPI.Enums.POST.Response.ErrorCodes;
+      | OccupationAPI.Enums.POST.Response.Status400.ErrorCodes
+      | OccupationAPI.Enums.POST.Response.Status404.ErrorCodes
+      | OccupationAPI.Enums.POST.Response.Status500.ErrorCodes;
     message: string;
     details: string;
   }
@@ -59,7 +65,9 @@ namespace ErrorTypes {
       | OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes
       | OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes
       | OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationAPI.Enums.GET.Response.ErrorCodes;
+      | OccupationAPI.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.ErrorCodes;
     message: string;
     details: string;
   }

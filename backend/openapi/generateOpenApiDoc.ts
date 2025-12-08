@@ -196,12 +196,31 @@ NOTES:
             404,
             Object.values(OccupationGroup.Enums.GET.Response.Status404.ErrorCodes)
           ),
-          GETOccupationGroups404ErrorSchema: APIError.Schemas.getPayload(
-            "GET",
-            "OccupationGroups",
-            404,
-            [OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND]
+          GETOccupationGroups404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroups", 404, [
+            OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          ]),
+          // Occupation-specific error schemas
+          POSTOccupation400ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "Occupation",
+            400,
+            Object.values(Occupation.Enums.POST.Response.Status400.ErrorCodes)
           ),
+          GETOccupation400ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "Occupation",
+            400,
+            Object.values(Occupation.Enums.GET.Response.Status400.ErrorCodes)
+          ),
+          GETOccupation404ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "Occupation",
+            404,
+            Object.values(Occupation.Enums.GET.Response.Status404.ErrorCodes)
+          ),
+          GETOccupations404ErrorSchema: APIError.Schemas.getPayload("GET", "Occupations", 404, [
+            Occupation.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          ]),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,

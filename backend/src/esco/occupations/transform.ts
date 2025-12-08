@@ -33,7 +33,6 @@ function transformChildObjectType(
 ): OccupationAPISpecs.Enums.Relations.Children.ObjectTypes {
   const isOccupation = "occupationType" in child;
   if (!isOccupation) {
-    // ref: backend/taxonomy-hierarchy.md
     throw new Error("An occupation can only have a child of occupation and not occupation groups.");
   }
 
@@ -78,7 +77,7 @@ function transformOccupationType(occupationType: IOccupation["occupationType"]) 
   return OccupationAPISpecs.Enums.OccupationType.LocalOccupation;
 }
 
-function transformSkillRelationType(
+export function transformSkillRelationType(
   relationType: IOccupation["requiresSkills"][number]["relationType"]
 ): OccupationAPISpecs.Enums.OccupationToSkillRelationType {
   switch (relationType) {
