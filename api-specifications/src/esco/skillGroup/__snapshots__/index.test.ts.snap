@@ -23,20 +23,44 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
   "Enums": {
     "GET": {
       "Response": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_SKILL_GROUPS": "DB_FAILED_TO_RETRIEVE_SKILL_GROUPS",
-          "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-          "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+        "Status400": {
+          "ErrorCodes": {
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "GET_MODEL_NOT_FOUND",
+            "SKILL_GROUP_NOT_FOUND": "SKILL_GROUP_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_RETRIEVE_SKILL_GROUPS": "DB_FAILED_TO_RETRIEVE_SKILL_GROUPS",
+          },
         },
       },
     },
     "POST": {
       "Response": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_CREATE_SKILL_GROUP": "DB_FAILED_TO_CREATE_SKILL_GROUP",
-          "DB_FAILED_TO_CREATE_SKILL_GROUP_ON_ALREADY_RELEASED_MODEL": "DB_FAILED_TO_CREATE_SKILL_GROUP_ON_ALREADY_RELEASED_MODEL",
-          "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL_GROUP": "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL_GROUP",
-          "SKILL_GROUP_COULD_NOT_VALIDATE": "SKILL_GROUP_COULD_NOT_VALIDATE",
+        "Status400": {
+          "ErrorCodes": {
+            "SKILL_GROUP_COULD_NOT_VALIDATE": "SKILL_GROUP_COULD_NOT_VALIDATE",
+            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "POST_MODEL_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_CREATE_SKILL_GROUP": "DB_FAILED_TO_CREATE_SKILL_GROUP",
+            "DB_FAILED_TO_CREATE_SKILL_GROUP_ON_ALREADY_RELEASED_MODEL": "DB_FAILED_TO_CREATE_SKILL_GROUP_ON_ALREADY_RELEASED_MODEL",
+            "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL_GROUP": "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL_GROUP",
+          },
         },
       },
     },
