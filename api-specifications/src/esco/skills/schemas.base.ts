@@ -276,12 +276,12 @@ export const _baseResponseSchema = {
           objectType: {
             description: "The object type of the requiring occupation.",
             type: "string",
-            enum: ["ESCOOccupation", "LocalOccupation"],
+            enum: Object.values(SkillEnums.OccupationObjectTypes),
           },
           relationType: {
             description: "Used for ESCOOccupations only.",
             type: ["string", "null"],
-            enum: ["essential", "optional", null],
+            enum: Object.values(SkillEnums.OccupationToSkillRelationType),
           },
           signallingValue: {
             description: "Used for LocalOccupations only.",
@@ -293,7 +293,7 @@ export const _baseResponseSchema = {
             description: "Used for LocalOccupations only.",
             type: ["string", "null"],
             maxLength: 256,
-            pattern: RegExp_Str_NotEmptyString,
+            enum: Object.values(SkillEnums.SignallingValueLabel),
           },
         },
         required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType"],

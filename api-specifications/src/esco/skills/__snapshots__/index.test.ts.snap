@@ -23,11 +23,24 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
   "Enums": {
     "GET": {
       "Response": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_SKILLS": "DB_FAILED_TO_RETRIEVE_SKILLS",
-          "INVALID_LIMIT_FOR_SKILLS": "INVALID_LIMIT_FOR_SKILLS",
-          "INVALID_NEXT_CURSOR_FOR_SKILLS": "INVALID_NEXT_CURSOR_FOR_SKILLS",
-          "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+        "Status400": {
+          "ErrorCodes": {
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER_FOR_SKILLS",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER_FOR_SKILLS",
+            "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND_FOR_SKILL_GET",
+            "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL": "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL",
+            "DB_FAILED_TO_RETRIEVE_SKILLS": "DB_FAILED_TO_RETRIEVE_SKILLS",
+          },
         },
       },
     },
@@ -36,13 +49,32 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
       "Skill": "skill",
       "SkillGroup": "skillgroup",
     },
+    "OccupationObjectTypes": {
+      "ESCOOccupation": "ESCOOccupation",
+      "LocalOccupation": "LocalOccupation",
+    },
+    "OccupationToSkillRelationType": {
+      "ESSENTIAL": "essential",
+      "NONE": "",
+      "OPTIONAL": "optional",
+    },
     "POST": {
       "Response": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_CREATE_SKILL": "DB_FAILED_TO_CREATE_SKILL",
-          "DB_FAILED_TO_CREATE_SKILL_ON_ALREADY_RELEASED_MODEL": "DB_FAILED_TO_CREATE_SKILL_ON_ALREADY_RELEASED_MODEL",
-          "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL": "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL",
-          "SKILL_COULD_NOT_VALIDATE": "SKILL_COULD_NOT_VALIDATE",
+        "Status400": {
+          "ErrorCodes": {
+            "SKILL_COULD_NOT_VALIDATE": "SKILL_COULD_NOT_VALIDATE",
+            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL_FOR_SKILLS",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND_FOR_SKILL_CREATE",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_CREATE_SKILL": "DB_FAILED_TO_CREATE_SKILL",
+          },
         },
       },
     },
@@ -65,6 +97,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
       "OccupationSpecific": "occupation-specific",
       "SectorSpecific": "sector-specific",
       "Transversal": "transversal",
+    },
+    "SignallingValueLabel": {
+      "HIGH": "high",
+      "LOW": "low",
+      "MEDIUM": "medium",
+      "NONE": "",
     },
     "SkillToSkillRelationType": {
       "BROADER": "broader",
@@ -350,9 +388,9 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "relationType": {
                           "description": "Used for ESCOOccupations only.",
                           "enum": [
+                            "",
                             "essential",
                             "optional",
-                            null,
                           ],
                           "type": [
                             "string",
@@ -370,8 +408,13 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         },
                         "signallingValueLabel": {
                           "description": "Used for LocalOccupations only.",
+                          "enum": [
+                            "",
+                            "low",
+                            "medium",
+                            "high",
+                          ],
                           "maxLength": 256,
-                          "pattern": "\\S",
                           "type": [
                             "string",
                             "null",
@@ -890,9 +933,9 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "relationType": {
                     "description": "Used for ESCOOccupations only.",
                     "enum": [
+                      "",
                       "essential",
                       "optional",
-                      null,
                     ],
                     "type": [
                       "string",
@@ -910,8 +953,13 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   },
                   "signallingValueLabel": {
                     "description": "Used for LocalOccupations only.",
+                    "enum": [
+                      "",
+                      "low",
+                      "medium",
+                      "high",
+                    ],
                     "maxLength": 256,
-                    "pattern": "\\S",
                     "type": [
                       "string",
                       "null",

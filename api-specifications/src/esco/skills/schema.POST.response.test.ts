@@ -90,7 +90,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.POST.Response.Payload s
         objectType: "ESCOOccupation",
         relationType: "essential",
         signallingValue: null,
-        signallingValueLabel: null,
+        signallingValueLabel: "",
       },
     ],
     createdAt: new Date().toISOString(),

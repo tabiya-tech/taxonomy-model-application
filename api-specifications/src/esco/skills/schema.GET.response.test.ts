@@ -75,7 +75,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
       objectType: "ESCOOccupation",
       relationType: "essential",
       signallingValue: null,
-      signallingValueLabel: null,
+      signallingValueLabel: "",
     },
   ];
 
