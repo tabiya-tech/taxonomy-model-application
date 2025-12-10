@@ -8,7 +8,7 @@ const SchemaGETResponse: SchemaObject = {
   type: "object",
   additionalProperties: false,
   properties: {
-    items: {
+    data: {
       type: "array",
       items: {
         $id: "/components/schemas/SkillItem",
@@ -24,7 +24,7 @@ const SchemaGETResponse: SchemaObject = {
       maximum: SkillConstants.MAX_LIMIT,
       default: SkillConstants.MAX_LIMIT,
     },
-    next_cursor: {
+    nextCursor: {
       type: ["string", "null"],
       description:
         "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
@@ -32,7 +32,7 @@ const SchemaGETResponse: SchemaObject = {
       pattern: RegExp_Str_NotEmptyString,
     },
   },
-  required: ["items", "limit"],
+  required: ["data", "limit"],
 };
 
 export default SchemaGETResponse;

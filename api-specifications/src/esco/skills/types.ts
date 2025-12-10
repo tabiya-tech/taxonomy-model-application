@@ -74,9 +74,9 @@ interface ISkillRequest {
 }
 
 interface PaginatedSkillResponse {
-  items: ISkillResponse[];
+  data: ISkillResponse[];
   limit: number;
-  next_cursor: string | null;
+  nextCursor: string | null;
 }
 
 interface ISkillParam {

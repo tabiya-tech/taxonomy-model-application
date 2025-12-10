@@ -108,9 +108,9 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
 
   // Create a valid paginated response object
   const givenValidPaginatedResponse = {
-    items: [givenValidSkillGETResponse],
+    data: [givenValidSkillGETResponse],
     limit: SkillConstants.MAX_LIMIT,
-    next_cursor: getTestString(SkillConstants.MAX_CURSOR_LENGTH),
+    nextCursor: getTestString(SkillConstants.MAX_CURSOR_LENGTH),
   };
 
   // Test with a valid paginated response
@@ -138,47 +138,47 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
         [
           CaseType.Failure,
           "undefined",
-          { items: [givenValidSkillGETResponse] }, // Include valid items
+          { data: [givenValidSkillGETResponse] }, // Include valid data
           constructSchemaError("", "required", "must have required property 'limit'"), // Adjusted error path
         ],
         [
           CaseType.Failure,
           "null",
-          { items: [givenValidSkillGETResponse], limit: null },
+          { data: [givenValidSkillGETResponse], limit: null },
           constructSchemaError("/limit", "type", "must be integer"),
         ],
         [
           CaseType.Failure,
           "string",
-          { items: [givenValidSkillGETResponse], limit: "10" },
+          { data: [givenValidSkillGETResponse], limit: "10" },
           constructSchemaError("/limit", "type", "must be integer"),
         ],
         [
           CaseType.Failure,
           "float",
-          { items: [givenValidSkillGETResponse], limit: 1.1 },
+          { data: [givenValidSkillGETResponse], limit: 1.1 },
           constructSchemaError("/limit", "type", "must be integer"),
         ],
         [
           CaseType.Failure,
           "zero",
-          { items: [givenValidSkillGETResponse], limit: 0 },
+          { data: [givenValidSkillGETResponse], limit: 0 },
           constructSchemaError("/limit", "minimum", "must be >= 1"),
         ],
         [
           CaseType.Failure,
           "over max",
-          { items: [givenValidSkillGETResponse], limit: SkillConstants.MAX_LIMIT + 1 },
+          { data: [givenValidSkillGETResponse], limit: SkillConstants.MAX_LIMIT + 1 },
           constructSchemaError("/limit", "maximum", `must be <= ${SkillConstants.MAX_LIMIT}`),
         ],
-        [CaseType.Success, "one", { items: [givenValidSkillGETResponse], limit: 1 }, undefined],
-        [CaseType.Success, "ten", { items: [givenValidSkillGETResponse], limit: 10 }, undefined],
+        [CaseType.Success, "one", { data: [givenValidSkillGETResponse], limit: 1 }, undefined],
+        [CaseType.Success, "ten", { data: [givenValidSkillGETResponse], limit: 10 }, undefined],
       ])("%s %s", (caseType, desc, value, failure) => {
         assertCaseForProperty("limit", value, givenSchema, caseType, failure);
       });
     });
 
-    describe("Test validation of 'next_cursor'", () => {
+    describe("Test validation of 'nextCursor'", () => {
       test.each([
         [CaseType.Success, "undefined", undefined, undefined],
         [CaseType.Success, "null", null, undefined],
@@ -186,23 +186,23 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
           CaseType.Failure,
           "empty string",
           "",
-          constructSchemaError("/next_cursor", "pattern", `must match pattern "${RegExp_Str_NotEmptyString}"`),
+          constructSchemaError("/nextCursor", "pattern", `must match pattern "${RegExp_Str_NotEmptyString}"`),
         ],
         [
           CaseType.Failure,
           "too long",
           getTestString(SkillAPISpecs.Constants.MAX_CURSOR_LENGTH + 1),
           constructSchemaError(
-            "/next_cursor",
+            "/nextCursor",
             "maxLength",
             `must NOT have more than ${SkillAPISpecs.Constants.MAX_CURSOR_LENGTH} characters`
           ),
         ],
         [CaseType.Success, "valid string", getTestString(SkillAPISpecs.Constants.MAX_CURSOR_LENGTH), undefined],
-      ])(`(%s) Validate 'next_cursor' when it is %s`, (caseType, _desc, value, failureMessage) => {
+      ])(`(%s) Validate 'nextCursor' when it is %s`, (caseType, _desc, value, failureMessage) => {
         assertCaseForProperty(
-          "next_cursor",
-          { next_cursor: value },
+          "nextCursor",
+          { nextCursor: value },
           SkillAPISpecs.Schemas.GET.Response.Payload,
           caseType,
           failureMessage
@@ -212,7 +212,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
 
     // Nested validation for individual skill items
     describe("Test validation of skill items", () => {
-      const itemSchema = SkillAPISpecs.Schemas.GET.Response.Payload.properties.items.items;
+      const itemSchema = SkillAPISpecs.Schemas.GET.Response.Payload.properties.data.items;
 
       describe("Test validation of 'id'", () => {
         testObjectIdField("id", itemSchema);
