@@ -1,6 +1,13 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponse, HTTP_VERBS, responseJSON, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
+import {
+  errorResponse,
+  errorResponseGET,
+  HTTP_VERBS,
+  responseJSON,
+  StatusCodes,
+  STD_ERRORS_RESPONSES,
+} from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { ajvInstance, ParseValidationError } from "validator";
 import AuthAPISpecs from "api-specifications/auth";
@@ -22,6 +29,7 @@ import {
   OccupationModelValidationError,
 } from "./occupationService.types";
 import { parsePath } from "common/parsePath/parsePath";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
 
 type BasePathParams = {
   modelId?: string;
@@ -261,11 +269,12 @@ export class OccupationController {
             );
         }
       } else {
-        const statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
-        const userMessage = "Failed to create the occupation in the DB";
-        const errorCode = OccupationAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION;
-
-        return errorResponse(statusCode, errorCode, userMessage, "");
+        return errorResponse(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+          "Failed to create the occupation in the DB",
+          ""
+        );
       }
     }
   }
@@ -328,53 +337,40 @@ export class OccupationController {
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationById(event: APIGatewayProxyEvent) {
     try {
-      // extract the modelId and id from the pathParameters
-      const modelIdFromParams = event.pathParameters?.modelId;
       const idFromParams = event.pathParameters?.id;
+      const modelIdFromParams = event.pathParameters?.modelId;
       const pathToMatch = event.path || "";
       const execMatch = pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch);
-      const resolvedModelId = modelIdFromParams ?? execMatch?.[1];
-      const resolvedId = idFromParams ?? execMatch?.[2];
+      const resolvedId = idFromParams ?? (execMatch ? execMatch[2] : "");
+      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : "");
 
-      if (!resolvedModelId) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
-          "modelId is missing in the path",
-          JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
-        );
-      }
-
-      if (!resolvedId) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_OCCUPATION_ID,
-          "id is missing in the path",
-          JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
-        );
-      }
-
-      const requestPathParameter: OccupationAPISpecs.Types.GET.Request.Param.Payload = {
+      const requestPathParameter: OccupationAPISpecs.Types.GET.Request.Detail.Param.Payload = {
         modelId: resolvedModelId,
+        id: resolvedId,
       };
 
       const validatePathFunction = ajvInstance.getSchema(
-        OccupationAPISpecs.Schemas.GET.Request.Param.Payload.$id as string
-      ) as ValidateFunction<OccupationAPISpecs.Types.GET.Request.Param.Payload>;
-      const isValid = validatePathFunction(requestPathParameter);
-      if (!isValid) {
+        OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
           ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
           ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
-          JSON.stringify({ reason: "Invalid modelId", path: event.path, pathParameters: event.pathParameters })
+          JSON.stringify({
+            reason: "Invalid modelId or occupation Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
         );
       }
 
       // Validate that the model exists (allow reading from released models)
       const validationResult = await this.occupationService.validateModelForOccupation(requestPathParameter.modelId);
       if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.NOT_FOUND,
           OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
@@ -382,31 +378,30 @@ export class OccupationController {
         );
       }
       if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           "Failed to fetch the model details from the DB",
           ""
         );
       }
-      // If MODEL_IS_RELEASED, still allow reading
-
-      // call the service to get the occupation by id
-      const occupation = await this.occupationService.findById(resolvedId);
-
+      const occupation = await this.occupationService.findById(requestPathParameter.id);
       if (!occupation) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.NOT_FOUND,
           OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
-          "Occupation not found",
-          JSON.stringify({ id: resolvedId })
+          "occupation not found",
+          `No occupation found with id: ${requestPathParameter.id}`
         );
       }
-
       return responseJSON(StatusCodes.OK, transform(occupation, getResourcesBaseUrl()));
-    } catch (e: unknown) {
-      console.error("Failed to retrieve occupation by ID:", e);
-      return errorResponse(
+    } catch (error: unknown) {
+      console.error("Failed to get occupation by id:", error);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupation from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
+      return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
         "Failed to retrieve the occupation from the DB",
@@ -486,13 +481,12 @@ export class OccupationController {
       const pathToMatch = event.path || "";
       const execMatch = pathToRegexp(Routes.OCCUPATIONS_ROUTE).regexp.exec(pathToMatch);
       const resolvedModelId = execMatch?.[1] ?? modelIdFromParams;
-
       if (!resolvedModelId) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
+          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           "modelId is missing in the path",
-          JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
+          JSON.stringify({ path: event.path, pathParameters: event.pathParameters, query: event.queryStringParameters })
         );
       }
       const requestPathParameter: OccupationAPISpecs.Types.GET.Request.Param.Payload = {
@@ -512,10 +506,9 @@ export class OccupationController {
         );
       }
 
-      // Validate that the model exists (allow reading from released models)
       const validationResult = await this.occupationService.validateModelForOccupation(requestPathParameter.modelId);
       if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.NOT_FOUND,
           OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
@@ -523,14 +516,13 @@ export class OccupationController {
         );
       }
       if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           "Failed to fetch the model details from the DB",
           ""
         );
       }
-      // If MODEL_IS_RELEASED, still allow reading
 
       const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
       const queryParams: OccupationAPISpecs.Types.GET.Request.Query.Payload = {
@@ -543,16 +535,16 @@ export class OccupationController {
       ) as ValidateFunction<OccupationAPISpecs.Types.GET.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
-        return errorResponse(
+        return errorResponseGET(
           StatusCodes.BAD_REQUEST,
-          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
           ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
           JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
         );
       }
 
       // extract the nextCursor and the limit from the query parameter
-      let limit = 100;
+      let limit = OccupationAPISpecs.Constants.DEFAULT_LIMIT;
       if (queryParams.limit) {
         limit = queryParams.limit;
       }
@@ -562,11 +554,11 @@ export class OccupationController {
         try {
           decodedCursor = this.decodeCursor(queryParams.cursor);
         } catch (e: unknown) {
-          console.error("Failed to decode the cursor", e);
-          return errorResponse(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
-            "Failed to decode the cursor provided in the query parameter",
+          console.error("Failed to decode cursor:", e);
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
             ""
           );
         }
@@ -591,10 +583,14 @@ export class OccupationController {
         StatusCodes.OK,
         transformPaginated(currentPageOccupations.items, getResourcesBaseUrl(), limit, nextCursor)
       );
-    } catch (e: unknown) {
-      console.error("Failed to retrieve occupations:", e);
-      return errorResponse(
-        StatusCodes.BAD_REQUEST,
+    } catch (error: unknown) {
+      console.error("Failed to retrieve occupations:", error);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupations from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
         "Failed to retrieve the occupations from the DB",
         ""

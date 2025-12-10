@@ -64,6 +64,10 @@ ajvInstance.addSchema(
   OccupationAPISpecs.Schemas.GET.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
+  OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload,
+  OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id
+);
+ajvInstance.addSchema(
   SkillGroupAPISpecs.Schemas.POST.Request.Payload,
   SkillGroupAPISpecs.Schemas.POST.Request.Payload.$id
 );

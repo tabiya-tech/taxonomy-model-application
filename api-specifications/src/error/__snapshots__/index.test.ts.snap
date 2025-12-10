@@ -184,7 +184,6 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
               "DB_FAILED_TO_CREATE_SKILL_GROUP",
               "DB_FAILED_TO_RETRIEVE_A_SINGLE_SKILL_GROUP",
               "DB_FAILED_TO_CREATE_SKILL_GROUP_ON_ALREADY_RELEASED_MODEL",
-              "DB_FAILED_TO_CREATE_OCCUPATION",
               "OCCUPATION_COULD_NOT_VALIDATE",
               "UNABLE_TO_ALTER_RELEASED_MODEL_FOR_OCCUPATION",
               "INVALID_MODEL_ID_FOR_OCCUPATION_POST",
