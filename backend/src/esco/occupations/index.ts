@@ -564,7 +564,7 @@ export class OccupationController {
         } catch (e: unknown) {
           console.error("Failed to decode the cursor", e);
           return errorResponse(
-            StatusCodes.INTERNAL_SERVER_ERROR,
+            StatusCodes.BAD_REQUEST,
             OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
             "Failed to decode the cursor provided in the query parameter",
             ""
@@ -594,7 +594,7 @@ export class OccupationController {
     } catch (e: unknown) {
       console.error("Failed to retrieve occupations:", e);
       return errorResponse(
-        StatusCodes.BAD_REQUEST,
+        StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
         "Failed to retrieve the occupations from the DB",
         ""

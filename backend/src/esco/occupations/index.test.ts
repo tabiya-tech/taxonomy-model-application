@@ -1548,7 +1548,7 @@ describe("Test for occupation handler", () => {
         });
       });
 
-      test("GET should respond with the BAD_REQUEST status code if the service fails to get the occupations", async () => {
+      test("GET should respond with the INTERNAL_SERVER_ERROR status code if the service fails to get the occupations", async () => {
         // AND GIVEN the service fails to get the occupations
         const firstPageCursorObject = {
           id: getMockStringId(1),
@@ -1577,8 +1577,8 @@ describe("Test for occupation handler", () => {
 
         // THEN expect the handler to call the service to get the occupations
         expect(getServiceRegistry().occupation.findPaginated).toHaveBeenCalled();
-        // THEN expect the handler to return the BAD_REQUEST status
-        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         // AND the response body contains the error information
         const expectedErrorBody = {
           errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
@@ -1588,7 +1588,7 @@ describe("Test for occupation handler", () => {
         expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
       });
 
-      test("GET should respond with the INTERNAL_SERVER_ERROR status code if decodeCursor throws an error", async () => {
+      test("GET should respond with the BAD_REQUEST status code if decodeCursor throws an error", async () => {
         // AND role check passes for anonymous access
         checkRole.mockReturnValueOnce(true);
 
@@ -1598,8 +1598,8 @@ describe("Test for occupation handler", () => {
           queryStringParameters: { cursor: "invalid_cursor" },
         } as never);
 
-        // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
-        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+        // THEN expect the handler to return the BAD_REQUEST status
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         // AND the response body contains the error information
         const expectedErrorBody = {
           errorCode: OccupationAPISpecs.Enums.GET.Response.Status400.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
