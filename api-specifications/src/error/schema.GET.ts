@@ -4,6 +4,7 @@ import ModelInfoAPI from "../modelInfo";
 import ErrorConstants from "./constants";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
+import SkillGroupAPI from "../esco/skillGroup";
 import { RegExp_Str_NotEmptyString } from "../regex";
 
 const ErrorSchemaGET: SchemaObject = {
@@ -21,6 +22,9 @@ const ErrorSchemaGET: SchemaObject = {
         Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
         Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
         Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
       ].flat(),
       pattern: RegExp_Str_NotEmptyString,
     },

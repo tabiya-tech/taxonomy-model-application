@@ -20,14 +20,14 @@ namespace SkillGroupEnums {
     export namespace Response {
       export namespace Status400 {
         export enum ErrorCodes {
-          INVALID_LIMIT_PARAMETER = "INVALID_LIMIT_PARAMETER",
-          INVALID_NEXT_CURSOR_PARAMETER = "INVALID_NEXT_CURSOR_PARAMETER",
+          INVALID_LIMIT_PARAMETER = "INVALID_SKILL_GROUP_LIMIT_PARAMETER",
+          INVALID_NEXT_CURSOR_PARAMETER = "INVALID_SKILL_GROUP_NEXT_CURSOR_PARAMETER",
         }
       }
       export namespace Status404 {
         export enum ErrorCodes {
           SKILL_GROUP_NOT_FOUND = "SKILL_GROUP_NOT_FOUND",
-          MODEL_NOT_FOUND = "GET_MODEL_NOT_FOUND",
+          MODEL_NOT_FOUND = "GET_SKILL_GROUP_MODEL_NOT_FOUND",
         }
       }
       export namespace Status500 {
@@ -43,12 +43,12 @@ namespace SkillGroupEnums {
       export namespace Status400 {
         export enum ErrorCodes {
           SKILL_GROUP_COULD_NOT_VALIDATE = "SKILL_GROUP_COULD_NOT_VALIDATE",
-          UNABLE_TO_ALTER_RELEASED_MODEL = "UNABLE_TO_ALTER_RELEASED_MODEL",
+          UNABLE_TO_ALTER_RELEASED_MODEL = "UNABLE_TO_ALTER_RELEASED_MODEL_FOR_SKILL_GROUP",
         }
       }
       export namespace Status404 {
         export enum ErrorCodes {
-          MODEL_NOT_FOUND = "POST_MODEL_NOT_FOUND",
+          MODEL_NOT_FOUND = "POST_SKILL_GROUP_MODEL_NOT_FOUND",
         }
       }
       export namespace Status500 {

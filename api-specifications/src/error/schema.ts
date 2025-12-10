@@ -6,6 +6,7 @@ import ModelInfoAPI from "../modelInfo";
 import ErrorConstants from "./constants";
 import OccupationGroupAPI from "../esco/occupationGroup";
 import OccupationAPI from "../esco/occupation";
+import SkillGroupAPI from "../esco/skillGroup";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const _baseProperties: any = {
   message: {
@@ -40,6 +41,12 @@ export const ErrorSchema: SchemaObject = {
         Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
         Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
         Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
+        Object.values(SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
       ].flat(),
       pattern: RegExp_Str_NotEmptyString,
     },
