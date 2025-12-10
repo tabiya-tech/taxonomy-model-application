@@ -215,7 +215,7 @@ describe("Test for occupation handler with a DB", () => {
       pathParameters: { modelId: modelId.toString() },
       queryStringParameters: {
         limit: limit.toString(),
-        nextCursor: cursor,
+        cursor: cursor,
       },
     };
 
