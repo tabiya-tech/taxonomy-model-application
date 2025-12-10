@@ -13,6 +13,7 @@ import OccupationAPI from "esco/occupation";
 import ModelInfoAPI from "modelInfo";
 import ExportAPI from "export";
 import ImportAPI from "import";
+import SkillsAPI from "esco/skills";
 
 describe("Test the GetErrorSchema function", () => {
   // GIVEN the APIError.GetErrorSchema function
@@ -41,6 +42,12 @@ describe("Test the GetErrorSchema function", () => {
     ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
     ...Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
     ...Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
+    ...Object.values(SkillsAPI.Enums.POST.Response.Status400.ErrorCodes),
+    ...Object.values(SkillsAPI.Enums.POST.Response.Status404.ErrorCodes),
+    ...Object.values(SkillsAPI.Enums.POST.Response.Status500.ErrorCodes),
+    ...Object.values(SkillsAPI.Enums.GET.Response.Status400.ErrorCodes),
+    ...Object.values(SkillsAPI.Enums.GET.Response.Status404.ErrorCodes),
+    ...Object.values(SkillsAPI.Enums.GET.Response.Status500.ErrorCodes),
   ];
   testValidSchema(
     "APIError.GetErrorSchema",
@@ -80,6 +87,12 @@ describe("Validate JSON against the APIError GetErrorSchema function", () => {
         ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
         ...Object.values(OccupationAPI.Enums.POST.Response.ErrorCodes),
         ...Object.values(OccupationAPI.Enums.GET.Response.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.POST.Response.Status400.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.POST.Response.Status404.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.POST.Response.Status500.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.GET.Response.Status400.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.GET.Response.Status404.ErrorCodes),
+        ...Object.values(SkillsAPI.Enums.GET.Response.Status500.ErrorCodes),
       ];
       test.each([
         [
