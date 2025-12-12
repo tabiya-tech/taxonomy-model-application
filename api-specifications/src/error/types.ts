@@ -39,6 +39,13 @@ namespace ErrorTypes {
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
   }
+
+  export interface GenericPayload<ErrorCode> {
+    errorCode: ErrorCode;
+    message: string; // The error message offers better developer experience. UI should not display this message.
+    details: string; // This may be some cryptic message only a developer can understand
+  }
+
   export interface GetPayload {
     errorCode: string;
     message: string;

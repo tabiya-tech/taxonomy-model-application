@@ -167,6 +167,7 @@ export const _baseResponseSchema = {
             enum: Object.values(SkillGroupEnums.Relations.Parents.ObjectTypes),
           },
         },
+        required: ["id", "UUID", "code", "preferredLabel", "objectType"],
       },
     },
     children: {
@@ -258,6 +259,7 @@ export const _baseResponseSchema = {
             },
           },
         ],
+        required: ["id", "UUID", "preferredLabel", "objectType"],
       },
     },
     ...JSON.parse(JSON.stringify(_baseProperties)),

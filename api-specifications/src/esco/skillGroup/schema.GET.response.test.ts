@@ -312,8 +312,8 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
     });
     describe("Test validation of parents fields", () => {
       describe("Test validation of 'parents/id'", () => {
-        const testCases = getStdObjectIdTestCases("/parents/0/id").filter((testCase) => testCase[1] !== "undefined");
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+        const testCases = getStdObjectIdTestCases("/parents/0/id");
+        test.each(testCases)(
           `(%s) Validate 'id' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
             // GIVEN an object with given value
@@ -330,8 +330,8 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
         );
       });
       describe("Test validation of 'parents/UUID'", () => {
-        const testCases = getStdUUIDTestCases("/parents/0/UUID").filter((testCase) => testCase[1] !== "undefined");
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+        const testCases = getStdUUIDTestCases("/parents/0/UUID");
+        test.each(testCases)(
           `(%s) Validate 'UUID' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
             // GIVEN an object with given value
@@ -349,7 +349,12 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
       });
       describe("Test validation of 'parents/code'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, undefined],
+          [
+            CaseType.Failure,
+            "undefined",
+            undefined,
+            constructSchemaError("", "required", "must have required property 'code'"),
+          ],
           [CaseType.Failure, "null", null, constructSchemaError("/parents/0/code", "type", "must be string")],
           [
             CaseType.Failure,
@@ -409,7 +414,6 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
           (caseType, __description, givenValue, failureMessage) => {
             // GIVEN an object with given value
             const givenObject = {
-              ...validSkillGroupResponsePayload,
               parents: [
                 {
                   code: givenValue,
@@ -426,9 +430,9 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
         const testCases = getStdNonEmptyStringTestCases(
           "/parents/0/preferredLabel",
           SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH
-        ).filter((testCase) => testCase[1] !== "undefined");
+        );
 
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+        test.each(testCases)(
           `(%s) Validate 'preferredLabel' when it is %s`,
           (caseType, _description, givenValue, failureMessage) => {
             // GIVEN an object with given value
@@ -446,7 +450,12 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
       });
       describe("Test validate of '/parents/objectType'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, undefined],
+          [
+            CaseType.Failure,
+            "undefined",
+            undefined,
+            constructSchemaError("/parents/0", "required", "must have required property 'objectType'"),
+          ],
           [CaseType.Failure, "null", null, constructSchemaError("/parents/0/objectType", "type", "must be string")],
           [
             CaseType.Failure,
@@ -540,8 +549,8 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
 
     describe("Test validation of children fields", () => {
       describe("Test validation of 'children/id'", () => {
-        const testCases = getStdObjectIdTestCases("/children/0/id").filter((testCase) => testCase[1] !== "undefined");
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+        const testCases = getStdObjectIdTestCases("/children/0/id");
+        test.each(testCases)(
           `(%s) Validate 'id' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
             // GIVEN an object with given value
@@ -558,8 +567,8 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
         );
       });
       describe("Test validation of 'children/UUID'", () => {
-        const testCases = getStdUUIDTestCases("/children/0/UUID").filter((testCase) => testCase[1] !== "undefined");
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+        const testCases = getStdUUIDTestCases("/children/0/UUID");
+        test.each(testCases)(
           `(%s) Validate 'UUID' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
             // GIVEN an object with given value
@@ -627,7 +636,6 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
           (caseType, __description, givenValue, objectType, failureMessage) => {
             // GIVEN an object with given value
             const givenObject = {
-              ...validSkillGroupResponsePayload,
               children: [
                 {
                   objectType,
@@ -720,7 +728,6 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
           (caseType, __description, givenValue, objectType, failureMessage) => {
             // GIVEN an object with given value
             const givenObject = {
-              ...validSkillGroupResponsePayload,
               children: [
                 {
                   objectType,
@@ -738,9 +745,9 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
         const testCases = getStdNonEmptyStringTestCases(
           "/children/0/preferredLabel",
           SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH
-        ).filter((testCase) => testCase[1] !== "undefined");
+        );
 
-        test.each([...testCases, [CaseType.Success, "undefined", undefined, undefined]])(
+        test.each(testCases)(
           `(%s) Validate 'preferredLabel' when it is %s`,
           (caseType, _description, givenValue, failureMessage) => {
             // GIVEN an object with given value
@@ -758,7 +765,12 @@ describe("Test the object against the SkillGroupAPISpecs.Schemas.GET.Response.Pa
       });
       describe("Test validate of '/children/objectType'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, undefined],
+          [
+            CaseType.Failure,
+            "undefined",
+            undefined,
+            constructSchemaError("/children/0", "required", "must have required property 'objectType'"),
+          ],
           [CaseType.Failure, "null", null, constructSchemaError("/children/0/objectType", "type", "must be string")],
           [
             CaseType.Failure,

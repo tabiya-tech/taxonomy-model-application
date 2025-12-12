@@ -25,13 +25,13 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
       "Response": {
         "Status400": {
           "ErrorCodes": {
-            "INVALID_LIMIT_PARAMETER": "INVALID_SKILL_GROUP_LIMIT_PARAMETER",
-            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_SKILL_GROUP_NEXT_CURSOR_PARAMETER",
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
           },
         },
         "Status404": {
           "ErrorCodes": {
-            "MODEL_NOT_FOUND": "GET_SKILL_GROUP_MODEL_NOT_FOUND",
+            "MODEL_NOT_FOUND": "GET_MODEL_NOT_FOUND",
             "SKILL_GROUP_NOT_FOUND": "SKILL_GROUP_NOT_FOUND",
           },
         },
@@ -47,12 +47,12 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
         "Status400": {
           "ErrorCodes": {
             "SKILL_GROUP_COULD_NOT_VALIDATE": "SKILL_GROUP_COULD_NOT_VALIDATE",
-            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL_FOR_SKILL_GROUP",
+            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
           },
         },
         "Status404": {
           "ErrorCodes": {
-            "MODEL_NOT_FOUND": "POST_SKILL_GROUP_MODEL_NOT_FOUND",
+            "MODEL_NOT_FOUND": "POST_MODEL_NOT_FOUND",
           },
         },
         "Status500": {
@@ -286,6 +286,12 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                       "type": "string",
                     },
                   },
+                  "required": [
+                    "id",
+                    "UUID",
+                    "preferredLabel",
+                    "objectType",
+                  ],
                   "type": "object",
                 },
                 "minItems": 0,
@@ -363,6 +369,13 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                       "type": "string",
                     },
                   },
+                  "required": [
+                    "id",
+                    "UUID",
+                    "code",
+                    "preferredLabel",
+                    "objectType",
+                  ],
                   "type": "object",
                 },
                 "minItems": 0,
@@ -552,6 +565,12 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                           "type": "string",
                         },
                       },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "objectType",
+                      ],
                       "type": "object",
                     },
                     "minItems": 0,
@@ -629,6 +648,13 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                           "type": "string",
                         },
                       },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "code",
+                        "preferredLabel",
+                        "objectType",
+                      ],
                       "type": "object",
                     },
                     "minItems": 0,
@@ -931,6 +957,12 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                     "type": "string",
                   },
                 },
+                "required": [
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "objectType",
+                ],
                 "type": "object",
               },
               "minItems": 0,
@@ -1008,6 +1040,13 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                     "type": "string",
                   },
                 },
+                "required": [
+                  "id",
+                  "UUID",
+                  "code",
+                  "preferredLabel",
+                  "objectType",
+                ],
                 "type": "object",
               },
               "minItems": 0,
