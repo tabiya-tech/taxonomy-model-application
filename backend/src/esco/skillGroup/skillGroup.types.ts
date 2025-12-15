@@ -20,13 +20,19 @@ export interface ISkillGroupDoc extends ImportIdentifiable {
 /**
  * Describes how a skill group is returned from the API.
  */
-export interface ISkillGroup extends Omit<ISkillGroupDoc, "modelId"> {
+export interface ISkillGroup extends Omit<ISkillGroupDoc, "id" | "modelId" | "UUIDHistory"> {
   id: string;
+  UUID: string;
   modelId: string;
   parents: ISkillGroupReference[];
+  UUIDHistory: string[];
   children: (ISkillGroupReference | ISkillReference)[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ISkillGroupWithoutImportId extends Omit<ISkillGroup, "importId"> {
+  importId: string | null;
 }
 
 /**
@@ -35,10 +41,14 @@ export interface ISkillGroup extends Omit<ISkillGroupDoc, "modelId"> {
 export type INewSkillGroupSpec = Omit<ISkillGroup, "id" | "UUID" | "parents" | "children" | "createdAt" | "updatedAt">;
 
 /**
+ * Describes how an SkillGroup is created with the API without import action.
+ */
+export type INewSkillGroupSpecWithoutImportId = Omit<INewSkillGroupSpec, "importId">;
+/**
  * Describes how a reference to a skill group is returned from the API
  */
 export interface ISkillGroupReference extends Pick<ISkillGroup, "id" | "UUID" | "code" | "preferredLabel"> {
-  objectType: ObjectTypes.SkillGroup;
+  objectType: ObjectTypes.SkillGroup | ObjectTypes.Skill;
 }
 
 /**
@@ -47,5 +57,20 @@ export interface ISkillGroupReference extends Pick<ISkillGroup, "id" | "UUID" | 
  */
 export interface ISkillGroupReferenceDoc extends Pick<ISkillGroupDoc, "modelId" | "UUID" | "code" | "preferredLabel"> {
   id: string;
-  objectType: ObjectTypes.SkillGroup;
+  objectType: ObjectTypes.SkillGroup | ObjectTypes.Skill;
 }
+
+/**
+ * These are service level error codes for validating a model for skill group operations
+ */
+export enum ModalForSkillGroupValidationErrorCode {
+  FAILED_TO_FETCH_FROM_DB,
+  MODEL_NOT_FOUND_BY_ID,
+  MODEL_IS_RELEASED,
+}
+/**
+ * Base path parameters for skill group routes
+ */
+export type BasePathParams = {
+  modelId?: string;
+};

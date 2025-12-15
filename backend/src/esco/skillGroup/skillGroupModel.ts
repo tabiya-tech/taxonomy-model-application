@@ -4,7 +4,6 @@ import {
   AltLabelsProperty,
   DescriptionProperty,
   OriginUriProperty,
-  ImportIDProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
   ScopeNoteProperty,
@@ -20,6 +19,7 @@ export const SkillGroupModelPaths = {
   parents: "parents",
   children: "children",
 };
+export const IMPORT_ID_MAX_LENGTH = 256;
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroupDoc> {
   // Main Schema
@@ -43,7 +43,11 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       altLabels: AltLabelsProperty,
       description: DescriptionProperty,
       scopeNote: ScopeNoteProperty,
-      importId: ImportIDProperty,
+      importId: {
+        type: String,
+        required: false,
+        maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
+      },
     },
     {
       timestamps: true,

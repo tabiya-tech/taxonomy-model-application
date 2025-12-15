@@ -14,12 +14,12 @@ import {
   LABEL_MAX_LENGTH,
   SCOPE_NOTE_MAX_LENGTH,
 } from "esco/common/modelSchema";
-import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
+import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillGroupDoc } from "./skillGroup.types";
 import {
   testAltLabelsField,
-  testImportId,
+  testOptionalImportId,
   testObjectIdField,
   testOriginUri,
   testPreferredLabel,
@@ -50,7 +50,7 @@ describe("Test the definition of the skillGroup Model", () => {
       "mandatory fields",
       {
         UUID: randomUUID(),
-        code: getMockRandomSkillCode(),
+        code: getTestSkillGroupCode(100),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         UUIDHistory: [randomUUID()],
@@ -65,7 +65,7 @@ describe("Test the definition of the skillGroup Model", () => {
       "optional fields",
       {
         UUID: randomUUID(),
-        code: getMockRandomSkillCode(),
+        code: getTestSkillGroupCode(100),
         preferredLabel: getTestString(LABEL_MAX_LENGTH),
         modelId: getMockObjectId(2),
         UUIDHistory: [randomUUID()],
@@ -118,7 +118,7 @@ describe("Test the definition of the skillGroup Model", () => {
         [CaseType.Success, "valid code 'S1.3.5'", "S1.3.5", undefined],
         [CaseType.Success, "one letter 'L'", "L", undefined],
         [CaseType.Success, "one letter with number 'T3'", "T3", undefined],
-        [CaseType.Success, "any way in range", getMockRandomSkillCode(), undefined],
+        [CaseType.Success, "any way in range", getTestSkillGroupCode(100), undefined],
       ])(`(%s) Validate 'code' when it is %s`, (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
         assertCaseForProperty<ISkillGroupDoc>({
           model: skillGroupModel,
@@ -164,7 +164,7 @@ describe("Test the definition of the skillGroup Model", () => {
       );
     });
 
-    testImportId<ISkillGroupDoc>(() => skillGroupModel);
+    testOptionalImportId<ISkillGroupDoc>(() => skillGroupModel);
   });
 
   test("should have correct indexes", async () => {
