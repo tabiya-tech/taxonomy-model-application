@@ -89,9 +89,9 @@ export function getTestSkillGroupCode(levels: number = 100): string {
 
   // Start with a random letter (upper or lower case)
   const letter = String.fromCharCode(
-    Math.random() < 0.5
-      ? 65 + Math.floor(Math.random() * 26) // 'A'-'Z'
-      : 97 + Math.floor(Math.random() * 26) // 'a'-'z'
+    Math.random() < 0.5 // NOSONAR
+      ? 65 + Math.floor(Math.random() * 26) // 'A'-'Z' // NOSONAR
+      : 97 + Math.floor(Math.random() * 26) // 'a'-'z' // NOSONAR
   );
 
   // Generate groups like: 9, 3.5, 8.2.1 etc.

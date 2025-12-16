@@ -13,7 +13,7 @@ export class SkillGroupService implements ISkillGroupService {
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
-    desc?: boolean
+    desc: boolean = true
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     // Build filter for pagination
     const sortOrder = desc ? -1 : 1;

@@ -4,6 +4,7 @@ import { handler as ModelHandler } from "modelInfo";
 import { handler as ImportHandler } from "import";
 import { handler as OccupationGroupHandler } from "esco/occupationGroup/index";
 import { handler as OccupationHandler } from "esco/occupations";
+import { handler as SkillGroupHandler } from "esco/skillGroup/index";
 import { STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { handler as presignedHandler } from "presigned";
 import { handler as ExportHandler } from "export";
@@ -55,6 +56,10 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return OccupationHandler(event);
   } else if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.test(path)) {
     return OccupationHandler(event);
+  } else if (pathToRegexp(Routes.SKILL_GROUPS_ROUTE).regexp.test(path)) {
+    return SkillGroupHandler(event);
+  } else if (pathToRegexp(Routes.SKILL_GROUP_ROUTE).regexp.test(path)) {
+    return SkillGroupHandler(event);
   }
   return STD_ERRORS_RESPONSES.NOT_FOUND;
 };

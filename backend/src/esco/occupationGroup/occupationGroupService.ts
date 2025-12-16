@@ -27,7 +27,7 @@ export class OccupationGroupService implements IOccupationGroupService {
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
-    desc?: boolean
+    desc: boolean = true
   ): Promise<{ items: IOccupationGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     // Build filter for pagination
     const sortOrder = desc ? -1 : 1;

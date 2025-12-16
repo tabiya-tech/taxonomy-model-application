@@ -34,6 +34,7 @@ import * as InfoHandler from "applicationInfo";
 import * as ModelHandler from "modelInfo/index";
 import * as OccupationGroupHandler from "esco/occupationGroup/index";
 import * as OccupationHandler from "esco/occupations";
+import * as SkillGroupHandler from "esco/skillGroup/index";
 import * as PresignedHandler from "presigned/index";
 import * as ImportHandler from "import/index";
 import * as ExportHandler from "export/index";
@@ -164,6 +165,13 @@ describe("test the handleRouteEvent function", () => {
     modelId: modelId.toString(),
     id: getMockStringId(2),
   });
+  const skillGroupsPath = buildPathFromPattern(Routes.SKILL_GROUPS_ROUTE, {
+    modelId: modelId.toString(),
+  });
+  const skillGroupPath = buildPathFromPattern(Routes.SKILL_GROUP_ROUTE, {
+    modelId: modelId.toString(),
+    id: getMockStringId(2),
+  });
   test.each([
     [Routes.APPLICATION_INFO_ROUTE, InfoHandler],
     [Routes.PRESIGNED_ROUTE, PresignedHandler],
@@ -173,6 +181,8 @@ describe("test the handleRouteEvent function", () => {
     [occupationsGroupsPath, OccupationGroupHandler],
     [occupationsPath, OccupationHandler],
     [occupationPath, OccupationHandler],
+    [skillGroupsPath, SkillGroupHandler],
+    [skillGroupPath, SkillGroupHandler],
     [Routes.EXPORT_ROUTE, ExportHandler],
   ])(`should call %s handler if path is %s`, async (givenPath, handler) => {
     // GIVEN an event with the given path & any HTTP method
