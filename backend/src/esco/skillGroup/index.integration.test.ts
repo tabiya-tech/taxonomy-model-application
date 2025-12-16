@@ -203,4 +203,124 @@ describe("Test for skillGroup handler with a DB", () => {
         .map((m) => m.UUID)
     );
   });
+
+  test("GET should paginate without skipping items when chaining nextCursor", async () => {
+    // GIVEN five skillGroups in the DB
+    const givenModelInfo = await createModelInDB();
+    await createSkillGroupsInDB(5, givenModelInfo.id.toString());
+
+    // Baseline: get first 3 to capture the server’s ordering
+    const baselineEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: { "Content-Type": "application/json" },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      queryStringParameters: { limit: "3" },
+    };
+    // @ts-ignore
+    const baselineResponse = await skillGroupHandler(baselineEvent);
+    expect(baselineResponse.statusCode).toEqual(StatusCodes.OK);
+    const baselineBody = JSON.parse(baselineResponse.body);
+    const baselineIds = (baselineBody.data as ISkillGroup[]).map((m) => m.id.toString());
+    expect(baselineIds).toHaveLength(3);
+
+    // Page 1 (single): limit=1, no cursor
+    const page1Event = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: { "Content-Type": "application/json" },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      queryStringParameters: { limit: "1" },
+    };
+    // @ts-ignore
+    const page1Response = await skillGroupHandler(page1Event);
+    expect(page1Response.statusCode).toEqual(StatusCodes.OK);
+    const page1Body = JSON.parse(page1Response.body);
+    const page1Ids = (page1Body.data as ISkillGroup[]).map((m) => m.id.toString());
+    expect(page1Ids).toEqual(baselineIds.slice(0, 1));
+    expect(page1Body.nextCursor).toBeDefined();
+
+    // Page 2 (single): limit=1 with cursor from page1
+    const page2Event = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: { "Content-Type": "application/json" },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      queryStringParameters: { limit: "1", cursor: page1Body.nextCursor },
+    };
+    // @ts-ignore
+    const page2Response = await skillGroupHandler(page2Event);
+    expect(page2Response.statusCode).toEqual(StatusCodes.OK);
+    const page2Body = JSON.parse(page2Response.body);
+    const page2Ids = (page2Body.data as ISkillGroup[]).map((m) => m.id.toString());
+    expect(page2Ids).toEqual(baselineIds.slice(1, 2));
+    expect(page2Body.nextCursor).toBeDefined();
+
+    // Page 3 (single): limit=1 with cursor from page2
+    const page3Event = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: { "Content-Type": "application/json" },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      queryStringParameters: { limit: "1", cursor: page2Body.nextCursor },
+    };
+    // @ts-ignore
+    const page3Response = await skillGroupHandler(page3Event);
+    expect(page3Response.statusCode).toEqual(StatusCodes.OK);
+    const page3Body = JSON.parse(page3Response.body);
+    const page3Ids = (page3Body.data as ISkillGroup[]).map((m) => m.id.toString());
+
+    // THEN chained singles reconstruct the baseline first 3
+    const chained = [...page1Ids, ...page2Ids, ...page3Ids];
+    expect(chained).toEqual(baselineIds);
+  });
+
+  test("GET should paginate correctly across random page sizes", async () => {
+    // GIVEN twenty skillGroups in the DB
+    const givenModelInfo = await createModelInDB();
+    await createSkillGroupsInDB(20, givenModelInfo.id.toString());
+
+    // Baseline: first 20 to know expected order
+    const baselineEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: { "Content-Type": "application/json" },
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      queryStringParameters: { limit: "20" },
+    };
+    // @ts-ignore
+    const baselineResponse = await skillGroupHandler(baselineEvent);
+    expect(baselineResponse.statusCode).toEqual(StatusCodes.OK);
+    const baselineBody = JSON.parse(baselineResponse.body);
+    const baselineIds = (baselineBody.data as ISkillGroup[]).map((m) => m.id.toString());
+    expect(baselineIds).toHaveLength(20);
+
+    // Generate random page sizes in [1,20] to test pagination with different limits
+    const pageSizes: number[] = [];
+    let planned = 0;
+    while (planned < baselineIds.length) {
+      const size = 1 + Math.floor(Math.random() * 20); // 1..20
+      pageSizes.push(size);
+      planned += size;
+    }
+
+    let cursor: string | undefined = undefined;
+    const collected: string[] = [];
+
+    // WHEN paging through with the random page sizes
+    for (const size of pageSizes) {
+      const event = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId: givenModelInfo.id.toString() },
+        queryStringParameters: { limit: size.toString(), ...(cursor ? { cursor } : {}) },
+      };
+      // @ts-ignore
+      const resp = await skillGroupHandler(event);
+      expect(resp.statusCode).toEqual(StatusCodes.OK);
+      const body = JSON.parse(resp.body);
+      const ids = (body.data as ISkillGroup[]).map((m) => m.id.toString());
+      collected.push(...ids);
+      cursor = body.nextCursor || undefined;
+      if (!cursor) break; // no more pages
+    }
+
+    // THEN the collected IDs equal the baseline IDs
+    expect(collected.slice(0, baselineIds.length)).toEqual(baselineIds);
+  });
 });

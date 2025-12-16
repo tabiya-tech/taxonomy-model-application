@@ -1,7 +1,7 @@
 import { OccupationService } from "./occupationService";
 import {
   IOccupationService,
-  ModalForOccupationValidationErrorCode,
+  ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupationService.types";
 import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
@@ -318,7 +318,7 @@ describe("Test the OccupationService", () => {
       expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
       // AND expect the returned result to have items and nextCursor
       expect(actual.items).toHaveLength(10);
-      expect(actual.nextCursor).toEqual({ _id: mockItems[10].id, createdAt: mockItems[10].createdAt });
+      expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
     });
 
     test("should decode cursor and call repository.findPaginated with correct sort", async () => {
@@ -519,7 +519,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.validateModelForOccupation(givenModelId);
 
       // THEN expect it to return invalid with error message
-      expect(actual).toEqual(ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      expect(actual).toEqual(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
     });
 
     test("should return invalid when model is released", async () => {
@@ -540,7 +540,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.validateModelForOccupation(givenModelId);
 
       // THEN expect it to return invalid with error message
-      expect(actual).toEqual(ModalForOccupationValidationErrorCode.MODEL_IS_RELEASED);
+      expect(actual).toEqual(ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED);
     });
 
     test("should return invalid when getModelById throws", async () => {
@@ -562,7 +562,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.validateModelForOccupation(givenModelId);
 
       // THEN expect it to return invalid with error message
-      expect(actual).toEqual(ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      expect(actual).toEqual(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
       // AND console.error was called
       expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to validate model for occupation creation", givenError);
 

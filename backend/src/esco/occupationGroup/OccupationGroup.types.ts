@@ -80,7 +80,7 @@ export interface IOccupationGroupHistoryReference {
 /**
  * These are service level error codes for validating a model for occupation group operations
  */
-export enum ModalForOccupationGroupValidationErrorCode {
+export enum ModelForOccupationGroupValidationErrorCode {
   FAILED_TO_FETCH_FROM_DB,
   MODEL_NOT_FOUND_BY_ID,
   MODEL_IS_RELEASED,

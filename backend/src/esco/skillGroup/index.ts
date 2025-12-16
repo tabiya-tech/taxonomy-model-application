@@ -14,7 +14,7 @@ import { ValidateFunction } from "ajv";
 import { transform, transformPaginated } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 
-import { ModalForSkillGroupValidationErrorCode } from "./skillGroup.types";
+import { ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authenticator";
 import ErrorAPISpecs from "api-specifications/error";
@@ -169,7 +169,7 @@ export class SkillGroupController {
       }
 
       const validationResult = await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId);
-      if (validationResult === ModalForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
           SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
@@ -177,7 +177,7 @@ export class SkillGroupController {
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
-      if (validationResult === ModalForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
           SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
@@ -337,7 +337,7 @@ export class SkillGroupController {
         );
       }
       const validationResult = await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId);
-      if (validationResult === ModalForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
           SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
@@ -345,7 +345,7 @@ export class SkillGroupController {
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
-      if (validationResult === ModalForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
           SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,

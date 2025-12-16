@@ -1,6 +1,6 @@
 import { SkillGroupService } from "./skillGroupService";
 import { ISkillGroupService } from "./skillGroupService.type";
-import { ModalForSkillGroupValidationErrorCode, ISkillGroup } from "./skillGroup.types";
+import { ModelForSkillGroupValidationErrorCode, ISkillGroup } from "./skillGroup.types";
 import { ISkillGroupRepository } from "./skillGroupRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
@@ -140,8 +140,8 @@ describe("Test the SkillGroupService", () => {
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({
-        _id: mockItems[10].id,
-        createdAt: mockItems[10].createdAt,
+        _id: mockItems[9].id,
+        createdAt: mockItems[9].createdAt,
       });
     });
     test("should return null nextCursor if there is no next page", async () => {
@@ -366,7 +366,7 @@ describe("Test the SkillGroupService", () => {
       const actual = await service.validateModelForSkillGroup(givenModelId);
 
       // THEN expect it to return invalid due to released model
-      expect(actual).toEqual(ModalForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      expect(actual).toEqual(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
     });
     test("should return invalid when model is released", async () => {
       // GIVEN a modelId
@@ -383,7 +383,7 @@ describe("Test the SkillGroupService", () => {
       // WHEN calling service.validateModelForSkillGroup
       const actual = await service.validateModelForSkillGroup(givenModelId);
       // THEN expect it to return invalid due to released model
-      expect(actual).toEqual(ModalForSkillGroupValidationErrorCode.MODEL_IS_RELEASED);
+      expect(actual).toEqual(ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED);
     });
     test("should return invalid when getModelById throws", async () => {
       // GIVEN a modelId
@@ -401,7 +401,7 @@ describe("Test the SkillGroupService", () => {
       const actual = await service.validateModelForSkillGroup(givenModelId);
 
       // THEN expect it to return invalid due to error
-      expect(actual).toEqual(ModalForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      expect(actual).toEqual(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
 
       // AND console.error was called
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error validating model for skill group:", givenError);

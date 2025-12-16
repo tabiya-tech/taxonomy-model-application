@@ -1,7 +1,7 @@
 import { OccupationGroupService } from "./occupationGroupService";
 import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroupService.type";
 import {
-  ModalForOccupationGroupValidationErrorCode,
+  ModelForOccupationGroupValidationErrorCode,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
 } from "./OccupationGroup.types";
@@ -84,7 +84,7 @@ describe("Test the OccupationGroupService", () => {
     test("should throw if model validation fails", async () => {
       // GIVEN  a new occupationGroup spec
       const givenSpec: INewOccupationGroupSpecWithoutImportId = getNewISCOGroupSpecsWithoutImportId();
-      // AND the modal validation fails (model not found)
+      // AND the model validation fails (model not found)
       mockGetRepositoryRegistry.mockReturnValue({
         modelInfo: {
           getModelById: jest.fn().mockResolvedValue(null),
@@ -246,7 +246,7 @@ describe("Test the OccupationGroupService", () => {
       expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
-      expect(actual.nextCursor).toEqual({ _id: mockItems[10].id, createdAt: mockItems[10].createdAt });
+      expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
     });
     test("should decode cursor and call repository.findPaginated with decoded cursor sort", async () => {
       // GIVEN parameters
@@ -425,7 +425,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.validateModelForOccupationGroup(givenModelId);
 
       // THEN expect it to return invalid due to released model
-      expect(actual).toEqual(ModalForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED);
+      expect(actual).toEqual(ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED);
     });
 
     test("should return invalid when getModelById throws", async () => {
@@ -445,7 +445,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.validateModelForOccupationGroup(givenModelId);
 
       // THEN expect it to return invalid due to error
-      expect(actual).toEqual(ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      expect(actual).toEqual(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
 
       // AND console.error was called
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error validating model for occupation group:", givenError);
