@@ -227,6 +227,48 @@ describe("Test the SkillGroupService", () => {
       expect(actual.items).toHaveLength(5);
     });
 
+    test("should build ascending cursor filter when cursor is provided", async () => {
+      // GIVEN parameters
+      const givenModelId = getMockStringId(1);
+      const givenLimit = 10;
+      const givenDesc = false;
+      const givenCursorId = getMockStringId(10);
+
+      // AND the repository returns some items
+      const mockItems = Array.from({ length: 3 }, (_, i) => ({
+        id: getMockStringId(i + 1),
+        modelId: givenModelId,
+        code: getTestSkillGroupCode(100),
+        UUID: getRandomString(10),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        createdAt: new Date("2023-01-01T00:00:00.000Z"),
+        updatedAt: new Date(),
+        parents: [],
+        UUIDHistory: [],
+        children: [],
+        originUri: getRandomString(15),
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        importId: "",
+      })) as ISkillGroup[];
+      mockRepository.findPaginated.mockResolvedValue(mockItems);
+
+      // WHEN calling service.findPaginated with desc=false and a cursor
+      await service.findPaginated(
+        givenModelId,
+        { id: givenCursorId, createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        givenLimit,
+        givenDesc
+      );
+
+      // THEN expect repository.findPaginated to have been called with a $gt filter on _id (ascending cursor)
+      const call = mockRepository.findPaginated.mock.calls[0];
+      const filterArg = call[1] as Record<string, unknown>;
+      expect(filterArg).toHaveProperty("_id");
+      expect((filterArg._id)).toHaveProperty("$gt");
+    });
+
     test("should handle descending sort order", async () => {
       //GIVEN parameters
       const givenModelId = getMockStringId(1);

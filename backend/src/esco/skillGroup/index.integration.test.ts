@@ -194,11 +194,11 @@ describe("Test for skillGroup handler with a DB", () => {
     expect(actualSkillGroups.length).toBeLessThanOrEqual(limit);
 
     // AND the response skillGroups should be the expected ones
-    // The cursor points to skillGroups[9], so we expect the 5 items younger than that
-    // which are skillGroups[9] in descending younger
+    // The cursor points to skillGroups[8], so with descending order we expect the 5 items older than that
+    // which are skillGroups[7, 6, 5, 4, 3] in descending order (newest to oldest of those)
     expect(actualSkillGroups.map((m) => m.UUID)).toMatchObject(
       skillGroups
-        .slice(9, 10)
+        .slice(3, 8)
         .reverse()
         .map((m) => m.UUID)
     );

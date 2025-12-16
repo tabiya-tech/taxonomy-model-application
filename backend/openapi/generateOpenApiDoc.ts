@@ -1,4 +1,3 @@
-import { skillGroupExportHeaders } from "esco/common/entityToCSV.types";
 import swaggerJsdoc = require("swagger-jsdoc");
 import * as fs from "fs";
 import * as path from "node:path";
@@ -212,6 +211,12 @@ NOTES:
             "SkillGroup",
             400,
             Object.values(SkillGroup.Enums.GET.Response.Status400.ErrorCodes)
+          ),
+          GETSkillGroup404ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillGroup",
+            404,
+            Object.values(SkillGroup.Enums.GET.Response.Status404.ErrorCodes)
           ),
           GETSkillGroups404ErrorSchema: APIError.Schemas.getPayload("GET", "SkillGroups", 404, [
             SkillGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,

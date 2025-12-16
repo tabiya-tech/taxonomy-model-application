@@ -116,7 +116,7 @@ export class SkillGroupController {
    *      '401':
    *        $ref: '#/components/responses/UnAuthorizedResponse'
    *      '404':
-   *        description: skill groups not found.
+   *        description: Model not found.
    *        content:
    *          application/json:
    *            schema:
@@ -295,7 +295,7 @@ export class SkillGroupController {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/GETSkillGroups404ErrorSchema'
+   *             $ref: '#/components/schemas/GETSkillGroup404ErrorSchema'
    *     '500':
    *       description: |
    *         The server encountered an unexpected condition.

@@ -590,6 +590,34 @@ describe("Test for skillGroup handler", () => {
       expect(typeof JSON.parse(actualResponse.body).details).toBe("string");
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
+
+    test("GET /models/{modelId}/skillGroups/{id} should respond with BAD_REQUEST if modelId and id parsed from path are invalid", async () => {
+      // GIVEN an event where pathParameters are missing, so the IDs are parsed from the path via pathToRegexp
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: {},
+        queryStringParameters: {},
+        path: `/models/invalid-model-id/skillGroups/invalid-skill-group-id`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockReturnValue(true);
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      // THEN respond with the BAD_REQUEST status due to JSON schema validation failure
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+
+      const parsed = JSON.parse(actualResponse.body);
+      expect(parsed).toMatchObject({
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+      });
+      expect(typeof parsed.details).toBe("string");
+    });
+
     test("GET /models/{modelId}/skillGroups/{id} should respond with NOT_FOUND if skill group is not found", async () => {
       // GIVEN a valid request with modelId and skillGroup ID
       const givenModel: IModelInfo = {

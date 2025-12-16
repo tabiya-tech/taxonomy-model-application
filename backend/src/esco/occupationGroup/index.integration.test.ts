@@ -258,11 +258,11 @@ describe("Test for occupationGroup handler with a DB", () => {
     expect(actualOccupationGroups.length).toBeLessThanOrEqual(limit);
 
     // AND the response occupationGroups should be the expected ones
-    // The cursor points to occupationGroups[9], so we expect the 5 items younger than that
-    // which are occupationGroups[9] in descending younger
+    // The cursor points to occupationGroups[8], so with descending order we expect the 5 items older than that
+    // which are occupationGroups[7, 6, 5, 4, 3] in descending order (newest to oldest of those)
     expect(actualOccupationGroups.map((m) => m.UUID)).toMatchObject(
       occupationGroups
-        .slice(9, 10)
+        .slice(3, 8)
         .reverse()
         .map((m) => m.UUID)
     );
