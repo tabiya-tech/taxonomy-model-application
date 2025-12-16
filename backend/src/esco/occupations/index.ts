@@ -18,7 +18,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
   IOccupationService,
-  ModalForOccupationValidationErrorCode,
+  ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupationService.types";
 import { parsePath } from "common/parsePath/parsePath";
@@ -216,21 +216,21 @@ export class OccupationController {
 
       if (error instanceof OccupationModelValidationError) {
         switch (error.code) {
-          case ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
+          case ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
             return errorResponse(
               StatusCodes.NOT_FOUND,
               OccupationAPISpecs.Enums.POST.Response.ErrorCodes.INVALID_MODEL_ID,
               "Model not found by the provided ID",
               ""
             );
-          case ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
+          case ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
             return errorResponse(
               StatusCodes.INTERNAL_SERVER_ERROR,
               OccupationAPISpecs.Enums.POST.Response.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
               "Failed to fetch the model details from the DB",
               ""
             );
-          case ModalForOccupationValidationErrorCode.MODEL_IS_RELEASED:
+          case ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED:
             return errorResponse(
               StatusCodes.BAD_REQUEST,
               OccupationAPISpecs.Enums.POST.Response.ErrorCodes.MODEL_ALREADY_RELEASED,
@@ -353,7 +353,7 @@ export class OccupationController {
 
       // Validate that the model exists (allow reading from released models)
       const validationResult = await this.occupationService.validateModelForOccupation(requestPathParameter.modelId);
-      if (validationResult === ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
           OccupationAPISpecs.Enums.GET.Response.ErrorCodes.MODEL_NOT_FOUND,
@@ -361,7 +361,7 @@ export class OccupationController {
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
-      if (validationResult === ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponse(
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
@@ -484,7 +484,7 @@ export class OccupationController {
 
       // Validate that the model exists (allow reading from released models)
       const validationResult = await this.occupationService.validateModelForOccupation(requestPathParameter.modelId);
-      if (validationResult === ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
           OccupationAPISpecs.Enums.GET.Response.ErrorCodes.MODEL_NOT_FOUND,
@@ -492,7 +492,7 @@ export class OccupationController {
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
-      if (validationResult === ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponse(
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationAPISpecs.Enums.GET.Response.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,

@@ -18,7 +18,7 @@ import { IOccupation, IOccupationWithoutImportId } from "./occupation.types";
 import { getIOccupationMockData } from "./testDataHelper";
 import {
   IOccupationService,
-  ModalForOccupationValidationErrorCode,
+  ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupationService.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
@@ -342,7 +342,7 @@ describe("Test for occupation handler", () => {
         create: jest
           .fn()
           .mockRejectedValue(
-            new OccupationModelValidationError(ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
+            new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
           ),
         findById: jest.fn(),
         findPaginated: jest.fn(),
@@ -386,7 +386,7 @@ describe("Test for occupation handler", () => {
         create: jest
           .fn()
           .mockRejectedValue(
-            new OccupationModelValidationError(ModalForOccupationValidationErrorCode.MODEL_IS_RELEASED)
+            new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED)
           ),
         findById: jest.fn(),
         findPaginated: jest.fn(),
@@ -457,7 +457,7 @@ describe("Test for occupation handler", () => {
         create: jest
           .fn()
           .mockRejectedValue(
-            new OccupationModelValidationError(ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB)
+            new OccupationModelValidationError(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB)
           ),
         findById: jest.fn(),
         findPaginated: jest.fn(),
@@ -500,7 +500,7 @@ describe("Test for occupation handler", () => {
       const givenOccupationServiceMock = {
         create: jest
           .fn()
-          .mockRejectedValue(new OccupationModelValidationError(3 as ModalForOccupationValidationErrorCode)),
+          .mockRejectedValue(new OccupationModelValidationError(3 as ModelForOccupationValidationErrorCode)),
         findById: jest.fn(),
         findPaginated: jest.fn(),
         validateModelForOccupation: jest.fn(),
@@ -619,7 +619,7 @@ describe("Test for occupation handler", () => {
           findPaginated: jest.fn(),
           validateModelForOccupation: jest
             .fn()
-            .mockResolvedValue(ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+            .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
         } as IOccupationService;
         const mockServiceRegistry = mockGetServiceRegistry();
         mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -649,7 +649,7 @@ describe("Test for occupation handler", () => {
           findPaginated: jest.fn(),
           validateModelForOccupation: jest
             .fn()
-            .mockResolvedValue(ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+            .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
         } as IOccupationService;
         const mockServiceRegistry = mockGetServiceRegistry();
         mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -1563,7 +1563,7 @@ describe("Test for occupation handler", () => {
           findPaginated: jest.fn(),
           validateModelForOccupation: jest
             .fn()
-            .mockResolvedValue(ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+            .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
         } as IOccupationService;
         const mockServiceRegistry = mockGetServiceRegistry();
         mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -1593,7 +1593,7 @@ describe("Test for occupation handler", () => {
           findPaginated: jest.fn(),
           validateModelForOccupation: jest
             .fn()
-            .mockResolvedValue(ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+            .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
         } as IOccupationService;
         const mockServiceRegistry = mockGetServiceRegistry();
         mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -1623,7 +1623,7 @@ describe("Test for occupation handler", () => {
           findPaginated: jest.fn(),
           validateModelForOccupation: jest
             .fn()
-            .mockResolvedValue(ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+            .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
         } as IOccupationService;
         const mockServiceRegistry = mockGetServiceRegistry();
         mockServiceRegistry.occupation = givenOccupationServiceMock;

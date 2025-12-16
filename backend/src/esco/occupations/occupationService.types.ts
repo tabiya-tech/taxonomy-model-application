@@ -1,13 +1,13 @@
 import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
 
-export enum ModalForOccupationValidationErrorCode {
+export enum ModelForOccupationValidationErrorCode {
   FAILED_TO_FETCH_FROM_DB,
   MODEL_NOT_FOUND_BY_ID,
   MODEL_IS_RELEASED,
 }
 
 export class OccupationModelValidationError extends Error {
-  constructor(public code: ModalForOccupationValidationErrorCode) {
+  constructor(public code: ModelForOccupationValidationErrorCode) {
     super();
   }
 }
@@ -51,7 +51,7 @@ export interface IOccupationService {
   /**
    * Validates that a model exists and is not released for occupation creation
    * @param {string} modelId - The model ID to validate
-   * @return {Promise<ModalForOccupationValidationErrorCode | null>} - Returns null if valid, otherwise the error code
+   * @return {Promise<ModelForOccupationValidationErrorCode | null>} - Returns null if valid, otherwise the error code
    */
-  validateModelForOccupation(modelId: string): Promise<ModalForOccupationValidationErrorCode | null>;
+  validateModelForOccupation(modelId: string): Promise<ModelForOccupationValidationErrorCode | null>;
 }

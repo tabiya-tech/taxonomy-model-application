@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ISkillGroupService } from "./skillGroupService.type";
-import { ModalForSkillGroupValidationErrorCode, ISkillGroup } from "./skillGroup.types";
+import { ModelForSkillGroupValidationErrorCode, ISkillGroup } from "./skillGroup.types";
 import { ISkillGroupRepository } from "./skillGroupRepository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
@@ -27,13 +27,13 @@ export class SkillGroupService implements ISkillGroupService {
     // Check if there's a next page
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
-    // Construct nextCursor from the extra item if there's more
+    // Construct nextCursor from the last item of the current page
     let nextCursor: { _id: string; createdAt: Date } | null = null;
-    if (hasMore) {
-      const nextItem = items[limit];
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
       nextCursor = {
-        _id: nextItem.id,
-        createdAt: nextItem.createdAt,
+        _id: lastItemOnPage.id,
+        createdAt: lastItemOnPage.createdAt,
       };
     }
     return {
@@ -41,19 +41,19 @@ export class SkillGroupService implements ISkillGroupService {
       nextCursor,
     };
   }
-  async validateModelForSkillGroup(modelId: string): Promise<ModalForSkillGroupValidationErrorCode | null> {
+  async validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null> {
     try {
       const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
       if (!model) {
-        return ModalForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
+        return ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
       }
       if (model.released) {
-        return ModalForSkillGroupValidationErrorCode.MODEL_IS_RELEASED;
+        return ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED;
       }
       return null;
     } catch (e: unknown) {
       console.error("Error validating model for skill group:", e);
-      return ModalForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      return ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
   }
 }

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import {
   IOccupationService,
-  ModalForOccupationValidationErrorCode,
+  ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupationService.types";
 import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
@@ -46,13 +46,13 @@ export class OccupationService implements IOccupationService {
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
 
-    // Construct nextCursor from the extra item if there's more
+    // Construct nextCursor from the last item of the current page
     let nextCursor: { _id: string; createdAt: Date } | null = null;
-    if (hasMore) {
-      const nextItem = items[limit];
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
       nextCursor = {
-        _id: nextItem.id,
-        createdAt: nextItem.createdAt,
+        _id: lastItemOnPage.id,
+        createdAt: lastItemOnPage.createdAt,
       };
     }
 
@@ -62,19 +62,19 @@ export class OccupationService implements IOccupationService {
     };
   }
 
-  async validateModelForOccupation(modelId: string): Promise<ModalForOccupationValidationErrorCode | null> {
+  async validateModelForOccupation(modelId: string): Promise<ModelForOccupationValidationErrorCode | null> {
     try {
       const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
       if (!model) {
-        return ModalForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
+        return ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
       }
       if (model.released) {
-        return ModalForOccupationValidationErrorCode.MODEL_IS_RELEASED;
+        return ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED;
       }
       return null;
     } catch (e: unknown) {
       console.error("Failed to validate model for occupation creation", e);
-      return ModalForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      return ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
   }
 }

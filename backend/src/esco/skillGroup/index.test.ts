@@ -11,7 +11,7 @@ import { getRandomString, getTestString } from "_test_utilities/getMockRandomDat
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 
 import * as authenticatorModule from "auth/authenticator";
-import { ISkillGroup, ModalForSkillGroupValidationErrorCode } from "./skillGroup.types";
+import { ISkillGroup, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
 import { getISkillGroupMockData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
@@ -315,7 +315,7 @@ describe("Test for skillGroup handler", () => {
         findPaginated: jest.fn(),
         validateModelForSkillGroup: jest
           .fn()
-          .mockResolvedValue(ModalForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -341,7 +341,7 @@ describe("Test for skillGroup handler", () => {
         findPaginated: jest.fn(),
         validateModelForSkillGroup: jest
           .fn()
-          .mockResolvedValue(ModalForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -503,7 +503,7 @@ describe("Test for skillGroup handler", () => {
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest
           .fn()
-          .mockResolvedValue(ModalForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -541,7 +541,7 @@ describe("Test for skillGroup handler", () => {
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest
           .fn()
-          .mockResolvedValue(ModalForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;

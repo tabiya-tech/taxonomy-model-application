@@ -1,11 +1,11 @@
 import {
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
-  ModalForOccupationGroupValidationErrorCode,
+  ModelForOccupationGroupValidationErrorCode,
 } from "./OccupationGroup.types";
 
 export class OccupationGroupModelValidationError extends Error {
-  constructor(public code: ModalForOccupationGroupValidationErrorCode) {
+  constructor(public code: ModelForOccupationGroupValidationErrorCode) {
     super();
   }
 }
@@ -49,7 +49,7 @@ export interface IOccupationGroupService {
   /**
    * Validates that a model exists and is not released for occupation group creation
    * @param {string} modelId - The model ID to validate
-   * @return {Promise<ModalForOccupationGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
+   * @return {Promise<ModelForOccupationGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
    */
-  validateModelForOccupationGroup(modelId: string): Promise<ModalForOccupationGroupValidationErrorCode | null>;
+  validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null>;
 }

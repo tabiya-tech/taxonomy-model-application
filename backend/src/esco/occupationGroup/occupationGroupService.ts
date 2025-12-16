@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroupService.type";
 import {
-  ModalForOccupationGroupValidationErrorCode,
+  ModelForOccupationGroupValidationErrorCode,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
 } from "./OccupationGroup.types";
@@ -43,13 +43,13 @@ export class OccupationGroupService implements IOccupationGroupService {
     // Check if there's a next page
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
-    // Construct nextCursor from the extra item if there's more
+    // Construct nextCursor from the last item of the current page
     let nextCursor: { _id: string; createdAt: Date } | null = null;
-    if (hasMore) {
-      const nextItem = items[limit];
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
       nextCursor = {
-        _id: nextItem.id,
-        createdAt: nextItem.createdAt,
+        _id: lastItemOnPage.id,
+        createdAt: lastItemOnPage.createdAt,
       };
     }
     return {
@@ -58,19 +58,19 @@ export class OccupationGroupService implements IOccupationGroupService {
     };
   }
 
-  async validateModelForOccupationGroup(modelId: string): Promise<ModalForOccupationGroupValidationErrorCode | null> {
+  async validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null> {
     try {
       const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
       if (!model) {
-        return ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
+        return ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
       }
       if (model.released) {
-        return ModalForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED;
+        return ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED;
       }
       return null;
     } catch (e: unknown) {
       console.error("Error validating model for occupation group:", e);
-      return ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      return ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
   }
 }

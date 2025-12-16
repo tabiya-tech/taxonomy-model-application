@@ -14,7 +14,7 @@ import * as authenticatorModule from "auth/authenticator";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
-import { IOccupationGroup, ModalForOccupationGroupValidationErrorCode } from "./OccupationGroup.types";
+import { IOccupationGroup, ModelForOccupationGroupValidationErrorCode } from "./OccupationGroup.types";
 import { getIOccupationGroupMockData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import {
@@ -269,7 +269,7 @@ describe("Test for occupationGroup handler", () => {
         create: jest
           .fn()
           .mockRejectedValue(
-            new OccupationGroupModelValidationError(ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
+            new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
           ),
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
@@ -349,7 +349,7 @@ describe("Test for occupationGroup handler", () => {
         create: jest
           .fn()
           .mockRejectedValue(
-            new OccupationGroupModelValidationError(ModalForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED)
+            new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED)
           ),
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
@@ -541,7 +541,7 @@ describe("Test for occupationGroup handler", () => {
         create: jest
           .fn()
           .mockRejectedValue(
-            new OccupationGroupModelValidationError(ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB)
+            new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB)
           ),
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
@@ -585,7 +585,7 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest
           .fn()
-          .mockRejectedValue(new OccupationGroupModelValidationError(3 as ModalForOccupationGroupValidationErrorCode)),
+          .mockRejectedValue(new OccupationGroupModelValidationError(3 as ModelForOccupationGroupValidationErrorCode)),
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
@@ -885,7 +885,7 @@ describe("Test for occupationGroup handler", () => {
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest
           .fn()
-          .mockResolvedValue(ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -912,7 +912,7 @@ describe("Test for occupationGroup handler", () => {
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest
           .fn()
-          .mockResolvedValue(ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -1087,7 +1087,7 @@ describe("Test for occupationGroup handler", () => {
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest
           .fn()
-          .mockResolvedValue(ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -1126,7 +1126,7 @@ describe("Test for occupationGroup handler", () => {
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest
           .fn()
-          .mockResolvedValue(ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;

@@ -63,7 +63,7 @@ export interface ISkillGroupReferenceDoc extends Pick<ISkillGroupDoc, "modelId" 
 /**
  * These are service level error codes for validating a model for skill group operations
  */
-export enum ModalForSkillGroupValidationErrorCode {
+export enum ModelForSkillGroupValidationErrorCode {
   FAILED_TO_FETCH_FROM_DB,
   MODEL_NOT_FOUND_BY_ID,
   MODEL_IS_RELEASED,

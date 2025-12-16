@@ -20,7 +20,7 @@ import { getResourcesBaseUrl } from "server/config/config";
 import {
   BasePathParams,
   INewOccupationGroupSpecWithoutImportId,
-  ModalForOccupationGroupValidationErrorCode,
+  ModelForOccupationGroupValidationErrorCode,
 } from "./OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authenticator";
@@ -221,21 +221,21 @@ export class OccupationGroupController {
       console.error("Failed to create occupation group:", error);
       if (error instanceof OccupationGroupModelValidationError) {
         switch (error.code) {
-          case ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
+          case ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
             return errorResponsePOST(
               StatusCodes.NOT_FOUND,
               OccupationGroupAPISpecs.Enums.POST.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
               "Model not found by the provided ID",
               ""
             );
-          case ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
+          case ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
             return errorResponsePOST(
               StatusCodes.INTERNAL_SERVER_ERROR,
               OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
               "Failed to fetch the model detail from the DB",
               ""
             );
-          case ModalForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED:
+          case ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED:
             return errorResponsePOST(
               StatusCodes.BAD_REQUEST,
               OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
@@ -359,7 +359,7 @@ export class OccupationGroupController {
       const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
         requestPathParameter.modelId
       );
-      if (validationResult === ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
           OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
@@ -367,7 +367,7 @@ export class OccupationGroupController {
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
-      if (validationResult === ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
@@ -530,7 +530,7 @@ export class OccupationGroupController {
       const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
         requestPathParameter.modelId
       );
-      if (validationResult === ModalForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
           OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
@@ -538,7 +538,7 @@ export class OccupationGroupController {
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
-      if (validationResult === ModalForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,

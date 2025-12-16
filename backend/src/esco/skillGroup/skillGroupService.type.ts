@@ -1,4 +1,4 @@
-import { ISkillGroup, ModalForSkillGroupValidationErrorCode } from "./skillGroup.types";
+import { ISkillGroup, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
 
 export interface ISkillGroupService {
   /**
@@ -30,7 +30,7 @@ export interface ISkillGroupService {
   /**
    * Validates that a model exists and is not released for skill group creation
    * @param {string} modelId - The model ID to validate
-   * @return {Promise<ModalForSkillGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
+   * @return {Promise<ModelForSkillGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
    */
-  validateModelForSkillGroup(modelId: string): Promise<ModalForSkillGroupValidationErrorCode | null>;
+  validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null>;
 }
