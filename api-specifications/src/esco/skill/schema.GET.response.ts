@@ -22,7 +22,7 @@ const SchemaGETResponse: SchemaObject = {
       description: "Number of items returned in this page.",
       minimum: 1,
       maximum: SkillConstants.MAX_LIMIT,
-      default: SkillConstants.MAX_LIMIT,
+      default: SkillConstants.DEFAULT_LIMIT,
     },
     nextCursor: {
       type: ["string", "null"],

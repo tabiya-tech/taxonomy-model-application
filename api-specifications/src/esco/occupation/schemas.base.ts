@@ -113,7 +113,7 @@ export const _baseQueryParameterSchema = {
   },
   cursor: {
     description: "A base64 string representing the cursor for pagination.",
-    type: ["string", "null"],
+    type: "string",
     maxLength: OccupationConstants.MAX_CURSOR_LENGTH,
     pattern: RegExp_Str_NotEmptyString,
   },

@@ -2,10 +2,10 @@ import {
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
+  testLimitField,
+  testCursorField,
 } from "_test_utilities/stdSchemaTests";
-import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import { getTestBase64String } from "_test_utilities/specialCharacters";
-import { RegExp_Str_NotEmptyString } from "../../regex";
 
 import OccupationAPISpecs from "./index";
 
@@ -44,71 +44,19 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Request.Query.
 
   describe("Validate OccupationAPISpecs.Schemas.GET.Request.Query.Payload fields", () => {
     describe("Test validation of 'limit'", () => {
-      test.each([
-        [CaseType.Success, "undefined", undefined, undefined],
-        [CaseType.Failure, "null", null, constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "stringified number", "10", constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "random string", "foo", constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "float", 1.1, constructSchemaError("/limit", "type", "must be integer")],
-        [CaseType.Failure, "zero", 0, constructSchemaError("/limit", "minimum", "must be >= 1")],
-        [
-          CaseType.Failure,
-          "over max",
-          OccupationAPISpecs.Constants.MAX_LIMIT + 1,
-          constructSchemaError("/limit", "maximum", `must be <= ${OccupationAPISpecs.Constants.MAX_LIMIT}`),
-        ],
-        [CaseType.Success, "one", 1, undefined],
-        [CaseType.Success, "ten", 10, undefined],
-      ])("%s Validate 'limit' when it is %s", (caseType, _description, givenValue, failureMessage) => {
-        // GIVEN an object with given value
-        const givenObject = { limit: givenValue };
-
-        // THEN export the object to validate accordingly
-        assertCaseForProperty(
-          "limit",
-          givenObject,
-          OccupationAPISpecs.Schemas.GET.Request.Query.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+      testLimitField<OccupationAPISpecs.Types.GET.Request.Query.Payload>(
+        "limit",
+        OccupationAPISpecs.Constants.MAX_LIMIT,
+        OccupationAPISpecs.Schemas.GET.Request.Query.Payload
+      );
     });
 
     describe("Test validation of 'cursor'", () => {
-      test.each([
-        [CaseType.Success, "undefined", undefined, undefined],
-        [CaseType.Success, "null", null, undefined],
-        [
-          CaseType.Failure,
-          "empty string",
-          "",
-          constructSchemaError("/cursor", "pattern", `must match pattern "${RegExp_Str_NotEmptyString}"`),
-        ],
-        [
-          CaseType.Failure,
-          "too long",
-          "a".repeat(OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH + 1),
-          constructSchemaError(
-            "/cursor",
-            "maxLength",
-            `must NOT have more than ${OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH} characters`
-          ),
-        ],
-        [
-          CaseType.Success,
-          "valid string",
-          getTestBase64String(OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH),
-          undefined,
-        ],
-      ])(`(%s) Validate 'cursor' when it is %s`, (caseType, _desc, value, failureMessage) => {
-        assertCaseForProperty(
-          "cursor",
-          { cursor: value },
-          OccupationAPISpecs.Schemas.GET.Request.Query.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+      testCursorField<OccupationAPISpecs.Types.GET.Request.Query.Payload>(
+        "cursor",
+        OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH,
+        OccupationAPISpecs.Schemas.GET.Request.Query.Payload
+      );
     });
   });
 });

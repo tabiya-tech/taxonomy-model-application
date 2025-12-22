@@ -174,10 +174,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                 "description": "A base64 string representing the cursor for pagination.",
                 "maxLength": 1024,
                 "pattern": "\\S",
-                "type": [
-                  "string",
-                  "null",
-                ],
+                "type": "string",
               },
               "limit": {
                 "default": 10,
@@ -771,7 +768,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "type": "array",
             },
             "limit": {
-              "default": 100,
+              "default": 10,
               "description": "Number of data returned in this page.",
               "maximum": 100,
               "minimum": 1,
@@ -780,6 +777,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "nextCursor": {
               "description": "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
               "maxLength": 1024,
+              "pattern": "\\S",
               "type": [
                 "string",
                 "null",

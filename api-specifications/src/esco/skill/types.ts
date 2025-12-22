@@ -53,8 +53,8 @@ interface ISkillResponse {
     UUID: string;
     preferredLabel: string;
     isLocalized: boolean;
-    objectType: SkillEnums.ObjectTypes;
-    relationType: string | null;
+    objectType: typeof SkillEnums.OccupationObjectTypes;
+    relationType: SkillEnums.OccupationToSkillRelationType | null;
     signallingValue: number | null;
     signallingValueLabel: SkillEnums.SignallingValueLabel | null;
   }[];

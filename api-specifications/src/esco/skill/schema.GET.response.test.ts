@@ -494,9 +494,14 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
             undefined,
             constructSchemaError("", "required", "must have required property 'parent'"),
           ],
-          [CaseType.Failure, "null", null, constructSchemaError("/parent", "type", "must be object")],
-          [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object")],
-          [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object")],
+          [CaseType.Success, "null", null, undefined],
+          [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object,null")],
+          [
+            CaseType.Failure,
+            "an array",
+            ["foo", "bar"],
+            constructSchemaError("/parent", "type", "must be object,null"),
+          ],
           [CaseType.Success, "a valid parent object", givenValidSkillGETResponse.parent, undefined],
           [
             CaseType.Failure,
@@ -1842,27 +1847,19 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
         });
         describe("Test validation of 'requiredByOccupations/relationType'", () => {
           test.each([
-            [CaseType.Success, "undefined", undefined, undefined],
+            [
+              CaseType.Failure,
+              "undefined",
+              undefined,
+              constructSchemaError("/requiredByOccupations/0", "if", 'must match "then" schema'),
+            ],
             [
               CaseType.Failure,
               "null",
               null,
-              constructSchemaError(
-                "/requiredByOccupations/0/relationType",
-                "enum",
-                "must be equal to one of the allowed values"
-              ),
+              constructSchemaError("/requiredByOccupations/0/relationType", "type", "must be string"),
             ],
-            [
-              CaseType.Failure,
-              "empty string",
-              "",
-              constructSchemaError(
-                "/requiredByOccupations/0/relationType",
-                "enum",
-                "must be equal to one of the allowed values"
-              ),
-            ],
+            [CaseType.Success, "empty string", "", undefined],
             [
               CaseType.Failure,
               "an invalid relationType",
@@ -1947,32 +1944,14 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
         describe("Test validation of 'requiredByOccupations/signallingValueLabel'", () => {
           test.each([
             [CaseType.Success, "undefined", undefined, undefined],
-            [
-              CaseType.Failure,
-              "null",
-              null,
-              constructSchemaError(
-                "/requiredByOccupations/0/signallingValueLabel",
-                "enum",
-                "must be equal to one of the allowed values"
-              ),
-            ],
+            [CaseType.Success, "null", null, undefined],
             [
               CaseType.Failure,
               "number",
               1,
               constructSchemaError("/requiredByOccupations/0/signallingValueLabel", "type", "must be string,null"),
             ],
-            [
-              CaseType.Failure,
-              "empty string",
-              "",
-              constructSchemaError(
-                "/requiredByOccupations/0/signallingValueLabel",
-                "enum",
-                "must be equal to one of the allowed values"
-              ),
-            ],
+            [CaseType.Success, "empty string", "", undefined],
             [
               CaseType.Failure,
               "invalid label",

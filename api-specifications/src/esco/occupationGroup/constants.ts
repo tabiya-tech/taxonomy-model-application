@@ -10,6 +10,7 @@ namespace OccupationGroupConstants {
   export const UUID_HISTORY_MAX_ITEMS = 10000;
   export const MAX_UUID_HISTORY_ITEM_LENGTH = 36;
   export const MAX_LIMIT = 100;
+  export const DEFAULT_LIMIT = 10;
   export const MAX_CURSOR_LENGTH = 1720;
 
   // Safety buffer for JSON structural characters.

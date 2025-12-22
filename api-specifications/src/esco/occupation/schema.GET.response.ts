@@ -1,6 +1,7 @@
 import { SchemaObject } from "ajv";
 import { _baseResponseSchema } from "./schemas.base";
 import OccupationConstants from "./constants";
+import { RegExp_Str_NotEmptyString } from "../../regex";
 
 const SchemaGETResponse: SchemaObject = {
   $id: "/components/schemas/OccupationResponseSchemaGET",
@@ -21,13 +22,14 @@ const SchemaGETResponse: SchemaObject = {
       description: "Number of data returned in this page.",
       minimum: 1,
       maximum: OccupationConstants.MAX_LIMIT,
-      default: OccupationConstants.MAX_LIMIT,
+      default: OccupationConstants.DEFAULT_LIMIT,
     },
     nextCursor: {
       type: ["string", "null"],
       description:
         "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
       maxLength: OccupationConstants.MAX_CURSOR_LENGTH,
+      pattern: RegExp_Str_NotEmptyString,
     },
   },
   required: ["data", "limit"],

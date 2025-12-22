@@ -714,12 +714,16 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
               "type": "array",
             },
             "limit": {
+              "default": 20,
               "description": "The maximum number of skill groups that could be returned in the response.",
+              "maximum": 100,
               "minimum": 1,
               "type": "integer",
             },
             "nextCursor": {
               "description": "A base64 string representing the cursor for the next page of results. Null if there is no next page.",
+              "maxLength": 1720,
+              "pattern": "\\S",
               "type": [
                 "string",
                 "null",

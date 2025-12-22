@@ -6,6 +6,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     "ALT_LABELS_MAX_ITEMS": 100,
     "ALT_LABEL_MAX_LENGTH": 256,
     "CODE_MAX_LENGTH": 256,
+    "DEFAULT_LIMIT": 10,
     "DESCRIPTION_MAX_LENGTH": 6000,
     "MAX_CURSOR_LENGTH": 1720,
     "MAX_JSON_OVERHEAD": 10000,
@@ -158,7 +159,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "type": "string",
               },
               "limit": {
-                "default": 100,
+                "default": 10,
                 "description": "The maximum number of items to return.",
                 "maximum": 100,
                 "minimum": 1,
@@ -508,12 +509,16 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "type": "array",
             },
             "limit": {
+              "default": 10,
               "description": "The maximum number of occupation groups that could be returned in the response.",
+              "maximum": 100,
               "minimum": 1,
               "type": "integer",
             },
             "nextCursor": {
               "description": "A base64 string representing the cursor for the next page of results. Null if there is no next page.",
+              "maxLength": 1720,
+              "pattern": "\\S",
               "type": [
                 "string",
                 "null",

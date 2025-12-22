@@ -100,7 +100,7 @@ export const _baseQueryParameterSchema = {
     type: "integer",
     minimum: 1,
     maximum: SkillConstants.MAX_LIMIT,
-    default: SkillConstants.MAX_LIMIT,
+    default: SkillConstants.DEFAULT_LIMIT,
   },
   cursor: {
     description: "A base64 string representing the cursor for pagination.",
@@ -146,7 +146,7 @@ export const _baseResponseSchema = {
     },
     parent: {
       description: "The parent skill or skill group of this skill.",
-      type: "object",
+      type: ["object", "null"],
       additionalProperties: false,
       properties: {
         id: {
@@ -322,7 +322,7 @@ export const _baseResponseSchema = {
           relationType: {
             description: "Used for ESCOOccupations only.",
             type: ["string", "null"],
-            enum: Object.values(SkillEnums.OccupationToSkillRelationType).filter((v) => v !== ""),
+            enum: [...Object.values(SkillEnums.OccupationToSkillRelationType), null],
           },
           signallingValue: {
             description: "Used for LocalOccupations only.",
@@ -334,10 +334,35 @@ export const _baseResponseSchema = {
             description: "Used for LocalOccupations only.",
             type: ["string", "null"],
             maxLength: SkillConstants.SIGNALLING_VALUE_LABEL_MAX_LENGTH,
-            enum: Object.values(SkillEnums.SignallingValueLabel).filter((v) => v !== ""),
+            enum: [...Object.values(SkillEnums.SignallingValueLabel), null],
           },
         },
         required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType"],
+        allOf: [
+          {
+            if: {
+              properties: { objectType: { const: SkillEnums.OccupationObjectTypes.ESCOOccupation } },
+            },
+            then: {
+              properties: {
+                relationType: { type: "string" },
+              },
+              required: ["relationType"],
+            },
+          },
+          {
+            if: {
+              properties: { objectType: { const: SkillEnums.OccupationObjectTypes.LocalOccupation } },
+            },
+            then: {
+              properties: {
+                signallingValue: { type: "number" },
+                signallingValueLabel: { type: "string" },
+              },
+              required: ["signallingValue", "signallingValueLabel"],
+            },
+          },
+        ],
       },
     },
     ..._baseProperties,
