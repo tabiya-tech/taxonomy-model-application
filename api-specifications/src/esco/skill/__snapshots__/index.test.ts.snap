@@ -195,7 +195,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "type": "string",
               },
               "limit": {
-                "default": 100,
+                "default": 10,
                 "description": "The maximum number of items to return.",
                 "maximum": 100,
                 "minimum": 1,
@@ -413,7 +413,10 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "code",
                       ],
                     },
-                    "type": "object",
+                    "type": [
+                      "object",
+                      "null",
+                    ],
                   },
                   "path": {
                     "description": "Resource path using the skill's ID.",
@@ -432,6 +435,50 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "description": "Occupations that require this skill with relationship metadata.",
                     "items": {
                       "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "escooccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "relationType": {
+                                "type": "string",
+                              },
+                            },
+                            "required": [
+                              "relationType",
+                            ],
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localoccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "signallingValue": {
+                                "type": "number",
+                              },
+                              "signallingValueLabel": {
+                                "type": "string",
+                              },
+                            },
+                            "required": [
+                              "signallingValue",
+                              "signallingValueLabel",
+                            ],
+                          },
+                        },
+                      ],
                       "properties": {
                         "UUID": {
                           "description": "The UUID of the requiring occupation.",
@@ -464,8 +511,10 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "relationType": {
                           "description": "Used for ESCOOccupations only.",
                           "enum": [
+                            "",
                             "essential",
                             "optional",
+                            null,
                           ],
                           "type": [
                             "string",
@@ -484,9 +533,11 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "signallingValueLabel": {
                           "description": "Used for LocalOccupations only.",
                           "enum": [
+                            "",
                             "low",
                             "medium",
                             "high",
+                            null,
                           ],
                           "maxLength": 256,
                           "type": [
@@ -683,7 +734,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "type": "array",
             },
             "limit": {
-              "default": 100,
+              "default": 10,
               "description": "Number of items returned in this page.",
               "maximum": 100,
               "minimum": 1,
@@ -1011,7 +1062,10 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "code",
                 ],
               },
-              "type": "object",
+              "type": [
+                "object",
+                "null",
+              ],
             },
             "path": {
               "description": "Resource path using the skill's ID.",
@@ -1030,6 +1084,50 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "description": "Occupations that require this skill with relationship metadata.",
               "items": {
                 "additionalProperties": false,
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "const": "escooccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "relationType": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "relationType",
+                      ],
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "const": "localoccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "signallingValue": {
+                          "type": "number",
+                        },
+                        "signallingValueLabel": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "signallingValue",
+                        "signallingValueLabel",
+                      ],
+                    },
+                  },
+                ],
                 "properties": {
                   "UUID": {
                     "description": "The UUID of the requiring occupation.",
@@ -1062,8 +1160,10 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "relationType": {
                     "description": "Used for ESCOOccupations only.",
                     "enum": [
+                      "",
                       "essential",
                       "optional",
+                      null,
                     ],
                     "type": [
                       "string",
@@ -1082,9 +1182,11 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "signallingValueLabel": {
                     "description": "Used for LocalOccupations only.",
                     "enum": [
+                      "",
                       "low",
                       "medium",
                       "high",
+                      null,
                     ],
                     "maxLength": 256,
                     "type": [

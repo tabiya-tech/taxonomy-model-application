@@ -405,9 +405,9 @@ describe("Test objects against the SkillAPISpecs.Schemas.POST.Response.Payload s
           undefined,
           constructSchemaError("", "required", "must have required property 'parent'"),
         ],
-        [CaseType.Failure, "null", null, constructSchemaError("/parent", "type", "must be object")],
-        [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object")],
-        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object")],
+        [CaseType.Success, "null", null, undefined],
+        [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object,null")],
+        [CaseType.Failure, "an array", ["foo", "bar"], constructSchemaError("/parent", "type", "must be object,null")],
         [CaseType.Success, "a valid parent object", givenValidSkillPOSTResponse.parent, undefined],
         [
           CaseType.Failure,
@@ -1535,45 +1535,123 @@ describe("Test objects against the SkillAPISpecs.Schemas.POST.Response.Payload s
       });
       describe("Test validation of 'requiredByOccupations/relationType'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, undefined],
+          // ESCO occupation → relationType required and must be string from enum
+          [
+            CaseType.Success,
+            "ESSENTIAL relationType for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              relationType: SkillEnums.OccupationToSkillRelationType.ESSENTIAL,
+            },
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "OPTIONAL relationType for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              relationType: SkillEnums.OccupationToSkillRelationType.OPTIONAL,
+            },
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "NONE relationType for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              relationType: SkillEnums.OccupationToSkillRelationType.NONE,
+            },
+            undefined,
+          ],
           [
             CaseType.Failure,
-            "null",
-            null,
+            "undefined relationType for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              relationType: undefined,
+            },
+            constructSchemaError("/requiredByOccupations/0", "required", "must have required property 'relationType'"),
+          ],
+          [
+            CaseType.Failure,
+            "null relationType for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              relationType: null,
+            },
+            constructSchemaError("/requiredByOccupations/0/relationType", "type", "must be string"),
+          ],
+          [
+            CaseType.Failure,
+            "invalid relationType for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              relationType: "invalidRelationType",
+            },
             constructSchemaError(
               "/requiredByOccupations/0/relationType",
               "enum",
               "must be equal to one of the allowed values"
             ),
           ],
+
+          // Local occupation → relationType optional, can be undefined/null/enum
+          [
+            CaseType.Success,
+            "undefined relationType for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              relationType: undefined,
+            },
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "null relationType for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              relationType: null,
+            },
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "empty string relationType for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              relationType: "",
+            },
+            undefined,
+          ],
           [
             CaseType.Failure,
-            "empty string",
-            "",
+            "invalid relationType for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              relationType: "invalidRelationType",
+            },
             constructSchemaError(
               "/requiredByOccupations/0/relationType",
               "enum",
               "must be equal to one of the allowed values"
             ),
           ],
-          [
-            CaseType.Failure,
-            "an invalid relationType",
-            "invalidRelationType",
-            constructSchemaError(
-              "/requiredByOccupations/0/relationType",
-              "enum",
-              "must be equal to one of the allowed values"
-            ),
-          ],
-          [CaseType.Success, "a valid relationType", "essential", undefined],
         ])("%s Validate 'relationType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           const givenObject = {
             ...givenValidSkillPOSTResponse,
             requiredByOccupations: [
               {
-                ...givenValidSkillPOSTResponse.requiredByOccupations[0],
-                relationType: givenValue,
+                ...givenValue,
               },
             ],
           };
@@ -1588,18 +1666,70 @@ describe("Test objects against the SkillAPISpecs.Schemas.POST.Response.Payload s
       });
       describe("Test validation of 'requiredByOccupations/signallingValue'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, undefined],
-          [CaseType.Success, "null", null, undefined],
+          // ESCO occupation: signalling fields optional
+          [
+            CaseType.Success,
+            "undefined signallingValue for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              signallingValue: undefined,
+            },
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "null signallingValue for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              signallingValue: null,
+            },
+            undefined,
+          ],
+          // Local occupation: signallingValue required and must be number
+          [
+            CaseType.Failure,
+            "undefined signallingValue for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValue: undefined,
+            },
+            constructSchemaError(
+              "/requiredByOccupations/0",
+              "required",
+              "must have required property 'signallingValue'"
+            ),
+          ],
+          [
+            CaseType.Failure,
+            "null signallingValue for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValue: null,
+            },
+            constructSchemaError("/requiredByOccupations/0/signallingValue", "type", "must be number"),
+          ],
           [
             CaseType.Failure,
             "string",
-            "1",
-            constructSchemaError("/requiredByOccupations/0/signallingValue", "type", "must be number,null"),
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValue: "1",
+            },
+            constructSchemaError("/requiredByOccupations/0/signallingValue", "type", "must be number"),
           ],
           [
             CaseType.Failure,
             "below min",
-            SkillConstants.SIGNALLING_VALUE_MIN - 1,
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValue: SkillConstants.SIGNALLING_VALUE_MIN - 1,
+            },
             constructSchemaError(
               "/requiredByOccupations/0/signallingValue",
               "minimum",
@@ -1609,22 +1739,43 @@ describe("Test objects against the SkillAPISpecs.Schemas.POST.Response.Payload s
           [
             CaseType.Failure,
             "above max",
-            SkillConstants.SIGNALLING_VALUE_MAX + 1,
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValue: SkillConstants.SIGNALLING_VALUE_MAX + 1,
+            },
             constructSchemaError(
               "/requiredByOccupations/0/signallingValue",
               "maximum",
               `must be <= ${SkillConstants.SIGNALLING_VALUE_MAX}`
             ),
           ],
-          [CaseType.Success, "min", SkillConstants.SIGNALLING_VALUE_MIN, undefined],
-          [CaseType.Success, "max", SkillConstants.SIGNALLING_VALUE_MAX, undefined],
+          [
+            CaseType.Success,
+            "min signallingValue for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValue: SkillConstants.SIGNALLING_VALUE_MIN,
+            },
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "max signallingValue for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValue: SkillConstants.SIGNALLING_VALUE_MAX,
+            },
+            undefined,
+          ],
         ])("%s Validate 'signallingValue' when it is %s", (caseType, __description, givenValue, failureMessage) => {
           const givenObject = {
             ...givenValidSkillPOSTResponse,
             requiredByOccupations: [
               {
-                ...givenValidSkillPOSTResponse.requiredByOccupations[0],
-                signallingValue: givenValue,
+                ...givenValue,
               },
             ],
           };
@@ -1639,44 +1790,97 @@ describe("Test objects against the SkillAPISpecs.Schemas.POST.Response.Payload s
       });
       describe("Test validation of 'requiredByOccupations/signallingValueLabel'", () => {
         test.each([
-          [CaseType.Success, "undefined", undefined, undefined],
+          // ESCO occupation: signallingValueLabel optional
+          [
+            CaseType.Success,
+            "undefined signallingValueLabel for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              signallingValueLabel: undefined,
+            },
+            undefined,
+          ],
+          [
+            CaseType.Success,
+            "null signallingValueLabel for ESCOOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.ESCOOccupation,
+              signallingValueLabel: null,
+            },
+            undefined,
+          ],
+
+          // Local occupation: signallingValueLabel required and must be string
           [
             CaseType.Failure,
-            "null",
-            null,
+            "undefined signallingValueLabel for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValueLabel: undefined,
+            },
             constructSchemaError(
-              "/requiredByOccupations/0/signallingValueLabel",
-              "enum",
-              "must be equal to one of the allowed values"
+              "/requiredByOccupations/0",
+              "required",
+              "must have required property 'signallingValueLabel'"
             ),
+          ],
+          [
+            CaseType.Failure,
+            "null signallingValueLabel for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValueLabel: null,
+            },
+            constructSchemaError("/requiredByOccupations/0/signallingValueLabel", "type", "must be string"),
           ],
           [
             CaseType.Failure,
             "number",
-            1,
-            constructSchemaError("/requiredByOccupations/0/signallingValueLabel", "type", "must be string,null"),
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValueLabel: 1,
+            },
+            constructSchemaError("/requiredByOccupations/0/signallingValueLabel", "type", "must be string"),
           ],
           [
-            CaseType.Failure,
-            "empty string",
-            "",
-            constructSchemaError(
-              "/requiredByOccupations/0/signallingValueLabel",
-              "enum",
-              "must be equal to one of the allowed values"
-            ),
+            CaseType.Success,
+            "empty string signallingValueLabel for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValueLabel: "",
+            },
+            undefined,
           ],
           [
             CaseType.Failure,
             "invalid label",
-            "invalid",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValueLabel: "invalid",
+            },
             constructSchemaError(
               "/requiredByOccupations/0/signallingValueLabel",
               "enum",
               "must be equal to one of the allowed values"
             ),
           ],
-          [CaseType.Success, "a valid label", SkillEnums.SignallingValueLabel.HIGH, undefined],
+          [
+            CaseType.Success,
+            "a valid label for LocalOccupation",
+            {
+              ...givenValidSkillPOSTResponse.requiredByOccupations[0],
+              objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+              signallingValueLabel: SkillEnums.SignallingValueLabel.HIGH,
+            },
+            undefined,
+          ],
         ])(
           "%s Validate 'signallingValueLabel' when it is %s",
           (caseType, __description, givenValue, failureMessage) => {
@@ -1684,8 +1888,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.POST.Response.Payload s
               ...givenValidSkillPOSTResponse,
               requiredByOccupations: [
                 {
-                  ...givenValidSkillPOSTResponse.requiredByOccupations[0],
-                  signallingValueLabel: givenValue,
+                  ...givenValue,
                 },
               ],
             };

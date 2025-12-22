@@ -86,7 +86,7 @@ export const _baseQueryParameterSchema = {
     type: "integer",
     minimum: 1,
     maximum: OccupationGroupConstants.MAX_LIMIT,
-    default: OccupationGroupConstants.MAX_LIMIT,
+    default: OccupationGroupConstants.DEFAULT_LIMIT,
   },
   cursor: {
     description: "A base64 string representing the cursor for pagination.",
