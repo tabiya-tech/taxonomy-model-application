@@ -32,6 +32,15 @@ export interface IOccupationGroup extends Omit<IOccupationGroupDoc, "id" | "mode
   updatedAt: Date;
 }
 
+/**
+ * Describes how an OccupationGroup child is returned from the API without importId.
+ */
+export interface IOccupationGroupChild
+  extends Omit<IOccupationGroup, "importId" | "parent" | "children" | "groupType"> {
+  parentId: string;
+  objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
+}
+
 export interface IOccupationGroupWithoutImportId extends Omit<IOccupationGroup, "importId"> {
   importId: string | null;
 }

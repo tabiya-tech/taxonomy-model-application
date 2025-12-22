@@ -34,6 +34,7 @@ namespace OccupationGroupEnums {
       export namespace Status404 {
         export enum ErrorCodes {
           OCCUPATION_GROUP_NOT_FOUND = "OCCUPATION_GROUP_NOT_FOUND",
+          OCCUPATION_GROUP_PARENT_NOT_FOUND = "OCCUPATION_GROUP_PARENT_NOT_FOUND",
           MODEL_NOT_FOUND = "GET_MODEL_NOT_FOUND",
         }
       }

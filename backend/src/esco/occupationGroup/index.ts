@@ -15,7 +15,7 @@ import AuthAPISpecs from "api-specifications/auth";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 
 import { ValidateFunction } from "ajv";
-import { transform, transformPaginated } from "./transform";
+import { transform, transformPaginated, transformPaginatedChildren, transformParent } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 import {
   BasePathParams,
@@ -42,10 +42,14 @@ export const handler: (
     return occupationGroupController.postOccupationGroup(event);
   } else if (event?.httpMethod === HTTP_VERBS.GET) {
     const pathToMatch = event.path || "";
-    const individualMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch);
-    return individualMatch
-      ? occupationGroupController.getOccupationGroup(event)
-      : occupationGroupController.getOccupationGroups(event);
+    if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationGroupController.getOccupationGroup(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_GROUP_PARENT_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationGroupController.getParentOccupationGroup(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_GROUP_CHILDREN_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationGroupController.getOccupationGroupChildren(event);
+    }
+    return occupationGroupController.getOccupationGroups(event);
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };
@@ -167,9 +171,9 @@ export class OccupationGroupController {
 
     try {
       payload = JSON.parse(event.body as string);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(errorMessage);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(error.message);
     }
     const validateFunction = ajvInstance.getSchema(
       OccupationGroupAPISpecs.Schemas.POST.Request.Payload.$id as string
@@ -213,13 +217,10 @@ export class OccupationGroupController {
     try {
       const newOccupationGroup = await this.occupationGroupService.create(newOccupationGroupSpec);
       return responseJSON(StatusCodes.CREATED, transform(newOccupationGroup, getResourcesBaseUrl()));
-    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       // log an error in the server for debugging purpose
-      errorLoggerInstance.logError(
-        "Failed to create occupation group in the DB",
-        error instanceof Error ? error.name : "Unknown error"
-      );
-      console.error("Failed to create occupation group:", error);
+      errorLoggerInstance.logError("Failed to create occupation group in the DB", error.name);
       if (error instanceof OccupationGroupModelValidationError) {
         switch (error.code) {
           case ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
@@ -324,15 +325,7 @@ export class OccupationGroupController {
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroups(event: APIGatewayProxyEvent) {
     try {
-      // extract the modelId from the pathParameters
-      // NOTE: Since we're using a single '{proxy+}' resource in API Gateway path params
-      // like `{modelId}` are not populated under `pathParameters` instead, the full path is put in
-      // `pathParameters.proxy` and `event.path`. To support both setups (explicit param resource and proxy),
-      // we fallback to parse the `event.path` if `pathParameters.modelId` is absent.
-      const modelIdFromParams = event.pathParameters?.modelId;
-      const pathToMatch = event.path || "";
-      const execMatch = pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.exec(pathToMatch);
-      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
+      const { modelId: resolvedModelId } = parsePath<BasePathParams>(Routes.OCCUPATION_GROUPS_ROUTE, event.path);
       if (!resolvedModelId) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -348,6 +341,7 @@ export class OccupationGroupController {
       const validatePathFunction = ajvInstance.getSchema(
         OccupationGroupAPISpecs.Schemas.GET.Request.Param.Payload.$id as string
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Param.Payload>;
+
       const isValid = validatePathFunction(requestPathParameter);
       if (!isValid) {
         return errorResponse(
@@ -435,12 +429,10 @@ export class OccupationGroupController {
         StatusCodes.OK,
         transformPaginated(currentPageOccupationGroups.items, getResourcesBaseUrl(), limit, nextCursor)
       );
-    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Failed to retrieve occupation groups:", error);
-      errorLoggerInstance.logError(
-        "Failed to retrieve the occupation groups from the DB",
-        error instanceof Error ? error.name : "Unknown error"
-      );
+      errorLoggerInstance.logError("Failed to retrieve the occupation groups from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
@@ -500,17 +492,10 @@ export class OccupationGroupController {
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroup(event: APIGatewayProxyEvent) {
     try {
-      const idFromParams = event.pathParameters?.id;
-      const modelIdFromParams = event.pathParameters?.modelId;
-      const pathToMatch = event.path || "";
-      const execMatch = pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch);
-      const resolvedOccupationGroupId = idFromParams ?? (execMatch ? execMatch[2] : "");
-      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : "");
-
-      const requestPathParameter: OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload = {
-        modelId: resolvedModelId,
-        id: resolvedOccupationGroupId,
-      };
+      const requestPathParameter = parsePath<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>(
+        Routes.OCCUPATION_GROUP_ROUTE,
+        event.path
+      );
 
       const validatePathFunction = ajvInstance.getSchema(
         OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
@@ -560,16 +545,237 @@ export class OccupationGroupController {
         );
       }
       return responseJSON(StatusCodes.OK, transform(occupationGroup, getResourcesBaseUrl()));
-    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Failed to get occupation group by id:", error);
-      errorLoggerInstance.logError(
-        "Failed to retrieve the occupation group from the DB",
-        error instanceof Error ? error.name : "Unknown error"
-      );
+      errorLoggerInstance.logError("Failed to retrieve the occupation group from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation group from the DB",
+        ""
+      );
+    }
+  }
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupationGroups/{id}/parent:
+   *  get:
+   *   operationId: GETOccupationGroupParentByOccupationGroupId
+   *   tags:
+   *    - occupationGroups
+   *   summary: Get an occupation group's parent by its child occupation group identifier in a taxonomy model.
+   *   description: Retrieve an occupation group parent by its unique child occupation group identifier in a specific taxonomy model.
+   *   security:
+   *    - api_key: []
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/id'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the occupation group parent.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/OccupationGroupParentResponseSchemaGET'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '404':
+   *       description: Occupation group parent not found.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETOccupationGroupParent404ErrorSchema'
+   *     '500':
+   *       description: |
+   *         The server encountered an unexpected condition.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/All500ResponseSchema'
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getParentOccupationGroup(event: APIGatewayProxyEvent) {
+    try {
+      const requestPathParameter = parsePath<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>(
+        Routes.OCCUPATION_GROUP_PARENT_ROUTE,
+        event.path
+      );
+
+      const validatePathFunction = ajvInstance.getSchema(
+        OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or occupationGroup Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
+        requestPathParameter.modelId
+      );
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${requestPathParameter.modelId}`
+        );
+      }
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+      const parentOccupationGroup = await this.occupationGroupService.findParent(requestPathParameter.id);
+      if (!parentOccupationGroup) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_GROUP_PARENT_NOT_FOUND,
+          "Occupation group or parent not found",
+          `No occupation group or parent found with occupation group id: ${requestPathParameter.id}`
+        );
+      }
+      return responseJSON(StatusCodes.OK, transformParent(parentOccupationGroup, getResourcesBaseUrl()));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Failed to get parent occupation group:", error);
+      errorLoggerInstance.logError("Failed to retrieve the parent occupation group from the DB", error.name);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        "Failed to retrieve the parent occupation group from the DB",
+        ""
+      );
+    }
+  }
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupationGroups/{id}/children:
+   *  get:
+   *   operationId: GETOccupationGroupChildrenByOccupationGroupId
+   *   tags:
+   *    - occupationGroups
+   *   summary: Get occupation group children by its parent occupation group identifier in a taxonomy model.
+   *   description: Retrieve occupation group children by its unique parent occupation group identifier in a specific taxonomy model.
+   *   security:
+   *    - api_key: []
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/id'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the occupation group children.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/OccupationGroupChildrenResponseSchemaGET'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '404':
+   *       description: Occupation group children or model not found.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETOccupationGroupChildren404ErrorSchema'
+   *     '500':
+   *       description: |
+   *         The server encountered an unexpected condition.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/All500ResponseSchema'
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getOccupationGroupChildren(event: APIGatewayProxyEvent) {
+    try {
+      const requestPathParameter = parsePath<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>(
+        Routes.OCCUPATION_GROUP_CHILDREN_ROUTE,
+        event.path
+      );
+
+      const validatePathFunction = ajvInstance.getSchema(
+        OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or occupationGroup Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      // TODO: Prefer using `modelInfoService.ts`
+      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
+        requestPathParameter.modelId
+      );
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${requestPathParameter.modelId}`
+        );
+      }
+      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const children = await this.occupationGroupService.findChildren(requestPathParameter.id);
+
+      return responseJSON(StatusCodes.OK, transformPaginatedChildren(children, getResourcesBaseUrl(), null, null));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Failed to get occupation group children:", error);
+      errorLoggerInstance.logError("Failed to retrieve the occupation group children from the DB", error.name);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        "Failed to retrieve the occupation group children from the DB",
         ""
       );
     }

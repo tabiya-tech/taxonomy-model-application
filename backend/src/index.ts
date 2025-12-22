@@ -65,9 +65,14 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return ImportHandler(event);
   } else if (path === Routes.EXPORT_ROUTE) {
     return ExportHandler(event);
-  } else if (pathToRegexp(Routes.OCCUPATION_GROUPS_ROUTE).regexp.test(path)) {
-    return OccupationGroupHandler(event);
-  } else if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.test(path)) {
+  } else if (
+    pathToRegexp([
+      Routes.OCCUPATION_GROUPS_ROUTE,
+      Routes.OCCUPATION_GROUP_ROUTE,
+      Routes.OCCUPATION_GROUP_PARENT_ROUTE,
+      Routes.OCCUPATION_GROUP_CHILDREN_ROUTE,
+    ]).regexp.test(path)
+  ) {
     return OccupationGroupHandler(event);
   } else if (pathToRegexp(Routes.OCCUPATIONS_ROUTE).regexp.test(path)) {
     return OccupationHandler(event);

@@ -1,15 +1,13 @@
 import { match } from "path-to-regexp";
 
+type BaseReturn = object;
+
 /**
  * Parse a path string based on a path template.
  *
  * @param pathTemplate the path template to use for parsing
  * @param path the path string to parse
  */
-
-type BaseReturn = {
-  [key: string]: string | undefined;
-};
 export function parsePath<T extends BaseReturn>(pathTemplate: string, path: string): T {
   const parsePathFn = match(pathTemplate);
 

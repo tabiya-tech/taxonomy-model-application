@@ -1,13 +1,20 @@
 import { randomUUID } from "crypto";
-import { IOccupationGroup } from "./OccupationGroup.types";
+import { IOccupationGroup, IOccupationGroupChild } from "./OccupationGroup.types";
 import {
   getIOccupationGroupMockData,
   getIOccupationGroupMockDataWithOccupationChildren,
   getIOccupationGroupMockDataWithOccupationGroupChildren,
+  getIOccupationGroupOccupationGroupTypedChildData,
   getNewOccupationGroupSpec,
 } from "./testDataHelper";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import { transform, transformPaginated } from "./transform";
+import {
+  transform,
+  transformPaginated,
+  transformParent,
+  transformChild,
+  transformPaginatedChildren,
+} from "./transform";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -113,6 +120,352 @@ describe("test the transformation of the IOccupationGroup -> IOccupationGroupRes
   });
 });
 
+describe("test the transformParent of the IOccupationGroupParent -> IOccupationGroupParentResponse", () => {
+  test("should transform the IOccupationGroupParent to IOccupationGroupParentResponse", () => {
+    // GIVEN a random IOccupationGroupParent
+    const givenObject: IOccupationGroup = getIOccupationGroupMockData();
+    // AND some base path
+    const givenBasePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual: OccupationGroupAPISpecs.Types.GET.Response.Parent.Payload = transformParent(
+      givenObject,
+      givenBasePath
+    );
+
+    // THEN expect the transformation function to return a IOccupationGroupParentResponse
+    expect(actual).toEqual(
+      expect.objectContaining({
+        // core fields
+        id: givenObject.id,
+        UUID: givenObject.UUID,
+        UUIDHistory: givenObject.UUIDHistory,
+        code: givenObject.code,
+        originUri: givenObject.originUri,
+        preferredLabel: givenObject.preferredLabel,
+        altLabels: givenObject.altLabels,
+        groupType: givenObject.groupType,
+        description: givenObject.description,
+        modelId: givenObject.modelId,
+        // hierarchy and paths
+        parent: null,
+        children: [],
+        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.id}`,
+        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.UUID}`,
+        // timestamps
+        createdAt: givenObject.createdAt.toISOString(),
+        updatedAt: givenObject.updatedAt.toISOString(),
+      })
+    );
+  });
+
+  test("should transform the IOccupationGroupParent to IOccupationGroupParentResponse with occupation group children", () => {
+    // GIVEN a random IOccupationGroupParent
+    const givenObject: IOccupationGroup = getIOccupationGroupMockDataWithOccupationGroupChildren();
+    // AND some base path
+    const givenBasePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual: OccupationGroupAPISpecs.Types.GET.Response.Parent.Payload = transformParent(
+      givenObject,
+      givenBasePath
+    );
+
+    // THEN expect the transformation function to return a IOccupationGroupParentResponse
+    expect(actual).toEqual(
+      expect.objectContaining({
+        id: givenObject.id,
+        UUID: givenObject.UUID,
+        UUIDHistory: givenObject.UUIDHistory,
+        code: givenObject.code,
+        originUri: givenObject.originUri,
+        preferredLabel: givenObject.preferredLabel,
+        altLabels: givenObject.altLabels,
+        groupType: givenObject.groupType,
+        description: givenObject.description,
+        modelId: givenObject.modelId,
+        parent: null,
+        children: givenObject.children.map((child) => {
+          return {
+            id: child.id,
+            UUID: child.UUID,
+            code: child.code,
+            preferredLabel: child.preferredLabel,
+            objectType:
+              "objectType" in child && child.objectType === ObjectTypes.ISCOGroup
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
+                : "objectType" in child && child.objectType === ObjectTypes.LocalGroup
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup
+                : "occupationType" in child && child.occupationType === ObjectTypes.ESCOOccupation
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+                : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation,
+          };
+        }),
+        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.id}`,
+        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.UUID}`,
+        createdAt: givenObject.createdAt.toISOString(),
+        updatedAt: givenObject.updatedAt.toISOString(),
+      })
+    );
+  });
+  test("should transform the IOccupationGroupParent to IOccupationGroupParentResponse With Occupation Children", () => {
+    // GIVEN a random IOccupationGroupParent
+    const givenObject: IOccupationGroup = getIOccupationGroupMockDataWithOccupationChildren();
+    // AND some base path
+    const givenBasePath = "https://some/root/path";
+    // AND some model
+
+    // WHEN the transformation function is called
+    const actual: OccupationGroupAPISpecs.Types.POST.Response.Payload = transformParent(givenObject, givenBasePath);
+
+    // THEN expect the transformation function to return a IOccupationGroupParentResponse
+    // that contains the input from the IOccupationGroupParent
+    expect(actual).toEqual(
+      expect.objectContaining({
+        id: givenObject.id,
+        UUID: givenObject.UUID,
+        UUIDHistory: givenObject.UUIDHistory,
+        code: givenObject.code,
+        originUri: givenObject.originUri,
+        preferredLabel: givenObject.preferredLabel,
+        altLabels: givenObject.altLabels,
+        groupType: givenObject.groupType,
+        description: givenObject.description,
+        modelId: givenObject.modelId,
+        parent: null,
+        children: givenObject.children.map((child) => {
+          return {
+            id: child.id,
+            UUID: child.UUID,
+            code: child.code,
+            preferredLabel: child.preferredLabel,
+            objectType:
+              "objectType" in child && child.objectType === ObjectTypes.ISCOGroup
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
+                : "objectType" in child && child.objectType === ObjectTypes.LocalGroup
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup
+                : "occupationType" in child && child.occupationType === ObjectTypes.ESCOOccupation
+                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+                : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation,
+          };
+        }),
+        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.id}`,
+        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.UUID}`,
+        createdAt: givenObject.createdAt.toISOString(),
+        updatedAt: givenObject.updatedAt.toISOString(),
+      })
+    );
+  });
+  test("should handle groupType = ISCOGroup", () => {
+    const givenObject = getIOccupationGroupMockData();
+    givenObject.groupType = ObjectTypes.ISCOGroup;
+
+    const basePath = "https://some/root/path";
+    const actual = transformParent(givenObject, basePath);
+
+    expect(actual.groupType).toBe(OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup);
+  });
+  test("should handle groupType = LocalGroup", () => {
+    const givenObject = getIOccupationGroupMockData();
+    givenObject.groupType = ObjectTypes.LocalGroup;
+
+    const basePath = "https://some/root/path";
+    const actual = transformParent(givenObject, basePath);
+
+    expect(actual.groupType).toBe(OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup);
+  });
+  test("should transform parent when parent exists with LocalGroup type", () => {
+    const givenObject = getIOccupationGroupMockData();
+    givenObject.parent = {
+      id: getMockStringId(2),
+      UUID: randomUUID(),
+      code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+      preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      objectType: ObjectTypes.LocalGroup, // 👈 opposite case
+    };
+
+    const basePath = "https://some/root/path";
+    const actual = transformParent(givenObject, basePath);
+
+    expect(actual.parent).toEqual({
+      id: givenObject.parent.id,
+      UUID: givenObject.parent.UUID,
+      code: givenObject.parent.code,
+      preferredLabel: givenObject.parent.preferredLabel,
+      objectType: OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.LocalGroup, // 👈 expected other enum
+    });
+  });
+
+  test("should transform parent when parent exists with ISCOGroup type", () => {
+    const givenObject = getIOccupationGroupMockData();
+    givenObject.parent = {
+      id: getMockStringId(2),
+      UUID: randomUUID(),
+      code: getRandomString(OccupationGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+      preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      objectType: ObjectTypes.ISCOGroup,
+    };
+
+    const basePath = "https://some/root/path";
+    const actual = transformParent(givenObject, basePath);
+
+    expect(actual.parent).toEqual({
+      id: givenObject.parent.id,
+      UUID: givenObject.parent.UUID,
+      code: givenObject.parent.code,
+      preferredLabel: givenObject.parent.preferredLabel,
+      objectType: OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup,
+    });
+  });
+
+  test("should transform children with objectType = ISCOGroup", () => {
+    const givenObject = getIOccupationGroupMockData();
+    givenObject.children = [
+      {
+        id: "child-id",
+        UUID: "child-uuid",
+        code: "CHILD01",
+        preferredLabel: "Child ISCO",
+        objectType: ObjectTypes.ISCOGroup,
+      },
+    ];
+
+    const basePath = "https://some/root/path";
+    const actual = transformParent(givenObject, basePath);
+
+    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup);
+  });
+  test("should transform children with objectType = LocalGroup", () => {
+    const givenObject = getIOccupationGroupMockData();
+    givenObject.children = [
+      {
+        id: "child-id",
+        UUID: "child-uuid",
+        code: "CHILD02",
+        preferredLabel: "Child Local",
+        objectType: ObjectTypes.LocalGroup,
+      },
+    ];
+
+    const basePath = "https://some/root/path";
+    const actual = transformParent(givenObject, basePath);
+
+    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup);
+  });
+  test("should transform children with occupationType = ESCOOccupation", () => {
+    const givenObject = getIOccupationGroupMockDataWithOccupationChildren();
+
+    const basePath = "https://some/root/path";
+    const actual = transformParent(givenObject, basePath);
+
+    expect(actual.children[0].objectType).toBe(
+      OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+    );
+  });
+});
+
+describe("test the transformChild of the IOccupationGroupChild -> IOccupationGroupChildResponse", () => {
+  test("should transform the IOccupationGroupChild to IOccupationGroupChildResponse", () => {
+    // GIVEN a random IOccupationGroupChild
+    const givenChild: IOccupationGroupChild = getIOccupationGroupOccupationGroupTypedChildData();
+
+    // AND some base path
+    const givenBasePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual: OccupationGroupAPISpecs.Types.GET.Response.Child.Payload = transformChild(givenChild, givenBasePath);
+
+    // THEN expect the transformation function to return a IOccupationGroupChildResponse
+    expect(actual).toEqual(
+      expect.objectContaining({
+        // core fields
+        id: givenChild.id,
+        UUID: givenChild.UUID,
+        code: givenChild.code,
+        originUri: givenChild.originUri,
+        preferredLabel: givenChild.preferredLabel,
+        altLabels: givenChild.altLabels,
+        objectType:
+          givenChild.objectType === ObjectTypes.ISCOGroup
+            ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
+            : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup,
+        description: givenChild.description,
+        modelId: givenChild.modelId,
+        // paths
+        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/occupationGroups/${givenChild.id}/children`,
+        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/occupationGroups/${givenChild.UUID}/children`,
+        parentId: givenChild.parentId,
+        UUIDHistory: givenChild.UUIDHistory,
+        // timestamps
+        createdAt: givenChild.createdAt.toISOString(),
+        updatedAt: givenChild.updatedAt.toISOString(),
+        originUUID: givenChild.UUIDHistory && givenChild.UUIDHistory.length > 0 ? givenChild.UUIDHistory.at(-1)! : "",
+      })
+    );
+  });
+});
+
+describe("test the transformation of the IOccupationGroupChild[] -> IOccupationGroupChildResponse[]", () => {
+  test("should transform the IOccupationGroupChild[] to IOccupationGroupChildResponse[]", () => {
+    //GIVEN an array of random IOccupationGroupChild
+    const givenObjects: IOccupationGroupChild[] = [
+      getIOccupationGroupOccupationGroupTypedChildData(1),
+      getIOccupationGroupOccupationGroupTypedChildData(2),
+      getIOccupationGroupOccupationGroupTypedChildData(3),
+    ];
+
+    // AND some base path
+    const givenBasePath = "https://some/root/path";
+
+    // AND some limit and cursor
+    const limit = 2;
+    const cursor = Buffer.from(`${givenObjects[limit].id}|${givenObjects[limit].createdAt.toISOString()}`).toString(
+      "base64"
+    );
+
+    // WHEN the transformation function is called
+    // with a limit that is less than the number of given objects
+    // to test that pagination works as expected
+    const givenObjectsPaginated = givenObjects.slice(0, limit);
+    const actual: OccupationGroupAPISpecs.Types.GET.Response.Children.Payload = transformPaginatedChildren(
+      givenObjectsPaginated,
+      givenBasePath,
+      limit,
+      cursor
+    );
+
+    // THEN expect the transformation function to return a IOccupationGroupChildResponse[]
+    expect(actual).toEqual({
+      data: givenObjectsPaginated.map((obj) =>
+        expect.objectContaining({
+          id: obj.id,
+          UUID: obj.UUID,
+          code: obj.code,
+          originUri: obj.originUri,
+          preferredLabel: obj.preferredLabel,
+          altLabels: obj.altLabels,
+          objectType:
+            obj.objectType === ObjectTypes.ISCOGroup
+              ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
+              : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup,
+          description: obj.description,
+          modelId: obj.modelId,
+          // paths
+          path: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/occupationGroups/${obj.id}/children`,
+          tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/occupationGroups/${obj.UUID}/children`,
+          parentId: obj.parentId,
+          UUIDHistory: obj.UUIDHistory,
+          // timestamps
+          createdAt: obj.createdAt.toISOString(),
+          updatedAt: obj.updatedAt.toISOString(),
+          originUUID: obj.UUIDHistory && obj.UUIDHistory.length > 0 ? obj.UUIDHistory.at(-1)! : "",
+        })
+      ),
+      nextCursor: cursor,
+      limit: limit,
+    });
+  });
+});
 describe("test the transformation of the IOccupationGroup[] -> IOccupationGroupResponse[]", () => {
   test("should transform the IOccupationGroup[] to IOccupationGroupResponse[]", () => {
     // GIVEN an array of random IOccupationGroup

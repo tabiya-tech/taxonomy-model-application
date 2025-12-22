@@ -133,14 +133,18 @@ export class RepositoryRegistry {
   async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
 
+    const occupationGroupModel = OccupationGroupModel.initializeSchemaAndModel(connection);
+
+    const occupationHierarchyModelInstance = occupationHierarchyModel.initializeSchemaAndModel(connection);
+
     // Set up the ModelRepository
     this.modelInfo = new ModelRepository(modelInfoModel.initializeSchemaAndModel(connection));
-    this.OccupationGroup = new OccupationGroupRepository(OccupationGroupModel.initializeSchemaAndModel(connection));
+    this.OccupationGroup = new OccupationGroupRepository(occupationGroupModel, occupationHierarchyModelInstance);
     this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
     this.occupation = new OccupationRepository(occupationModel.initializeSchemaAndModel(connection));
     this.occupationHierarchy = new OccupationHierarchyRepository(
-      occupationHierarchyModel.initializeSchemaAndModel(connection),
+      occupationHierarchyModelInstance,
       this.OccupationGroup.Model,
       this.occupation.Model
     );

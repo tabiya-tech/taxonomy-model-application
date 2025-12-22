@@ -36,6 +36,7 @@ const getMockOccupationGroups = (
 function setupOccupationGroupRepositoryMock(findAllImpl: () => Readable) {
   const mockOccupationGroupRepository: IOccupationGroupRepository = {
     Model: undefined as never,
+    hierarchyModel: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
@@ -43,6 +44,8 @@ function setupOccupationGroupRepositoryMock(findAllImpl: () => Readable) {
     findPaginated: jest.fn().mockResolvedValue({}),
     getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
     getHistory: jest.fn().mockResolvedValue([]),
+    findParent: jest.fn().mockResolvedValue(null),
+    findChildren: jest.fn().mockResolvedValue([]),
   };
   OccupationGroupRepository.mockReturnValue(mockOccupationGroupRepository);
 }

@@ -2,6 +2,7 @@ import {
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
   ModelForOccupationGroupValidationErrorCode,
+  IOccupationGroupChild,
 } from "./OccupationGroup.types";
 
 export class OccupationGroupModelValidationError extends Error {
@@ -28,6 +29,24 @@ export interface IOccupationGroupService {
    * Rejects with an error if the operation fails.
    */
   findById(id: string): Promise<IOccupationGroup | null>;
+
+  /**
+   * Finds an OccupationGroup parent entry by its ID.
+   *
+   * @param {string} id - The unique ID of the OccupationGroup entry.
+   * @return {Promise<IOccupationGroup|null>} - A Promise that resolves to the found OccupationGroup parent entry or null if not found.
+   * Rejects with an error if the operation fails.
+   */
+  findParent(id: string): Promise<IOccupationGroup | null>;
+
+  /**
+   * Finds an OccupationGroup children entry by its ID.
+   *
+   * @param {string} id - The unique ID of the OccupationGroup entry.
+   * @return {Promise<IOccupationGroupChild[]>} - A Promise that resolves to the found OccupationGroup children entry or [] if not found.
+   * Rejects with an error if the operation fails.
+   */
+  findChildren(id: string): Promise<IOccupationGroupChild[]>;
 
   /**
    * Returns paginated OccupationGroups. The OccupationGroups are transformed to objects (via .lean()), however

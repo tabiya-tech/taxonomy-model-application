@@ -46,6 +46,8 @@ delete OccupationGroup.Schemas.GET.Response.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.Param.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.Query.Payload.$id;
 delete OccupationGroup.Schemas.GET.Request.ById.Param.Payload.$id;
+delete OccupationGroup.Schemas.GET.Response.Parent.Payload.$id;
+delete OccupationGroup.Schemas.GET.Response.Children.Payload.$id;
 delete Occupation.Schemas.POST.Request.Payload.$id;
 delete Occupation.Schemas.POST.Response.Payload.$id;
 delete Occupation.Schemas.GET.Response.Payload.$id;
@@ -199,6 +201,15 @@ function getOpenAPISpecification(
             400,
             Object.values(OccupationGroup.Enums.GET.Response.Status400.ErrorCodes)
           ),
+          GETOccupationGroupParent404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroupParent", 404, [
+            OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+            OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND,
+            OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_GROUP_PARENT_NOT_FOUND,
+          ]),
+          GETOccupationGroupChildren404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroupChildren", 404, [
+            OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+            OccupationGroup.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND,
+          ]),
           GETOccupationGroup404ErrorSchema: APIError.Schemas.getPayload(
             "GET",
             "OccupationGroup",
@@ -278,6 +289,8 @@ function getOpenAPISpecification(
           AuthContextSchema: Auth.Schemas.Request.Context,
           OccupationGroupRequestSchemaPOST: OccupationGroup.Schemas.POST.Request.Payload,
           OccupationGroupResponseSchemaPOST: OccupationGroup.Schemas.POST.Response.Payload,
+          OccupationGroupParentResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Parent.Payload,
+          OccupationGroupChildrenResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Children.Payload,
           OccupationGroupRequestParamSchemaGET: OccupationGroup.Schemas.GET.Request.Param.Payload,
           OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.Schemas.GET.Request.Query.Payload,
           OccupationGroupResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Payload,

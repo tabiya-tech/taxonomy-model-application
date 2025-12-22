@@ -65,6 +65,7 @@ describe("test parseOccupationGroups from", () => {
       // AND an OccupationGroup repository
       const givenMockRepository: IOccupationGroupRepository = {
         Model: undefined as never,
+        hierarchyModel: undefined as never,
         create: jest.fn().mockResolvedValue({}),
         createMany: jest.fn().mockImplementation((specs: INewOccupationGroupSpec[]): Promise<IOccupationGroup[]> => {
           return Promise.resolve(
@@ -86,6 +87,8 @@ describe("test parseOccupationGroups from", () => {
         findById: jest.fn().mockResolvedValue({}),
         findAll: jest.fn(),
         getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV givenCSVFile to the database ids

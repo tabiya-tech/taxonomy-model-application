@@ -34,9 +34,34 @@ interface IOccupationGroupResponse {
   updatedAt: string;
 }
 
+interface IOccupationGroupChildResponse {
+  id: string;
+  parentId: string;
+  UUID: string;
+  originUUID: string;
+  path: string;
+  tabiyaPath: string;
+  UUIDHistory: string[];
+  originUri: string;
+  code: string;
+  description: string;
+  preferredLabel: string;
+  altLabels: string[];
+  objectType: OccupationGroupEnums.Relations.Children.ObjectTypes;
+  modelId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface PaginatedOccupationGroupResponse {
   data: IOccupationGroupResponse[];
   limit: number;
+  nextCursor: string | null;
+}
+
+interface PaginatedOccupationGroupChildrenResponse {
+  data: IOccupationGroupChildResponse[];
+  limit: number | null;
   nextCursor: string | null;
 }
 
@@ -86,6 +111,16 @@ namespace OccupationGroupTypes {
     export namespace Response {
       export type OccupationGroupItem = IOccupationGroupResponse;
       export type Payload = PaginatedOccupationGroupResponse;
+      export namespace Parent {
+        export type Payload = IOccupationGroupResponse;
+      }
+
+      export namespace Child {
+        export type Payload = IOccupationGroupChildResponse;
+      }
+      export namespace Children {
+        export type Payload = PaginatedOccupationGroupChildrenResponse;
+      }
     }
     export namespace Request {
       export namespace Param {

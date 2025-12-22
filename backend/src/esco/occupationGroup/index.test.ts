@@ -7,14 +7,18 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 
 import { randomUUID } from "node:crypto";
 import ErrorAPISpecs from "api-specifications/error";
-import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
+import { getRandomString } from "_test_utilities/getMockRandomData";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 
 import * as authenticatorModule from "auth/authorizer";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
-import { IOccupationGroup, ModelForOccupationGroupValidationErrorCode } from "./OccupationGroup.types";
+import {
+  IOccupationGroup,
+  ModelForOccupationGroupValidationErrorCode,
+  IOccupationGroupChild,
+} from "./OccupationGroup.types";
 import { getIOccupationGroupMockData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import {
@@ -29,15 +33,19 @@ import { getIModelInfoMockData } from "modelInfo/testDataHelper";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroupService.type";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
+const transformParentSpy = jest.spyOn(transformModule, "transformParent");
+const transformChildrenSpy = jest.spyOn(transformModule, "transformPaginatedChildren");
 
 // Mock the service registry
 jest.mock("server/serviceRegistry/serviceRegistry");
+
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
 
 describe("Test for occupationGroup handler", () => {
@@ -48,8 +56,10 @@ describe("Test for occupationGroup handler", () => {
       occupationGroup: {
         create: jest.fn(),
         findById: jest.fn(),
+        findParent: jest.fn(),
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -139,8 +149,10 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn().mockResolvedValue(givenOccupationGroup),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
 
       const mockServiceRegistry = mockGetServiceRegistry();
@@ -204,8 +216,10 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn().mockRejectedValue(new Error("foo")),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -234,6 +248,73 @@ describe("Test for occupationGroup handler", () => {
           OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         message: "Failed to create the occupation group in the DB",
         details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("POST should respond with the MALFORMED_BODY status code if the repository failed to parse the request body of the occupationGroup", async () => {
+      // GIVEN a valid request {method & header & payload}
+      const givenModelId = getMockStringId(1);
+
+      const givenPayload = {
+        modelId: givenModelId.toString(),
+        code: getMockRandomISCOGroupCode(),
+        groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+        preferredLabel: "some random label",
+        description: "some random description",
+        altLabels: ["some random alt label 1", "some random alt label 2"],
+        originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+        UUIDHistory: [randomUUID()],
+      };
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        pathParameters: { modelId: givenModelId.toString() },
+        path: `/models/${givenModelId}/occupationGroups`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // mock the JSON.parse to throw an error
+      jest.spyOn(JSON, "parse").mockImplementationOnce(() => {
+        throw new Error("Failed to parse JSON");
+      });
+      // WHEN the info handler is invoked with the given event
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn().mockRejectedValue(new Error("foo")),
+        findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      const givenModelInfoRepositoryMock = {
+        Model: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        getModelById: jest.fn().mockResolvedValue(null),
+        getModelByUUID: jest.fn().mockResolvedValue(null),
+        getModels: jest.fn().mockResolvedValue([]),
+        getHistory: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the info handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // AND to respond with the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.MALFORMED_BODY,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.MALFORMED_BODY,
+        details: "Failed to parse JSON",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
@@ -272,8 +353,10 @@ describe("Test for occupationGroup handler", () => {
             new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
           ),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -352,8 +435,10 @@ describe("Test for occupationGroup handler", () => {
             new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED)
           ),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -544,8 +629,10 @@ describe("Test for occupationGroup handler", () => {
             new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB)
           ),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockRejectedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -587,8 +674,10 @@ describe("Test for occupationGroup handler", () => {
           .fn()
           .mockRejectedValue(new OccupationGroupModelValidationError(3 as ModelForOccupationGroupValidationErrorCode)),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockRejectedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -655,7 +744,9 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: firstPageOccupationGroups, nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue([]),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
@@ -665,6 +756,7 @@ describe("Test for occupationGroup handler", () => {
       const actualResponse = await occupationGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        path: `/models/${givenModelId}/occupationGroups`,
       } as never);
 
       const expectedFirstPageOccupationGroups = {
@@ -736,11 +828,13 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({
           items: [givenOccupationGroups[0]],
           nextCursor: { _id: givenOccupationGroups[1].id, createdAt: givenOccupationGroups[0].createdAt },
         }),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -749,6 +843,7 @@ describe("Test for occupationGroup handler", () => {
       const actualResponse = await occupationGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: limit.toString() },
+        path: `/models/${givenModelId}/occupationGroups`,
       } as never);
 
       // THEN expect the handler to return the OK status
@@ -800,6 +895,7 @@ describe("Test for occupationGroup handler", () => {
       const actualResponse = await occupationGroupHandler({
         ...givenBadEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        path: `/models//occupationGroups`,
       } as never);
 
       // THEN expect the handler to return the BAD_REQUEST status
@@ -828,6 +924,7 @@ describe("Test for occupationGroup handler", () => {
         headers: {},
         pathParameters: { modelId: "foo" },
         queryStringParameters: {},
+        path: `/models/foo/occupationGroups`,
       };
 
       // AND the user is not model manager
@@ -864,6 +961,7 @@ describe("Test for occupationGroup handler", () => {
       const actualResponse = await occupationGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: "foo", cursor: firstPageCursor },
+        path: `/models/${givenModelId}/occupationGroups`,
       } as never);
 
       // THEN expect the handler to return the BAD_REQUEST status
@@ -882,6 +980,8 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest
           .fn()
@@ -891,7 +991,10 @@ describe("Test for occupationGroup handler", () => {
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
       checkRole.mockResolvedValueOnce(true);
       // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler(givenEvent as never);
+      const actualResponse = await occupationGroupHandler({
+        ...givenEvent,
+        path: `/models/${givenModelId}/occupationGroups`,
+      } as never);
 
       // THEN expect the handler to return the NOT_FOUND status
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -909,7 +1012,9 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn(),
+        findChildren: jest.fn(),
         validateModelForOccupationGroup: jest
           .fn()
           .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
@@ -918,7 +1023,10 @@ describe("Test for occupationGroup handler", () => {
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
       checkRole.mockResolvedValueOnce(true);
       // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler(givenEvent as never);
+      const actualResponse = await occupationGroupHandler({
+        ...givenEvent,
+        path: `/models/${givenModelId}/occupationGroups`,
+      } as never);
 
       // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -938,7 +1046,9 @@ describe("Test for occupationGroup handler", () => {
         create: jest.fn(),
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn(),
+        findParent: jest.fn().mockResolvedValue(null),
         validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn(),
         decodeCursor: jest.fn().mockImplementation(() => {
           throw new Error("Failed to decode cursor");
         }),
@@ -951,6 +1061,7 @@ describe("Test for occupationGroup handler", () => {
       const actualResponse = await occupationGroupHandler({
         ...givenEvent,
         queryStringParameters: { cursor },
+        path: `/models/${givenModelId}/occupationGroups`,
       } as never);
 
       // THEN expect the handler to return the BAD_REQUEST status
@@ -976,6 +1087,7 @@ describe("Test for occupationGroup handler", () => {
 
       const givenOccupationGroupRepositoryMock = {
         Model: undefined as never,
+        hierarchyModel: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         createMany: jest.fn().mockResolvedValue([]),
         findById: jest.fn().mockResolvedValue(null),
@@ -983,6 +1095,8 @@ describe("Test for occupationGroup handler", () => {
         findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
         getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue([]),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
       const limit = 2;
@@ -994,6 +1108,7 @@ describe("Test for occupationGroup handler", () => {
       const actualResponse = await occupationGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        path: `/models/${givenModelId}/occupationGroups`,
       } as never);
 
       // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
@@ -1047,6 +1162,8 @@ describe("Test for occupationGroup handler", () => {
         findById: jest.fn().mockResolvedValue(givenOccupationGroup),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn(),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -1084,6 +1201,8 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
         findById: jest.fn(),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest
           .fn()
@@ -1123,6 +1242,8 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
         findById: jest.fn(),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest
           .fn()
@@ -1147,19 +1268,40 @@ describe("Test for occupationGroup handler", () => {
     });
 
     test("GET /models/{modelId}/occupationGroups/{id} should response with BAD_REQUEST if the path validation failed ", async () => {
-      const givenModelId = getTestString(100);
-      const givenOccupationGroupId = getTestString(100);
+      jest.doMock("validator", () => ({
+        ajvInstance: {
+          getSchema: jest.fn(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const validateFn: any = jest.fn().mockReturnValue(false);
+
+            validateFn.errors = [{ instancePath: "/id", message: "invalid id" }];
+
+            return validateFn;
+          }),
+        },
+      }));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let handler: any;
+
+      jest.isolateModules(() => {
+        ({ handler = handler } = require("./index"));
+      });
+
+      const givenModelId = getMockStringId(100);
+      const givenOccupationGroupId = getMockStringId(100);
       const givenEvent = {
         httpMethod: HTTP_VERBS.GET,
         headers: {},
-        pathParameters: { modelId: "foo", id: givenOccupationGroupId.toString() },
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
         queryStringParameters: {},
         path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}`,
       } as never;
       // AND User has the required role
       checkRole.mockResolvedValue(true);
+
       // WHEN the occupationGroup handler is invoked with the given event
-      const actualResponse = await occupationGroupHandler(givenEvent);
+      const actualResponse = await handler(givenEvent);
 
       // AND respond with the BAD_REQUEST status
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -1201,8 +1343,10 @@ describe("Test for occupationGroup handler", () => {
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
         findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -1272,6 +1416,7 @@ describe("Test for occupationGroup handler", () => {
       // AND a repository that will throw an error
       const givenOccupationGroupRepositoryMock = {
         Model: undefined as never,
+        hierarchyModel: undefined as never,
         create: jest.fn().mockResolvedValue(null),
         createMany: jest.fn().mockResolvedValue([]),
         findById: jest.fn().mockRejectedValue(new Error("Database connection failed")),
@@ -1279,6 +1424,8 @@ describe("Test for occupationGroup handler", () => {
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue([]),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 
@@ -1287,6 +1434,8 @@ describe("Test for occupationGroup handler", () => {
         findById: jest.fn().mockRejectedValue(new Error("foo")),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findParent: jest.fn().mockResolvedValue(null),
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -1301,6 +1450,593 @@ describe("Test for occupationGroup handler", () => {
         errorCode:
           OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         message: "Failed to retrieve the occupation group from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+  });
+
+  describe("GET parent occupation group", () => {
+    test("GET /models/{modelId}/occupationGroups/{id}/parent should return the parent occupation group for a valid ID", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/parent`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // AND a configured base path for resource
+      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
+
+      // AND a repository that will successfully get the occupation group parent
+      const givenOccupationGroup: IOccupationGroup = {
+        ...getIOccupationGroupMockData(1, givenModelId),
+        id: getMockStringId(3),
+        UUID: "test-uuid",
+        UUIDHistory: ["test-uuid"],
+        importId: randomUUID(),
+      };
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findParent: jest.fn().mockResolvedValue(givenOccupationGroup),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+      // THEN respond with the OK status code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the handler to return the correct headers
+      expect(actualResponse.headers).toMatchObject({
+        "Content-Type": "application/json",
+      });
+      // AND the transformation function is called correctly
+      expect(transformModule.transformParent).toHaveBeenCalledWith(givenOccupationGroup, givenResourcesBaseUrl);
+      // AND the handler to return the expected result
+      expect(JSON.parse(actualResponse.body)).toMatchObject(transformParentSpy.mock.results[0].value);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/parent should respond with NOT_FOUND if model does not exist", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/parent`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn(),
+        findParent: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // AND respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        message: "Model not found",
+        details: `No model found with id: ${givenModelId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/parent should respond with INTERNAL_SERVER_ERROR if model validator function failed to fetch from db", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/parent`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn(),
+        findParent: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // AND respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        message: "Failed to fetch the model details from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/parent should response with BAD_REQUEST if the path validation failed ", async () => {
+      jest.doMock("validator", () => ({
+        ajvInstance: {
+          getSchema: jest.fn(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const validateFn: any = jest.fn().mockReturnValue(false);
+
+            validateFn.errors = [{ instancePath: "/id", message: "invalid id" }];
+
+            return validateFn;
+          }),
+        },
+      }));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let handler: any;
+
+      jest.isolateModules(() => {
+        ({ handler = handler } = require("./index"));
+      });
+      const givenModelId = getMockStringId(100);
+      const givenOccupationGroupId = getMockStringId(100);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/parent`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        details: expect.stringContaining("modelId"),
+      };
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await handler(givenEvent);
+
+      // AND respond with the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+      });
+      expect(typeof JSON.parse(actualResponse.body).details).toBe("string");
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/parent should respond with NOT_FOUND if occupation group is not found", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: false,
+      };
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModel.id.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModel.id}/occupationGroups/${givenOccupationGroupId}/parent`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest.fn(),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+      // THEN respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_GROUP_PARENT_NOT_FOUND,
+        message: "Occupation group or parent not found",
+        details: `No occupation group or parent found with occupation group id: ${givenOccupationGroupId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/parent should respond with BAD_REQUEST if modelId is missing", async () => {
+      const givenOccupationGroupId = getMockStringId(2);
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models//occupationGroups/${givenOccupationGroupId}/parent`,
+      } as never;
+
+      // AND role check passes for anonymous access
+      checkRole.mockResolvedValueOnce(true);
+
+      // WHEN the occupation group handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent as never);
+
+      // THEN expect the handler to return the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      const parsedMissing = JSON.parse(actualResponse.body);
+      expect(parsedMissing).toMatchObject({
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        message: "modelId is missing in the path",
+      });
+      expect(typeof parsedMissing.details).toBe("string");
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/parent should respond with INTERNAL_SERVER_ERROR if repository throws an error", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: false,
+      };
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModel.id.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModel.id}/occupationGroups/${givenOccupationGroupId}/parent`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      // AND a repository that will throw an error
+      const givenOccupationGroupRepositoryMock = {
+        Model: undefined as never,
+        hierarchyModel: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        createMany: jest.fn().mockResolvedValue([]),
+        findById: jest.fn().mockRejectedValue(new Error("Database connection failed")),
+        findAll: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue([]),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue([]),
+      };
+      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
+
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findParent: jest.fn().mockRejectedValue(new Error("foo")),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // THEN respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        message: "Failed to retrieve the parent occupation group from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+  });
+
+  describe("GET children of occupation group", () => {
+    test("GET /models/{modelId}/occupationGroups/{id}/children should return the children of a given occupation group id", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/children`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // AND a configured base path for resource
+      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
+
+      // AND a repository that will successfully get the occupation group children
+      const givenOccupationGroup: IOccupationGroupChild = {
+        ...getIOccupationGroupMockData(1, givenModelId),
+        id: getMockStringId(3),
+        UUID: "test-uuid",
+        UUIDHistory: ["test-uuid"],
+        parentId: "",
+        objectType: ObjectTypes.ISCOGroup,
+      };
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue([givenOccupationGroup]),
+        findParent: jest.fn().mockResolvedValue(null),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+      // THEN respond with the OK status code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the handler to return the correct headers
+      expect(actualResponse.headers).toMatchObject({
+        "Content-Type": "application/json",
+      });
+      // AND the transformation function is called correctly
+      expect(transformChildrenSpy).toHaveBeenCalledWith([givenOccupationGroup], givenResourcesBaseUrl, null, null);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/children should respond with NOT_FOUND if model does not exist", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/children`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn(),
+        findParent: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // AND respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        message: "Model not found",
+        details: `No model found with id: ${givenModelId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/children should respond with INTERNAL_SERVER_ERROR if model validator function failed to fetch from db", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/children`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn(),
+        findParent: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // AND respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        message: "Failed to fetch the model details from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/children should response with BAD_REQUEST if the path validation failed", async () => {
+      jest.doMock("validator", () => ({
+        ajvInstance: {
+          getSchema: jest.fn(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const validateFn: any = jest.fn().mockReturnValue(false);
+
+            validateFn.errors = [{ instancePath: "/id", message: "invalid id" }];
+
+            return validateFn;
+          }),
+        },
+      }));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let handler: any;
+
+      jest.isolateModules(() => {
+        ({ handler = handler } = require("./index"));
+      });
+
+      const givenModelId = getMockStringId(100);
+      const givenOccupationGroupId = getMockStringId(100);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}/children`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        details: expect.stringContaining("modelId"),
+      };
+
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await handler(givenEvent);
+      // AND respond with the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+      });
+      expect(typeof JSON.parse(actualResponse.body).details).toBe("string");
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/children should respond with BAD_REQUEST if modelId is missing", async () => {
+      const givenOccupationGroupId = getMockStringId(2);
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models//occupationGroups/${givenOccupationGroupId}/children`,
+      } as never;
+      // AND role check passes for anonymous access
+      checkRole.mockResolvedValueOnce(true);
+
+      // WHEN the occupation group handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent as never);
+
+      // THEN expect the handler to return the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      const parsedMissing = JSON.parse(actualResponse.body);
+      expect(parsedMissing).toMatchObject({
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        message: "modelId is missing in the path",
+      });
+      expect(typeof parsedMissing.details).toBe("string");
+    });
+    test("GET /models/{modelId}/occupationGroups/{id}/children should respond with INTERNAL_SERVER_ERROR if repository throws an error", async () => {
+      // GIVEN a valid request with modelId and occupationGroup ID
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: false,
+      };
+      const givenOccupationGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModel.id.toString(), id: givenOccupationGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModel.id}/occupationGroups/${givenOccupationGroupId}/children`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      // AND a repository that will throw an error
+      const givenOccupationGroupRepositoryMock = {
+        Model: undefined as never,
+        hierarchyModel: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        createMany: jest.fn().mockResolvedValue([]),
+        findById: jest.fn().mockRejectedValue(null),
+        findAll: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue([]),
+        findParent: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue(new Error("Database connection failed")),
+      };
+      jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
+      const givenOccupationGroupServiceMock = {
+        create: jest.fn(),
+        findById: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue(new Error("foo")),
+        findParent: jest.fn().mockRejectedValue(null),
+      } as IOccupationGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
+      // WHEN the occupationGroup handler is invoked with the given event
+      const actualResponse = await occupationGroupHandler(givenEvent);
+
+      // THEN respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode:
+          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        message: "Failed to retrieve the occupation group children from the DB",
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
