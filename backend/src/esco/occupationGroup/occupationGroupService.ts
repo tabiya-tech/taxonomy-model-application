@@ -3,6 +3,7 @@ import {
   ModelForOccupationGroupValidationErrorCode,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
+  IOccupationGroupChild,
 } from "./OccupationGroup.types";
 import { IOccupationGroupRepository } from "./OccupationGroupRepository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
@@ -22,6 +23,11 @@ export class OccupationGroupService implements IOccupationGroupService {
   async findById(id: string): Promise<IOccupationGroup | null> {
     return this.occupationGroupRepository.findById(id);
   }
+
+  async findParent(id: string): Promise<IOccupationGroup | null> {
+    return await this.occupationGroupRepository.findParent(id);
+  }
+
   async findPaginated(
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
@@ -51,6 +57,9 @@ export class OccupationGroupService implements IOccupationGroupService {
       items: pageItems,
       nextCursor,
     };
+  }
+  async findChildren(id: string): Promise<IOccupationGroupChild[]> {
+    return await this.occupationGroupRepository.findChildren(id);
   }
 
   async validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null> {

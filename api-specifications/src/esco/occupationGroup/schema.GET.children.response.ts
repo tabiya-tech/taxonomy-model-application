@@ -1,24 +1,24 @@
 import { SchemaObject } from "ajv";
-import { _baseResponseSchema } from "./schemas.base";
+import { _baseChildrenResponseSchema } from "./schemas.base";
 import OccupationGroupConstants from "./constants";
 import { RegExp_Str_NotEmptyString } from "../../regex";
 
-const SchemaGETResponse: SchemaObject = {
-  $id: "/components/schemas/OccupationGroupResponseSchemaGET",
+const SchemaGETChildrenResponse: SchemaObject = {
+  $id: "/components/schemas/OccupationGroupChildrenResponseSchemaGET",
   type: "object",
   properties: {
     data: {
       type: "array",
       items: {
-        ...JSON.parse(JSON.stringify(_baseResponseSchema)), // deep copy the base properties
+        ...JSON.parse(JSON.stringify(_baseChildrenResponseSchema)),
       },
     },
     limit: {
-      type: "integer",
+      type: ["integer", "null"],
       minimum: 1,
       maximum: OccupationGroupConstants.MAX_LIMIT,
       default: OccupationGroupConstants.DEFAULT_LIMIT,
-      description: "The maximum number of occupation groups that could be returned in the response.",
+      description: "The maximum number of children of occupation groups that could be returned in the response.",
     },
     nextCursor: {
       type: ["string", "null"],
@@ -32,4 +32,4 @@ const SchemaGETResponse: SchemaObject = {
   additionalProperties: false,
 };
 
-export default SchemaGETResponse;
+export default SchemaGETChildrenResponse;

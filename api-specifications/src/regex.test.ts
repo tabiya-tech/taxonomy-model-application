@@ -6,6 +6,7 @@ import {
   RegExp_UUIDv4,
   RegExp_UUIDv4_Or_Empty,
   RegExp_Base64,
+  RegExp_URI,
 } from "./regex";
 
 import "jest-performance-matchers";
@@ -276,6 +277,38 @@ describe("Test RegExp_Base64", () => {
   ])(`It performs fast (<=${PERF_DURATION}ms) for '%s'`, async (_desc, value) => {
     expect(() => {
       RegExp_Base64.test(value);
+    }).toCompleteWithinQuantile(PERF_DURATION, { iterations: 10, quantile: 90 });
+  });
+});
+
+describe("Test RegExp_URI", () => {
+  // Valid URI strings
+  test.each([
+    ["simple https URI", "https://example.com"],
+    ["https URI with path", "https://example.com/path/to/resource"],
+    ["https URI with query", "https://example.com/path?query=param"],
+    ["https URI with fragment", "https://example.com/path#fragment"],
+  ])("It should successfully test true for '%s'", (_desc, value) => {
+    expect(RegExp_URI.test(value)).toBe(true);
+  });
+
+  // Invalid URI strings
+  test.each([
+    ["http URI", "http://example.com"],
+    ["ftp URI", "ftp://example.com/resource"],
+    ["no scheme", "example.com"],
+    ["random string", "just some text"],
+  ])("It should successfully test false for '%s'", (_desc, value) => {
+    expect(RegExp_URI.test(value)).toBe(false);
+  });
+
+  // Performance test
+  test.each([
+    ["long valid URI", "https://example.com/path/to/resource".repeat(1000)],
+    ["long invalid URI", "http://example.com/path/to/resource".repeat(1000)],
+  ])(`It performs fast (<=${PERF_DURATION}ms) for '%s'`, async (_desc, value) => {
+    expect(() => {
+      RegExp_URI.test(value);
     }).toCompleteWithinQuantile(PERF_DURATION, { iterations: 10, quantile: 90 });
   });
 });

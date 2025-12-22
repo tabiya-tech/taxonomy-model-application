@@ -7,6 +7,9 @@ describe("Test the occupationGroup module", () => {
 
     // THEN check if Schemas is defined in it
     expect(occupationGroupModule.default.Schemas.GET.Response.Payload).toBeDefined();
+    expect(occupationGroupModule.default.Schemas.GET.Response.Parent.Payload).toBeDefined();
+    expect(occupationGroupModule.default.Schemas.GET.Response.Child.Payload).toBeDefined();
+    expect(occupationGroupModule.default.Schemas.GET.Response.Children.Payload).toBeDefined();
     expect(occupationGroupModule.default.Schemas.POST.Response.Payload).toBeDefined();
     expect(occupationGroupModule.default.Schemas.POST.Request.Payload).toBeDefined();
     // AND check if constants are defined in it

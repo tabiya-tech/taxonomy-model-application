@@ -4,6 +4,7 @@ import {
   ModelForOccupationGroupValidationErrorCode,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
+  IOccupationGroupChild,
 } from "./OccupationGroup.types";
 import { IOccupationGroupRepository } from "./OccupationGroupRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -35,6 +36,8 @@ describe("Test the OccupationGroupService", () => {
       findAllByImportId: jest.fn(),
       findPaginated: jest.fn(),
       getOccupationGroupByUUID: jest.fn(),
+      findParent: jest.fn(),
+      findChildren: jest.fn(),
       getHistory: jest.fn(),
     } as unknown as jest.Mocked<IOccupationGroupRepository>;
 
@@ -137,6 +140,162 @@ describe("Test the OccupationGroupService", () => {
       await expect(promise).rejects.toThrow(givenError);
     });
   });
+
+  describe("findParent", () => {
+    test("should call repository.findParent with the given occupation group id", async () => {
+      // GIVEN an id
+      const givenParentId = getMockStringId(1);
+      const givenId = getMockStringId(10);
+      // AND the repository returns an occupationGroup with a parent
+      const expectedOccupationGroup: IOccupationGroup = {
+        id: givenParentId,
+        modelId: getMockStringId(2),
+        UUID: getRandomString(10),
+        preferredLabel: getRandomString(10),
+        code: getMockRandomISCOGroupCode(),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        groupType: ObjectTypes.ISCOGroup,
+        originUri: getRandomString(15),
+        UUIDHistory: [],
+        importId: "",
+        parent: null,
+        children: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockRepository.findParent.mockResolvedValue(expectedOccupationGroup);
+
+      const actual = await service.findParent(givenId);
+      expect(mockRepository.findParent).toHaveBeenCalledWith(givenId);
+      // AND expect the returned occupationGroup
+      expect(actual).toEqual(expectedOccupationGroup);
+    });
+
+    test("should return null if repository.findParent returns null for the given occupation group", async () => {
+      // GIVEN an id
+      const givenId = getMockStringId(1);
+      // AND the repository returns null
+      mockRepository.findParent.mockResolvedValue(null); // 1st call
+
+      // WHEN calling service.findParent
+      const actual = await service.findParent(givenId);
+
+      // THEN expect repository.findParent to have been called with the id
+      expect(mockRepository.findParent).toHaveBeenCalledWith(givenId);
+
+      // AND expect null to be returned
+      expect(actual).toBeNull();
+    });
+    test("should return null if the occupation group has no parent", async () => {
+      // GIVEN an id
+      const givenId = getMockStringId(10);
+      // AND the repository returns an occupationGroup with a parent
+      const expectedOccupationGroup: IOccupationGroup = {
+        id: givenId,
+        modelId: getMockStringId(2),
+        UUID: getRandomString(10),
+        preferredLabel: getRandomString(10),
+        code: getMockRandomISCOGroupCode(),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        groupType: ObjectTypes.ISCOGroup,
+        originUri: getRandomString(15),
+        UUIDHistory: [],
+        importId: "",
+        parent: null,
+        children: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      // AND the repository returns occupationGroup with no parent first and null for the second
+      mockRepository.findParent.mockResolvedValueOnce(null); // 1st call
+
+      // WHEN calling service.findParent
+      const actual = await service.findParent(givenId);
+
+      // THEN expect repository.findById to have been called with the id
+      expect(mockRepository.findParent).toHaveBeenCalledWith(expectedOccupationGroup.id);
+      // AND expect null to be returned
+      expect(actual).toBeNull();
+    });
+  });
+
+  describe("findChildren", () => {
+    test("should call repository.findChildren with the given occupation group id", async () => {
+      // GIVEN an id
+      const givenParentId = getMockStringId(1);
+      // AND the repository returns occupation group children
+      const givenId = getMockStringId(10);
+      const expectedChildren: IOccupationGroupChild = {
+        id: getMockStringId(2),
+        parentId: givenParentId,
+        UUID: getRandomString(10),
+        UUIDHistory: [],
+        originUri: getRandomString(15),
+        code: getMockRandomISCOGroupCode(),
+        description: getRandomString(20),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        objectType: ObjectTypes.ISCOGroup,
+        modelId: givenId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockRepository.findChildren.mockResolvedValue([expectedChildren]);
+
+      const actual = await service.findChildren(givenParentId);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenParentId);
+
+      // AND expect the returned occupationGroup children
+      expect(actual).toEqual([expectedChildren]);
+    });
+    test("should return empty array if repository.findChildren returns empty array for the given occupation group", async () => {
+      // GIVEN an id
+      const givenId = getMockStringId(1);
+      // AND the repository returns empty array
+      mockRepository.findChildren.mockResolvedValue([]); // 1st call
+
+      // WHEN calling service.findChildren
+      const actual = await service.findChildren(givenId);
+
+      // THEN expect repository.findChildren to have been called with the id
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenId);
+      // AND expect empty array to be returned
+      expect(actual).toEqual([]);
+    });
+    test("should return empty array if the occupation group has no children", async () => {
+      // GIVEN an id
+      const givenParentId = getMockStringId(1);
+      const givenId = getMockStringId(10);
+      const expectedChildren: IOccupationGroupChild = {
+        id: getMockStringId(2),
+        parentId: givenParentId,
+        UUID: getRandomString(10),
+        UUIDHistory: [],
+        originUri: getRandomString(15),
+        code: getMockRandomISCOGroupCode(),
+        description: getRandomString(20),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        objectType: ObjectTypes.ISCOGroup,
+        modelId: givenId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      // AND the repository returns empty array
+      mockRepository.findChildren.mockResolvedValue([]); // 1st call
+
+      // WHEN calling service.findChildren
+      const actual = await service.findChildren(givenParentId);
+
+      // THEN expect repository.findChildren to have been called with the id
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(expectedChildren.parentId);
+      // AND expect empty array to be returned
+      expect(actual).toEqual([]);
+    });
+  });
+
   describe("findById", () => {
     test("should call repository.findById with the given id", async () => {
       // GIVEN an id
@@ -244,6 +403,49 @@ describe("Test the OccupationGroupService", () => {
 
       // THEN expect repository.findPaginated to have been called with the correct parameters
       expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      // AND expect the returned paginated result
+      expect(actual.items).toHaveLength(10);
+      expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
+    });
+    test("should call repository.findPaginated with the given parameters and reverse order parameter return paginated results in reverse order", async () => {
+      // GIVEN parameters
+      const givenModelId = getMockStringId(1);
+      const givenLimit = 10;
+      const givenDesc = false;
+      // AND the repository returns (limit + 1 to check for next page)
+      const mockItems = Array.from(
+        { length: 11 },
+        (_, i) =>
+          ({
+            id: getMockStringId(i + 2),
+            modelId: givenModelId,
+            UUID: getRandomString(10),
+            preferredLabel: getRandomString(10),
+            code: getMockRandomISCOGroupCode(),
+            altLabels: [getRandomString(5)],
+            description: getRandomString(20),
+            groupType: ObjectTypes.ISCOGroup,
+            originUri: getRandomString(15),
+            UUIDHistory: [],
+            importId: "",
+            parent: null,
+            children: [],
+            createdAt: new Date("2023-01-01T00:00:00.000Z"),
+            updatedAt: new Date(),
+          }) as IOccupationGroup
+      );
+      mockRepository.findPaginated.mockResolvedValue(mockItems);
+
+      // WHEN calling service.findPaginated
+      const actual = await service.findPaginated(
+        givenModelId,
+        { id: getMockStringId(10), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        givenLimit,
+        givenDesc
+      );
+
+      // THEN expect repository.findPaginated to have been called with the given parameters
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, givenLimit + 1, 1, getMockStringId(10));
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });

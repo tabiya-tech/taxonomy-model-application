@@ -1,4 +1,4 @@
-import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID } from "../../regex";
+import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID, RegExp_Str_URI } from "../../regex";
 import OccupationGroupConstants from "./constants";
 import OccupationGroupEnums from "./enums";
 import OccupationGroupRegexes from "./regex";
@@ -120,14 +120,14 @@ export const _baseResponseSchema = {
       description: "The path to the occupation group resource using the resource id",
       type: "string",
       format: "uri",
-      pattern: "^https://.*", // accept only https
+      pattern: RegExp_Str_URI, // accept only https
       maxLength: OccupationGroupConstants.MAX_PATH_URI_LENGTH,
     },
     tabiyaPath: {
       description: "The path to the occupation group resource using the resource UUID",
       type: "string",
       format: "uri",
-      pattern: "^https://.*", // accept only https
+      pattern: RegExp_Str_URI,
       maxLength: OccupationGroupConstants.MAX_TABIYA_PATH_LENGTH,
     },
     parent: {
@@ -217,7 +217,7 @@ export const _baseResponseSchema = {
           },
           objectType: {
             description:
-              "The type of the occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
+              "The type of the occupation group | occupation, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
             type: "string",
             enum: Object.values(OccupationGroupEnums.Relations.Children.ObjectTypes),
           },
@@ -326,6 +326,187 @@ export const _baseResponseSchema = {
     "children",
     "altLabels",
     "groupType",
+    "modelId",
+    "createdAt",
+    "updatedAt",
+  ],
+};
+
+export const _baseChildrenResponseSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    id: {
+      description:
+        "The id of the child of occupation group. It can be used to retrieve the single child from the server.",
+      type: "string",
+      pattern: RegExp_Str_ID,
+    },
+    parentId: {
+      description:
+        "The id of the parent occupation group. It can be used to retrieve the single parent from the server.",
+      type: "string",
+      pattern: RegExp_Str_ID,
+    },
+    UUID: {
+      description: "The UUID of the child of occupation group. It can be used to identify the child across systems.",
+      type: "string",
+      pattern: RegExp_Str_UUIDv4,
+    },
+    originUUID: {
+      description:
+        "The last UUID in the UUIDHistory of child of occupation group. It can be used to identify the child across systems.",
+      type: "string",
+      pattern: RegExp_Str_UUIDv4,
+    },
+    path: {
+      description: "The path to the child of occupation group resource using the resource id",
+      type: "string",
+      format: "uri",
+      pattern: RegExp_Str_URI, // accept only https
+      maxLength: OccupationGroupConstants.MAX_PATH_URI_LENGTH,
+    },
+    tabiyaPath: {
+      description: "The path to the child of occupation group resource using the resource UUID",
+      type: "string",
+      format: "uri",
+      pattern: RegExp_Str_URI,
+      maxLength: OccupationGroupConstants.MAX_TABIYA_PATH_LENGTH,
+    },
+    UUIDHistory: {
+      description: "The UUIDs history of the child of occupation group.",
+      type: "array",
+      minItems: 0,
+      maxItems: OccupationGroupConstants.UUID_HISTORY_MAX_ITEMS,
+      uniqueItems: true,
+      items: {
+        type: "string",
+        pattern: RegExp_Str_UUIDv4,
+        maxLength: OccupationGroupConstants.MAX_UUID_HISTORY_ITEM_LENGTH,
+      },
+    },
+    originUri: {
+      description: "The origin URI of the child of occupation group.",
+      type: "string",
+      maxLength: OccupationGroupConstants.ORIGIN_URI_MAX_LENGTH,
+      format: "uri",
+      pattern: RegExp_Str_NotEmptyString,
+    },
+    code: {
+      description: "The code of the child of occupation group.",
+      type: "string",
+      maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+    },
+    description: {
+      description: "The description of the child of the occupation group.",
+      type: "string",
+      maxLength: OccupationGroupConstants.DESCRIPTION_MAX_LENGTH,
+    },
+    preferredLabel: {
+      description: "The preferred label of the child of occupation group.",
+      type: "string",
+      maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+      pattern: RegExp_Str_NotEmptyString,
+    },
+    altLabels: {
+      description: "The alternative labels of the child of the occupation group.",
+      type: "array",
+      minItems: 0,
+      maxItems: OccupationGroupConstants.ALT_LABELS_MAX_ITEMS,
+      uniqueItems: true,
+      items: {
+        type: "string",
+        maxLength: OccupationGroupConstants.ALT_LABEL_MAX_LENGTH,
+      },
+    },
+    objectType: {
+      description:
+        "The type of the child of occupation group, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
+      type: "string",
+      enum: Object.values(OccupationGroupEnums.Relations.Children.ObjectTypes),
+    },
+    modelId: {
+      description: "The identifier of the model for child of the occupation group.",
+      type: "string",
+      pattern: RegExp_Str_ID,
+    },
+    createdAt: { type: "string", format: "date-time" },
+    updatedAt: { type: "string", format: "date-time" },
+  },
+  allOf: [
+    {
+      if: {
+        properties: { objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.ISCOGroup } },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+            pattern: OccupationGroupRegexes.Str.ISCO_GROUP_CODE,
+          },
+        },
+      },
+    },
+    {
+      if: {
+        properties: { objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.LocalGroup } },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+            pattern: OccupationGroupRegexes.Str.LOCAL_GROUP_CODE,
+          },
+        },
+      },
+    },
+    {
+      if: {
+        properties: { objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation } },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+            pattern: OccupationGroupRegexes.Str.ESCO_OCCUPATION_CODE,
+          },
+        },
+      },
+    },
+    {
+      if: {
+        properties: {
+          objectType: { const: OccupationGroupEnums.Relations.Children.ObjectTypes.LocalOccupation },
+        },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: OccupationGroupConstants.CODE_MAX_LENGTH,
+            pattern: OccupationGroupRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+          },
+        },
+      },
+    },
+  ],
+  required: [
+    "id",
+    "parentId",
+    "UUID",
+    "originUUID",
+    "path",
+    "tabiyaPath",
+    "UUIDHistory",
+    "originUri",
+    "code",
+    "description",
+    "preferredLabel",
+    "altLabels",
+    "objectType",
     "modelId",
     "createdAt",
     "updatedAt",

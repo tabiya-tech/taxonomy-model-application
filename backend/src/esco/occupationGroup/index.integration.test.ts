@@ -116,6 +116,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       requestContext: usersRequestContext.REGISTED_USER,
     };
 
@@ -202,6 +203,7 @@ describe("Test for occupationGroup handler with a DB", () => {
         "Content-Type": "application/json",
       },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: {
         limit: limit.toString(),
         cursor: cursor,
@@ -237,6 +239,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: {
         limit: limit,
@@ -278,6 +281,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "3" },
     };
     // @ts-ignore
@@ -292,6 +296,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "1" },
     };
     // @ts-ignore
@@ -307,6 +312,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "1", cursor: page1Body.nextCursor },
     };
     // @ts-ignore
@@ -322,6 +328,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "1", cursor: page2Body.nextCursor },
     };
     // @ts-ignore
@@ -345,6 +352,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "4" },
     };
     // @ts-ignore
@@ -359,6 +367,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "2" },
     };
     // @ts-ignore
@@ -374,6 +383,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "2", cursor: page1Body.nextCursor },
     };
     // @ts-ignore
@@ -397,6 +407,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id}/occupationGroups`,
       queryStringParameters: { limit: "20" },
     };
     // @ts-ignore
@@ -422,6 +433,7 @@ describe("Test for occupationGroup handler with a DB", () => {
       const event = {
         httpMethod: HTTP_VERBS.GET,
         headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelInfo.id}/occupationGroups`,
         pathParameters: { modelId: givenModelInfo.id.toString() },
         queryStringParameters: { limit: size.toString(), ...(cursor ? { cursor } : {}) },
       };

@@ -5,7 +5,9 @@ import {
   IOccupationGroupDoc,
   INewOccupationGroupSpec,
   INewOccupationGroupSpecWithoutImportId,
+  IOccupationGroupChild,
 } from "./OccupationGroup.types";
+import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import {
   populateOccupationGroupChildrenOptions,
   populateOccupationGroupParentOptions,
@@ -15,9 +17,11 @@ import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export interface IOccupationGroupRepository {
   readonly Model: mongoose.Model<IOccupationGroupDoc>;
+  readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
 
   /**
    * Creates a new OccupationGroup entry.
@@ -46,6 +50,24 @@ export interface IOccupationGroupRepository {
    * Rejects with an error if the operation fails.
    */
   findById(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroup | null>;
+
+  /**
+   * Finds a OccupationGroup parent entry by its child occupation group ID.
+   *
+   * @param {string} id - The unique ID of the child OccupationGroup entry to find its parent.
+   * @return {Promise<IOccupationGroup|null>} - A Promise that resolves to the found parent OccupationGroup entry or null if not found.
+   * Rejects with an error if the operation fails.
+   */
+  findParent(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroup | null>;
+
+  /**
+   * Finds a OccupationGroup children entry by its parent occupation group ID.
+   *
+   * @param {string} id - The unique ID of the parent OccupationGroup entry to find its children.
+   * @return {Promise<IOccupationGroupChild[]>} - A Promise that resolves to the found children OccupationGroup entries or an empty array if not found.
+   * Rejects with an error if the operation fails.
+   */
+  findChildren(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroupChild[]>;
 
   /**
    * Returns all OccupationGroups as a stream. The OccupationGroups are transformed to objects (via the .toObject()), however
@@ -95,9 +117,11 @@ export interface IOccupationGroupRepository {
 
 export class OccupationGroupRepository implements IOccupationGroupRepository {
   public readonly Model: mongoose.Model<IOccupationGroupDoc>;
+  public readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
 
-  constructor(model: mongoose.Model<IOccupationGroupDoc>) {
+  constructor(model: mongoose.Model<IOccupationGroupDoc>, hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>) {
     this.Model = model;
+    this.hierarchyModel = hierarchyModel;
   }
 
   private newSpecToModel(newSpec: INewOccupationGroupSpec): mongoose.HydratedDocument<IOccupationGroupDoc> {
@@ -199,6 +223,96 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
   }
 
+  async findParent(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroup | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const relation = await this.hierarchyModel.findOne({ childId: id }).lean();
+      if (!relation) return null;
+      return this.findById(relation.parentId);
+    } catch (e: unknown) {
+      const err = new Error("OccupationGroupRepository.findParent: findParent failed.", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findChildren(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroupChild[]> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return [];
+
+      const result = await this.hierarchyModel.aggregate([
+        {
+          $match: { parentId: new mongoose.Types.ObjectId(id) },
+        },
+        {
+          $lookup: {
+            from: "occupationgroupmodels",
+            localField: "childId",
+            foreignField: "_id",
+            as: "occupationGroup",
+          },
+        },
+        {
+          $lookup: {
+            from: "occupationmodels",
+            localField: "childId",
+            foreignField: "_id",
+            as: "occupation",
+          },
+        },
+        {
+          $addFields: {
+            child: {
+              $cond: [
+                {
+                  $in: ["$childType", [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup]],
+                },
+                { $arrayElemAt: ["$occupationGroup", 0] },
+                { $arrayElemAt: ["$occupation", 0] },
+              ],
+            },
+          },
+        },
+        {
+          $match: {
+            child: { $ne: null },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+
+            id: { $toString: "$child._id" },
+            parentId: { $toString: "$parentId" },
+
+            UUID: "$child.UUID",
+            originUUID: "$child.originUUID",
+            UUIDHistory: "$child.UUIDHistory",
+
+            originUri: "$child.originUri",
+            code: "$child.code",
+            description: "$child.description",
+            preferredLabel: "$child.preferredLabel",
+            altLabels: "$child.altLabels",
+
+            objectType: "$childType",
+            modelId: { $toString: "$modelId" },
+
+            createdAt: "$child.createdAt",
+            updatedAt: "$child.updatedAt",
+          },
+        },
+      ]);
+      return result as IOccupationGroupChild[];
+    } catch (e: unknown) {
+      const err = new Error("OccupationGroupRepository.findChildren: findChildren failed.", {
+        cause: e,
+      });
+      console.error(err);
+      throw err;
+    }
+  }
+
   async getOccupationGroupByUUID(occupationUUID: string): Promise<IOccupationGroup | null> {
     try {
       const filter = {
@@ -219,6 +333,8 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       throw err;
     }
   }
+
+  //TODO: select * from relations where parent_id = $id limit $limit offset $offset
 
   findAll(modelId: string): Readable {
     try {

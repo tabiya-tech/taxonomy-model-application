@@ -306,8 +306,8 @@ describe("Test the SkillGroupService", () => {
         givenDesc
       );
 
-      // THEN expect repository.findPaginated to have been called with the descending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      // THEN expect repository.findPaginate to have been called with the descending sort
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, givenLimit + 1, -1, getMockStringId(10));
       // AND expect the returned result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();

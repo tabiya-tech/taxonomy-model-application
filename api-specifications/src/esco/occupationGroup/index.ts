@@ -9,11 +9,23 @@ import SchemaPOSTResponse from "./schema.POST.response";
 import SchemaGETRequestParam from "./schema.GET.request.param";
 import SchemaGETByIdRequestParam from "./schema.GET.request.ById.param";
 import SchemaGETRequestQueryParam from "./schema.GET.request.query.param";
+import SchemaGETParentResponse from "./schema.GET.parent.response";
+import SchemaGETChildrenResponse from "./schema.GET.children.response";
+import SchemaGETChildResponse from "./schema.GET.child.response";
 
 namespace OccupationGroupSchemas {
   export namespace GET {
     export namespace Response {
       export const Payload = SchemaGETResponse;
+      export namespace Parent {
+        export const Payload = SchemaGETParentResponse;
+      }
+      export namespace Child {
+        export const Payload = SchemaGETChildResponse;
+      }
+      export namespace Children {
+        export const Payload = SchemaGETChildrenResponse;
+      }
     }
     export namespace Request {
       export namespace Param {

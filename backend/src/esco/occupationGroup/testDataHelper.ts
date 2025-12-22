@@ -1,11 +1,38 @@
 import { randomUUID } from "node:crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewOccupationGroupSpec, IOccupationGroup, IOccupationGroupReference } from "./OccupationGroup.types";
+import {
+  INewOccupationGroupSpec,
+  IOccupationGroup,
+  IOccupationGroupChild,
+  IOccupationGroupReference,
+} from "./OccupationGroup.types";
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
+
+export function getIOccupationGroupOccupationGroupTypedChildData(
+  n: number = 1,
+  parentId: string = getMockStringId(1000 + n),
+  modelId: string = getMockStringId(1000 + n)
+): IOccupationGroupChild {
+  return {
+    id: getMockStringId(n),
+    UUID: randomUUID(),
+    parentId: parentId,
+    code: getMockRandomISCOGroupCode().padStart(4, "0"),
+    preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    objectType: OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup,
+    modelId: modelId,
+    UUIDHistory: [randomUUID()],
+    originUri: "https://foo.bar/" + n,
+    altLabels: [getRandomString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    description: getRandomString(OccupationGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
+    updatedAt: new Date(),
+  };
+}
 
 export function getIOccupationGroupMockData(
   n: number = 1,

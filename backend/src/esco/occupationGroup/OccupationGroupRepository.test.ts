@@ -1329,6 +1329,222 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     });
   });
 
+  describe("Test findParent()", () => {
+    test("should find an OccupationGroup parent by childId", async () => {
+      // GIVEN three OccupationGroups and one Occupation exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+
+      // The root parent (OccupationGroup)
+      const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
+      const givenParent = await repository.create(givenParentSpecs);
+      // The 2nd level parent (OccupationGroup)
+      const givenParentSpecs_2 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "parent_2", givenParent.code);
+      const givenParent_2 = await repository.create(givenParentSpecs_2);
+      // The 3rd level parent (OccupationGroup)
+      const givenParentSpecs_3 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "parent_3", givenParent_2.code);
+      const givenParent_3 = await repository.create(givenParentSpecs_3);
+
+      // THE subject (OccupationGroup)
+      const givenSubjectSpecs = getSimpleNewISCOGroupSpecWithParentCode(
+        givenModelId,
+        "subject",
+        givenParent_3.code,
+        true
+      );
+      const givenSubject = await repository.create(givenSubjectSpecs);
+
+      // The child ESCO Occupation
+      const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
+        givenModelId,
+        "child_2",
+        givenSubject.code
+      );
+      const givenChild_1 = await repositoryRegistry.occupation.create(givenChildSpecs_1);
+      // AND the subject OccupationGroup has a parent and two children
+      const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          // parent of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenParent_3.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: givenSubject.id,
+        },
+        {
+          // child 1 of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.ESCOOccupation,
+          childId: givenChild_1.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(2);
+
+      const actualFoundParent = await repository.findParent(givenSubject.id);
+
+      // THEN expect the OccupationGroup to be found
+
+      // AND to be the direct parent of the subject
+      expect(actualFoundParent).toEqual({
+        ...givenParent_3,
+        children: [
+          {
+            UUID: givenSubject.UUID,
+            id: givenSubject.id,
+            code: givenSubject.code,
+            objectType: givenSubject.groupType,
+            preferredLabel: givenSubject.preferredLabel,
+          },
+        ],
+      });
+    });
+    test("should return null if no parent for the given OccupationGroup with the given child id", async () => {
+      // GIVEN an OccupationGroup exists without a parent
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
+      const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+
+      // WHEN searching for its parent by its id
+      const actualFoundParent = await repository.findParent(givenOccupationGroup.id);
+
+      // THEN expect no parent to be found
+      expect(actualFoundParent).toBeNull();
+    });
+    test("should return null if the child given id is not a valid object id", async () => {
+      // GIVEN No OccupationGroup exists in the database
+      // WHEN searching for the OccupationGroup parent by it's child id
+      const actualFoundOccupationGroupParent = await repository.findParent("non_existing_child_id");
+
+      // THEN expect no OccupationGroup parent to be found
+      expect(actualFoundOccupationGroupParent).toBeNull();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.OccupationGroup.findParent(getMockStringId(1));
+    });
+  });
+
+  describe("Test findChildren()", () => {
+    test("should find an OccupationGroup | Occupation children by parentId", async () => {
+      // GIVEN three OccupationGroups and one Occupation exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+
+      // The root parent (OccupationGroup)
+      const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
+      const givenParent = await repository.create(givenParentSpecs);
+      // The 2nd level parent (OccupationGroup)
+      const givenChildSpec_1 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_1", givenParent.code);
+      const givenChild_1 = await repository.create(givenChildSpec_1);
+      // The 3rd level parent (OccupationGroup)
+      const givenChildSpecs_2 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_2", givenParent.code);
+      const givenChild_2 = await repository.create(givenChildSpecs_2);
+
+      // THE subject (OccupationGroup)
+      const givenChildSpecs_3 = getSimpleNewISCOGroupSpecWithParentCode(
+        givenModelId,
+        "child_3",
+        givenParent.code,
+        true
+      );
+      const givenChild_3 = await repository.create(givenChildSpecs_3);
+
+      // The child ESCO Occupation
+      const givenChildSpecs_4 = getSimpleNewESCOOccupationSpecWithParentCode(
+        givenModelId,
+        "child_4",
+        givenChild_3.code
+      );
+      const givenChild_4 = await repositoryRegistry.occupation.create(givenChildSpecs_4);
+      // AND the subject OccupationGroup has a parent and two children
+      const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          // parent of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: givenChild_1.id,
+        },
+        {
+          // parent of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: givenChild_2.id,
+        },
+
+        {
+          // child 1 of the subject
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenChild_3.id,
+          childType: ObjectTypes.ESCOOccupation,
+          childId: givenChild_4.id,
+        },
+      ]);
+      // Guard assertion
+      expect(actualHierarchy).toHaveLength(3);
+      const actualFoundChildren = await repository.findChildren(givenParent.id);
+
+      const expectedChildren = [
+        {
+          id: givenChild_1.id,
+          parentId: givenParent.id,
+          UUID: givenChild_1.UUID,
+          UUIDHistory: givenChild_1.UUIDHistory,
+          originUri: givenChild_1.originUri,
+          code: givenChild_1.code,
+          description: givenChild_1.description,
+          preferredLabel: givenChild_1.preferredLabel,
+          altLabels: givenChild_1.altLabels,
+          objectType: givenChild_1.groupType,
+          modelId: givenChild_1.modelId,
+          createdAt: givenChild_1.createdAt,
+          updatedAt: givenChild_1.updatedAt,
+        },
+        {
+          id: givenChild_2.id,
+          parentId: givenParent.id,
+          UUID: givenChild_2.UUID,
+          UUIDHistory: givenChild_2.UUIDHistory,
+          originUri: givenChild_2.originUri,
+          code: givenChild_2.code,
+          description: givenChild_2.description,
+          preferredLabel: givenChild_2.preferredLabel,
+          altLabels: givenChild_2.altLabels,
+          objectType: givenChild_2.groupType,
+          modelId: givenChild_2.modelId,
+          createdAt: givenChild_2.createdAt,
+          updatedAt: givenChild_2.updatedAt,
+        },
+      ];
+      // THEN expect the children to be found
+      expect(actualFoundChildren).toHaveLength(2);
+      expect(actualFoundChildren).toEqual(expectedChildren);
+    });
+    test("should return [] if no children for the given OccupationGroup with the given parent id", async () => {
+      // GIVEN an OccupationGroup exists without a parent
+      const givenModelId = getMockStringId(1);
+      const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
+      const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+
+      // WHEN searching for its parent by its id
+      const actualFoundChildren = await repository.findChildren(givenOccupationGroup.id);
+
+      // THEN expect no parent to be found
+      expect(actualFoundChildren).toEqual([]);
+    });
+    test("should return [] if the parent given id is not a valid object id", async () => {
+      // GIVEN No OccupationGroup exists in the database
+      // WHEN searching for the OccupationGroup children by it's id
+      const actualFoundOccupationGroupChildren = await repository.findChildren("non_existing_parent_id");
+
+      // THEN expect no OccupationGroup children to be found
+      expect(actualFoundOccupationGroupChildren).toEqual([]);
+    });
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.OccupationGroup.findChildren(getMockStringId(1));
+    });
+  });
+
   describe("Test findAll()", () => {
     test("should find all OccupationGroups in the correct model", async () => {
       // Given some modelId

@@ -494,6 +494,7 @@ describe("Test the main async handler", () => {
       // AND an occupationGroup repository
       const givenOccupationGroupRepositoryMock = {
         Model: undefined as never,
+        hierarchyModel: undefined as never,
         updateMany: jest.fn().mockResolvedValue(null),
         create: jest.fn(),
         createMany: jest.fn(),
@@ -504,6 +505,8 @@ describe("Test the main async handler", () => {
         decodeCursor: jest.fn(),
         getOccupationGroupByUUID: jest.fn(),
         getHistory: jest.fn(),
+        findParent: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 
