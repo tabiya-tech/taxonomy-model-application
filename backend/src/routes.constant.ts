@@ -10,4 +10,6 @@ export const Routes = {
   OCCUPATION_GROUP_ROUTE: "/models/:modelId/occupationGroups/:id",
   SKILL_GROUPS_ROUTE: "/models/:modelId/skillGroups",
   SKILL_GROUP_ROUTE: "/models/:modelId/skillGroups/:id",
+  SKILLS_ROUTE: "/models/:modelId/skills",
+  SKILL_ROUTE: "/models/:modelId/skills/:id",
 };

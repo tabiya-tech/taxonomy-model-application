@@ -1,6 +1,7 @@
 import "_test_utilities/consoleMock";
 import * as config from "server/config/config";
 import * as transformModule from "./transform";
+import { APIGatewayProxyEvent } from "aws-lambda";
 import { handler as occupationHandler, OccupationController } from "./index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -12,10 +13,10 @@ import OccupationAPISpecs from "api-specifications/esco/occupation";
 
 import * as authenticatorModule from "auth/authenticator";
 import { usersRequestContext } from "_test_utilities/dataModel";
-import { APIGatewayProxyEvent } from "aws-lambda";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { IOccupation, IOccupationWithoutImportId } from "./occupation.types";
 import { getIOccupationMockData } from "./testDataHelper";
+import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import {
   IOccupationService,
   ModelForOccupationValidationErrorCode,
@@ -92,7 +93,7 @@ describe("Test for occupation handler", () => {
 
       const givenPayload: OccupationAPISpecs.Types.POST.Request.Payload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -164,7 +165,7 @@ describe("Test for occupation handler", () => {
 
       const givenPayload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -232,7 +233,7 @@ describe("Test for occupation handler", () => {
       const givenModelId = getMockStringId(1);
       const givenPayload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: "label",
         description: "desc",
@@ -259,7 +260,7 @@ describe("Test for occupation handler", () => {
       const givenModelId = getMockStringId(1);
       const givenPayload = {
         modelId: getMockStringId(2),
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -317,7 +318,7 @@ describe("Test for occupation handler", () => {
       const givenModelId = getMockStringId(1);
       const givenPayload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -361,7 +362,7 @@ describe("Test for occupation handler", () => {
       const givenModelId = getMockStringId(1);
       const givenPayload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -485,7 +486,7 @@ describe("Test for occupation handler", () => {
       const givenModelId = getMockStringId(1);
       const givenPayload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -529,7 +530,7 @@ describe("Test for occupation handler", () => {
       const givenModelId = getMockStringId(1);
       const givenPayload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -578,7 +579,7 @@ describe("Test for occupation handler", () => {
 
       const givenPayload = {
         modelId: givenModelId,
-        code: "1234.5678",
+        code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
         preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
         description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
@@ -1092,6 +1093,40 @@ describe("Test for occupation handler", () => {
         // Restore
         mockPathToRegexp.mockRestore();
       });
+
+      test("GET /occupations/{id} should handle catch block non-Error exceptions", async () => {
+        // GIVEN a service that will throw an exception
+        checkRole.mockReturnValueOnce(true);
+        const givenOccupationServiceMock = {
+          findById: jest.fn().mockRejectedValue("non-error exception"),
+          validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        } as unknown as IOccupationService;
+        const mockServiceRegistry = mockGetServiceRegistry();
+        mockServiceRegistry.occupation = givenOccupationServiceMock;
+
+        const occupationController = new OccupationController();
+
+        // WHEN calling getOccupationById directly
+        const actualResponse = await occupationController.getOccupationById({
+          pathParameters: { modelId: getMockStringId(1), id: getMockStringId(2) },
+        } as unknown as APIGatewayProxyEvent);
+
+        // THEN expect INTERNAL_SERVER_ERROR
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      });
+
+      test("GET /occupations/{id} should handle when regex match fails", async () => {
+        // GIVEN role check passes
+        checkRole.mockReturnValueOnce(true);
+        const occupationController = new OccupationController();
+        // AND pathToMatch that won't match
+        const actualResponse = await occupationController.getOccupationById({
+          path: "/invalid/path",
+          pathParameters: undefined,
+        } as unknown as APIGatewayProxyEvent);
+        // THEN expect BAD_REQUEST
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      });
     });
 
     describe("GET /occupations (paginated)", () => {
@@ -1527,7 +1562,6 @@ describe("Test for occupation handler", () => {
           pathParameters: {}, // modelId not set
           queryStringParameters: {},
         } as never);
-        process.stderr.write(`DEBUG_extract_model_from_path ${actualResponse.statusCode} ${actualResponse.body}\n`);
 
         // THEN expect the handler to return the OK status
         expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
@@ -1699,6 +1733,49 @@ describe("Test for occupation handler", () => {
           details: "",
         };
         expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+      });
+
+      test("GET /occupations (paginated) should handle catch block non-Error exceptions", async () => {
+        // GIVEN role check passes
+        checkRole.mockReturnValueOnce(true);
+        const givenOccupationServiceMock = {
+          findPaginated: jest.fn().mockRejectedValue("non-error exception"),
+          validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        } as unknown as IOccupationService;
+        const mockServiceRegistry = mockGetServiceRegistry();
+        mockServiceRegistry.occupation = givenOccupationServiceMock;
+
+        const occupationController = new OccupationController();
+
+        // WHEN calling getOccupations directly
+        const actualResponse = await occupationController.getOccupations({
+          pathParameters: { modelId: getMockStringId(1) },
+          queryStringParameters: {},
+        } as unknown as APIGatewayProxyEvent);
+
+        // THEN expect INTERNAL_SERVER_ERROR
+        expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      });
+
+      test("GET /occupations (paginated) should handle null queryStringParameters", async () => {
+        // GIVEN role check passes
+        checkRole.mockReturnValueOnce(true);
+        const occupationController = new OccupationController();
+        const givenOccupationServiceMock = {
+          findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+          validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        } as unknown as IOccupationService;
+        const mockServiceRegistry = mockGetServiceRegistry();
+        mockServiceRegistry.occupation = givenOccupationServiceMock;
+
+        // WHEN calling getOccupations with null queryParams
+        const actualResponse = await occupationController.getOccupations({
+          pathParameters: { modelId: getMockStringId(1) },
+          queryStringParameters: null,
+        } as unknown as APIGatewayProxyEvent);
+
+        // THEN expect OK
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       });
 
       testMethodsNotAllowed(

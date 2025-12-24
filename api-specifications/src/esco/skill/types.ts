@@ -53,7 +53,7 @@ interface ISkillResponse {
     UUID: string;
     preferredLabel: string;
     isLocalized: boolean;
-    objectType: typeof SkillEnums.OccupationObjectTypes;
+    objectType: SkillEnums.OccupationObjectTypes;
     relationType: SkillEnums.OccupationToSkillRelationType | null;
     signallingValue: number | null;
     signallingValueLabel: SkillEnums.SignallingValueLabel | null;
@@ -110,6 +110,9 @@ namespace SkillTypes {
   export namespace POST {
     export namespace Request {
       export type Payload = ISkillRequest;
+      export namespace Param {
+        export type Payload = ISkillParam;
+      }
     }
     export namespace Response {
       export type Payload = ISkillResponse;
@@ -120,6 +123,9 @@ namespace SkillTypes {
     export namespace Response {
       export type SkillItem = ISkillResponse;
       export type Payload = PaginatedSkillResponse;
+      export namespace ById {
+        export type Payload = ISkillResponse;
+      }
     }
     export namespace Request {
       export namespace Param {

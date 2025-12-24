@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import {
   IOccupationService,
   ModelForOccupationValidationErrorCode,
@@ -6,10 +5,13 @@ import {
 } from "./occupationService.types";
 import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
 import { IOccupationRepository } from "./occupationRepository";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { IModelRepository } from "modelInfo/modelInfoRepository";
 
 export class OccupationService implements IOccupationService {
-  constructor(private readonly occupationRepository: IOccupationRepository) {}
+  constructor(
+    private readonly occupationRepository: IOccupationRepository,
+    private readonly modelRepository: IModelRepository
+  ) {}
 
   async create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation> {
     // Validate model exists and is not released
@@ -31,16 +33,10 @@ export class OccupationService implements IOccupationService {
     limit: number,
     desc: boolean = true
   ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }> {
-    // Build filter for pagination
     const sortOrder = desc ? -1 : 1;
-    let filter: Record<string, unknown> = {};
-    if (cursor) {
-      const cursorId = new mongoose.Types.ObjectId(cursor.id);
-      filter = { _id: sortOrder === -1 ? { $lt: cursorId } : { $gt: cursorId } };
-    }
 
     // Get items + 1 to check if there's a next page
-    const items = await this.occupationRepository.findPaginated(modelId, filter, { _id: sortOrder }, limit + 1);
+    const items = await this.occupationRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id);
 
     // Check if there's a next page
     const hasMore = items.length > limit;
@@ -64,7 +60,7 @@ export class OccupationService implements IOccupationService {
 
   async validateModelForOccupation(modelId: string): Promise<ModelForOccupationValidationErrorCode | null> {
     try {
-      const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
+      const model = await this.modelRepository.getModelById(modelId);
       if (!model) {
         return ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
       }

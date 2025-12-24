@@ -60,20 +60,21 @@ export interface IOccupationRepository {
   findAll(modelId: string, filter?: SearchFilter): Readable;
 
   /**
-   * Returns paginated Occupations. The Occupations are transformed to objects (via .lean()), however
-   * in the current version they are not populated with parents or children. This will be implemented in a future version.
+   * Returns paginated Occupations.
    * @param {string} modelId - The modelId of the Occupations.
-   * @param {object} filter - The filter for pagination.
-   * @param {object} sort - The sort order for pagination.
    * @param {number} limit - The maximum number of Occupations to return.
+   * @param {1 | -1} sortOrder - The sort order for pagination.
+   * @param {string} [cursorId] - The ID of the cursor for pagination.
+   * @param {Record<string, unknown>} [filter] - Additional filters to apply.
    * @return {Promise<IOccupation[]>} - An array of IOccupations
    * Rejects with an error if the operation fails.
    */
   findPaginated(
     modelId: string,
-    filter: Record<string, unknown>,
-    sort: { _id: 1 | -1 },
-    limit: number
+    limit: number,
+    sortOrder: 1 | -1,
+    cursorId?: string,
+    filter?: Record<string, unknown>
   ): Promise<IOccupation[]>;
 
   /**
@@ -233,37 +234,40 @@ export class OccupationRepository implements IOccupationRepository {
 
   async findPaginated(
     modelId: string,
-    filter: Record<string, unknown>,
-    sort: { _id: 1 | -1 },
-    limit: number
+    limit: number,
+    sortOrder: 1 | -1,
+    cursorId?: string,
+    filter?: Record<string, unknown>
   ): Promise<IOccupation[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      // Build the match stage
+      const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
 
-      // Build aggregation pipeline
-      const matchStage: Record<string, unknown> = { modelId: modelIdObj, ...filter };
+      // If a cursorId is provided, add it to the match stage to get results after the cursor
+      if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
+        const operator = sortOrder === -1 ? "$lt" : "$gt";
+        matchStage._id = { [operator]: new mongoose.Types.ObjectId(cursorId) };
+      }
 
-      // NOTE: We are sending 2 database queries, this is not efficient. This is because mongoose is throwing
-      //       an error when trying to query by _id, using $gt or $lt: ISSUE: https://github.com/Automattic/mongoose/issues/2277#event-171765301
-      //       We are creating to optimize this luxurious improvement.
-      //       https://tabiya-tech.atlassian.net/browse/TAX-31
+      // Execute the aggregation pipeline
+      // We use aggregation to handle filtering, sorting and limiting in a single query
+      const results = await this.Model.aggregate([
+        { $match: matchStage },
+        { $sort: { _id: sortOrder } },
+        { $limit: limit },
+      ]).exec();
 
-      // Get exactly limit items
-      const results = await this.Model.aggregate([{ $match: matchStage }, { $sort: sort }, { $limit: limit }]).exec();
+      // Hydrate the aggregation results to Mongoose documents
+      // This is necessary because aggregate() returns plain objects, but populate() requires Mongoose documents
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateOccupationParentOptions,
+        populateOccupationChildrenOptions,
+        populateOccupationRequiresSkillsOptions,
+      ]);
 
-      // populate parent and children for the page items using existing populate options
-      const idsInOrder = results.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString());
-      const objectIds = idsInOrder.map((id: string) => new mongoose.Types.ObjectId(id));
-      // NOTE: query the page docs and let MongoDB return them already ordered by _id
-      const populated = await this.Model.find({ _id: objectIds })
-        .sort(sort)
-        .populate(populateOccupationParentOptions)
-        .populate(populateOccupationChildrenOptions)
-        .populate(populateOccupationRequiresSkillsOptions)
-        .exec();
-
-      // Convert to plain objects
-      return populated.map((doc: mongoose.Document<unknown, unknown, IOccupationDoc>) => doc.toObject());
+      return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);

@@ -1382,6 +1382,143 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test findPaginated()", () => {
+    test("should return first page when cursor is undefined", async () => {
+      // GIVEN a modelId to group the skills together
+      const givenModelId = getMockStringId(1);
+      const givenSkills: ISkill[] = [];
+      for (let i = 0; i < 3; i++) {
+        const givenSkillSpec = getSimpleNewSkillSpec(givenModelId, `skill_${i + 1}`);
+        const givenSkill = await repository.create(givenSkillSpec);
+        givenSkills.push(givenSkill);
+      }
+
+      // WHEN retrieving the first page with undefined cursor and a limit of 2 (default desc order)
+      const actualFirstPage = await repository.findPaginated(givenModelId, 2, -1);
+
+      // THEN expect the latest 2 documents by _id (desc)
+      const expectedFirstPage = givenSkills.slice(-2).reverse();
+      expect(actualFirstPage).toHaveLength(2);
+      expect(actualFirstPage).toEqual(expectedFirstPage);
+    });
+
+    test("should return paginated Skills for a given modelId, limit and cursor", async () => {
+      // GIVEN a modelId to group the skills together
+      const givenModelId = getMockStringId(1);
+      const givenSkills: ISkill[] = [];
+      for (let i = 0; i < 3; i++) {
+        const givenSkillSpec = getSimpleNewSkillSpec(givenModelId, `skill_${i + 1}`);
+        const givenSkill = await repository.create(givenSkillSpec);
+        givenSkills.push(givenSkill);
+      }
+      // THE first page (latest 2 skills)
+      const firstPage = await repository.findPaginated(givenModelId, 2, -1);
+      const lastItemOnFirstPage = firstPage[1];
+
+      // WHEN retrieving the second page with a cursor pointing to the last item on the first page
+      const secondPage = await repository.findPaginated(givenModelId, 2, -1, lastItemOnFirstPage.id);
+
+      // THEN the second page should contain the remaining skill
+      expect(secondPage).toHaveLength(1);
+      expect(secondPage[0]).toEqual(givenSkills[0]);
+    });
+
+    test("should handle errors during paginated data retrieval (aggregate failure)", async () => {
+      // GIVEN that an error will occur when calling aggregate
+      const givenError = new Error("aggregate failure");
+      jest.spyOn(repository.Model, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding paginated skills
+      // THEN expect the operation to fail with the given error
+      await expect(repository.findPaginated(getMockStringId(1), 2, -1)).rejects.toThrowError(
+        new Error("SkillRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
+      jest.spyOn(repository.Model, "aggregate").mockRestore();
+    });
+
+    test("should handle errors during population (populate failure)", async () => {
+      // GIVEN that an error will occur when calling populate after aggregate
+      const givenError = new Error("populate failure");
+      jest.spyOn(repository.Model, "aggregate").mockReturnValue({
+        exec: jest.fn().mockResolvedValue([{ _id: new mongoose.Types.ObjectId() }]),
+      } as unknown as mongoose.Aggregate<unknown[]>);
+      jest.spyOn(repository.Model, "populate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding paginated skills
+      // THEN expect the operation to fail with the given error
+      await expect(repository.findPaginated(getMockStringId(1), 2, -1)).rejects.toThrowError(
+        new Error("SkillRepository.findPaginated: findPaginated failed", { cause: givenError })
+      );
+      jest.spyOn(repository.Model, "aggregate").mockRestore();
+      jest.spyOn(repository.Model, "populate").mockRestore();
+    });
+
+    test("should paginate consistently with ascending sort", async () => {
+      // GIVEN a modelId and three skills created in order
+      const givenModelId = getMockStringId(1);
+      const givenSkills = [];
+      for (let i = 0; i < 3; i++) {
+        givenSkills.push(await repository.create(getSimpleNewSkillSpec(givenModelId, `s${i + 1}`)));
+      }
+
+      // WHEN requesting first page with limit=2 and ascending sort
+      const page1 = await repository.findPaginated(givenModelId, 2, 1);
+
+      // THEN expect first two items in ascending order
+      expect(page1).toHaveLength(2);
+      expect(page1.map((i) => i.id)).toEqual([givenSkills[0].id, givenSkills[1].id]);
+
+      // WHEN requesting second page with cursor
+      const page2 = await repository.findPaginated(givenModelId, 2, 1, page1[1].id);
+
+      // THEN expect the third item
+      expect(page2).toHaveLength(1);
+      expect(page2[0].id).toEqual(givenSkills[2].id);
+    });
+
+    test("should ignore invalid cursor ID", async () => {
+      // GIVEN a modelId and some skills
+      const givenModelId = getMockStringId(1);
+      const givenSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "skill"));
+
+      // WHEN retrieving paginated results with an invalid cursor ID
+      const actual = await repository.findPaginated(givenModelId, 10, -1, "invalid-id");
+
+      // THEN expect the first page to be returned regardless
+      expect(actual).toHaveLength(1);
+      expect(actual[0].id).toBe(givenSkill.id);
+    });
+
+    test("should populate relations for items in paginated results", async () => {
+      // GIVEN a modelId and a skill with relations
+      const givenModelId = getMockStringId(1);
+      const skillA = await repository.create(getSimpleNewSkillSpec(givenModelId, "skillA"));
+      const skillB = await repository.create(getSimpleNewSkillSpec(givenModelId, "skillB"));
+
+      // Create relation
+      await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
+        {
+          requiringSkillId: skillA.id,
+          requiredSkillId: skillB.id,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+        },
+      ]);
+
+      // WHEN retrieving paginated results
+      const page = await repository.findPaginated(givenModelId, 10, -1);
+
+      // THEN find skillA and assert it has populated relations
+      const skillAFromPage = page.find((i) => i.id === skillA.id)!;
+      expect(skillAFromPage).toBeDefined();
+      expect(skillAFromPage.requiresSkills).toHaveLength(1);
+      expect(skillAFromPage.requiresSkills[0].id).toEqual(skillB.id);
+    });
+  });
+
   describe("Test findAll()", () => {
     test("should find all Skills in the correct model", async () => {
       // Given some modelId

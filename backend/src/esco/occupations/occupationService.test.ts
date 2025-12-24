@@ -9,17 +9,17 @@ import { IOccupationRepository } from "./occupationRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import mongoose from "mongoose";
 
 // Mock the module at the top level
-jest.mock("server/repositoryRegistry/repositoryRegistry");
-const mockGetRepositoryRegistry = getRepositoryRegistry as jest.MockedFunction<typeof getRepositoryRegistry>;
+// jest.mock("server/repositoryRegistry/repositoryRegistry");
 
 describe("Test the OccupationService", () => {
   let service: IOccupationService;
   let mockRepository: jest.Mocked<IOccupationRepository>;
+  let mockModelRepository: jest.Mocked<IModelRepository>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -33,7 +33,11 @@ describe("Test the OccupationService", () => {
       getOccupationByUUID: jest.fn(),
     } as unknown as jest.Mocked<IOccupationRepository>;
 
-    service = new OccupationService(mockRepository);
+    mockModelRepository = {
+      getModelById: jest.fn(),
+    } as unknown as jest.Mocked<IModelRepository>;
+
+    service = new OccupationService(mockRepository, mockModelRepository);
   });
 
   describe("create", () => {
@@ -56,14 +60,10 @@ describe("Test the OccupationService", () => {
       };
 
       // AND the model validation passes
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockResolvedValue({
-            id: givenSpec.modelId,
-            released: false,
-          } as IModelInfo),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: false,
+      } as unknown as IModelInfo);
 
       // AND the repository returns a created occupation
       const expectedOccupation: IOccupation = {
@@ -107,11 +107,7 @@ describe("Test the OccupationService", () => {
       };
 
       // AND the model validation fails (model not found)
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockResolvedValue(null),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockResolvedValue(null);
 
       // WHEN calling service.create
       // THEN expect it to throw an error
@@ -137,14 +133,10 @@ describe("Test the OccupationService", () => {
       };
 
       // AND the model validation fails (model is released)
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockResolvedValue({
-            id: givenSpec.modelId,
-            released: true,
-          } as IModelInfo),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: true,
+      } as unknown as IModelInfo);
 
       // WHEN calling service.create
       // THEN expect it to throw an error
@@ -170,14 +162,10 @@ describe("Test the OccupationService", () => {
       };
 
       // AND the model validation passes
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockResolvedValue({
-            id: givenSpec.modelId,
-            released: false,
-          } as IModelInfo),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: false,
+      } as unknown as IModelInfo);
 
       // AND the repository throws an error
       const givenError = new Error("Repository error");
@@ -315,7 +303,7 @@ describe("Test the OccupationService", () => {
       );
 
       // THEN expect repository.findPaginated to be called with the parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
       // AND expect the returned result to have items and nextCursor
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
@@ -372,7 +360,7 @@ describe("Test the OccupationService", () => {
       );
 
       // AND expect repository.findPaginated to be called with the parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
       // AND expect the returned result to have items and nextCursor
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -418,13 +406,8 @@ describe("Test the OccupationService", () => {
       // WHEN calling service.findPaginated with desc=false and cursor
       const actual = await service.findPaginated(givenModelId, givenCursor, givenLimit, givenDesc);
 
-      // THEN expect repository.findPaginated to be called with ascending sort and $gt filter
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
-        givenModelId,
-        { _id: { $gt: expect.any(Object) } }, // filter should be { _id: { $gt: cursorId } } since sortOrder = 1
-        { _id: 1 },
-        11
-      );
+      // THEN expect repository.findPaginated to be called with ascending sort and correct cursor
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursor.id);
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
@@ -494,14 +477,10 @@ describe("Test the OccupationService", () => {
       const givenModelId = getMockStringId(1);
 
       // AND the model exists and is not released
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockResolvedValue({
-            id: givenModelId,
-            released: false,
-          } as IModelInfo),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: false,
+      } as unknown as IModelInfo);
 
       // WHEN calling service.validateModelForOccupation
       const actual = await service.validateModelForOccupation(givenModelId);
@@ -515,11 +494,7 @@ describe("Test the OccupationService", () => {
       const givenModelId = getMockStringId(1);
 
       // AND the model does not exist
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockResolvedValue(null),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockResolvedValue(null);
 
       // WHEN calling service.validateModelForOccupation
       const actual = await service.validateModelForOccupation(givenModelId);
@@ -533,14 +508,10 @@ describe("Test the OccupationService", () => {
       const givenModelId = getMockStringId(1);
 
       // AND the model exists but is released
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockResolvedValue({
-            id: givenModelId,
-            released: true,
-          } as IModelInfo),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: true,
+      } as unknown as IModelInfo);
 
       // WHEN calling service.validateModelForOccupation
       const actual = await service.validateModelForOccupation(givenModelId);
@@ -555,11 +526,7 @@ describe("Test the OccupationService", () => {
 
       // AND getModelById throws an error
       const givenError = new Error("Database error");
-      mockGetRepositoryRegistry.mockReturnValue({
-        modelInfo: {
-          getModelById: jest.fn().mockRejectedValue(givenError),
-        },
-      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockModelRepository.getModelById.mockRejectedValue(givenError);
 
       // AND console.error is mocked to suppress output
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});

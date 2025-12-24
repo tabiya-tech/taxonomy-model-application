@@ -91,3 +91,12 @@ export interface ISkillReferenceDoc extends Pick<ISkillDoc, "modelId" | "UUID" |
   id: string;
   objectType: ObjectTypes.Skill;
 }
+
+/**
+ * These are service level error codes for validating a model for skill operations
+ */
+export enum ModelForSkillValidationErrorCode {
+  FAILED_TO_FETCH_FROM_DB = "FAILED_TO_FETCH_FROM_DB",
+  MODEL_NOT_FOUND_BY_ID = "MODEL_NOT_FOUND_BY_ID",
+  MODEL_IS_RELEASED = "MODEL_IS_RELEASED",
+}

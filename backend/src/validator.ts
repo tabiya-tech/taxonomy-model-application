@@ -8,6 +8,7 @@ import AuthAPISpecs from "api-specifications/auth";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
+import SkillAPISpecs from "api-specifications/esco/skill";
 
 export const ajvInstance = new Ajv({
   validateSchema: true,
@@ -95,6 +96,29 @@ ajvInstance.addSchema(
   SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload,
   SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload.$id
 );
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Request.Param.Payload,
+  SkillAPISpecs.Schemas.GET.Request.Param.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Request.Query.Payload,
+  SkillAPISpecs.Schemas.GET.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload,
+  SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Response.ById.Payload,
+  SkillAPISpecs.Schemas.GET.Response.ById.Payload.$id
+);
+ajvInstance.addSchema(SkillAPISpecs.Schemas.POST.Request.Payload, SkillAPISpecs.Schemas.POST.Request.Payload.$id);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.POST.Request.Param.Payload,
+  SkillAPISpecs.Schemas.POST.Request.Param.Payload.$id
+);
+ajvInstance.addSchema(SkillAPISpecs.Schemas.GET.Response.Payload, SkillAPISpecs.Schemas.GET.Response.Payload.$id);
+
 /**
  * Turn the errors from ajv and turn into a string that consumers can read.
  * @param errors

@@ -4,6 +4,7 @@ import OccupationEnums from "../occupation/enums";
 namespace SkillEnums {
   export const ObjectType = CommonObjectTypes.Skill;
   export const OccupationObjectTypes = OccupationEnums.OccupationType;
+  export type OccupationObjectTypes = OccupationEnums.OccupationType;
 
   export enum ObjectTypes {
     Skill = CommonObjectTypes.Skill,

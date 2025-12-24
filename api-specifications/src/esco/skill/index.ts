@@ -8,11 +8,16 @@ import SchemaGETDetailRequestParam from "./schema.GET.request.ById.param";
 import SchemaGETRequestQueryParam from "./schema.GET.request.query.param";
 import SchemaPOSTRequest from "./schema.POST.request";
 import SchemaPOSTResponse from "./schema.POST.response";
+import SchemaGETResponseById from "./schema.GET.response.ById";
+import SchemaPOSTRequestParam from "./schema.POST.request.param";
 
 namespace SkillSchemas {
   export namespace GET {
     export namespace Response {
       export const Payload = SchemaGETResponse;
+      export namespace ById {
+        export const Payload = SchemaGETResponseById;
+      }
     }
     export namespace Request {
       export namespace Param {
@@ -35,6 +40,9 @@ namespace SkillSchemas {
     }
 
     export namespace Request {
+      export namespace Param {
+        export const Payload = SchemaPOSTRequestParam;
+      }
       export const Payload = SchemaPOSTRequest;
     }
   }

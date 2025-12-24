@@ -6,6 +6,8 @@ import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
+import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
+import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import {
   OccupationToSkillReferenceWithRelationType,
   OccupationToSkillRelationType,
@@ -30,8 +32,8 @@ export function getIOccupationMockData(n: number = 1): IOccupation {
     UUIDHistory: [randomUUID()],
     modelId: getMockStringId(1000 + n),
     originUri: `https://example.com/${n}`,
-    code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-    occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.OCCUPATION_GROUP_CODE_MAX_LENGTH),
+    code: getMockRandomOccupationCode(false),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
     altLabels: [
       getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
@@ -57,8 +59,8 @@ export function getIOccupationMockDataWithOccupationChildren(n: number = 1): IOc
     id: getMockStringId(n + 1),
     UUID: randomUUID(),
     preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-    occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.OCCUPATION_GROUP_CODE_MAX_LENGTH),
+    code: getMockRandomOccupationCode(false),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     occupationType: ObjectTypes.ESCOOccupation,
     isLocalized: false,
   };
@@ -70,8 +72,8 @@ export function getIOccupationMockDataWithParentOccupation(n: number = 1): IOccu
     id: getMockStringId(n + 1),
     UUID: randomUUID(),
     preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-    occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.OCCUPATION_GROUP_CODE_MAX_LENGTH),
+    code: getMockRandomOccupationCode(false),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     occupationType: ObjectTypes.ESCOOccupation,
     isLocalized: false,
   };
@@ -83,7 +85,7 @@ export function getIOccupationMockDataWithParentOccupationGroup(n: number = 1): 
     id: getMockStringId(n + 1),
     UUID: randomUUID(),
     preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
+    code: getMockRandomISCOGroupCode(),
     objectType: ObjectTypes.ISCOGroup,
   };
   return { ...getIOccupationMockData(n), parent };
@@ -99,8 +101,8 @@ export function getNewOccupationSpec(): INewOccupationSpec {
     altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
     originUri: "https://example.com/new",
     UUIDHistory: [randomUUID()],
-    code: getRandomString(OccupationAPISpecs.Constants.CODE_MAX_LENGTH),
-    occupationGroupCode: getRandomString(OccupationAPISpecs.Constants.OCCUPATION_GROUP_CODE_MAX_LENGTH),
+    code: getMockRandomOccupationCode(false),
+    occupationGroupCode: getMockRandomISCOGroupCode(),
     definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
     regulatedProfessionNote: "",
     scopeNote: "",
