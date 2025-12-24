@@ -54,6 +54,25 @@ export interface ISkillRepository {
    * Rejects with an error if the operation fails.
    */
   findAll(modelId: string): Readable;
+
+  /**
+   * Returns paginated Skills. The Skills are transformed to objects (via .lean()), however
+   * in the current version they are not populated with parents, children, requiresSkills, requiredBySkills or requiredByOccupations.
+   *
+   * @param {string} modelId - The modelId of the Skills.
+   * @param {Record<string, unknown>} filter - The filter to apply to the query.
+   * @param {{ _id: 1 | -1 }} sort - The sort order to apply to the query.
+   * @param {number} limit - The maximum number of Skills to return.
+   * @return {Promise<ISkill[]>} - A Promise that resolves to an array of Skills.
+   * Rejects with an error if the operation fails.
+   */
+  findPaginated(
+    modelId: string,
+    limit: number,
+    sortOrder: 1 | -1,
+    cursorId?: string,
+    filter?: Record<string, unknown>
+  ): Promise<ISkill[]>;
 }
 
 export class SkillRepository implements ISkillRepository {
@@ -170,6 +189,51 @@ export class SkillRepository implements ISkillRepository {
       const err = new Error("SkillRepository.findAll: findAll failed", { cause: e });
       console.error(err);
       throw e;
+    }
+  }
+
+  async findPaginated(
+    modelId: string,
+    limit: number,
+    sortOrder: 1 | -1,
+    cursorId?: string,
+    filter?: Record<string, unknown>
+  ): Promise<ISkill[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      // Build the match stage
+      const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
+
+      // If a cursorId is provided, add it to the match stage to get results after the cursor
+      if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
+        const operator = sortOrder === -1 ? "$lt" : "$gt";
+        matchStage._id = { [operator]: new mongoose.Types.ObjectId(cursorId) };
+      }
+
+      // Execute the aggregation pipeline
+      // We use aggregation to handle filtering, sorting and limiting in a single query
+      const results = await this.Model.aggregate([
+        { $match: matchStage },
+        { $sort: { _id: sortOrder } },
+        { $limit: limit },
+      ]).exec();
+
+      // Hydrate the aggregation results to Mongoose documents
+      // This is necessary because aggregate() returns plain objects, but populate() requires Mongoose documents
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateSkillParentsOptions,
+        populateSkillChildrenOptions,
+        populateSkillRequiresSkillsOptions,
+        populateSkillRequiredBySkillsOptions,
+        populateSkillRequiredByOccupationOptions,
+      ]);
+
+      return populated.map((doc) => doc.toObject());
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findPaginated: findPaginated failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 }

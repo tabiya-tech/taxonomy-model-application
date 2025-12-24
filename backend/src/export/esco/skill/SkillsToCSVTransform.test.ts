@@ -73,6 +73,7 @@ function setupSkillRepositoryMock(findAllImpl: () => Readable) {
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
+    findPaginated: jest.fn(),
   };
   SkillRepository.mockReturnValue(mockSkillRepository);
 }
