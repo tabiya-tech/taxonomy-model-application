@@ -242,8 +242,8 @@ describe("Test the OccupationGroupService", () => {
         givenDesc
       );
 
-      // THEN expect repository.findPaginated to have been called with the given parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
+      // THEN expect repository.findPaginated to have been called with the correct parameters
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
@@ -288,8 +288,8 @@ describe("Test the OccupationGroupService", () => {
         givenDesc
       );
 
-      // AND expect repository.findPaginated to have been called with the decoded cursor sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
+      // AND expect repository.findPaginated to have been called with the decoded cursor
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
       //AND expect the returned paginated result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -328,8 +328,8 @@ describe("Test the OccupationGroupService", () => {
       // WHEN calling service.findPaginated with desc=false
       const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc);
 
-      // THEN expect repository.findPaginate to have been called with the ascending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, {}, { _id: 1 }, 11);
+      // THEN expect repository.findPaginated to have been called with the ascending sort
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined);
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
