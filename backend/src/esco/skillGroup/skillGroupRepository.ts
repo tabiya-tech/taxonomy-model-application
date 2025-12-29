@@ -50,20 +50,22 @@ export interface ISkillGroupRepository {
   findAll(modelId: string): Readable;
 
   /**
-   * Returns paginated SkillGroups. The SkillGroups are transformed to objects (via the .lean()), however
+   * Returns paginated SkillGroups. The SkillGroups are transformed to objects (via .lean()), however
    * in the current version they are not populated with parents or children. This will be implemented in a future version.
    * @param {string} modelId - The modelId of the SkillGroups.
-   * @param {Record<string, unknown>} filter - The filter to apply.
    * @param {number} limit - The maximum number of SkillGroups to return.
-   * @param {boolean} [desc] - Whether to sort the result in descending order. Default is true.
-   * @return {Promise<{items: ISkillGroup[]}>} - An array paginated of ISkillGroups.
+   * @param {1 | -1} sortOrder - The sort order to apply to the query.
+   * @param {string} [cursorId] - Optional cursor ID for pagination.
+   * @param {Record<string, unknown>} [filter] - Optional filter to apply to the query.
+   * @return {Promise<ISkillGroup[]>} - A Promise that resolves to an array of SkillGroups.
    * Rejects with an error if the operation fails.
    */
   findPaginated(
     modelId: string,
-    filter: Record<string, unknown>,
-    sort: { _id: 1 | -1 },
-    limit: number
+    limit: number,
+    sortOrder: 1 | -1,
+    cursorId?: string,
+    filter?: Record<string, unknown>
   ): Promise<ISkillGroup[]>;
 }
 
@@ -173,36 +175,39 @@ export class SkillGroupRepository implements ISkillGroupRepository {
 
   async findPaginated(
     modelId: string,
-    filter: Record<string, unknown>,
-    sort: { _id: 1 | -1 },
-    limit: number
+    limit: number,
+    sortOrder: 1 | -1,
+    cursorId?: string,
+    filter?: Record<string, unknown>
   ): Promise<ISkillGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
-      // Build aggregation pipeline
-      const matchStage: Record<string, unknown> = { modelId: modelIdObj, ...filter };
-      // NOTE: We are sending 2 database queries, this is not efficient. This is because mongoose is throwing
-      //       an error when trying to query by _id, using $gt or $lt: ISSUE: https://github.com/Automattic/mongoose/issues/2277#event-171765301
-      //       We are creating to optimize this luxurious improvement.
-      //       https://tabiya-tech.atlassian.net/browse/TAX-31
-      //TODO: Optimize this luxurious improvement.
+      // Build the match stage
+      const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
 
-      // Get items + 1 to check if there's a next page
-      const results = await this.Model.aggregate([{ $match: matchStage }, { $sort: sort }, { $limit: limit }]).exec();
+      // If a cursorId is provided, add it to the match stage to get results after the cursor
+      if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
+        const operator = sortOrder === -1 ? "$lt" : "$gt";
+        matchStage._id = { [operator]: new mongoose.Types.ObjectId(cursorId) };
+      }
 
-      // populate parents and children for the page items using existing populate options
-      const idsInOrder = results.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString());
-      const objectIds = idsInOrder.map((id: string) => new mongoose.Types.ObjectId(id));
-      // Note: query the page docs let MongoDB return them already ordered by _id
-      const populated = await this.Model.find({ _id: objectIds })
-        .sort(sort)
-        .populate(populateSkillGroupParentsOptions)
-        .populate(populateSkillGroupChildrenOptions)
-        .exec();
+      // Execute the aggregation pipeline
+      // We use aggregation to handle filtering, sorting and limiting in a single query
+      const results = await this.Model.aggregate([
+        { $match: matchStage },
+        { $sort: { _id: sortOrder } },
+        { $limit: limit },
+      ]).exec();
 
-      // Convert to plain objects
-      const orderedObjects: ISkillGroup[] = populated.map((doc) => doc.toObject());
-      return orderedObjects;
+      // Hydrate the aggregation results to Mongoose documents
+      // This is necessary because aggregate() returns plain objects, but populate() requires Mongoose documents
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateSkillGroupParentsOptions,
+        populateSkillGroupChildrenOptions,
+      ]);
+
+      return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);

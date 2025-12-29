@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroupService.type";
 import {
   ModelForOccupationGroupValidationErrorCode,
@@ -29,20 +28,15 @@ export class OccupationGroupService implements IOccupationGroupService {
     limit: number,
     desc: boolean = true
   ): Promise<{ items: IOccupationGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
-    // Build filter for pagination
     const sortOrder = desc ? -1 : 1;
-    let filter: Record<string, unknown> = {};
-    if (cursor) {
-      const cursorId = new mongoose.Types.ObjectId(cursor.id);
-      filter = { _id: sortOrder === -1 ? { $lt: cursorId } : { $gt: cursorId } };
-    }
 
     // Get items + 1 to check if there's a next page
-    const items = await this.occupationGroupRepository.findPaginated(modelId, filter, { _id: sortOrder }, limit + 1);
+    const items = await this.occupationGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id);
 
     // Check if there's a next page
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
+
     // Construct nextCursor from the last item of the current page
     let nextCursor: { _id: string; createdAt: Date } | null = null;
     if (hasMore && pageItems.length > 0) {
@@ -52,6 +46,7 @@ export class OccupationGroupService implements IOccupationGroupService {
         createdAt: lastItemOnPage.createdAt,
       };
     }
+
     return {
       items: pageItems,
       nextCursor,

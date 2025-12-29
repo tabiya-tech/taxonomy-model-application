@@ -941,7 +941,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       }
 
       // WHEN retrieving the first page of skillGroups
-      const firstPage = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+      const firstPage = await repository.findPaginated(givenModelId, 2, -1);
       const actualFirstPage = firstPage;
 
       // THEN expect the latest 2 documents by _id (desc)
@@ -963,7 +963,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         givenSkillGroups.push(givenSkillGroup);
       }
       // WHEN retrieving the skillGroups with a cursor pointing to group_3 (newest) and limit of 2
-      const firstPage = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+      const firstPage = await repository.findPaginated(givenModelId, 2, -1);
       const actualFirstPageSkillGroupsArray = firstPage;
       // THEN the first page should contain group_2 and group_1 (items older than group_3) ordered by _id desc
       const expectedSkillGroups = givenSkillGroups
@@ -985,7 +985,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
       // WHEN find paginated skillGroups for some modelId
       // THEN expect the operation to fail with the given error
-      await expect(repository.findPaginated(getMockStringId(1), {}, { _id: -1 }, 2)).rejects.toThrowError(
+      await expect(repository.findPaginated(getMockStringId(1), 2, -1)).rejects.toThrowError(
         new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: givenError })
       );
     });
@@ -997,7 +997,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
-      await expect(repository.findPaginated(getMockStringId(1), {}, { _id: -1 }, 1)).rejects.toThrow(
+      await expect(repository.findPaginated(getMockStringId(1), 1, -1)).rejects.toThrow(
         new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: givenError })
       );
 
@@ -1011,14 +1011,14 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const given_skill_group3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g3"));
 
       // WHEN requesting first page with limit=3 and no cursor (desc by _id => newest first)
-      const page2 = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 3);
+      const page2 = await repository.findPaginated(givenModelId, 3, -1);
       // THEN expect when fetching three items with limit=3, to get all three items in the correct order
       expect(page2).toHaveLength(3);
       const firstTwoIds = page2.map((i) => i.id);
       expect(firstTwoIds).toEqual([given_skill_group3.id, given_skill_group2.id, given_skill_group1.id]);
 
       // WHEN requesting first page with limit=1 and no cursor
-      const page1 = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 1);
+      const page1 = await repository.findPaginated(givenModelId, 1, -1);
       expect(page1).toHaveLength(1);
       expect(page1[0].id).toBe(given_skill_group3.id);
     });
@@ -1029,7 +1029,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const createdGroup = await repository.create(givenSkillGroupSpecs);
 
       // WHEN finding paginated skillGroups with an invalid cursor
-      const result = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 2);
+      const result = await repository.findPaginated(givenModelId, 2, -1);
 
       // AND expect the result to ignore the invalid cursor and return the first page
       expect(result).toHaveLength(1);
@@ -1064,7 +1064,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(hierarchy).toHaveLength(2);
 
       // WHEN retrieving a page large enough to include all three
-      const page = await repository.findPaginated(givenModelId, {}, { _id: -1 }, 10);
+      const page = await repository.findPaginated(givenModelId, 10, -1);
 
       // THEN find the subject entry and assert it has populated parent and children
       const subjectFromPage = page.find((i) => i.id === subject.id);

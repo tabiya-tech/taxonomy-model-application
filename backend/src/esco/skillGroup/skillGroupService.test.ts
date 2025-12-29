@@ -135,8 +135,8 @@ describe("Test the SkillGroupService", () => {
         givenDesc
       );
 
-      // THEN expect repository.findPaginated to have been called with the correct filter and options
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
+      // THEN expect repository.findPaginated to have been called with the correct parameters
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({
@@ -182,8 +182,8 @@ describe("Test the SkillGroupService", () => {
         givenDesc
       );
 
-      // THEN expect repository.findPaginated to have been called with the correct filter and options
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
+      // THEN expect repository.findPaginated to have been called with the correct parameters
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -221,8 +221,8 @@ describe("Test the SkillGroupService", () => {
       // WHEN calling service.findPaginated with desc=false
       const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc);
 
-      // THEN expect repository.findPaginate to have been called with the ascending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, {}, { _id: 1 }, 11);
+      // THEN expect repository.findPaginated to have been called with the ascending sort
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined);
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
@@ -262,11 +262,8 @@ describe("Test the SkillGroupService", () => {
         givenDesc
       );
 
-      // THEN expect repository.findPaginated to have been called with a $gt filter on _id (ascending cursor)
-      const call = mockRepository.findPaginated.mock.calls[0];
-      const filterArg = call[1] as Record<string, unknown>;
-      expect(filterArg).toHaveProperty("_id");
-      expect(filterArg._id).toHaveProperty("$gt");
+      // THEN expect repository.findPaginated to have been called with cursorId for ascending cursor
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursorId);
     });
 
     test("should handle descending sort order", async () => {
@@ -309,8 +306,8 @@ describe("Test the SkillGroupService", () => {
         givenDesc
       );
 
-      // THEN expect repository.findPaginate to have been called with the descending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, expect.any(Object), { _id: -1 }, 11);
+      // THEN expect repository.findPaginated to have been called with the descending sort
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
       // AND expect the returned result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
