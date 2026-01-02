@@ -5,7 +5,7 @@ import { redactCredentialsFromURI } from "server/redactCredentialsFromURI";
 export async function getNewConnection(uri: string): Promise<mongoose.Connection> {
   // FAIL FAST if the database uri is not specified
   if (isUnspecified(uri)) {
-    const error = Error("Database uri not specified.");
+    const error = new Error("Database uri not specified.");
     console.error(error);
     throw error;
   }

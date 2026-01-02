@@ -32,15 +32,15 @@ export function isNewOccupationHierarchyPairSpecValid(
 }
 // see esco/taxonomy_hierarchy.md for an explanation of the expected code format for each entity
 
-const REGEX_ONE_LOCALGROUP_ISCO_PARENT_HIERARCHY_INCREMENT = RegExp(/^[a-zA-Z]$/);
+const REGEX_ONE_LOCALGROUP_ISCO_PARENT_HIERARCHY_INCREMENT = new RegExp(/^[a-zA-Z]$/);
 
-const REGEX_ONE_LOCALGROUP_LOCAL_PARENT_HIERARCHY_INCREMENT = RegExp(/^[a-zA-Z\d]$/);
+const REGEX_ONE_LOCALGROUP_LOCAL_PARENT_HIERARCHY_INCREMENT = new RegExp(/^[a-zA-Z\d]$/);
 
-const REGEX_ONE_ISCO_GROUP_CODE_HIERARCHY_INCREMENT = RegExp(/^\d$/);
+const REGEX_ONE_ISCO_GROUP_CODE_HIERARCHY_INCREMENT = new RegExp(/^\d$/);
 
-const REGEX_ONE_ESCO_OCCUPATION_HIERARCHY_INCREMENT = RegExp(/^\.\d+$/);
+const REGEX_ONE_ESCO_OCCUPATION_HIERARCHY_INCREMENT = new RegExp(/^\.\d+$/);
 
-const REGEX_ONE_LOCAL_OCCUPATION_HIERARCHY_INCREMENT = RegExp(/^_[a-zA-Z\d]*$/);
+const REGEX_ONE_LOCAL_OCCUPATION_HIERARCHY_INCREMENT = new RegExp(/^_[a-zA-Z\d]*$/);
 
 /**
  * Check if the parent-child code relationship is valid in relation to the codes of the parent and child objects.
