@@ -131,14 +131,14 @@ export const OriginUriProperty: mongoose.SchemaDefinitionProperty<string> = {
 };
 
 // ISCO Code can contain a number from 1 to 4 digits,
-const REGEX_ISCO_GROUP_CODE = RegExp(/(^\d{1,4}$)/);
+const REGEX_ISCO_GROUP_CODE = new RegExp(/(^\d{1,4}$)/);
 
 // Local code has to start with one or more letters and can be followed by a number
 // - WHEN the Local Group doesnt have any parents it will have a code that starts with one or more letters followed by one or more digits
 // - WHEN the Local Group has a parent that is an ISCO Group it will have a code that starts with the parent code and has one or more letters followed by one or more digits
 // - WHEN the Local Group has a parent that is a Local Group it will have a code that starts with the parent code and has one or more letters or one or more digits
 // for more information about the rules concerning occupationGroup codes, see backend/taxonomy-hierarchy.md
-const REGEX_LOCAL_GROUP_CODE = RegExp(/^(?:\d{1,4})?[a-zA-Z]+[a-zA-Z\d]*$/);
+const REGEX_LOCAL_GROUP_CODE = new RegExp(/^(?:\d{1,4})?[a-zA-Z]+[a-zA-Z\d]*$/);
 
 export const OccupationGroupCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,
@@ -162,13 +162,13 @@ export const OccupationGroupCodeProperty: mongoose.SchemaDefinitionProperty<stri
 
 // for more information about the rules concerning occupation codes, see backend/taxonomy-hierarchy.md
 // ESCO Occupation Code
-export const RegExESCOOccupationCode = RegExp(/^\d{4}(?:\.\d+)+$/);
+export const RegExESCOOccupationCode = new RegExp(/^\d{4}(?:\.\d+)+$/);
 
 // ESCO Local Occupation Code
-export const RegExESCOLocalOccupationCode = RegExp(/^\d{4}(?:\.\d+)*(?:_\d+)+$/);
+export const RegExESCOLocalOccupationCode = new RegExp(/^\d{4}(?:\.\d+)*(?:_\d+)+$/);
 
 // Local Occupation Code
-export const RegExLocalOccupationCode = RegExp(/(^[a-zA-Z\d]+)(?:_\d+)+$/);
+export const RegExLocalOccupationCode = new RegExp(/(^[a-zA-Z\d]+)(?:_\d+)+$/);
 
 export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> = {
   type: String,

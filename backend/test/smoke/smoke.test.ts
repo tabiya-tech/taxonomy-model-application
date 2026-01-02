@@ -14,7 +14,7 @@ let expectedVersion: object = {};
 try {
   expectedVersion = JSON.parse(process.env.EXPECTED_VERSION_INFO as string);
 } catch (error) {
-  const err = Error("Error parsing EXPECTED_VERSION_INFO:", { cause: error });
+  const err = new Error("Error parsing EXPECTED_VERSION_INFO:", { cause: error });
   console.error(err);
   throw err;
 }

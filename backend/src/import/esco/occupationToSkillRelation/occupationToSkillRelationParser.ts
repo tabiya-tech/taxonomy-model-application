@@ -62,7 +62,7 @@ function getRowToSpecificationTransformFn(
 
     // Check if signalling value is valid (a number between 0 and 1)
     const signallingValue = getSignallingValueFromCSVSignallingValue(row.SIGNALLINGVALUE);
-    if (signallingValue !== null && (signallingValue < 0 || isNaN(signallingValue))) {
+    if (signallingValue !== null && (signallingValue < 0 || Number.isNaN(signallingValue))) {
       errorLogger.logWarning(
         `Failed to import OccupationToSkillRelation row with occupationId:'${row.OCCUPATIONID}' and skillId:'${row.SKILLID}'.`
       );

@@ -100,7 +100,7 @@ function compareActualAndExpected(
 ): { isMessageMatch: boolean; isCauseMatch: boolean } {
   let isMessageMatch;
   if (isRexExp(expected.message)) {
-    isMessageMatch = RegExp(expected.message).test(actual.message);
+    isMessageMatch = new RegExp(expected.message).test(actual.message);
   } else if (isAsymmetricMatcher(expected.message)) {
     isMessageMatch = expected.message.asymmetricMatch(actual.message);
   } else {
@@ -111,7 +111,7 @@ function compareActualAndExpected(
   if (expected.cause === undefined) {
     isCauseMatch = actual.cause === undefined;
   } else if (isRexExp(expected.cause)) {
-    isCauseMatch = !!actual.cause && RegExp(expected.cause).test(actual.cause);
+    isCauseMatch = !!actual.cause && new RegExp(expected.cause).test(actual.cause);
   } else if (isAsymmetricMatcher(expected.cause)) {
     isCauseMatch = !!actual.cause && expected.cause.asymmetricMatch(actual.cause);
   } else {
