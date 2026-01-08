@@ -64,6 +64,6 @@ After the deployment on test, a step that requires approval is going to be initi
 
 ## Current Deployed Endpoints.
 
-- **Development**: [https://dev.platform.tabiya.tech](https://dev.platform.tabiya.tech)
-- **Testing**: [https://test.platform.tabiya.tech](https://test.platform.tabiya.tech)
-- **Production**: [https://platform.tabiya.tech](https://platform.tabiya.tech)
+- **Development**: [https://dev.taxonomy.tabiya.tech](https://dev.taxonomy.tabiya.tech)
+- **Testing**: [https://test.taxonomy.tabiya.tech](https://test.taxonomy.tabiya.tech)
+- **Production**: [https://taxonomy.tabiya.tech](https://taxonomy.tabiya.tech)

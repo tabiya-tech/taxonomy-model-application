@@ -24,7 +24,7 @@ import process from "process";
  * - /presigned (GET)
  */
 const baseUrl: string = process.env.BACKEND_URL as string;
-// const baseUrl: string = "https://dev.platform.tabiya.tech/api/app";
+// const baseUrl: string = "https://dev.taxonomy.tabiya.tech/api/app";
 // First setup the request agent
 const request = supertest.agent(baseUrl);
 
