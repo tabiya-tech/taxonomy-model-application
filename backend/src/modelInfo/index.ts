@@ -11,7 +11,7 @@ import { ValidateFunction } from "ajv";
 import { transform } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
-import { checkRole, RoleRequired } from "auth/authenticator";
+import { checkRole, RoleRequired } from "auth/authorizer";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -41,6 +41,7 @@ class ModelController {
    *       summary: Create a new taxonomy model.
    *       description: Create a new taxonomy model that can be used to import data into it.
    *       security:
+   *        - api_key: []
    *        - jwt_auth: []
    *       requestBody:
    *         content:
@@ -137,6 +138,7 @@ class ModelController {
    *     summary: Get a taxonomy model information
    *     description: Retrieve information about a specific taxonomy model.
    *     security:
+   *        - api_key: []
    *        - jwt_auth: []
    *     responses:
    *       '200':
@@ -159,7 +161,7 @@ class ModelController {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getModelInfo(event: APIGatewayProxyEvent) {
     try {
-      const isModelManager = checkRole(event, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
+      const isModelManager = await checkRole(event, AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER);
 
       const models: IModelInfo[] = await getRepositoryRegistry().modelInfo.getModels();
       const modelsMap = new Map(models.map((model) => [model.UUID, model]));

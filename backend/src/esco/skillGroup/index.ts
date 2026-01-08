@@ -16,7 +16,7 @@ import { getResourcesBaseUrl } from "server/config/config";
 
 import { ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
 import { Routes } from "routes.constant";
-import { RoleRequired } from "auth/authenticator";
+import { RoleRequired } from "auth/authorizer";
 import ErrorAPISpecs from "api-specifications/error";
 import { pathToRegexp } from "path-to-regexp";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
@@ -83,6 +83,7 @@ export class SkillGroupController {
    *    summary: Get a list of paginated skill groups and cursor if there is one in a taxonomy model.
    *    description: Retrieve a list of paginated skill groups in a specific taxonomy model.
    *    security:
+   *      - api_key: []
    *      - jwt_auth: []
    *    parameters:
    *      - in: path
@@ -269,6 +270,7 @@ export class SkillGroupController {
    *   summary: Get an skill group by its identifier in a taxonomy model.
    *   description: Retrieve an skill group by its unique identifier in a specific taxonomy model.
    *   security:
+   *    - api_key: []
    *    - jwt_auth: []
    *   parameters:
    *    - in: path

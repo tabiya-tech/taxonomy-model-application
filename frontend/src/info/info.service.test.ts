@@ -3,7 +3,7 @@ import InfoService from "src/info/info.service";
 import infoURL from "./info.constants";
 
 const anonymousFetchOptions = {
-  headers: { map: { authorization: "Bearer ANONYMOUS" } },
+  headers: { map: {} },
 };
 
 describe("InfoService", () => {

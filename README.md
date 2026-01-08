@@ -23,6 +23,7 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 - **[Infrastructure As Code (IaC)](iac)**: Explore the Infrastructure as code(IAC) directory for detailed insights about the infrastructure-as-code components.
 - **[Frontend](frontend)**: Explore the Frontend directory for detailed insights about the frontend react project.
 - **[Backend](backend)**: Explore the Backend directory for detailed insights about the backend Node.js project.
+- **[Authentication](auth.md)**: Explore the Authentication document for detailed insights about the authentication mechanism.
 - **[Locales](locales)**: Explore the Locales directory for detailed insights about the locales used in the project.
 - **[Contribution Guidelines](#contribution-guidelines)**: Help us improve the project by contributing to various aspects.
 - **[Deployment Guidelines](#deployment-guidelines)**: Help us improve the project by contributing to various aspects.

@@ -15,8 +15,6 @@ import { getConnectionManager } from "server/connection/connectionManager";
  *        - info
  *      summary: Get information about the deployed api.
  *      description: Retrieve information about the deployed api, including build details and database connection status.
- *      security:
- *        - jwt_auth: []
  *      responses:
  *        200:
  *          description: The deployed api information.

@@ -8,7 +8,7 @@
     "clean": "rimraf -I build coverage deploy",
     "compile": "tsc --build tsconfig.prod.json",
     "prebuild": "npm run clean && npm run compile",
-    "build": "esbuild ./src/index.ts ./src/import/async/index.ts ./src/export/async/index.ts ./src/auth/customAuthenticator/index.ts --bundle --tsconfig=tsconfig.prod.json --sourcemap --minify --platform=node --target=node16 --outdir=build --main-fields=module,main",
+    "build": "esbuild ./src/index.ts ./src/import/async/index.ts ./src/export/async/index.ts ./src/auth/authenticator/index.ts --bundle --tsconfig=tsconfig.prod.json --sourcemap --minify --platform=node --target=node16 --outdir=build --main-fields=module,main",
     "postbuild": "cp ./package.json ./build/ && (cd ./build; npm pkg delete devDependencies; npm pkg delete dependencies; npm pkg delete scripts) && cp ./build/package.json ./build/import/async && mkdir build/rest && mv build/index.js build/index.js.map build/package.json ./build/rest/",
     "test": "jest --coverage",
     "test:integration": "jest --config jest.integration.config.js --runInBand",
@@ -70,6 +70,7 @@
     "aws-jwt-verify": "^4.0.1",
     "csv-parse": "~5.4.0",
     "csv-stringify": "^6.4.4",
+    "jwt-decode": "^4.0.0",
     "mongoose": "^7.6.3",
     "path-to-regexp": "^8.3.0"
   }

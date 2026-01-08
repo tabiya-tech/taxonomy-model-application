@@ -16,11 +16,7 @@ const formatVersion = (version) => {
 
 async function getCurrentVersion(url){
   // Fetch the current version
-  let { version: currentVersion } = await fetch(url.replace("test.", ""), {
-    headers: {
-      Authorization: `Bearer ANONYMOUS`
-    }
-  }).then(res => res.json());
+  let { version: currentVersion } = await fetch(url.replace("test.", "")).then(res => res.json());
 
   console.log({ currentVersion })
 
@@ -37,11 +33,7 @@ async function compareVersions(newVersion, url){
   let _newVersion = formatVersion(newVersion);
 
   // Fetch the current version
-  let { version: currentVersion } = await fetch(url.replace("test.", ""), {
-    headers: {
-      Authorization: `Bearer ANONYMOUS`
-    }
-  }).then(res => res.json());
+  let { version: currentVersion } = await fetch(url.replace("test.", "")).then(res => res.json());
 
   let _currentVersion = formatVersion(currentVersion);
 

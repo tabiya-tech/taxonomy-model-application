@@ -7,7 +7,7 @@ import PresignedAPISpecs from "api-specifications/presigned";
 import { getUploadBucketName, getUploadBucketRegion } from "server/config/config";
 import { s3_getPresignedPost } from "./awsSDKService";
 import { transformPresignedPostDataToResponse } from "./transform";
-import { RoleRequired } from "auth/authenticator";
+import { RoleRequired } from "auth/authorizer";
 import AuthAPISpecs from "api-specifications/auth";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
@@ -35,6 +35,7 @@ export class PresignedController {
    *       description: |
    *         Returns a presigned url that can be used to upload files to the import. There url expires after 1 hour. The maximum file size is 10 MB.
    *       security:
+   *         - api_key: []
    *         - jwt_auth: []
    *       responses:
    *         200:

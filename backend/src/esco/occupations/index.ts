@@ -20,7 +20,7 @@ import { getResourcesBaseUrl } from "server/config/config";
 import { INewOccupationSpecWithoutImportId } from "./occupation.types";
 import { Routes } from "routes.constant";
 import { pathToRegexp } from "path-to-regexp";
-import { RoleRequired } from "auth/authenticator";
+import { RoleRequired } from "auth/authorizer";
 import ErrorAPISpecs from "api-specifications/error";
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
@@ -107,6 +107,7 @@ export class OccupationController {
    *      summary: Create a new taxonomy occupation.
    *      description: Create a new taxonomy occupation in a specific taxonomy model.
    *      security:
+   *       - api_key: []
    *       - jwt_auth: []
    *      parameters:
    *        - in: path
@@ -290,6 +291,7 @@ export class OccupationController {
    *    summary: Get a single occupation by its ID in a taxonomy model.
    *    description: Retrieve a single occupation by its ID in a specific taxonomy model.
    *    security:
+   *      - api_key: []
    *      - jwt_auth: []
    *    parameters:
    *      - in: path
@@ -421,6 +423,7 @@ export class OccupationController {
    *    summary: Get a list of paginated occupations and cursor if there is one in a taxonomy model.
    *    description: Retrieve a list of paginated occupations in a specific taxonomy model.
    *    security:
+   *      - api_key: []
    *      - jwt_auth: []
    *    parameters:
    *      - in: path

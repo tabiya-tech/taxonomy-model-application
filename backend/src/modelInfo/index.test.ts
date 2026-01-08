@@ -22,13 +22,13 @@ import {
 } from "_test_utilities/stdRESTHandlerTests";
 import { IModelInfo, IModelInfoReference } from "./modelInfo.types";
 
-import * as authenticatorModule from "auth/authenticator";
+import * as authenticatorModule from "auth/authorizer";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { APIGatewayProxyEvent } from "aws-lambda";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 
-checkRole.mockReturnValue(true);
+checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 
@@ -44,7 +44,7 @@ describe("Test for model handler", () => {
         const givenRequestContext = usersRequestContext.REGISTED_USER;
 
         // AND checkRole returns false
-        checkRole.mockReturnValue(false);
+        checkRole.mockResolvedValue(false);
 
         // AND the event with the given request context
         const givenEvent: APIGatewayProxyEvent = {
@@ -88,7 +88,7 @@ describe("Test for model handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a configured base path for resources
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -167,7 +167,7 @@ describe("Test for model handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND the repository fails to create a model
       const givenModelInfoRepositoryMock = {
@@ -226,7 +226,7 @@ describe("Test for model handler", () => {
       } as never;
 
       // AND the user does not have the required role
-      checkRole.mockReturnValue(false);
+      checkRole.mockResolvedValue(false);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await modelHandler(givenEvent);
@@ -271,7 +271,7 @@ describe("Test for model handler", () => {
       ];
 
       // AND the user is not a model manager
-      checkRole.mockReturnValueOnce(false);
+      checkRole.mockResolvedValueOnce(false);
 
       // AND a repository that will successfully get the N models
       const givenModelInfoRepositoryMock = {
@@ -327,7 +327,7 @@ describe("Test for model handler", () => {
       ];
 
       // AND the user is not a model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // AND a repository that will successfully get the N models
       const givenModelInfoRepositoryMock = {

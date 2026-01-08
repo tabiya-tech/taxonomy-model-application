@@ -8,7 +8,7 @@ import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { lambda_invokeAsyncExport } from "./invokeAsyncExport";
 import { AsyncExportEvent } from "./async/async.types";
-import { RoleRequired } from "auth/authenticator";
+import { RoleRequired } from "auth/authorizer";
 import AuthAPISpecs from "api-specifications/auth";
 
 export const handler: (
@@ -38,6 +38,7 @@ class ExportController {
    *       summary: Trigger the export process.
    *       description: Asynchronously trigger the export process for a given model.
    *       security:
+   *         - api_key: []
    *         - jwt_auth: []
    *       requestBody:
    *         content:

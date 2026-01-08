@@ -23,7 +23,7 @@ import {
   ModelForOccupationGroupValidationErrorCode,
 } from "./OccupationGroup.types";
 import { Routes } from "routes.constant";
-import { RoleRequired } from "auth/authenticator";
+import { RoleRequired } from "auth/authorizer";
 import ErrorAPISpecs from "api-specifications/error";
 import { pathToRegexp } from "path-to-regexp";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
@@ -96,6 +96,7 @@ export class OccupationGroupController {
    *      summary: Create a new taxonomy occupation group.
    *      description: Create a new taxonomy occupation group in a specific taxonomy model.
    *      security:
+   *       - api_key: []
    *       - jwt_auth: []
    *      parameters:
    *        - in: path
@@ -272,6 +273,7 @@ export class OccupationGroupController {
    *    summary: Get a list of paginated occupation groups and cursor if there is one in a taxonomy model.
    *    description: Retrieve a list of paginated occupation groups in a specific taxonomy model.
    *    security:
+   *      - api_key: []
    *      - jwt_auth: []
    *    parameters:
    *      - in: path
@@ -459,6 +461,7 @@ export class OccupationGroupController {
    *   summary: Get an occupation group by its identifier in a taxonomy model.
    *   description: Retrieve an occupation group by its unique identifier in a specific taxonomy model.
    *   security:
+   *    - api_key: []
    *    - jwt_auth: []
    *   parameters:
    *    - in: path

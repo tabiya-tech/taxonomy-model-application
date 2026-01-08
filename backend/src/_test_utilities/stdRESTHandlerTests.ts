@@ -1,4 +1,5 @@
 /* eslint-disable no-unexpected-multiline */
+import AuthAPISpecs from "api-specifications/auth";
 import { HTTP_VERBS, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { APIGatewayProxyEvent, Callback, Context } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
@@ -50,8 +51,8 @@ export function testRequestJSONMalformed(
       },
       requestContext: {
         authorizer: {
-          username: "foo",
-          roles: requiredRole ?? "",
+          authType: AuthAPISpecs.Enums.Cognito.TokenType.HUMAN_IN_THE_LOOP,
+          groups: requiredRole,
         },
       },
     };
@@ -81,8 +82,8 @@ export function testRequestJSONSchema(
       },
       requestContext: {
         authorizer: {
-          username: "foo",
-          roles: requiredRole ?? "",
+          authType: AuthAPISpecs.Enums.Cognito.TokenType.HUMAN_IN_THE_LOOP,
+          groups: requiredRole,
         },
       },
     };
@@ -111,8 +112,8 @@ export function testUnsupportedMediaType(
       },
       requestContext: {
         authorizer: {
-          username: "foo",
-          roles: requiredRole ?? "",
+          authType: AuthAPISpecs.Enums.Cognito.TokenType.HUMAN_IN_THE_LOOP,
+          groups: requiredRole,
         },
       },
     };
@@ -143,8 +144,8 @@ export function testTooLargePayload(
       },
       requestContext: {
         authorizer: {
-          username: "foo",
-          roles: requiredRole ?? "",
+          authType: AuthAPISpecs.Enums.Cognito.TokenType.HUMAN_IN_THE_LOOP,
+          groups: requiredRole,
         },
       },
     };

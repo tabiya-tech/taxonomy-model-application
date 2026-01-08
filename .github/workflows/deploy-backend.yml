@@ -73,6 +73,7 @@ jobs:
           TARGET_ENVIRONMENT: ${{ inputs.target-environment }}
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          AUTH_DATABASE_URI: ${{ secrets.AUTH_DATABASE_URI }}
           DOMAIN_NAME: ${{ inputs.target-domain-name }}
           USER_POOL_ID: ${{ inputs.user-pool-id }}
           USER_POOL_CLIENT_ID: ${{ inputs.user-pool-client-id }}

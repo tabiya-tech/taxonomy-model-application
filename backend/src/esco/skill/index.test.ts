@@ -11,7 +11,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import SkillAPISpecs from "api-specifications/esco/skill";
 
-import * as authenticatorModule from "auth/authenticator";
+import * as authenticatorModule from "auth/authorizer";
 import { ISkill } from "./skills.types";
 import { getISkillMockData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
@@ -22,7 +22,7 @@ import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serv
 import { ISkillService } from "./skillService.type";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
-checkRole.mockReturnValue(true);
+checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
@@ -97,7 +97,7 @@ describe("Test for skill handler", () => {
       const expectedNextCursor = null;
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       const givenSkillServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
@@ -159,7 +159,7 @@ describe("Test for skill handler", () => {
 
     test("GET should return nextCursor when nextCursor is present in the paginated skill result", async () => {
       // GIVEN role check passes for anonymous access
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       const limit = 1;
       const givenSkills: Array<ISkill> = [
@@ -241,7 +241,7 @@ describe("Test for skill handler", () => {
         path: "/models/skills",
       };
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler({
@@ -279,7 +279,7 @@ describe("Test for skill handler", () => {
       };
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler({
@@ -307,7 +307,7 @@ describe("Test for skill handler", () => {
       const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler({
@@ -337,7 +337,7 @@ describe("Test for skill handler", () => {
         skill: givenSkillServiceMock,
       } as unknown as ServiceRegistry;
       mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
       const cursor = Buffer.from(getRandomString(10)).toString("base64");
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler({
@@ -377,7 +377,7 @@ describe("Test for skill handler", () => {
       const limit = 2;
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler({
@@ -539,7 +539,7 @@ describe("Test for skill handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a configured base path for resource
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -590,7 +590,7 @@ describe("Test for skill handler", () => {
         path: `/models/${givenModelId}/skills/${givenSkillId}`,
       } as never;
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler(givenEvent);
 
@@ -622,7 +622,7 @@ describe("Test for skill handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler(givenEvent);
@@ -656,7 +656,7 @@ describe("Test for skill handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
@@ -693,7 +693,7 @@ describe("Test for skill handler", () => {
       } as never;
 
       // AND role check passes for anonymous access
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skill handler is invoked with the given event
       const actualResponse = await skillHandler(givenEvent as never);
@@ -727,7 +727,7 @@ describe("Test for skill handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a repository that will throw an error
       const givenSkillRepositoryMock = {

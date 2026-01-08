@@ -14,7 +14,7 @@ import { ValidateFunction } from "ajv";
 import { transform, transformPaginated } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
-import { RoleRequired } from "auth/authenticator";
+import { RoleRequired } from "auth/authorizer";
 import ErrorAPISpecs from "api-specifications/error";
 import { pathToRegexp } from "path-to-regexp";
 import errorLoggerInstance from "common/errorLogger/errorLogger";

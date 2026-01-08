@@ -11,7 +11,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 
-import * as authenticatorModule from "auth/authenticator";
+import * as authenticatorModule from "auth/authorizer";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { IOccupation, IOccupationWithoutImportId } from "./occupation.types";
@@ -35,7 +35,7 @@ import {
 } from "_test_utilities/stdRESTHandlerTests";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
-checkRole.mockReturnValue(true);
+checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
@@ -67,7 +67,7 @@ describe("Test for occupation handler", () => {
         const givenRequestContext = usersRequestContext.REGISTED_USER;
 
         // AND checkRole return false
-        checkRole.mockReturnValue(false);
+        checkRole.mockResolvedValue(false);
 
         // AND the even with the given request context
         const givenEvent: APIGatewayProxyEvent = {
@@ -121,7 +121,7 @@ describe("Test for occupation handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a configured base path for resource
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -193,7 +193,7 @@ describe("Test for occupation handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenOccupationServiceMock = {
         create: jest.fn().mockRejectedValue(new Error("foo")),
@@ -251,7 +251,7 @@ describe("Test for occupation handler", () => {
         body: JSON.stringify(givenPayload),
         headers: { "Content-Type": "application/json" },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     });
@@ -280,7 +280,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${givenModelId}/occupations`,
         pathParameters: { modelId: givenModelId },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     });
@@ -295,7 +295,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${givenModelId}/occupations`,
         pathParameters: { modelId: givenModelId },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.TOO_LARGE_PAYLOAD);
     });
@@ -309,7 +309,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${givenModelId}/occupations`,
         pathParameters: { modelId: givenModelId },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST); // Request body is empty
     });
@@ -338,7 +338,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${givenModelId}/occupations`,
         pathParameters: { modelId: givenModelId },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         create: jest
           .fn()
@@ -382,7 +382,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${givenModelId}/occupations`,
         pathParameters: { modelId: givenModelId },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         create: jest
           .fn()
@@ -420,7 +420,7 @@ describe("Test for occupation handler", () => {
           path: `/models/${getMockStringId(1)}/occupations`,
           pathParameters: { modelId: getMockStringId(1) },
         } as never;
-        checkRole.mockReturnValue(true);
+        checkRole.mockResolvedValue(true);
         const actualResponse = await occupationHandler(givenEvent);
         expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         const body = JSON.parse(actualResponse.body);
@@ -440,7 +440,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${getMockStringId(1)}/occupations`,
         pathParameters: { modelId: getMockStringId(1) },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       const body = JSON.parse(actualResponse.body);
@@ -466,7 +466,7 @@ describe("Test for occupation handler", () => {
           path: `/models/${getMockStringId(1)}/occupations`,
           pathParameters: { modelId: getMockStringId(1) },
         } as never;
-        checkRole.mockReturnValue(true);
+        checkRole.mockResolvedValue(true);
 
         // WHEN the controller method is invoked directly
         const actualResponse = await occupationController.postOccupation(givenEvent);
@@ -506,7 +506,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${givenModelId}/occupations`,
         pathParameters: { modelId: givenModelId },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         create: jest
           .fn()
@@ -550,7 +550,7 @@ describe("Test for occupation handler", () => {
         path: `/models/${givenModelId}/occupations`,
         pathParameters: { modelId: givenModelId },
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         create: jest
           .fn()
@@ -605,7 +605,7 @@ describe("Test for occupation handler", () => {
       } as never;
 
       // AND the user does not have the required role
-      checkRole.mockReturnValue(false);
+      checkRole.mockResolvedValue(false);
 
       // WHEN the occupation handler is invoked with the given event
       const actualResponse = await occupationHandler(givenEvent);
@@ -636,7 +636,7 @@ describe("Test for occupation handler", () => {
         const givenOccupation: IOccupation = getIOccupationMockData();
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenOccupationServiceMock = {
           create: jest.fn(),
@@ -664,7 +664,7 @@ describe("Test for occupation handler", () => {
 
       test("GET /occupations/{id} should respond with NOT_FOUND if the model does not exist", async () => {
         // GIVEN role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // AND the model does not exist
         const givenOccupationServiceMock = {
@@ -694,7 +694,7 @@ describe("Test for occupation handler", () => {
 
       test("GET /occupations/{id} should respond with INTERNAL_SERVER_ERROR if failed to fetch model details from DB", async () => {
         // GIVEN role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // AND failed to fetch model details
         const givenOccupationServiceMock = {
@@ -725,7 +725,7 @@ describe("Test for occupation handler", () => {
       test("GET /occupations/{id} should respond with NOT_FOUND if the occupation does not exist", async () => {
         // GIVEN a service that returns null for the occupation
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const givenOccupationServiceMock = {
           create: jest.fn(),
           findById: jest.fn().mockResolvedValue(null),
@@ -761,7 +761,7 @@ describe("Test for occupation handler", () => {
         } as never;
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // WHEN the occupation handler is invoked with the given event
         const actualResponse = await occupationHandler(givenEvent as never);
@@ -782,7 +782,7 @@ describe("Test for occupation handler", () => {
         const givenOccupation: IOccupation = getIOccupationMockData();
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenOccupationServiceMock = {
           create: jest.fn(),
@@ -821,7 +821,7 @@ describe("Test for occupation handler", () => {
         const givenOccupation: IOccupation = getIOccupationMockData();
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenOccupationServiceMock = {
           create: jest.fn(),
@@ -860,7 +860,7 @@ describe("Test for occupation handler", () => {
         const givenOccupation: IOccupation = getIOccupationMockData();
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenOccupationServiceMock = {
           create: jest.fn(),
@@ -917,7 +917,7 @@ describe("Test for occupation handler", () => {
         };
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // WHEN the occupation handler is invoked with the given event
         const actualResponse = await occupationHandler(givenBadEvent as never);
@@ -943,7 +943,7 @@ describe("Test for occupation handler", () => {
         };
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // WHEN the occupation handler is invoked with the given event
         const actualResponse = await occupationHandler(givenBadEvent as never);
@@ -962,7 +962,7 @@ describe("Test for occupation handler", () => {
       test("GET /occupations/{id} should respond with INTERNAL_SERVER_ERROR if the service fails", async () => {
         // GIVEN a service that fails to get the occupation
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const givenOccupationServiceMock = {
           create: jest.fn(),
           findById: jest.fn().mockRejectedValue(new Error("foo")),
@@ -1001,7 +1001,7 @@ describe("Test for occupation handler", () => {
         });
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenBadEvent = {
           httpMethod: HTTP_VERBS.GET,
@@ -1037,7 +1037,7 @@ describe("Test for occupation handler", () => {
         });
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenBadEvent = {
           httpMethod: HTTP_VERBS.GET,
@@ -1073,7 +1073,7 @@ describe("Test for occupation handler", () => {
         });
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenBadEvent = {
           httpMethod: HTTP_VERBS.GET,
@@ -1096,7 +1096,7 @@ describe("Test for occupation handler", () => {
 
       test("GET /occupations/{id} should handle catch block non-Error exceptions", async () => {
         // GIVEN a service that will throw an exception
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const givenOccupationServiceMock = {
           findById: jest.fn().mockRejectedValue("non-error exception"),
           validateModelForOccupation: jest.fn().mockResolvedValue(null),
@@ -1117,7 +1117,7 @@ describe("Test for occupation handler", () => {
 
       test("GET /occupations/{id} should handle when regex match fails", async () => {
         // GIVEN role check passes
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const occupationController = new OccupationController();
         // AND pathToMatch that won't match
         const actualResponse = await occupationController.getOccupationById({
@@ -1147,7 +1147,7 @@ describe("Test for occupation handler", () => {
       test("GET should return only the occupations for the given modelId", async () => {
         // AND GIVEN a service that will successfully get an arbitrary number (N) of models
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const givenOccupations: Array<IOccupation> = [
           {
             ...getIOccupationMockData(1),
@@ -1182,7 +1182,7 @@ describe("Test for occupation handler", () => {
         const expectedNextCursor = null;
 
         // Ensure role check passes for anonymous
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // AND a service that will successfully get the limited occupations
         const givenOccupationServiceMock = {
@@ -1244,7 +1244,7 @@ describe("Test for occupation handler", () => {
       test("GET should return nextCursor when nextCursor is present in the paginated result", async () => {
         // GIVEN a service that returns occupations with more than limit items to trigger nextCursor
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const limit = 1;
         const givenOccupations: Array<IOccupationWithoutImportId> = [
@@ -1315,7 +1315,7 @@ describe("Test for occupation handler", () => {
       test("GET should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
         // AND GIVEN the repository fails to get the occupations
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const firstPageCursorObject = {
           id: getMockStringId(1),
           createdAt: new Date(),
@@ -1349,7 +1349,7 @@ describe("Test for occupation handler", () => {
       test("GET should respond with the BAD_REQUEST status code if the modelId is not correct model id", async () => {
         // AND GIVEN the repository fails to get the occupations
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const firstPageCursorObject = {
           id: getMockStringId(1),
           createdAt: new Date(),
@@ -1384,7 +1384,7 @@ describe("Test for occupation handler", () => {
       test("GET should respond with the BAD_REQUEST status code if the query parameter is not valid query parameter", async () => {
         // AND GIVEN the repository fails to get the occupations
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const firstPageCursorObject = {
           id: getMockStringId(1),
           createdAt: new Date(),
@@ -1411,7 +1411,7 @@ describe("Test for occupation handler", () => {
       test("GET /occupations (paginated) should respond with BAD_REQUEST if modelId is missing from path and pathParameters", async () => {
         // Path does NOT include /models/{modelId} at all
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const givenBadEvent = {
           httpMethod: HTTP_VERBS.GET,
           headers: {},
@@ -1443,7 +1443,7 @@ describe("Test for occupation handler", () => {
         });
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const givenBadEvent = {
           httpMethod: HTTP_VERBS.GET,
@@ -1476,7 +1476,7 @@ describe("Test for occupation handler", () => {
         } as unknown as APIGatewayProxyEvent;
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const actualResponse = await occupationHandler(givenBadEvent);
 
@@ -1496,7 +1496,7 @@ describe("Test for occupation handler", () => {
         } as unknown as APIGatewayProxyEvent;
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const actualResponse = await occupationHandler(givenBadEvent);
 
@@ -1518,7 +1518,7 @@ describe("Test for occupation handler", () => {
         } as unknown as APIGatewayProxyEvent;
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         const actualResponse = await occupationHandler(givenBadEvent);
 
@@ -1552,7 +1552,7 @@ describe("Test for occupation handler", () => {
         mockServiceRegistry.occupation = givenOccupationServiceMock;
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // WHEN the occupation handler is invoked with pathParameters.modelId not set, but path matches regex
         const actualResponse = await occupationHandler({
@@ -1603,7 +1603,7 @@ describe("Test for occupation handler", () => {
         const limit = 2;
 
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // WHEN the occupation handler is invoked with the given event
         const actualResponse = await occupationHandler({
@@ -1626,7 +1626,7 @@ describe("Test for occupation handler", () => {
 
       test("GET should respond with the BAD_REQUEST status code if decodeCursor throws an error", async () => {
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // WHEN the occupation handler is invoked with invalid cursor
         const actualResponse = await occupationHandler({
@@ -1647,7 +1647,7 @@ describe("Test for occupation handler", () => {
 
       test("GET should respond with NOT_FOUND if the model does not exist", async () => {
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // AND the model does not exist
         const givenOccupationServiceMock = {
@@ -1677,7 +1677,7 @@ describe("Test for occupation handler", () => {
 
       test("GET should respond with INTERNAL_SERVER_ERROR if failed to fetch model details from DB", async () => {
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // AND failed to fetch model details
         const givenOccupationServiceMock = {
@@ -1707,7 +1707,7 @@ describe("Test for occupation handler", () => {
 
       test("GET /occupations (paginated) should respond with INTERNAL_SERVER_ERROR if failed to fetch model details from DB", async () => {
         // AND role check passes for anonymous access
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
 
         // AND failed to fetch model details
         const givenOccupationServiceMock = {
@@ -1737,7 +1737,7 @@ describe("Test for occupation handler", () => {
 
       test("GET /occupations (paginated) should handle catch block non-Error exceptions", async () => {
         // GIVEN role check passes
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const givenOccupationServiceMock = {
           findPaginated: jest.fn().mockRejectedValue("non-error exception"),
           validateModelForOccupation: jest.fn().mockResolvedValue(null),
@@ -1759,7 +1759,7 @@ describe("Test for occupation handler", () => {
 
       test("GET /occupations (paginated) should handle null queryStringParameters", async () => {
         // GIVEN role check passes
-        checkRole.mockReturnValueOnce(true);
+        checkRole.mockResolvedValueOnce(true);
         const occupationController = new OccupationController();
         const givenOccupationServiceMock = {
           findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),

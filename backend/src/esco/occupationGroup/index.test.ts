@@ -10,7 +10,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 
-import * as authenticatorModule from "auth/authenticator";
+import * as authenticatorModule from "auth/authorizer";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
@@ -31,7 +31,7 @@ import { IOccupationGroupService, OccupationGroupModelValidationError } from "./
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
-checkRole.mockReturnValue(true);
+checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
@@ -62,7 +62,7 @@ describe("Test for occupationGroup handler", () => {
         const givenRequestContext = usersRequestContext.REGISTED_USER;
 
         // AND checkRole return false
-        checkRole.mockReturnValue(false);
+        checkRole.mockResolvedValue(false);
 
         // AND the even with the given request context
         const givenEvent: APIGatewayProxyEvent = {
@@ -116,7 +116,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a configured base path for resource
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -199,7 +199,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenOccupationGroupServiceMock = {
         create: jest.fn().mockRejectedValue(new Error("foo")),
@@ -263,7 +263,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenOccupationGroupServiceMock = {
         create: jest
@@ -332,7 +332,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenModelInfoRepositoryMock = {
         Model: undefined as never,
@@ -400,7 +400,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent);
@@ -442,7 +442,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // WHEN the info handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent);
@@ -490,7 +490,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND the user does not have the required role
-      checkRole.mockReturnValue(false);
+      checkRole.mockResolvedValue(false);
 
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent);
@@ -509,7 +509,7 @@ describe("Test for occupationGroup handler", () => {
         pathParameters: { modelId: givenModelId.toString() },
         path: `/models/${givenModelId}/occupationGroups`,
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const actualResponse = await occupationGroupHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     });
@@ -536,7 +536,7 @@ describe("Test for occupationGroup handler", () => {
         pathParameters: { modelId: givenModelId.toString() },
         path: `/models/${givenModelId}/occupationGroups`,
       } as never;
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       const givenOccupationGroupServiceMock = {
         create: jest
           .fn()
@@ -650,7 +650,7 @@ describe("Test for occupationGroup handler", () => {
       const expectedNextCursor = null;
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
@@ -714,7 +714,7 @@ describe("Test for occupationGroup handler", () => {
 
     test("GET should return nextCursor when nextCursor is present in the paginated occupation group result", async () => {
       // GIVEN role check passes for anonymous access
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       const limit = 1;
       const givenOccupationGroups: Array<IOccupationGroup> = [
@@ -794,7 +794,7 @@ describe("Test for occupationGroup handler", () => {
         queryStringParameters: {},
       };
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
@@ -831,7 +831,7 @@ describe("Test for occupationGroup handler", () => {
       };
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
@@ -858,7 +858,7 @@ describe("Test for occupationGroup handler", () => {
       const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
@@ -889,7 +889,7 @@ describe("Test for occupationGroup handler", () => {
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent as never);
 
@@ -916,7 +916,7 @@ describe("Test for occupationGroup handler", () => {
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent as never);
 
@@ -945,7 +945,7 @@ describe("Test for occupationGroup handler", () => {
       } as IOccupationGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
       const cursor = Buffer.from(getRandomString(10)).toString("base64");
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
@@ -988,7 +988,7 @@ describe("Test for occupationGroup handler", () => {
       const limit = 2;
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler({
@@ -1027,7 +1027,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a configured base path for resource
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -1079,7 +1079,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
@@ -1118,7 +1118,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
@@ -1157,7 +1157,7 @@ describe("Test for occupationGroup handler", () => {
         path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}`,
       } as never;
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       // WHEN the occupationGroup handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent);
 
@@ -1196,7 +1196,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenOccupationGroupServiceMock = {
         create: jest.fn(),
@@ -1232,7 +1232,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND role check passes for anonymous access
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the occupation group handler is invoked with the given event
       const actualResponse = await occupationGroupHandler(givenEvent as never);
@@ -1267,7 +1267,7 @@ describe("Test for occupationGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a repository that will throw an error
       const givenOccupationGroupRepositoryMock = {
