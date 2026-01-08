@@ -24,7 +24,7 @@ import process from "process";
  * - /presigned (GET)
  */
 const baseUrl: string = process.env.BACKEND_URL as string;
-// const baseUrl: string = "https://dev.tabiya.tech/taxonomy/api";
+// const baseUrl: string = "https://dev.platform.tabiya.tech/api/app";
 // First setup the request agent
 const request = supertest.agent(baseUrl);
 
@@ -84,7 +84,7 @@ describe("Test route", () => {
       test(`should allow anonymous access to ${method} ${route}`, async () => {
         // GIVEN a request with anonymous user token
         // WHEN the request is made to the open route
-        const response = await generateRequest(request, route, method, `Bearer ${userTokens.anonymous}`).timeout(5000);
+        const response = await generateRequest(request, route, method, '').timeout(5000);
         // THEN the response status code should be 200
         expect(response.statusCode).toBe(StatusCodes.OK);
       });
@@ -96,7 +96,7 @@ describe("Test route", () => {
           request,
           route,
           method,
-          `Bearer ${userTokens[AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER]}`
+          userTokens[AuthAPISpecs.Enums.TabiyaRoles.REGISTERED_USER]
         ).timeout(5000);
         // THEN the response status code should be 200
         expect(response.statusCode).toBe(StatusCodes.OK);
@@ -109,7 +109,7 @@ describe("Test route", () => {
           request,
           route,
           method,
-          `Bearer ${userTokens[AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER]}`
+          userTokens[AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER]
         ).timeout(5000);
         // THEN the response status code should be 200
         expect(response.statusCode).toBe(StatusCodes.OK);
@@ -149,7 +149,7 @@ describe("Test route", () => {
           request,
           route,
           method,
-          `Bearer ${userTokens[AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER]}`
+          userTokens[AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER]
         ).timeout(5000);
         // THEN the response status code should not be 401, 403, or 404 (but we don't know the expected status code since it depends on the execution of the route)
         expect(response.statusCode).not.toBeOneOf([

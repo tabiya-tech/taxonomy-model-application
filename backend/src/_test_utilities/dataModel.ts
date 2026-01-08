@@ -115,14 +115,14 @@ export const usersRequestContext = {
   ANONYMOUS: {},
   REGISTED_USER: {
     authorizer: {
-      username: "foo",
-      roles: "",
+      authType: AuthAPISpecs.Enums.Cognito.TokenType.HUMAN_IN_THE_LOOP,
+      groups: "",
     },
   },
   MODEL_MANAGER: {
     authorizer: {
-      username: "foo",
-      roles: AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
+      authType: AuthAPISpecs.Enums.Cognito.TokenType.HUMAN_IN_THE_LOOP,
+      groups: AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER,
     },
   },
 };

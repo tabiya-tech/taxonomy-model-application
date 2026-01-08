@@ -1,9 +1,8 @@
 import * as aws from "@pulumi/aws";
 import {asset} from "@pulumi/pulumi";
 import * as pulumi from "@pulumi/pulumi";
-import * as process from "process";
 
-const buildFolderPath = "../../backend/build/auth/customAuthenticator";
+const buildFolderPath = "../../backend/build/auth/authenticator";
 
 const LOG_RETENTION_IN_DAYS = 7;
 
@@ -13,10 +12,14 @@ const LAMBDA_MEMORY_IN_MB = 128;
 
 const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 5;
 
-export function setupAuthorizer(environment: string, config: {
+type AuthorizerConfig = {
   sentry_backend_dsn: string,
-}): {
-  authorizerLambdaFunction: aws.lambda.Function
+  user_pool_id: string,
+  user_pool_client_id: string
+}
+
+export function setupAuthorizer(environment: string, config: AuthorizerConfig): {
+  authorizerLambdaFunction: aws.lambda.Function,
 } {
   /**
    * setup custom authorizer lambda
@@ -62,8 +65,8 @@ export function setupAuthorizer(environment: string, config: {
     environment: {
       variables: {
         NODE_OPTIONS: '--enable-source-maps',
-        USER_POOL_ID: process.env.USER_POOL_ID!,
-        USER_POOL_CLIENT_ID: process.env.USER_POOL_CLIENT_ID!,
+        USER_POOL_ID: config.user_pool_id,
+        USER_POOL_CLIENT_ID: config.user_pool_client_id,
         SENTRY_BACKEND_DSN: config.sentry_backend_dsn,
         TARGET_ENVIRONMENT: environment,
       }

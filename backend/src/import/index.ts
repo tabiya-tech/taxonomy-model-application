@@ -7,7 +7,7 @@ import ErrorAPISpecs from "api-specifications/error";
 
 import { ValidateFunction } from "ajv";
 import { lambda_invokeAsyncImport } from "./invokeAsyncImport";
-import { RoleRequired } from "auth/authenticator";
+import { RoleRequired } from "auth/authorizer";
 import AuthAPISpecs from "api-specifications/auth";
 
 /**
@@ -21,6 +21,7 @@ import AuthAPISpecs from "api-specifications/auth";
  *       summary: Trigger the import process.
  *       description: Asynchronously trigger the import process for a given model.
  *       security:
+ *        - api_key: []
  *        - jwt_auth: []
  *       requestBody:
  *         content:

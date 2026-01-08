@@ -1,4 +1,4 @@
-import { Handler, APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEvent, Handler } from "aws-lambda";
 import { handler as InfoHandler } from "applicationInfo";
 import { handler as ModelHandler } from "modelInfo";
 import { handler as ImportHandler } from "import";
@@ -34,10 +34,26 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = Sen
   }
 );
 
-export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
+function getPath(event: APIGatewayProxyEvent): string {
+  // Since the Function can be deployed under a proxy e.g. /api/partner/{proxy+}
+  // If it is the case, then use only the proxy path.
+  const proxyPath = event.pathParameters?.proxy;
+  if (proxyPath) {
+    // NOTE: We are deep updating the event.path here for further usage in the handlers.
+    //       Since the question of the infrastructure should not be knowledge of handlers.
+    const path = `/${proxyPath}`;
+    event.path = path;
+    return path;
+  }
+
   const stage = event.requestContext?.stage ? `/${event.requestContext.stage}` : "";
   const rawPath = event.path || "";
-  const path = rawPath.startsWith(stage) ? rawPath.slice(stage.length) || "/" : rawPath;
+
+  return rawPath.startsWith(stage) ? rawPath.slice(stage.length) || "/" : rawPath;
+}
+
+export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
+  const path = getPath(event);
 
   if (path === Routes.APPLICATION_INFO_ROUTE) {
     return InfoHandler(event);
@@ -66,5 +82,11 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
   } else if (pathToRegexp(Routes.SKILL_ROUTE).regexp.test(path)) {
     return SkillHandler(event);
   }
+
+  console.warn(`No handler found for path ${path}`, {
+    eventPath: event.path,
+    eventProxyPath: event.pathParameters?.proxy,
+  });
+
   return STD_ERRORS_RESPONSES.NOT_FOUND;
 };

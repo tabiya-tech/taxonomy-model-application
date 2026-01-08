@@ -2,7 +2,18 @@
 
 exports[`Test the auth module The auth module matches the snapshot 1`] = `
 {
+  "Constants": {
+    "CLIENT_ID_MAX_LENGTH": 256,
+    "GROUPS_MAX_LENGTH": 256,
+    "KEY_ID_MAX_LENGTH": 256,
+  },
   "Enums": {
+    "Cognito": {
+      "TokenType": {
+        "HUMAN_IN_THE_LOOP": "human-in-the-loop",
+        "MACHINE_TO_MACHINE": "machine-to-machine",
+      },
+    },
     "TabiyaRoles": {
       "ANONYMOUS": "anonymous",
       "MODEL_MANAGER": "model-managers",
@@ -12,28 +23,54 @@ exports[`Test the auth module The auth module matches the snapshot 1`] = `
   "Schemas": {
     "Request": {
       "Context": {
-        "$id": "/components/schemas/AuthResponseContextSchema",
-        "additionalProperties": true,
-        "properties": {
-          "roles": {
-            "description": "A comma-separated list of roles.",
-            "maxLength": 4096,
-            "type": "string",
+        "$id": "/components/schemas/AuthCognitoRequestContextSchema",
+        "oneOf": [
+          {
+            "$id": "/components/schemas/AuthCognitoHumanInTheLoopRequestContext",
+            "properties": {
+              "authType": {
+                "const": "human-in-the-loop",
+                "description": "The type of authentication which is Human in the loop in this case",
+              },
+              "groups": {
+                "description": "The coman separated list of the AWS Cognito groups the user belongs to",
+                "maxLength": 256,
+                "type": "string",
+              },
+            },
+            "required": [
+              "authType",
+            ],
+            "type": "object",
           },
-          "username": {
-            "description": "The username of the user.",
-            "maxLength": 256,
-            "pattern": "\\S",
-            "type": "string",
+          {
+            "$id": "/components/schemas/AuthCognitoMachine2MachineRequestContext",
+            "properties": {
+              "authType": {
+                "const": "machine-to-machine",
+                "description": "The type of authentication which is Machine to machine in this case",
+              },
+              "clientId": {
+                "description": "The client id of the machine to machine application",
+                "maxLength": 256,
+                "type": "string",
+              },
+            },
+            "required": [
+              "authType",
+              "clientId",
+            ],
+            "type": "object",
           },
-        },
-        "required": [
-          "username",
         ],
         "type": "object",
       },
     },
   },
-  "Types": {},
+  "Types": {
+    "Request": {
+      "Cognito": {},
+    },
+  },
 }
 `;

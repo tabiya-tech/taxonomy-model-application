@@ -12,14 +12,14 @@ function handler(event) {
   if (uri.startsWith('/locales/api/')) {
     request.uri = uri.replace(/^\/locales\/api\//,'/');
   }
-  if (uri.startsWith('/taxonomy/api/')) {
-    request.uri = uri.replace(/^\/taxonomy\/api\//,'/');
+  if (uri.startsWith('/api')) {
+    request.uri = uri.replace(/^\/api/,'/');
   }
-  if (uri.startsWith('/taxonomy/api-doc/swagger/')) {
-    request.uri = uri.replace(/^\/taxonomy\/api-doc\/swagger\//,'/');
+  if (uri.startsWith('/api-doc/swagger/')) {
+    request.uri = uri.replace(/^\/api-doc\/swagger\//,'/');
   }
-  if (uri.startsWith('/taxonomy/api-doc/redoc/')) {
-    request.uri = uri.replace(/^\/taxonomy\/api-doc\/redoc\//,'/');
+  if (uri.startsWith('/api-doc/redoc/')) {
+    request.uri = uri.replace(/^\/api-doc\/redoc\//,'/');
   }
   if(uri.startsWith('/downloads/')) {
     request.uri = uri.replace(/^\/downloads\//,'/');

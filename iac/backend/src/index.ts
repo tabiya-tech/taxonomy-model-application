@@ -11,10 +11,32 @@ import {setupAuthorizer} from "./authorizer";
 export const environment = pulumi.getStack();
 export const domainName = process.env.DOMAIN_NAME!;
 
+
+// =======================
+// Sanity Checks for environment variables.
+// =======================
 pulumi.log.info(`Using domain name : ${domainName}`);
 if (!domainName) throw new Error("environment variable DOMAIN_NAME is required");
 
-export const publicApiRootPath = "/taxonomy/api";
+const mongoDbUri = process.env.MONGODB_URI;
+if(!mongoDbUri) throw new Error("environment variable MONGODB_URI is required")
+
+const authDatabaseURI = process.env.AUTH_DATABASE_URI;
+if(!authDatabaseURI) throw new Error("environment variable AUTH_DATABASE_URI is required")
+
+const sentryBackendDSN = process.env.SENTRY_BACKEND_DSN ?? "";
+
+const userPoolId = process.env.USER_POOL_ID;
+if(!userPoolId)
+  throw new Error("environment variable USER_POOL_ID is required");
+
+const userPoolClientId = process.env.USER_POOL_CLIENT_ID;
+if(!userPoolClientId)
+  throw new Error("environment variable USER_POOL_CLIENT_ID is required");
+
+// ============================
+
+export const publicApiRootPath = "/api";
 export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 
 export const currentRegion = pulumi.output(aws.getRegion()).name;
@@ -36,12 +58,12 @@ export const downloadBucket = {
  */
 
 const {asyncExportLambdaRole, asyncExportLambdaFunction} = setupAsyncExportApi(environment, {
-  mongodb_uri: process.env.MONGODB_URI ?? "",
+  mongodb_uri: mongoDbUri,
   domainName,
   resourcesBaseUrl,
   download_bucket_name: _downloadBucket.id,
   download_bucket_region: currentRegion,
-  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
+  sentry_backend_dsn: sentryBackendDSN,
 });
 
 setupDownloadBucketWritePolicy(_downloadBucket, asyncExportLambdaRole);
@@ -63,26 +85,28 @@ export const uploadBucketName = uploadBucket.id;
  */
 
 const {asyncImportLambdaRole, asyncImportLambdaFunction} = setupAsyncImportApi(environment, {
-  mongodb_uri: process.env.MONGODB_URI ?? "",
+  mongodb_uri: mongoDbUri,
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
   upload_bucket_region: currentRegion,
-  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
+  sentry_backend_dsn: sentryBackendDSN,
 });
 
 /**
  * Setup Authorizer Lambda
  */
-
 const {authorizerLambdaFunction} = setupAuthorizer(environment, {
-  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
+  sentry_backend_dsn: sentryBackendDSN,
+  user_pool_id: userPoolId,
+  user_pool_client_id: userPoolClientId,
 });
 
 /**
- * Setup Backend Rest API
+ * Set up Backend Rest API (creates usage plans and references authorizer)
  */
 const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
-  mongodb_uri: process.env.MONGODB_URI ?? "",
+  mongodb_uri: mongoDbUri,
+  auth_database_uri: authDatabaseURI,
   resourcesBaseUrl,
   upload_bucket_name: uploadBucketName,
   upload_bucket_region: currentRegion,
@@ -93,7 +117,7 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   async_lambda_function_region: currentRegion,
   authorizer_lambda_function_invoke_arn: authorizerLambdaFunction.invokeArn,
   authorizer_lambda_function_name: authorizerLambdaFunction.name,
-  sentry_backend_dsn: process.env.SENTRY_BACKEND_DSN ?? "",
+  sentry_backend_dsn: sentryBackendDSN,
 });
 
 export const backendRestApi = {

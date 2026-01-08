@@ -10,7 +10,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 
-import * as authenticatorModule from "auth/authenticator";
+import * as authenticatorModule from "auth/authorizer";
 import { ISkillGroup, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
 import { getISkillGroupMockData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
@@ -21,7 +21,7 @@ import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serv
 import { ISkillGroupService } from "./skillGroupService.type";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
-checkRole.mockReturnValue(true);
+checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
@@ -87,7 +87,7 @@ describe("Test for skillGroup handler", () => {
       const expectedNextCursor = null;
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
@@ -148,7 +148,7 @@ describe("Test for skillGroup handler", () => {
     });
     test("GET should return nextCursor when nextCursor is present in the paginated skill group result", async () => {
       // GIVEN role check passes for anonymous access
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       const limit = 1;
       const givenSkillGroups: Array<ISkillGroup> = [
@@ -226,7 +226,7 @@ describe("Test for skillGroup handler", () => {
         queryStringParameters: {},
       };
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler({
@@ -262,7 +262,7 @@ describe("Test for skillGroup handler", () => {
       };
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler({
@@ -289,7 +289,7 @@ describe("Test for skillGroup handler", () => {
       const firstPageCursor = Buffer.from(JSON.stringify(firstPageCursorObject)).toString("base64");
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler({
@@ -319,7 +319,7 @@ describe("Test for skillGroup handler", () => {
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler(givenEvent as never);
 
@@ -345,7 +345,7 @@ describe("Test for skillGroup handler", () => {
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler(givenEvent as never);
 
@@ -372,7 +372,7 @@ describe("Test for skillGroup handler", () => {
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
       const cursor = Buffer.from(getRandomString(10)).toString("base64");
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler({
@@ -412,7 +412,7 @@ describe("Test for skillGroup handler", () => {
       const limit = 2;
 
       // AND the user is not model manager
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler({
@@ -446,7 +446,7 @@ describe("Test for skillGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a configured base path for resource
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
@@ -496,7 +496,7 @@ describe("Test for skillGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn(),
@@ -534,7 +534,7 @@ describe("Test for skillGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn(),
@@ -570,7 +570,7 @@ describe("Test for skillGroup handler", () => {
         path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}`,
       } as never;
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler(givenEvent);
 
@@ -602,7 +602,7 @@ describe("Test for skillGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler(givenEvent);
@@ -636,7 +636,7 @@ describe("Test for skillGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
@@ -671,7 +671,7 @@ describe("Test for skillGroup handler", () => {
       } as never;
 
       // AND role check passes for anonymous access
-      checkRole.mockReturnValueOnce(true);
+      checkRole.mockResolvedValueOnce(true);
 
       // WHEN the skill group handler is invoked with the given event
       const actualResponse = await skillGroupHandler(givenEvent as never);
@@ -704,7 +704,7 @@ describe("Test for skillGroup handler", () => {
       } as never;
 
       // AND User has the required role
-      checkRole.mockReturnValue(true);
+      checkRole.mockResolvedValue(true);
 
       // AND a repository that will throw an error
       const givenSkillGroupRepositoryMock = {

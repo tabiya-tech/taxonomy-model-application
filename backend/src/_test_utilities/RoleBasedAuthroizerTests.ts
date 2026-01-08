@@ -3,7 +3,7 @@ import AuthAPISpecs from "api-specifications/auth";
 
 export function generateCheckRoleTests(
   givenRole: AuthAPISpecs.Enums.TabiyaRoles,
-  givenMethod: (event: APIGatewayProxyEvent, requiredRole: AuthAPISpecs.Enums.TabiyaRoles) => boolean
+  givenMethod: (event: APIGatewayProxyEvent, requiredRole: AuthAPISpecs.Enums.TabiyaRoles) => Promise<boolean>
 ) {
   describe(`checkRole Tests for Role: ${givenRole}`, () => {
     test.each([

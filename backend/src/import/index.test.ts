@@ -23,7 +23,7 @@ jest.mock("import/removeGeneratedUUID/removeGeneratedUUID", () => {
   };
 });
 
-jest.mock("auth/authenticator", () => {
+jest.mock("auth/authorizer", () => {
   return {
     checkRole: jest.fn().mockImplementation(() => true),
     RoleRequired: jest.fn().mockImplementation(() => {

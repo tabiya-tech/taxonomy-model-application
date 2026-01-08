@@ -63,11 +63,7 @@ test("fetchWithAuth should work without authToken", async () => {
     givenApiUrl,
     expect.objectContaining({
       headers: {
-        map:
-          expect.any(Headers) &&
-          expect.objectContaining({
-            authorization: `Bearer ANONYMOUS`,
-          }),
+        map: {},
       },
     })
   );

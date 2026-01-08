@@ -35,13 +35,10 @@ describe("Testing the deployment of the api", () => {
   test("GET /info should respond with the correct version for an anonymous request", async () => {
     // GIVEN the expected version information
     expect(expectedVersion).toBeDefined();
-    // AND an authorization token with the value ANONYMOUS
-    const givenToken = "Bearer ANONYMOUS";
     // WHEN a GET request is made to /info
     //  since the jest default timeout is set to 5 secs, wait for the response for 4 secs
     const response = await request
       .get("/info")
-      .set("Authorization", givenToken)
       .timeout({
         // See https://github.com/forwardemail/superagent/blob/master/docs/index.md#timeouts
         response: 8000,  // wait for 6 secs for the first byte

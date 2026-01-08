@@ -16,6 +16,7 @@ const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 10;
 
 export function setupBackendRESTApi(environment: string, config: {
   mongodb_uri: string,
+  auth_database_uri: string,
   resourcesBaseUrl: string,
   upload_bucket_name: Output<string>,
   upload_bucket_region: Output<string>,
@@ -27,7 +28,7 @@ export function setupBackendRESTApi(environment: string, config: {
   authorizer_lambda_function_invoke_arn: Output<string>
   authorizer_lambda_function_name: Output<string>,
   sentry_backend_dsn: string
-}): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role} {
+}): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role } {
   /**
    * Lambda for api
    */
@@ -93,7 +94,6 @@ export function setupBackendRESTApi(environment: string, config: {
   });
 
 
-
   new aws.iam.RolePolicyAttachment("model-api-function-role-import-lambda-invoke-policy-attachment", {
     policyArn: asyncImportLambdaInvokePolicy.arn,
     role: lambdaRole.name,
@@ -103,7 +103,7 @@ export function setupBackendRESTApi(environment: string, config: {
     policyArn: asyncExportLambdaInvokePolicy.arn,
     role: lambdaRole.name,
   });
-    
+
   // Build the source code archive
   let fileArchive = new asset.FileArchive(buildFolderPath);
 
@@ -121,6 +121,7 @@ export function setupBackendRESTApi(environment: string, config: {
         NODE_OPTIONS: '--enable-source-maps',
         RESOURCES_BASE_URL: config.resourcesBaseUrl,
         MONGODB_URI: config.mongodb_uri,
+        AUTH_DATABASE_URI: config.auth_database_uri,
         UPLOAD_BUCKET_NAME: config.upload_bucket_name,
         UPLOAD_BUCKET_REGION: config.upload_bucket_region,
         DOWNLOAD_BUCKET_NAME: config.download_bucket_name,
@@ -137,11 +138,11 @@ export function setupBackendRESTApi(environment: string, config: {
   // Create log group with retention of days,
   // log group is assigned to the lambda function via the name of the log group (see https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html)
   const logGroup = new aws.cloudwatch.LogGroup("model-api-log-group", {
-    name: pulumi.interpolate `/aws/lambda/${lambdaFunction.name}`,
-    retentionInDays:  LOG_RETENTION_IN_DAYS
+    name: pulumi.interpolate`/aws/lambda/${lambdaFunction.name}`,
+    retentionInDays: LOG_RETENTION_IN_DAYS
   });
 
- /**
+  /**
    *
    * API Gateway
    */
@@ -167,98 +168,45 @@ export function setupBackendRESTApi(environment: string, config: {
     sourceArn: pulumi.interpolate`${restApi.executionArn}/*/*`,
   });
 
-  // Create a new API Gateway resource
-  const apiResource = new aws.apigateway.Resource("model-api-resource", {
-    parentId: restApi.rootResourceId,
-    pathPart: "{proxy+}",
-    restApi: restApi.id,
-  });
-
-
   // Create a new API Gateway authorizer
+  // Using type: REQUEST to support multiple identity sources
   const apiAuthorizer = new aws.apigateway.Authorizer("model-api-authorizer", {
     restApi: restApi,
     name: "model-api-authorizer",
-    type: "TOKEN",
-    authorizerUri: config.authorizer_lambda_function_invoke_arn,
     authorizerResultTtlInSeconds: 0,
+    type: "REQUEST",
+    authorizerUri: config.authorizer_lambda_function_invoke_arn,
+
+    // Use context.extendedRequestId since it is a guaranteed unique identifier for the request
+    // To make sure that the authorizer is invoked for each request
+    // And it is the one responsible for handling authorization.
+    identitySource: "context.extendedRequestId",
   });
 
   /**
-   * setup method ANY
+   * Set up REST API routes
+   *
+   * 1. /app for internal use
+   * 2. /partner for external use with an api key
    */
-    // Create a new API Gateway method
-  const anyApiMethod = new aws.apigateway.Method("model-api-method", {
+  const [appRoute, appIntegration] = createApiRoute(
+    "app",
+    restApi,
+    lambdaFunction,
+    {
       authorization: "CUSTOM",
       authorizerId: apiAuthorizer.id,
-      httpMethod: "ANY",
-      resourceId: apiResource.id,
-      restApi: restApi.id,
-    }, {dependsOn: [apiResource, restApi]});
+      apiKeyRequired: false,
+    });
 
-  // Create a new Lambda proxy integration
-  const lambdaAnyIntegration = new aws.apigateway.Integration("model-api-integration", {
-    integrationHttpMethod: "POST", // For Lambda integration we need to use POST
-    httpMethod: "ANY",
-    resourceId: apiResource.id,
-    restApi: restApi.id,
-    type: "AWS_PROXY",
-    uri: lambdaFunction.invokeArn,
-  }, {dependsOn: [apiResource, restApi, lambdaFunction]});
-
-  /**
-   * setup method OPTIONS
-   */
-  // Create a new API Gateway method
-  new aws.apigateway.Method("model-api-method-OPTIONS", {
-    authorization: "NONE",
-    httpMethod: "OPTIONS",
-    resourceId: apiResource.id,
-    restApi: restApi.id,
-  }, {dependsOn: [apiResource, restApi]});
-
-  // Create a new Lambda proxy integration
-  const mockOptionsIntegration = new aws.apigateway.Integration("model-api-integration-OPTIONS", {
-    httpMethod: "OPTIONS",
-    resourceId: apiResource.id,
-    restApi: restApi.id,
-    type: "MOCK",
-    passthroughBehavior: "WHEN_NO_MATCH",
-    requestTemplates: {
-      "application/json": "{\"statusCode\": 200}"
-    }
-  }, {dependsOn: [apiResource, restApi, lambdaFunction]});
-
-
-  const optionsApiMethodResponse = new aws.apigateway.MethodResponse("model-api-method-response-OPTIONS", {
-    restApi: restApi.id,
-    resourceId: apiResource.id,
-    httpMethod: mockOptionsIntegration.httpMethod,
-    statusCode: "200",
-    responseParameters: {
-      "method.response.header.Access-Control-Allow-Origin": true,
-      "method.response.header.Access-Control-Allow-Headers": true,
-      "method.response.header.Access-Control-Allow-Methods": true
-    },
-    responseModels: {}
-  });
-
-
-  new aws.apigateway.IntegrationResponse("model-api-integration-response-OPTIONS", {
-    restApi: restApi.id,
-    resourceId: apiResource.id,
-    httpMethod: mockOptionsIntegration.httpMethod,
-    statusCode: "200",
-    responseParameters: {
-      "method.response.header.Access-Control-Allow-Origin": "'*'",
-      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
-      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS, GET, POST, PUT, DELETE, PATCH, HEAD'"
-    },
-    responseTemplates: {
-      "application/json": ""
-    }
-  }, {dependsOn: [optionsApiMethodResponse]});
-
+  const [partnerRoute, partnerIntegration] = createApiRoute(
+    "partner",
+    restApi,
+    lambdaFunction,
+    {
+      authorization: "NONE",
+      apiKeyRequired: true
+    });
 
   /**
    * setup stage and deployment
@@ -273,7 +221,7 @@ export function setupBackendRESTApi(environment: string, config: {
         redeployment: randomUUID(),
       }
       // You can set the stage name and description as desired
-    }, {dependsOn: [restApi, lambdaAnyIntegration, anyApiMethod]});
+    }, {dependsOn: [restApi, appRoute, appIntegration, partnerRoute, partnerIntegration]});
 
   // Create a new API Gateway stage
   const stage = new aws.apigateway.Stage("model-api-stage", {
@@ -283,8 +231,11 @@ export function setupBackendRESTApi(environment: string, config: {
     stageName: environment // dev, test, prod this is typically the stack name
   }, {dependsOn: [restApi, deployment]});
 
-  // @ts-ignore
-  return {restApi, stage, restApiLambdaRole: lambdaRole};
+  return {
+    restApi,
+    stage,
+    restApiLambdaRole: lambdaRole,
+  };
 }
 
 export function getRestApiDomainName(stage: Stage) {
@@ -293,4 +244,104 @@ export function getRestApiDomainName(stage: Stage) {
 
 export function getRestApiPath(stage: Stage) {
   return pulumi.interpolate`/${stage.stageName}`;
+}
+
+export function createApiRoute(
+  prefix: string,
+  restApi: RestApi,
+  lambdaFunction: aws.lambda.Function,
+  authorizationConfig: {
+    authorization: "NONE",
+    apiKeyRequired: true
+  } | {
+    authorization: "CUSTOM",
+    authorizerId: pulumi.Output<string>,
+    apiKeyRequired: false,
+  }
+): [aws.apigateway.Method, aws.apigateway.Integration] {
+
+  const resourceBase = new aws.apigateway.Resource(`${prefix}-model-api-resource-base`, {
+    restApi: restApi.id,
+    parentId: restApi.rootResourceId,
+    pathPart: prefix
+  });
+
+  const apiResource = new aws.apigateway.Resource(`${prefix}-model-api-resource`, {
+    restApi: restApi.id,
+    parentId: resourceBase.id,
+    pathPart: "{proxy+}"
+  });
+
+  // Create a new API Gateway method
+  const anyApiMethod = new aws.apigateway.Method(`${prefix}-model-api-method`, {
+    httpMethod: "ANY",
+    resourceId: apiResource.id,
+    restApi: restApi.id,
+
+    // -- AUTHORIZATION --
+    ...authorizationConfig
+  }, {dependsOn: [apiResource, restApi]});
+
+  const integration = new aws.apigateway.Integration(`${prefix}-model-api-integration`, {
+    integrationHttpMethod: "POST", // For Lambda integration we need to use POST
+    httpMethod: "ANY",
+    resourceId: apiResource.id,
+    restApi: restApi.id,
+    type: "AWS_PROXY",
+    uri: lambdaFunction.invokeArn,
+  }, {dependsOn: [apiResource, restApi, lambdaFunction]});
+
+  /**
+   * setup method OPTIONS
+   */
+  // Create a new API Gateway method
+  new aws.apigateway.Method(`${prefix}-model-api-method-OPTIONS`, {
+    authorization: "NONE",
+    httpMethod: "OPTIONS",
+    resourceId: apiResource.id,
+    restApi: restApi.id,
+  }, {dependsOn: [apiResource, restApi]});
+
+  // Create a new Lambda proxy integration
+  const mockOptionsIntegration = new aws.apigateway.Integration(`${prefix}-model-api-integration-OPTIONS`, {
+    httpMethod: "OPTIONS",
+    resourceId: apiResource.id,
+    restApi: restApi.id,
+    type: "MOCK",
+    passthroughBehavior: "WHEN_NO_MATCH",
+    requestTemplates: {
+      "application/json": "{\"statusCode\": 200}"
+    }
+  }, {dependsOn: [apiResource, restApi, lambdaFunction]});
+
+
+  const optionsApiMethodResponse = new aws.apigateway.MethodResponse(`${prefix}-model-api-method-response-OPTIONS`, {
+    restApi: restApi.id,
+    resourceId: apiResource.id,
+    httpMethod: mockOptionsIntegration.httpMethod,
+    statusCode: "200",
+    responseParameters: {
+      "method.response.header.Access-Control-Allow-Origin": true,
+      "method.response.header.Access-Control-Allow-Headers": true,
+      "method.response.header.Access-Control-Allow-Methods": true
+    },
+    responseModels: {}
+  });
+
+  new aws.apigateway.IntegrationResponse(`${prefix}-model-api-integration-response-OPTIONS`, {
+    restApi: restApi.id,
+    resourceId: apiResource.id,
+    httpMethod: mockOptionsIntegration.httpMethod,
+    statusCode: "200",
+    responseParameters: {
+      "method.response.header.Access-Control-Allow-Origin": "'*'",
+      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-API-Key,X-Amz-Security-Token'",
+      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS, GET, POST, PUT, DELETE, PATCH, HEAD'"
+    },
+    responseTemplates: {
+      "application/json": ""
+    }
+  }, {dependsOn: [optionsApiMethodResponse]});
+
+  return [anyApiMethod, integration];
 }

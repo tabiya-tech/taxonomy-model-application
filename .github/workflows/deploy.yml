@@ -108,7 +108,7 @@ jobs:
     with:
       component: backend
       target-environment: ${{ inputs.target-environment }}
-      backend-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}
+      backend-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}/app
       user-pool-id: ${{ needs.deploy-auth.outputs.userPoolId }}
       cognito-client-id: ${{ needs.deploy-auth.outputs.clientId }}
       cognito-client-secret: ${{ needs.deploy-auth.outputs.clientSecret }}
@@ -130,7 +130,7 @@ jobs:
     with:
       component: backend
       expected-version-info: ${{ inputs.backend-version-info }}
-      component-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}
+      component-url: ${{ needs.deploy-backend.outputs.backedRestApiURLBase }}/app
       resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
       name: Smoke Test Backend (pre CDN) - ${{ inputs.target-environment }}
 
@@ -162,5 +162,5 @@ jobs:
       component: backend
       expected-version-info: ${{ inputs.backend-version-info }}
       resources-base-url: ${{ needs.deploy-backend.outputs.resourcesBaseUrl }}
-      component-url: ${{ needs.deploy-common.outputs.backendURLBase }}
+      component-url: ${{ needs.deploy-common.outputs.backendURLBase }}/app
       name: Smoke Test Backend (CDN) - ${{ inputs.target-environment }}

@@ -13,7 +13,6 @@ export type AllowedMethods = "GET" | "POST";
 
 // By default, requests with no token, malformed token, and invalid token are expected to return 401, 403, and 403 respectively
 export const STD_ROUTE_AUTHORIZATION_RESPONSE_SCENARIO: TestScenario[] = [
-  { description: "with no token", token: "", expectedStatus: StatusCodes.UNAUTHORIZED },
   { description: "malformed token", token: "MALFORMED", expectedStatus: StatusCodes.FORBIDDEN },
   { description: "with invalid token", token: "Bearer INVALID", expectedStatus: StatusCodes.FORBIDDEN },
 ];
@@ -35,11 +34,20 @@ export const testSTDRoutesAuthorization = (
 };
 
 export const generateRequest = (request: SuperAgentTest, route: string, method: AllowedMethods, token: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function withToken(request: any) {
+    if (token) {
+      return request.set("Authorization", `Bearer ${token}`);
+    }
+
+    return request;
+  }
+
   switch (method) {
     case "GET":
-      return request.get(route).set("Authorization", token);
+      return withToken(request.get(route));
     case "POST":
-      return request.post(route).set("Authorization", token).send({
+      return withToken(request.post(route)).send({
         /* empty body */
       });
     default:

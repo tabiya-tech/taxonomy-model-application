@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Utils should return expected APIGatewayAuthorizerResult given-principal-id-1 1`] = `
+{
+  "context": {},
+  "policyDocument": {
+    "Statement": [
+      {
+        "Action": "execute-api:Invoke",
+        "Effect": "Allow",
+        "Resource": "given-resource",
+      },
+    ],
+    "Version": "2012-10-17",
+  },
+  "principalId": "given-principal-id-1",
+}
+`;
+
+exports[`Utils should return expected APIGatewayAuthorizerResult given-principal-id-2 1`] = `
+{
+  "context": undefined,
+  "policyDocument": {
+    "Statement": [
+      {
+        "Action": "execute-api:Invoke",
+        "Effect": "Deny",
+        "Resource": "given-resource",
+      },
+    ],
+    "Version": "2012-10-17",
+  },
+  "principalId": "given-principal-id-2",
+}
+`;
+
+exports[`Utils should return expected APIGatewayAuthorizerResult given-principal-id-3 1`] = `
+{
+  "context": {
+    "username": "given-user-name",
+  },
+  "policyDocument": {
+    "Statement": [
+      {
+        "Action": "execute-api:Invoke",
+        "Effect": "Deny",
+        "Resource": "given-resource",
+      },
+    ],
+    "Version": "2012-10-17",
+  },
+  "principalId": "given-principal-id-3",
+}
+`;

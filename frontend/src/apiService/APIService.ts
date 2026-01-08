@@ -25,7 +25,9 @@ export const fetchWithAuth = async (
   try {
     const token = sessionStorage.getItem("authToken");
     const headers = new Headers(init.headers || {});
-    headers.append("Authorization", `Bearer ${token ?? "ANONYMOUS"}`);
+    if (token) {
+      headers.append("Authorization", `Bearer ${token}`);
+    }
 
     const enhancedInit = { ...options, headers };
 

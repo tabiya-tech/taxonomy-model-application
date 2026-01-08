@@ -40,7 +40,6 @@ delete APIError.Schemas.POST.Payload.$id;
 delete APIError.Schemas.GET.Payload.$id;
 delete APIError.Schemas.PATCH.Payload.$id;
 delete Export.Schemas.POST.Request.Payload.$id;
-delete Auth.Schemas.Request.Context.$id;
 delete OccupationGroup.Schemas.POST.Request.Payload.$id;
 delete OccupationGroup.Schemas.POST.Response.Payload.$id;
 delete OccupationGroup.Schemas.GET.Response.Payload.$id;
@@ -106,13 +105,7 @@ function getOpenAPISpecification(
       info: {
         version: version,
         title: "Taxonomy Model API",
-        description: `
-Taxonomy Model API Documentation
-
-NOTES:
-1. In order to be authorized to use the API, you need to provide the auth token in the header. \n
-   If you are anonymous, you can use the auth header: \`ANONYMOUS\`.
-`,
+        description: `Taxonomy Model API Documentation`,
         license: {
           name: "MIT",
           url: "https://github.com/tabiya-tech/taxonomy-model-application/blob/main/LICENSE",
@@ -312,26 +305,38 @@ NOTES:
           SkillRequestByIdParamSchemaGET: Skill.Schemas.GET.Request.ById.Param.Payload,
         },
         securitySchemes: {
-          // api_key: {
-          //   type: "apiKey",
-          //   in: "header",
-          //   name: "TABIYA-API-KEY",
-          //   description: "Api key authentication.",
-          // },
-          // http_auth: {
-          //   type: "http",
-          //   scheme: "basic",
-          // },
           jwt_auth: {
             type: "http",
             scheme: "bearer",
             bearerFormat: "JWT",
+            description:
+              "OAuth2.0 JWT Based authentication. " +
+              "We support two kinds. Human in the loop and Machine to Machine tokens",
+          },
+          api_key: {
+            type: "apiKey",
+            in: "header",
+            name: "X-API-Key",
+            description: "AWS API Akey. Contact administrators in order to get an API key.",
           },
         },
       },
       servers: [
         {
-          url: "/taxonomy/api",
+          url: "/api/app",
+          description: "Internal Tools",
+        },
+        {
+          url: "/api/partner",
+          description: "Partner Integration",
+        },
+      ],
+      security: [
+        {
+          api_key: [],
+        },
+        {
+          jwt_auth: [],
         },
       ],
     }, //format: '.yml',

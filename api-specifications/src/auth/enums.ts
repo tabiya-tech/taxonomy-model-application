@@ -1,9 +1,13 @@
+import CognitoEnums from "./cognito/enums";
+
 export namespace AuthEnums {
   export enum TabiyaRoles {
     ANONYMOUS = "anonymous",
     MODEL_MANAGER = "model-managers",
     REGISTERED_USER = "registered-users",
   }
+
+  export import Cognito = CognitoEnums;
 }
 
 export namespace Auth {
