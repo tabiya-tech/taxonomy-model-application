@@ -3,7 +3,7 @@ import * as aws from "@pulumi/aws";
 
 export const environment = pulumi.getStack();
 
-export const baseDomainName = "platform." + process.env.BASE_DOMAIN_NAME!;
+export const baseDomainName = "taxonomy." + process.env.BASE_DOMAIN_NAME!;
 
 // for production environment we dont append environment
 const domainName = environment === "production" ?

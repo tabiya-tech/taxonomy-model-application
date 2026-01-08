@@ -53,7 +53,7 @@ const _userPool = new aws.cognito.UserPool("tabiya-users", {
       },
     }
   ]
-});
+}, { protect: true, retainOnDelete: true });
 
 const appUrls =  [`https://${domainName}/`]
 
@@ -114,12 +114,11 @@ Object.values(TabiyaRoles).forEach((group) => {
   }, { dependsOn: [] });
 });
 
-
 const domain = new aws.cognito.UserPoolDomain("tabiya-users-domain", {
   userPoolId: _userPool.id,
   domain: `${subDomain}.${domainName}`,
   certificateArn: certificate.arn,
-})
+}, { deleteBeforeReplace: true })
 
 const record = new aws.route53.Record("auth-cname-record", {
   name: subDomain,
