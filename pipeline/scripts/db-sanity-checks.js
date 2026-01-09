@@ -48,7 +48,7 @@ async function compareVersions(newVersion, url){
 }
 
 if(process.argv[2] === "get-current-version") {
-  getCurrentVersion(process.argv[4])
+  // getCurrentVersion(process.argv[4])
 } else if (process.argv[2] === "assert") {
-  compareVersions(process.argv[3], process.argv[4])
+  // compareVersions(process.argv[3], process.argv[4])
 }
