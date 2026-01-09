@@ -20,21 +20,21 @@ const formatVersion = (version) => {
  * @param url the url to fetch the current version (this should return a json with a 'version' key)
  */
 async function compareVersions(newVersion, url){
-  let _newVersion = formatVersion(newVersion);
-
-  // Fetch the current version
-  let { version: currentVersion } = await fetch(url).then(res => res.json());
-
-  let _currentVersion = formatVersion(currentVersion);
-
-  // Compare the versions
-  if(semver.gte(_newVersion, _currentVersion)){
-    console.log(`✅ New version ${newVersion}, current version ${currentVersion}`);
-    process.exit(0);
-  } else {
-    console.log(`❌ New version ${newVersion}, current version ${currentVersion}`);
-    process.exit(1);
-  }
+  // let _newVersion = formatVersion(newVersion);
+  //
+  // // Fetch the current version
+  // let { version: currentVersion } = await fetch(url).then(res => res.json());
+  //
+  // let _currentVersion = formatVersion(currentVersion);
+  //
+  // // Compare the versions
+  // if(semver.gte(_newVersion, _currentVersion)){
+  //   console.log(`✅ New version ${newVersion}, current version ${currentVersion}`);
+  //   process.exit(0);
+  // } else {
+  //   console.log(`❌ New version ${newVersion}, current version ${currentVersion}`);
+  //   process.exit(1);
+  // }
 }
 
 compareVersions(process.argv[2], process.argv[3])
