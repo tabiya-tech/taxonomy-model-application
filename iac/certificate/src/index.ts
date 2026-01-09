@@ -33,9 +33,6 @@ const record = new aws.route53.Record(`cert-validation-record`, {
   zoneId: hostedZone.zoneId,
 });
 
-// TODO: Validation needs an A record.
-//       If the domain has changed it means that there is no default A record,
-//       Task: if there is no A record add a custom A record before validation.
 const validationRecord = new aws.acm.CertificateValidation(`cert-validation`, {
   certificateArn: _cert.arn,
   validationRecordFqdns: [record.fqdn],

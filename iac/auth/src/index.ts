@@ -114,6 +114,22 @@ Object.values(TabiyaRoles).forEach((group) => {
   }, { dependsOn: [] });
 });
 
+// TODO: Validation needs an A record.
+//       If the domain has changed it means that there is no default A record,
+//       Task: if there is no A record add a custom A record before validation.
+// const tempRecord = new aws.route53.Record("root-temp-temp-record", {
+//   name: domainName,
+//   type: "A",
+//   aliases: [
+//     {
+//       name: "<<>>", // common -> cdn -> Distribution -> domainName
+//       zoneId: "<<>>", // common -> cdn -> Distribution -> hostedZoneId
+//       evaluateTargetHealth: true,
+//     },
+//   ],
+//   zoneId: hostedZone.zoneId,
+// });
+
 const domain = new aws.cognito.UserPoolDomain("tabiya-users-domain", {
   userPoolId: _userPool.id,
   domain: `${subDomain}.${domainName}`,
