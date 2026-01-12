@@ -123,6 +123,8 @@ describe("test the transformation of the ISkill -> ISkillResponse", () => {
           preferredLabel: "Requiring Unknown Occupation",
           occupationType: "foo" as unknown as ObjectTypes,
           relationType: null,
+          signallingValue: null,
+          signallingValueLabel: SignallingValueLabel.NONE,
           isLocalized: false,
         } as unknown as OccupationToSkillReferenceWithRelationType<IOccupationReference>,
       ],
@@ -184,9 +186,9 @@ describe("test the transformation of the ISkill -> ISkillResponse", () => {
       isLocalized: true,
     });
     expect(actual.requiredByOccupations[2]).toEqual({
-      id: givenObject.requiredByOccupations![2].id,
-      UUID: givenObject.requiredByOccupations![2].UUID,
-      preferredLabel: givenObject.requiredByOccupations![2].preferredLabel,
+      id: givenObject.requiredByOccupations[2].id,
+      UUID: givenObject.requiredByOccupations[2].UUID,
+      preferredLabel: givenObject.requiredByOccupations[2].preferredLabel,
       objectType: SkillAPISpecs.Enums.OccupationObjectTypes.ESCOOccupation,
       relationType: null,
       signallingValue: null,
@@ -354,7 +356,7 @@ describe("Detailed mapping tests", () => {
       expect(actual.requiredByOccupations[0].relationType).toBe(
         SkillAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL
       );
-      expect(actual.requiredByOccupations[1].relationType).toBe(SkillAPISpecs.Enums.OccupationToSkillRelationType.NONE);
+      expect(actual.requiredByOccupations[1].relationType).toBe(null);
     });
 
     test("should handle missing relationType and signalling fields", () => {
@@ -369,9 +371,9 @@ describe("Detailed mapping tests", () => {
         } as unknown as OccupationToSkillReferenceWithRelationType<IOccupationReference>,
       ];
       const actual = transform(givenObject, basePath);
-      expect(actual.requiredByOccupations[0].relationType).toBeNull();
-      expect(actual.requiredByOccupations[0].signallingValue).toBeNull();
-      expect(actual.requiredByOccupations[0].signallingValueLabel).toBeNull();
+      expect(actual.requiredByOccupations[0].relationType).toBe(null);
+      expect(actual.requiredByOccupations[0].signallingValue).toBeUndefined();
+      expect(actual.requiredByOccupations[0].signallingValueLabel).toBe(null);
     });
   });
 
@@ -380,7 +382,7 @@ describe("Detailed mapping tests", () => {
       { input: "low", expected: SkillAPISpecs.Enums.SignallingValueLabel.LOW },
       { input: "medium", expected: SkillAPISpecs.Enums.SignallingValueLabel.MEDIUM },
       { input: "high", expected: SkillAPISpecs.Enums.SignallingValueLabel.HIGH },
-      { input: "foo", expected: SkillAPISpecs.Enums.SignallingValueLabel.NONE },
+      { input: "foo", expected: null },
     ];
 
     test.each(testCases)("should map $input to $expected", ({ input, expected }) => {

@@ -9,7 +9,7 @@ const SchemaPOSTRequest: SchemaObject = {
   type: "object",
   additionalProperties: false,
   properties: {
-    ...JSON.parse(JSON.stringify(_baseProperties)),
+    ..._baseProperties,
   },
   if: {
     properties: {

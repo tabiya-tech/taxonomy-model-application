@@ -103,11 +103,22 @@ export function getStdObjectIdTestCases(
 
 export function getStdLimitTestCases(
   instancePath: string,
-  maxLimit: number
+  maxLimit: number,
+  isRequired = false
 ): [CaseType, string | number, string | null | number | undefined, SchemaError | undefined][] {
-  const { canonicalPropertyPath, canonicalChildPath } = getCanonicalPath(instancePath);
+  const { propertyName, canonicalPropertyPath, canonicalParentPath, canonicalChildPath } =
+    getCanonicalPath(instancePath);
+  const undefinedTestCase: [CaseType, string | number, string | null | number | undefined, SchemaError | undefined] =
+    isRequired
+      ? [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+        ]
+      : [CaseType.Success, "undefined", undefined, undefined];
   return [
-    [CaseType.Success, "undefined", undefined, undefined],
+    undefinedTestCase,
     [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be integer")],
     [
       CaseType.Failure,
@@ -132,23 +143,39 @@ export function getStdLimitTestCases(
 export function getStdCursorTestCases(
   instancePath: string,
   maxLength: number,
-  allowEmpty?: boolean
+  isRequired: boolean = true,
+  isNullable: boolean = true
 ): [CaseType, string, string | null | undefined, SchemaError | undefined][] {
-  const { canonicalPropertyPath, canonicalChildPath } = getCanonicalPath(instancePath);
-  const emptyTestCase = allowEmpty
-    ? [CaseType.Success, "empty string", "", undefined]
+  const { propertyName, canonicalPropertyPath, canonicalParentPath, canonicalChildPath } =
+    getCanonicalPath(instancePath);
+
+  const undefinedTestCase: [CaseType, string, string | null | undefined, SchemaError | undefined] = isRequired
+    ? [
+        CaseType.Failure,
+        "undefined",
+        undefined,
+        constructSchemaError(canonicalParentPath, "required", `must have required property '${propertyName}'`),
+      ]
+    : [CaseType.Success, "undefined", undefined, undefined];
+
+  const nullTestCase: [CaseType, string, string | null | undefined, SchemaError | undefined] = isNullable
+    ? [CaseType.Success, "null", null, undefined]
     : [
         CaseType.Failure,
-        "empty string",
-        "",
-        constructSchemaError(canonicalPropertyPath, "pattern", 'must match pattern "\\S"'),
+        "null",
+        null,
+        constructSchemaError(canonicalChildPath ?? canonicalPropertyPath, "type", "must be string"),
       ];
 
   return [
-    [CaseType.Success, "undefined", undefined, undefined],
-    [CaseType.Failure, "null", null, constructSchemaError(canonicalChildPath, "type", "must be string")],
-    // @ts-ignore
-    emptyTestCase,
+    undefinedTestCase,
+    nullTestCase,
+    [
+      CaseType.Failure,
+      "empty string",
+      "",
+      constructSchemaError(canonicalPropertyPath, "pattern", 'must match pattern "\\S"'),
+    ],
     [
       CaseType.Failure,
       "whitespace",
@@ -164,7 +191,6 @@ export function getStdCursorTestCases(
     [CaseType.Success, "valid string", getTestBase64String(maxLength), undefined],
   ];
 }
-
 export function getStdURIOrURNFieldTestCases(
   instancePath: string,
   maxLength: number,

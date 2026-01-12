@@ -4,8 +4,10 @@ import { randomUUID } from "node:crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { IOccupation } from "./occupation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import SkillAPISpecs from "api-specifications/esco/skill";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
@@ -15,8 +17,12 @@ import {
   getIOccupationMockDataWithParentOccupation,
   getIOccupationMockDataWithParentOccupationGroup,
 } from "./testDataHelper";
-import { transform, transformPaginated } from "./transform";
+import { transform, transformPaginated, transformOccupationSkill, transformPaginatedSkills } from "./transform";
+import * as skillTransformModule from "esco/skill/transform";
+
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { SignallingValueLabel } from "esco/common/objectTypes";
+import { ISkillWithRelation } from "./occupationService.types";
 
 describe("getNewOccupationSpec", () => {
   test("should return a valid occupation spec object", () => {
@@ -202,9 +208,27 @@ describe("test the transformation of parent and children objectType fields in IO
 
     expect(actual.parent!.objectType).toBe(OccupationAPISpecs.Enums.Relations.Parent.ObjectTypes.ESCOOccupation);
   });
-
   test("should transform parent = ISCOGroup", () => {
     const givenObject = getIOccupationMockDataWithParentOccupationGroup();
+    const basePath = "https://some/root/path";
+    const actual = transform(givenObject, basePath);
+
+    expect(actual.parent!.objectType).toBe(OccupationAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup);
+  });
+
+  test("should transform parent with groupType = ISCOGroup", () => {
+    const parent = {
+      UUID: randomUUID(),
+      code: getRandomString(5),
+      id: getMockStringId(3),
+      preferredLabel: getRandomString(15),
+      groupType: ObjectTypes.ISCOGroup,
+    };
+    const givenObject: IOccupation = {
+      ...getIOccupationMockData(),
+      parent: parent as unknown as IOccupationGroupReference,
+    };
+
     const basePath = "https://some/root/path";
     const actual = transform(givenObject, basePath);
 
@@ -239,31 +263,76 @@ describe("test the transformation of parent and children objectType fields in IO
 
     expect(actual.children[0].objectType).toBe(OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation);
   });
-
-  test("should throw error when child is not an occupation", () => {
-    // GIVEN an occupation with a child that doesn't have occupationType (invalid child)
-    const invalidChild = {
+  test("should transform children with groupType = ISCOGroup", () => {
+    // GIVEN an occupation with a child that is an ISCOGroup
+    const groupChild = {
       UUID: randomUUID(),
       code: getRandomString(5),
       id: getMockStringId(1),
       preferredLabel: getRandomString(15),
-      objectType: ObjectTypes.ISCOGroup, // This makes it not an occupation
-      occupationGroupCode: getRandomString(5),
-      isLocalized: false,
-    } as unknown as IOccupationReference;
+      groupType: ObjectTypes.ISCOGroup,
+    };
 
     const givenObject: IOccupation = {
       ...getIOccupationMockData(),
-      children: [invalidChild],
+      children: [groupChild as unknown as IOccupationGroupReference],
     };
 
     const basePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    // THEN expect it to throw an error
-    expect(() => transform(givenObject, basePath)).toThrow(
-      "An occupation can only have a child of occupation and not occupation groups."
-    );
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect the child objectType to be ISCOGroup
+    expect(actual.children[0].objectType).toBe(OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup);
+  });
+
+  test("should transform children with objectType = ISCOGroup", () => {
+    // GIVEN an occupation with a child that is an ISCOGroup (using objectType)
+    const groupChild = {
+      UUID: randomUUID(),
+      code: getRandomString(5),
+      id: getMockStringId(1),
+      preferredLabel: getRandomString(15),
+      objectType: ObjectTypes.ISCOGroup,
+    };
+
+    const givenObject: IOccupation = {
+      ...getIOccupationMockData(),
+      children: [groupChild as unknown as IOccupationGroupReference],
+    };
+
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect the child objectType to be ISCOGroup
+    expect(actual.children[0].objectType).toBe(OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup);
+  });
+
+  test("should transform children with groupType = LocalGroup", () => {
+    // GIVEN an occupation with a child that is a LocalGroup
+    const groupChild = {
+      UUID: randomUUID(),
+      code: getRandomString(5),
+      id: getMockStringId(1),
+      preferredLabel: getRandomString(15),
+      groupType: ObjectTypes.LocalGroup,
+    };
+
+    const givenObject: IOccupation = {
+      ...getIOccupationMockData(),
+      children: [groupChild as unknown as IOccupationGroupReference],
+    };
+
+    const basePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual = transform(givenObject, basePath);
+
+    // THEN expect the child objectType to be LocalGroup
+    expect(actual.children[0].objectType).toBe(OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup);
   });
 
   test("should transform parent with objectType = LocalGroup", () => {
@@ -511,34 +580,6 @@ describe("test the transformation of requiresSkills field", () => {
     expect(actual.requiresSkills).toEqual([]);
   });
 
-  test("should transform requiresSkills as undefined when requiresSkills is null", () => {
-    // GIVEN an occupation with null requiresSkills
-    const givenObject = getIOccupationMockData();
-    // @ts-ignore
-    givenObject.requiresSkills = null;
-    const basePath = "https://some/root/path";
-
-    // WHEN the transformation function is called
-    const actual = transform(givenObject, basePath);
-
-    // THEN expect requiresSkills to be undefined
-    expect(actual.requiresSkills).toBeUndefined();
-  });
-
-  test("should transform requiresSkills as undefined when requiresSkills is undefined", () => {
-    // GIVEN an occupation with undefined requiresSkills
-    const givenObject = getIOccupationMockData();
-    // @ts-ignore
-    givenObject.requiresSkills = undefined;
-    const basePath = "https://some/root/path";
-
-    // WHEN the transformation function is called
-    const actual = transform(givenObject, basePath);
-
-    // THEN expect requiresSkills to be undefined
-    expect(actual.requiresSkills).toBeUndefined();
-  });
-
   test("should handle requiresSkills with null signallingValue and signallingValueLabel", () => {
     // GIVEN an occupation with requiresSkills that have null signallingValue and signallingValueLabel
     const givenObject = getIOccupationMockData();
@@ -563,7 +604,7 @@ describe("test the transformation of requiresSkills field", () => {
     // @ts-ignore
     expect(actual.requiresSkills[0].signallingValue).toBe(null);
     // @ts-ignore
-    expect(actual.requiresSkills[0].signallingValueLabel).toBe(undefined);
+    expect(actual.requiresSkills[0].signallingValueLabel).toBe(null);
   });
 
   test("should handle requiresSkills with NONE relation type", () => {
@@ -587,7 +628,7 @@ describe("test the transformation of requiresSkills field", () => {
     const actual = transform(givenObject, basePath);
 
     // THEN expect relationType to be NONE
-    expect(actual.requiresSkills[0].relationType).toBe(OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE);
+    expect(actual.requiresSkills[0].relationType).toBe(null);
   });
 
   test("should handle requiresSkills with OPTIONAL relation type", () => {
@@ -636,7 +677,7 @@ describe("test the transformation of requiresSkills field", () => {
     const actual = transform(givenObject, basePath);
 
     // THEN expect relationType to be NONE (default case)
-    expect(actual.requiresSkills[0].relationType).toBe(OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE);
+    expect(actual.requiresSkills[0].relationType).toBe(null);
   });
 });
 
@@ -701,5 +742,87 @@ describe("test the transformation of originUUID field", () => {
 
     // THEN expect originUUID to be that single UUID
     expect(actual.originUUID).toBe(singleUUID);
+  });
+});
+
+describe("transformOccupationSkill", () => {
+  test("should transform skill data with relationship metadata", () => {
+    // GIVEN some skill data with relationship metadata
+    const givenSkillData = {
+      id: getMockStringId(1),
+      UUID: randomUUID(),
+      preferredLabel: "Skill 1",
+      relationType: OccupationToSkillRelationType.ESSENTIAL,
+      signallingValue: 1,
+      signallingValueLabel: SignallingValueLabel.NONE,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as ISkillWithRelation;
+    const givenBasePath = "https://some/root/path";
+
+    // AND the skill transformation is mocked
+    const mockTransformedSkill = {
+      id: givenSkillData.id,
+      UUID: givenSkillData.UUID,
+      preferredLabel: givenSkillData.preferredLabel,
+    } as SkillAPISpecs.Types.Response.ISkill;
+    const skillTransformSpy = jest.spyOn(skillTransformModule, "transform").mockReturnValue(mockTransformedSkill);
+
+    // WHEN the transformation function is called
+    const actual = transformOccupationSkill(givenSkillData, givenBasePath);
+
+    // THEN expect the result to contain the transformed skill and relationship metadata
+    expect(actual).toEqual({
+      ...mockTransformedSkill,
+      relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL,
+      signallingValue: givenSkillData.signallingValue,
+      signallingValueLabel: null,
+    });
+    expect(skillTransformSpy).toHaveBeenCalledWith(givenSkillData, givenBasePath);
+  });
+});
+
+describe("transformPaginatedSkills", () => {
+  test("should transform paginated skill data correctly", () => {
+    // GIVEN some skill data
+    const givenData = [
+      {
+        id: getMockStringId(1),
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+      },
+      {
+        id: getMockStringId(2),
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+      },
+    ] as ISkillWithRelation[];
+    const givenBasePath = "https://some/root/path";
+    const givenLimit = 10;
+    const givenCursor = "some-cursor";
+
+    // AND the skill transformation is mocked
+    jest
+      .spyOn(skillTransformModule, "transform")
+      .mockImplementation((data) => ({ id: data.id }) as SkillAPISpecs.Types.Response.ISkill);
+
+    // WHEN the transformation function is called
+    const actual = transformPaginatedSkills(givenData, givenBasePath, givenLimit, givenCursor);
+
+    // THEN expect the result to contain transformed skills and pagination info
+    expect(actual).toEqual({
+      data: [
+        expect.objectContaining({
+          id: givenData[0].id,
+          relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL,
+        }),
+        expect.objectContaining({
+          id: givenData[1].id,
+          relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL,
+        }),
+      ],
+      limit: givenLimit,
+      nextCursor: givenCursor,
+    });
   });
 });

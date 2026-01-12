@@ -1,4 +1,4 @@
-import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID } from "../../regex";
+import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID, RegExp_Str_URI } from "../../regex";
 import OccupationConstants from "./constants";
 import OccupationEnums from "./enums";
 import OccupationRegexes from "./regex";
@@ -95,7 +95,7 @@ export const _baseOccupationURLParameter = {
 };
 
 export const _baseOccupationURLParameterWithId = {
-  ...JSON.parse(JSON.stringify(_baseOccupationURLParameter)),
+  ..._baseOccupationURLParameter,
   id: {
     description: "The id of the occupation. It can be used to retrieve the occupation from the server.",
     type: "string",
@@ -149,13 +149,237 @@ const topLevelOccupationCodeConditions = [
         },
         occupationGroupCode: {
           type: "string",
-          pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+          // LocalOccupation can be under a LocalGroup or an ISCOGroup
+          pattern: `${OccupationRegexes.Str.LOCAL_GROUP_CODE}|${OccupationRegexes.Str.ISCO_GROUP_CODE}`,
           maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
         },
       },
     },
   },
 ];
+
+export const _baseParentSchema = {
+  description: "The parent occupation of this occupation.",
+  type: ["object", "null"],
+  additionalProperties: false,
+  properties: {
+    id: {
+      description: "The id of the parent occupation.",
+      type: "string",
+      pattern: RegExp_Str_ID,
+    },
+    UUID: {
+      description: "The UUID of the occupation. It can be used to identify the parent occupation.",
+      type: "string",
+      pattern: RegExp_Str_UUIDv4,
+    },
+    code: {
+      description: "The code of the parent occupation.",
+      type: "string",
+      maxLength: OccupationConstants.CODE_MAX_LENGTH,
+    },
+    occupationGroupCode: {
+      description: "The code of the parent occupation group.",
+      type: "string",
+      maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+    },
+    preferredLabel: {
+      description: "The preferred label of the parent occupation.",
+      type: "string",
+      maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
+      pattern: RegExp_Str_NotEmptyString,
+    },
+    objectType: {
+      description: "The type of the occupation parent (LocalOccupation, ESCOOccupation, ISCOGroup or LocalGroup).",
+      type: "string",
+      enum: Object.values(OccupationEnums.Relations.Parent.ObjectTypes),
+    },
+  },
+  allOf: [
+    {
+      if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup } } },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+            maxLength: OccupationConstants.CODE_MAX_LENGTH,
+          },
+          occupationGroupCode: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+            maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+          },
+        },
+      },
+    },
+    {
+      if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.LocalGroup } } },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+            maxLength: OccupationConstants.CODE_MAX_LENGTH,
+          },
+          occupationGroupCode: {
+            type: "string",
+            pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+            maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+          },
+        },
+      },
+    },
+    {
+      if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation } } },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ESCO_OCCUPATION_CODE,
+            maxLength: OccupationConstants.CODE_MAX_LENGTH,
+          },
+          occupationGroupCode: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+            maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+          },
+        },
+      },
+    },
+    {
+      if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation } } },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+            maxLength: OccupationConstants.CODE_MAX_LENGTH,
+          },
+          occupationGroupCode: {
+            type: "string",
+            pattern: `${OccupationRegexes.Str.LOCAL_GROUP_CODE}|${OccupationRegexes.Str.ISCO_GROUP_CODE}`,
+            maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+          },
+        },
+      },
+    },
+  ],
+};
+
+export const _baseChildSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    id: { description: "The id of the child occupation.", type: "string", pattern: RegExp_Str_ID },
+    UUID: { description: "The UUID of the child occupation.", type: "string", pattern: RegExp_Str_UUIDv4 },
+    code: {
+      description: "The code of the child occupation.",
+      type: "string",
+      maxLength: OccupationConstants.CODE_MAX_LENGTH,
+    },
+    occupationGroupCode: {
+      description: "The code of the child occupation group.",
+      type: "string",
+      maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+    },
+    preferredLabel: {
+      description: "The preferred label of the child occupation.",
+      type: "string",
+      maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
+      pattern: RegExp_Str_NotEmptyString,
+    },
+    objectType: {
+      description: "The type of the occupation child (EscoOccupation or LocalOccupation).",
+      type: "string",
+      enum: Object.values(OccupationEnums.Relations.Children.ObjectTypes),
+    },
+  },
+  allOf: [
+    {
+      if: {
+        properties: { objectType: { const: OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation } },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ESCO_OCCUPATION_CODE,
+            maxLength: OccupationConstants.CODE_MAX_LENGTH,
+          },
+          occupationGroupCode: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
+            maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+          },
+        },
+      },
+    },
+    {
+      if: {
+        properties: { objectType: { const: OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation } },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+            maxLength: OccupationConstants.CODE_MAX_LENGTH,
+          },
+          occupationGroupCode: {
+            type: "string",
+            pattern: `${OccupationRegexes.Str.LOCAL_GROUP_CODE}|${OccupationRegexes.Str.ISCO_GROUP_CODE}`,
+            maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
+          },
+        },
+      },
+    },
+  ],
+};
+
+export const _baseRequiresSkills = {
+  description: "Skills required for this occupation with relationship metadata.",
+  type: "array",
+  minItems: 0,
+  items: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      id: { description: "The ID of the required skill.", type: "string", pattern: RegExp_Str_ID },
+      UUID: { description: "The UUID of the required skill.", type: "string", pattern: RegExp_Str_UUIDv4 },
+      preferredLabel: {
+        description: "The preferred label of the required skill.",
+        type: "string",
+        maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
+        pattern: RegExp_Str_NotEmptyString,
+      },
+      isLocalized: { description: "Indicates if the required skill is localized.", type: "boolean" },
+      objectType: {
+        description: "The object type of the required skill.",
+        type: "string",
+        enum: Object.values(OccupationEnums.Relations.RequiredSkills.ObjectTypes),
+      },
+      relationType: {
+        description: "Used for ESCOOccupations only.",
+        type: ["string", "null"],
+        enum: [...Object.values(OccupationEnums.OccupationToSkillRelationType), null],
+      },
+      signallingValue: {
+        description: "Used for LocalOccupations only.",
+        type: ["number", "null"],
+        minimum: OccupationConstants.SIGNALLING_VALUE_MIN,
+        maximum: OccupationConstants.SIGNALLING_VALUE_MAX,
+      },
+      signallingValueLabel: {
+        description: "Used for LocalOccupations only.",
+        type: ["string", "null"],
+        maxLength: OccupationConstants.SIGNALLING_VALUE_LABEL_MAX_LENGTH,
+        pattern: RegExp_Str_NotEmptyString,
+      },
+    },
+    required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType"],
+  },
+};
 
 export const _baseResponseSchema = {
   type: "object",
@@ -181,241 +405,24 @@ export const _baseResponseSchema = {
       description: "Resource path using the occupation's ID.",
       type: "string",
       format: "uri",
-      pattern: "^https://.*",
+      pattern: RegExp_Str_URI,
       maxLength: OccupationConstants.PATH_URI_MAX_LENGTH,
     },
     tabiyaPath: {
       description: "Resource path using the occupation's UUID.",
       type: "string",
       format: "uri",
-      pattern: "^https://.*",
+      pattern: RegExp_Str_URI,
       maxLength: OccupationConstants.TABIYA_PATH_URI_MAX_LENGTH,
     },
-    parent: {
-      description: "The parent occupation of this occupation.",
-      type: ["object", "null"],
-      additionalProperties: false,
-      properties: {
-        id: {
-          description: "The id of the parent occupation.",
-          type: "string",
-          pattern: RegExp_Str_ID,
-        },
-        UUID: {
-          description: "The UUID of the occupation. It can be used to identify the parent occupation.",
-          type: "string",
-          pattern: RegExp_Str_UUIDv4,
-        },
-        code: {
-          description: "The code of the parent occupation.",
-          type: "string",
-          maxLength: OccupationConstants.CODE_MAX_LENGTH,
-        },
-        occupationGroupCode: {
-          description: "The code of the parent occupation group.",
-          type: "string",
-          maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-        },
-        preferredLabel: {
-          description: "The preferred label of the parent occupation.",
-          type: "string",
-          maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
-          pattern: RegExp_Str_NotEmptyString,
-        },
-        objectType: {
-          description: "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
-          type: "string",
-          enum: Object.values(OccupationEnums.Relations.Parent.ObjectTypes),
-        },
-      },
-      allOf: [
-        {
-          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup } } },
-          then: {
-            properties: {
-              code: {
-                type: "string",
-                pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
-                maxLength: OccupationConstants.CODE_MAX_LENGTH,
-              },
-              occupationGroupCode: {
-                type: "string",
-                pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
-                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-              },
-            },
-          },
-        },
-        {
-          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.LocalGroup } } },
-          then: {
-            properties: {
-              code: {
-                type: "string",
-                pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
-                maxLength: OccupationConstants.CODE_MAX_LENGTH,
-              },
-              occupationGroupCode: {
-                type: "string",
-                pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
-                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-              },
-            },
-          },
-        },
-        {
-          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation } } },
-          then: {
-            properties: {
-              code: {
-                type: "string",
-                pattern: OccupationRegexes.Str.ESCO_OCCUPATION_CODE,
-                maxLength: OccupationConstants.CODE_MAX_LENGTH,
-              },
-              occupationGroupCode: {
-                type: "string",
-                pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
-                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-              },
-            },
-          },
-        },
-        {
-          if: { properties: { objectType: { const: OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation } } },
-          then: {
-            properties: {
-              code: {
-                type: "string",
-                pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
-                maxLength: OccupationConstants.CODE_MAX_LENGTH,
-              },
-              occupationGroupCode: {
-                type: "string",
-                pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
-                maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-              },
-            },
-          },
-        },
-      ],
-    },
+    parent: _baseParentSchema,
     children: {
       description: "The children of this occupation.",
       type: "array",
       minItems: 0,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: { description: "The id of the child occupation.", type: "string", pattern: RegExp_Str_ID },
-          UUID: { description: "The UUID of the child occupation.", type: "string", pattern: RegExp_Str_UUIDv4 },
-          code: {
-            description: "The code of the child occupation.",
-            type: "string",
-            maxLength: OccupationConstants.CODE_MAX_LENGTH,
-          },
-          occupationGroupCode: {
-            description: "The code of the child occupation group.",
-            type: "string",
-            maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-          },
-          preferredLabel: {
-            description: "The preferred label of the child occupation.",
-            type: "string",
-            maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
-            pattern: RegExp_Str_NotEmptyString,
-          },
-          objectType: {
-            description: "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
-            type: "string",
-            enum: Object.values(OccupationEnums.Relations.Children.ObjectTypes),
-          },
-        },
-        allOf: [
-          {
-            if: {
-              properties: { objectType: { const: OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation } },
-            },
-            then: {
-              properties: {
-                code: {
-                  type: "string",
-                  pattern: OccupationRegexes.Str.ESCO_OCCUPATION_CODE,
-                  maxLength: OccupationConstants.CODE_MAX_LENGTH,
-                },
-                occupationGroupCode: {
-                  type: "string",
-                  pattern: OccupationRegexes.Str.ISCO_GROUP_CODE,
-                  maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-                },
-              },
-            },
-          },
-          {
-            if: {
-              properties: { objectType: { const: OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation } },
-            },
-            then: {
-              properties: {
-                code: {
-                  type: "string",
-                  pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
-                  maxLength: OccupationConstants.CODE_MAX_LENGTH,
-                },
-                occupationGroupCode: {
-                  type: "string",
-                  pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
-                  maxLength: OccupationConstants.OCCUPATION_GROUP_CODE_MAX_LENGTH,
-                },
-              },
-            },
-          },
-        ],
-      },
+      items: _baseChildSchema,
     },
-    requiresSkills: {
-      description: "Skills required for this occupation with relationship metadata.",
-      type: "array",
-      minItems: 0,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: { description: "The ID of the required skill.", type: "string", pattern: RegExp_Str_ID },
-          UUID: { description: "The UUID of the required skill.", type: "string", pattern: RegExp_Str_UUIDv4 },
-          preferredLabel: {
-            description: "The preferred label of the required skill.",
-            type: "string",
-            maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
-            pattern: RegExp_Str_NotEmptyString,
-          },
-          isLocalized: { description: "Indicates if the required skill is localized.", type: "boolean" },
-          objectType: {
-            description: "The object type of the required skill.",
-            type: "string",
-            enum: Object.values(OccupationEnums.Relations.RequiredSkills.ObjectTypes),
-          },
-          relationType: {
-            description: "Used for ESCOOccupations only.",
-            type: ["string", "null"],
-            enum: [...Object.values(OccupationEnums.OccupationToSkillRelationType), null],
-          },
-          signallingValue: {
-            description: "Used for LocalOccupations only.",
-            type: ["number", "null"],
-            minimum: OccupationConstants.SIGNALLING_VALUE_MIN,
-            maximum: OccupationConstants.SIGNALLING_VALUE_MAX,
-          },
-          signallingValueLabel: {
-            description: "Used for LocalOccupations only.",
-            type: ["string", "null"],
-            maxLength: OccupationConstants.SIGNALLING_VALUE_LABEL_MAX_LENGTH,
-            pattern: RegExp_Str_NotEmptyString,
-          },
-        },
-        required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType"],
-      },
-    },
+    requiresSkills: _baseRequiresSkills,
     ..._baseProperties,
     createdAt: { description: "Timestamp of record creation.", type: "string", format: "date-time" },
     updatedAt: { description: "Timestamp of last record modification.", type: "string", format: "date-time" },

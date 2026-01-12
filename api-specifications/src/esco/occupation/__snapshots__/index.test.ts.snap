@@ -30,22 +30,57 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "GET": {
       "Response": {
         "Status400": {
+          "Children": {
+            "ErrorCodes": {},
+          },
           "ErrorCodes": {
-            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER_FOR_OCCUPATION",
-            "INVALID_MODEL_ID": "INVALID_MODEL_ID_FOR_OCCUPATION",
-            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER_FOR_OCCUPATION",
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+            "INVALID_MODEL_ID": "INVALID_MODEL_ID",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
             "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
+          },
+          "Parent": {
+            "ErrorCodes": {},
+          },
+          "Skills": {
+            "ErrorCodes": {},
           },
         },
         "Status404": {
+          "Children": {
+            "ErrorCodes": {},
+          },
           "ErrorCodes": {
-            "MODEL_NOT_FOUND": "GET_MODEL_NOT_FOUND_FOR_OCCUPATION",
-            "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND_FOR_OCCUPATION",
+            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+            "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
+          },
+          "Parent": {
+            "ErrorCodes": {},
+          },
+          "Skills": {
+            "ErrorCodes": {
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+            },
           },
         },
         "Status500": {
+          "Children": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN": "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN",
+            },
+          },
           "ErrorCodes": {
-            "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS_FOR_OCCUPATION",
+            "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
+          },
+          "Parent": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT",
+            },
+          },
+          "Skills": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS",
+            },
           },
         },
       },
@@ -63,14 +98,14 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "Response": {
         "Status400": {
           "ErrorCodes": {
-            "INVALID_MODEL_ID": "INVALID_MODEL_ID_FOR_OCCUPATION_POST",
+            "INVALID_MODEL_ID": "INVALID_MODEL_ID",
             "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
-            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL_FOR_OCCUPATION",
+            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
           },
         },
         "Status404": {
           "ErrorCodes": {
-            "MODEL_NOT_FOUND": "POST_MODEL_NOT_FOUND_FOR_OCCUPATION",
+            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
           },
         },
         "Status500": {
@@ -84,6 +119,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "Children": {
         "ObjectTypes": {
           "ESCOOccupation": "escooccupation",
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
           "LocalOccupation": "localoccupation",
         },
       },
@@ -122,81 +159,643 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
   },
   "Schemas": {
     "GET": {
-      "Request": {
-        "ById": {
-          "Param": {
+      "Children": {
+        "Request": {
+          "Query": {
             "Payload": {
-              "$id": "/components/schemas/OccupationRequestByIdParamSchemaGET",
+              "$id": "/components/schemas/OccupationRequestQueryParamSchemaGETChildren",
               "additionalProperties": false,
               "properties": {
-                "id": {
-                  "description": "The id of the occupation. It can be used to retrieve the occupation from the server.",
-                  "pattern": "^[0-9a-f]{24}$",
+                "cursor": {
+                  "description": "A base64 string representing the cursor for pagination.",
+                  "maxLength": 1024,
+                  "pattern": "\\S",
                   "type": "string",
                 },
-                "modelId": {
-                  "description": "The identifier of the model for occupation.",
-                  "pattern": "^[0-9a-f]{24}$",
-                  "type": "string",
+                "limit": {
+                  "default": 10,
+                  "description": "The maximum number of items to return.",
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer",
                 },
               },
-              "required": [
-                "modelId",
-                "id",
-              ],
               "type": "object",
             },
           },
         },
-        "Param": {
+        "Response": {
           "Payload": {
-            "$id": "/components/schemas/OccupationRequestParamSchemaGET",
+            "$id": "/components/schemas/OccupationResponseSchemaGETChildren",
             "additionalProperties": false,
             "properties": {
-              "modelId": {
-                "description": "The identifier of the model for occupation.",
-                "pattern": "^[0-9a-f]{24}$",
-                "type": "string",
-              },
-            },
-            "required": [
-              "modelId",
-            ],
-            "type": "object",
-          },
-        },
-        "Query": {
-          "Payload": {
-            "$id": "/components/schemas/OccupationRequestQueryParamSchemaGET",
-            "additionalProperties": false,
-            "properties": {
-              "cursor": {
-                "description": "A base64 string representing the cursor for pagination.",
-                "maxLength": 1024,
-                "pattern": "\\S",
-                "type": "string",
+              "data": {
+                "description": "Array of occupation children data for the current page",
+                "items": {
+                  "$id": "/components/schemas/OccupationChildItem",
+                  "additionalProperties": false,
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "occupationType": {
+                            "const": "escooccupation",
+                          },
+                        },
+                      },
+                      "then": {
+                        "properties": {
+                          "code": {
+                            "maxLength": 256,
+                            "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                            "type": "string",
+                          },
+                          "occupationGroupCode": {
+                            "maxLength": 256,
+                            "pattern": "^\\d{1,4}$",
+                            "type": "string",
+                          },
+                        },
+                      },
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "occupationType": {
+                            "const": "localoccupation",
+                          },
+                        },
+                      },
+                      "then": {
+                        "properties": {
+                          "code": {
+                            "maxLength": 256,
+                            "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                            "type": "string",
+                          },
+                          "occupationGroupCode": {
+                            "maxLength": 256,
+                            "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
+                            "type": "string",
+                          },
+                        },
+                      },
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "occupationType": {
+                            "const": "escooccupation",
+                          },
+                        },
+                      },
+                      "then": {
+                        "properties": {
+                          "requiresSkills": {
+                            "items": {
+                              "properties": {
+                                "relationType": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "relationType",
+                              ],
+                              "type": "object",
+                            },
+                            "type": "array",
+                          },
+                        },
+                      },
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "occupationType": {
+                            "const": "localoccupation",
+                          },
+                        },
+                      },
+                      "then": {
+                        "properties": {
+                          "requiresSkills": {
+                            "items": {
+                              "properties": {
+                                "signallingValue": {
+                                  "type": "number",
+                                },
+                                "signallingValueLabel": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "signallingValue",
+                                "signallingValueLabel",
+                              ],
+                              "type": "object",
+                            },
+                            "type": "array",
+                          },
+                        },
+                      },
+                    },
+                  ],
+                  "properties": {
+                    "UUID": {
+                      "description": "The UUID of the occupation for cross-system identification.",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "UUIDHistory": {
+                      "description": "The UUIDs history of the occupation.",
+                      "items": {
+                        "maxLength": 50,
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                        "type": "string",
+                      },
+                      "maxItems": 10000,
+                      "minItems": 0,
+                      "type": "array",
+                      "uniqueItems": true,
+                    },
+                    "altLabels": {
+                      "description": "Alternative labels for the occupation.",
+                      "items": {
+                        "maxLength": 256,
+                        "type": "string",
+                      },
+                      "maxItems": 100,
+                      "minItems": 0,
+                      "type": "array",
+                      "uniqueItems": true,
+                    },
+                    "children": {
+                      "description": "The children of this occupation.",
+                      "items": {
+                        "additionalProperties": false,
+                        "allOf": [
+                          {
+                            "if": {
+                              "properties": {
+                                "objectType": {
+                                  "const": "escooccupation",
+                                },
+                              },
+                            },
+                            "then": {
+                              "properties": {
+                                "code": {
+                                  "maxLength": 256,
+                                  "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                                  "type": "string",
+                                },
+                                "occupationGroupCode": {
+                                  "maxLength": 256,
+                                  "pattern": "^\\d{1,4}$",
+                                  "type": "string",
+                                },
+                              },
+                            },
+                          },
+                          {
+                            "if": {
+                              "properties": {
+                                "objectType": {
+                                  "const": "localoccupation",
+                                },
+                              },
+                            },
+                            "then": {
+                              "properties": {
+                                "code": {
+                                  "maxLength": 256,
+                                  "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                                  "type": "string",
+                                },
+                                "occupationGroupCode": {
+                                  "maxLength": 256,
+                                  "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
+                                  "type": "string",
+                                },
+                              },
+                            },
+                          },
+                        ],
+                        "properties": {
+                          "UUID": {
+                            "description": "The UUID of the child occupation.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
+                          "code": {
+                            "description": "The code of the child occupation.",
+                            "maxLength": 256,
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The id of the child occupation.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "objectType": {
+                            "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
+                            "enum": [
+                              "escooccupation",
+                              "localoccupation",
+                              "iscogroup",
+                              "localgroup",
+                            ],
+                            "type": "string",
+                          },
+                          "occupationGroupCode": {
+                            "description": "The code of the child occupation group.",
+                            "maxLength": 256,
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the child occupation.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "minItems": 0,
+                      "type": "array",
+                    },
+                    "code": {
+                      "description": "The code of the occupation.",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "createdAt": {
+                      "description": "Timestamp of record creation.",
+                      "format": "date-time",
+                      "type": "string",
+                    },
+                    "definition": {
+                      "description": "The formal definition of the occupation.",
+                      "maxLength": 4000,
+                      "type": "string",
+                    },
+                    "description": {
+                      "description": "Additional descriptive information about the occupation.",
+                      "maxLength": 6000,
+                      "type": "string",
+                    },
+                    "id": {
+                      "description": "The unique identifier of the occupation.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": "string",
+                    },
+                    "isLocalized": {
+                      "description": "Indicates if the occupation has localized variants. Must be false for LocalOccupation.",
+                      "type": "boolean",
+                    },
+                    "modelId": {
+                      "description": "The identifier of the model containing this occupation.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": "string",
+                    },
+                    "occupationGroupCode": {
+                      "description": "The code of the parent occupation group.",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "occupationType": {
+                      "description": "The occupation classification type (e.g., ESCOOccupation or LocalOccupation).",
+                      "enum": [
+                        "escooccupation",
+                        "localoccupation",
+                      ],
+                      "type": "string",
+                    },
+                    "originUUID": {
+                      "description": "The original UUID of the occupation, i.e., the first UUID in UUIDHistory",
+                      "maxLength": 50,
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "originUri": {
+                      "description": "The origin URI of the occupation.",
+                      "format": "uri",
+                      "maxLength": 4096,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                    "parent": {
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "iscogroup",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{1,4}$",
+                                "type": "string",
+                              },
+                              "occupationGroupCode": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{1,4}$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localgroup",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                                "type": "string",
+                              },
+                              "occupationGroupCode": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "escooccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                                "type": "string",
+                              },
+                              "occupationGroupCode": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{1,4}$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localoccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                                "type": "string",
+                              },
+                              "occupationGroupCode": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                      ],
+                      "description": "The parent occupation of this occupation.",
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the occupation. It can be used to identify the parent occupation.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "code": {
+                          "description": "The code of the parent occupation.",
+                          "maxLength": 256,
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The id of the parent occupation.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "objectType": {
+                          "description": "The type of the occupation parent (LocalOccupation, ESCOOccupation, ISCOGroup or LocalGroup).",
+                          "enum": [
+                            "iscogroup",
+                            "localgroup",
+                            "escooccupation",
+                            "localoccupation",
+                          ],
+                          "type": "string",
+                        },
+                        "occupationGroupCode": {
+                          "description": "The code of the parent occupation group.",
+                          "maxLength": 256,
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the parent occupation.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                      },
+                      "type": [
+                        "object",
+                        "null",
+                      ],
+                    },
+                    "path": {
+                      "description": "Resource path using the occupation's ID.",
+                      "format": "uri",
+                      "maxLength": 4096,
+                      "pattern": "^https://.*",
+                      "type": "string",
+                    },
+                    "preferredLabel": {
+                      "description": "The preferred label of the occupation.",
+                      "maxLength": 256,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                    "regulatedProfessionNote": {
+                      "description": "Regulatory information for legally regulated professions.",
+                      "maxLength": 4000,
+                      "type": "string",
+                    },
+                    "requiresSkills": {
+                      "description": "Skills required for this occupation with relationship metadata.",
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "UUID": {
+                            "description": "The UUID of the required skill.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The ID of the required skill.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "isLocalized": {
+                            "description": "Indicates if the required skill is localized.",
+                            "type": "boolean",
+                          },
+                          "objectType": {
+                            "description": "The object type of the required skill.",
+                            "enum": [
+                              "skill",
+                            ],
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the required skill.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
+                            "type": "string",
+                          },
+                          "relationType": {
+                            "description": "Used for ESCOOccupations only.",
+                            "enum": [
+                              "",
+                              "essential",
+                              "optional",
+                              null,
+                            ],
+                            "type": [
+                              "string",
+                              "null",
+                            ],
+                          },
+                          "signallingValue": {
+                            "description": "Used for LocalOccupations only.",
+                            "maximum": 100,
+                            "minimum": 0,
+                            "type": [
+                              "number",
+                              "null",
+                            ],
+                          },
+                          "signallingValueLabel": {
+                            "description": "Used for LocalOccupations only.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
+                            "type": [
+                              "string",
+                              "null",
+                            ],
+                          },
+                        },
+                        "required": [
+                          "id",
+                          "UUID",
+                          "preferredLabel",
+                          "isLocalized",
+                          "objectType",
+                        ],
+                        "type": "object",
+                      },
+                      "minItems": 0,
+                      "type": "array",
+                    },
+                    "scopeNote": {
+                      "description": "Scope clarification for the occupation's application.",
+                      "maxLength": 4000,
+                      "type": "string",
+                    },
+                    "tabiyaPath": {
+                      "description": "Resource path using the occupation's UUID.",
+                      "format": "uri",
+                      "maxLength": 4096,
+                      "pattern": "^https://.*",
+                      "type": "string",
+                    },
+                    "updatedAt": {
+                      "description": "Timestamp of last record modification.",
+                      "format": "date-time",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "UUID",
+                    "originUUID",
+                    "UUIDHistory",
+                    "path",
+                    "tabiyaPath",
+                    "code",
+                    "occupationGroupCode",
+                    "originUri",
+                    "preferredLabel",
+                    "altLabels",
+                    "definition",
+                    "description",
+                    "regulatedProfessionNote",
+                    "scopeNote",
+                    "occupationType",
+                    "modelId",
+                    "isLocalized",
+                    "parent",
+                    "requiresSkills",
+                    "children",
+                    "createdAt",
+                    "updatedAt",
+                  ],
+                  "type": "object",
+                },
+                "type": "array",
               },
               "limit": {
                 "default": 10,
-                "description": "The maximum number of items to return.",
+                "description": "Number of data returned in this page.",
                 "maximum": 100,
                 "minimum": 1,
                 "type": "integer",
               },
+              "nextCursor": {
+                "description": "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
+                "maxLength": 1024,
+                "pattern": "\\S",
+                "type": [
+                  "string",
+                  "null",
+                ],
+              },
             },
+            "required": [
+              "data",
+              "limit",
+            ],
             "type": "object",
           },
         },
       },
-      "Response": {
-        "Payload": {
-          "$id": "/components/schemas/OccupationResponseSchemaGET",
-          "additionalProperties": false,
-          "properties": {
-            "data": {
-              "description": "Array of occupation data for the current page",
-              "items": {
-                "$id": "/components/schemas/OccupationItem",
+      "Parent": {
+        "Response": {
+          "Payload": {
+            "$id": "/components/schemas/OccupationResponseSchemaGETParent",
+            "anyOf": [
+              {
                 "additionalProperties": false,
                 "allOf": [
                   {
@@ -239,7 +838,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                         },
                         "occupationGroupCode": {
                           "maxLength": 256,
-                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                           "type": "string",
                         },
                       },
@@ -378,7 +977,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                               },
                               "occupationGroupCode": {
                                 "maxLength": 256,
-                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                                 "type": "string",
                               },
                             },
@@ -402,10 +1001,12 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "type": "string",
                         },
                         "objectType": {
-                          "description": "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
+                          "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
                           "enum": [
                             "escooccupation",
                             "localoccupation",
+                            "iscogroup",
+                            "localgroup",
                           ],
                           "type": "string",
                         },
@@ -575,7 +1176,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                             },
                             "occupationGroupCode": {
                               "maxLength": 256,
-                              "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                              "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                               "type": "string",
                             },
                           },
@@ -600,7 +1201,989 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                         "type": "string",
                       },
                       "objectType": {
-                        "description": "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
+                        "description": "The type of the occupation parent (LocalOccupation, ESCOOccupation, ISCOGroup or LocalGroup).",
+                        "enum": [
+                          "iscogroup",
+                          "localgroup",
+                          "escooccupation",
+                          "localoccupation",
+                        ],
+                        "type": "string",
+                      },
+                      "occupationGroupCode": {
+                        "description": "The code of the parent occupation group.",
+                        "maxLength": 256,
+                        "type": "string",
+                      },
+                      "preferredLabel": {
+                        "description": "The preferred label of the parent occupation.",
+                        "maxLength": 256,
+                        "pattern": "\\S",
+                        "type": "string",
+                      },
+                    },
+                    "type": [
+                      "object",
+                      "null",
+                    ],
+                  },
+                  "path": {
+                    "description": "Resource path using the occupation's ID.",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "^https://.*",
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the occupation.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "regulatedProfessionNote": {
+                    "description": "Regulatory information for legally regulated professions.",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "requiresSkills": {
+                    "description": "Skills required for this occupation with relationship metadata.",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the required skill.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The ID of the required skill.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "isLocalized": {
+                          "description": "Indicates if the required skill is localized.",
+                          "type": "boolean",
+                        },
+                        "objectType": {
+                          "description": "The object type of the required skill.",
+                          "enum": [
+                            "skill",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the required skill.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                        "relationType": {
+                          "description": "Used for ESCOOccupations only.",
+                          "enum": [
+                            "",
+                            "essential",
+                            "optional",
+                            null,
+                          ],
+                          "type": [
+                            "string",
+                            "null",
+                          ],
+                        },
+                        "signallingValue": {
+                          "description": "Used for LocalOccupations only.",
+                          "maximum": 100,
+                          "minimum": 0,
+                          "type": [
+                            "number",
+                            "null",
+                          ],
+                        },
+                        "signallingValueLabel": {
+                          "description": "Used for LocalOccupations only.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": [
+                            "string",
+                            "null",
+                          ],
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "isLocalized",
+                        "objectType",
+                      ],
+                      "type": "object",
+                    },
+                    "minItems": 0,
+                    "type": "array",
+                  },
+                  "scopeNote": {
+                    "description": "Scope clarification for the occupation's application.",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "tabiyaPath": {
+                    "description": "Resource path using the occupation's UUID.",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "^https://.*",
+                    "type": "string",
+                  },
+                  "updatedAt": {
+                    "description": "Timestamp of last record modification.",
+                    "format": "date-time",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "originUUID",
+                  "UUIDHistory",
+                  "path",
+                  "tabiyaPath",
+                  "code",
+                  "occupationGroupCode",
+                  "originUri",
+                  "preferredLabel",
+                  "altLabels",
+                  "definition",
+                  "description",
+                  "regulatedProfessionNote",
+                  "scopeNote",
+                  "occupationType",
+                  "modelId",
+                  "isLocalized",
+                  "parent",
+                  "requiresSkills",
+                  "children",
+                  "createdAt",
+                  "updatedAt",
+                ],
+                "type": "object",
+              },
+              {
+                "additionalProperties": false,
+                "else": {
+                  "properties": {
+                    "code": {
+                      "maxLength": 256,
+                      "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                      "type": "string",
+                    },
+                  },
+                },
+                "if": {
+                  "properties": {
+                    "groupType": {
+                      "enum": [
+                        "iscogroup",
+                      ],
+                    },
+                  },
+                },
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the occupation group. It can be used to identify the occupation group across systems.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "UUIDHistory": {
+                    "description": "The UUIDs history of the occupation group.",
+                    "items": {
+                      "maxLength": 36,
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "maxItems": 10000,
+                    "minItems": 0,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                  "altLabels": {
+                    "description": "The alternative labels of the occupation group.",
+                    "items": {
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "maxItems": 100,
+                    "minItems": 0,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                  "children": {
+                    "description": "The children of this occupation group, which can be either occupation groups or occupations.",
+                    "items": {
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "iscogroup",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{1,4}$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localgroup",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "escooccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localoccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                      ],
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "code": {
+                          "description": "The code of the parent occupation group.",
+                          "maxLength": 256,
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The id of the parent occupation group.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "objectType": {
+                          "description": "The type of the occupation group | occupation, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
+                          "enum": [
+                            "iscogroup",
+                            "localgroup",
+                            "escooccupation",
+                            "localoccupation",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the parent occupation group.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
+                    },
+                    "minItems": 0,
+                    "type": "array",
+                  },
+                  "code": {
+                    "description": "The code of the occupation group.",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "createdAt": {
+                    "format": "date-time",
+                    "type": "string",
+                  },
+                  "description": {
+                    "description": "The description of the occupation group.",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "groupType": {
+                    "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+                    "enum": [
+                      "iscogroup",
+                      "localgroup",
+                    ],
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The id of the occupation group. It can be used to retrieve the occupation group from the server.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "modelId": {
+                    "description": "The identifier of the model for occupation group.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "originUUID": {
+                    "description": "The last UUID in the UUIDHistory of occupation group. It can be used to identify the occupation group across systems.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "originUri": {
+                    "description": "The origin URI of the occupation group.",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "parent": {
+                    "additionalProperties": false,
+                    "description": "The parent occupation group of this occupation group.",
+                    "else": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                    "if": {
+                      "properties": {
+                        "objectType": {
+                          "enum": [
+                            "iscogroup",
+                          ],
+                        },
+                      },
+                    },
+                    "properties": {
+                      "UUID": {
+                        "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                        "type": "string",
+                      },
+                      "code": {
+                        "description": "The code of the parent occupation group.",
+                        "maxLength": 256,
+                        "type": "string",
+                      },
+                      "id": {
+                        "description": "The id of the parent occupation group.",
+                        "pattern": "^[0-9a-f]{24}$",
+                        "type": "string",
+                      },
+                      "objectType": {
+                        "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+                        "enum": [
+                          "iscogroup",
+                          "localgroup",
+                        ],
+                        "type": "string",
+                      },
+                      "preferredLabel": {
+                        "description": "The preferred label of the parent occupation group.",
+                        "maxLength": 256,
+                        "pattern": "\\S",
+                        "type": "string",
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^\\d{1,4}$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                    "type": [
+                      "object",
+                      "null",
+                    ],
+                  },
+                  "path": {
+                    "description": "The path to the occupation group resource using the resource id",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "^https://.*",
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the occupation group.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "tabiyaPath": {
+                    "description": "The path to the occupation group resource using the resource UUID",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "^https://.*",
+                    "type": "string",
+                  },
+                  "updatedAt": {
+                    "format": "date-time",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "originUUID",
+                  "path",
+                  "UUIDHistory",
+                  "tabiyaPath",
+                  "originUri",
+                  "code",
+                  "description",
+                  "preferredLabel",
+                  "parent",
+                  "children",
+                  "altLabels",
+                  "groupType",
+                  "modelId",
+                  "createdAt",
+                  "updatedAt",
+                ],
+                "then": {
+                  "properties": {
+                    "code": {
+                      "maxLength": 256,
+                      "pattern": "^\\d{1,4}$",
+                      "type": "string",
+                    },
+                  },
+                },
+                "type": "object",
+              },
+              {
+                "type": "null",
+              },
+            ],
+          },
+        },
+      },
+      "Request": {
+        "ById": {
+          "Param": {
+            "Payload": {
+              "$id": "/components/schemas/OccupationRequestByIdParamSchemaGET",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "description": "The id of the occupation. It can be used to retrieve the occupation from the server.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+                "modelId": {
+                  "description": "The identifier of the model for occupation.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+              },
+              "required": [
+                "modelId",
+                "id",
+              ],
+              "type": "object",
+            },
+          },
+        },
+        "Param": {
+          "Payload": {
+            "$id": "/components/schemas/OccupationRequestParamSchemaGET",
+            "additionalProperties": false,
+            "properties": {
+              "modelId": {
+                "description": "The identifier of the model for occupation.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+            },
+            "required": [
+              "modelId",
+            ],
+            "type": "object",
+          },
+        },
+        "Query": {
+          "Payload": {
+            "$id": "/components/schemas/OccupationRequestQueryParamSchemaGET",
+            "additionalProperties": false,
+            "properties": {
+              "cursor": {
+                "description": "A base64 string representing the cursor for pagination.",
+                "maxLength": 1024,
+                "pattern": "\\S",
+                "type": "string",
+              },
+              "limit": {
+                "default": 10,
+                "description": "The maximum number of items to return.",
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
+              },
+            },
+            "type": "object",
+          },
+        },
+      },
+      "Response": {
+        "Payload": {
+          "$id": "/components/schemas/OccupationResponseSchemaGET",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "Array of occupation data for the current page",
+              "items": {
+                "$id": "/components/schemas/OccupationItem",
+                "additionalProperties": false,
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "occupationType": {
+                          "const": "escooccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                          "type": "string",
+                        },
+                        "occupationGroupCode": {
+                          "maxLength": 256,
+                          "pattern": "^\\d{1,4}$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "occupationType": {
+                          "const": "localoccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "code": {
+                          "maxLength": 256,
+                          "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                          "type": "string",
+                        },
+                        "occupationGroupCode": {
+                          "maxLength": 256,
+                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "occupationType": {
+                          "const": "escooccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "requiresSkills": {
+                          "items": {
+                            "properties": {
+                              "relationType": {
+                                "type": "string",
+                              },
+                            },
+                            "required": [
+                              "relationType",
+                            ],
+                            "type": "object",
+                          },
+                          "type": "array",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "occupationType": {
+                          "const": "localoccupation",
+                        },
+                      },
+                    },
+                    "then": {
+                      "properties": {
+                        "requiresSkills": {
+                          "items": {
+                            "properties": {
+                              "signallingValue": {
+                                "type": "number",
+                              },
+                              "signallingValueLabel": {
+                                "type": "string",
+                              },
+                            },
+                            "required": [
+                              "signallingValue",
+                              "signallingValueLabel",
+                            ],
+                            "type": "object",
+                          },
+                          "type": "array",
+                        },
+                      },
+                    },
+                  },
+                ],
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the occupation for cross-system identification.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "UUIDHistory": {
+                    "description": "The UUIDs history of the occupation.",
+                    "items": {
+                      "maxLength": 50,
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "maxItems": 10000,
+                    "minItems": 0,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                  "altLabels": {
+                    "description": "Alternative labels for the occupation.",
+                    "items": {
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "maxItems": 100,
+                    "minItems": 0,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                  "children": {
+                    "description": "The children of this occupation.",
+                    "items": {
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "escooccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                                "type": "string",
+                              },
+                              "occupationGroupCode": {
+                                "maxLength": 256,
+                                "pattern": "^\\d{1,4}$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "objectType": {
+                                "const": "localoccupation",
+                              },
+                            },
+                          },
+                          "then": {
+                            "properties": {
+                              "code": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                                "type": "string",
+                              },
+                              "occupationGroupCode": {
+                                "maxLength": 256,
+                                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
+                                "type": "string",
+                              },
+                            },
+                          },
+                        },
+                      ],
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the child occupation.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "code": {
+                          "description": "The code of the child occupation.",
+                          "maxLength": 256,
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The id of the child occupation.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "objectType": {
+                          "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
+                          "enum": [
+                            "escooccupation",
+                            "localoccupation",
+                            "iscogroup",
+                            "localgroup",
+                          ],
+                          "type": "string",
+                        },
+                        "occupationGroupCode": {
+                          "description": "The code of the child occupation group.",
+                          "maxLength": 256,
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the child occupation.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
+                    },
+                    "minItems": 0,
+                    "type": "array",
+                  },
+                  "code": {
+                    "description": "The code of the occupation.",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "createdAt": {
+                    "description": "Timestamp of record creation.",
+                    "format": "date-time",
+                    "type": "string",
+                  },
+                  "definition": {
+                    "description": "The formal definition of the occupation.",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "description": {
+                    "description": "Additional descriptive information about the occupation.",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The unique identifier of the occupation.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "isLocalized": {
+                    "description": "Indicates if the occupation has localized variants. Must be false for LocalOccupation.",
+                    "type": "boolean",
+                  },
+                  "modelId": {
+                    "description": "The identifier of the model containing this occupation.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "occupationGroupCode": {
+                    "description": "The code of the parent occupation group.",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "occupationType": {
+                    "description": "The occupation classification type (e.g., ESCOOccupation or LocalOccupation).",
+                    "enum": [
+                      "escooccupation",
+                      "localoccupation",
+                    ],
+                    "type": "string",
+                  },
+                  "originUUID": {
+                    "description": "The original UUID of the occupation, i.e., the first UUID in UUIDHistory",
+                    "maxLength": 50,
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "originUri": {
+                    "description": "The origin URI of the occupation.",
+                    "format": "uri",
+                    "maxLength": 4096,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "parent": {
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "objectType": {
+                              "const": "iscogroup",
+                            },
+                          },
+                        },
+                        "then": {
+                          "properties": {
+                            "code": {
+                              "maxLength": 256,
+                              "pattern": "^\\d{1,4}$",
+                              "type": "string",
+                            },
+                            "occupationGroupCode": {
+                              "maxLength": 256,
+                              "pattern": "^\\d{1,4}$",
+                              "type": "string",
+                            },
+                          },
+                        },
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "objectType": {
+                              "const": "localgroup",
+                            },
+                          },
+                        },
+                        "then": {
+                          "properties": {
+                            "code": {
+                              "maxLength": 256,
+                              "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                              "type": "string",
+                            },
+                            "occupationGroupCode": {
+                              "maxLength": 256,
+                              "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                              "type": "string",
+                            },
+                          },
+                        },
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "objectType": {
+                              "const": "escooccupation",
+                            },
+                          },
+                        },
+                        "then": {
+                          "properties": {
+                            "code": {
+                              "maxLength": 256,
+                              "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                              "type": "string",
+                            },
+                            "occupationGroupCode": {
+                              "maxLength": 256,
+                              "pattern": "^\\d{1,4}$",
+                              "type": "string",
+                            },
+                          },
+                        },
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "objectType": {
+                              "const": "localoccupation",
+                            },
+                          },
+                        },
+                        "then": {
+                          "properties": {
+                            "code": {
+                              "maxLength": 256,
+                              "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                              "type": "string",
+                            },
+                            "occupationGroupCode": {
+                              "maxLength": 256,
+                              "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
+                              "type": "string",
+                            },
+                          },
+                        },
+                      },
+                    ],
+                    "description": "The parent occupation of this occupation.",
+                    "properties": {
+                      "UUID": {
+                        "description": "The UUID of the occupation. It can be used to identify the parent occupation.",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                        "type": "string",
+                      },
+                      "code": {
+                        "description": "The code of the parent occupation.",
+                        "maxLength": 256,
+                        "type": "string",
+                      },
+                      "id": {
+                        "description": "The id of the parent occupation.",
+                        "pattern": "^[0-9a-f]{24}$",
+                        "type": "string",
+                      },
+                      "objectType": {
+                        "description": "The type of the occupation parent (LocalOccupation, ESCOOccupation, ISCOGroup or LocalGroup).",
                         "enum": [
                           "iscogroup",
                           "localgroup",
@@ -789,6 +2372,614 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "limit",
           ],
           "type": "object",
+        },
+      },
+      "Skills": {
+        "Request": {
+          "Query": {
+            "Payload": {
+              "$id": "/components/schemas/OccupationRequestQueryParamSchemaGETSkills",
+              "additionalProperties": false,
+              "properties": {
+                "cursor": {
+                  "description": "A base64 string representing the cursor for pagination.",
+                  "maxLength": 1024,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "limit": {
+                  "default": 10,
+                  "description": "The maximum number of items to return.",
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer",
+                },
+              },
+              "type": "object",
+            },
+          },
+        },
+        "Response": {
+          "Payload": {
+            "$id": "/components/schemas/OccupationResponseSchemaGETSkills",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "description": "Array of skills required by the occupation for the current page",
+                "items": {
+                  "$id": "/components/schemas/OccupationSkillItem",
+                  "additionalProperties": false,
+                  "properties": {
+                    "UUID": {
+                      "description": "The UUID of the skill for cross-system identification.",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "UUIDHistory": {
+                      "description": "The UUIDs history of the skill.",
+                      "items": {
+                        "maxLength": 50,
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                        "type": "string",
+                      },
+                      "maxItems": 10000,
+                      "minItems": 0,
+                      "type": "array",
+                      "uniqueItems": true,
+                    },
+                    "altLabels": {
+                      "description": "Alternative labels for the skill.",
+                      "items": {
+                        "maxLength": 256,
+                        "type": "string",
+                      },
+                      "maxItems": 100,
+                      "minItems": 0,
+                      "type": "array",
+                      "uniqueItems": true,
+                    },
+                    "children": {
+                      "description": "The children of this skill.",
+                      "items": {
+                        "additionalProperties": false,
+                        "allOf": [
+                          {
+                            "if": {
+                              "properties": {
+                                "objectType": {
+                                  "const": "skill",
+                                },
+                              },
+                            },
+                            "then": {
+                              "properties": {
+                                "isLocalized": {
+                                  "type": "boolean",
+                                },
+                              },
+                              "required": [
+                                "isLocalized",
+                              ],
+                            },
+                          },
+                        ],
+                        "properties": {
+                          "UUID": {
+                            "description": "The UUID of the child skill.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The id of the child skill.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "isLocalized": {
+                            "description": "Indicates if the child skill is localized.",
+                            "type": "boolean",
+                          },
+                          "objectType": {
+                            "description": "The type of the child, e.g., Skill.",
+                            "enum": [
+                              "skill",
+                            ],
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the child skill.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                          "UUID",
+                          "preferredLabel",
+                          "objectType",
+                        ],
+                        "type": "object",
+                      },
+                      "minItems": 0,
+                      "type": "array",
+                    },
+                    "createdAt": {
+                      "description": "Timestamp of record creation.",
+                      "format": "date-time",
+                      "type": "string",
+                    },
+                    "definition": {
+                      "description": "The formal definition of the skill.",
+                      "maxLength": 4000,
+                      "type": "string",
+                    },
+                    "description": {
+                      "description": "Additional descriptive information about the skill.",
+                      "maxLength": 6000,
+                      "type": "string",
+                    },
+                    "id": {
+                      "description": "The unique identifier of the skill.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": "string",
+                    },
+                    "isLocalized": {
+                      "description": "Indicates if the skill has localized variants.",
+                      "type": "boolean",
+                    },
+                    "modelId": {
+                      "description": "The identifier of the model containing this skill.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": "string",
+                    },
+                    "originUUID": {
+                      "description": "The original UUID of the skill, i.e., the first UUID in UUIDHistory",
+                      "maxLength": 50,
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "originUri": {
+                      "description": "The origin URI of the skill.",
+                      "format": "uri",
+                      "maxLength": 4096,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                    "parent": {
+                      "additionalProperties": false,
+                      "description": "The parent skill or skill group of this skill.",
+                      "if": {
+                        "properties": {
+                          "objectType": {
+                            "enum": [
+                              "skillgroup",
+                            ],
+                          },
+                        },
+                      },
+                      "properties": {
+                        "UUID": {
+                          "description": "The UUID of the parent skill or skill group.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
+                        "code": {
+                          "description": "The code of the parent skill group.",
+                          "maxLength": 256,
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The id of the parent skill or skill group.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "objectType": {
+                          "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                          "enum": [
+                            "skillgroup",
+                            "skill",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the parent skill or skill group.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "objectType",
+                      ],
+                      "then": {
+                        "properties": {
+                          "code": {
+                            "maxLength": 256,
+                            "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "code",
+                        ],
+                      },
+                      "type": [
+                        "object",
+                        "null",
+                      ],
+                    },
+                    "path": {
+                      "description": "Resource path using the skill's ID.",
+                      "format": "uri",
+                      "maxLength": 4096,
+                      "pattern": "^https://.*",
+                      "type": "string",
+                    },
+                    "preferredLabel": {
+                      "description": "The preferred label of the skill.",
+                      "maxLength": 256,
+                      "pattern": "\\S",
+                      "type": "string",
+                    },
+                    "relationType": {
+                      "description": "The type of relationship between occupation and skill (essential/optional).",
+                      "enum": [
+                        "",
+                        "essential",
+                        "optional",
+                        null,
+                      ],
+                      "type": [
+                        "string",
+                        "null",
+                      ],
+                    },
+                    "requiredByOccupations": {
+                      "description": "Occupations that require this skill with relationship metadata.",
+                      "items": {
+                        "additionalProperties": false,
+                        "allOf": [
+                          {
+                            "if": {
+                              "properties": {
+                                "objectType": {
+                                  "const": "escooccupation",
+                                },
+                              },
+                            },
+                            "then": {
+                              "properties": {
+                                "relationType": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "relationType",
+                              ],
+                            },
+                          },
+                          {
+                            "if": {
+                              "properties": {
+                                "objectType": {
+                                  "const": "localoccupation",
+                                },
+                              },
+                            },
+                            "then": {
+                              "properties": {
+                                "signallingValue": {
+                                  "type": "number",
+                                },
+                                "signallingValueLabel": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "signallingValue",
+                                "signallingValueLabel",
+                              ],
+                            },
+                          },
+                        ],
+                        "properties": {
+                          "UUID": {
+                            "description": "The UUID of the requiring occupation.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The ID of the requiring occupation.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "isLocalized": {
+                            "description": "Indicates if the requiring occupation is localized.",
+                            "type": "boolean",
+                          },
+                          "objectType": {
+                            "description": "The object type of the requiring occupation.",
+                            "enum": [
+                              "escooccupation",
+                              "localoccupation",
+                            ],
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the requiring occupation.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
+                            "type": "string",
+                          },
+                          "relationType": {
+                            "description": "Used for ESCOOccupations only.",
+                            "enum": [
+                              "",
+                              "essential",
+                              "optional",
+                              null,
+                            ],
+                            "type": [
+                              "string",
+                              "null",
+                            ],
+                          },
+                          "signallingValue": {
+                            "description": "Used for LocalOccupations only.",
+                            "maximum": 100,
+                            "minimum": 0,
+                            "type": [
+                              "number",
+                              "null",
+                            ],
+                          },
+                          "signallingValueLabel": {
+                            "description": "Used for LocalOccupations only.",
+                            "enum": [
+                              "",
+                              "low",
+                              "medium",
+                              "high",
+                              null,
+                            ],
+                            "maxLength": 256,
+                            "type": [
+                              "string",
+                              "null",
+                            ],
+                          },
+                        },
+                        "required": [
+                          "id",
+                          "UUID",
+                          "preferredLabel",
+                          "isLocalized",
+                          "objectType",
+                        ],
+                        "type": "object",
+                      },
+                      "minItems": 0,
+                      "type": "array",
+                    },
+                    "requiredBySkills": {
+                      "description": "Skills that require this skill with relationship metadata.",
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "UUID": {
+                            "description": "The UUID of the requiring skill.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The ID of the requiring skill.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "isLocalized": {
+                            "description": "Indicates if the requiring skill is localized.",
+                            "type": "boolean",
+                          },
+                          "objectType": {
+                            "description": "The object type of the requiring skill.",
+                            "enum": [
+                              "skill",
+                            ],
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the requiring skill.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
+                            "type": "string",
+                          },
+                          "relationType": {
+                            "description": "The type of relationship between skills.",
+                            "enum": [
+                              "essential",
+                              "optional",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                          "UUID",
+                          "preferredLabel",
+                          "isLocalized",
+                          "objectType",
+                          "relationType",
+                        ],
+                        "type": "object",
+                      },
+                      "minItems": 0,
+                      "type": "array",
+                    },
+                    "requiresSkills": {
+                      "description": "Skills required by this skill with relationship metadata.",
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "UUID": {
+                            "description": "The UUID of the required skill.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The ID of the required skill.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "isLocalized": {
+                            "description": "Indicates if the required skill is localized.",
+                            "type": "boolean",
+                          },
+                          "objectType": {
+                            "description": "The object type of the required skill.",
+                            "enum": [
+                              "skill",
+                            ],
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the required skill.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
+                            "type": "string",
+                          },
+                          "relationType": {
+                            "description": "The type of relationship between skills.",
+                            "enum": [
+                              "essential",
+                              "optional",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                          "UUID",
+                          "preferredLabel",
+                          "isLocalized",
+                          "objectType",
+                          "relationType",
+                        ],
+                        "type": "object",
+                      },
+                      "minItems": 0,
+                      "type": "array",
+                    },
+                    "reuseLevel": {
+                      "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
+                      "enum": [
+                        "sector-specific",
+                        "occupation-specific",
+                        "cross-sector",
+                        "transversal",
+                      ],
+                      "type": "string",
+                    },
+                    "scopeNote": {
+                      "description": "Scope clarification for the skill's application.",
+                      "maxLength": 4000,
+                      "type": "string",
+                    },
+                    "signallingValue": {
+                      "description": "Numeric signalling value for the skill relationship.",
+                      "maximum": 100,
+                      "minimum": 0,
+                      "type": [
+                        "number",
+                        "null",
+                      ],
+                    },
+                    "signallingValueLabel": {
+                      "description": "Label for the signalling value.",
+                      "maxLength": 256,
+                      "pattern": "\\S",
+                      "type": [
+                        "string",
+                        "null",
+                      ],
+                    },
+                    "skillType": {
+                      "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
+                      "enum": [
+                        "skill/competence",
+                        "knowledge",
+                        "language",
+                        "attitude",
+                      ],
+                      "type": "string",
+                    },
+                    "tabiyaPath": {
+                      "description": "Resource path using the skill's UUID.",
+                      "format": "uri",
+                      "maxLength": 4096,
+                      "pattern": "^https://.*",
+                      "type": "string",
+                    },
+                    "updatedAt": {
+                      "description": "Timestamp of last record modification.",
+                      "format": "date-time",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "UUID",
+                    "originUUID",
+                    "UUIDHistory",
+                    "path",
+                    "tabiyaPath",
+                    "preferredLabel",
+                    "originUri",
+                    "altLabels",
+                    "definition",
+                    "description",
+                    "scopeNote",
+                    "skillType",
+                    "reuseLevel",
+                    "isLocalized",
+                    "modelId",
+                    "parent",
+                    "children",
+                    "requiresSkills",
+                    "requiredBySkills",
+                    "requiredByOccupations",
+                    "createdAt",
+                    "updatedAt",
+                  ],
+                  "type": "object",
+                },
+                "type": "array",
+              },
+              "limit": {
+                "default": 10,
+                "description": "Number of data returned in this page.",
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
+              },
+              "nextCursor": {
+                "description": "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
+                "maxLength": 1024,
+                "pattern": "\\S",
+                "type": [
+                  "string",
+                  "null",
+                ],
+              },
+            },
+            "required": [
+              "data",
+              "limit",
+            ],
+            "type": "object",
+          },
         },
       },
     },
@@ -980,7 +3171,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   },
                   "occupationGroupCode": {
                     "maxLength": 256,
-                    "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                    "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                     "type": "string",
                   },
                 },
@@ -1119,7 +3310,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                         },
                         "occupationGroupCode": {
                           "maxLength": 256,
-                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                          "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                           "type": "string",
                         },
                       },
@@ -1143,10 +3334,12 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "type": "string",
                   },
                   "objectType": {
-                    "description": "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
+                    "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
                     "enum": [
                       "escooccupation",
                       "localoccupation",
+                      "iscogroup",
+                      "localgroup",
                     ],
                     "type": "string",
                   },
@@ -1316,7 +3509,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                       },
                       "occupationGroupCode": {
                         "maxLength": 256,
-                        "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                        "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                         "type": "string",
                       },
                     },
@@ -1341,7 +3534,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   "type": "string",
                 },
                 "objectType": {
-                  "description": "The type of the occupation, e.g., ISCOGroup or LocalGroup.",
+                  "description": "The type of the occupation parent (LocalOccupation, ESCOOccupation, ISCOGroup or LocalGroup).",
                   "enum": [
                     "iscogroup",
                     "localgroup",

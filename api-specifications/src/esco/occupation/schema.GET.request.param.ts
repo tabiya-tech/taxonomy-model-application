@@ -6,7 +6,7 @@ const SchemaGETRequestParam: SchemaObject = {
   type: "object",
   additionalProperties: false,
   properties: {
-    ...JSON.parse(JSON.stringify(_baseOccupationURLParameter)),
+    ..._baseOccupationURLParameter,
   },
   required: ["modelId"],
 };

@@ -1,11 +1,13 @@
 import {
   IOccupationService,
+  ISkillWithRelation,
   ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupationService.types";
 import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
 import { IOccupationRepository } from "./occupationRepository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
+import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 
 export class OccupationService implements IOccupationService {
   constructor(
@@ -72,5 +74,67 @@ export class OccupationService implements IOccupationService {
       console.error("Failed to validate model for occupation creation", e);
       return ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
+  }
+
+  async getParent(modelId: string, occupationId: string): Promise<IOccupation | IOccupationGroup | null> {
+    return this.occupationRepository.findParent(modelId, occupationId);
+  }
+
+  async getChildren(
+    modelId: string,
+    occupationId: string,
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    // Get items + 1 to check if there's a next page
+    const items = await this.occupationRepository.findChildren(modelId, occupationId, limit + 1, cursor);
+
+    // Check if there's a next page
+    const hasMore = items.length > limit;
+    const pageItems = hasMore ? items.slice(0, limit) : items;
+
+    // Construct nextCursor from the last item of the current page
+    let nextCursor: { _id: string; createdAt: Date } | null = null;
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
+      nextCursor = {
+        _id: lastItemOnPage.id,
+        createdAt: lastItemOnPage.createdAt,
+      };
+    }
+
+    return {
+      items: pageItems,
+      nextCursor,
+    };
+  }
+
+  async getSkills(
+    modelId: string,
+    occupationId: string,
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: ISkillWithRelation[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    // Get items + 1 to check if there's a next page
+    const items = await this.occupationRepository.findSkillsForOccupation(modelId, occupationId, limit + 1, cursor);
+
+    // Check if there's a next page
+    const hasMore = items.length > limit;
+    const pageItems = hasMore ? items.slice(0, limit) : items;
+
+    // Construct nextCursor from the last item of the current page
+    let nextCursor: { _id: string; createdAt: Date } | null = null;
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
+      nextCursor = {
+        _id: lastItemOnPage.id,
+        createdAt: lastItemOnPage.createdAt,
+      };
+    }
+
+    return {
+      items: pageItems,
+      nextCursor,
+    };
   }
 }

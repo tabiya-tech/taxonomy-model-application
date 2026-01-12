@@ -18,9 +18,10 @@ import { usersRequestContext } from "_test_utilities/dataModel";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
-import { ObjectTypes } from "esco/common/objectTypes";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
+import { ReuseLevel, SkillType } from "esco/skill/skills.types";
 
-async function createOccupationInDB(modelId: string = getMockStringId(1)) {
+async function createOccupationInDB(modelId: string = getMockStringId(1), spec?: Partial<IOccupation>) {
   return await getRepositoryRegistry().occupation.create({
     modelId: modelId,
     code: getMockRandomOccupationCode(false),
@@ -35,6 +36,7 @@ async function createOccupationInDB(modelId: string = getMockStringId(1)) {
     scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
     regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
     isLocalized: false,
+    ...spec,
   });
 }
 async function createOccupationsInDB(count: number, modelId: string = getMockStringId(1)) {
@@ -55,7 +57,10 @@ describe("Test for occupation handler with a DB", () => {
   addFormats(ajv);
   ajv
     .addSchema(OccupationAPISpecs.Schemas.GET.Response.Payload)
-    .addSchema(OccupationAPISpecs.Schemas.POST.Response.Payload);
+    .addSchema(OccupationAPISpecs.Schemas.POST.Response.Payload)
+    .addSchema(OccupationAPISpecs.Schemas.GET.Parent.Response.Payload)
+    .addSchema(OccupationAPISpecs.Schemas.GET.Children.Response.Payload)
+    .addSchema(OccupationAPISpecs.Schemas.GET.Skills.Response.Payload);
   const validateGETResponse: ValidateFunction = ajv.getSchema(
     OccupationAPISpecs.Schemas.GET.Response.Payload.$id as string
   ) as ValidateFunction;
@@ -212,6 +217,7 @@ describe("Test for occupation handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId: modelId.toString() },
       queryStringParameters: {
         limit: limit.toString(),
@@ -255,6 +261,7 @@ describe("Test for occupation handler with a DB", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId: modelId.toString() },
       queryStringParameters: {
         limit: limit.toString(),
@@ -298,6 +305,7 @@ describe("Test for occupation handler with a DB", () => {
     const baselineEvent = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "3" },
     };
@@ -312,6 +320,7 @@ describe("Test for occupation handler with a DB", () => {
     const page1Event = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "1" },
     };
@@ -327,6 +336,7 @@ describe("Test for occupation handler with a DB", () => {
     const page2Event = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "1", cursor: page1Body.nextCursor },
     };
@@ -342,6 +352,7 @@ describe("Test for occupation handler with a DB", () => {
     const page3Event = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "1", cursor: page2Body.nextCursor },
     };
@@ -372,6 +383,7 @@ describe("Test for occupation handler with a DB", () => {
     const baselineEvent = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "4" },
     };
@@ -386,6 +398,7 @@ describe("Test for occupation handler with a DB", () => {
     const page1Event = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "2" },
     };
@@ -401,6 +414,7 @@ describe("Test for occupation handler with a DB", () => {
     const page2Event = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "2", cursor: page1Body.nextCursor },
     };
@@ -431,6 +445,7 @@ describe("Test for occupation handler with a DB", () => {
     const baselineEvent = {
       httpMethod: HTTP_VERBS.GET,
       headers: { "Content-Type": "application/json" },
+      path: `/models/${modelId}/occupations`,
       pathParameters: { modelId },
       queryStringParameters: { limit: "20" },
     };
@@ -457,6 +472,7 @@ describe("Test for occupation handler with a DB", () => {
       const event = {
         httpMethod: HTTP_VERBS.GET,
         headers: { "Content-Type": "application/json" },
+        path: `/models/${modelId}/occupations`,
         pathParameters: { modelId },
         queryStringParameters: { limit: size.toString(), ...(cursor ? { cursor } : {}) },
       };
@@ -541,5 +557,243 @@ describe("Test for occupation handler with a DB", () => {
     // AND an occupation object that validates against the OccupationResponsePOST schema
     validatePOSTResponse(JSON.parse(actualResponse.body));
     expect(validatePOSTResponse.errors).toBeNull();
+  });
+
+  test("GET /occupations/{id}/parent should return the parent of the occupation", async () => {
+    // GIVEN a model exists
+    const modelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: getTestString(10),
+      locale: { UUID: randomUUID(), name: getTestString(5), shortCode: getTestString(2) },
+      description: getTestString(10),
+      license: getTestString(5),
+      UUIDHistory: [randomUUID()],
+    });
+    const modelId = modelInfo.id.toString();
+    // AND a parent occupation
+    const parentCode = getMockRandomOccupationCode(true);
+    const childCode = parentCode + "_1";
+    const parent = await createOccupationInDB(modelId, {
+      occupationType: ObjectTypes.LocalOccupation,
+      code: parentCode,
+      occupationGroupCode: "LG0001",
+    });
+    // AND a child occupation
+    const child = await createOccupationInDB(modelId, {
+      occupationType: ObjectTypes.LocalOccupation,
+      code: childCode,
+      occupationGroupCode: "LG0001",
+    });
+    // AND they are linked in hierarchy
+    const hierarchy = await getRepositoryRegistry().occupationHierarchy.createMany(modelId, [
+      {
+        parentType: ObjectTypes.LocalOccupation,
+        parentId: parent.id,
+        childType: ObjectTypes.LocalOccupation,
+        childId: child.id,
+      },
+    ]);
+    expect(hierarchy).toHaveLength(1);
+
+    // AND a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      path: `/models/${modelId}/occupations/${child.id}/parent`,
+      pathParameters: { modelId: modelId, id: child.id },
+      requestContext: usersRequestContext.ANONYMOUS,
+    };
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await occupationHandler(givenEvent);
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    // AND the response validates against the schema
+    const validateParentResponse = ajv.getSchema(
+      OccupationAPISpecs.Schemas.GET.Parent.Response.Payload.$id as string
+    ) as ValidateFunction;
+    const body = JSON.parse(actualResponse.body);
+    validateParentResponse(body);
+    expect(validateParentResponse.errors).toBeNull();
+
+    // AND the body contains the parent
+    expect(body.id).toEqual(parent.id);
+  });
+
+  test("GET /occupations/{id}/children should return the children of the occupation", async () => {
+    // GIVEN a model exists
+    const modelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: getTestString(10),
+      locale: { UUID: randomUUID(), name: getTestString(5), shortCode: getTestString(2) },
+      description: getTestString(10),
+      license: getTestString(5),
+      UUIDHistory: [randomUUID()],
+    });
+    const modelId = modelInfo.id.toString();
+    // AND a parent occupation
+    const parentCode = getMockRandomOccupationCode(true);
+    const childCode = parentCode + "_1";
+    const parent = await createOccupationInDB(modelId, {
+      occupationType: ObjectTypes.LocalOccupation,
+      code: parentCode,
+      occupationGroupCode: "LG0001",
+    });
+    // AND a child occupation
+    const child = await createOccupationInDB(modelId, {
+      occupationType: ObjectTypes.LocalOccupation,
+      code: childCode,
+      occupationGroupCode: "LG0001",
+    });
+    // AND they are linked in hierarchy
+    const hierarchy = await getRepositoryRegistry().occupationHierarchy.createMany(modelId, [
+      {
+        parentType: ObjectTypes.LocalOccupation,
+        parentId: parent.id,
+        childType: ObjectTypes.LocalOccupation,
+        childId: child.id,
+      },
+    ]);
+    expect(hierarchy).toHaveLength(1);
+
+    // AND a valid request (method & header)
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      path: `/models/${modelId}/occupations/${parent.id}/children`,
+      pathParameters: { modelId: modelId, id: parent.id },
+      queryStringParameters: { limit: "10" },
+      requestContext: usersRequestContext.ANONYMOUS,
+    };
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await occupationHandler(givenEvent);
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    // AND the response validates against the schema
+    const validateChildrenResponse = ajv.getSchema(
+      OccupationAPISpecs.Schemas.GET.Children.Response.Payload.$id as string
+    ) as ValidateFunction;
+    const body = JSON.parse(actualResponse.body);
+    validateChildrenResponse(body);
+    expect(validateChildrenResponse.errors).toBeNull();
+
+    // AND the body contains the child
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0].id).toEqual(child.id);
+  });
+
+  test("GET /occupations/{id}/skills should return the skills of the occupation", async () => {
+    // GIVEN a model exists
+    const modelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: getTestString(10),
+      locale: { UUID: randomUUID(), name: getTestString(5), shortCode: getTestString(2) },
+      description: getTestString(10),
+      license: getTestString(5),
+      UUIDHistory: [randomUUID()],
+    });
+    const modelId = modelInfo.id.toString();
+
+    // AND an occupation
+    const occupation = await createOccupationInDB(modelId);
+
+    // AND two skills
+    const skill1 = await getRepositoryRegistry().skill.create({
+      modelId: modelId,
+      preferredLabel: "Skill 1",
+      skillType: SkillType.Knowledge,
+      reuseLevel: ReuseLevel.CrossSector,
+      originUri: "https://foo/bar",
+      definition: "def1",
+      description: "desc1",
+      scopeNote: "scope1",
+      altLabels: ["alt1"],
+      isLocalized: false,
+      importId: "import1",
+      UUIDHistory: [randomUUID()],
+    });
+    const skill2 = await getRepositoryRegistry().skill.create({
+      modelId: modelId,
+      preferredLabel: "Skill 2",
+      skillType: SkillType.SkillCompetence,
+      reuseLevel: ReuseLevel.SectorSpecific,
+      originUri: "https://foo/bar",
+      definition: "def2",
+      description: "desc2",
+      scopeNote: "scope2",
+      altLabels: ["alt2"],
+      isLocalized: false,
+      importId: "import2",
+      UUIDHistory: [randomUUID()],
+    });
+
+    // AND they are linked to the occupation
+    await getRepositoryRegistry().occupationToSkillRelation.createMany(modelId, [
+      {
+        requiringOccupationId: occupation.id,
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiredSkillId: skill1.id,
+        relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
+      },
+      {
+        requiringOccupationId: occupation.id,
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiredSkillId: skill2.id,
+        relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
+      },
+    ]);
+
+    // AND a valid request
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      path: `/models/${modelId}/occupations/${occupation.id}/skills`,
+      pathParameters: { modelId: modelId, id: occupation.id },
+      queryStringParameters: { limit: "10" },
+      requestContext: usersRequestContext.ANONYMOUS,
+    };
+
+    // WHEN the handler is invoked
+    // @ts-ignore
+    const actualResponse = await occupationHandler(givenEvent);
+
+    // THEN expect OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    // AND the response validates against the schema
+    const validateSkillsResponse = ajv.getSchema(
+      OccupationAPISpecs.Schemas.GET.Skills.Response.Payload.$id as string
+    ) as ValidateFunction;
+    const body = JSON.parse(actualResponse.body);
+    validateSkillsResponse(body);
+    expect(validateSkillsResponse.errors).toBeNull();
+
+    // AND the body contains the skills
+    expect(body.data).toHaveLength(2);
+    // Sort by preferredLabel to check
+    const sortedSkills = body.data.sort(
+      (
+        a: OccupationAPISpecs.Types.GET.Skills.Response.SkillItem,
+        b: OccupationAPISpecs.Types.GET.Skills.Response.SkillItem
+      ) => (a.preferredLabel > b.preferredLabel ? 1 : -1)
+    );
+    expect(sortedSkills[0].preferredLabel).toEqual("Skill 1");
+    expect(sortedSkills[0].relationType).toEqual(OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL);
+    expect(sortedSkills[1].preferredLabel).toEqual("Skill 2");
+    expect(sortedSkills[1].relationType).toEqual(OccupationAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL);
   });
 });

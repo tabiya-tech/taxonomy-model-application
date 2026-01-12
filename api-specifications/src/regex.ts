@@ -45,6 +45,6 @@ export const RegExp_UUIDv4_Or_Empty: RegExp = new RegExp(RegExp_Str_UUIDv4_Or_Em
 export const RegExp_Str_Base64 = `^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$`;
 export const RegExp_Base64 = new RegExp(RegExp_Str_Base64);
 
-// URI string regex (basic validation)
-export const RegExp_Str_URI = `^https://.*`;
+// URI pattern (accept only https for now)
+export const RegExp_Str_URI = "^https://.*";
 export const RegExp_URI = new RegExp(RegExp_Str_URI);

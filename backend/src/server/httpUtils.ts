@@ -30,7 +30,7 @@ export enum StatusCodes {
 // For the format of the return value
 export function response(
   statusCode: StatusCodes,
-  body: object | string,
+  body: object | string | null,
   headers?: {
     [key: string]: string;
   }
@@ -57,7 +57,7 @@ export function response(
   };
 }
 
-export function responseJSON(statusCode: StatusCodes, body: object | string): APIGatewayProxyResult {
+export function responseJSON(statusCode: StatusCodes, body: object | string | null): APIGatewayProxyResult {
   return response(statusCode, body, { "Content-Type": "application/json" });
 }
 

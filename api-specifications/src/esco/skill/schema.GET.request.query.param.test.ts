@@ -45,7 +45,9 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Request.Query.Param
       testLimitField<SkillAPISpecs.Types.GET.Request.Query.Payload>(
         "limit",
         SkillAPISpecs.Constants.MAX_LIMIT,
-        SkillAPISpecs.Schemas.GET.Request.Query.Payload
+        SkillAPISpecs.Schemas.GET.Request.Query.Payload,
+        [],
+        false
       );
     });
 
@@ -53,7 +55,10 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Request.Query.Param
       testCursorField<SkillAPISpecs.Types.GET.Request.Query.Payload>(
         "cursor",
         SkillAPISpecs.Constants.MAX_CURSOR_LENGTH,
-        SkillAPISpecs.Schemas.GET.Request.Query.Payload
+        SkillAPISpecs.Schemas.GET.Request.Query.Payload,
+        [],
+        false,
+        false
       );
     });
   });

@@ -352,9 +352,10 @@ export function testLimitField<T>(
   fieldName: string,
   maxLimit: number,
   givenSchema: SchemaObject,
-  dependencies: SchemaObject[] = []
+  dependencies: SchemaObject[] = [],
+  isRequired: boolean = true
 ) {
-  test.each(getStdLimitTestCases(fieldName, maxLimit))(
+  test.each(getStdLimitTestCases(fieldName, maxLimit, isRequired))(
     `(%s) Validate ${fieldName} when it is %s`,
     (caseType, _description, givenValue, failureMessages) => {
       // GIVEN an object with the given value
@@ -373,9 +374,10 @@ export function testCursorField<T>(
   maxLength: number,
   givenSchema: SchemaObject,
   dependencies: SchemaObject[] = [],
-  allowEmpty: boolean = false
+  isRequired: boolean = true,
+  isNullable: boolean = true
 ) {
-  test.each(getStdCursorTestCases(fieldName, maxLength, allowEmpty))(
+  test.each(getStdCursorTestCases(fieldName, maxLength, isRequired, isNullable))(
     `(%s) Validate ${fieldName} when it is %s`,
     (caseType, _description, givenValue, failureMessages) => {
       // GIVEN an object with the given value

@@ -96,6 +96,9 @@ describe("test parseOccupations from", () => {
         findAll: jest.fn(),
         findPaginated: jest.fn().mockResolvedValue({}),
         getOccupationByUUID: jest.fn().mockResolvedValue(null),
+        findParent: jest.fn(),
+        findChildren: jest.fn(),
+        findSkillsForOccupation: jest.fn(),
       };
       // @ts-ignore
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);

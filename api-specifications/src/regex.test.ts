@@ -282,30 +282,38 @@ describe("Test RegExp_Base64", () => {
 });
 
 describe("Test RegExp_URI", () => {
-  // Valid URI strings
+  // Valid HTTPS URIs
   test.each([
-    ["simple https URI", "https://example.com"],
-    ["https URI with path", "https://example.com/path/to/resource"],
-    ["https URI with query", "https://example.com/path?query=param"],
-    ["https URI with fragment", "https://example.com/path#fragment"],
+    ["simple https", "https://example.com"],
+    ["https with path", "https://example.com/path/to/resource"],
+    ["https with query", "https://example.com?key=value"],
+    ["https with fragment", "https://example.com#section"],
+    ["https with port", "https://example.com:8080"],
+    ["https with subdomain", "https://sub.example.com"],
+    ["https with complex path", "https://path/to/tabiya/resource/123"],
+    ["https minimal", "https://a"],
+    ["https long", "https://" + "a".repeat(1000)],
   ])("It should successfully test true for '%s'", (_desc, value) => {
     expect(RegExp_URI.test(value)).toBe(true);
   });
 
-  // Invalid URI strings
+  // Invalid URIs (not HTTPS)
   test.each([
-    ["http URI", "http://example.com"],
-    ["ftp URI", "ftp://example.com/resource"],
-    ["no scheme", "example.com"],
-    ["random string", "just some text"],
+    ["http (not https)", "http://example.com"],
+    ["ftp protocol", "ftp://example.com"],
+    ["no protocol", "example.com"],
+    ["empty string", ""],
+    ["just https", "https"],
+    ["https with space", "https ://example.com"],
+    ["whitespace", "   "],
   ])("It should successfully test false for '%s'", (_desc, value) => {
     expect(RegExp_URI.test(value)).toBe(false);
   });
 
   // Performance test
   test.each([
-    ["long valid URI", "https://example.com/path/to/resource".repeat(1000)],
-    ["long invalid URI", "http://example.com/path/to/resource".repeat(1000)],
+    ["long valid URI", "https://example.com/" + "path/".repeat(1000)],
+    ["long invalid URI", "http://example.com/" + "path/".repeat(1000)],
   ])(`It performs fast (<=${PERF_DURATION}ms) for '%s'`, async (_desc, value) => {
     expect(() => {
       RegExp_URI.test(value);

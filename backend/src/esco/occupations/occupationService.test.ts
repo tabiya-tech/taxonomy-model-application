@@ -31,6 +31,9 @@ describe("Test the OccupationService", () => {
       findAll: jest.fn(),
       findPaginated: jest.fn(),
       getOccupationByUUID: jest.fn(),
+      findParent: jest.fn(),
+      findChildren: jest.fn(),
+      findSkillsForOccupation: jest.fn(),
     } as unknown as jest.Mocked<IOccupationRepository>;
 
     mockModelRepository = {
@@ -541,6 +544,114 @@ describe("Test the OccupationService", () => {
 
       // Restore console.error
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe("getParent", () => {
+    test("should call repository.findParent with correct arguments", async () => {
+      // GIVEN a modelId and occupationId
+      const modelId = getMockStringId(1);
+      const occupationId = getMockStringId(2);
+      // AND repository returns some result
+      const expectedResult = { id: "parent_1" } as IOccupation;
+      (mockRepository.findParent as jest.Mock).mockResolvedValue(expectedResult);
+
+      // WHEN calling getParent
+      const result = await service.getParent(modelId, occupationId);
+
+      // THEN expect repository to be called correctly
+      expect(mockRepository.findParent).toHaveBeenCalledWith(modelId, occupationId);
+      expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe("getChildren", () => {
+    test("should call repository.findChildren with limit + 1", async () => {
+      // GIVEN a modelId, occupationId, limit, and cursor
+      const modelId = getMockStringId(1);
+      const occupationId = getMockStringId(2);
+      const limit = 10;
+      const cursor = getMockStringId(3);
+      // AND repository returns limit + 1 items (meaning there is a next page)
+      const mockItems = Array.from(
+        { length: limit + 1 },
+        (_, i) =>
+          ({
+            id: `child_${i}`,
+            createdAt: new Date(),
+          }) as IOccupation
+      );
+      (mockRepository.findChildren as jest.Mock).mockResolvedValue(mockItems);
+
+      // WHEN calling getChildren
+      const result = await service.getChildren(modelId, occupationId, cursor, limit);
+
+      // THEN expect repository called with limit + 1
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(modelId, occupationId, limit + 1, cursor);
+
+      // AND result should handle pagination logic
+      expect(result.items).toHaveLength(limit); // sliced
+      expect(result.nextCursor).toBeDefined();
+      expect(result.nextCursor?._id).toEqual(mockItems[limit - 1].id);
+    });
+
+    test("should return null cursor if no more items", async () => {
+      // GIVEN less items than limit
+      const modelId = getMockStringId(1);
+      const occupationId = getMockStringId(2);
+      const limit = 10;
+      const mockItems = [{ id: "child_1", createdAt: new Date() } as IOccupation];
+      (mockRepository.findChildren as jest.Mock).mockResolvedValue(mockItems);
+
+      // WHEN calling getChildren
+      const result = await service.getChildren(modelId, occupationId, undefined, limit);
+
+      // THEN
+      expect(result.items).toHaveLength(1);
+      expect(result.nextCursor).toBeNull();
+    });
+  });
+
+  describe("getSkills", () => {
+    test("should call repository.findSkillsForOccupation with limit + 1", async () => {
+      // GIVEN a modelId, occupationId, limit, and cursor
+      const modelId = getMockStringId(1);
+      const occupationId = getMockStringId(2);
+      const limit = 10;
+      const cursor = getMockStringId(3);
+      // AND repository returns limit + 1 items (meaning there is a next page)
+      const mockItems = Array.from({ length: limit + 1 }, (_, i) => ({
+        id: `skill_${i}`,
+        createdAt: new Date(),
+      }));
+      (mockRepository.findSkillsForOccupation as jest.Mock).mockResolvedValue(mockItems);
+
+      // WHEN calling getSkills
+      const result = await service.getSkills(modelId, occupationId, cursor, limit);
+
+      // THEN expect repository called with limit + 1
+      expect(mockRepository.findSkillsForOccupation).toHaveBeenCalledWith(modelId, occupationId, limit + 1, cursor);
+
+      // AND result should handle pagination logic
+      expect(result.items).toHaveLength(limit); // sliced
+      expect(result.nextCursor).toBeDefined();
+      expect(result.nextCursor?._id).toEqual(mockItems[limit - 1].id);
+    });
+
+    test("should return null cursor if no more skills", async () => {
+      // GIVEN less items than limit
+      const modelId = getMockStringId(1);
+      const occupationId = getMockStringId(2);
+      const limit = 10;
+      const mockItems = [{ id: "skill_1", createdAt: new Date() }];
+      (mockRepository.findSkillsForOccupation as jest.Mock).mockResolvedValue(mockItems);
+
+      // WHEN calling getSkills
+      const result = await service.getSkills(modelId, occupationId, undefined, limit);
+
+      // THEN
+      expect(result.items).toHaveLength(1);
+      expect(result.nextCursor).toBeNull();
     });
   });
 });

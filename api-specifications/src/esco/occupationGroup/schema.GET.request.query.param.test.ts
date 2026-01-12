@@ -45,14 +45,19 @@ describe("Test objects against the OccupationGroupAPISpecs.Schemas.GET.Request.Q
       testLimitField<OccupationGroupAPISpecs.Types.GET.Request.Query.Payload>(
         "limit",
         OccupationGroupAPISpecs.Constants.MAX_LIMIT,
-        OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload
+        OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload,
+        [],
+        false
       );
     });
     describe("Test validate of 'cursor'", () => {
       testCursorField<OccupationGroupAPISpecs.Types.GET.Request.Query.Payload>(
         "cursor",
         OccupationGroupAPISpecs.Constants.MAX_CURSOR_LENGTH,
-        OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload
+        OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload,
+        [],
+        false,
+        false
       );
     });
   });

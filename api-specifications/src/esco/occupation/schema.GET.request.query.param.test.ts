@@ -47,7 +47,9 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Request.Query.
       testLimitField<OccupationAPISpecs.Types.GET.Request.Query.Payload>(
         "limit",
         OccupationAPISpecs.Constants.MAX_LIMIT,
-        OccupationAPISpecs.Schemas.GET.Request.Query.Payload
+        OccupationAPISpecs.Schemas.GET.Request.Query.Payload,
+        [],
+        false
       );
     });
 
@@ -55,7 +57,10 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Request.Query.
       testCursorField<OccupationAPISpecs.Types.GET.Request.Query.Payload>(
         "cursor",
         OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH,
-        OccupationAPISpecs.Schemas.GET.Request.Query.Payload
+        OccupationAPISpecs.Schemas.GET.Request.Query.Payload,
+        [],
+        false,
+        false
       );
     });
   });
