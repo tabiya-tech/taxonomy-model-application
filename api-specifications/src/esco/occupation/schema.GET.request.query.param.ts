@@ -6,7 +6,7 @@ const SchemaGETRequestQueryParam: SchemaObject = {
   type: "object",
   additionalProperties: false,
   properties: {
-    ...JSON.parse(JSON.stringify(_baseQueryParameterSchema)),
+    ..._baseQueryParameterSchema,
   },
 };
 

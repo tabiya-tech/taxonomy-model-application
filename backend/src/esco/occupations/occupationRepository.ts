@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import { INewOccupationSpec, INewOccupationSpecWithoutImportId, IOccupation, IOccupationDoc } from "./occupation.types";
+import { IOccupationGroup } from "../occupationGroup/OccupationGroup.types";
 import {
   populateOccupationChildrenOptions,
   populateOccupationParentOptions,
@@ -11,7 +12,14 @@ import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
-import { populateEmptyRequiresSkills } from "esco/occupationToSkillRelation/populateFunctions";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { ISkillWithRelation } from "./occupationService.types";
+import {
+  populateEmptyRequiredByOccupations,
+  populateEmptyRequiresSkills,
+} from "esco/occupationToSkillRelation/populateFunctions";
+import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
+import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 export type SearchFilter = {
@@ -85,6 +93,42 @@ export interface IOccupationRepository {
    * Rejects with an error if the operation fails.
    */
   getOccupationByUUID(uuid: string): Promise<IOccupation | null>;
+
+  /**
+   * Finds the parent Occupation of an Occupation.
+   *
+   * @param {string} modelId - The modelId of the Occupation.
+   * @param {string} occupationId - The ID of the Occupation.
+   * @return {Promise<IOccupation | IOccupationGroup | null>} - A Promise that resolves to the parent Occupation or null if not found.
+   */
+  findParent(modelId: string, occupationId: string): Promise<IOccupation | IOccupationGroup | null>;
+
+  /**
+   * Finds the child Occupations of an Occupation.
+   *
+   * @param {string} modelId - The modelId of the Occupation.
+   * @param {string} occupationId - The ID of the Occupation.
+   * @param {number} limit - The maximum number of children to return.
+   * @param {string} [cursor] - The ID of the cursor for pagination.
+   * @return {Promise<IOccupation[]>} - A Promise that resolves to an array containing the child Occupations.
+   */
+  findChildren(modelId: string, occupationId: string, limit: number, cursor?: string): Promise<IOccupation[]>;
+
+  /**
+   * Finds the skills for an occupation.
+   *
+   * @param {string} modelId - The modelId of the skill.
+   * @param {string} occupationId - The ID of the occupation.
+   * @param {number} limit - The maximum number of skills to return.
+   * @param {string} [cursor] - The ID of the cursor for pagination.
+   * @return {Promise<ISkillWithRelation[]>} - A Promise that resolves to an array containing the skills for the occupation.
+   */
+  findSkillsForOccupation(
+    modelId: string,
+    occupationId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<ISkillWithRelation[]>;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -211,7 +255,7 @@ export class OccupationRepository implements IOccupationRepository {
     }
 
     try {
-      const pipeline = stream.pipeline(
+      const pipeline: Readable = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.Model.find({
           modelId: { $eq: modelId },
@@ -293,6 +337,253 @@ export class OccupationRepository implements IOccupationRepository {
       return occupationInfo.toObject();
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.getOccupationByUUID: getOccupationByUUID failed", {
+        cause: e,
+      });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findParent(modelId: string, occupationId: string): Promise<IOccupation | IOccupationGroup | null> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const occupationIdObj = new mongoose.Types.ObjectId(occupationId);
+
+      const pipeline: PipelineStage[] = [
+        {
+          $match: {
+            modelId: modelIdObj,
+            childId: occupationIdObj,
+            childType: { $in: [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation] },
+          },
+        },
+        {
+          $lookup: {
+            from: this.Model.collection.name,
+            localField: "parentId",
+            foreignField: "_id",
+            as: "occupationParent",
+          },
+        },
+        {
+          $lookup: {
+            from: this.Model.db.model(MongooseModelName.OccupationGroup).collection.name,
+            localField: "parentId",
+            foreignField: "_id",
+            as: "groupParent",
+          },
+        },
+        {
+          $addFields: {
+            parent: {
+              $cond: {
+                if: { $eq: ["$parentDocModel", MongooseModelName.Occupation] },
+                then: { $arrayElemAt: ["$occupationParent", 0] },
+                else: { $arrayElemAt: ["$groupParent", 0] },
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            parent: { $ne: null },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: "$parent",
+          },
+        },
+      ];
+
+      const HierarchyModel = this.Model.db.model(MongooseModelName.OccupationHierarchy);
+      // Execute the aggregation pipeline to find and join the parent occupation
+      const results = await HierarchyModel.aggregate(pipeline).exec();
+
+      if (results.length === 0) {
+        return null;
+      }
+
+      // Log warning if multiple parents found (should only have one parent)
+      if (results.length > 1) {
+        console.warn(
+          `OccupationRepository.findParent: Multiple parents (${results.length}) found for occupation ${occupationId}. Using first result.`
+        );
+      }
+
+      const r = results[0];
+      const OccupationGroupModel = this.Model.db.model(MongooseModelName.OccupationGroup);
+
+      // Hydrate and populate based on type
+      if (r.occupationType === ObjectTypes.ESCOOccupation || r.occupationType === ObjectTypes.LocalOccupation) {
+        const doc = this.Model.hydrate(r);
+        await doc.populate([populateOccupationChildrenOptions, populateOccupationRequiresSkillsOptions]);
+        return doc.toObject();
+      } else {
+        const doc = OccupationGroupModel.hydrate(r);
+        // OccupationGroup doesn't have parent/children/skills to populate in this context
+        return doc.toObject();
+      }
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.findParent: findParent failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findChildren(modelId: string, occupationId: string, limit: number, cursor?: string): Promise<IOccupation[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const occupationIdObj = new mongoose.Types.ObjectId(occupationId);
+
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        parentId: occupationIdObj,
+        parentType: { $in: [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation] },
+        childType: { $in: [ObjectTypes.ESCOOccupation, ObjectTypes.LocalOccupation] },
+      };
+
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        matchStage.childId = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
+
+      const pipeline: PipelineStage[] = [
+        // Match children hierarchy entries with optional cursor for pagination
+        {
+          $match: matchStage as PipelineStage.Match["$match"],
+        },
+        // Sort by childId to ensure consistent pagination order
+        {
+          $sort: { childId: 1 },
+        },
+        // Limit the results to the requested page size
+        {
+          $limit: limit,
+        },
+        // Join with the Occupations collection to get the child details
+        {
+          $lookup: {
+            from: this.Model.collection.name,
+            localField: "childId",
+            foreignField: "_id",
+            as: "child",
+          },
+        },
+        // Flatten the joined 'child' array
+        {
+          $unwind: "$child",
+        },
+        // Promote the 'child' sub-document to the root
+        {
+          $replaceRoot: {
+            newRoot: "$child",
+          },
+        },
+      ];
+
+      const HierarchyModel = this.Model.db.model(MongooseModelName.OccupationHierarchy);
+      // Execute the aggregation pipeline
+      const results = await HierarchyModel.aggregate(pipeline).exec();
+
+      // Hydrate the plain objects into Mongoose documents
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      // Load nested relations (parents, children, skills) for each child
+      const populated = await this.Model.populate(hydrated, [
+        populateOccupationParentOptions,
+        populateOccupationChildrenOptions,
+        populateOccupationRequiresSkillsOptions,
+      ]);
+
+      return populated.map((doc) => doc.toObject());
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.findChildren: findChildren failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findSkillsForOccupation(
+    modelId: string,
+    occupationId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<ISkillWithRelation[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const occupationIdObj = new mongoose.Types.ObjectId(occupationId);
+
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        requiringOccupationId: occupationIdObj,
+        requiringOccupationDocModel: MongooseModelName.Occupation,
+      };
+
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        matchStage.requiredSkillId = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
+
+      const SkillModel = this.Model.db.model(MongooseModelName.Skill);
+
+      const pipeline: PipelineStage[] = [
+        // Match the relation entries
+        {
+          $match: matchStage as PipelineStage.Match["$match"],
+        },
+        // Sort by requiredSkillId to ensure consistent pagination order
+        {
+          $sort: { requiredSkillId: 1 },
+        },
+        // Limit the results to the requested page size
+        {
+          $limit: limit,
+        },
+        // Join with the Skills collection to get the skill details
+        {
+          $lookup: {
+            from: SkillModel.collection.name,
+            localField: "requiredSkillId",
+            foreignField: "_id",
+            as: "skill",
+          },
+        },
+        // Flatten the joined 'skill' array
+        {
+          $unwind: "$skill",
+        },
+        // Project the required fields, merging the skill data with relationship metadata
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                "$skill",
+                {
+                  relationType: "$relationType",
+                  signallingValue: "$signallingValue",
+                  signallingValueLabel: "$signallingValueLabel",
+                },
+              ],
+            },
+          },
+        },
+      ];
+
+      const RelationModel = this.Model.db.model(MongooseModelName.OccupationToSkillRelation);
+      // Execute the aggregation pipeline
+      const results = await RelationModel.aggregate(pipeline).exec();
+
+      // Hydrate the plain objects into Mongoose documents (using the SkillModel)
+      // Hydrate the plain objects into Mongoose documents (using the SkillModel)
+      const hydrated = results.map((r) => SkillModel.hydrate(r));
+
+      // Return the objects
+      return hydrated.map((doc) => {
+        populateEmptySkillHierarchy(doc);
+        populateEmptySkillToSkillRelation(doc);
+        populateEmptyRequiredByOccupations(doc);
+        return doc.toObject() as ISkillWithRelation;
+      });
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.findSkillsForOccupation: findSkillsForOccupation failed", {
         cause: e,
       });
       console.error(err);

@@ -38,8 +38,17 @@ namespace ErrorTypes {
       | OccupationAPI.Enums.POST.Response.Status404.ErrorCodes
       | OccupationAPI.Enums.POST.Response.Status500.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status400.Parent.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status400.Children.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status400.Skills.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.Parent.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.Children.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.Skills.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.Parent.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.Children.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.Skills.ErrorCodes
       | ModelInfo.Enums.GET.Response.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status404.ErrorCodes
@@ -99,8 +108,17 @@ namespace ErrorTypes {
       | SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status400.Parent.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status400.Children.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status400.Skills.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.Parent.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.Children.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status404.Skills.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.Parent.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.Children.ErrorCodes
+      | OccupationAPI.Enums.GET.Response.Status500.Skills.ErrorCodes
       | SkillsAPI.Enums.GET.List.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.GET.List.Response.Status404.ErrorCodes
       | SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes

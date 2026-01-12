@@ -54,6 +54,11 @@ delete Occupation.Schemas.GET.Response.Payload.$id;
 delete Occupation.Schemas.GET.Request.Param.Payload.$id;
 delete Occupation.Schemas.GET.Request.Query.Payload.$id;
 delete Occupation.Schemas.GET.Request.ById.Param.Payload.$id;
+delete Occupation.Schemas.GET.Parent.Response.Payload.$id;
+delete Occupation.Schemas.GET.Children.Response.Payload.$id;
+delete Occupation.Schemas.GET.Children.Request.Query.Payload.$id;
+delete Occupation.Schemas.GET.Skills.Response.Payload.$id;
+delete Occupation.Schemas.GET.Skills.Request.Query.Payload.$id;
 delete SkillGroup.Schemas.POST.Request.Payload.$id;
 delete SkillGroup.Schemas.POST.Response.Payload.$id;
 delete SkillGroup.Schemas.GET.Response.Payload.$id;
@@ -241,6 +246,24 @@ function getOpenAPISpecification(
           GETOccupations404ErrorSchema: APIError.Schemas.getPayload("GET", "Occupations", 404, [
             Occupation.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           ]),
+          GETOccupationParent404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationParent", 404, [
+            ...new Set([
+              ...Object.values(Occupation.Enums.GET.Response.Status404.ErrorCodes),
+              ...Object.values(Occupation.Enums.GET.Response.Status404.Parent.ErrorCodes),
+            ]),
+          ]),
+          GETOccupationChildren404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationChildren", 404, [
+            ...new Set([
+              ...Object.values(Occupation.Enums.GET.Response.Status404.ErrorCodes),
+              ...Object.values(Occupation.Enums.GET.Response.Status404.Children.ErrorCodes),
+            ]),
+          ]),
+          GETOccupationSkills404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationSkills", 404, [
+            ...new Set([
+              ...Object.values(Occupation.Enums.GET.Response.Status404.ErrorCodes),
+              ...Object.values(Occupation.Enums.GET.Response.Status404.Skills.ErrorCodes),
+            ]),
+          ]),
           GETSkillGroup400ErrorSchema: APIError.Schemas.getPayload(
             "GET",
             "SkillGroup",
@@ -301,6 +324,11 @@ function getOpenAPISpecification(
           OccupationRequestByIdParamSchemaGET: Occupation.Schemas.GET.Request.ById.Param.Payload,
           OccupationRequestQueryParamSchemaGET: Occupation.Schemas.GET.Request.Query.Payload,
           OccupationResponseSchemaGET: Occupation.Schemas.GET.Response.Payload,
+          OccupationResponseSchemaGETParent: Occupation.Schemas.GET.Parent.Response.Payload,
+          OccupationResponseSchemaGETChildren: Occupation.Schemas.GET.Children.Response.Payload,
+          OccupationChildrenRequestQueryParamSchemaGET: Occupation.Schemas.GET.Children.Request.Query.Payload,
+          OccupationResponseSchemaGETSkills: Occupation.Schemas.GET.Skills.Response.Payload,
+          OccupationSkillsRequestQueryParamSchemaGET: Occupation.Schemas.GET.Skills.Request.Query.Payload,
           SkillGroupRequestSchemaPOST: SkillGroup.Schemas.POST.Request.Payload,
           SkillGroupResponseSchemaPOST: SkillGroup.Schemas.POST.Response.Payload,
           SkillGroupResponseSchemaGETById: SkillGroup.Schemas.GET.Response.ById.Payload,

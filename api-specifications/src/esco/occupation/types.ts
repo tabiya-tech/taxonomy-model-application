@@ -1,4 +1,33 @@
 import OccupationEnums from "./enums";
+import SkillTypes from "../skill/types";
+import OccupationGroupTypes from "../occupationGroup/types";
+
+interface IOccupationParent {
+  id: string;
+  UUID: string;
+  code: string;
+  preferredLabel: string;
+  objectType: OccupationEnums.Relations.Parent.ObjectTypes;
+}
+
+interface IOccupationChild {
+  id: string;
+  UUID: string;
+  code: string;
+  preferredLabel: string;
+  objectType: OccupationEnums.Relations.Children.ObjectTypes;
+}
+
+interface IOccupationRequiredSkill {
+  id: string;
+  UUID: string;
+  preferredLabel: string;
+  isLocalized: boolean;
+  objectType: OccupationEnums.Relations.RequiredSkills.ObjectTypes;
+  relationType: OccupationEnums.OccupationToSkillRelationType | null;
+  signallingValue: number | null;
+  signallingValueLabel: string | null;
+}
 
 interface IOccupationResponse {
   id: string;
@@ -19,30 +48,9 @@ interface IOccupationResponse {
   occupationType: OccupationEnums.OccupationType;
   modelId: string;
   isLocalized: boolean;
-  parent: {
-    id: string;
-    UUID: string;
-    code: string;
-    preferredLabel: string;
-    objectType: OccupationEnums.Relations.Parent.ObjectTypes;
-  } | null;
-  children: {
-    id: string;
-    UUID: string;
-    code: string;
-    preferredLabel: string;
-    objectType: OccupationEnums.Relations.Children.ObjectTypes;
-  }[];
-  requiresSkills: {
-    id: string;
-    UUID: string;
-    preferredLabel: string;
-    isLocalized: boolean;
-    objectType: OccupationEnums.Relations.RequiredSkills.ObjectTypes;
-    relationType: OccupationEnums.OccupationToSkillRelationType | null;
-    signallingValue: number | null;
-    signallingValueLabel: string | null;
-  }[];
+  parent: IOccupationParent | null;
+  children: IOccupationChild[];
+  requiresSkills: IOccupationRequiredSkill[];
   createdAt: string;
   updatedAt: string;
 }
@@ -65,6 +73,25 @@ interface IOccupationRequest {
 
 interface PaginatedOccupationResponse {
   data: IOccupationResponse[];
+  limit: number;
+  nextCursor: string | null;
+}
+
+interface PaginatedOccupationChildrenResponse {
+  data: IOccupationChild[];
+  limit: number;
+  nextCursor: string | null;
+}
+
+// Skill with occupation-to-skill relationship metadata
+interface IOccupationSkill extends SkillTypes.Response.ISkill {
+  relationType: OccupationEnums.OccupationToSkillRelationType | null;
+  signallingValue: number | null;
+  signallingValueLabel: string | null;
+}
+
+interface PaginatedOccupationSkillsResponse {
+  data: IOccupationSkill[];
   limit: number;
   nextCursor: string | null;
 }
@@ -92,6 +119,7 @@ namespace OccupationTypes {
 
   export namespace Response {
     export type IOccupation = IOccupationResponse;
+    export type RequiresSkillItem = IOccupationRequiredSkill;
   }
 
   export namespace POST {
@@ -107,6 +135,33 @@ namespace OccupationTypes {
     export namespace Response {
       export type OccupationItem = IOccupationResponse;
       export type Payload = PaginatedOccupationResponse;
+    }
+    export namespace Parent {
+      export namespace Response {
+        export type Payload = IOccupationResponse | OccupationGroupTypes.Response.IOccupationGroup | null;
+      }
+    }
+    export namespace Children {
+      export namespace Response {
+        export type ChildItem = IOccupationChild;
+        export type Payload = PaginatedOccupationChildrenResponse;
+      }
+      export namespace Request {
+        export namespace Query {
+          export type Payload = IOccupationQueryParams;
+        }
+      }
+    }
+    export namespace Skills {
+      export namespace Response {
+        export type SkillItem = IOccupationSkill;
+        export type Payload = PaginatedOccupationSkillsResponse;
+      }
+      export namespace Request {
+        export namespace Query {
+          export type Payload = IOccupationQueryParams;
+        }
+      }
     }
     export namespace Request {
       export namespace Param {

@@ -147,11 +147,9 @@ function mapRequiredByOccupation(
     preferredLabel: occupation.preferredLabel,
     isLocalized: occupation.isLocalized,
     objectType: mapOccupationObjectType(occupation.occupationType),
-    relationType: occupation.relationType ? mapOccupationToSkillRelationType(occupation.relationType) : null,
-    signallingValue: occupation.signallingValue ?? null,
-    signallingValueLabel: occupation.signallingValueLabel
-      ? mapSignallingValueLabel(occupation.signallingValueLabel)
-      : null,
+    relationType: mapOccupationToSkillRelationType(occupation.relationType) || null,
+    signallingValue: occupation.signallingValue,
+    signallingValueLabel: mapSignallingValueLabel(occupation.signallingValueLabel) || null,
   };
 }
 
@@ -160,7 +158,7 @@ export function transform(data: ISkill, baseURL: string): SkillAPISpecs.Types.Re
     id: data.id,
     UUID: data.UUID,
     UUIDHistory: data.UUIDHistory,
-    originUUID: data.UUIDHistory && data.UUIDHistory.length > 0 ? data.UUIDHistory.at(-1)! : "",
+    originUUID: data.UUIDHistory?.at(-1) || "",
     preferredLabel: data.preferredLabel,
     originUri: data.originUri,
     altLabels: data.altLabels,
@@ -173,13 +171,11 @@ export function transform(data: ISkill, baseURL: string): SkillAPISpecs.Types.Re
     modelId: data.modelId,
     path: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/skills/${data.id}`,
     tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/skills/${data.UUID}`,
-    parent: data.parents && data.parents.length > 0 ? mapParent(data.parents[0]) : null,
-    children: data.children?.length ? data.children.map(mapChild) : [],
-    requiresSkills: data.requiresSkills?.length ? data.requiresSkills.map(mapRequiresSkill) : [],
-    requiredBySkills: data.requiredBySkills?.length ? data.requiredBySkills.map(mapRequiredBySkill) : [],
-    requiredByOccupations: data.requiredByOccupations?.length
-      ? data.requiredByOccupations.map(mapRequiredByOccupation)
-      : [],
+    parent: data.parents.length > 0 ? mapParent(data.parents[0]) : null,
+    children: data.children.map(mapChild),
+    requiresSkills: data.requiresSkills.map(mapRequiresSkill),
+    requiredBySkills: data.requiredBySkills.map(mapRequiredBySkill),
+    requiredByOccupations: data.requiredByOccupations.map(mapRequiredByOccupation),
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
   };

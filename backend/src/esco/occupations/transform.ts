@@ -1,12 +1,17 @@
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { IOccupation } from "./occupation.types";
+import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getOriginUUIDFromUUIDHistory } from "common/getOriginUUIDFromUUIDHistory/getOriginUUIDFromUUIDHistory";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { transform as transformSkill } from "esco/skill/transform";
+import { transform as transformOccupationGroup } from "esco/occupationGroup/transform";
+import { ISkillWithRelation } from "./occupationService.types";
 
 function transformParentObjectType(
-  parent: NonNullable<IOccupation["parent"]>
+  parent: NonNullable<IOccupation["parent"]> | IOccupationGroup
 ): OccupationAPISpecs.Enums.Relations.Parent.ObjectTypes {
   const isOccupation = "occupationType" in parent;
 
@@ -21,7 +26,9 @@ function transformParentObjectType(
   }
 
   // An occupation can also have a parent as an occupation-group.
-  if (parent.objectType === ObjectTypes.ISCOGroup) {
+  // IOccupationGroup has groupType, IOccupationGroupReference has objectType
+  const groupTypeValue = "groupType" in parent ? parent.groupType : parent.objectType;
+  if (groupTypeValue === ObjectTypes.ISCOGroup) {
     return OccupationAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup;
   } else {
     return OccupationAPISpecs.Enums.Relations.Parent.ObjectTypes.LocalGroup;
@@ -29,21 +36,35 @@ function transformParentObjectType(
 }
 
 function transformChildObjectType(
-  child: IOccupation["children"][number]
+  child: IOccupation["children"][number] | IOccupationGroup
 ): OccupationAPISpecs.Enums.Relations.Children.ObjectTypes {
   const isOccupation = "occupationType" in child;
-  if (!isOccupation) {
-    throw new Error("An occupation can only have a child of occupation and not occupation groups.");
+
+  if (isOccupation) {
+    if (child.occupationType === ObjectTypes.ESCOOccupation) {
+      return OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation;
+    } else {
+      return OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation;
+    }
   }
 
-  if (child.occupationType === ObjectTypes.ESCOOccupation) {
-    return OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation;
+  // An occupation can also have a child as an occupation-group.
+  // IOccupationGroup has groupType, IOccupationGroupReference has objectType
+  const groupTypeValue = "groupType" in child ? child.groupType : child.objectType;
+  if (groupTypeValue === ObjectTypes.ISCOGroup) {
+    return OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup;
   } else {
-    return OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation;
+    return OccupationAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup;
   }
 }
 
-function transformParent(parent: IOccupation["parent"]): OccupationAPISpecs.Types.Response.IOccupation["parent"] {
+/**
+ * Transforms a parent relation item into its minimal response representation.
+ * Used for the 'parent' property inside an Occupation object.
+ */
+export function transformParent(
+  parent: IOccupation["parent"] | IOccupationGroup
+): OccupationAPISpecs.Types.Response.IOccupation["parent"] {
   if (!parent) {
     return null;
   }
@@ -57,16 +78,26 @@ function transformParent(parent: IOccupation["parent"]): OccupationAPISpecs.Type
   };
 }
 
-function transformChildren(
-  children: IOccupation["children"]
-): OccupationAPISpecs.Types.Response.IOccupation["children"] {
-  return children.map((child) => ({
+/**
+ * Transforms a child relation item into its minimal response representation.
+ * Used for the 'children' property items inside an Occupation object.
+ */
+export function transformChild(
+  child: IOccupation["children"][number] | IOccupationGroup
+): OccupationAPISpecs.Types.Response.IOccupation["children"][0] {
+  return {
     id: child.id,
     UUID: child.UUID,
     code: child.code,
     preferredLabel: child.preferredLabel,
     objectType: transformChildObjectType(child),
-  }));
+  };
+}
+
+export function transformChildren(
+  children: (IOccupation["children"][number] | IOccupationGroup)[]
+): OccupationAPISpecs.Types.Response.IOccupation["children"] {
+  return children.map(transformChild);
 }
 
 function transformOccupationType(occupationType: IOccupation["occupationType"]) {
@@ -79,23 +110,23 @@ function transformOccupationType(occupationType: IOccupation["occupationType"]) 
 
 export function transformSkillRelationType(
   relationType: IOccupation["requiresSkills"][number]["relationType"]
-): OccupationAPISpecs.Enums.OccupationToSkillRelationType {
+): OccupationAPISpecs.Enums.OccupationToSkillRelationType | null {
   switch (relationType) {
     case OccupationToSkillRelationType.NONE:
-      return OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE;
+      return null;
     case OccupationToSkillRelationType.ESSENTIAL:
       return OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL;
     case OccupationToSkillRelationType.OPTIONAL:
       return OccupationAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL;
     default:
-      return OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE;
+      return null;
   }
 }
 
 function transformRequiredSkills(
   requiresSkills: IOccupation["requiresSkills"]
 ): OccupationAPISpecs.Types.Response.IOccupation["requiresSkills"] {
-  return requiresSkills?.map((skillRef) => ({
+  return requiresSkills.map((skillRef) => ({
     id: skillRef.id,
     UUID: skillRef.UUID,
     preferredLabel: skillRef.preferredLabel,
@@ -103,10 +134,13 @@ function transformRequiredSkills(
     objectType: OccupationAPISpecs.Enums.Relations.RequiredSkills.ObjectTypes.Skill,
     relationType: transformSkillRelationType(skillRef.relationType),
     signallingValue: skillRef.signallingValue,
-    signallingValueLabel: skillRef.signallingValueLabel,
+    signallingValueLabel: skillRef.signallingValueLabel || null,
   }));
 }
 
+/**
+ * Transforms a full Occupation entity into its response representation.
+ */
 export function transform(data: IOccupation, baseURL: string): OccupationAPISpecs.Types.Response.IOccupation {
   return {
     id: data.id,
@@ -135,7 +169,42 @@ export function transform(data: IOccupation, baseURL: string): OccupationAPISpec
   };
 }
 
-// Paginated transformation for occupations
+/**
+ * Transforms a dynamic entity (Occupation or OccupationGroup) into its FULL response representation.
+ * Used for relation endpoints (/parent, /children) that return full objects.
+ */
+export function transformDynamicEntity(
+  data: IOccupation | IOccupationGroup,
+  baseURL: string
+): OccupationAPISpecs.Types.Response.IOccupation | OccupationGroupAPISpecs.Types.Response.IOccupationGroup {
+  if ("occupationType" in data) {
+    return transform(data as IOccupation, baseURL);
+  } else {
+    return transformOccupationGroup(data as IOccupationGroup, baseURL);
+  }
+}
+
+/**
+ * Paginated transformation for relation endpoints that return mixed types (Occupation/OccupationGroup).
+ */
+export function transformPaginatedRelation(
+  data: (IOccupation | IOccupationGroup)[],
+  baseURL: string,
+  limit: number,
+  cursor: string | null
+): {
+  data: (OccupationAPISpecs.Types.Response.IOccupation | OccupationGroupAPISpecs.Types.Response.IOccupationGroup)[];
+  limit: number;
+  nextCursor: string | null;
+} {
+  return {
+    data: data.map((item) => transformDynamicEntity(item, baseURL)),
+    limit,
+    nextCursor: cursor,
+  };
+}
+
+// Paginated transformation for occupations list
 export function transformPaginated(
   data: IOccupation[],
   baseURL: string,
@@ -144,6 +213,32 @@ export function transformPaginated(
 ): OccupationAPISpecs.Types.GET.Response.Payload {
   return {
     data: data.map((item) => transform(item, baseURL)),
+    limit,
+    nextCursor: cursor,
+  };
+}
+
+export function transformOccupationSkill(
+  skillData: ISkillWithRelation,
+  baseURL: string
+): OccupationAPISpecs.Types.GET.Skills.Response.SkillItem {
+  const transformedSkill = transformSkill(skillData, baseURL);
+  return {
+    ...transformedSkill,
+    relationType: transformSkillRelationType(skillData.relationType),
+    signallingValue: skillData.signallingValue,
+    signallingValueLabel: skillData.signallingValueLabel || null,
+  };
+}
+
+export function transformPaginatedSkills(
+  data: ISkillWithRelation[],
+  baseURL: string,
+  limit: number,
+  cursor: string | null
+): OccupationAPISpecs.Types.GET.Skills.Response.Payload {
+  return {
+    data: data.map((item) => transformOccupationSkill(item, baseURL)),
     limit,
     nextCursor: cursor,
   };

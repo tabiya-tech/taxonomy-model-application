@@ -16,6 +16,8 @@ import {
   getStdNonEmptyStringTestCases,
   getStdObjectIdTestCases,
   getStdUUIDTestCases,
+  getStdLimitTestCases,
+  getStdCursorTestCases,
 } from "_test_utilities/stdSchemaTestCases";
 
 import { ObjectTypes } from "../common/objectTypes";
@@ -75,8 +77,8 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
     UUID: randomUUID(),
     UUIDHistory: [randomUUID(), randomUUID()],
     originUUID: randomUUID(),
-    path: "https://example.com/some/path",
-    tabiyaPath: "https://example.com/some/tabiya",
+    path: "https://path/to/tabiya",
+    tabiyaPath: "https://path/to/tabiya",
     code: getTestESCOOccupationCode(),
     occupationGroupCode: getTestISCOGroupCode(),
     preferredLabel: getTestString(20),
@@ -124,47 +126,9 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
     const givenSchema = OccupationAPISpecs.Schemas.GET.Response.Payload;
 
     describe("Test validation of 'limit'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          { data: [givenValidOccupationGETResponse] }, // Include valid data
-          constructSchemaError("", "required", "must have required property 'limit'"), // Adjusted error path
-        ],
-        [
-          CaseType.Failure,
-          "null",
-          { data: [givenValidOccupationGETResponse], limit: null },
-          constructSchemaError("/limit", "type", "must be integer"),
-        ],
-        [
-          CaseType.Failure,
-          "string",
-          { data: [givenValidOccupationGETResponse], limit: "10" },
-          constructSchemaError("/limit", "type", "must be integer"),
-        ],
-        [
-          CaseType.Failure,
-          "float",
-          { data: [givenValidOccupationGETResponse], limit: 1.1 },
-          constructSchemaError("/limit", "type", "must be integer"),
-        ],
-        [
-          CaseType.Failure,
-          "zero",
-          { data: [givenValidOccupationGETResponse], limit: 0 },
-          constructSchemaError("/limit", "minimum", "must be >= 1"),
-        ],
-        [
-          CaseType.Failure,
-          "over max",
-          { data: [givenValidOccupationGETResponse], limit: OccupationConstants.MAX_LIMIT + 1 },
-          constructSchemaError("/limit", "maximum", `must be <= ${OccupationConstants.MAX_LIMIT}`),
-        ],
-        [CaseType.Success, "one", { data: [givenValidOccupationGETResponse], limit: 1 }, undefined],
-        [CaseType.Success, "ten", { data: [givenValidOccupationGETResponse], limit: 10 }, undefined],
-      ])("%s %s", (caseType, desc, value, failure) => {
-        assertCaseForProperty("limit", value, givenSchema, caseType, failure);
+      const testCases = getStdLimitTestCases("limit", OccupationConstants.MAX_LIMIT, true);
+      test.each(testCases)("%s %s", (caseType, desc, value, failure) => {
+        assertCaseForProperty("limit", { limit: value }, givenSchema, caseType, failure);
       });
     });
 
@@ -188,28 +152,11 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
     });
 
     describe("Test validation of 'nextCursor'", () => {
-      test.each([
-        [CaseType.Success, "undefined", undefined, undefined],
-        [CaseType.Success, "null", null, undefined],
-        [
-          CaseType.Failure,
-          "too long",
-          getTestString(OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH + 1),
-          constructSchemaError(
-            "/nextCursor",
-            "maxLength",
-            `must NOT have more than ${OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH} characters`
-          ),
-        ],
-        [CaseType.Success, "valid string", getTestString(OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH), undefined],
-      ])(`(%s) Validate 'nextCursor' when it is %s`, (caseType, _desc, value, failureMessage) => {
-        assertCaseForProperty(
-          "nextCursor",
-          { nextCursor: value },
-          OccupationAPISpecs.Schemas.GET.Response.Payload,
-          caseType,
-          failureMessage
-        );
+      const testCases = getStdCursorTestCases("nextCursor", OccupationConstants.MAX_CURSOR_LENGTH, false, true);
+      test.each(testCases)(`(%s) Validate 'nextCursor' when it is %s`, (caseType, _desc, value, failureMessage) => {
+        const givenObject = { ...givenValidPaginatedResponse, nextCursor: value };
+        if (value === undefined) delete (givenObject as Record<string, unknown>).nextCursor;
+        assertCaseForProperty("nextCursor", givenObject, givenSchema, caseType, failureMessage);
       });
     });
 
@@ -363,6 +310,19 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
               ...givenValidOccupationGETResponse,
               code: givenValue,
               occupationType,
+              // Fix for LocalOccupation: it requires signallingValue and signallingValueLabel in requiresSkills
+              ...(occupationType === OccupationEnums.OccupationType.LocalOccupation
+                ? {
+                    requiresSkills: [
+                      {
+                        ...givenSkill,
+                        relationType: null,
+                        signallingValue: 1,
+                        signallingValueLabel: "High",
+                      },
+                    ],
+                  }
+                : {}),
             };
 
             assertCaseForProperty("code", givenObject, itemSchema, caseType, failureMessage);
@@ -434,30 +394,26 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
             constructSchemaError(
               "/occupationGroupCode",
               "pattern",
-              `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
+              `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}|${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
             ),
           ],
           [
             CaseType.Failure,
             "an invalid code",
-            "1234",
+            "1.2",
             OccupationEnums.OccupationType.LocalOccupation,
             constructSchemaError(
               "/occupationGroupCode",
               "pattern",
-              `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
+              `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}|${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
             ),
           ],
           [
-            CaseType.Failure,
+            CaseType.Success,
             "a valid code of different type",
             getTestISCOGroupCode(),
             OccupationEnums.OccupationType.LocalOccupation,
-            constructSchemaError(
-              "/occupationGroupCode",
-              "pattern",
-              `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
-            ),
+            undefined,
           ],
           [
             CaseType.Success,
@@ -473,6 +429,20 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Response.Paylo
               ...givenValidOccupationGETResponse,
               occupationType,
               occupationGroupCode: givenValue,
+              // Fix for LocalOccupation
+              ...(occupationType === OccupationEnums.OccupationType.LocalOccupation
+                ? {
+                    code: getTestLocalOccupationCode(),
+                    requiresSkills: [
+                      {
+                        ...givenSkill,
+                        relationType: null,
+                        signallingValue: 1,
+                        signallingValueLabel: "High",
+                      },
+                    ],
+                  }
+                : {}),
             };
 
             assertCaseForProperty("occupationGroupCode", givenObject, itemSchema, caseType, failureMessage);

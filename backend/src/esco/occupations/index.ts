@@ -15,7 +15,13 @@ import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 
 import { ValidateFunction } from "ajv";
-import { transform, transformPaginated } from "./transform";
+import {
+  transform,
+  transformDynamicEntity,
+  transformPaginated,
+  transformPaginatedRelation,
+  transformPaginatedSkills,
+} from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 import { INewOccupationSpecWithoutImportId } from "./occupation.types";
 import { Routes } from "routes.constant";
@@ -35,10 +41,8 @@ type BasePathParams = {
   modelId?: string;
 };
 
-export const handler: (
-  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
-) => Promise<APIGatewayProxyResult> = async (
-  event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
+export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
+  event: APIGatewayProxyEvent
 ) => {
   const occupationController = new OccupationController();
   //POST /occupations
@@ -46,9 +50,14 @@ export const handler: (
     return occupationController.postOccupation(event);
   } else if (event?.httpMethod == HTTP_VERBS.GET) {
     const pathToMatch = event.path || "";
-    const execMatch = pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch);
-    if (execMatch) {
+    if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch)) {
       return occupationController.getOccupationById(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_PARENT_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationController.getParent(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_CHILDREN_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationController.getChildren(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_SKILLS_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationController.getSkills(event);
     } else {
       return occupationController.getOccupations(event);
     }
@@ -161,7 +170,7 @@ export class OccupationController {
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
-  async postOccupation(event: APIGatewayProxyEvent) {
+  async postOccupation(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     if (!event.headers?.["Content-Type"]?.includes("application/json")) {
       // application/json;charset=utf-8
       return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
@@ -222,7 +231,10 @@ export class OccupationController {
       description: payload.description,
       preferredLabel: payload.preferredLabel,
       altLabels: payload.altLabels,
-      occupationType: payload.occupationType as unknown as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,
+      occupationType:
+        payload.occupationType === OccupationAPISpecs.Enums.OccupationType.ESCOOccupation
+          ? ObjectTypes.ESCOOccupation
+          : ObjectTypes.LocalOccupation,
       modelId: payload.modelId,
       UUIDHistory: payload.UUIDHistory,
       occupationGroupCode: payload.occupationGroupCode,
@@ -337,14 +349,20 @@ export class OccupationController {
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
-  async getOccupationById(event: APIGatewayProxyEvent) {
+  async getOccupationById(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     try {
-      const idFromParams = event.pathParameters?.id;
-      const modelIdFromParams = event.pathParameters?.modelId;
       const pathToMatch = event.path || "";
       const execMatch = pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch);
-      const resolvedId = idFromParams ?? (execMatch ? execMatch[2] : "");
-      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : "");
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const resolvedId = execMatch[2];
+      const resolvedModelId = execMatch[1];
 
       const requestPathParameter: OccupationAPISpecs.Types.GET.Request.Detail.Param.Payload = {
         modelId: resolvedModelId,
@@ -472,24 +490,17 @@ export class OccupationController {
    *
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
-  async getOccupations(event: APIGatewayProxyEvent) {
+  async getOccupations(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     // pagination decoding and pointing and also generating the base64 cursor for the next pagination and return it
     try {
-      // extract the modelId from the pathParameters
-      // NOTE: Since we're using a single '{proxy+}' resource in API Gateway path params
-      // like `{modelId}` are not populated under `pathParameters` instead, the full path is put in
-      // `pathParameters.proxy` and `event.path`. To support both setups (explicit param resource and proxy),
-      // we fallback to parse the `event.path` if `pathParameters.modelId` is absent.
-      const modelIdFromParams = event.pathParameters?.modelId;
-      const pathToMatch = event.path || "";
-      const execMatch = pathToRegexp(Routes.OCCUPATIONS_ROUTE).regexp.exec(pathToMatch);
-      const resolvedModelId = execMatch?.[1] ?? modelIdFromParams;
+      const { modelId: resolvedModelId } = parsePath<BasePathParams>(Routes.OCCUPATIONS_ROUTE, event.path);
+
       if (!resolvedModelId) {
-        return errorResponseGET(
+        return errorResponse(
           StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
-          "modelId is missing in the path",
-          JSON.stringify({ path: event.path, pathParameters: event.pathParameters, query: event.queryStringParameters })
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
         );
       }
       const requestPathParameter: OccupationAPISpecs.Types.GET.Request.Param.Payload = {
@@ -527,10 +538,10 @@ export class OccupationController {
         );
       }
 
-      const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
+      const rawQueryParams = event.queryStringParameters || {};
       const queryParams: OccupationAPISpecs.Types.GET.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
-        cursor: rawQueryParams.cursor,
+        cursor: rawQueryParams.cursor ?? undefined,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
@@ -596,6 +607,528 @@ export class OccupationController {
         StatusCodes.INTERNAL_SERVER_ERROR,
         OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
         "Failed to retrieve the occupations from the DB",
+        ""
+      );
+    }
+  }
+
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupations/{id}/parent:
+   *   get:
+   *    operationId: GETOccupationParents
+   *    tags:
+   *      - occupations
+   *    summary: Get the parent occupation of a specific occupation.
+   *    description: Retrieve the parent occupation of a specific occupation in a taxonomy model.
+   *    security:
+   *      - api_key: []
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationRequestParamSchemaGET/properties/modelId'
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        schema:
+   *          type: string
+   *          description: The unique ID of the occupation.
+   *    responses:
+   *      '200':
+   *        description: Successfully retrieved the parent occupation.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/OccupationResponseSchemaGETParent'
+   *      '400':
+   *        description: |
+   *          Failed to retrieve the parent occupation. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETOccupation400ErrorSchema'
+   *      '401':
+   *        $ref: '#/components/responses/UnAuthorizedResponse'
+   *      '404':
+   *        description: Occupation not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETOccupationParent404ErrorSchema'
+   *      '500':
+   *        description: |
+   *          The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
+   *
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getParent(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+    try {
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.OCCUPATION_PARENT_ROUTE).regexp.exec(pathToMatch);
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const modelId = execMatch[1];
+      const id = execMatch[2];
+
+      const requestPathParameter = { modelId, id };
+      const validatePathFunction = ajvInstance.getSchema(
+        OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or occupation Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.occupationService.validateModelForOccupation(modelId);
+      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${modelId}`
+        );
+      }
+      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const occupation = await this.occupationService.findById(id);
+      if (!occupation) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
+          "occupation not found",
+          `No occupation found with id: ${id}`
+        );
+      }
+
+      const parent = await this.occupationService.getParent(modelId, id);
+      if (!parent) return responseJSON(StatusCodes.OK, null);
+
+      // Use unified transformer for full entity response
+      return responseJSON(StatusCodes.OK, transformDynamicEntity(parent, getResourcesBaseUrl()));
+    } catch (error: unknown) {
+      console.error("Failed to get parent:", error);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupation parent from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        OccupationAPISpecs.Enums.GET.Response.Status500.Parent.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT,
+        "Failed to retrieve the occupation parent from the DB",
+        ""
+      );
+    }
+  }
+
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupations/{id}/children:
+   *  get:
+   *   operationId: GETOccupationChildren
+   *   tags:
+   *    - occupations
+   *   summary: Get the children of an occupation.
+   *   description: Retrieve the direct children of a specific occupation in a taxonomy model.
+   *   security:
+   *    - api_key: []
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationRequestByIdParamSchemaGET/properties/id'
+   *    - in: query
+   *      name: limit
+   *      required: false
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationChildrenRequestQueryParamSchemaGET/properties/limit'
+   *    - in: query
+   *      name: cursor
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationChildrenRequestQueryParamSchemaGET/properties/cursor'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the children.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/OccupationResponseSchemaGETChildren'
+   *     '400':
+   *       description: |
+   *         Failed to retrieve the children. Additional information can be found in the response body.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETOccupation400ErrorSchema'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '404':
+   *       description: Occupation or model not found.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETOccupationChildren404ErrorSchema'
+   *     '500':
+   *       description: |
+   *         The server encountered an unexpected condition.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/All500ResponseSchema'
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getChildren(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+    try {
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.OCCUPATION_CHILDREN_ROUTE).regexp.exec(pathToMatch);
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const modelId = execMatch[1];
+      const id = execMatch[2];
+
+      const requestPathParameter = { modelId, id };
+      const validatePathFunction = ajvInstance.getSchema(
+        OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or occupation Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.occupationService.validateModelForOccupation(modelId);
+      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${modelId}`
+        );
+      }
+      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const rawQueryParams = event.queryStringParameters || {};
+      const queryParams: OccupationAPISpecs.Types.GET.Children.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
+
+      const validateQueryFunction = ajvInstance.getSchema(
+        OccupationAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id as string
+      ) as ValidateFunction<OccupationAPISpecs.Types.GET.Children.Request.Query.Payload>;
+
+      const isQueryValid = validateQueryFunction(queryParams);
+      if (!isQueryValid) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = OccupationAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) {
+        limit = queryParams.limit;
+      }
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          console.error("Failed to decode cursor:", e);
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const occupation = await this.occupationService.findById(id);
+      if (!occupation) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
+          "occupation not found",
+          `No occupation found with id: ${id}`
+        );
+      }
+
+      const children = await this.occupationService.getChildren(modelId, id, decodedCursor?.id, limit);
+
+      let nextCursor: string | null = null;
+      if (children?.nextCursor?._id) {
+        nextCursor = this.encodeCursor(children.nextCursor._id, children.nextCursor.createdAt);
+      }
+      // Use transformPaginatedRelation to handle mixed Occupation/OccupationGroup children
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedRelation(children.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
+    } catch (error: unknown) {
+      console.error("Failed to get children:", error);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupation children from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        OccupationAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN,
+        "Failed to retrieve the occupation children from the DB",
+        ""
+      );
+    }
+  }
+
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupations/{id}/skills:
+   *  get:
+   *   operationId: GETOccupationSkills
+   *   tags:
+   *    - occupations
+   *   summary: Get the skills of an occupation.
+   *   description: Retrieve the skills required by a specific occupation in a taxonomy model.
+   *   security:
+   *    - api_key: []
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationRequestByIdParamSchemaGET/properties/id'
+   *    - in: query
+   *      name: limit
+   *      required: false
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationSkillsRequestQueryParamSchemaGET/properties/limit'
+   *    - in: query
+   *      name: cursor
+   *      schema:
+   *        $ref: '#/components/schemas/OccupationSkillsRequestQueryParamSchemaGET/properties/cursor'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the skills.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/OccupationResponseSchemaGETSkills'
+   *     '400':
+   *       description: |
+   *         Failed to retrieve the skills. Additional information can be found in the response body.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETOccupation400ErrorSchema'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '404':
+   *       description: Occupation or model not found.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETOccupationSkills404ErrorSchema'
+   *     '500':
+   *       description: |
+   *         The server encountered an unexpected condition.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/All500ResponseSchema'
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getSkills(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+    try {
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.OCCUPATION_SKILLS_ROUTE).regexp.exec(pathToMatch);
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const modelId = execMatch[1];
+      const id = execMatch[2];
+
+      const requestPathParameter = { modelId, id };
+      const validatePathFunction = ajvInstance.getSchema(
+        OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<OccupationAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or occupation Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.occupationService.validateModelForOccupation(modelId);
+      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${modelId}`
+        );
+      }
+      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const rawQueryParams = event.queryStringParameters || {};
+      const queryParams: OccupationAPISpecs.Types.GET.Skills.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
+
+      const validateQueryFunction = ajvInstance.getSchema(
+        OccupationAPISpecs.Schemas.GET.Skills.Request.Query.Payload.$id as string
+      ) as ValidateFunction<OccupationAPISpecs.Types.GET.Skills.Request.Query.Payload>;
+
+      const isQueryValid = validateQueryFunction(queryParams);
+      if (!isQueryValid) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = OccupationAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) {
+        limit = queryParams.limit;
+      }
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          console.error("Failed to decode cursor:", e);
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const occupation = await this.occupationService.findById(id);
+      if (!occupation) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
+          "occupation not found",
+          `No occupation found with id: ${id}`
+        );
+      }
+
+      const result = await this.occupationService.getSkills(modelId, id, decodedCursor?.id, limit);
+
+      let nextCursor: string | null = null;
+      if (result?.nextCursor?._id) {
+        nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
+      }
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedSkills(result.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
+    } catch (error: unknown) {
+      console.error("Failed to get skills:", error);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the occupation skills from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        OccupationAPISpecs.Enums.GET.Response.Status500.Skills.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS,
+        "Failed to retrieve the occupation skills from the DB",
         ""
       );
     }

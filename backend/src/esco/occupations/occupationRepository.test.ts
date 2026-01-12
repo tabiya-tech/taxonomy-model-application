@@ -12,8 +12,11 @@ import { IOccupationRepository, SearchFilter } from "./occupationRepository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationDoc } from "./occupation.types";
 import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
-import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
+import {
+  INewOccupationHierarchyPairSpec,
+  IOccupationHierarchyPairDoc,
+} from "esco/occupationHierarchy/occupationHierarchy.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
   getNewESCOOccupationSpec,
@@ -39,8 +42,9 @@ import {
   expectedOccupationReference,
   expectedRelatedSkillReference,
 } from "esco/_test_utilities/expectedReference";
-import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
+import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 import {
+  INewOccupationToSkillPairSpec,
   IOccupationToSkillRelationPairDoc,
   OccupationToSkillReferenceWithRelationType,
   OccupationToSkillRelationType,
@@ -1943,6 +1947,326 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           { occupationType: ObjectTypes.ISCOGroup }
         )
       ).toThrowError("OccupationRepository.findAll: findAll failed. OccupationType must be either ESCO or LOCAL.");
+    });
+  });
+
+  describe("Test findParent()", () => {
+    test("should return the parent occupation if it exists", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND a parent occupation
+      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_1"));
+      // AND a child occupation
+      const child = await repository.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code)
+      );
+      // AND they are linked in hierarchy
+      await repositoryRegistry.occupationHierarchy.createMany(modelId, [
+        {
+          parentType: ObjectTypes.ESCOOccupation,
+          parentId: parent.id,
+          childType: ObjectTypes.ESCOOccupation,
+          childId: child.id,
+        },
+      ]);
+
+      // WHEN calling findParent for the child
+      const result = await repository.findParent(modelId, child.id);
+
+      // THEN expect the parent to be returned
+      expect(result).not.toBeNull();
+      expect((result as IOccupation).id).toEqual(parent.id);
+      expect((result as IOccupation).UUID).toEqual(parent.UUID);
+    });
+
+    test("should return null if no parent exists", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND an occupation with no parent
+      const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "orphan"));
+
+      // WHEN calling findParent
+      const result = await repository.findParent(modelId, occupation.id);
+
+      // THEN expect null
+      expect(result).toBeNull();
+    });
+
+    test("should return the parent OccupationGroup if it exists", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND a parent OccupationGroup
+      const parent = await repositoryRegistry.OccupationGroup.create(
+        getSimpleNewISCOGroupSpec(modelId, "parent_group", true)
+      );
+      // AND a child occupation
+      const child = await repository.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code)
+      );
+      // AND they are linked in hierarchy
+      await repositoryRegistry.occupationHierarchy.createMany(modelId, [
+        {
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: parent.id,
+          childType: ObjectTypes.ESCOOccupation,
+          childId: child.id,
+        },
+      ]);
+
+      // WHEN calling findParent for the child
+      const result = await repository.findParent(modelId, child.id);
+
+      // THEN expect the parent group to be returned
+      expect(result).not.toBeNull();
+      expect((result as IOccupationGroup).id).toEqual(parent.id);
+      expect((result as IOccupationGroup).groupType).toEqual(parent.groupType);
+    });
+
+    test("should log a warning if multiple parents are found", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND a child occupation
+      const child = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "child_1"));
+
+      // AND two parent mocks we want to simulate
+      const parent1 = { _id: new mongoose.Types.ObjectId(), occupationType: ObjectTypes.ESCOOccupation };
+      const parent2 = { _id: new mongoose.Types.ObjectId(), occupationType: ObjectTypes.ESCOOccupation };
+
+      // AND the aggregation result is mocked to return two parents
+      const aggregateSpy = jest.spyOn(dbConnection.models[MongooseModelName.OccupationHierarchy], "aggregate");
+      aggregateSpy.mockReturnValueOnce({
+        exec: jest.fn().mockResolvedValueOnce([
+          { ...parent1, occupationType: ObjectTypes.ESCOOccupation },
+          { ...parent2, occupationType: ObjectTypes.ESCOOccupation },
+        ]),
+      } as unknown as ReturnType<(typeof aggregateSpy.mock.results)[0]["value"]>);
+
+      // AND console.warn is spied on
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+      // WHEN calling findParent
+      const result = await repository.findParent(modelId, child.id);
+
+      // THEN expect a warning to be logged
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Multiple parents (2) found for occupation"));
+      // AND the first parent to be returned (mocked hydrate is complex, so we just check it tried to hydrate)
+      expect(result).not.toBeNull();
+
+      warnSpy.mockRestore();
+      aggregateSpy.mockRestore();
+    });
+  });
+
+  describe("Test findChildren()", () => {
+    test("should return children occupations with pagination", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND a parent occupation
+      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_c"));
+
+      // AND 3 children
+      const children = [];
+      for (let i = 0; i < 3; i++) {
+        const child = await repository.create(
+          getSimpleNewESCOOccupationSpecWithParentCode(modelId, `child_${i}`, parent.code)
+        );
+        children.push(child);
+      }
+
+      // sort children by id to match default sort order in findChildren (which sorts by childId i.e. occupation id)
+      children.sort((a, b) => (a.id > b.id ? 1 : -1));
+
+      // AND hierarchy links
+      const hierarchySpecs: INewOccupationHierarchyPairSpec[] = children.map((child) => ({
+        parentType: ObjectTypes.ESCOOccupation,
+        parentId: parent.id,
+        childType: ObjectTypes.ESCOOccupation,
+        childId: child.id,
+      }));
+      await repositoryRegistry.occupationHierarchy.createMany(modelId, hierarchySpecs);
+
+      // WHEN fetching first page (limit 2)
+      const page1 = await repository.findChildren(modelId, parent.id, 2);
+
+      // THEN expect first 2 children
+      expect(page1).toHaveLength(2);
+      expect(page1[0].id).toEqual(children[0].id);
+      expect(page1[1].id).toEqual(children[1].id);
+
+      // WHEN fetching second page (cursor = last item of page 1)
+      const page2 = await repository.findChildren(modelId, parent.id, 2, page1[1].id);
+
+      // THEN expect 3rd child
+      expect(page2).toHaveLength(1);
+      expect(page2[0].id).toEqual(children[2].id);
+    });
+
+    test("should handle errors in findParent", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND a parent occupation
+      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_1"));
+
+      // AND the aggregate method throws an error
+      const aggregateSpy = jest.spyOn(dbConnection.models[MongooseModelName.OccupationHierarchy], "aggregate");
+      aggregateSpy.mockImplementationOnce(() => {
+        throw new Error("Database error");
+      });
+
+      // WHEN calling findParent
+      // THEN expect it to throw
+      await expect(repository.findParent(modelId, parent.id)).rejects.toThrow(
+        "OccupationRepository.findParent: findParent failed"
+      );
+
+      aggregateSpy.mockRestore();
+    });
+
+    test("should handle errors in findChildren", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND a parent occupation
+      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_1"));
+
+      // AND the aggregate method throws an error
+      const aggregateSpy = jest.spyOn(dbConnection.models[MongooseModelName.OccupationHierarchy], "aggregate");
+      aggregateSpy.mockImplementationOnce(() => {
+        throw new Error("Database error");
+      });
+
+      // WHEN calling findChildren
+      // THEN expect it to throw
+      await expect(repository.findChildren(modelId, parent.id, 10)).rejects.toThrow(
+        "OccupationRepository.findChildren: findChildren failed"
+      );
+
+      aggregateSpy.mockRestore();
+    });
+  });
+
+  describe("Test findSkillsForOccupation()", () => {
+    test("should successfully return skills for a given occupation with all related metadata", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND an occupation
+      const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "occupation_s1"));
+      // AND 2 skills
+      const skill1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_1"));
+      const skill2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
+
+      // AND they are linked to the occupation
+      const relation1: INewOccupationToSkillPairSpec = {
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiringOccupationId: occupation.id,
+        requiredSkillId: skill1.id,
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
+      };
+      const relation2: INewOccupationToSkillPairSpec = {
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiringOccupationId: occupation.id,
+        requiredSkillId: skill2.id,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
+      };
+      await repositoryRegistry.occupationToSkillRelation.createMany(modelId, [relation1, relation2]);
+
+      // WHEN calling findSkillsForOccupation
+      const result = await repository.findSkillsForOccupation(modelId, occupation.id, 10);
+
+      // THEN expect both skills to be returned with their relationship metadata
+      expect(result).toHaveLength(2);
+      // results are sorted by requiredSkillId (which is skill id)
+      const sortedSkills = [skill1, skill2].sort((a, b) => (a.id > b.id ? 1 : -1));
+
+      expect(result[0].id).toEqual(sortedSkills[0].id);
+      expect(result[0].relationType).toEqual(
+        sortedSkills[0].id === skill1.id ? relation1.relationType : relation2.relationType
+      );
+      expect(result[0].signallingValue).toEqual(null);
+      expect(result[0].signallingValueLabel).toEqual(SignallingValueLabel.NONE);
+
+      expect(result[1].id).toEqual(sortedSkills[1].id);
+      expect(result[1].relationType).toEqual(
+        sortedSkills[1].id === skill1.id ? relation1.relationType : relation2.relationType
+      );
+      expect(result[1].signallingValue).toEqual(null);
+      expect(result[1].signallingValueLabel).toEqual(SignallingValueLabel.NONE);
+    });
+
+    test("should return paginated skills using limit and cursor", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND an occupation
+      const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "occupation_s2"));
+      // AND 3 skills
+      const skills = [];
+      for (let i = 0; i < 3; i++) {
+        skills.push(await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, `skill_${i}`)));
+      }
+      // sort skills by id to match default sort order in findSkills (which sorts by requiredSkillId i.e. skill id)
+      skills.sort((a, b) => (a.id > b.id ? 1 : -1));
+
+      // AND linked to occupation
+      const relationSpecs: INewOccupationToSkillPairSpec[] = skills.map((s) => ({
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiringOccupationId: occupation.id,
+        requiredSkillId: s.id,
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
+      }));
+      await repositoryRegistry.occupationToSkillRelation.createMany(modelId, relationSpecs);
+
+      // WHEN fetching first page (limit 2)
+      const page1 = await repository.findSkillsForOccupation(modelId, occupation.id, 2);
+
+      // THEN expect first 2 skills
+      expect(page1).toHaveLength(2);
+      expect(page1[0].id).toEqual(skills[0].id);
+      expect(page1[1].id).toEqual(skills[1].id);
+
+      // WHEN fetching second page (cursor = last item of page 1)
+      const page2 = await repository.findSkillsForOccupation(modelId, occupation.id, 2, page1[1].id);
+
+      // THEN expect 3rd skill
+      expect(page2).toHaveLength(1);
+      expect(page2[0].id).toEqual(skills[2].id);
+    });
+
+    test("should return empty array if no skills exist for the occupation", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      // AND an occupation with no skills
+      const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "no_skills"));
+
+      // WHEN calling findSkillsForOccupation
+      const result = await repository.findSkillsForOccupation(modelId, occupation.id, 10);
+
+      // THEN expect empty array
+      expect(result).toHaveLength(0);
+    });
+
+    test("should handle errors in findSkillsForOccupation", async () => {
+      // GIVEN a modelId
+      const modelId = getMockStringId(1);
+      const occupationId = getMockStringId(2);
+
+      // AND the aggregate method throws an error
+      const aggregateSpy = jest.spyOn(dbConnection.models[MongooseModelName.OccupationToSkillRelation], "aggregate");
+      aggregateSpy.mockImplementationOnce(() => {
+        throw new Error("Database error");
+      });
+
+      // WHEN calling findSkillsForOccupation
+      // THEN expect it to throw
+      await expect(repository.findSkillsForOccupation(modelId, occupationId, 10)).rejects.toThrow(
+        "OccupationRepository.findSkillsForOccupation: findSkillsForOccupation failed"
+      );
+
+      aggregateSpy.mockRestore();
     });
   });
 });

@@ -306,6 +306,19 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             ...givenValidOccupationPOSTResponse,
             code: givenValue,
             occupationType,
+            // Fix for LocalOccupation: it requires signallingValue and signallingValueLabel in requiresSkills
+            ...(occupationType === OccupationEnums.OccupationType.LocalOccupation
+              ? {
+                  requiresSkills: [
+                    {
+                      ...givenSkill,
+                      relationType: null,
+                      signallingValue: 1,
+                      signallingValueLabel: "High",
+                    },
+                  ],
+                }
+              : {}),
           };
 
           assertCaseForProperty(
@@ -385,33 +398,27 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
           constructSchemaError(
             "/occupationGroupCode",
             "pattern",
-            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
+            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}|${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
           ),
         ],
         [
           CaseType.Failure,
           "an invalid code",
-          "1234",
+          "1.2",
           OccupationEnums.OccupationType.LocalOccupation,
           constructSchemaError(
             "/occupationGroupCode",
             "pattern",
-            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
+            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}|${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
           ),
         ],
-        // Cannot test ISCO group code against local group pattern due to regex overlap
-        // Local group code pattern is too permissive and may accept ISCO group codes
-        // [
-        //   CaseType.Failure,
-        //   "a valid code of different type",
-        //   getTestISCOGroupCode(),
-        //   OccupationEnums.OccupationType.LocalOccupation,
-        //   constructSchemaError(
-        //     "/occupationGroupCode",
-        //     "pattern",
-        //     `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
-        //   ),
-        // ],
+        [
+          CaseType.Success,
+          "a valid code of different type",
+          getTestISCOGroupCode(),
+          OccupationEnums.OccupationType.LocalOccupation,
+          undefined,
+        ],
         [
           CaseType.Success,
           "a valid code",
@@ -426,6 +433,20 @@ describe("Test objects against the OccupationAPISpecs.Schemas.POST.Response.Payl
             ...givenValidOccupationPOSTResponse,
             occupationGroupCode: givenValue,
             occupationType,
+            // Fix for LocalOccupation
+            ...(occupationType === OccupationEnums.OccupationType.LocalOccupation
+              ? {
+                  code: getTestLocalOccupationCode(),
+                  requiresSkills: [
+                    {
+                      ...givenSkill,
+                      relationType: null,
+                      signallingValue: 1,
+                      signallingValueLabel: "High",
+                    },
+                  ],
+                }
+              : {}),
           };
 
           assertCaseForProperty(

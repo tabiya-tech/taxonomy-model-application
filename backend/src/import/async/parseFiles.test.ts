@@ -465,6 +465,9 @@ describe("Test the main async handler", () => {
         encodeCursor: jest.fn(),
         decodeCursor: jest.fn(),
         getOccupationByUUID: jest.fn(),
+        findParent: jest.fn(),
+        findChildren: jest.fn(),
+        findSkillsForOccupation: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
       // AND a skill repository
