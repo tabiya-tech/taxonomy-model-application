@@ -42,6 +42,8 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.ById.Paylo
     UUID: randomUUID(),
     preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
     objectType: SkillEnums.Relations.Children.ObjectTypes.Skill,
+    skillType: SkillEnums.SkillType.SkillCompetence,
+    reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
   };
   // GIVEN a valid skill to skill relation
@@ -51,6 +53,8 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.ById.Paylo
     preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
     isLocalized: true,
     objectType: SkillEnums.ObjectTypes.Skill,
+    skillType: SkillEnums.SkillType.SkillCompetence,
+    reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     relationType: SkillEnums.SkillToSkillRelationType.ESSENTIAL,
   } as const;
   // GIVEN a valid occupation relation
@@ -81,6 +85,8 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.ById.Paylo
     skillType: SkillEnums.SkillType.SkillCompetence,
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
+    objectType: SkillEnums.ObjectTypes.Skill,
+    skillGroupCode: "S1.2.3",
     modelId: getMockId(1),
     parent: givenParent,
     children: [givenChild],
