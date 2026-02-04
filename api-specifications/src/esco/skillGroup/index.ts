@@ -11,12 +11,21 @@ import SchemaGETByIdRequestParam from "./schema.GET.request.ById.param";
 import SchemaGETRequestQueryParam from "./schema.GET.request.query.param";
 import SchemaPOSTRequestParam from "./schema.POST.request.param";
 import SchemaGETResponseById from "./schema.GET.response.ById";
+import SchemaGETParentResponse from "./schema.GET.parent.response";
+import SchemaGETParentsResponse from "./schema.GET.parents.response";
+
 namespace SkillGroupSchemas {
   export namespace GET {
     export namespace Response {
       export const Payload = SchemaGETResponse;
       export namespace ById {
         export const Payload = SchemaGETResponseById;
+      }
+      export namespace Parent {
+        export const Payload = SchemaGETParentResponse;
+      }
+      export namespace Parents {
+        export const Payload = SchemaGETParentsResponse;
       }
     }
     export namespace Request {
