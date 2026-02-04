@@ -88,6 +88,12 @@ namespace SkillGroupTypes {
     export namespace Response {
       export type SkillGroupItem = ISkillGroupResponse;
       export type Payload = PaginatedSkillGroupResponse;
+      export namespace Parent {
+        export type Payload = ISkillGroupResponse;
+      }
+      export namespace Parents {
+        export type Payload = PaginatedSkillGroupResponse;
+      }
       export namespace ById {
         export type Payload = ISkillGroupResponse;
       }
