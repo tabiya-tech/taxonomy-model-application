@@ -11,7 +11,6 @@ import SkillConstants from "../../constants";
 import SkillGroupConstants from "../../../skillGroup/constants";
 import SkillAPISpecs from "../../index";
 import SkillGroupAPISpecs from "../../../skillGroup/index";
-import { ObjectTypes } from "./enums";
 import { getTestSkillGroupCode } from "../../../_test_utilities/testUtils";
 import SkillEnums from "../../enums";
 
@@ -65,8 +64,6 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Parent.Response.Pay
     skillType: SkillEnums.SkillType.Knowledge,
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
-    objectType: ObjectTypes.Skill,
-    skillGroupCode: "S1.2.3",
     modelId: getMockId(1),
     parent: null,
     children: [],

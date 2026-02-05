@@ -51,8 +51,6 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Skills.Respons
     UUID: randomUUID(),
     preferredLabel: getTestString(SkillConstants.PREFERRED_LABEL_MAX_LENGTH),
     objectType: SkillEnums.ObjectTypes.Skill,
-    skillType: SkillEnums.SkillType.SkillCompetence,
-    reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
   };
 
@@ -64,8 +62,6 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Skills.Respons
       preferredLabel: getTestString(20),
       isLocalized: true,
       objectType: SkillEnums.ObjectTypes.Skill,
-      skillType: SkillEnums.SkillType.SkillCompetence,
-      reuseLevel: SkillEnums.ReuseLevel.CrossSector,
       relationType: SkillEnums.SkillToSkillRelationType.ESSENTIAL,
     },
   ];
@@ -77,8 +73,6 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Skills.Respons
       preferredLabel: getTestString(20),
       isLocalized: false,
       objectType: SkillEnums.ObjectTypes.Skill,
-      skillType: SkillEnums.SkillType.Knowledge,
-      reuseLevel: SkillEnums.ReuseLevel.CrossSector,
       relationType: SkillEnums.SkillToSkillRelationType.OPTIONAL,
     },
   ];
@@ -124,8 +118,6 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Skills.Respons
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     modelId: getMockId(1),
     isLocalized: true,
-    objectType: SkillEnums.ObjectTypes.Skill,
-    skillGroupCode: "S1.2.3",
     parent: givenParent,
     children: [givenChild],
     requiresSkills: givenRequiresSkills,
