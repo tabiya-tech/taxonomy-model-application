@@ -36,8 +36,6 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Related.Response.Pa
     skillType: SkillEnums.SkillType.Knowledge,
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
-    objectType: SkillEnums.ObjectTypes.Skill,
-    skillGroupCode: "S1.2.3",
     modelId: getMockId(1),
     parent: null,
     children: [],

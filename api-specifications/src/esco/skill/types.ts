@@ -20,8 +20,6 @@ interface ISkillResponse {
   skillType: SkillEnums.SkillType;
   reuseLevel: SkillEnums.ReuseLevel;
   isLocalized: boolean;
-  objectType: SkillEnums.ObjectTypes.Skill;
-  skillGroupCode: string;
   modelId: string;
   parent: {
     id: string;

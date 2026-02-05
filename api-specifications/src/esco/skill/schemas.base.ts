@@ -75,17 +75,6 @@ export const _baseProperties = {
     type: "string",
     pattern: RegExp_Str_ID,
   },
-  objectType: {
-    description: "The type of the skill, e.g., Skill.",
-    type: "string",
-    enum: [SkillEnums.ObjectTypes.Skill],
-  },
-  skillGroupCode: {
-    description: "The code of the parent skill group.",
-    type: "string",
-    maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
-    pattern: SkillGroupRegexes.Str.SKILL_GROUP_CODE,
-  },
 };
 
 export const _baseSkillURLParameter = {
@@ -121,6 +110,7 @@ export const _baseQueryParameterSchema = {
   },
 };
 
+// Re-add this as it is used by other schemas like schema.GET.children.response.ts
 export const _basePaginationResponseProperties = {
   limit: _baseQueryParameterSchema.limit,
   nextCursor: {
@@ -129,189 +119,6 @@ export const _basePaginationResponseProperties = {
       "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
     type: ["string", "null"],
   },
-};
-
-export const _baseParentSchema = {
-  description: "The parent skill or skill group of this skill.",
-  type: ["object", "null"],
-  additionalProperties: false,
-  properties: {
-    id: {
-      description: "The id of the parent skill or skill group.",
-      type: "string",
-      pattern: RegExp_Str_ID,
-    },
-    UUID: {
-      description: "The UUID of the parent skill or skill group.",
-      type: "string",
-      pattern: RegExp_Str_UUIDv4,
-    },
-    preferredLabel: {
-      description: "The preferred label of the parent skill or skill group.",
-      type: "string",
-      maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
-      pattern: RegExp_Str_NotEmptyString,
-    },
-    objectType: {
-      description: "The type of the parent, e.g., Skill or SkillGroup.",
-      type: "string",
-      enum: Object.values(SkillEnums.Relations.Parents.ObjectTypes),
-    },
-    code: {
-      description: "The code of the parent skill group.",
-      type: "string",
-      maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
-    },
-  },
-  if: {
-    properties: {
-      objectType: { enum: [SkillEnums.ObjectTypes.SkillGroup] },
-    },
-  },
-  then: {
-    properties: {
-      code: {
-        type: "string",
-        maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
-        pattern: SkillGroupRegexes.Str.SKILL_GROUP_CODE,
-      },
-    },
-    required: ["code"],
-  },
-  required: ["id", "UUID", "preferredLabel", "objectType"],
-};
-
-export const _baseChildSchema = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    id: { description: "The id of the child skill.", type: "string", pattern: RegExp_Str_ID },
-    UUID: { description: "The UUID of the child skill.", type: "string", pattern: RegExp_Str_UUIDv4 },
-    preferredLabel: {
-      description: "The preferred label of the child skill.",
-      type: "string",
-      maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
-      pattern: RegExp_Str_NotEmptyString,
-    },
-    objectType: {
-      description: "The type of the child, e.g., Skill.",
-      type: "string",
-      enum: Object.values(SkillEnums.Relations.Children.ObjectTypes),
-    },
-    isLocalized: {
-      description: "Indicates if the child skill is localized.",
-      type: "boolean",
-    },
-    skillType: _baseProperties.skillType,
-    reuseLevel: _baseProperties.reuseLevel,
-  },
-  allOf: [
-    {
-      if: {
-        properties: { objectType: { const: SkillEnums.ObjectTypes.Skill } },
-      },
-      then: {
-        properties: {
-          isLocalized: { type: "boolean" },
-        },
-        required: ["isLocalized"],
-      },
-    },
-  ],
-  required: ["id", "UUID", "preferredLabel", "objectType", "skillType", "reuseLevel"],
-};
-
-export const _baseSkillRelationSchema = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    id: { description: "The ID of the related skill.", type: "string", pattern: RegExp_Str_ID },
-    UUID: { description: "The UUID of the related skill.", type: "string", pattern: RegExp_Str_UUIDv4 },
-    preferredLabel: {
-      description: "The preferred label of the related skill.",
-      type: "string",
-      maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
-      pattern: RegExp_Str_NotEmptyString,
-    },
-    isLocalized: { description: "Indicates if the related skill is localized.", type: "boolean" },
-    objectType: {
-      description: "The object type of the related skill.",
-      type: "string",
-      enum: [SkillEnums.ObjectTypes.Skill],
-    },
-    relationType: {
-      description: "The type of relationship between skills.",
-      type: "string",
-      enum: Object.values(SkillEnums.SkillToSkillRelationType),
-    },
-    skillType: _baseProperties.skillType,
-    reuseLevel: _baseProperties.reuseLevel,
-  },
-  required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType", "relationType", "skillType", "reuseLevel"],
-};
-
-export const _baseRequiredByOccupationSchema = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    id: { description: "The ID of the requiring occupation.", type: "string", pattern: RegExp_Str_ID },
-    UUID: { description: "The UUID of the requiring occupation.", type: "string", pattern: RegExp_Str_UUIDv4 },
-    preferredLabel: {
-      description: "The preferred label of the requiring occupation.",
-      type: "string",
-      maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
-      pattern: RegExp_Str_NotEmptyString,
-    },
-    isLocalized: { description: "Indicates if the requiring occupation is localized.", type: "boolean" },
-    objectType: {
-      description: "The object type of the requiring occupation.",
-      type: "string",
-      enum: Object.values(SkillEnums.OccupationObjectTypes),
-    },
-    relationType: {
-      description: "Used for ESCOOccupations only.",
-      type: ["string", "null"],
-      enum: [...Object.values(SkillEnums.OccupationToSkillRelationType), null],
-    },
-    signallingValue: {
-      description: "Used for LocalOccupations only.",
-      type: ["number", "null"],
-      minimum: SkillConstants.SIGNALLING_VALUE_MIN,
-      maximum: SkillConstants.SIGNALLING_VALUE_MAX,
-    },
-    signallingValueLabel: {
-      description: "Used for LocalOccupations only.",
-      type: ["string", "null"],
-      maxLength: SkillConstants.SIGNALLING_VALUE_LABEL_MAX_LENGTH,
-      enum: [...Object.values(SkillEnums.SignallingValueLabel), null],
-    },
-  },
-  required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType"],
-  allOf: [
-    {
-      if: {
-        properties: { objectType: { const: SkillEnums.OccupationObjectTypes.ESCOOccupation } },
-      },
-      then: {
-        properties: {
-          relationType: { type: "string" },
-        },
-        required: ["relationType"],
-      },
-    },
-    {
-      if: {
-        properties: { objectType: { const: SkillEnums.OccupationObjectTypes.LocalOccupation } },
-      },
-      then: {
-        properties: {
-          signallingValue: { type: "number" },
-          signallingValueLabel: { type: "string" },
-        },
-        required: ["signallingValue", "signallingValueLabel"],
-      },
-    },
-  ],
 };
 
 export const _baseResponseSchema = {
@@ -348,30 +155,226 @@ export const _baseResponseSchema = {
       pattern: "^https://.*",
       maxLength: SkillConstants.TABIYA_PATH_URI_MAX_LENGTH,
     },
-    parent: _baseParentSchema,
+    parent: {
+      description: "The parent skill or skill group of this skill.",
+      type: ["object", "null"],
+      additionalProperties: false,
+      properties: {
+        id: {
+          description: "The id of the parent skill or skill group.",
+          type: "string",
+          pattern: RegExp_Str_ID,
+        },
+        UUID: {
+          description: "The UUID of the parent skill or skill group.",
+          type: "string",
+          pattern: RegExp_Str_UUIDv4,
+        },
+        preferredLabel: {
+          description: "The preferred label of the parent skill or skill group.",
+          type: "string",
+          maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
+          pattern: RegExp_Str_NotEmptyString,
+        },
+        objectType: {
+          description: "The type of the parent, e.g., Skill or SkillGroup.",
+          type: "string",
+          enum: Object.values(SkillEnums.Relations.Parents.ObjectTypes),
+        },
+        code: {
+          description: "The code of the parent skill group.",
+          type: "string",
+          maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
+        },
+      },
+      if: {
+        properties: {
+          objectType: { enum: [SkillEnums.ObjectTypes.SkillGroup] },
+        },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
+            pattern: SkillGroupRegexes.Str.SKILL_GROUP_CODE,
+          },
+        },
+        required: ["code"],
+      },
+      required: ["id", "UUID", "preferredLabel", "objectType"],
+    },
     children: {
       description: "The children of this skill.",
       type: "array",
       minItems: 0,
-      items: _baseChildSchema,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: { description: "The id of the child skill.", type: "string", pattern: RegExp_Str_ID },
+          UUID: { description: "The UUID of the child skill.", type: "string", pattern: RegExp_Str_UUIDv4 },
+          preferredLabel: {
+            description: "The preferred label of the child skill.",
+            type: "string",
+            maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
+          },
+          objectType: {
+            description: "The type of the child, e.g., Skill.",
+            type: "string",
+            enum: Object.values(SkillEnums.Relations.Children.ObjectTypes),
+          },
+          isLocalized: {
+            description: "Indicates if the child skill is localized.",
+            type: "boolean",
+          },
+        },
+        allOf: [
+          {
+            if: {
+              properties: { objectType: { const: SkillEnums.ObjectTypes.Skill } },
+            },
+            then: {
+              properties: {
+                isLocalized: { type: "boolean" },
+              },
+              required: ["isLocalized"],
+            },
+          },
+        ],
+        required: ["id", "UUID", "preferredLabel", "objectType"],
+      },
     },
     requiresSkills: {
       description: "Skills required by this skill with relationship metadata.",
       type: "array",
       minItems: 0,
-      items: _baseSkillRelationSchema,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: { description: "The ID of the required skill.", type: "string", pattern: RegExp_Str_ID },
+          UUID: { description: "The UUID of the required skill.", type: "string", pattern: RegExp_Str_UUIDv4 },
+          preferredLabel: {
+            description: "The preferred label of the required skill.",
+            type: "string",
+            maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
+          },
+          isLocalized: { description: "Indicates if the required skill is localized.", type: "boolean" },
+          objectType: {
+            description: "The object type of the required skill.",
+            type: "string",
+            enum: [SkillEnums.ObjectTypes.Skill],
+          },
+          relationType: {
+            description: "The type of relationship between skills.",
+            type: "string",
+            enum: Object.values(SkillEnums.SkillToSkillRelationType),
+          },
+        },
+        required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType", "relationType"],
+      },
     },
     requiredBySkills: {
       description: "Skills that require this skill with relationship metadata.",
       type: "array",
       minItems: 0,
-      items: _baseSkillRelationSchema,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: { description: "The ID of the requiring skill.", type: "string", pattern: RegExp_Str_ID },
+          UUID: { description: "The UUID of the requiring skill.", type: "string", pattern: RegExp_Str_UUIDv4 },
+          preferredLabel: {
+            description: "The preferred label of the requiring skill.",
+            type: "string",
+            maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
+          },
+          isLocalized: { description: "Indicates if the requiring skill is localized.", type: "boolean" },
+          objectType: {
+            description: "The object type of the requiring skill.",
+            type: "string",
+            enum: [SkillEnums.ObjectTypes.Skill],
+          },
+          relationType: {
+            description: "The type of relationship between skills.",
+            type: "string",
+            enum: Object.values(SkillEnums.SkillToSkillRelationType),
+          },
+        },
+        required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType", "relationType"],
+      },
     },
     requiredByOccupations: {
       description: "Occupations that require this skill with relationship metadata.",
       type: "array",
       minItems: 0,
-      items: _baseRequiredByOccupationSchema,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: { description: "The ID of the requiring occupation.", type: "string", pattern: RegExp_Str_ID },
+          UUID: { description: "The UUID of the requiring occupation.", type: "string", pattern: RegExp_Str_UUIDv4 },
+          preferredLabel: {
+            description: "The preferred label of the requiring occupation.",
+            type: "string",
+            maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
+          },
+          isLocalized: { description: "Indicates if the requiring occupation is localized.", type: "boolean" },
+          objectType: {
+            description: "The object type of the requiring occupation.",
+            type: "string",
+            enum: Object.values(SkillEnums.OccupationObjectTypes),
+          },
+          relationType: {
+            description: "Used for ESCOOccupations only.",
+            type: ["string", "null"],
+            enum: [...Object.values(SkillEnums.OccupationToSkillRelationType), null],
+          },
+          signallingValue: {
+            description: "Used for LocalOccupations only.",
+            type: ["number", "null"],
+            minimum: SkillConstants.SIGNALLING_VALUE_MIN,
+            maximum: SkillConstants.SIGNALLING_VALUE_MAX,
+          },
+          signallingValueLabel: {
+            description: "Used for LocalOccupations only.",
+            type: ["string", "null"],
+            maxLength: SkillConstants.SIGNALLING_VALUE_LABEL_MAX_LENGTH,
+            enum: [...Object.values(SkillEnums.SignallingValueLabel), null],
+          },
+        },
+        required: ["id", "UUID", "preferredLabel", "isLocalized", "objectType"],
+        allOf: [
+          {
+            if: {
+              properties: { objectType: { const: SkillEnums.OccupationObjectTypes.ESCOOccupation } },
+            },
+            then: {
+              properties: {
+                relationType: { type: "string" },
+              },
+              required: ["relationType"],
+            },
+          },
+          {
+            if: {
+              properties: { objectType: { const: SkillEnums.OccupationObjectTypes.LocalOccupation } },
+            },
+            then: {
+              properties: {
+                signallingValue: { type: "number" },
+                signallingValueLabel: { type: "string" },
+              },
+              required: ["signallingValue", "signallingValueLabel"],
+            },
+          },
+        ],
+      },
     },
     ..._baseProperties,
     createdAt: { description: "Timestamp of record creation.", type: "string", format: "date-time" },
@@ -393,8 +396,6 @@ export const _baseResponseSchema = {
     "skillType",
     "reuseLevel",
     "isLocalized",
-    "objectType",
-    "skillGroupCode",
     "modelId",
     "parent",
     "children",

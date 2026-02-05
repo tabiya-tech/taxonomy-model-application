@@ -331,34 +331,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                             "pattern": "\\S",
                             "type": "string",
                           },
-                          "reuseLevel": {
-                            "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                            "enum": [
-                              "sector-specific",
-                              "occupation-specific",
-                              "cross-sector",
-                              "transversal",
-                            ],
-                            "type": "string",
-                          },
-                          "skillType": {
-                            "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                            "enum": [
-                              "skill/competence",
-                              "knowledge",
-                              "language",
-                              "attitude",
-                            ],
-                            "type": "string",
-                          },
                         },
                         "required": [
                           "id",
                           "UUID",
                           "preferredLabel",
                           "objectType",
-                          "skillType",
-                          "reuseLevel",
                         ],
                         "type": "object",
                       },
@@ -392,13 +370,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "modelId": {
                       "description": "The identifier of the model containing this skill.",
                       "pattern": "^[0-9a-f]{24}$",
-                      "type": "string",
-                    },
-                    "objectType": {
-                      "description": "The type of the skill, e.g., Skill.",
-                      "enum": [
-                        "skill",
-                      ],
                       "type": "string",
                     },
                     "originUUID": {
@@ -626,28 +597,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "additionalProperties": false,
                         "properties": {
                           "UUID": {
-                            "description": "The UUID of the related skill.",
+                            "description": "The UUID of the requiring skill.",
                             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                             "type": "string",
                           },
                           "id": {
-                            "description": "The ID of the related skill.",
+                            "description": "The ID of the requiring skill.",
                             "pattern": "^[0-9a-f]{24}$",
                             "type": "string",
                           },
                           "isLocalized": {
-                            "description": "Indicates if the related skill is localized.",
+                            "description": "Indicates if the requiring skill is localized.",
                             "type": "boolean",
                           },
                           "objectType": {
-                            "description": "The object type of the related skill.",
+                            "description": "The object type of the requiring skill.",
                             "enum": [
                               "skill",
                             ],
                             "type": "string",
                           },
                           "preferredLabel": {
-                            "description": "The preferred label of the related skill.",
+                            "description": "The preferred label of the requiring skill.",
                             "maxLength": 256,
                             "pattern": "\\S",
                             "type": "string",
@@ -660,26 +631,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                             ],
                             "type": "string",
                           },
-                          "reuseLevel": {
-                            "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                            "enum": [
-                              "sector-specific",
-                              "occupation-specific",
-                              "cross-sector",
-                              "transversal",
-                            ],
-                            "type": "string",
-                          },
-                          "skillType": {
-                            "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                            "enum": [
-                              "skill/competence",
-                              "knowledge",
-                              "language",
-                              "attitude",
-                            ],
-                            "type": "string",
-                          },
                         },
                         "required": [
                           "id",
@@ -688,8 +639,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "isLocalized",
                           "objectType",
                           "relationType",
-                          "skillType",
-                          "reuseLevel",
                         ],
                         "type": "object",
                       },
@@ -702,28 +651,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "additionalProperties": false,
                         "properties": {
                           "UUID": {
-                            "description": "The UUID of the related skill.",
+                            "description": "The UUID of the required skill.",
                             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                             "type": "string",
                           },
                           "id": {
-                            "description": "The ID of the related skill.",
+                            "description": "The ID of the required skill.",
                             "pattern": "^[0-9a-f]{24}$",
                             "type": "string",
                           },
                           "isLocalized": {
-                            "description": "Indicates if the related skill is localized.",
+                            "description": "Indicates if the required skill is localized.",
                             "type": "boolean",
                           },
                           "objectType": {
-                            "description": "The object type of the related skill.",
+                            "description": "The object type of the required skill.",
                             "enum": [
                               "skill",
                             ],
                             "type": "string",
                           },
                           "preferredLabel": {
-                            "description": "The preferred label of the related skill.",
+                            "description": "The preferred label of the required skill.",
                             "maxLength": 256,
                             "pattern": "\\S",
                             "type": "string",
@@ -736,26 +685,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                             ],
                             "type": "string",
                           },
-                          "reuseLevel": {
-                            "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                            "enum": [
-                              "sector-specific",
-                              "occupation-specific",
-                              "cross-sector",
-                              "transversal",
-                            ],
-                            "type": "string",
-                          },
-                          "skillType": {
-                            "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                            "enum": [
-                              "skill/competence",
-                              "knowledge",
-                              "language",
-                              "attitude",
-                            ],
-                            "type": "string",
-                          },
                         },
                         "required": [
                           "id",
@@ -764,8 +693,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "isLocalized",
                           "objectType",
                           "relationType",
-                          "skillType",
-                          "reuseLevel",
                         ],
                         "type": "object",
                       },
@@ -785,12 +712,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "scopeNote": {
                       "description": "Scope clarification for the skill's application.",
                       "maxLength": 4000,
-                      "type": "string",
-                    },
-                    "skillGroupCode": {
-                      "description": "The code of the parent skill group.",
-                      "maxLength": 256,
-                      "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
                       "type": "string",
                     },
                     "skillType": {
@@ -832,8 +753,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "skillType",
                     "reuseLevel",
                     "isLocalized",
-                    "objectType",
-                    "skillGroupCode",
                     "modelId",
                     "parent",
                     "children",
@@ -1518,34 +1437,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "pattern": "\\S",
                           "type": "string",
                         },
-                        "reuseLevel": {
-                          "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                          "enum": [
-                            "sector-specific",
-                            "occupation-specific",
-                            "cross-sector",
-                            "transversal",
-                          ],
-                          "type": "string",
-                        },
-                        "skillType": {
-                          "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                          "enum": [
-                            "skill/competence",
-                            "knowledge",
-                            "language",
-                            "attitude",
-                          ],
-                          "type": "string",
-                        },
                       },
                       "required": [
                         "id",
                         "UUID",
                         "preferredLabel",
                         "objectType",
-                        "skillType",
-                        "reuseLevel",
                       ],
                       "type": "object",
                     },
@@ -1579,13 +1476,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "modelId": {
                     "description": "The identifier of the model containing this skill.",
                     "pattern": "^[0-9a-f]{24}$",
-                    "type": "string",
-                  },
-                  "objectType": {
-                    "description": "The type of the skill, e.g., Skill.",
-                    "enum": [
-                      "skill",
-                    ],
                     "type": "string",
                   },
                   "originUUID": {
@@ -1813,28 +1703,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       "additionalProperties": false,
                       "properties": {
                         "UUID": {
-                          "description": "The UUID of the related skill.",
+                          "description": "The UUID of the requiring skill.",
                           "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                           "type": "string",
                         },
                         "id": {
-                          "description": "The ID of the related skill.",
+                          "description": "The ID of the requiring skill.",
                           "pattern": "^[0-9a-f]{24}$",
                           "type": "string",
                         },
                         "isLocalized": {
-                          "description": "Indicates if the related skill is localized.",
+                          "description": "Indicates if the requiring skill is localized.",
                           "type": "boolean",
                         },
                         "objectType": {
-                          "description": "The object type of the related skill.",
+                          "description": "The object type of the requiring skill.",
                           "enum": [
                             "skill",
                           ],
                           "type": "string",
                         },
                         "preferredLabel": {
-                          "description": "The preferred label of the related skill.",
+                          "description": "The preferred label of the requiring skill.",
                           "maxLength": 256,
                           "pattern": "\\S",
                           "type": "string",
@@ -1847,26 +1737,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           ],
                           "type": "string",
                         },
-                        "reuseLevel": {
-                          "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                          "enum": [
-                            "sector-specific",
-                            "occupation-specific",
-                            "cross-sector",
-                            "transversal",
-                          ],
-                          "type": "string",
-                        },
-                        "skillType": {
-                          "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                          "enum": [
-                            "skill/competence",
-                            "knowledge",
-                            "language",
-                            "attitude",
-                          ],
-                          "type": "string",
-                        },
                       },
                       "required": [
                         "id",
@@ -1875,8 +1745,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "isLocalized",
                         "objectType",
                         "relationType",
-                        "skillType",
-                        "reuseLevel",
                       ],
                       "type": "object",
                     },
@@ -1889,28 +1757,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       "additionalProperties": false,
                       "properties": {
                         "UUID": {
-                          "description": "The UUID of the related skill.",
+                          "description": "The UUID of the required skill.",
                           "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                           "type": "string",
                         },
                         "id": {
-                          "description": "The ID of the related skill.",
+                          "description": "The ID of the required skill.",
                           "pattern": "^[0-9a-f]{24}$",
                           "type": "string",
                         },
                         "isLocalized": {
-                          "description": "Indicates if the related skill is localized.",
+                          "description": "Indicates if the required skill is localized.",
                           "type": "boolean",
                         },
                         "objectType": {
-                          "description": "The object type of the related skill.",
+                          "description": "The object type of the required skill.",
                           "enum": [
                             "skill",
                           ],
                           "type": "string",
                         },
                         "preferredLabel": {
-                          "description": "The preferred label of the related skill.",
+                          "description": "The preferred label of the required skill.",
                           "maxLength": 256,
                           "pattern": "\\S",
                           "type": "string",
@@ -1923,26 +1791,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           ],
                           "type": "string",
                         },
-                        "reuseLevel": {
-                          "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                          "enum": [
-                            "sector-specific",
-                            "occupation-specific",
-                            "cross-sector",
-                            "transversal",
-                          ],
-                          "type": "string",
-                        },
-                        "skillType": {
-                          "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                          "enum": [
-                            "skill/competence",
-                            "knowledge",
-                            "language",
-                            "attitude",
-                          ],
-                          "type": "string",
-                        },
                       },
                       "required": [
                         "id",
@@ -1951,8 +1799,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "isLocalized",
                         "objectType",
                         "relationType",
-                        "skillType",
-                        "reuseLevel",
                       ],
                       "type": "object",
                     },
@@ -1972,12 +1818,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "scopeNote": {
                     "description": "Scope clarification for the skill's application.",
                     "maxLength": 4000,
-                    "type": "string",
-                  },
-                  "skillGroupCode": {
-                    "description": "The code of the parent skill group.",
-                    "maxLength": 256,
-                    "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
                     "type": "string",
                   },
                   "skillType": {
@@ -2019,8 +1859,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "skillType",
                   "reuseLevel",
                   "isLocalized",
-                  "objectType",
-                  "skillGroupCode",
                   "modelId",
                   "parent",
                   "children",
@@ -2428,34 +2266,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                             "pattern": "\\S",
                             "type": "string",
                           },
-                          "reuseLevel": {
-                            "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                            "enum": [
-                              "sector-specific",
-                              "occupation-specific",
-                              "cross-sector",
-                              "transversal",
-                            ],
-                            "type": "string",
-                          },
-                          "skillType": {
-                            "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                            "enum": [
-                              "skill/competence",
-                              "knowledge",
-                              "language",
-                              "attitude",
-                            ],
-                            "type": "string",
-                          },
                         },
                         "required": [
                           "id",
                           "UUID",
                           "preferredLabel",
                           "objectType",
-                          "skillType",
-                          "reuseLevel",
                         ],
                         "type": "object",
                       },
@@ -2489,13 +2305,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "modelId": {
                       "description": "The identifier of the model containing this skill.",
                       "pattern": "^[0-9a-f]{24}$",
-                      "type": "string",
-                    },
-                    "objectType": {
-                      "description": "The type of the skill, e.g., Skill.",
-                      "enum": [
-                        "skill",
-                      ],
                       "type": "string",
                     },
                     "originUUID": {
@@ -2731,28 +2540,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "additionalProperties": false,
                         "properties": {
                           "UUID": {
-                            "description": "The UUID of the related skill.",
+                            "description": "The UUID of the requiring skill.",
                             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                             "type": "string",
                           },
                           "id": {
-                            "description": "The ID of the related skill.",
+                            "description": "The ID of the requiring skill.",
                             "pattern": "^[0-9a-f]{24}$",
                             "type": "string",
                           },
                           "isLocalized": {
-                            "description": "Indicates if the related skill is localized.",
+                            "description": "Indicates if the requiring skill is localized.",
                             "type": "boolean",
                           },
                           "objectType": {
-                            "description": "The object type of the related skill.",
+                            "description": "The object type of the requiring skill.",
                             "enum": [
                               "skill",
                             ],
                             "type": "string",
                           },
                           "preferredLabel": {
-                            "description": "The preferred label of the related skill.",
+                            "description": "The preferred label of the requiring skill.",
                             "maxLength": 256,
                             "pattern": "\\S",
                             "type": "string",
@@ -2765,26 +2574,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                             ],
                             "type": "string",
                           },
-                          "reuseLevel": {
-                            "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                            "enum": [
-                              "sector-specific",
-                              "occupation-specific",
-                              "cross-sector",
-                              "transversal",
-                            ],
-                            "type": "string",
-                          },
-                          "skillType": {
-                            "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                            "enum": [
-                              "skill/competence",
-                              "knowledge",
-                              "language",
-                              "attitude",
-                            ],
-                            "type": "string",
-                          },
                         },
                         "required": [
                           "id",
@@ -2793,8 +2582,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "isLocalized",
                           "objectType",
                           "relationType",
-                          "skillType",
-                          "reuseLevel",
                         ],
                         "type": "object",
                       },
@@ -2807,28 +2594,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "additionalProperties": false,
                         "properties": {
                           "UUID": {
-                            "description": "The UUID of the related skill.",
+                            "description": "The UUID of the required skill.",
                             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                             "type": "string",
                           },
                           "id": {
-                            "description": "The ID of the related skill.",
+                            "description": "The ID of the required skill.",
                             "pattern": "^[0-9a-f]{24}$",
                             "type": "string",
                           },
                           "isLocalized": {
-                            "description": "Indicates if the related skill is localized.",
+                            "description": "Indicates if the required skill is localized.",
                             "type": "boolean",
                           },
                           "objectType": {
-                            "description": "The object type of the related skill.",
+                            "description": "The object type of the required skill.",
                             "enum": [
                               "skill",
                             ],
                             "type": "string",
                           },
                           "preferredLabel": {
-                            "description": "The preferred label of the related skill.",
+                            "description": "The preferred label of the required skill.",
                             "maxLength": 256,
                             "pattern": "\\S",
                             "type": "string",
@@ -2841,26 +2628,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                             ],
                             "type": "string",
                           },
-                          "reuseLevel": {
-                            "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                            "enum": [
-                              "sector-specific",
-                              "occupation-specific",
-                              "cross-sector",
-                              "transversal",
-                            ],
-                            "type": "string",
-                          },
-                          "skillType": {
-                            "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                            "enum": [
-                              "skill/competence",
-                              "knowledge",
-                              "language",
-                              "attitude",
-                            ],
-                            "type": "string",
-                          },
                         },
                         "required": [
                           "id",
@@ -2869,8 +2636,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "isLocalized",
                           "objectType",
                           "relationType",
-                          "skillType",
-                          "reuseLevel",
                         ],
                         "type": "object",
                       },
@@ -2890,12 +2655,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "scopeNote": {
                       "description": "Scope clarification for the skill's application.",
                       "maxLength": 4000,
-                      "type": "string",
-                    },
-                    "skillGroupCode": {
-                      "description": "The code of the parent skill group.",
-                      "maxLength": 256,
-                      "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
                       "type": "string",
                     },
                     "skillType": {
@@ -2937,8 +2696,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "skillType",
                     "reuseLevel",
                     "isLocalized",
-                    "objectType",
-                    "skillGroupCode",
                     "modelId",
                     "parent",
                     "children",
@@ -3132,34 +2889,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       "pattern": "\\S",
                       "type": "string",
                     },
-                    "reuseLevel": {
-                      "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                      "enum": [
-                        "sector-specific",
-                        "occupation-specific",
-                        "cross-sector",
-                        "transversal",
-                      ],
-                      "type": "string",
-                    },
-                    "skillType": {
-                      "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                      "enum": [
-                        "skill/competence",
-                        "knowledge",
-                        "language",
-                        "attitude",
-                      ],
-                      "type": "string",
-                    },
                   },
                   "required": [
                     "id",
                     "UUID",
                     "preferredLabel",
                     "objectType",
-                    "skillType",
-                    "reuseLevel",
                   ],
                   "type": "object",
                 },
@@ -3193,13 +2928,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "modelId": {
                 "description": "The identifier of the model containing this skill.",
                 "pattern": "^[0-9a-f]{24}$",
-                "type": "string",
-              },
-              "objectType": {
-                "description": "The type of the skill, e.g., Skill.",
-                "enum": [
-                  "skill",
-                ],
                 "type": "string",
               },
               "originUUID": {
@@ -3427,28 +3155,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "additionalProperties": false,
                   "properties": {
                     "UUID": {
-                      "description": "The UUID of the related skill.",
+                      "description": "The UUID of the requiring skill.",
                       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                       "type": "string",
                     },
                     "id": {
-                      "description": "The ID of the related skill.",
+                      "description": "The ID of the requiring skill.",
                       "pattern": "^[0-9a-f]{24}$",
                       "type": "string",
                     },
                     "isLocalized": {
-                      "description": "Indicates if the related skill is localized.",
+                      "description": "Indicates if the requiring skill is localized.",
                       "type": "boolean",
                     },
                     "objectType": {
-                      "description": "The object type of the related skill.",
+                      "description": "The object type of the requiring skill.",
                       "enum": [
                         "skill",
                       ],
                       "type": "string",
                     },
                     "preferredLabel": {
-                      "description": "The preferred label of the related skill.",
+                      "description": "The preferred label of the requiring skill.",
                       "maxLength": 256,
                       "pattern": "\\S",
                       "type": "string",
@@ -3461,26 +3189,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       ],
                       "type": "string",
                     },
-                    "reuseLevel": {
-                      "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                      "enum": [
-                        "sector-specific",
-                        "occupation-specific",
-                        "cross-sector",
-                        "transversal",
-                      ],
-                      "type": "string",
-                    },
-                    "skillType": {
-                      "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                      "enum": [
-                        "skill/competence",
-                        "knowledge",
-                        "language",
-                        "attitude",
-                      ],
-                      "type": "string",
-                    },
                   },
                   "required": [
                     "id",
@@ -3489,8 +3197,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "isLocalized",
                     "objectType",
                     "relationType",
-                    "skillType",
-                    "reuseLevel",
                   ],
                   "type": "object",
                 },
@@ -3503,28 +3209,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "additionalProperties": false,
                   "properties": {
                     "UUID": {
-                      "description": "The UUID of the related skill.",
+                      "description": "The UUID of the required skill.",
                       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                       "type": "string",
                     },
                     "id": {
-                      "description": "The ID of the related skill.",
+                      "description": "The ID of the required skill.",
                       "pattern": "^[0-9a-f]{24}$",
                       "type": "string",
                     },
                     "isLocalized": {
-                      "description": "Indicates if the related skill is localized.",
+                      "description": "Indicates if the required skill is localized.",
                       "type": "boolean",
                     },
                     "objectType": {
-                      "description": "The object type of the related skill.",
+                      "description": "The object type of the required skill.",
                       "enum": [
                         "skill",
                       ],
                       "type": "string",
                     },
                     "preferredLabel": {
-                      "description": "The preferred label of the related skill.",
+                      "description": "The preferred label of the required skill.",
                       "maxLength": 256,
                       "pattern": "\\S",
                       "type": "string",
@@ -3537,26 +3243,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       ],
                       "type": "string",
                     },
-                    "reuseLevel": {
-                      "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                      "enum": [
-                        "sector-specific",
-                        "occupation-specific",
-                        "cross-sector",
-                        "transversal",
-                      ],
-                      "type": "string",
-                    },
-                    "skillType": {
-                      "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                      "enum": [
-                        "skill/competence",
-                        "knowledge",
-                        "language",
-                        "attitude",
-                      ],
-                      "type": "string",
-                    },
                   },
                   "required": [
                     "id",
@@ -3565,8 +3251,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "isLocalized",
                     "objectType",
                     "relationType",
-                    "skillType",
-                    "reuseLevel",
                   ],
                   "type": "object",
                 },
@@ -3586,12 +3270,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "scopeNote": {
                 "description": "Scope clarification for the skill's application.",
                 "maxLength": 4000,
-                "type": "string",
-              },
-              "skillGroupCode": {
-                "description": "The code of the parent skill group.",
-                "maxLength": 256,
-                "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
                 "type": "string",
               },
               "skillType": {
@@ -3633,8 +3311,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "skillType",
               "reuseLevel",
               "isLocalized",
-              "objectType",
-              "skillGroupCode",
               "modelId",
               "parent",
               "children",
@@ -3738,34 +3414,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "pattern": "\\S",
                           "type": "string",
                         },
-                        "reuseLevel": {
-                          "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                          "enum": [
-                            "sector-specific",
-                            "occupation-specific",
-                            "cross-sector",
-                            "transversal",
-                          ],
-                          "type": "string",
-                        },
-                        "skillType": {
-                          "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                          "enum": [
-                            "skill/competence",
-                            "knowledge",
-                            "language",
-                            "attitude",
-                          ],
-                          "type": "string",
-                        },
                       },
                       "required": [
                         "id",
                         "UUID",
                         "preferredLabel",
                         "objectType",
-                        "skillType",
-                        "reuseLevel",
                       ],
                       "type": "object",
                     },
@@ -3799,13 +3453,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "modelId": {
                     "description": "The identifier of the model containing this skill.",
                     "pattern": "^[0-9a-f]{24}$",
-                    "type": "string",
-                  },
-                  "objectType": {
-                    "description": "The type of the skill, e.g., Skill.",
-                    "enum": [
-                      "skill",
-                    ],
                     "type": "string",
                   },
                   "originUUID": {
@@ -4033,28 +3680,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       "additionalProperties": false,
                       "properties": {
                         "UUID": {
-                          "description": "The UUID of the related skill.",
+                          "description": "The UUID of the requiring skill.",
                           "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                           "type": "string",
                         },
                         "id": {
-                          "description": "The ID of the related skill.",
+                          "description": "The ID of the requiring skill.",
                           "pattern": "^[0-9a-f]{24}$",
                           "type": "string",
                         },
                         "isLocalized": {
-                          "description": "Indicates if the related skill is localized.",
+                          "description": "Indicates if the requiring skill is localized.",
                           "type": "boolean",
                         },
                         "objectType": {
-                          "description": "The object type of the related skill.",
+                          "description": "The object type of the requiring skill.",
                           "enum": [
                             "skill",
                           ],
                           "type": "string",
                         },
                         "preferredLabel": {
-                          "description": "The preferred label of the related skill.",
+                          "description": "The preferred label of the requiring skill.",
                           "maxLength": 256,
                           "pattern": "\\S",
                           "type": "string",
@@ -4067,26 +3714,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           ],
                           "type": "string",
                         },
-                        "reuseLevel": {
-                          "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                          "enum": [
-                            "sector-specific",
-                            "occupation-specific",
-                            "cross-sector",
-                            "transversal",
-                          ],
-                          "type": "string",
-                        },
-                        "skillType": {
-                          "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                          "enum": [
-                            "skill/competence",
-                            "knowledge",
-                            "language",
-                            "attitude",
-                          ],
-                          "type": "string",
-                        },
                       },
                       "required": [
                         "id",
@@ -4095,8 +3722,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "isLocalized",
                         "objectType",
                         "relationType",
-                        "skillType",
-                        "reuseLevel",
                       ],
                       "type": "object",
                     },
@@ -4109,28 +3734,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       "additionalProperties": false,
                       "properties": {
                         "UUID": {
-                          "description": "The UUID of the related skill.",
+                          "description": "The UUID of the required skill.",
                           "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                           "type": "string",
                         },
                         "id": {
-                          "description": "The ID of the related skill.",
+                          "description": "The ID of the required skill.",
                           "pattern": "^[0-9a-f]{24}$",
                           "type": "string",
                         },
                         "isLocalized": {
-                          "description": "Indicates if the related skill is localized.",
+                          "description": "Indicates if the required skill is localized.",
                           "type": "boolean",
                         },
                         "objectType": {
-                          "description": "The object type of the related skill.",
+                          "description": "The object type of the required skill.",
                           "enum": [
                             "skill",
                           ],
                           "type": "string",
                         },
                         "preferredLabel": {
-                          "description": "The preferred label of the related skill.",
+                          "description": "The preferred label of the required skill.",
                           "maxLength": 256,
                           "pattern": "\\S",
                           "type": "string",
@@ -4143,26 +3768,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           ],
                           "type": "string",
                         },
-                        "reuseLevel": {
-                          "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                          "enum": [
-                            "sector-specific",
-                            "occupation-specific",
-                            "cross-sector",
-                            "transversal",
-                          ],
-                          "type": "string",
-                        },
-                        "skillType": {
-                          "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                          "enum": [
-                            "skill/competence",
-                            "knowledge",
-                            "language",
-                            "attitude",
-                          ],
-                          "type": "string",
-                        },
                       },
                       "required": [
                         "id",
@@ -4171,8 +3776,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "isLocalized",
                         "objectType",
                         "relationType",
-                        "skillType",
-                        "reuseLevel",
                       ],
                       "type": "object",
                     },
@@ -4192,12 +3795,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "scopeNote": {
                     "description": "Scope clarification for the skill's application.",
                     "maxLength": 4000,
-                    "type": "string",
-                  },
-                  "skillGroupCode": {
-                    "description": "The code of the parent skill group.",
-                    "maxLength": 256,
-                    "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
                     "type": "string",
                   },
                   "skillType": {
@@ -4239,8 +3836,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "skillType",
                   "reuseLevel",
                   "isLocalized",
-                  "objectType",
-                  "skillGroupCode",
                   "modelId",
                   "parent",
                   "children",
@@ -4344,13 +3939,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "pattern": "^[0-9a-f]{24}$",
               "type": "string",
             },
-            "objectType": {
-              "description": "The type of the skill, e.g., Skill.",
-              "enum": [
-                "skill",
-              ],
-              "type": "string",
-            },
             "originUri": {
               "description": "The origin URI of the skill.",
               "format": "uri",
@@ -4377,12 +3965,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
             "scopeNote": {
               "description": "Scope clarification for the skill's application.",
               "maxLength": 4000,
-              "type": "string",
-            },
-            "skillGroupCode": {
-              "description": "The code of the parent skill group.",
-              "maxLength": 256,
-              "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
               "type": "string",
             },
             "skillType": {
@@ -4498,34 +4080,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "pattern": "\\S",
                     "type": "string",
                   },
-                  "reuseLevel": {
-                    "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                    "enum": [
-                      "sector-specific",
-                      "occupation-specific",
-                      "cross-sector",
-                      "transversal",
-                    ],
-                    "type": "string",
-                  },
-                  "skillType": {
-                    "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                    "enum": [
-                      "skill/competence",
-                      "knowledge",
-                      "language",
-                      "attitude",
-                    ],
-                    "type": "string",
-                  },
                 },
                 "required": [
                   "id",
                   "UUID",
                   "preferredLabel",
                   "objectType",
-                  "skillType",
-                  "reuseLevel",
                 ],
                 "type": "object",
               },
@@ -4559,13 +4119,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
             "modelId": {
               "description": "The identifier of the model containing this skill.",
               "pattern": "^[0-9a-f]{24}$",
-              "type": "string",
-            },
-            "objectType": {
-              "description": "The type of the skill, e.g., Skill.",
-              "enum": [
-                "skill",
-              ],
               "type": "string",
             },
             "originUUID": {
@@ -4793,28 +4346,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "additionalProperties": false,
                 "properties": {
                   "UUID": {
-                    "description": "The UUID of the related skill.",
+                    "description": "The UUID of the requiring skill.",
                     "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                     "type": "string",
                   },
                   "id": {
-                    "description": "The ID of the related skill.",
+                    "description": "The ID of the requiring skill.",
                     "pattern": "^[0-9a-f]{24}$",
                     "type": "string",
                   },
                   "isLocalized": {
-                    "description": "Indicates if the related skill is localized.",
+                    "description": "Indicates if the requiring skill is localized.",
                     "type": "boolean",
                   },
                   "objectType": {
-                    "description": "The object type of the related skill.",
+                    "description": "The object type of the requiring skill.",
                     "enum": [
                       "skill",
                     ],
                     "type": "string",
                   },
                   "preferredLabel": {
-                    "description": "The preferred label of the related skill.",
+                    "description": "The preferred label of the requiring skill.",
                     "maxLength": 256,
                     "pattern": "\\S",
                     "type": "string",
@@ -4827,26 +4380,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     ],
                     "type": "string",
                   },
-                  "reuseLevel": {
-                    "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                    "enum": [
-                      "sector-specific",
-                      "occupation-specific",
-                      "cross-sector",
-                      "transversal",
-                    ],
-                    "type": "string",
-                  },
-                  "skillType": {
-                    "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                    "enum": [
-                      "skill/competence",
-                      "knowledge",
-                      "language",
-                      "attitude",
-                    ],
-                    "type": "string",
-                  },
                 },
                 "required": [
                   "id",
@@ -4855,8 +4388,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "isLocalized",
                   "objectType",
                   "relationType",
-                  "skillType",
-                  "reuseLevel",
                 ],
                 "type": "object",
               },
@@ -4869,28 +4400,28 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "additionalProperties": false,
                 "properties": {
                   "UUID": {
-                    "description": "The UUID of the related skill.",
+                    "description": "The UUID of the required skill.",
                     "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                     "type": "string",
                   },
                   "id": {
-                    "description": "The ID of the related skill.",
+                    "description": "The ID of the required skill.",
                     "pattern": "^[0-9a-f]{24}$",
                     "type": "string",
                   },
                   "isLocalized": {
-                    "description": "Indicates if the related skill is localized.",
+                    "description": "Indicates if the required skill is localized.",
                     "type": "boolean",
                   },
                   "objectType": {
-                    "description": "The object type of the related skill.",
+                    "description": "The object type of the required skill.",
                     "enum": [
                       "skill",
                     ],
                     "type": "string",
                   },
                   "preferredLabel": {
-                    "description": "The preferred label of the related skill.",
+                    "description": "The preferred label of the required skill.",
                     "maxLength": 256,
                     "pattern": "\\S",
                     "type": "string",
@@ -4903,26 +4434,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     ],
                     "type": "string",
                   },
-                  "reuseLevel": {
-                    "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
-                    "enum": [
-                      "sector-specific",
-                      "occupation-specific",
-                      "cross-sector",
-                      "transversal",
-                    ],
-                    "type": "string",
-                  },
-                  "skillType": {
-                    "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
-                    "enum": [
-                      "skill/competence",
-                      "knowledge",
-                      "language",
-                      "attitude",
-                    ],
-                    "type": "string",
-                  },
                 },
                 "required": [
                   "id",
@@ -4931,8 +4442,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "isLocalized",
                   "objectType",
                   "relationType",
-                  "skillType",
-                  "reuseLevel",
                 ],
                 "type": "object",
               },
@@ -4952,12 +4461,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
             "scopeNote": {
               "description": "Scope clarification for the skill's application.",
               "maxLength": 4000,
-              "type": "string",
-            },
-            "skillGroupCode": {
-              "description": "The code of the parent skill group.",
-              "maxLength": 256,
-              "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
               "type": "string",
             },
             "skillType": {
@@ -4999,8 +4502,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
             "skillType",
             "reuseLevel",
             "isLocalized",
-            "objectType",
-            "skillGroupCode",
             "modelId",
             "parent",
             "children",

@@ -14,7 +14,6 @@ import { randomUUID } from "crypto";
 import SkillConstants from "../../constants";
 import SkillAPISpecs from "../../index";
 import SkillEnums from "../../enums";
-import { ObjectTypes } from "./enums";
 
 describe("Test Skill Children Response Schema Validity", () => {
   testValidSchema(
@@ -40,8 +39,6 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Children.Response.P
     skillType: SkillEnums.SkillType.Knowledge,
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
-    objectType: ObjectTypes.Skill,
-    skillGroupCode: "S1.2.3",
     modelId: getMockId(1),
     parent: null,
     children: [],
@@ -150,40 +147,6 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Children.Response.P
         });
       });
 
-      describe("Test validation of 'reuseLevel'", () => {
-        test.each([
-          [
-            CaseType.Failure,
-            "undefined",
-            undefined,
-            constructSchemaError("", "required", "must have required property 'reuseLevel'"),
-          ],
-          [CaseType.Failure, "null", null, constructSchemaError("/reuseLevel", "type", "must be string")],
-          [
-            CaseType.Failure,
-            "empty string",
-            "",
-            constructSchemaError("/reuseLevel", "enum", "must be equal to one of the allowed values"),
-          ],
-          [
-            CaseType.Failure,
-            "invalid value",
-            "invalid",
-            constructSchemaError("/reuseLevel", "enum", "must be equal to one of the allowed values"),
-          ],
-          [CaseType.Success, "cross-sector", SkillEnums.ReuseLevel.CrossSector, undefined],
-          [CaseType.Success, "sector-specific", SkillEnums.ReuseLevel.SectorSpecific, undefined],
-          [CaseType.Success, "occupation-specific", SkillEnums.ReuseLevel.OccupationSpecific, undefined],
-          [CaseType.Success, "transversal", SkillEnums.ReuseLevel.Transversal, undefined],
-        ])("%s Validate 'reuseLevel' when it is %s", (caseType, _description, givenValue, failureMessage) => {
-          const givenObject = {
-            ...givenValidChild,
-            reuseLevel: givenValue,
-          };
-          assertCaseForProperty("reuseLevel", givenObject, itemSchema, caseType, failureMessage);
-        });
-      });
-
       describe("Test validation of 'isLocalized'", () => {
         test.each([
           [
@@ -201,31 +164,6 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Children.Response.P
             isLocalized: givenValue,
           };
           assertCaseForProperty("isLocalized", givenObject, itemSchema, caseType, failureMessage);
-        });
-      });
-
-      describe("Test validation of 'objectType'", () => {
-        test.each([
-          [
-            CaseType.Failure,
-            "undefined",
-            undefined,
-            constructSchemaError("", "required", "must have required property 'objectType'"),
-          ],
-          [CaseType.Failure, "null", null, constructSchemaError("/objectType", "type", "must be string")],
-          [
-            CaseType.Failure,
-            "invalid value",
-            "invalid",
-            constructSchemaError("/objectType", "enum", "must be equal to one of the allowed values"),
-          ],
-          [CaseType.Success, "Skill", ObjectTypes.Skill, undefined],
-        ])("%s Validate 'objectType' when it is %s", (caseType, _description, givenValue, failureMessage) => {
-          const givenObject = {
-            ...givenValidChild,
-            objectType: givenValue,
-          };
-          assertCaseForProperty("objectType", givenObject, itemSchema, caseType, failureMessage);
         });
       });
     });
