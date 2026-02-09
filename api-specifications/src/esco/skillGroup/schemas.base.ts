@@ -1,4 +1,4 @@
-import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID } from "../../regex";
+import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID, RegExp_Str_URI } from "../../regex";
 import SkillGroupConstants from "./constants";
 import SkillGroupEnums from "./enums";
 import SkillGroupRegexes from "./regex";
@@ -284,5 +284,177 @@ export const _baseResponseSchema = {
     "createdAt",
     "updatedAt",
     "UUIDHistory",
+  ],
+};
+
+export const _baseChildrenResponseSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    id: {
+      description:
+        "The id of the child of skill group or skill. It can be used to retrieve the single child from the server.",
+      type: "string",
+      pattern: RegExp_Str_ID,
+    },
+    parentId: {
+      description: "The id of the parent skill group. It can be used to retrieve the single parent from the server.",
+      type: "string",
+      pattern: RegExp_Str_ID,
+    },
+    UUID: {
+      description:
+        "The UUID of the child of skill group or skill. It can be used to identify the child across systems.",
+      type: "string",
+      pattern: RegExp_Str_UUIDv4,
+    },
+    originUUID: {
+      description:
+        "The last UUID in the UUIDHistory of child of skill group. It can be used to identify the child across systems.",
+      type: "string",
+      pattern: RegExp_Str_UUIDv4,
+    },
+    path: {
+      description: "The path to the child of skill group resource using the resource id",
+      type: "string",
+      format: "uri",
+      pattern: RegExp_Str_URI, // accept only https
+      maxLength: SkillGroupConstants.MAX_PATH_URI_LENGTH,
+    },
+    tabiyaPath: {
+      description: "The path to the child of skill group resource using the resource UUID",
+      type: "string",
+      format: "uri",
+      pattern: RegExp_Str_URI,
+      maxLength: SkillGroupConstants.MAX_TABIYA_PATH_LENGTH,
+    },
+    UUIDHistory: {
+      description: "The UUIDs history of the child of skill group.",
+      type: "array",
+      minItems: 0,
+      maxItems: SkillGroupConstants.UUID_HISTORY_MAX_ITEMS,
+      uniqueItems: true,
+      items: {
+        type: "string",
+        pattern: RegExp_Str_UUIDv4,
+        maxLength: SkillGroupConstants.MAX_UUID_HISTORY_ITEM_LENGTH,
+      },
+    },
+    originUri: {
+      description: "The origin URI of the child of skill group.",
+      type: "string",
+      maxLength: SkillGroupConstants.ORIGIN_URI_MAX_LENGTH,
+      format: "uri",
+      pattern: RegExp_Str_NotEmptyString,
+    },
+    description: {
+      description: "The description of the child of the skill group.",
+      type: "string",
+      maxLength: SkillGroupConstants.DESCRIPTION_MAX_LENGTH,
+    },
+    preferredLabel: {
+      description: "The preferred label of the child of skill group.",
+      type: "string",
+      maxLength: SkillGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+      pattern: RegExp_Str_NotEmptyString,
+    },
+    altLabels: {
+      description: "The alternative labels of the child of the skill group.",
+      type: "array",
+      minItems: 0,
+      maxItems: SkillGroupConstants.ALT_LABELS_MAX_ITEMS,
+      uniqueItems: true,
+      items: {
+        type: "string",
+        maxLength: SkillGroupConstants.ALT_LABEL_MAX_LENGTH,
+      },
+    },
+    objectType: {
+      description: "The type of the child of skill group, e.g., Skill or SkillGroup.",
+      type: "string",
+      enum: Object.values(SkillGroupEnums.Relations.Children.ObjectTypes),
+    },
+    code: {
+      description: "Code of the skill group child",
+      type: "string",
+      maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
+      pattern: SkillGroupRegexes.Str.SKILL_GROUP_CODE,
+    },
+    isLocalized: {
+      description: "Indicates if the skill child is localized",
+      type: "boolean",
+    },
+    modelId: {
+      description: "The identifier of the model for child of the skill group.",
+      type: "string",
+      pattern: RegExp_Str_ID,
+    },
+    createdAt: { type: "string", format: "date-time" },
+    updatedAt: { type: "string", format: "date-time" },
+  },
+  allOf: [
+    {
+      if: {
+        properties: {
+          objectType: {
+            const: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup,
+          },
+        },
+      },
+      then: {
+        properties: {
+          code: {
+            type: "string",
+            maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
+            pattern: SkillGroupRegexes.Str.SKILL_GROUP_CODE,
+          },
+        },
+        required: ["code"],
+        not: {
+          properties: {
+            isLocalized: {},
+          },
+          required: ["isLocalized"],
+        },
+      },
+    },
+    {
+      if: {
+        properties: {
+          objectType: {
+            const: SkillGroupEnums.Relations.Children.ObjectTypes.Skill,
+          },
+        },
+      },
+      then: {
+        properties: {
+          isLocalized: {
+            type: "boolean",
+          },
+        },
+        required: ["isLocalized"],
+        not: {
+          properties: {},
+          required: ["code"],
+        },
+      },
+    },
+  ],
+  required: [
+    "id",
+    "parentId",
+    "UUID",
+    "originUUID",
+    "path",
+    "tabiyaPath",
+    "UUIDHistory",
+    "originUri",
+    "description",
+    "preferredLabel",
+    "altLabels",
+    "objectType",
+    "modelId",
+    "createdAt",
+    "updatedAt",
   ],
 };
