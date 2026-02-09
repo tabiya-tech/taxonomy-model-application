@@ -13,6 +13,8 @@ import SchemaPOSTRequestParam from "./schema.POST.request.param";
 import SchemaGETResponseById from "./schema.GET.response.ById";
 import SchemaGETParentResponse from "./schema.GET.parent.response";
 import SchemaGETParentsResponse from "./schema.GET.parents.response";
+import SchemaGETChildResponse from "./schema.GET.child.response";
+import SchemaGETChildrenResponse from "./schema.GET.children.response";
 
 namespace SkillGroupSchemas {
   export namespace GET {
@@ -26,6 +28,12 @@ namespace SkillGroupSchemas {
       }
       export namespace Parents {
         export const Payload = SchemaGETParentsResponse;
+      }
+      export namespace Child {
+        export const Payload = SchemaGETChildResponse;
+      }
+      export namespace Children {
+        export const Payload = SchemaGETChildrenResponse;
       }
     }
     export namespace Request {
