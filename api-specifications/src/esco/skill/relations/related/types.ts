@@ -1,15 +1,17 @@
+import SkillEnums from "../../enums";
+
 // This interface represents a skill with relationship metadata
 export interface ISkillRelatedItem {
   // Skill properties
   id: string;
   UUID: string;
   preferredLabel: string;
-  skillType: "knowledge" | "skill/competence" | "attitude" | "language";
-  reuseLevel: "cross-sector" | "sector-specific" | "occupation-specific" | "transversal";
+  skillType: SkillEnums.SkillType;
+  reuseLevel: SkillEnums.ReuseLevel;
   isLocalized: boolean;
 
   // Relationship metadata from SkillToSkillRelation
-  relationType: string;
+  relationType: SkillEnums.SkillToSkillRelationType;
 }
 
 export interface ISkillRelatedResponse {

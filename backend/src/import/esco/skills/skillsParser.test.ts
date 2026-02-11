@@ -87,6 +87,10 @@ describe("test parseSkills from", () => {
         findById: jest.fn(),
         findAll: jest.fn(),
         findPaginated: jest.fn(),
+        findParents: jest.fn(),
+        findChildren: jest.fn(),
+        findOccupationsForSkill: jest.fn(),
+        findRelatedSkills: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV file to the database ids

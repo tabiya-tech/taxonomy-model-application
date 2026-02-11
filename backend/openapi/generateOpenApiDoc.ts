@@ -74,6 +74,13 @@ delete Skill.Schemas.GET.Response.ById.Payload.$id;
 delete Skill.Schemas.GET.Request.Param.Payload.$id;
 delete Skill.Schemas.GET.Request.Query.Payload.$id;
 delete Skill.Schemas.GET.Request.ById.Param.Payload.$id;
+delete Skill.Schemas.GET.Parent.Response.Payload.$id;
+delete Skill.Schemas.GET.Children.Response.Payload.$id;
+delete Skill.Schemas.GET.Children.Request.Query.Payload.$id;
+delete Skill.Schemas.GET.Occupations.Response.Payload.$id;
+delete Skill.Schemas.GET.Occupations.Request.Query.Payload.$id;
+delete Skill.Schemas.GET.Related.Response.Payload.$id;
+delete Skill.Schemas.GET.Related.Request.Query.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -344,6 +351,13 @@ function getOpenAPISpecification(
           SkillRequestQueryParamSchemaGET: Skill.Schemas.GET.Request.Query.Payload,
           SkillResponseSchemaGET: Skill.Schemas.GET.Response.Payload,
           SkillRequestByIdParamSchemaGET: Skill.Schemas.GET.Request.ById.Param.Payload,
+          SkillResponseSchemaGETParent: Skill.Schemas.GET.Parent.Response.Payload,
+          SkillResponseSchemaGETChildren: Skill.Schemas.GET.Children.Response.Payload,
+          SkillChildrenRequestQueryParamSchemaGET: Skill.Schemas.GET.Children.Request.Query.Payload,
+          SkillResponseSchemaGETOccupations: Skill.Schemas.GET.Occupations.Response.Payload,
+          SkillOccupationsRequestQueryParamSchemaGET: Skill.Schemas.GET.Occupations.Request.Query.Payload,
+          SkillResponseSchemaGETRelated: Skill.Schemas.GET.Related.Response.Payload,
+          SkillRelatedRequestQueryParamSchemaGET: Skill.Schemas.GET.Related.Request.Query.Payload,
         },
         securitySchemes: {
           jwt_auth: {

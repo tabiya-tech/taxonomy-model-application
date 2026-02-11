@@ -1,9 +1,11 @@
+import SkillEnums from "../../enums";
+
 export interface ISkillChildItem {
   id: string;
   UUID: string;
   preferredLabel: string;
-  skillType: "knowledge" | "skill/competence" | "attitude" | "language";
-  reuseLevel: "cross-sector" | "sector-specific" | "occupation-specific" | "transversal";
+  skillType: SkillEnums.SkillType;
+  reuseLevel: SkillEnums.ReuseLevel;
   isLocalized: boolean;
   objectType: "Skill";
 }

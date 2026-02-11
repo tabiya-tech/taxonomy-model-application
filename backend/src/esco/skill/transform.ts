@@ -1,11 +1,13 @@
 import { ISkill, ISkillReference } from "./skills.types";
 import SkillAPISpecs from "api-specifications/esco/skill";
+import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { transform as transformSkillGroup } from "esco/skillGroup/transform";
 
 function mapSkillType(skillType: string): SkillAPISpecs.Enums.SkillType {
   switch (skillType) {
@@ -101,18 +103,20 @@ function mapRequiredBySkill(
   };
 }
 
-function mapOccupationToSkillRelationType(relationType: string): SkillAPISpecs.Enums.OccupationToSkillRelationType {
+function mapOccupationToSkillRelationType(
+  relationType: string
+): SkillAPISpecs.Enums.OccupationToSkillRelationType | null {
   switch (relationType) {
     case "essential":
       return SkillAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL;
     case "optional":
       return SkillAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL;
     default:
-      return SkillAPISpecs.Enums.OccupationToSkillRelationType.NONE;
+      return null;
   }
 }
 
-function mapSignallingValueLabel(label: string): SkillAPISpecs.Enums.SignallingValueLabel {
+function mapSignallingValueLabel(label: string): SkillAPISpecs.Enums.SignallingValueLabel | null {
   switch (label) {
     case "low":
       return SkillAPISpecs.Enums.SignallingValueLabel.LOW;
@@ -121,13 +125,13 @@ function mapSignallingValueLabel(label: string): SkillAPISpecs.Enums.SignallingV
     case "high":
       return SkillAPISpecs.Enums.SignallingValueLabel.HIGH;
     default:
-      return SkillAPISpecs.Enums.SignallingValueLabel.NONE;
+      return null;
   }
 }
 
 function mapOccupationObjectType(
   objectType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation
-): (typeof SkillAPISpecs.Enums.OccupationObjectTypes)[keyof typeof SkillAPISpecs.Enums.OccupationObjectTypes] {
+): SkillAPISpecs.Enums.OccupationObjectTypes {
   switch (objectType) {
     case ObjectTypes.ESCOOccupation:
       return SkillAPISpecs.Enums.OccupationObjectTypes.ESCOOccupation;
@@ -147,9 +151,9 @@ function mapRequiredByOccupation(
     preferredLabel: occupation.preferredLabel,
     isLocalized: occupation.isLocalized,
     objectType: mapOccupationObjectType(occupation.occupationType),
-    relationType: mapOccupationToSkillRelationType(occupation.relationType) || null,
+    relationType: mapOccupationToSkillRelationType(occupation.relationType),
     signallingValue: occupation.signallingValue,
-    signallingValueLabel: mapSignallingValueLabel(occupation.signallingValueLabel) || null,
+    signallingValueLabel: mapSignallingValueLabel(occupation.signallingValueLabel),
   };
 }
 
@@ -189,6 +193,95 @@ export function transformPaginated(
 ): SkillAPISpecs.Types.GET.Response.Payload {
   return {
     data: data.map((item) => transform(item, baseURL)),
+    limit,
+    nextCursor: cursor,
+  };
+}
+
+/**
+ * Transforms a dynamic entity (Skill or SkillGroup) into its FULL response representation.
+ * Used for relation endpoints (/parents, /children) that return full objects.
+ */
+export function transformDynamicEntity(
+  data: ISkill | ISkillGroup,
+  baseURL: string
+): SkillAPISpecs.Types.Response.ISkill | SkillGroupAPISpecs.Types.Response.ISkillGroup {
+  if ("skillType" in data) {
+    return transform(data as ISkill, baseURL);
+  } else {
+    return transformSkillGroup(data as ISkillGroup, baseURL);
+  }
+}
+
+/**
+ * Paginated transformation for relation endpoints that return mixed types (Skill/SkillGroup).
+ */
+export function transformPaginatedRelation(
+  data: (ISkill | ISkillGroup)[],
+  baseURL: string,
+  limit: number,
+  cursor: string | null
+): {
+  data: (SkillAPISpecs.Types.Response.ISkill | SkillGroupAPISpecs.Types.Response.ISkillGroup)[];
+  limit: number;
+  nextCursor: string | null;
+} {
+  return {
+    data: data.map((item) => transformDynamicEntity(item, baseURL)),
+    limit,
+    nextCursor: cursor,
+  };
+}
+
+export function transformSkillOccupation(
+  occupationData: OccupationToSkillReferenceWithRelationType<IOccupationReference>
+): SkillAPISpecs.Types.GET.Occupations.Response.Payload["data"][0] {
+  return {
+    id: occupationData.id,
+    UUID: occupationData.UUID,
+    code: occupationData.code,
+    preferredLabel: occupationData.preferredLabel,
+    occupationType: mapOccupationObjectType(occupationData.occupationType),
+    relationType: mapOccupationToSkillRelationType(occupationData.relationType),
+    signallingValue: occupationData.signallingValue,
+    signallingValueLabel: mapSignallingValueLabel(occupationData.signallingValueLabel),
+  };
+}
+
+export function transformPaginatedOccupations(
+  data: OccupationToSkillReferenceWithRelationType<IOccupationReference>[],
+  limit: number,
+  cursor: string | null
+): SkillAPISpecs.Types.GET.Occupations.Response.Payload {
+  return {
+    data: data.map((item) => transformSkillOccupation(item)),
+    limit,
+    nextCursor: cursor,
+  };
+}
+
+export function transformSkillRelated(
+  skillData: SkillToSkillReferenceWithRelationType<ISkillReference>
+): SkillAPISpecs.Types.GET.Related.Response.Payload["data"][0] {
+  const fullSkill = skillData as unknown as ISkill;
+  return {
+    id: skillData.id,
+    UUID: skillData.UUID,
+    preferredLabel: skillData.preferredLabel,
+    skillType: mapSkillType(fullSkill.skillType),
+    reuseLevel: mapReuseLevel(fullSkill.reuseLevel),
+    isLocalized: skillData.isLocalized,
+    relationType: mapSkillToSkillRelationType(skillData.relationType),
+  };
+}
+
+export function transformPaginatedRelated(
+  data: SkillToSkillReferenceWithRelationType<ISkillReference>[],
+  limit: number,
+  cursor: string | null
+): SkillAPISpecs.Types.GET.Related.Response.Payload {
+  return {
+    data: data.map((item) => transformSkillRelated(item)),
     limit,
     nextCursor: cursor,
   };

@@ -39,7 +39,7 @@ import {
   expectedSkillGroupReference,
   expectedSkillReference,
 } from "esco/_test_utilities/expectedReference";
-import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 import { IOccupationGroup, INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
 import {
   IOccupationToSkillRelationPairDoc,
@@ -1605,5 +1605,420 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     });
 
     TestStreamDBConnectionFailureNoSetup((repositoryRegistry) => repositoryRegistry.skill.findAll(getMockStringId(1)));
+  });
+
+  describe("Test findParents()", () => {
+    test("should find all parents of a Skill", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND a parent skill
+      const givenParentSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "parentSkill"));
+      // AND a parent skill group
+      const givenParentGroup = await repositoryRegistry.skillGroup.create(
+        getSimpleNewSkillGroupSpec(givenModelId, "parentGroup")
+      );
+
+      // AND they are related in the hierarchy
+      await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.Skill,
+          parentId: givenParentSkill.id,
+          childType: ObjectTypes.Skill,
+          childId: givenSubject.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParentGroup.id,
+          childType: ObjectTypes.Skill,
+          childId: givenSubject.id,
+        },
+      ]);
+
+      // WHEN finding parents
+      const actualParents = await repository.findParents(givenModelId, givenSubject.id, 10);
+
+      // THEN expect the parents to be found
+      expect(actualParents).toHaveLength(2);
+      expect(actualParents).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: givenParentSkill.id }),
+          expect.objectContaining({ id: givenParentGroup.id }),
+        ])
+      );
+    });
+
+    test("should return paginated parents for a given limit and cursor", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND three parent skills
+      const givenParents = [];
+      for (let i = 0; i < 3; i++) {
+        const parent = await repository.create(getSimpleNewSkillSpec(givenModelId, `parent_${i}`));
+        givenParents.push(parent);
+        await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+          {
+            parentType: ObjectTypes.Skill,
+            parentId: parent.id,
+            childType: ObjectTypes.Skill,
+            childId: givenSubject.id,
+          },
+        ]);
+      }
+      // Sort them by ID as the repository does
+      givenParents.sort((a, b) => a.id.localeCompare(b.id));
+
+      // WHEN finding first 2 parents
+      const firstPage = await repository.findParents(givenModelId, givenSubject.id, 2);
+
+      // THEN expect first 2
+      expect(firstPage).toHaveLength(2);
+      expect(firstPage[0].id).toEqual(givenParents[0].id);
+      expect(firstPage[1].id).toEqual(givenParents[1].id);
+
+      // WHEN finding next page with cursor
+      const secondPage = await repository.findParents(givenModelId, givenSubject.id, 2, firstPage[1].id);
+
+      // THEN expect the last one
+      expect(secondPage).toHaveLength(1);
+      expect(secondPage[0].id).toEqual(givenParents[2].id);
+    });
+
+    test("should handle errors during findParents (aggregate failure)", async () => {
+      // GIVEN that an error will occur when calling aggregate
+      const givenError = new Error("aggregate failure");
+      const HierarchyModel = dbConnection.model(MongooseModelName.SkillHierarchy);
+      jest.spyOn(HierarchyModel, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding parents
+      // THEN expect it to throw
+      await expect(repository.findParents(getMockStringId(1), getMockStringId(2), 10)).rejects.toThrowError(
+        new Error("SkillRepository.findParents: findParents failed", { cause: givenError })
+      );
+    });
+  });
+
+  describe("Test findChildren()", () => {
+    test("should find all children of a Skill", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND a child skill
+      const givenChildSkill1 = await repository.create(getSimpleNewSkillSpec(givenModelId, "childSkill1"));
+      const givenChildSkill2 = await repository.create(getSimpleNewSkillSpec(givenModelId, "childSkill2"));
+
+      // AND they are related in the hierarchy
+      await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.Skill,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Skill,
+          childId: givenChildSkill1.id,
+        },
+        {
+          parentType: ObjectTypes.Skill,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Skill,
+          childId: givenChildSkill2.id,
+        },
+      ]);
+
+      // WHEN finding children
+      const actualChildren = await repository.findChildren(givenModelId, givenSubject.id, 10);
+
+      // THEN expect the children to be found
+      expect(actualChildren).toHaveLength(2);
+      expect(actualChildren).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: givenChildSkill1.id }),
+          expect.objectContaining({ id: givenChildSkill2.id }),
+        ])
+      );
+    });
+
+    test("should hydrate SkillGroup children (branch coverage)", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND a child skill group
+      const givenChildGroup = await repositoryRegistry.skillGroup.create(
+        getSimpleNewSkillGroupSpec(givenModelId, "childGroup")
+      );
+
+      // AND they are related in the hierarchy (manually injected to bypass repository restrictions)
+      const HierarchyModel = dbConnection.model(MongooseModelName.SkillHierarchy);
+      await HierarchyModel.collection.insertOne({
+        modelId: new mongoose.Types.ObjectId(givenModelId),
+        parentType: ObjectTypes.Skill,
+        parentId: new mongoose.Types.ObjectId(givenSubject.id),
+        parentDocModel: MongooseModelName.Skill,
+        childType: ObjectTypes.SkillGroup,
+        childId: new mongoose.Types.ObjectId(givenChildGroup.id),
+        childDocModel: MongooseModelName.SkillGroup,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      // WHEN finding children
+      const actualChildren = await repository.findChildren(givenModelId, givenSubject.id, 10);
+
+      // THEN expect the child group to be found and hydrated
+      expect(actualChildren).toHaveLength(1);
+      expect(actualChildren[0].id).toEqual(givenChildGroup.id);
+      expect((actualChildren[0] as ISkillGroup).code).toEqual(givenChildGroup.code);
+    });
+
+    test("should return paginated children for a given limit and cursor", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND three child skills
+      const givenChildren = [];
+      for (let i = 0; i < 3; i++) {
+        const child = await repository.create(getSimpleNewSkillSpec(givenModelId, `child_${i}`));
+        givenChildren.push(child);
+        await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+          {
+            parentType: ObjectTypes.Skill,
+            parentId: givenSubject.id,
+            childType: ObjectTypes.Skill,
+            childId: child.id,
+          },
+        ]);
+      }
+      // Sort them by ID as the repository does
+      givenChildren.sort((a, b) => a.id.localeCompare(b.id));
+
+      // WHEN finding first 2 children
+      const firstPage = await repository.findChildren(givenModelId, givenSubject.id, 2);
+
+      // THEN expect first 2
+      expect(firstPage).toHaveLength(2);
+      expect(firstPage[0].id).toEqual(givenChildren[0].id);
+      expect(firstPage[1].id).toEqual(givenChildren[1].id);
+
+      // WHEN finding next page with cursor
+      const secondPage = await repository.findChildren(givenModelId, givenSubject.id, 2, firstPage[1].id);
+
+      // THEN expect the last one
+      expect(secondPage).toHaveLength(1);
+      expect(secondPage[0].id).toEqual(givenChildren[2].id);
+    });
+
+    test("should handle errors during findChildren (aggregate failure)", async () => {
+      // GIVEN that an error will occur when calling aggregate
+      const givenError = new Error("aggregate failure");
+      const HierarchyModel = dbConnection.model(MongooseModelName.SkillHierarchy);
+      jest.spyOn(HierarchyModel, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding children
+      // THEN expect it to throw
+      await expect(repository.findChildren(getMockStringId(1), getMockStringId(2), 10)).rejects.toThrowError(
+        new Error("SkillRepository.findChildren: findChildren failed", { cause: givenError })
+      );
+    });
+  });
+
+  describe("Test findOccupationsForSkill()", () => {
+    test("should find all occupations related to a Skill", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND an occupation
+      const givenOccupation = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation")
+      );
+
+      // AND they are related
+      await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
+        {
+          requiringOccupationType: givenOccupation.occupationType,
+          requiringOccupationId: givenOccupation.id,
+          requiredSkillId: givenSubject.id,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
+          signallingValue: null,
+          signallingValueLabel: SignallingValueLabel.NONE,
+        },
+      ]);
+
+      // WHEN finding occupations
+      const actualOccupations = await repository.findOccupationsForSkill(givenModelId, givenSubject.id, 10);
+
+      // THEN expect the occupation to be found with relation metadata
+      expect(actualOccupations).toHaveLength(1);
+      expect(actualOccupations[0]).toEqual(
+        expect.objectContaining({
+          id: givenOccupation.id,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
+          signallingValue: null,
+          signallingValueLabel: SignallingValueLabel.NONE,
+        })
+      );
+    });
+
+    test("should return paginated occupations for a given limit and cursor", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND three occupations
+      const givenOccupations = [];
+      for (let i = 0; i < 3; i++) {
+        const occupation = await repositoryRegistry.occupation.create(
+          getSimpleNewESCOOccupationSpec(givenModelId, `occ_${i}`)
+        );
+        givenOccupations.push(occupation);
+        await repositoryRegistry.occupationToSkillRelation.createMany(givenModelId, [
+          {
+            requiringOccupationType: occupation.occupationType,
+            requiringOccupationId: occupation.id,
+            requiredSkillId: givenSubject.id,
+            relationType: OccupationToSkillRelationType.ESSENTIAL,
+            signallingValue: null,
+            signallingValueLabel: SignallingValueLabel.NONE,
+          },
+        ]);
+      }
+      // Sort them by ID as the repository does
+      givenOccupations.sort((a, b) => a.id.localeCompare(b.id));
+
+      // WHEN finding first 2 occupations
+      const firstPage = await repository.findOccupationsForSkill(givenModelId, givenSubject.id, 2);
+
+      // THEN expect first 2
+      expect(firstPage).toHaveLength(2);
+      expect(firstPage[0].id).toEqual(givenOccupations[0].id);
+      expect(firstPage[1].id).toEqual(givenOccupations[1].id);
+
+      // WHEN finding next page with cursor
+      const secondPage = await repository.findOccupationsForSkill(givenModelId, givenSubject.id, 2, firstPage[1].id);
+
+      // THEN expect the last one
+      expect(secondPage).toHaveLength(1);
+      expect(secondPage[0].id).toEqual(givenOccupations[2].id);
+    });
+
+    test("should handle errors during findOccupationsForSkill (aggregate failure)", async () => {
+      // GIVEN that an error will occur when calling aggregate
+      const givenError = new Error("aggregate failure");
+      const RelationModel = dbConnection.model(MongooseModelName.OccupationToSkillRelation);
+      jest.spyOn(RelationModel, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding occupations
+      // THEN expect it to throw
+      await expect(repository.findOccupationsForSkill(getMockStringId(1), getMockStringId(2), 10)).rejects.toThrowError(
+        new Error("SkillRepository.findOccupationsForSkill: findOccupationsForSkill failed", { cause: givenError })
+      );
+    });
+  });
+
+  describe("Test findRelatedSkills()", () => {
+    test("should find all related skills in both directions", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND two other skills
+      const givenSkill1 = await repository.create(getSimpleNewSkillSpec(givenModelId, "skill1"));
+      const givenSkill2 = await repository.create(getSimpleNewSkillSpec(givenModelId, "skill2"));
+
+      // AND they are related (one where subject is requiring, one where it is required)
+      await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
+        {
+          requiringSkillId: givenSubject.id,
+          requiredSkillId: givenSkill1.id,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+        },
+        {
+          requiringSkillId: givenSkill2.id,
+          requiredSkillId: givenSubject.id,
+          relationType: SkillToSkillRelationType.OPTIONAL,
+        },
+      ]);
+
+      // WHEN finding related skills
+      const actualRelated = await repository.findRelatedSkills(givenModelId, givenSubject.id, 10);
+
+      // THEN expect both related skills to be found
+      expect(actualRelated).toHaveLength(2);
+      expect(actualRelated).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: givenSkill1.id, relationType: SkillToSkillRelationType.ESSENTIAL }),
+          expect.objectContaining({ id: givenSkill2.id, relationType: SkillToSkillRelationType.OPTIONAL }),
+        ])
+      );
+    });
+
+    test("should return paginated related skills for a given limit and cursor", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a subject skill
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      // AND three related skills
+      const givenRelated = [];
+      for (let i = 0; i < 3; i++) {
+        const skill = await repository.create(getSimpleNewSkillSpec(givenModelId, `related_${i}`));
+        givenRelated.push(skill);
+        await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
+          {
+            requiringSkillId: givenSubject.id,
+            requiredSkillId: skill.id,
+            relationType: SkillToSkillRelationType.ESSENTIAL,
+          },
+        ]);
+      }
+
+      // the repository sorts by _id which is the relation ID.
+      // WHEN finding first 2 related skills
+      const firstPage = await repository.findRelatedSkills(givenModelId, givenSubject.id, 2);
+
+      // THEN expect first 2
+      expect(firstPage).toHaveLength(2);
+
+      // Find the relation between subject and firstPage[1] to use as cursor
+      const relations = await repositoryRegistry.skillToSkillRelation.relationModel
+        .find({
+          modelId: new mongoose.Types.ObjectId(givenModelId),
+          requiringSkillId: new mongoose.Types.ObjectId(givenSubject.id),
+          requiredSkillId: new mongoose.Types.ObjectId(firstPage[1].id),
+        })
+        .exec();
+      const cursor = relations[0]._id.toString();
+
+      // WHEN finding next page with cursor
+      const secondPage = await repository.findRelatedSkills(givenModelId, givenSubject.id, 2, cursor);
+
+      // THEN expect the last one
+      expect(secondPage).toHaveLength(1);
+      expect(secondPage[0].id).toEqual(givenRelated[2].id);
+    });
+
+    test("should handle errors during findRelatedSkills (aggregate failure)", async () => {
+      // GIVEN that an error will occur when calling aggregate
+      const givenError = new Error("aggregate failure");
+      const RelationModel = dbConnection.model(MongooseModelName.SkillToSkillRelation);
+      jest.spyOn(RelationModel, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding related skills
+      // THEN expect it to throw
+      await expect(repository.findRelatedSkills(getMockStringId(1), getMockStringId(2), 10)).rejects.toThrowError(
+        new Error("SkillRepository.findRelatedSkills: findRelatedSkills failed", { cause: givenError })
+      );
+    });
   });
 });

@@ -1,4 +1,8 @@
-import { ISkill, ModelForSkillValidationErrorCode } from "./skills.types";
+import { ISkill, ISkillReference, ModelForSkillValidationErrorCode } from "./skills.types";
+import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 export interface ISkillService {
   /**
@@ -30,4 +34,42 @@ export interface ISkillService {
    * @return {Promise<ModelForSkillValidationErrorCode | null>} - Returns null if valid, otherwise the error code
    */
   validateModelForSkill(modelId: string): Promise<ModelForSkillValidationErrorCode | null>;
+  /**
+   * Finds the parent Skills or SkillGroups of a Skill.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the parent Skills or SkillGroups.
+   */
+  getParents(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]>;
+
+  /**
+   * Finds the child Skills or SkillGroups of a Skill.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the child Skills or SkillGroups.
+   */
+  getChildren(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]>;
+
+  /**
+   * Finds the occupations that require a Skill with relationship metadata.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @return {Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]>} - A Promise that resolves to the occupations that require the Skill.
+   */
+  getOccupations(
+    modelId: string,
+    skillId: string
+  ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]>;
+
+  /**
+   * Finds the related skills of a Skill with relationship metadata.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @return {Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>} - A Promise that resolves to the related skills.
+   */
+  getRelatedSkills(modelId: string, skillId: string): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>;
 }
