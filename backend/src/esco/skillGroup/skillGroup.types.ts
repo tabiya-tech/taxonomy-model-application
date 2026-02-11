@@ -31,6 +31,17 @@ export interface ISkillGroup extends Omit<ISkillGroupDoc, "id" | "modelId" | "UU
   updatedAt: Date;
 }
 
+/**
+ * Describes how a skill group child is returned from the API without importId.
+ */
+export interface ISkillGroupChild
+  extends Omit<ISkillGroup, "importId" | "parents" | "scopeNote" | "children" | "code"> {
+  parentId: string;
+  objectType: ObjectTypes.SkillGroup | ObjectTypes.Skill;
+  code?: string;
+  isLocalized?: boolean;
+}
+
 export interface ISkillGroupWithoutImportId extends Omit<ISkillGroup, "importId"> {
   importId: string | null;
 }
