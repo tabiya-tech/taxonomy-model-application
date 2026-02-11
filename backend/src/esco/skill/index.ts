@@ -11,7 +11,13 @@ import { ajvInstance } from "validator";
 import AuthAPISpecs from "api-specifications/auth";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { ValidateFunction } from "ajv";
-import { transform, transformPaginated } from "./transform";
+import {
+  transform,
+  transformPaginated,
+  transformPaginatedRelation,
+  transformPaginatedOccupations,
+  transformPaginatedRelated,
+} from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
@@ -29,8 +35,18 @@ export const handler: (
   const skillController = new SkillController();
   if (event?.httpMethod === HTTP_VERBS.GET) {
     const pathToMatch = event.path || "";
-    const individualMatch = pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch);
-    return individualMatch ? skillController.getSkill(event) : skillController.getSkills(event);
+    if (pathToRegexp(Routes.SKILL_PARENTS_ROUTE).regexp.exec(pathToMatch)) {
+      return skillController.getParents(event);
+    } else if (pathToRegexp(Routes.SKILL_CHILDREN_ROUTE).regexp.exec(pathToMatch)) {
+      return skillController.getChildren(event);
+    } else if (pathToRegexp(Routes.SKILL_OCCUPATIONS_ROUTE).regexp.exec(pathToMatch)) {
+      return skillController.getOccupations(event);
+    } else if (pathToRegexp(Routes.SKILL_RELATED_ROUTE).regexp.exec(pathToMatch)) {
+      return skillController.getRelatedSkills(event);
+    } else {
+      const individualMatch = pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch);
+      return individualMatch ? skillController.getSkill(event) : skillController.getSkills(event);
+    }
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };
@@ -334,6 +350,126 @@ export class SkillController {
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillAPISpecs.Enums.GET.ById.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
         "Failed to retrieve the skill from the DB",
+        ""
+      );
+    }
+  }
+
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getParents(event: APIGatewayProxyEvent) {
+    try {
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.SKILL_PARENTS_ROUTE).regexp.exec(pathToMatch);
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const modelId = execMatch[1];
+      const id = execMatch[2];
+
+      const parents = await this.skillService.getParents(modelId, id);
+      return responseJSON(StatusCodes.OK, transformPaginatedRelation(parents, getResourcesBaseUrl(), 100, null));
+    } catch (error: unknown) {
+      console.error("Failed to get parents:", error);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_SKILL_PARENTS as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+        "Failed to retrieve the skill parents from the DB",
+        ""
+      );
+    }
+  }
+
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getChildren(event: APIGatewayProxyEvent) {
+    try {
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.SKILL_CHILDREN_ROUTE).regexp.exec(pathToMatch);
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const modelId = execMatch[1];
+      const id = execMatch[2];
+
+      const children = await this.skillService.getChildren(modelId, id);
+      return responseJSON(StatusCodes.OK, transformPaginatedRelation(children, getResourcesBaseUrl(), 100, null));
+    } catch (error: unknown) {
+      console.error("Failed to get children:", error);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+        "Failed to retrieve the skill children from the DB",
+        ""
+      );
+    }
+  }
+
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getOccupations(event: APIGatewayProxyEvent) {
+    try {
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.SKILL_OCCUPATIONS_ROUTE).regexp.exec(pathToMatch);
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const modelId = execMatch[1];
+      const id = execMatch[2];
+
+      const occupations = await this.skillService.getOccupations(modelId, id);
+      return responseJSON(StatusCodes.OK, transformPaginatedOccupations(occupations, 100, null));
+    } catch (error: unknown) {
+      console.error("Failed to get occupations:", error);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+        "Failed to retrieve the skill occupations from the DB",
+        ""
+      );
+    }
+  }
+
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getRelatedSkills(event: APIGatewayProxyEvent) {
+    try {
+      const pathToMatch = event.path || "";
+      const execMatch = pathToRegexp(Routes.SKILL_RELATED_ROUTE).regexp.exec(pathToMatch);
+      if (!execMatch) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          "Route did not match",
+          ""
+        );
+      }
+      const modelId = execMatch[1];
+      const id = execMatch[2];
+
+      const relatedSkills = await this.skillService.getRelatedSkills(modelId, id);
+      return responseJSON(StatusCodes.OK, transformPaginatedRelated(relatedSkills, 100, null));
+    } catch (error: unknown) {
+      console.error("Failed to get related skills:", error);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_RELATED_SKILLS as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+        "Failed to retrieve the related skills from the DB",
         ""
       );
     }

@@ -17,6 +17,12 @@ import { ISkill } from "./skills.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
+import OccupationAPISpecs from "api-specifications/esco/occupation";
 
 async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
@@ -57,6 +63,37 @@ async function createSkillsInDB(count: number, modelId: string = getMockStringId
   return skills;
 }
 
+async function createSkillGroupInDB(modelId: string = getMockStringId(1)) {
+  return await getRepositoryRegistry().skillGroup.create({
+    modelId: modelId,
+    preferredLabel: getRandomString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    description: getRandomString(SkillGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    altLabels: [getRandomString(SkillGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+    UUIDHistory: [randomUUID()],
+    scopeNote: getRandomString(SkillGroupAPISpecs.Constants.MAX_SCOPE_NOTE_LENGTH),
+    code: "S" + Math.floor(Math.random() * 100),
+  });
+}
+
+async function createOccupationInDB(modelId: string = getMockStringId(1)) {
+  return await getRepositoryRegistry().occupation.create({
+    modelId: modelId,
+    preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+    UUIDHistory: [randomUUID()],
+    code: "1234." + Math.floor(Math.random() * 100),
+    occupationGroupCode: "1234",
+    occupationType: ObjectTypes.ESCOOccupation,
+    isLocalized: true,
+    definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
+    scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
+    regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+  });
+}
+
 describe("Test for skill handler with a DB", () => {
   // setup the ajv validate GET, POST, etc response functions
   const ajv = new Ajv({
@@ -94,6 +131,11 @@ describe("Test for skill handler with a DB", () => {
     if (dbConnection) {
       // delete all documents in the DB
       await dbConnection.models.SkillModel.deleteMany({});
+      await dbConnection.models.SkillGroupModel.deleteMany({});
+      await dbConnection.models.OccupationModel.deleteMany({});
+      await dbConnection.models[MongooseModelName.SkillHierarchy].deleteMany({});
+      await dbConnection.models[MongooseModelName.OccupationToSkillRelation].deleteMany({});
+      await dbConnection.models[MongooseModelName.SkillToSkillRelation].deleteMany({});
       await dbConnection.models.ModelInfo.deleteMany({});
     }
   });
@@ -255,5 +297,159 @@ describe("Test for skill handler with a DB", () => {
 
     // THEN the collected IDs equal the baseline IDs
     expect(collected.slice(0, baselineIds.length)).toEqual(baselineIds);
+  });
+
+  describe("Integration tests for Skill relations", () => {
+    test("GET /models/{modelId}/skills/{id}/parents should return parents", async () => {
+      // GIVEN a model
+      const givenModel = await createModelInDB();
+      const modelId = givenModel.id.toString();
+      // AND a subject skill
+      const givenSubject = await createSkillInDB(modelId);
+      // AND a parent skill
+      const givenParentSkill = await createSkillInDB(modelId);
+      // AND a parent skill group
+      const givenParentGroup = await createSkillGroupInDB(modelId);
+
+      // AND they are related
+      await getRepositoryRegistry().skillHierarchy.createMany(modelId, [
+        {
+          parentType: ObjectTypes.Skill,
+          parentId: givenParentSkill.id,
+          childType: ObjectTypes.Skill,
+          childId: givenSubject.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParentGroup.id,
+          childType: ObjectTypes.Skill,
+          childId: givenSubject.id,
+        },
+      ]);
+
+      // WHEN requesting parents
+      const event = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${modelId}/skills/${givenSubject.id}/parents`,
+      };
+      // @ts-ignore
+      const response = await skillHandler(event);
+
+      // THEN expect OK
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      const body = JSON.parse(response.body);
+      expect(body.data).toHaveLength(2);
+      expect(body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: givenParentSkill.id }),
+          expect.objectContaining({ id: givenParentGroup.id }),
+        ])
+      );
+    });
+
+    test("GET /models/{modelId}/skills/{id}/children should return children", async () => {
+      // GIVEN a model
+      const givenModel = await createModelInDB();
+      const modelId = givenModel.id.toString();
+      // AND a subject skill
+      const givenSubject = await createSkillInDB(modelId);
+      // AND a child skill
+      const givenChildSkill = await createSkillInDB(modelId);
+
+      // AND they are related
+      await getRepositoryRegistry().skillHierarchy.createMany(modelId, [
+        {
+          parentType: ObjectTypes.Skill,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.Skill,
+          childId: givenChildSkill.id,
+        },
+      ]);
+
+      // WHEN requesting children
+      const event = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${modelId}/skills/${givenSubject.id}/children`,
+      };
+      // @ts-ignore
+      const response = await skillHandler(event);
+
+      // THEN expect OK
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      const body = JSON.parse(response.body);
+      expect(body.data).toHaveLength(1);
+      expect(body.data[0].id).toEqual(givenChildSkill.id);
+    });
+
+    test("GET /models/{modelId}/skills/{id}/occupations should return related occupations", async () => {
+      // GIVEN a model
+      const givenModel = await createModelInDB();
+      const modelId = givenModel.id.toString();
+      // AND a subject skill
+      const givenSubject = await createSkillInDB(modelId);
+      // AND a requiring occupation
+      const givenOccupation = await createOccupationInDB(modelId);
+
+      // AND they are related
+      const createdRelations = await getRepositoryRegistry().occupationToSkillRelation.createMany(modelId, [
+        {
+          requiringOccupationId: givenOccupation.id,
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
+          requiredSkillId: givenSubject.id,
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
+          signallingValue: null,
+          signallingValueLabel: SignallingValueLabel.NONE,
+        },
+      ]);
+      expect(createdRelations).toHaveLength(1);
+
+      // WHEN requesting occupations
+      const event = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${modelId}/skills/${givenSubject.id}/occupations`,
+      };
+      // @ts-ignore
+      const response = await skillHandler(event);
+
+      // THEN expect OK
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      const body = JSON.parse(response.body);
+      expect(body.data).toHaveLength(1);
+      expect(body.data[0].id).toEqual(givenOccupation.id);
+      expect(body.data[0].relationType).toEqual("essential");
+    });
+
+    test("GET /models/{modelId}/skills/{id}/related should return related skills", async () => {
+      // GIVEN a model
+      const givenModel = await createModelInDB();
+      const modelId = givenModel.id.toString();
+      // AND a subject skill
+      const givenSubject = await createSkillInDB(modelId);
+      // AND a related skill
+      const givenRelatedSkill = await createSkillInDB(modelId);
+
+      // AND they are related
+      await getRepositoryRegistry().skillToSkillRelation.createMany(modelId, [
+        {
+          requiringSkillId: givenSubject.id,
+          requiredSkillId: givenRelatedSkill.id,
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+        },
+      ]);
+
+      // WHEN requesting related skills
+      const event = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${modelId}/skills/${givenSubject.id}/related`,
+      };
+      // @ts-ignore
+      const response = await skillHandler(event);
+
+      // THEN expect OK
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      const body = JSON.parse(response.body);
+      expect(body.data).toHaveLength(1);
+      expect(body.data[0].id).toEqual(givenRelatedSkill.id);
+    });
   });
 });

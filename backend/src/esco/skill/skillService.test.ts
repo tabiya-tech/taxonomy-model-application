@@ -7,6 +7,10 @@ import { getISkillMockData } from "./testDataHelper";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import mongoose from "mongoose";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
+import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { ISkillReference } from "./skills.types";
 
 describe("Test the SkillService", () => {
   let service: ISkillService;
@@ -22,6 +26,10 @@ describe("Test the SkillService", () => {
       findById: jest.fn(),
       findAll: jest.fn(),
       findPaginated: jest.fn(),
+      findParents: jest.fn(),
+      findChildren: jest.fn(),
+      findOccupationsForSkill: jest.fn(),
+      findRelatedSkills: jest.fn(),
     } as unknown as jest.Mocked<ISkillRepository>;
 
     mockModelRepository = {
@@ -295,6 +303,86 @@ describe("Test the SkillService", () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error validating model for skill:", givenError);
 
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe("getParents", () => {
+    test("should call repository.findParents and return results", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      // AND repository returns parents
+      const expectedParents = [getISkillMockData()];
+      mockRepository.findParents.mockResolvedValue(expectedParents);
+
+      // WHEN calling service.getParents
+      const actual = await service.getParents(givenModelId, givenSkillId);
+
+      // THEN expect repository.findParents to have been called with correct parameters
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      // AND expect returned parents
+      expect(actual).toEqual(expectedParents);
+    });
+  });
+
+  describe("getChildren", () => {
+    test("should call repository.findChildren and return results", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      // AND repository returns children
+      const expectedChildren = [getISkillMockData()];
+      mockRepository.findChildren.mockResolvedValue(expectedChildren);
+
+      // WHEN calling service.getChildren
+      const actual = await service.getChildren(givenModelId, givenSkillId);
+
+      // THEN expect repository.findChildren to have been called with correct parameters
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      // AND expect returned children
+      expect(actual).toEqual(expectedChildren);
+    });
+  });
+
+  describe("getOccupations", () => {
+    test("should call repository.findOccupationsForSkill and return results", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      // AND repository returns occupations
+      const expectedOccupations = [{ id: getMockStringId(3) }];
+      mockRepository.findOccupationsForSkill.mockResolvedValue(
+        expectedOccupations as unknown as OccupationToSkillReferenceWithRelationType<IOccupationReference>[]
+      );
+
+      // WHEN calling service.getOccupations
+      const actual = await service.getOccupations(givenModelId, givenSkillId);
+
+      // THEN expect repository.findOccupationsForSkill to have been called with correct parameters
+      expect(mockRepository.findOccupationsForSkill).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      // AND expect returned occupations
+      expect(actual).toEqual(expectedOccupations);
+    });
+  });
+
+  describe("getRelatedSkills", () => {
+    test("should call repository.findRelatedSkills and return results", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      // AND repository returns related skills
+      const expectedRelatedSkills = [{ id: getMockStringId(3) }];
+      mockRepository.findRelatedSkills.mockResolvedValue(
+        expectedRelatedSkills as unknown as SkillToSkillReferenceWithRelationType<ISkillReference>[]
+      );
+
+      // WHEN calling service.getRelatedSkills
+      const actual = await service.getRelatedSkills(givenModelId, givenSkillId);
+
+      // THEN expect repository.findRelatedSkills to have been called with correct parameters
+      expect(mockRepository.findRelatedSkills).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      // AND expect returned related skills
+      expect(actual).toEqual(expectedRelatedSkills);
     });
   });
 });

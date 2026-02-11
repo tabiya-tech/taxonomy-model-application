@@ -110,6 +110,17 @@ export const _baseQueryParameterSchema = {
   },
 };
 
+// Re-add this as it is used by other schemas like schema.GET.children.response.ts
+export const _basePaginationResponseProperties = {
+  limit: _baseQueryParameterSchema.limit,
+  nextCursor: {
+    ..._baseQueryParameterSchema.cursor,
+    description:
+      "Cursor to fetch the next page of results. Opaque token encoding the last item's sort key(s). Returns null if this is the last page.",
+    type: ["string", "null"],
+  },
+};
+
 export const _baseResponseSchema = {
   type: "object",
   additionalProperties: false,

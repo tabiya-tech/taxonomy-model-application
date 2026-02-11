@@ -1,5 +1,9 @@
 import { ObjectTypes as CommonObjectTypes } from "../common/objectTypes";
 import OccupationEnums from "../occupation/enums";
+import * as ParentEnums from "./relations/parents/enums";
+import * as ChildrenEnums from "./relations/children/enums";
+import * as OccupationsEnums from "./relations/occupations/enums";
+import * as RelatedEnums from "./relations/related/enums";
 
 namespace SkillEnums {
   export const ObjectType = CommonObjectTypes.Skill;
@@ -13,15 +17,31 @@ namespace SkillEnums {
 
   export namespace Relations {
     export namespace Parents {
-      export enum ObjectTypes {
-        SkillGroup = CommonObjectTypes.SkillGroup,
-        Skill = CommonObjectTypes.Skill,
+      export import ObjectTypes = ParentEnums.ObjectTypes;
+      export namespace GET {
+        export import Response = ParentEnums.GET.Response;
       }
     }
 
     export namespace Children {
-      export enum ObjectTypes {
-        Skill = CommonObjectTypes.Skill,
+      export import ObjectTypes = ChildrenEnums.ObjectTypes;
+      export namespace GET {
+        export import Response = ChildrenEnums.GET.Response;
+      }
+    }
+
+    export namespace Occupations {
+      export import ObjectTypes = OccupationsEnums.ObjectTypes;
+      export namespace GET {
+        export import Response = OccupationsEnums.GET.Response;
+      }
+    }
+
+    export namespace Related {
+      export import ObjectTypes = RelatedEnums.ObjectTypes;
+      export import SkillToSkillRelationType = RelatedEnums.SkillToSkillRelationType;
+      export namespace GET {
+        export import Response = RelatedEnums.GET.Response;
       }
     }
   }

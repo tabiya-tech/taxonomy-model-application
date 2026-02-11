@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewSkillSpec, ISkill, ISkillDoc } from "./skills.types";
+import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
+import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { MongooseModelName } from "esco/common/mongooseModelNames";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { populateSkillChildrenOptions, populateSkillParentsOptions } from "./populateSkillHierarchyOptions";
 import {
   populateSkillRequiredBySkillsOptions,
@@ -73,6 +79,60 @@ export interface ISkillRepository {
     cursorId?: string,
     filter?: Record<string, unknown>
   ): Promise<ISkill[]>;
+
+  /**
+   * Finds the parent Skills or SkillGroups of a Skill.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @param {number} limit - The maximum number of parents to return.
+   * @param {string} [cursor] - The ID of the cursor for pagination.
+   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to an array containing the parent Skills or SkillGroups.
+   */
+  findParents(modelId: string, skillId: string, limit: number, cursor?: string): Promise<(ISkill | ISkillGroup)[]>;
+
+  /**
+   * Finds the child Skills or SkillGroups of a Skill.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @param {number} limit - The maximum number of children to return.
+   * @param {string} [cursor] - The ID of the cursor for pagination.
+   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to an array containing the child Skills or SkillGroups.
+   */
+  findChildren(modelId: string, skillId: string, limit: number, cursor?: string): Promise<(ISkill | ISkillGroup)[]>;
+
+  /**
+   * Finds the occupations that require a Skill with relationship metadata.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @param {number} limit - The maximum number of occupations to return.
+   * @param {string} [cursor] - The ID of the cursor for pagination.
+   * @return {Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]>} - A Promise that resolves to an array containing the occupations.
+   */
+  findOccupationsForSkill(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]>;
+
+  /**
+   * Finds the related skills of a Skill with relationship metadata.
+   *
+   * @param {string} modelId - The modelId of the Skill.
+   * @param {string} skillId - The ID of the Skill.
+   * @param {number} limit - The maximum number of related skills to return.
+   * @param {string} [cursor] - The ID of the cursor for pagination.
+   * @return {Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>} - A Promise that resolves to an array containing the related skills.
+   */
+  findRelatedSkills(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>;
 }
 
 export class SkillRepository implements ISkillRepository {
@@ -232,6 +292,319 @@ export class SkillRepository implements ISkillRepository {
       return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findPaginated: findPaginated failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findParents(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<(ISkill | ISkillGroup)[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const skillIdObj = new mongoose.Types.ObjectId(skillId);
+
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        childId: skillIdObj,
+        childType: ObjectTypes.Skill,
+      };
+
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        matchStage.parentId = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
+
+      const SkillGroupModel = this.Model.db.model(MongooseModelName.SkillGroup);
+
+      const pipeline: mongoose.PipelineStage[] = [
+        { $match: matchStage as mongoose.PipelineStage.Match["$match"] },
+        { $sort: { parentId: 1 } },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: this.Model.collection.name,
+            localField: "parentId",
+            foreignField: "_id",
+            as: "skillParent",
+          },
+        },
+        {
+          $lookup: {
+            from: SkillGroupModel.collection.name,
+            localField: "parentId",
+            foreignField: "_id",
+            as: "groupParent",
+          },
+        },
+        {
+          $addFields: {
+            parent: {
+              $cond: {
+                if: { $eq: ["$parentDocModel", MongooseModelName.Skill] },
+                then: { $arrayElemAt: ["$skillParent", 0] },
+                else: { $arrayElemAt: ["$groupParent", 0] },
+              },
+            },
+          },
+        },
+        { $match: { parent: { $ne: null } } },
+        { $replaceRoot: { newRoot: "$parent" } },
+      ];
+
+      const HierarchyModel = this.Model.db.model(MongooseModelName.SkillHierarchy);
+      const results = await HierarchyModel.aggregate(pipeline).exec();
+
+      return results.map((r) => {
+        if (r.skillType !== undefined) {
+          // It's a skill
+          const doc = this.Model.hydrate(r);
+          populateEmptySkillHierarchy(doc);
+          populateEmptySkillToSkillRelation(doc);
+          populateEmptyRequiredByOccupations(doc);
+          return doc.toObject() as ISkill;
+        } else {
+          // It's a skill group
+          const doc = SkillGroupModel.hydrate(r);
+          return doc.toObject() as ISkillGroup;
+        }
+      });
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findParents: findParents failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findChildren(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<(ISkill | ISkillGroup)[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const skillIdObj = new mongoose.Types.ObjectId(skillId);
+
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        parentId: skillIdObj,
+        parentType: ObjectTypes.Skill,
+      };
+
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        matchStage.childId = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
+
+      const SkillGroupModel = this.Model.db.model(MongooseModelName.SkillGroup);
+
+      const pipeline: mongoose.PipelineStage[] = [
+        { $match: matchStage as mongoose.PipelineStage.Match["$match"] },
+        { $sort: { childId: 1 } },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: this.Model.collection.name,
+            localField: "childId",
+            foreignField: "_id",
+            as: "skillChild",
+          },
+        },
+        {
+          $lookup: {
+            from: SkillGroupModel.collection.name,
+            localField: "childId",
+            foreignField: "_id",
+            as: "groupChild",
+          },
+        },
+        {
+          $addFields: {
+            child: {
+              $cond: {
+                if: { $eq: ["$childDocModel", MongooseModelName.Skill] },
+                then: { $arrayElemAt: ["$skillChild", 0] },
+                else: { $arrayElemAt: ["$groupChild", 0] },
+              },
+            },
+          },
+        },
+        { $match: { child: { $ne: null } } },
+        { $replaceRoot: { newRoot: "$child" } },
+      ];
+
+      const HierarchyModel = this.Model.db.model(MongooseModelName.SkillHierarchy);
+      const results = await HierarchyModel.aggregate(pipeline).exec();
+
+      return results.map((r) => {
+        if (r.skillType !== undefined) {
+          const doc = this.Model.hydrate(r);
+          populateEmptySkillHierarchy(doc);
+          populateEmptySkillToSkillRelation(doc);
+          populateEmptyRequiredByOccupations(doc);
+          return doc.toObject() as ISkill;
+        } else {
+          const doc = SkillGroupModel.hydrate(r);
+          return doc.toObject() as ISkillGroup;
+        }
+      });
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findChildren: findChildren failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findOccupationsForSkill(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const skillIdObj = new mongoose.Types.ObjectId(skillId);
+
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        requiredSkillId: skillIdObj,
+        requiredSkillDocModel: MongooseModelName.Skill,
+      };
+
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        matchStage.requiringOccupationId = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
+
+      const OccupationModel = this.Model.db.model(MongooseModelName.Occupation);
+
+      const pipeline: mongoose.PipelineStage[] = [
+        { $match: matchStage as mongoose.PipelineStage.Match["$match"] },
+        { $sort: { requiringOccupationId: 1 } },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: OccupationModel.collection.name,
+            localField: "requiringOccupationId",
+            foreignField: "_id",
+            as: "occupation",
+          },
+        },
+        { $unwind: "$occupation" },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                "$occupation",
+                {
+                  relationType: "$relationType",
+                  signallingValue: "$signallingValue",
+                  signallingValueLabel: "$signallingValueLabel",
+                },
+              ],
+            },
+          },
+        },
+      ];
+
+      const RelationModel = this.Model.db.model(MongooseModelName.OccupationToSkillRelation);
+      const results = await RelationModel.aggregate(pipeline).exec();
+
+      return results.map((r) => {
+        const doc = OccupationModel.hydrate(r);
+        return {
+          ...doc.toObject(),
+          relationType: r.relationType,
+          signallingValue: r.signallingValue,
+          signallingValueLabel: r.signallingValueLabel,
+        } as OccupationToSkillReferenceWithRelationType<IOccupationReference>;
+      });
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findOccupationsForSkill: findOccupationsForSkill failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findRelatedSkills(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]> {
+    try {
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const skillIdObj = new mongoose.Types.ObjectId(skillId);
+
+      // We need to find both directions: required skills and skills that require this skill
+      // This is a bit more complex. Let's start with one direction or simplify.
+      // Usually "related" in ESCO means non-hierarchical relations.
+
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        $or: [{ requiringSkillId: skillIdObj }, { requiredSkillId: skillIdObj }],
+      };
+
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        // Pagination for $or is tricky. For now let's just use the relation ID as cursor.
+        matchStage._id = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
+
+      const pipeline: mongoose.PipelineStage[] = [
+        { $match: matchStage as mongoose.PipelineStage.Match["$match"] },
+        { $sort: { _id: 1 } },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: this.Model.collection.name,
+            localField: "requiringSkillId",
+            foreignField: "_id",
+            as: "requiringSkill",
+          },
+        },
+        {
+          $lookup: {
+            from: this.Model.collection.name,
+            localField: "requiredSkillId",
+            foreignField: "_id",
+            as: "requiredSkill",
+          },
+        },
+        {
+          $addFields: {
+            relatedSkill: {
+              $cond: {
+                if: { $eq: ["$requiringSkillId", skillIdObj] },
+                then: { $arrayElemAt: ["$requiredSkill", 0] },
+                else: { $arrayElemAt: ["$requiringSkill", 0] },
+              },
+            },
+          },
+        },
+        { $match: { relatedSkill: { $ne: null } } },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: ["$relatedSkill", { relationType: "$relationType", relationId: "$_id" }],
+            },
+          },
+        },
+      ];
+
+      const RelationModel = this.Model.db.model(MongooseModelName.SkillToSkillRelation);
+      const results = await RelationModel.aggregate(pipeline).exec();
+
+      return results.map((r) => {
+        const doc = this.Model.hydrate(r);
+        return {
+          ...doc.toObject(),
+          relationType: r.relationType,
+          // We can return the relationId as part of the object if needed, but for now we'll match the interface
+        } as SkillToSkillReferenceWithRelationType<ISkillReference>;
+      });
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findRelatedSkills: findRelatedSkills failed", { cause: e });
       console.error(err);
       throw err;
     }

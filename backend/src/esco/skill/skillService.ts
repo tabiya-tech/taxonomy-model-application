@@ -1,8 +1,12 @@
 import { ISkillService } from "./skillService.type";
-import { ISkill } from "./skills.types";
+import { ISkill, ISkillReference } from "./skills.types";
 import { ISkillRepository } from "./skillRepository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { ModelForSkillValidationErrorCode } from "./skills.types";
+import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
+import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
+import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 export class SkillService implements ISkillService {
   constructor(
@@ -59,5 +63,27 @@ export class SkillService implements ISkillService {
       console.error("Error validating model for skill:", e);
       return ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
+  }
+
+  async getParents(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]> {
+    return this.skillRepository.findParents(modelId, skillId, 100); // Using a default limit for now
+  }
+
+  async getChildren(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]> {
+    return this.skillRepository.findChildren(modelId, skillId, 100);
+  }
+
+  async getOccupations(
+    modelId: string,
+    skillId: string
+  ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]> {
+    return this.skillRepository.findOccupationsForSkill(modelId, skillId, 100);
+  }
+
+  async getRelatedSkills(
+    modelId: string,
+    skillId: string
+  ): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]> {
+    return this.skillRepository.findRelatedSkills(modelId, skillId, 100);
   }
 }
