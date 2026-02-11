@@ -67,6 +67,12 @@ interface PaginatedSkillGroupResponse {
   nextCursor: string | null;
 }
 
+interface PaginatedSkillGroupParentsResponse {
+  data: ISkillGroupResponse[];
+  limit: number | null;
+  nextCursor: string | null;
+}
+
 interface ISkillGroupRequest {
   UUIDHistory: string[];
   originUri: string;
@@ -118,7 +124,7 @@ namespace SkillGroupTypes {
         export type Payload = ISkillGroupResponse;
       }
       export namespace Parents {
-        export type Payload = PaginatedSkillGroupResponse;
+        export type Payload = PaginatedSkillGroupParentsResponse;
       }
       export namespace Child {
         export type Payload = ISkillGroupChildResponse;
