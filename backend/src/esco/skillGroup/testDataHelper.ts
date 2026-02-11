@@ -1,9 +1,53 @@
 import { randomUUID } from "node:crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewSkillGroupSpec, ISkillGroup, ISkillGroupReference } from "./skillGroup.types";
+import { INewSkillGroupSpec, ISkillGroup, ISkillGroupChild, ISkillGroupReference } from "./skillGroup.types";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { ISkillReference } from "esco/skill/skills.types";
+
+export function getISkillGroupSkillGroupTypedChildData(
+  n: number = 1,
+  parentId: string = getMockStringId(1000 + n),
+  modelId: string = getMockStringId(1000 + n)
+): ISkillGroupChild {
+  return {
+    id: getMockStringId(n),
+    UUID: randomUUID(),
+    parentId: parentId,
+    objectType: SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes.SkillGroup,
+    modelId: modelId,
+    UUIDHistory: [randomUUID()],
+    originUri: "https://foo.bar/" + n,
+    preferredLabel: getRandomString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    altLabels: [getRandomString(SkillGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    description: getRandomString(SkillGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
+    updatedAt: new Date(),
+    code: getRandomString(SkillGroupAPISpecs.Constants.CODE_MAX_LENGTH),
+  };
+}
+
+export function getISkillGroupSkillTypedChildData(
+  n: number = 1,
+  parentId: string = getMockStringId(1000 + n),
+  modelId: string = getMockStringId(1000 + n)
+): ISkillGroupChild {
+  return {
+    id: getMockStringId(n),
+    UUID: randomUUID(),
+    parentId: parentId,
+    objectType: SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes.Skill,
+    modelId: modelId,
+    UUIDHistory: [randomUUID()],
+    originUri: "https://foo.bar/" + n,
+    preferredLabel: getRandomString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    altLabels: [getRandomString(SkillGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    description: getRandomString(SkillGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    createdAt: new Date(1973, 11, 17, 0, 0, 0), //.toISOString(),
+    updatedAt: new Date(),
+    isLocalized: true,
+  };
+}
 
 export function getISkillGroupMockData(n: number = 1, modelId: string = getMockStringId(1000 + n)): ISkillGroup {
   return {
