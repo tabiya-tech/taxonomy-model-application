@@ -1,3 +1,5 @@
+import SkillEnums from "../../enums";
+
 // This interface represents an occupation with relationship metadata
 export interface ISkillOccupationItem {
   // Occupation properties
@@ -5,12 +7,12 @@ export interface ISkillOccupationItem {
   UUID: string;
   code: string;
   preferredLabel: string;
-  occupationType: "ESCOOccupation" | "LocalOccupation";
+  occupationType: SkillEnums.OccupationObjectTypes;
 
   // Relationship metadata from OccupationToSkillRelation
-  relationType: "essential" | "optional" | null;
+  relationType: SkillEnums.OccupationToSkillRelationType | null;
   signallingValue: number | null;
-  signallingValueLabel: string | null;
+  signallingValueLabel: SkillEnums.SignallingValueLabel | null;
 }
 
 export interface ISkillOccupationsResponse {

@@ -1,9 +1,9 @@
 import "_test_utilities/consoleMock";
 import * as config from "server/config/config";
 import * as transformModule from "./transform";
-import { APIGatewayProxyEvent } from "aws-lambda";
 import { handler as skillHandler, SkillController } from "./index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 
 import { randomUUID } from "node:crypto";
@@ -14,6 +14,8 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 import * as authenticatorModule from "auth/authorizer";
 import { ISkill } from "./skills.types";
 import { getISkillMockData } from "./testDataHelper";
+import { getISkillGroupMockData } from "esco/skillGroup/testDataHelper";
+import { ISkillRepository } from "./skillRepository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
 import { IModelInfo } from "modelInfo/modelInfo.types";
@@ -26,6 +28,9 @@ checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
+const transformPaginatedRelationSpy = jest.spyOn(transformModule, "transformPaginatedRelation");
+const transformPaginatedOccupationsSpy = jest.spyOn(transformModule, "transformPaginatedOccupations");
+const transformPaginatedRelatedSpy = jest.spyOn(transformModule, "transformPaginatedRelated");
 
 // Mock the service registry
 jest.mock("server/serviceRegistry/serviceRegistry");
@@ -372,7 +377,11 @@ describe("Test for skill handler", () => {
         findById: jest.fn().mockResolvedValue(null),
         findAll: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
-      };
+        findParents: jest.fn(),
+        findChildren: jest.fn(),
+        findOccupationsForSkill: jest.fn(),
+        findRelatedSkills: jest.fn(),
+      } as unknown as ISkillRepository;
       jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(givenSkillRepositoryMock);
       const limit = 2;
 
@@ -737,7 +746,11 @@ describe("Test for skill handler", () => {
         findById: jest.fn().mockRejectedValue(new Error("Database connection failed")),
         findAll: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-      };
+        findParents: jest.fn(),
+        findChildren: jest.fn(),
+        findOccupationsForSkill: jest.fn(),
+        findRelatedSkills: jest.fn(),
+      } as unknown as ISkillRepository;
       jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(givenSkillRepositoryMock);
 
       const givenSkillServiceMock = {
@@ -869,6 +882,330 @@ describe("Test for skill handler", () => {
         path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}`,
         pathParameters: { id: getMockStringId(2) },
       } as unknown as APIGatewayProxyEvent);
+    });
+  });
+
+  describe("SkillController relations", () => {
+    const givenModelId = getMockStringId(1);
+    const givenSkillId = getMockStringId(2);
+    const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+
+    beforeEach(() => {
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValue(givenResourcesBaseUrl);
+    });
+
+    test("getParents should return 200 and parents", async () => {
+      // GIVEN parents from service
+      const parents = [getISkillMockData(), getISkillGroupMockData()];
+      const givenSkillServiceMock = {
+        getParents: jest.fn().mockResolvedValue(parents),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenSkillServiceMock.getParents).toHaveBeenCalledWith(givenModelId, givenSkillId);
+      expect(transformPaginatedRelationSpy).toHaveBeenCalledWith(parents, givenResourcesBaseUrl, 100, null);
+    });
+
+    test("getParents should return 400 if route did not match", async () => {
+      const event = {
+        path: "/invalid/path",
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getParents should return 400 if path is missing (branch coverage)", async () => {
+      const event = {
+        path: undefined,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getParents should return 500 if service fails", async () => {
+      const givenSkillServiceMock = {
+        getParents: jest.fn().mockRejectedValue(new Error("foo")),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
+      );
+    });
+
+    test("getChildren should return 200 and children", async () => {
+      // GIVEN children from service
+      const children = [getISkillMockData(), getISkillGroupMockData()];
+      const givenSkillServiceMock = {
+        getChildren: jest.fn().mockResolvedValue(children),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/children`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getChildren(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenSkillServiceMock.getChildren).toHaveBeenCalledWith(givenModelId, givenSkillId);
+      expect(transformPaginatedRelationSpy).toHaveBeenCalledWith(children, givenResourcesBaseUrl, 100, null);
+    });
+
+    test("getChildren should return 400 if route did not match", async () => {
+      const event = {
+        path: "/invalid/path",
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getChildren(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getChildren should return 400 if path is missing (branch coverage)", async () => {
+      const event = {
+        path: undefined,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getChildren(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getChildren should return 500 if service fails", async () => {
+      const givenSkillServiceMock = {
+        getChildren: jest.fn().mockRejectedValue(new Error("foo")),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/children`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getChildren(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
+      );
+    });
+
+    test("getOccupations should return 200 and occupations", async () => {
+      // GIVEN occupations from service
+      const occupations = [{ id: getMockStringId(5) }];
+      const givenSkillServiceMock = {
+        getOccupations: jest.fn().mockResolvedValue(occupations),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getOccupations(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenSkillServiceMock.getOccupations).toHaveBeenCalledWith(givenModelId, givenSkillId);
+      expect(transformPaginatedOccupationsSpy).toHaveBeenCalledWith(occupations, 100, null);
+    });
+
+    test("getOccupations should return 400 if route did not match", async () => {
+      const event = {
+        path: "/invalid/path",
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getOccupations(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getOccupations should return 400 if path is missing (branch coverage)", async () => {
+      const event = {
+        path: undefined,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getOccupations(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getOccupations should return 500 if service fails", async () => {
+      const givenSkillServiceMock = {
+        getOccupations: jest.fn().mockRejectedValue(new Error("foo")),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getOccupations(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
+      );
+    });
+
+    test("getRelatedSkills should return 200 and related skills", async () => {
+      // GIVEN related skills from service
+      const related = [{ id: getMockStringId(6) }];
+      const givenSkillServiceMock = {
+        getRelatedSkills: jest.fn().mockResolvedValue(related),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getRelatedSkills(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenSkillServiceMock.getRelatedSkills).toHaveBeenCalledWith(givenModelId, givenSkillId);
+      expect(transformPaginatedRelatedSpy).toHaveBeenCalledWith(related, 100, null);
+    });
+
+    test("getRelatedSkills should return 400 if route did not match", async () => {
+      const event = {
+        path: "/invalid/path",
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getRelatedSkills(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getRelatedSkills should return 400 if path is missing (branch coverage)", async () => {
+      const event = {
+        path: undefined,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getRelatedSkills(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
+    });
+
+    test("getRelatedSkills should return 500 if service fails", async () => {
+      const givenSkillServiceMock = {
+        getRelatedSkills: jest.fn().mockRejectedValue(new Error("foo")),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
+      };
+
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getRelatedSkills(event as unknown as APIGatewayProxyEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
+      );
+    });
+  });
+
+  describe("handler routing", () => {
+    const givenModelId = getMockStringId(1);
+    const givenSkillId = getMockStringId(2);
+
+    test("handler should route parents correctly", async () => {
+      const getParentsSpy = jest.spyOn(SkillController.prototype, "getParents").mockResolvedValue({
+        statusCode: StatusCodes.OK,
+        body: "",
+      } as APIGatewayProxyResult);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
+      };
+      await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+      expect(getParentsSpy).toHaveBeenCalled();
+      getParentsSpy.mockRestore();
+    });
+
+    test("handler should route children correctly", async () => {
+      const getChildrenSpy = jest.spyOn(SkillController.prototype, "getChildren").mockResolvedValue({
+        statusCode: StatusCodes.OK,
+        body: "",
+      } as APIGatewayProxyResult);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${givenModelId}/skills/${givenSkillId}/children`,
+      };
+      await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+      expect(getChildrenSpy).toHaveBeenCalled();
+      getChildrenSpy.mockRestore();
+    });
+
+    test("handler should route occupations correctly", async () => {
+      const getOccupationsSpy = jest.spyOn(SkillController.prototype, "getOccupations").mockResolvedValue({
+        statusCode: StatusCodes.OK,
+        body: "",
+      } as APIGatewayProxyResult);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
+      };
+      await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+      expect(getOccupationsSpy).toHaveBeenCalled();
+      getOccupationsSpy.mockRestore();
+    });
+
+    test("handler should route related skills correctly", async () => {
+      const getRelatedSkillsSpy = jest.spyOn(SkillController.prototype, "getRelatedSkills").mockResolvedValue({
+        statusCode: StatusCodes.OK,
+        body: "",
+      } as APIGatewayProxyResult);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
+      };
+      await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+      expect(getRelatedSkillsSpy).toHaveBeenCalled();
+      getRelatedSkillsSpy.mockRestore();
     });
   });
 });

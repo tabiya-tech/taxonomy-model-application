@@ -58,7 +58,11 @@ namespace ErrorTypes {
       | SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes
       | SkillsAPI.Enums.GET.ById.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.GET.ById.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes; // The UI could use to display some useful information
+      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Children.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Related.GET.Response.Status500.ErrorCodes;
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
   }
@@ -124,7 +128,11 @@ namespace ErrorTypes {
       | SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes
       | SkillsAPI.Enums.GET.ById.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.GET.ById.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes;
+      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Children.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.Relations.Related.GET.Response.Status500.ErrorCodes;
     message: string;
     details: string;
   }
