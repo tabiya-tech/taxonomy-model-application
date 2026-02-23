@@ -1526,10 +1526,10 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
       const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
 
-      // WHEN searching for its parent by its id
+      // WHEN searching for its children by its id
       const actualFoundChildren = await repository.findChildren(givenOccupationGroup.id);
 
-      // THEN expect no parent to be found
+      // THEN expect no children to be found
       expect(actualFoundChildren).toEqual([]);
     });
     test("should return [] if the parent given id is not a valid object id", async () => {

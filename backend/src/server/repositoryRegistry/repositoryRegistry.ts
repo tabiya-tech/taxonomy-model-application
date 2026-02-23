@@ -137,10 +137,14 @@ export class RepositoryRegistry {
 
     const occupationHierarchyModelInstance = occupationHierarchyModel.initializeSchemaAndModel(connection);
 
+    const skillGroupModelInstance = skillGroupModel.initializeSchemaAndModel(connection);
+
+    const skillHierarchyModelInstance = skillHierarchyModel.initializeSchemaAndModel(connection);
+
     // Set up the ModelRepository
     this.modelInfo = new ModelRepository(modelInfoModel.initializeSchemaAndModel(connection));
     this.OccupationGroup = new OccupationGroupRepository(occupationGroupModel, occupationHierarchyModelInstance);
-    this.skillGroup = new SkillGroupRepository(skillGroupModel.initializeSchemaAndModel(connection));
+    this.skillGroup = new SkillGroupRepository(skillGroupModelInstance, skillHierarchyModelInstance);
     this.skill = new SkillRepository(skillModel.initializeSchemaAndModel(connection));
     this.occupation = new OccupationRepository(occupationModel.initializeSchemaAndModel(connection));
     this.occupationHierarchy = new OccupationHierarchyRepository(
@@ -149,7 +153,7 @@ export class RepositoryRegistry {
       this.occupation.Model
     );
     this.skillHierarchy = new SkillHierarchyRepository(
-      skillHierarchyModel.initializeSchemaAndModel(connection),
+      skillHierarchyModelInstance,
       this.skill.Model,
       this.skillGroup.Model
     );

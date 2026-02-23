@@ -1,4 +1,4 @@
-import { ISkillGroup, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
+import { ISkillGroup, ISkillGroupChild, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
 
 export interface ISkillGroupService {
   /**
@@ -33,4 +33,22 @@ export interface ISkillGroupService {
    * @return {Promise<ModelForSkillGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
    */
   validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null>;
+
+  /**
+   * Finds an SkillGroup parents entry by its ID.
+   *
+   * @param {string} id - The unique ID of the SkillGroup entry.
+   * @return {Promise<ISkillGroup[]>} - A Promise that resolves to the found SkillGroup parents entry or [] if not found.
+   * Rejects with an error if the operation fails.
+   */
+  findParents(id: string): Promise<ISkillGroup[]>;
+
+  /**
+   * Finds an SkillGroup children entry by its ID.
+   *
+   * @param {string} id - The unique ID of the SkillGroup entry.
+   * @return {Promise<ISkillGroupChild[]>} - A Promise that resolves to the found SkillGroup children entry or [] if not found.
+   * Rejects with an error if the operation fails.
+   */
+  findChildren(id: string): Promise<ISkillGroupChild[]>;
 }

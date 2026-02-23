@@ -1,6 +1,6 @@
 import { SkillGroupService } from "./skillGroupService";
 import { ISkillGroupService } from "./skillGroupService.type";
-import { ModelForSkillGroupValidationErrorCode, ISkillGroup } from "./skillGroup.types";
+import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "./skillGroup.types";
 import { ISkillGroupRepository } from "./skillGroupRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
@@ -8,6 +8,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import mongoose from "mongoose";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 // Mock the module at the top level
 jest.mock("server/repositoryRegistry/repositoryRegistry");
@@ -26,6 +27,8 @@ describe("Test the SkillGroupService", () => {
       findById: jest.fn(),
       findAll: jest.fn(),
       findPaginated: jest.fn(),
+      findParents: jest.fn(),
+      findChildren: jest.fn(),
     } as unknown as jest.Mocked<ISkillGroupRepository>;
 
     service = new SkillGroupService(mockRepository);
@@ -405,6 +408,103 @@ describe("Test the SkillGroupService", () => {
 
       // Restore console.error
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe("findParents", () => {
+    test("should call repository.findParents with the given id and return the result", async () => {
+      // GIVEN an id
+      const givenParentId = getMockStringId(1);
+      // AND the repository returns some parents
+      const expectedParents: ISkillGroup[] = [
+        {
+          id: getMockStringId(2),
+          modelId: getMockStringId(1),
+          code: getTestSkillGroupCode(100),
+          UUID: getRandomString(10),
+          preferredLabel: getRandomString(10),
+          altLabels: [getRandomString(5)],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          parents: [],
+          UUIDHistory: [],
+          children: [],
+          originUri: getRandomString(15),
+          description: getRandomString(20),
+          scopeNote: getRandomString(30),
+          importId: getRandomString(10),
+        },
+      ];
+      mockRepository.findParents.mockResolvedValue(expectedParents);
+
+      // WHEN calling service.findParents
+      const actual = await service.findParents(givenParentId);
+
+      // THEN expect repository.findParents to have been called with the given id
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenParentId);
+      // AND the returned parents to be the expected ones
+      expect(actual).toEqual(expectedParents);
+    });
+    test("should return empty array if repository.findParents return an empty array for the given skillGroup", async () => {
+      // GIVEN an id
+      const givenId = getMockStringId(1);
+      //AND the repository returns empty array
+      mockRepository.findParents.mockResolvedValue([]);
+
+      // WHEN calling service.findParents
+      const actual = await service.findParents(givenId);
+
+      // THEN expect repository.findParents to have been called with the given id
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenId);
+      // AND the returned parents to be an empty array
+      expect(actual).toEqual([]);
+    });
+  });
+  describe("findChildren", () => {
+    test("should call repository.findChildren with the given id and return the result", async () => {
+      // GIVEN an id
+      const givenParentId = getMockStringId(1);
+
+      // AND the repository returns skill group children
+      const givenId = getMockStringId(10);
+      const expectedChildren: ISkillGroupChild = {
+        id: getMockStringId(2),
+        parentId: givenParentId,
+        UUID: getRandomString(10),
+        UUIDHistory: [],
+        originUri: getRandomString(15),
+        description: getRandomString(20),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        modelId: givenId,
+        objectType: ObjectTypes.SkillGroup,
+        code: getTestSkillGroupCode(100),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findChildren.mockResolvedValue([expectedChildren]);
+
+      // WHEN calling service.findChildren
+      const actual = await service.findChildren(givenParentId);
+
+      // THEN expect repository.findChildren to have been called with the given id
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenParentId);
+      // AND the returned children to be the expected ones
+      expect(actual).toEqual([expectedChildren]);
+    });
+
+    test("should return empty array if repository.findChildren return an empty array for the given skillGroup", async () => {
+      // GIVEN an id
+      const givenId = getMockStringId(1);
+      // AND the repository returns empty array
+      mockRepository.findChildren.mockResolvedValue([]);
+      // WHEN calling service.findChildren
+      const actual = await service.findChildren(givenId);
+      // THEN expect repository.findChildren to have been called with the given id
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenId);
+      // AND the returned children to be an empty array
+      expect(actual).toEqual([]);
     });
   });
 });

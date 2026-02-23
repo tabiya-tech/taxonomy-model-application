@@ -33,11 +33,14 @@ const getMockSkillGroups = (): IUnpopulatedSkillGroup[] => {
 function setupSkillGroupRepositoryMock(findAllImpl: () => Readable) {
   const mockSkillGroupRepository: ISkillGroupRepository = {
     Model: undefined as never,
+    hierarchyModel: undefined as never,
     create: jest.fn().mockResolvedValue(null),
     findPaginated: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
+    findParents: jest.fn().mockResolvedValue([]),
+    findChildren: jest.fn().mockResolvedValue([]),
   };
   SkillGroupRepository.mockReturnValue(mockSkillGroupRepository);
 }
