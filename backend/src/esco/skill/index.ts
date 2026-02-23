@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { ModelForSkillValidationErrorCode } from "./skills.types";
 import {
   errorResponse,
   errorResponseGET,
@@ -157,9 +158,9 @@ export class SkillController {
       const execMatch = pathToRegexp(Routes.SKILLS_ROUTE).regexp.exec(pathToMatch);
       const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
       if (!resolvedModelId) {
-        return errorResponseGET(
+        return errorResponse(
           StatusCodes.BAD_REQUEST,
-          SkillAPISpecs.Enums.GET.List.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
           "modelId is missing in the path",
           JSON.stringify({ path: event.path, pathParameters: event.pathParameters, query: event.queryStringParameters })
         );
@@ -355,6 +356,57 @@ export class SkillController {
     }
   }
 
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/skills/{id}/parents:
+   *   get:
+   *    operationId: GETSkillParents
+   *    tags:
+   *      - skills
+   *    summary: Get a list of skill parents.
+   *    description: Retrieve a list of parent skills or skill groups for a given skill.
+   *    security:
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *    responses:
+   *      '200':
+   *        description: Successfully retrieved the skill parents.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/SkillParentResponseSchemaGET'
+   *      '400':
+   *        description: Failed to retrieve the skill parents. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillParents400ErrorSchema'
+   *      '404':
+   *        description: Model or Skill not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillParents404ErrorSchema'
+   *      '500':
+   *        description: The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
+   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getParents(event: APIGatewayProxyEvent) {
     try {
@@ -371,20 +423,169 @@ export class SkillController {
       const modelId = execMatch[1];
       const id = execMatch[2];
 
-      const parents = await this.skillService.getParents(modelId, id);
-      return responseJSON(StatusCodes.OK, transformPaginatedRelation(parents, getResourcesBaseUrl(), 100, null));
+      const requestPathParameter = { modelId, id };
+      const validatePathFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or skill Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.skillService.validateModelForSkill(modelId);
+      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${modelId}`
+        );
+      }
+      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const rawQueryParams = event.queryStringParameters || {};
+      const queryParams: SkillAPISpecs.Types.GET.Parents.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
+
+      const validateQueryFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Parents.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Parents.Request.Query.Payload>;
+      if (!validateQueryFunction(queryParams)) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = SkillAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) limit = queryParams.limit;
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const skill = await this.skillService.findById(id);
+      if (!skill) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          "skill not found",
+          `No skill found with id: ${id}`
+        );
+      }
+
+      const result = await this.skillService.getParents(modelId, id, limit, decodedCursor?.id);
+      let nextCursor: string | null = null;
+      if (result?.nextCursor?._id) {
+        nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
+      }
+
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedRelation(result.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
     } catch (error: unknown) {
       console.error("Failed to get parents:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_SKILL_PARENTS as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
         "Failed to retrieve the skill parents from the DB",
         ""
       );
     }
   }
 
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/skills/{id}/children:
+   *   get:
+   *    operationId: GETSkillChildren
+   *    tags:
+   *      - skills
+   *    summary: Get a list of skill children.
+   *    description: Retrieve a paginated list of child skills or skill groups for a given skill.
+   *    security:
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *      - in: query
+   *        name: limit
+   *        required: false
+   *        schema:
+   *          type: integer
+   *      - in: query
+   *        name: cursor
+   *        required: false
+   *        schema:
+   *          type: string
+   *    responses:
+   *      '200':
+   *        description: Successfully retrieved the skill children.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/SkillChildrenResponseSchemaGET'
+   *      '400':
+   *        description: Failed to retrieve the skill children. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillChildren400ErrorSchema'
+   *      '404':
+   *        description: Model or Skill not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillChildren404ErrorSchema'
+   *      '500':
+   *        description: The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
+   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getChildren(event: APIGatewayProxyEvent) {
     try {
@@ -401,20 +602,169 @@ export class SkillController {
       const modelId = execMatch[1];
       const id = execMatch[2];
 
-      const children = await this.skillService.getChildren(modelId, id);
-      return responseJSON(StatusCodes.OK, transformPaginatedRelation(children, getResourcesBaseUrl(), 100, null));
+      const requestPathParameter = { modelId, id };
+      const validatePathFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or skill Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.skillService.validateModelForSkill(modelId);
+      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Children.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${modelId}`
+        );
+      }
+      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const rawQueryParams = event.queryStringParameters || {};
+      const queryParams: SkillAPISpecs.Types.GET.Children.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
+
+      const validateQueryFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Children.Request.Query.Payload>;
+      if (!validateQueryFunction(queryParams)) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = SkillAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) limit = queryParams.limit;
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const skill = await this.skillService.findById(id);
+      if (!skill) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Children.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          "skill not found",
+          `No skill found with id: ${id}`
+        );
+      }
+
+      const result = await this.skillService.getChildren(modelId, id, limit, decodedCursor?.id);
+      let nextCursor: string | null = null;
+      if (result?.nextCursor?._id) {
+        nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
+      }
+
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedRelation(result.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
     } catch (error: unknown) {
       console.error("Failed to get children:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
         "Failed to retrieve the skill children from the DB",
         ""
       );
     }
   }
 
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/skills/{id}/occupations:
+   *   get:
+   *    operationId: GETSkillOccupations
+   *    tags:
+   *      - skills
+   *    summary: Get a list of skill occupations.
+   *    description: Retrieve a paginated list of occupations that require a given skill.
+   *    security:
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *      - in: query
+   *        name: limit
+   *        required: false
+   *        schema:
+   *          type: integer
+   *      - in: query
+   *        name: cursor
+   *        required: false
+   *        schema:
+   *          type: string
+   *    responses:
+   *      '200':
+   *        description: Successfully retrieved the skill occupations.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/SkillOccupationsResponseSchemaGET'
+   *      '400':
+   *        description: Failed to retrieve the skill occupations. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillOccupations400ErrorSchema'
+   *      '404':
+   *        description: Model or Skill not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillOccupations404ErrorSchema'
+   *      '500':
+   *        description: The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
+   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupations(event: APIGatewayProxyEvent) {
     try {
@@ -431,20 +781,168 @@ export class SkillController {
       const modelId = execMatch[1];
       const id = execMatch[2];
 
-      const occupations = await this.skillService.getOccupations(modelId, id);
-      return responseJSON(StatusCodes.OK, transformPaginatedOccupations(occupations, 100, null));
+      const requestPathParameter = { modelId, id };
+      const validatePathFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or skill Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.skillService.validateModelForSkill(modelId);
+      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${modelId}`
+        );
+      }
+      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
+            .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const rawQueryParams = event.queryStringParameters || {};
+      const queryParams: SkillAPISpecs.Types.GET.Occupations.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
+
+      const validateQueryFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Occupations.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Occupations.Request.Query.Payload>;
+      if (!validateQueryFunction(queryParams)) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = SkillAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) limit = queryParams.limit;
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const skill = await this.skillService.findById(id);
+      if (!skill) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          "skill not found",
+          `No skill found with id: ${id}`
+        );
+      }
+
+      const result = await this.skillService.getOccupations(modelId, id, limit, decodedCursor?.id);
+      let nextCursor: string | null = null;
+      if (result?.nextCursor?._id) {
+        nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
+      }
+
+      return responseJSON(StatusCodes.OK, transformPaginatedOccupations(result.items, limit, nextCursor));
     } catch (error: unknown) {
       console.error("Failed to get occupations:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+          .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
         "Failed to retrieve the skill occupations from the DB",
         ""
       );
     }
   }
 
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/skills/{id}/related:
+   *   get:
+   *    operationId: GETSkillRelated
+   *    tags:
+   *      - skills
+   *    summary: Get a list of related skills.
+   *    description: Retrieve a paginated list of related skills for a given skill.
+   *    security:
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        schema:
+   *          type: string
+   *          format: uuid
+   *      - in: query
+   *        name: limit
+   *        required: false
+   *        schema:
+   *          type: integer
+   *      - in: query
+   *        name: cursor
+   *        required: false
+   *        schema:
+   *          type: string
+   *    responses:
+   *      '200':
+   *        description: Successfully retrieved the related skills.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/SkillRelatedResponseSchemaGET'
+   *      '400':
+   *        description: Failed to retrieve the related skills. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillRelated400ErrorSchema'
+   *      '404':
+   *        description: Model or Skill not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETSkillRelated404ErrorSchema'
+   *      '500':
+   *        description: The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
+   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getRelatedSkills(event: APIGatewayProxyEvent) {
     try {
@@ -461,14 +959,99 @@ export class SkillController {
       const modelId = execMatch[1];
       const id = execMatch[2];
 
-      const relatedSkills = await this.skillService.getRelatedSkills(modelId, id);
-      return responseJSON(StatusCodes.OK, transformPaginatedRelated(relatedSkills, 100, null));
+      const requestPathParameter = { modelId, id };
+      const validatePathFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or skill Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.skillService.validateModelForSkill(modelId);
+      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Related.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${modelId}`
+        );
+      }
+      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const rawQueryParams = event.queryStringParameters || {};
+      const queryParams: SkillAPISpecs.Types.GET.Related.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
+
+      const validateQueryFunction = ajvInstance.getSchema(
+        SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.Related.Request.Query.Payload>;
+      if (!validateQueryFunction(queryParams)) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = SkillAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) limit = queryParams.limit;
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const skill = await this.skillService.findById(id);
+      if (!skill) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Enums.Relations.Related.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          "skill not found",
+          `No skill found with id: ${id}`
+        );
+      }
+
+      const result = await this.skillService.getRelatedSkills(modelId, id, limit, decodedCursor?.id);
+      let nextCursor: string | null = null;
+      if (result?.nextCursor?._id) {
+        nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
+      }
+
+      return responseJSON(StatusCodes.OK, transformPaginatedRelated(result.items, limit, nextCursor));
     } catch (error: unknown) {
       console.error("Failed to get related skills:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_RELATED_SKILLS as unknown as ErrorAPISpecs.Types.GET["errorCode"],
+        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
         "Failed to retrieve the related skills from the DB",
         ""
       );

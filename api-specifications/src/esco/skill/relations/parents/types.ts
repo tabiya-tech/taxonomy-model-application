@@ -7,4 +7,15 @@ export interface ISkillParentItem {
   isLocalized?: boolean; // Only for Skill parents
 }
 
-export type ISkillParentResponse = ISkillParentItem | null;
+export interface ISkillParentsResponse {
+  data: ISkillParentItem[];
+  limit: number;
+  nextCursor: string | null;
+}
+
+export type ISkillParentResponse = ISkillParentsResponse;
+
+export interface ISkillParentsRequestQuery {
+  limit?: number;
+  cursor?: string;
+}

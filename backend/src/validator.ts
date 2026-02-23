@@ -138,6 +138,22 @@ ajvInstance.addSchema(
   SkillAPISpecs.Schemas.POST.Request.Param.Payload.$id
 );
 ajvInstance.addSchema(SkillAPISpecs.Schemas.GET.Response.Payload, SkillAPISpecs.Schemas.GET.Response.Payload.$id);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Parents.Request.Query.Payload,
+  SkillAPISpecs.Schemas.GET.Parents.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Children.Request.Query.Payload,
+  SkillAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Occupations.Request.Query.Payload,
+  SkillAPISpecs.Schemas.GET.Occupations.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload,
+  SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload.$id
+);
 
 /**
  * Turn the errors from ajv and turn into a string that consumers can read.

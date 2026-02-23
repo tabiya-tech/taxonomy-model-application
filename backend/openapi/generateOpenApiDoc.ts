@@ -74,7 +74,8 @@ delete Skill.Schemas.GET.Response.ById.Payload.$id;
 delete Skill.Schemas.GET.Request.Param.Payload.$id;
 delete Skill.Schemas.GET.Request.Query.Payload.$id;
 delete Skill.Schemas.GET.Request.ById.Param.Payload.$id;
-delete Skill.Schemas.GET.Parent.Response.Payload.$id;
+delete Skill.Schemas.GET.Parents.Response.Payload.$id;
+delete Skill.Schemas.GET.Parents.Request.Query.Payload.$id;
 delete Skill.Schemas.GET.Children.Response.Payload.$id;
 delete Skill.Schemas.GET.Children.Request.Query.Payload.$id;
 delete Skill.Schemas.GET.Occupations.Response.Payload.$id;
@@ -308,6 +309,55 @@ function getOpenAPISpecification(
           GETSkills404ErrorSchema: APIError.Schemas.getPayload("GET", "Skills", 404, [
             Skill.Enums.GET.List.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           ]),
+          // Skill relation error schemas
+          GETSkillParents400ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillParents",
+            400,
+            Object.values(Skill.Enums.Relations.Parents.GET.Response.Status400.ErrorCodes)
+          ),
+          GETSkillParents404ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillParents",
+            404,
+            Object.values(Skill.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes)
+          ),
+          GETSkillChildren400ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillChildren",
+            400,
+            Object.values(Skill.Enums.Relations.Children.GET.Response.Status400.ErrorCodes)
+          ),
+          GETSkillChildren404ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillChildren",
+            404,
+            Object.values(Skill.Enums.Relations.Children.GET.Response.Status404.ErrorCodes)
+          ),
+          GETSkillOccupations400ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillOccupations",
+            400,
+            Object.values(Skill.Enums.Relations.Occupations.GET.Response.Status400.ErrorCodes)
+          ),
+          GETSkillOccupations404ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillOccupations",
+            404,
+            Object.values(Skill.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes)
+          ),
+          GETSkillRelated400ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillRelated",
+            400,
+            Object.values(Skill.Enums.Relations.Related.GET.Response.Status400.ErrorCodes)
+          ),
+          GETSkillRelated404ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "SkillRelated",
+            404,
+            Object.values(Skill.Enums.Relations.Related.GET.Response.Status404.ErrorCodes)
+          ),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
@@ -351,12 +401,13 @@ function getOpenAPISpecification(
           SkillRequestQueryParamSchemaGET: Skill.Schemas.GET.Request.Query.Payload,
           SkillResponseSchemaGET: Skill.Schemas.GET.Response.Payload,
           SkillRequestByIdParamSchemaGET: Skill.Schemas.GET.Request.ById.Param.Payload,
-          SkillResponseSchemaGETParent: Skill.Schemas.GET.Parent.Response.Payload,
-          SkillResponseSchemaGETChildren: Skill.Schemas.GET.Children.Response.Payload,
+          SkillParentResponseSchemaGET: Skill.Schemas.GET.Parents.Response.Payload,
+          SkillParentsRequestQueryParamSchemaGET: Skill.Schemas.GET.Parents.Request.Query.Payload,
+          SkillChildrenResponseSchemaGET: Skill.Schemas.GET.Children.Response.Payload,
           SkillChildrenRequestQueryParamSchemaGET: Skill.Schemas.GET.Children.Request.Query.Payload,
-          SkillResponseSchemaGETOccupations: Skill.Schemas.GET.Occupations.Response.Payload,
+          SkillOccupationsResponseSchemaGET: Skill.Schemas.GET.Occupations.Response.Payload,
           SkillOccupationsRequestQueryParamSchemaGET: Skill.Schemas.GET.Occupations.Request.Query.Payload,
-          SkillResponseSchemaGETRelated: Skill.Schemas.GET.Related.Response.Payload,
+          SkillRelatedResponseSchemaGET: Skill.Schemas.GET.Related.Response.Payload,
           SkillRelatedRequestQueryParamSchemaGET: Skill.Schemas.GET.Related.Request.Query.Payload,
         },
         securitySchemes: {

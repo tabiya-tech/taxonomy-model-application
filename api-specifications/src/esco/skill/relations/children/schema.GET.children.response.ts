@@ -1,5 +1,6 @@
 import { SchemaObject } from "ajv";
 import { _baseResponseSchema as SkillBaseResponseSchema, _basePaginationResponseProperties } from "../../schemas.base";
+import { _baseResponseSchema as SkillGroupBaseResponseSchema } from "../../../skillGroup/schemas.base";
 
 const SchemaGETChildrenResponse: SchemaObject = {
   $id: "/components/schemas/SkillChildrenResponseSchemaGET",
@@ -10,12 +11,7 @@ const SchemaGETChildrenResponse: SchemaObject = {
       type: "array",
       minItems: 0,
       items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          ...SkillBaseResponseSchema.properties,
-        },
-        required: SkillBaseResponseSchema.required,
+        anyOf: [SkillBaseResponseSchema, SkillGroupBaseResponseSchema],
       },
       description: "Array of child skills for the current page.",
     },

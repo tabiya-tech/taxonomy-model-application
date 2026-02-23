@@ -10,7 +10,13 @@ import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
-import { ISkillReference } from "./skills.types";
+
+interface ITestingSkillService {
+  findPaginatedRelation<T>(
+    fetchFn: () => Promise<T[]>,
+    limit: number
+  ): Promise<{ items: T[]; nextCursor: { _id: string; createdAt: Date } | null }>;
+}
 
 describe("Test the SkillService", () => {
   let service: ISkillService;
@@ -121,7 +127,10 @@ describe("Test the SkillService", () => {
       );
 
       // THEN expect repository.findPaginated to have been called with the given parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, {
+        id: getMockStringId(10),
+        createdAt: new Date("2023-01-01T00:00:00.000Z"),
+      });
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
@@ -154,7 +163,10 @@ describe("Test the SkillService", () => {
       );
 
       // AND expect repository.findPaginated to have been called with the decoded cursor sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, {
+        id: getMockStringId(10),
+        createdAt: new Date("2023-01-01T00:00:00.000Z"),
+      });
       //AND expect the returned paginated result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -197,7 +209,7 @@ describe("Test the SkillService", () => {
       await service.findPaginated(givenModelId, givenCursor, givenLimit, givenDesc);
 
       // THEN expect repository.findPaginated to have been called with the ascending sort and correct cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursor.id);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursor);
     });
 
     test("should return null nextCursor when no more items", async () => {
@@ -316,12 +328,32 @@ describe("Test the SkillService", () => {
       mockRepository.findParents.mockResolvedValue(expectedParents);
 
       // WHEN calling service.getParents
-      const actual = await service.getParents(givenModelId, givenSkillId);
+      const actual = await service.getParents(givenModelId, givenSkillId, 100);
 
       // THEN expect repository.findParents to have been called with correct parameters
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
       // AND expect returned parents
-      expect(actual).toEqual(expectedParents);
+      expect(actual).toEqual({ items: expectedParents, nextCursor: null });
+    });
+
+    test("should return nextCursor when there are more parents", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenLimit = 1;
+      // AND repository returns more items than limit
+      const expectedParents = [
+        { ...getISkillMockData(), id: getMockStringId(3), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        { ...getISkillMockData(), id: getMockStringId(4), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+      ];
+      mockRepository.findParents.mockResolvedValue(expectedParents);
+
+      // WHEN calling service.getParents
+      const actual = await service.getParents(givenModelId, givenSkillId, givenLimit);
+
+      // THEN expect returned parents with nextCursor
+      expect(actual.items).toHaveLength(1);
+      expect(actual.nextCursor).toEqual({ _id: getMockStringId(3), createdAt: expectedParents[0].createdAt });
     });
   });
 
@@ -335,12 +367,32 @@ describe("Test the SkillService", () => {
       mockRepository.findChildren.mockResolvedValue(expectedChildren);
 
       // WHEN calling service.getChildren
-      const actual = await service.getChildren(givenModelId, givenSkillId);
+      const actual = await service.getChildren(givenModelId, givenSkillId, 100);
 
       // THEN expect repository.findChildren to have been called with correct parameters
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
       // AND expect returned children
-      expect(actual).toEqual(expectedChildren);
+      expect(actual).toEqual({ items: expectedChildren, nextCursor: null });
+    });
+
+    test("should return nextCursor when there are more children", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenLimit = 1;
+      // AND repository returns more items than limit
+      const expectedChildren = [
+        { ...getISkillMockData(), id: getMockStringId(3), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        { ...getISkillMockData(), id: getMockStringId(4), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+      ];
+      mockRepository.findChildren.mockResolvedValue(expectedChildren);
+
+      // WHEN calling service.getChildren
+      const actual = await service.getChildren(givenModelId, givenSkillId, givenLimit);
+
+      // THEN expect returned children with nextCursor
+      expect(actual.items).toHaveLength(1);
+      expect(actual.nextCursor).toEqual({ _id: getMockStringId(3), createdAt: expectedChildren[0].createdAt });
     });
   });
 
@@ -356,12 +408,34 @@ describe("Test the SkillService", () => {
       );
 
       // WHEN calling service.getOccupations
-      const actual = await service.getOccupations(givenModelId, givenSkillId);
+      const actual = await service.getOccupations(givenModelId, givenSkillId, 100);
 
       // THEN expect repository.findOccupationsForSkill to have been called with correct parameters
-      expect(mockRepository.findOccupationsForSkill).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      expect(mockRepository.findOccupationsForSkill).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
       // AND expect returned occupations
-      expect(actual).toEqual(expectedOccupations);
+      expect(actual).toEqual({ items: expectedOccupations, nextCursor: null });
+    });
+
+    test("should return nextCursor when there are more occupations", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenLimit = 1;
+      // AND repository returns more items than limit
+      const expectedOccupations = [
+        { id: getMockStringId(3), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        { id: getMockStringId(4), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+      ];
+      mockRepository.findOccupationsForSkill.mockResolvedValue(
+        expectedOccupations as unknown as OccupationToSkillReferenceWithRelationType<IOccupationReference>[]
+      );
+
+      // WHEN calling service.getOccupations
+      const actual = await service.getOccupations(givenModelId, givenSkillId, givenLimit);
+
+      // THEN expect returned occupations with nextCursor
+      expect(actual.items).toHaveLength(1);
+      expect(actual.nextCursor).toEqual({ _id: getMockStringId(3), createdAt: expectedOccupations[0].createdAt });
     });
   });
 
@@ -373,16 +447,53 @@ describe("Test the SkillService", () => {
       // AND repository returns related skills
       const expectedRelatedSkills = [{ id: getMockStringId(3) }];
       mockRepository.findRelatedSkills.mockResolvedValue(
-        expectedRelatedSkills as unknown as SkillToSkillReferenceWithRelationType<ISkillReference>[]
+        expectedRelatedSkills as unknown as SkillToSkillReferenceWithRelationType<ISkill>[]
       );
 
       // WHEN calling service.getRelatedSkills
-      const actual = await service.getRelatedSkills(givenModelId, givenSkillId);
+      const actual = await service.getRelatedSkills(givenModelId, givenSkillId, 100);
 
       // THEN expect repository.findRelatedSkills to have been called with correct parameters
-      expect(mockRepository.findRelatedSkills).toHaveBeenCalledWith(givenModelId, givenSkillId, 100);
+      expect(mockRepository.findRelatedSkills).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
       // AND expect returned related skills
-      expect(actual).toEqual(expectedRelatedSkills);
+      expect(actual).toEqual({ items: expectedRelatedSkills, nextCursor: null });
+    });
+
+    test("should return nextCursor when there are more related skills", async () => {
+      // GIVEN modelId and skillId
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenLimit = 1;
+      // AND repository returns more items than limit
+      const expectedRelatedSkills = [
+        { id: getMockStringId(3), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        { id: getMockStringId(4), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+      ];
+      mockRepository.findRelatedSkills.mockResolvedValue(
+        expectedRelatedSkills as unknown as SkillToSkillReferenceWithRelationType<ISkill>[]
+      );
+
+      // WHEN calling service.getRelatedSkills
+      const actual = await service.getRelatedSkills(givenModelId, givenSkillId, givenLimit);
+
+      // THEN expect returned related skills with nextCursor
+      expect(actual.items).toHaveLength(1);
+      expect(actual.nextCursor).toEqual({ _id: getMockStringId(3), createdAt: expectedRelatedSkills[0].createdAt });
+    });
+
+    test("should use current date when item handles no createdAt", async () => {
+      // GIVEN an item without createdAt
+      const givenItems = [{ id: "foo" }, { id: "bar" }];
+      // AND a fetch method that returns these items
+      const fetchFn = jest.fn().mockResolvedValue(givenItems);
+
+      // WHEN calling the private findPaginatedRelation with limit 1
+      const result = await (service as unknown as ITestingSkillService).findPaginatedRelation(fetchFn, 1);
+
+      // THEN expect the current date or something close to it
+      expect(result.nextCursor).not.toBeNull();
+      expect(result.nextCursor!.createdAt).toBeInstanceOf(Date);
+      expect(result.nextCursor!._id).toBe(givenItems[0].id);
     });
   });
 });

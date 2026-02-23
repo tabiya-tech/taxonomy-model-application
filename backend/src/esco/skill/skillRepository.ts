@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
+import { INewSkillSpec, ISkill, ISkillDoc } from "./skills.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -69,15 +69,16 @@ export interface ISkillRepository {
    * @param {Record<string, unknown>} filter - The filter to apply to the query.
    * @param {{ _id: 1 | -1 }} sort - The sort order to apply to the query.
    * @param {number} limit - The maximum number of Skills to return.
+   * @param {1 | -1} sortOrder - The sort order to apply to the query.
+   * @param {{ id: string; createdAt: Date }} [cursor] - The cursor for pagination, containing the ID and createdAt timestamp of the last retrieved item.
    * @return {Promise<ISkill[]>} - A Promise that resolves to an array of Skills.
    * Rejects with an error if the operation fails.
    */
   findPaginated(
     modelId: string,
     limit: number,
-    sortOrder: 1 | -1,
-    cursorId?: string,
-    filter?: Record<string, unknown>
+    sortOrder: -1 | 1,
+    cursor?: { id: string; createdAt: Date }
   ): Promise<ISkill[]>;
 
   /**
@@ -125,14 +126,14 @@ export interface ISkillRepository {
    * @param {string} skillId - The ID of the Skill.
    * @param {number} limit - The maximum number of related skills to return.
    * @param {string} [cursor] - The ID of the cursor for pagination.
-   * @return {Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>} - A Promise that resolves to an array containing the related skills.
+   * @return {Promise<SkillToSkillReferenceWithRelationType<ISkill>[]>} - A Promise that resolves to an array containing the related skills.
    */
   findRelatedSkills(
     modelId: string,
     skillId: string,
     limit: number,
     cursor?: string
-  ): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>;
+  ): Promise<SkillToSkillReferenceWithRelationType<ISkill>[]>;
 }
 
 export class SkillRepository implements ISkillRepository {
@@ -255,26 +256,27 @@ export class SkillRepository implements ISkillRepository {
   async findPaginated(
     modelId: string,
     limit: number,
-    sortOrder: 1 | -1,
-    cursorId?: string,
-    filter?: Record<string, unknown>
+    sortOrder: -1 | 1,
+    cursor?: { id: string; createdAt: Date }
   ): Promise<ISkill[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       // Build the match stage
-      const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
+      const matchStage: mongoose.FilterQuery<ISkillDoc> = { modelId: modelIdObj };
 
-      // If a cursorId is provided, add it to the match stage to get results after the cursor
-      if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
+      // If a cursor is provided, add it to the match stage to get results after the cursor
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor.id)) {
+        const id = new mongoose.Types.ObjectId(cursor.id);
+        const createdAt = cursor.createdAt;
         const operator = sortOrder === -1 ? "$lt" : "$gt";
-        matchStage._id = { [operator]: new mongoose.Types.ObjectId(cursorId) };
+        matchStage.$or = [{ createdAt: { [operator]: createdAt } }, { createdAt: createdAt, _id: { [operator]: id } }];
       }
 
       // Execute the aggregation pipeline
       // We use aggregation to handle filtering, sorting and limiting in a single query
       const results = await this.Model.aggregate([
         { $match: matchStage },
-        { $sort: { _id: sortOrder } },
+        { $sort: { createdAt: sortOrder, _id: sortOrder } },
         { $limit: limit },
       ]).exec();
 
@@ -532,7 +534,7 @@ export class SkillRepository implements ISkillRepository {
     skillId: string,
     limit: number,
     cursor?: string
-  ): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]> {
+  ): Promise<SkillToSkillReferenceWithRelationType<ISkill>[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const skillIdObj = new mongoose.Types.ObjectId(skillId);
@@ -601,7 +603,7 @@ export class SkillRepository implements ISkillRepository {
           ...doc.toObject(),
           relationType: r.relationType,
           // We can return the relationId as part of the object if needed, but for now we'll match the interface
-        } as SkillToSkillReferenceWithRelationType<ISkillReference>;
+        } as SkillToSkillReferenceWithRelationType<ISkill>;
       });
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findRelatedSkills: findRelatedSkills failed", { cause: e });
