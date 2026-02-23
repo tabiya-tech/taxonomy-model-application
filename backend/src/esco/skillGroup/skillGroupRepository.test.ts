@@ -1076,5 +1076,204 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         expect.arrayContaining<ISkillGroupReference | ISkillReference>([expectedSkillGroupReference(child)])
       );
     });
+    test("should handle sorting with sortOrder parameter", async () => {
+      // GIVEN a modelId to group the skillGroups together
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroups: ISkillGroup[] = [];
+      for (let i = 0; i < 3; i++) {
+        const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, `group_${i}`);
+        const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+        givenSkillGroups.push(givenSkillGroup);
+      }
+
+      // WHEN retrieving the first page of skillGroups
+      const firstPage = await repository.findPaginated(givenModelId, 2, 1);
+      const actualFirstPage = firstPage;
+
+      // THEN expect the latest 2 documents by _id (desc)
+      const expectedFirstPage = givenSkillGroups
+        .slice(0, 2)
+        .map(({ parents, children, ...rest }) => ({ ...rest, parents: [], children: [] }));
+
+      expect(actualFirstPage).toHaveLength(2);
+      expect(actualFirstPage).toEqual(expectedFirstPage);
+    });
+  });
+
+  describe("Test findParents()", () => {
+    test("should find a SkillGroup parents by childId", async () => {
+      // GIVEN three SkillGroups and one Skill exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+
+      // The root parent (SkillGroup)
+      const givenParentSpecs = getSimpleNewSkillGroupSpec(givenModelId, "parent");
+      const givenParent = await repository.create(givenParentSpecs);
+      // the 2nd level parent (SkillGroup)
+      const givenSubjectSpecs = getSimpleNewSkillGroupSpec(givenModelId, "subject");
+      const givenSubject = await repository.create(givenSubjectSpecs);
+      // the child (SkillGroup)
+      const givenChildSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "child_1");
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      // the child (Skill)
+      const givenChildSpecs_2 = getSimpleNewSkillSpec(givenModelId, "child_2");
+      const givenChild_2 = await repositoryRegistry.skill.create(givenChildSpecs_2);
+      // AND the hierarchy is parent -> subject -> child_1 and parent -> child_2
+      const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenSubject.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenSubject.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenChild_1.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.Skill,
+          childId: givenChild_2.id,
+        },
+      ]);
+      expect(actualHierarchy).toHaveLength(3);
+
+      // WHEN searching for the parents of the subject SkillGroup by its id
+      const actualFoundParents = await repository.findParents(givenSubject.id);
+
+      const expectedParents: ISkillGroup[] = [
+        { ...givenParent, children: [expectedSkillGroupReference(givenSubject), expectedSkillReference(givenChild_2)] },
+      ];
+
+      // THEN expect the SkillGroup to be found as a parent
+      expect(actualFoundParents).toEqual(expectedParents);
+    });
+    test("should return an empty array if no parents are found", async () => {
+      // GIVEN a SkillGroup exists without a parent
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "group");
+      const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+
+      // WHEN searching for it's parents by ti's id
+      const actualFoundParents = await repository.findParents(givenSkillGroup.id);
+      // THEN expect an empty array to be returned
+      expect(actualFoundParents).toEqual([]);
+    });
+    test("should return [] if the children given id is not valid object id", async () => {
+      // GIVEN No SkillGroup exists in the database
+      // WHEN searching for the SkillGroup parents by it's id
+      const actualFoundSkillGroupParents = await repository.findParents("non_existing_child_id");
+
+      // THEN expect no SkillGroup parents to be found
+      expect(actualFoundSkillGroupParents).toEqual([]);
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skillGroup.findParents(getMockStringId(1));
+    });
+  });
+
+  describe("Test findChildren()", () => {
+    test("should find a SkillGroup children by parentId", async () => {
+      // GIVEN three SkillGroups and one Skill exists in the database in the same model
+      const givenModelId = getMockStringId(1);
+
+      // The root parent (SkillGroup)
+      const givenParentSpecs = getSimpleNewSkillGroupSpec(givenModelId, "parent");
+      const givenParent = await repository.create(givenParentSpecs);
+      // The 2nd level parent (SkillGroup)
+      const givenChildSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "subject");
+      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      // the child (SkillGroup)
+      const givenChildSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId, "child_1");
+      const givenChild_2 = await repository.create(givenChildSpecs_2);
+      // the child (Skill)
+      const givenChildSpecs_3 = getSimpleNewSkillSpec(givenModelId, "child_2");
+      const givenChild_3 = await repositoryRegistry.skill.create(givenChildSpecs_3);
+      // AND the hierarchy is parent -> subject -> child_1 and parent -> child_2
+      const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenChild_1.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenChild_1.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenChild_2.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.Skill,
+          childId: givenChild_3.id,
+        },
+      ]);
+      expect(actualHierarchy).toHaveLength(3);
+      const actualFoundChildren = await repository.findChildren(givenParent.id);
+
+      const expectedChildren = [
+        {
+          id: givenChild_1.id,
+          parentId: givenParent.id,
+          UUID: givenChild_1.UUID,
+          UUIDHistory: givenChild_1.UUIDHistory,
+          originUri: givenChild_1.originUri,
+          description: givenChild_1.description,
+          preferredLabel: givenChild_1.preferredLabel,
+          altLabels: givenChild_1.altLabels,
+          code: givenChild_1.code,
+          objectType: ObjectTypes.SkillGroup,
+          modelId: givenChild_1.modelId,
+          createdAt: givenChild_1.createdAt,
+          updatedAt: givenChild_1.updatedAt,
+        },
+        {
+          id: givenChild_3.id,
+          parentId: givenParent.id,
+          UUID: givenChild_3.UUID,
+          UUIDHistory: givenChild_3.UUIDHistory,
+          originUri: givenChild_3.originUri,
+          description: givenChild_3.description,
+          preferredLabel: givenChild_3.preferredLabel,
+          altLabels: givenChild_3.altLabels,
+          isLocalized: givenChild_3.isLocalized,
+          objectType: ObjectTypes.Skill,
+          modelId: givenChild_3.modelId,
+          createdAt: givenChild_3.createdAt,
+          updatedAt: givenChild_3.updatedAt,
+        },
+      ];
+
+      // THEN expect the children to be found
+      expect(actualFoundChildren).toHaveLength(2);
+      expect(actualFoundChildren).toEqual(expectedChildren);
+    });
+    test("should return [] if no children for the given SkillGroup with the given parent id are found", async () => {
+      // GIVEN a SkillGroup exists without children
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "group");
+      const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+      const actualFoundChildren = await repository.findChildren(givenSkillGroup.id);
+      // THEN expect no children to be found
+      expect(actualFoundChildren).toHaveLength(0);
+      expect(actualFoundChildren).toEqual([]);
+    });
+    test("should return [] if the parent given id is not a valid object id", async () => {
+      // GIVEN No SkillGroup exists in the database
+      // WHEN searching for the SkillGroup children by a non-valid id
+      const actualFoundChildren = await repository.findChildren("non_existing_parent_id");
+
+      // THEN expect no children to be found
+      expect(actualFoundChildren).toHaveLength(0);
+      expect(actualFoundChildren).toEqual([]);
+    });
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skillGroup.findChildren(getMockStringId(1));
+    });
   });
 });

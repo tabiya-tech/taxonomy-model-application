@@ -1,16 +1,24 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewSkillGroupSpec, INewSkillGroupSpecWithoutImportId, ISkillGroup, ISkillGroupDoc } from "./skillGroup.types";
+import {
+  INewSkillGroupSpec,
+  INewSkillGroupSpecWithoutImportId,
+  ISkillGroup,
+  ISkillGroupChild,
+  ISkillGroupDoc,
+} from "./skillGroup.types";
 import { populateSkillGroupChildrenOptions, populateSkillGroupParentsOptions } from "./populateSkillHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
+import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
-
+  readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
   /**
    * Creates a new SkillGroup entry.
    *
@@ -67,13 +75,33 @@ export interface ISkillGroupRepository {
     cursorId?: string,
     filter?: Record<string, unknown>
   ): Promise<ISkillGroup[]>;
+
+  /**
+   * Finds a SkillGroup parents entry by its child SkillGroup ID.
+   *
+   * @param {string} id - The unique ID of the child SkillGroup entry to find the parents for.
+   * @return {Promise<ISkillGroup[]>} - A Promise that resolves to an array of parent SkillGroup entries of the child SkillGroup. If the child SkillGroup has no parents, resolves to an empty array.
+   * Rejects with an error if the operation fails.
+   */
+  findParents(id: string | mongoose.Types.ObjectId): Promise<ISkillGroup[]>;
+
+  /**
+   * Finds a SkillGroup children entry by its parent SkillGroup ID.
+   *
+   * @param {string} id - The unique ID of the parent SkillGroup entry to find the children for.
+   * @return {Promise<ISkillGroupChild[]>} - A Promise that resolves to an array of child SkillGroup entries of the parent SkillGroup. If the parent SkillGroup has no children, resolves to an empty array.
+   * Rejects with an error if the operation fails.
+   */
+  findChildren(id: string | mongoose.Types.ObjectId): Promise<ISkillGroupChild[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
   public readonly Model: mongoose.Model<ISkillGroupDoc>;
+  public readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
 
-  constructor(model: mongoose.Model<ISkillGroupDoc>) {
+  constructor(model: mongoose.Model<ISkillGroupDoc>, hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>) {
     this.Model = model;
+    this.hierarchyModel = hierarchyModel;
   }
 
   private newSpecToModel(newSpec: INewSkillGroupSpec): mongoose.HydratedDocument<ISkillGroupDoc> {
@@ -231,6 +259,112 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return pipeline;
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findParents(id: string | mongoose.Types.ObjectId): Promise<ISkillGroup[]> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroup[];
+      const relations = await this.hierarchyModel.find({ childId: { $eq: new mongoose.Types.ObjectId(id) } }).exec();
+      if (!relations.length) return [] as ISkillGroup[];
+      const parentIds = relations.map((relation) => relation.parentId);
+      const parents = await this.Model.find({ _id: mongoose.trusted({ $in: parentIds }) })
+        .populate(populateSkillGroupParentsOptions)
+        .populate(populateSkillGroupChildrenOptions)
+        .exec();
+      return parents.map((parent) => parent.toObject());
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.findParents: findParents failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+  async findChildren(id: string | mongoose.Types.ObjectId): Promise<ISkillGroupChild[]> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroupChild[];
+      const result = await this.hierarchyModel.aggregate([
+        {
+          $match: { parentId: new mongoose.Types.ObjectId(id) },
+        },
+        {
+          $lookup: {
+            from: "skillgroupmodels",
+            localField: "childId",
+            foreignField: "_id",
+            as: "skillGroup",
+          },
+        },
+        {
+          $lookup: {
+            from: "skillmodels",
+            localField: "childId",
+            foreignField: "_id",
+            as: "skill",
+          },
+        },
+        {
+          $addFields: {
+            child: {
+              $cond: [
+                {
+                  $in: ["$childType", [ObjectTypes.SkillGroup]],
+                },
+                {
+                  $arrayElemAt: ["$skillGroup", 0],
+                },
+                {
+                  $arrayElemAt: ["$skill", 0],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $match: {
+            child: { $ne: null },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            id: { $toString: "$child._id" },
+            parentId: { $toString: "$parentId" },
+            UUID: "$child.UUID",
+            UUIDHistory: "$child.UUIDHistory",
+
+            originUri: "$child.originUri",
+            description: "$child.description",
+            preferredLabel: "$child.preferredLabel",
+            altLabels: "$child.altLabels",
+
+            code: {
+              $cond: {
+                if: { $ne: ["$child.code", null] },
+                then: "$child.code",
+                else: "$$REMOVE",
+              },
+            },
+            isLocalized: {
+              $cond: {
+                if: { $ne: ["$child.isLocalized", null] },
+                then: "$child.isLocalized",
+                else: "$$REMOVE",
+              },
+            },
+
+            objectType: "$childType",
+            modelId: { $toString: "$modelId" },
+
+            createdAt: "$child.createdAt",
+            updatedAt: "$child.updatedAt",
+          },
+        },
+      ]);
+      return result as ISkillGroupChild[];
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.findChildren: findChildren failed", { cause: e });
       console.error(err);
       throw err;
     }

@@ -1,5 +1,5 @@
 import { ISkillGroupService } from "./skillGroupService.type";
-import { ModelForSkillGroupValidationErrorCode, ISkillGroup } from "./skillGroup.types";
+import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "./skillGroup.types";
 import { ISkillGroupRepository } from "./skillGroupRepository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
@@ -52,5 +52,13 @@ export class SkillGroupService implements ISkillGroupService {
       console.error("Error validating model for skill group:", e);
       return ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
+  }
+
+  async findParents(id: string): Promise<ISkillGroup[]> {
+    return await this.skillGroupRepository.findParents(id);
+  }
+
+  async findChildren(id: string): Promise<ISkillGroupChild[]> {
+    return await this.skillGroupRepository.findChildren(id);
   }
 }
