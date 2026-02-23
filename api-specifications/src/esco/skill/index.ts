@@ -13,6 +13,7 @@ import SchemaPOSTRequestParam from "./schema.POST.request.param";
 
 // Relation schemas
 import SchemaGETParentResponse from "./relations/parents/schema.GET.parent.response";
+import SchemaGETParentsRequestQuery from "./relations/parents/schema.GET.parents.request.query.param";
 import SchemaGETChildrenResponse from "./relations/children/schema.GET.children.response";
 import SchemaGETChildrenRequestQuery from "./relations/children/schema.GET.children.request.query.param";
 import SchemaGETOccupationsResponse from "./relations/occupations/schema.GET.occupations.response";
@@ -42,9 +43,14 @@ namespace SkillSchemas {
       }
     }
     // Relation schemas
-    export namespace Parent {
+    export namespace Parents {
       export namespace Response {
         export const Payload = SchemaGETParentResponse;
+      }
+      export namespace Request {
+        export namespace Query {
+          export const Payload = SchemaGETParentsRequestQuery;
+        }
       }
     }
     export namespace Children {

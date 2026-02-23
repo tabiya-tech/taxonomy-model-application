@@ -1,5 +1,5 @@
 import SkillEnums from "./enums";
-import { ISkillParentResponse } from "./relations/parents/types";
+import { ISkillParentResponse, ISkillParentsRequestQuery } from "./relations/parents/types";
 import { ISkillChildrenResponse, ISkillChildrenRequestQuery } from "./relations/children/types";
 import { ISkillOccupationsResponse, ISkillOccupationsRequestQuery } from "./relations/occupations/types";
 import { ISkillRelatedResponse, ISkillRelatedRequestQuery } from "./relations/related/types";
@@ -145,9 +145,14 @@ namespace SkillTypes {
       }
     }
     // Relation types
-    export namespace Parent {
+    export namespace Parents {
       export namespace Response {
         export type Payload = ISkillParentResponse;
+      }
+      export namespace Request {
+        export namespace Query {
+          export type Payload = ISkillParentsRequestQuery;
+        }
       }
     }
     export namespace Children {

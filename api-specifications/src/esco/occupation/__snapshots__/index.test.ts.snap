@@ -2482,6 +2482,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                             "description": "The type of the child, e.g., Skill.",
                             "enum": [
                               "skill",
+                              "skillgroup",
                             ],
                             "type": "string",
                           },

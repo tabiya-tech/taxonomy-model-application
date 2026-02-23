@@ -13,17 +13,18 @@ import SkillAPISpecs from "../../index";
 import SkillGroupAPISpecs from "../../../skillGroup/index";
 import { getTestSkillGroupCode } from "../../../_test_utilities/testUtils";
 import SkillEnums from "../../enums";
+import { getStdLimitTestCases, getStdCursorTestCases } from "_test_utilities/stdSchemaTestCases";
 
 describe("Test Skill Parent Response Schema Validity", () => {
-  // WHEN the SkillAPISpecs.Schemas.GET.Parent.Response.Payload schema
+  // WHEN the SkillAPISpecs.Schemas.GET.Parents.Response.Payload schema
   // THEN expect the schema to be valid
   testValidSchema(
-    "SkillAPISpecs.Schemas.GET.Parent.Response.Payload",
-    SkillAPISpecs.Schemas.GET.Parent.Response.Payload
+    "SkillAPISpecs.Schemas.GET.Parents.Response.Payload",
+    SkillAPISpecs.Schemas.GET.Parents.Response.Payload
   );
 });
 
-describe("Test objects against the SkillAPISpecs.Schemas.GET.Parent.Response.Payload schema", () => {
+describe("Test objects against the SkillAPISpecs.Schemas.GET.Parents.Response.Payload schema", () => {
   const givenValidSkillGroupParent = {
     id: getMockId(1),
     UUID: randomUUID(),
@@ -74,59 +75,72 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Parent.Response.Pay
     updatedAt: new Date().toISOString(),
   };
 
-  // Test with a valid SkillGroup parent
-  testSchemaWithValidObject(
-    "SkillAPISpecs.Schemas.GET.Parent.Response.Payload (SkillGroup)",
-    SkillAPISpecs.Schemas.GET.Parent.Response.Payload,
-    givenFullSkillGroupParent
-  );
+  const givenValidPaginatedResponse = {
+    data: [givenFullSkillParent, givenFullSkillGroupParent],
+    limit: SkillConstants.MAX_LIMIT,
+    nextCursor: getTestString(SkillConstants.MAX_CURSOR_LENGTH),
+  };
 
-  // Test with a valid Skill parent
+  // Test with a valid paginated response
   testSchemaWithValidObject(
-    "SkillAPISpecs.Schemas.GET.Parent.Response.Payload (Skill)",
-    SkillAPISpecs.Schemas.GET.Parent.Response.Payload,
-    givenFullSkillParent
+    "SkillAPISpecs.Schemas.GET.Parents.Response.Payload",
+    SkillAPISpecs.Schemas.GET.Parents.Response.Payload,
+    givenValidPaginatedResponse
   );
-
-  // Test with null
-  test("Should validate null", () => {
-    assertCaseForProperty("", null, SkillAPISpecs.Schemas.GET.Parent.Response.Payload, CaseType.Success, undefined);
-  });
 
   // Test with additional properties
   testSchemaWithAdditionalProperties(
-    "SkillAPISpecs.Schemas.GET.Parent.Response.Payload",
-    SkillAPISpecs.Schemas.GET.Parent.Response.Payload,
+    "SkillAPISpecs.Schemas.GET.Parents.Response.Payload",
+    SkillAPISpecs.Schemas.GET.Parents.Response.Payload,
     {
-      ...givenFullSkillParent,
+      ...givenValidPaginatedResponse,
       extraProperty: "extra test property",
     }
   );
 
-  describe("Validate SkillAPISpecs.Schemas.GET.Parent.Response.Payload fields", () => {
-    // For individual field validation, we test against the specific base schemas to avoid anyOf ambiguity
-    const skillSchema = SkillAPISpecs.Schemas.POST.Response.Payload;
-    const skillGroupSchema = SkillGroupAPISpecs.Schemas.POST.Response.Payload;
+  describe("Validate SkillAPISpecs.Schemas.GET.Parents.Response.Payload fields", () => {
+    const givenSchema = SkillAPISpecs.Schemas.GET.Parents.Response.Payload;
 
-    describe("Test validation of Skill fields", () => {
-      test("Validate 'skillType'", () => {
-        assertCaseForProperty("skillType", givenFullSkillParent, skillSchema, CaseType.Success, undefined);
+    describe("Test validation of 'limit'", () => {
+      const testCases = getStdLimitTestCases("limit", SkillConstants.MAX_LIMIT, true);
+      test.each(testCases)("%s %s", (caseType, desc, value, failure) => {
+        const givenObject = { ...givenValidPaginatedResponse, limit: value };
+        if (value === undefined) delete (givenObject as Record<string, unknown>).limit;
+        assertCaseForProperty("limit", givenObject, givenSchema, caseType, failure);
       });
-      // Add more specific field tests if needed, or rely on base tests
     });
 
-    describe("Test validation of SkillGroup fields", () => {
-      test("Validate 'code'", () => {
-        assertCaseForProperty("code", givenFullSkillGroupParent, skillGroupSchema, CaseType.Success, undefined);
+    describe("Test validation of 'nextCursor'", () => {
+      const testCases = getStdCursorTestCases("nextCursor", SkillConstants.MAX_CURSOR_LENGTH, false, true);
+      test.each(testCases)(`(%s) Validate 'nextCursor' when it is %s`, (caseType, _desc, value, failureMessage) => {
+        const givenObject = { ...givenValidPaginatedResponse, nextCursor: value };
+        if (value === undefined) delete (givenObject as Record<string, unknown>).nextCursor;
+        assertCaseForProperty("nextCursor", givenObject, givenSchema, caseType, failureMessage);
       });
-      test("Validate 'preferredLabel'", () => {
-        assertCaseForProperty(
-          "preferredLabel",
-          givenFullSkillGroupParent,
-          skillGroupSchema,
-          CaseType.Success,
-          undefined
-        );
+    });
+
+    describe("Test validation of parent item fields", () => {
+      describe("Test validation of Skill fields", () => {
+        const skillSchema = SkillAPISpecs.Schemas.POST.Response.Payload;
+        test("Validate 'skillType'", () => {
+          assertCaseForProperty("skillType", givenFullSkillParent, skillSchema, CaseType.Success, undefined);
+        });
+      });
+
+      describe("Test validation of SkillGroup fields", () => {
+        const skillGroupSchema = SkillGroupAPISpecs.Schemas.POST.Response.Payload;
+        test("Validate 'code'", () => {
+          assertCaseForProperty("code", givenFullSkillGroupParent, skillGroupSchema, CaseType.Success, undefined);
+        });
+        test("Validate 'preferredLabel'", () => {
+          assertCaseForProperty(
+            "preferredLabel",
+            givenFullSkillGroupParent,
+            skillGroupSchema,
+            CaseType.Success,
+            undefined
+          );
+        });
       });
     });
   });

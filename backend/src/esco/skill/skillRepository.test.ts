@@ -930,28 +930,28 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // AND to have the given requiredBy Skills
       expect(actualFoundSkill.requiredBySkills).toEqual(
-        expect.arrayContaining<SkillToSkillReferenceWithRelationType<ISkillReference>>([
+        expect.arrayContaining<SkillToSkillReferenceWithRelationType<ISkill>>([
           expectedRelatedSkillReference(
             givenRequiringSkill_1,
             SkillToSkillRelationType.ESSENTIAL
-          ) as SkillToSkillReferenceWithRelationType<ISkillReference>,
+          ) as unknown as SkillToSkillReferenceWithRelationType<ISkill>,
           expectedRelatedSkillReference(
             givenRequiringSkill_2,
             SkillToSkillRelationType.OPTIONAL
-          ) as SkillToSkillReferenceWithRelationType<ISkillReference>,
+          ) as unknown as SkillToSkillReferenceWithRelationType<ISkill>,
         ])
       );
       // AND to have the given requires Skills
       expect(actualFoundSkill.requiresSkills).toEqual(
-        expect.arrayContaining<SkillToSkillReferenceWithRelationType<ISkillReference>>([
+        expect.arrayContaining<SkillToSkillReferenceWithRelationType<ISkill>>([
           expectedRelatedSkillReference(
             givenRequiredSkill_1,
             SkillToSkillRelationType.ESSENTIAL
-          ) as SkillToSkillReferenceWithRelationType<ISkillReference>,
+          ) as unknown as SkillToSkillReferenceWithRelationType<ISkill>,
           expectedRelatedSkillReference(
             givenRequiredSkill_2,
             SkillToSkillRelationType.OPTIONAL
-          ) as SkillToSkillReferenceWithRelationType<ISkillReference>,
+          ) as unknown as SkillToSkillReferenceWithRelationType<ISkill>,
         ])
       );
 
@@ -1416,7 +1416,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const lastItemOnFirstPage = firstPage[1];
 
       // WHEN retrieving the second page with a cursor pointing to the last item on the first page
-      const secondPage = await repository.findPaginated(givenModelId, 2, -1, lastItemOnFirstPage.id);
+      const secondPage = await repository.findPaginated(givenModelId, 2, -1, {
+        id: lastItemOnFirstPage.id,
+        createdAt: lastItemOnFirstPage.createdAt,
+      });
 
       // THEN the second page should contain the remaining skill
       expect(secondPage).toHaveLength(1);
@@ -1473,7 +1476,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(page1.map((i) => i.id)).toEqual([givenSkills[0].id, givenSkills[1].id]);
 
       // WHEN requesting second page with cursor
-      const page2 = await repository.findPaginated(givenModelId, 2, 1, page1[1].id);
+      const page2 = await repository.findPaginated(givenModelId, 2, 1, {
+        id: page1[1].id,
+        createdAt: page1[1].createdAt,
+      });
 
       // THEN expect the third item
       expect(page2).toHaveLength(1);
@@ -1486,7 +1492,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "skill"));
 
       // WHEN retrieving paginated results with an invalid cursor ID
-      const actual = await repository.findPaginated(givenModelId, 10, -1, "invalid-id");
+      const actual = await repository.findPaginated(givenModelId, 10, -1, { id: "invalid-id", createdAt: new Date() });
 
       // THEN expect the first page to be returned regardless
       expect(actual).toHaveLength(1);

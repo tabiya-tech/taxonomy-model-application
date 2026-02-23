@@ -3,6 +3,7 @@ import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 import { getISkillMockData } from "./testDataHelper";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { transform, transformPaginated } from "./transform";
+import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "node:crypto";
@@ -311,10 +312,27 @@ describe("Detailed mapping tests", () => {
       const actual = transform(givenObject, basePath);
       expect(actual.children[0]).not.toHaveProperty("isLocalized");
     });
+
+    test("should map SkillGroup child correctly", () => {
+      const givenObject = getISkillMockData();
+      const givenCode = getTestSkillGroupCode();
+      givenObject.children = [
+        {
+          id: getMockStringId(1),
+          UUID: randomUUID(),
+          preferredLabel: getRandomString(10),
+          objectType: ObjectTypes.SkillGroup,
+          code: givenCode,
+        },
+      ];
+      const actual = transform(givenObject, basePath);
+      expect(actual.children[0].objectType).toBe(SkillAPISpecs.Enums.Relations.Children.ObjectTypes.SkillGroup);
+      expect((actual.children[0] as unknown as SkillGroupAPISpecs.Types.Response.ISkillGroup).code).toBe(givenCode);
+    });
   });
 
   describe("mapSkillToSkillRelationType", () => {
-    test("should map unknown relation type to ESSENTIAL", () => {
+    test("should map unknown relation type to null", () => {
       const givenObject = getISkillMockData();
       givenObject.requiresSkills = [
         {
@@ -327,7 +345,7 @@ describe("Detailed mapping tests", () => {
         },
       ];
       const actual = transform(givenObject, basePath);
-      expect(actual.requiresSkills[0].relationType).toBe(SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL);
+      expect(actual.requiresSkills[0].relationType).toBeNull();
     });
   });
 

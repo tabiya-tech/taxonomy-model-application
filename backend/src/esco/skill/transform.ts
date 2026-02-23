@@ -57,23 +57,29 @@ function mapParent(parent: ISkillReference | ISkillGroupReference): SkillAPISpec
 }
 
 function mapChild(child: ISkillReference | ISkillGroupReference): SkillAPISpecs.Types.Response.ISkill["children"][0] {
+  const objectType =
+    child.objectType === ObjectTypes.SkillGroup
+      ? SkillAPISpecs.Enums.Relations.Children.ObjectTypes.SkillGroup
+      : SkillAPISpecs.Enums.Relations.Children.ObjectTypes.Skill;
+
   return {
     id: child.id,
     UUID: child.UUID,
     preferredLabel: child.preferredLabel,
-    objectType: SkillAPISpecs.Enums.Relations.Children.ObjectTypes.Skill,
+    objectType,
     ...("isLocalized" in child && child.isLocalized !== undefined && { isLocalized: child.isLocalized }),
+    ...("code" in child && child.code && { code: child.code }),
   };
 }
 
-function mapSkillToSkillRelationType(relationType: string): SkillAPISpecs.Enums.SkillToSkillRelationType {
+function mapSkillToSkillRelationType(relationType: string): SkillAPISpecs.Enums.SkillToSkillRelationType | null {
   switch (relationType) {
     case "essential":
       return SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL;
     case "optional":
       return SkillAPISpecs.Enums.SkillToSkillRelationType.OPTIONAL;
     default:
-      return SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL;
+      return null;
   }
 }
 
@@ -86,7 +92,7 @@ function mapRequiresSkill(
     preferredLabel: skill.preferredLabel,
     isLocalized: skill.isLocalized,
     objectType: SkillAPISpecs.Enums.ObjectTypes.Skill,
-    relationType: mapSkillToSkillRelationType(skill.relationType),
+    relationType: mapSkillToSkillRelationType(skill.relationType) as SkillAPISpecs.Enums.SkillToSkillRelationType,
   };
 }
 
@@ -99,7 +105,7 @@ function mapRequiredBySkill(
     preferredLabel: skill.preferredLabel,
     isLocalized: skill.isLocalized,
     objectType: SkillAPISpecs.Enums.ObjectTypes.Skill,
-    relationType: mapSkillToSkillRelationType(skill.relationType),
+    relationType: mapSkillToSkillRelationType(skill.relationType) as SkillAPISpecs.Enums.SkillToSkillRelationType,
   };
 }
 
@@ -261,22 +267,21 @@ export function transformPaginatedOccupations(
 }
 
 export function transformSkillRelated(
-  skillData: SkillToSkillReferenceWithRelationType<ISkillReference>
+  skillData: SkillToSkillReferenceWithRelationType<ISkill>
 ): SkillAPISpecs.Types.GET.Related.Response.Payload["data"][0] {
-  const fullSkill = skillData as unknown as ISkill;
   return {
     id: skillData.id,
     UUID: skillData.UUID,
     preferredLabel: skillData.preferredLabel,
-    skillType: mapSkillType(fullSkill.skillType),
-    reuseLevel: mapReuseLevel(fullSkill.reuseLevel),
+    skillType: mapSkillType(skillData.skillType),
+    reuseLevel: mapReuseLevel(skillData.reuseLevel),
     isLocalized: skillData.isLocalized,
-    relationType: mapSkillToSkillRelationType(skillData.relationType),
+    relationType: mapSkillToSkillRelationType(skillData.relationType) as SkillAPISpecs.Enums.SkillToSkillRelationType,
   };
 }
 
 export function transformPaginatedRelated(
-  data: SkillToSkillReferenceWithRelationType<ISkillReference>[],
+  data: SkillToSkillReferenceWithRelationType<ISkill>[],
   limit: number,
   cursor: string | null
 ): SkillAPISpecs.Types.GET.Related.Response.Payload {

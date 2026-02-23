@@ -1,5 +1,5 @@
 import { ISkillService } from "./skillService.type";
-import { ISkill, ISkillReference } from "./skills.types";
+import { ISkill } from "./skills.types";
 import { ISkillRepository } from "./skillRepository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { ModelForSkillValidationErrorCode } from "./skills.types";
@@ -27,7 +27,7 @@ export class SkillService implements ISkillService {
     const sortOrder = desc ? -1 : 1;
 
     // Get items + 1 to check if there's a next page
-    const items = await this.skillRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id);
+    const items = await this.skillRepository.findPaginated(modelId, limit + 1, sortOrder, cursor);
 
     // Check if there's a next page
     const hasMore = items.length > limit;
@@ -65,25 +65,77 @@ export class SkillService implements ISkillService {
     }
   }
 
-  async getParents(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]> {
-    return this.skillRepository.findParents(modelId, skillId, 100); // Using a default limit for now
+  async getParents(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    return this.findPaginatedRelation(
+      () => this.skillRepository.findParents(modelId, skillId, limit + 1, cursor),
+      limit
+    );
   }
 
-  async getChildren(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]> {
-    return this.skillRepository.findChildren(modelId, skillId, 100);
+  async getChildren(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    return this.findPaginatedRelation(
+      () => this.skillRepository.findChildren(modelId, skillId, limit + 1, cursor),
+      limit
+    );
   }
 
   async getOccupations(
     modelId: string,
-    skillId: string
-  ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]> {
-    return this.skillRepository.findOccupationsForSkill(modelId, skillId, 100);
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{
+    items: OccupationToSkillReferenceWithRelationType<IOccupationReference>[];
+    nextCursor: { _id: string; createdAt: Date } | null;
+  }> {
+    return this.findPaginatedRelation(
+      () => this.skillRepository.findOccupationsForSkill(modelId, skillId, limit + 1, cursor),
+      limit
+    );
   }
 
   async getRelatedSkills(
     modelId: string,
-    skillId: string
-  ): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]> {
-    return this.skillRepository.findRelatedSkills(modelId, skillId, 100);
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{
+    items: SkillToSkillReferenceWithRelationType<ISkill>[];
+    nextCursor: { _id: string; createdAt: Date } | null;
+  }> {
+    return this.findPaginatedRelation(
+      () => this.skillRepository.findRelatedSkills(modelId, skillId, limit + 1, cursor),
+      limit
+    );
+  }
+
+  private async findPaginatedRelation<T extends { id: string; createdAt?: Date }>(
+    fetchFn: () => Promise<T[]>,
+    limit: number
+  ): Promise<{ items: T[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    const items = await fetchFn();
+    const hasMore = items.length > limit;
+    const pageItems = hasMore ? items.slice(0, limit) : items;
+
+    let nextCursor: { _id: string; createdAt: Date } | null = null;
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
+      nextCursor = {
+        _id: lastItemOnPage.id,
+        createdAt: lastItemOnPage.createdAt ?? new Date(),
+      };
+    }
+
+    return { items: pageItems, nextCursor };
   }
 }

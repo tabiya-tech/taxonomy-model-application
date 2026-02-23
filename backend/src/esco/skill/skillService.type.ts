@@ -1,4 +1,4 @@
-import { ISkill, ISkillReference, ModelForSkillValidationErrorCode } from "./skills.types";
+import { ISkill, ModelForSkillValidationErrorCode } from "./skills.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -39,37 +39,68 @@ export interface ISkillService {
    *
    * @param {string} modelId - The modelId of the Skill.
    * @param {string} skillId - The ID of the Skill.
-   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the parent Skills or SkillGroups.
+   * @param {number} limit - The maximum number of items to return.
+   * @param {string} [cursor] - The cursor for pagination.
+   * @return {Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to the parent Skills or SkillGroups.
    */
-  getParents(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]>;
+  getParents(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
    * Finds the child Skills or SkillGroups of a Skill.
    *
    * @param {string} modelId - The modelId of the Skill.
    * @param {string} skillId - The ID of the Skill.
-   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the child Skills or SkillGroups.
+   * @param {number} limit - The maximum number of items to return.
+   * @param {string} [cursor] - The cursor for pagination.
+   * @return {Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to paginated child Skills or SkillGroups.
    */
-  getChildren(modelId: string, skillId: string): Promise<(ISkill | ISkillGroup)[]>;
+  getChildren(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
    * Finds the occupations that require a Skill with relationship metadata.
    *
    * @param {string} modelId - The modelId of the Skill.
    * @param {string} skillId - The ID of the Skill.
-   * @return {Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]>} - A Promise that resolves to the occupations that require the Skill.
+   * @param {number} limit - The maximum number of items to return.
+   * @param {string} [cursor] - The cursor for pagination.
+   * @return {Promise<{ items: OccupationToSkillReferenceWithRelationType<IOccupationReference>[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to paginated occupations.
    */
   getOccupations(
     modelId: string,
-    skillId: string
-  ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]>;
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{
+    items: OccupationToSkillReferenceWithRelationType<IOccupationReference>[];
+    nextCursor: { _id: string; createdAt: Date } | null;
+  }>;
 
   /**
    * Finds the related skills of a Skill with relationship metadata.
    *
    * @param {string} modelId - The modelId of the Skill.
    * @param {string} skillId - The ID of the Skill.
-   * @return {Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>} - A Promise that resolves to the related skills.
+   * @param {number} limit - The maximum number of items to return.
+   * @param {string} [cursor] - The cursor for pagination.
+   * @return {Promise<{ items: SkillToSkillReferenceWithRelationType<ISkill>[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to paginated related skills.
    */
-  getRelatedSkills(modelId: string, skillId: string): Promise<SkillToSkillReferenceWithRelationType<ISkillReference>[]>;
+  getRelatedSkills(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{
+    items: SkillToSkillReferenceWithRelationType<ISkill>[];
+    nextCursor: { _id: string; createdAt: Date } | null;
+  }>;
 }

@@ -331,6 +331,10 @@ describe("Test for skill handler with a DB", () => {
       const event = {
         httpMethod: HTTP_VERBS.GET,
         path: `/models/${modelId}/skills/${givenSubject.id}/parents`,
+        pathParameters: {
+          modelId: modelId,
+          id: givenSubject.id,
+        },
       };
       // @ts-ignore
       const response = await skillHandler(event);
@@ -370,6 +374,10 @@ describe("Test for skill handler with a DB", () => {
       const event = {
         httpMethod: HTTP_VERBS.GET,
         path: `/models/${modelId}/skills/${givenSubject.id}/children`,
+        pathParameters: {
+          modelId: modelId,
+          id: givenSubject.id,
+        },
       };
       // @ts-ignore
       const response = await skillHandler(event);
@@ -407,6 +415,10 @@ describe("Test for skill handler with a DB", () => {
       const event = {
         httpMethod: HTTP_VERBS.GET,
         path: `/models/${modelId}/skills/${givenSubject.id}/occupations`,
+        pathParameters: {
+          modelId: modelId,
+          id: givenSubject.id,
+        },
       };
       // @ts-ignore
       const response = await skillHandler(event);
@@ -441,6 +453,10 @@ describe("Test for skill handler with a DB", () => {
       const event = {
         httpMethod: HTTP_VERBS.GET,
         path: `/models/${modelId}/skills/${givenSubject.id}/related`,
+        pathParameters: {
+          modelId: modelId,
+          id: givenSubject.id,
+        },
       };
       // @ts-ignore
       const response = await skillHandler(event);
