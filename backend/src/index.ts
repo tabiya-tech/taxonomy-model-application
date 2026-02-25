@@ -84,9 +84,14 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     ]).regexp.test(path)
   ) {
     return OccupationHandler(event);
-  } else if (pathToRegexp(Routes.SKILL_GROUPS_ROUTE).regexp.test(path)) {
-    return SkillGroupHandler(event);
-  } else if (pathToRegexp(Routes.SKILL_GROUP_ROUTE).regexp.test(path)) {
+  } else if (
+    pathToRegexp([
+      Routes.SKILL_GROUPS_ROUTE,
+      Routes.SKILL_GROUP_ROUTE,
+      Routes.SKILL_GROUP_PARENTS_ROUTE,
+      Routes.SKILL_GROUP_CHILDREN_ROUTE,
+    ]).regexp.test(path)
+  ) {
     return SkillGroupHandler(event);
   } else if (
     pathToRegexp([

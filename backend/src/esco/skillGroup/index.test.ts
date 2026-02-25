@@ -7,12 +7,12 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 
 import { randomUUID } from "node:crypto";
 import ErrorAPISpecs from "api-specifications/error";
-import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
+import { getRandomString } from "_test_utilities/getMockRandomData";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 
 import * as authenticatorModule from "auth/authorizer";
-import { ISkillGroup, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
-import { getISkillGroupMockData } from "./testDataHelper";
+import { ISkillGroup, ISkillGroupChild, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
+import { getISkillGroupMockData, getISkillGroupSkillTypedChildData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
 import { IModelInfo } from "modelInfo/modelInfo.types";
@@ -25,7 +25,8 @@ checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
-
+const transformParentsSpy = jest.spyOn(transformModule, "transformPaginatedParents");
+const transformChildrenSpy = jest.spyOn(transformModule, "transformPaginatedChildren");
 // Mock the service registry
 jest.mock("server/serviceRegistry/serviceRegistry");
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
@@ -106,6 +107,7 @@ describe("Test for skillGroup handler", () => {
       const actualResponse = await skillGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        path: `/models/${givenModelId}/skillGroups`,
       } as never);
 
       const expectedFirstPageSkillGroups = {
@@ -188,6 +190,7 @@ describe("Test for skillGroup handler", () => {
       const actualResponse = await skillGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: limit.toString() },
+        path: `/models/${givenModelId}/skillGroups`,
       } as never);
 
       // THEN expect the handler to return the OK status
@@ -238,6 +241,7 @@ describe("Test for skillGroup handler", () => {
       const actualResponse = await skillGroupHandler({
         ...givenBadEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        path: `/models//skillGroups`,
       } as never);
 
       // THEN expect the handler to return the BAD_REQUEST status
@@ -265,6 +269,7 @@ describe("Test for skillGroup handler", () => {
         headers: {},
         pathParameters: { modelId: "foo" },
         queryStringParameters: {},
+        path: `/models/foo/skillGroups`,
       };
 
       // AND the user is not model manager
@@ -301,6 +306,7 @@ describe("Test for skillGroup handler", () => {
       const actualResponse = await skillGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: "foo", cursor: firstPageCursor },
+        path: `/models/${givenModelId}/skillGroups`,
       } as never);
 
       // THEN expect the handler to return the BAD_REQUEST status
@@ -329,7 +335,10 @@ describe("Test for skillGroup handler", () => {
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
       checkRole.mockResolvedValueOnce(true);
       // WHEN the skillGroup handler is invoked with the given event
-      const actualResponse = await skillGroupHandler(givenEvent as never);
+      const actualResponse = await skillGroupHandler({
+        ...givenEvent,
+        path: `/models/${givenModelId}/skillGroups`,
+      } as never);
 
       // THEN expect the handler to return the NOT_FOUND status
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -357,7 +366,10 @@ describe("Test for skillGroup handler", () => {
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
       checkRole.mockResolvedValueOnce(true);
       // WHEN the skillGroup handler is invoked with the given event
-      const actualResponse = await skillGroupHandler(givenEvent as never);
+      const actualResponse = await skillGroupHandler({
+        ...givenEvent,
+        path: `/models/${givenModelId}/skillGroups`,
+      } as never);
 
       // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -389,6 +401,7 @@ describe("Test for skillGroup handler", () => {
       // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler({
         ...givenEvent,
+        path: `/models/${givenModelId}/skillGroups`,
         queryStringParameters: { cursor },
       } as never);
 
@@ -433,6 +446,7 @@ describe("Test for skillGroup handler", () => {
       const actualResponse = await skillGroupHandler({
         ...givenEvent,
         queryStringParameters: { limit: limit.toString(), cursor: firstPageCursor },
+        path: `/models/${givenModelId}/skillGroups`,
       } as never);
 
       // THEN expect the handler to return the INTERNAL_SERVER_ERROR status
@@ -581,19 +595,40 @@ describe("Test for skillGroup handler", () => {
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
     test("GET /models/{modelId}/skillGroups/{id} should response with BAD_REQUEST if the path validation failed ", async () => {
-      const givenModelId = getTestString(100);
-      const givenSkillGroupId = getTestString(100);
+      jest.doMock("validator", () => ({
+        ajvInstance: {
+          getSchema: jest.fn(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const validateFn: any = jest.fn().mockReturnValue(false);
+
+            validateFn.errors = [{ instancePath: "/id", message: "invalid id" }];
+
+            return validateFn;
+          }),
+        },
+      }));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let handler: any;
+
+      jest.isolateModules(() => {
+        ({ handler = handler } = require("./index"));
+      });
+
+      const givenModelId = getMockStringId(100);
+      const givenSkillGroupId = getMockStringId(100);
       const givenEvent = {
         httpMethod: HTTP_VERBS.GET,
         headers: {},
-        pathParameters: { modelId: "foo", id: givenSkillGroupId.toString() },
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
         queryStringParameters: {},
         path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}`,
       } as never;
       // AND User has the required role
       checkRole.mockResolvedValue(true);
+
       // WHEN the skillGroup handler is invoked with the given event
-      const actualResponse = await skillGroupHandler(givenEvent);
+      const actualResponse = await handler(givenEvent);
 
       // AND respond with the BAD_REQUEST status
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -762,6 +797,484 @@ describe("Test for skillGroup handler", () => {
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to retrieve the skill group from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+  });
+
+  describe("GET parents of skill group", () => {
+    test("GET /models/{modelId}/skillGroups/{id}/parents should return the parents of a given skill group id", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // AND a configured base path for resource
+      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
+
+      // AND a repository that will successfully get the parents of the skill group
+      const givenSkillGroupParent: ISkillGroup = {
+        ...getISkillGroupMockData(3, givenModelId),
+        id: getMockStringId(3),
+        UUID: "parent-uuid",
+        UUIDHistory: ["parent-uuid"],
+        importId: randomUUID(),
+      };
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn().mockResolvedValue(null),
+        findParents: jest.fn().mockResolvedValue([givenSkillGroupParent]),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn(),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the OK status code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the handler to return the correct headers
+      expect(actualResponse.headers).toMatchObject({
+        "Content-Type": "application/json",
+      });
+      // AND the transformation function is called correctly
+      expect(transformParentsSpy).toHaveBeenCalledWith([givenSkillGroupParent], givenResourcesBaseUrl, null, null);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should respond with NOT_FOUND if skill group is not found", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn(),
+        findParents: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        message: "Model not found",
+        details: `No model found with id: ${givenModelId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should respond with INTERNAL_SERVER_ERROR if model validator function failed to fetch from db", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn(),
+        findParents: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        message: "Failed to fetch the model details from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should response with BAD_REQUEST if the path validation failed", async () => {
+      jest.doMock("validator", () => ({
+        ajvInstance: {
+          getSchema: jest.fn(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const validateFn: any = jest.fn().mockReturnValue(false);
+
+            validateFn.errors = [{ instancePath: "/id", message: "invalid id" }];
+
+            return validateFn;
+          }),
+        },
+      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let handler: any;
+
+      jest.isolateModules(() => {
+        ({ handler = handler } = require("./index"));
+      });
+      const givenModelId = getMockStringId(100);
+      const givenSkillGroupId = getMockStringId(100);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        details: expect.stringContaining("modelId"),
+      };
+      // WHEN the skill group handler is invoked with the given event
+      const actualResponse = await handler(givenEvent);
+
+      // THEN expect the handler to return the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+      });
+      expect(typeof JSON.parse(actualResponse.body).details).toBe("string");
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should respond with BAD_REQUEST if modelId is missing", async () => {
+      const givenSkillGroupId = getMockStringId(2);
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/model//skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+
+      // AND role check passes for anonymous access
+      checkRole.mockResolvedValueOnce(true);
+      // WHEN the skill group handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent as never);
+
+      // THEN expect the handler to return the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      const parsedMissing = JSON.parse(actualResponse.body);
+      expect(parsedMissing).toMatchObject({
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        message: "modelId is missing in the path",
+      });
+      expect(typeof parsedMissing.details).toBe("string");
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should respond with INTERNAL_SERVER_ERROR if repository throws an error", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: false,
+      };
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModel.id.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModel.id}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // AND a repository that will throw an error
+      const givenSkillGroupRepositoryMock = {
+        Model: undefined as never,
+        hierarchyModel: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        createMany: jest.fn().mockResolvedValue([]),
+        findById: jest.fn().mockRejectedValue(null),
+        findAll: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findParents: jest.fn().mockResolvedValue(new Error("Database connection failed")),
+        findChildren: jest.fn().mockResolvedValue(null),
+      };
+      jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn(),
+        findParents: jest.fn().mockResolvedValue(new Error("foo")),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn(),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      // THEN respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        message: "Failed to retrieve the skill group parents from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+  });
+
+  describe("GET children of skill group", () => {
+    test("GET /models/{modelId}/skillGroups/{id}/children should return the children of a given skill group id", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/children`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // AND a configured base path for resource
+      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
+
+      // AND a repository that will successfully get the children of the skill group
+      const givenSkillGroupChild: ISkillGroupChild = {
+        ...getISkillGroupSkillTypedChildData(3, givenModelId),
+      };
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn().mockResolvedValue(null),
+        findParents: jest.fn().mockResolvedValue([]),
+        findChildren: jest.fn().mockResolvedValue([givenSkillGroupChild]),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn(),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the OK status code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the handler to return the correct headers
+      expect(actualResponse.headers).toMatchObject({
+        "Content-Type": "application/json",
+      });
+      // AND the transformation function is called correctly
+      expect(transformChildrenSpy).toHaveBeenCalledWith([givenSkillGroupChild], givenResourcesBaseUrl, null, null);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/children should respond with NOT_FOUND if model not exist", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/children`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn(),
+        findParents: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        message: "Model not found",
+        details: `No model found with id: ${givenModelId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/children should respond with INTERNAL_SERVER_ERROR if model validator failed to fetch from db ", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/children`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn(),
+        findParents: jest.fn(),
+        findChildren: jest.fn(),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest
+          .fn()
+          .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        message: "Failed to fetch the model details from the DB",
+        details: "",
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/children should response with BAD_REQUEST if the path validation failed", async () => {
+      jest.doMock("validator", () => ({
+        ajvInstance: {
+          getSchema: jest.fn(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const validateFn: any = jest.fn().mockReturnValue(false);
+
+            validateFn.errors = [{ instancePath: "/id", message: "invalid id" }];
+
+            return validateFn;
+          }),
+        },
+      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let handler: any;
+
+      jest.isolateModules(() => {
+        ({ handler = handler } = require("./index"));
+      });
+
+      const givenModelId = getMockStringId(100);
+      const givenSkillGroupId = getMockStringId(100);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/children`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+        details: expect.stringContaining("modelId"),
+      };
+      // WHEN the skill group handler is invoked with the given event
+      const actualResponse = await handler(givenEvent);
+
+      // THEN expect the handler to return the BAD_REQUEST status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      // AND the response body contains the error information
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+        message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+      });
+      expect(typeof JSON.parse(actualResponse.body).details).toBe("string");
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/children should respond with INTERNAL_SERVER_ERROR if repository throws an error", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(1),
+        UUID: "foo",
+        UUIDHistory: ["foo"],
+        released: false,
+      };
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModel.id.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModel.id}/skillGroups/${givenSkillGroupId}/children`,
+      } as never;
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      // AND a repository that will throw an error
+      const givenSkillGroupRepositoryMock = {
+        Model: undefined as never,
+        hierarchyModel: undefined as never,
+        create: jest.fn().mockResolvedValue(null),
+        createMany: jest.fn().mockResolvedValue([]),
+        findById: jest.fn().mockRejectedValue(null),
+        findAll: jest.fn().mockResolvedValue(null),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findParents: jest.fn().mockResolvedValue(null),
+        findChildren: jest.fn().mockResolvedValue(new Error("Database connection failed")),
+      };
+      jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn(),
+        findParents: jest.fn(),
+        findChildren: jest.fn().mockResolvedValue(new Error("foo")),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn(),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      // THEN respond with the INTERNAL_SERVER_ERROR status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      // AND the response body contains the error information
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        message: "Failed to retrieve the skill group children from the DB",
         details: "",
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
