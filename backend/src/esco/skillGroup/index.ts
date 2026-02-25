@@ -11,10 +11,10 @@ import { ajvInstance } from "validator";
 import AuthAPISpecs from "api-specifications/auth";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { ValidateFunction } from "ajv";
-import { transform, transformPaginated } from "./transform";
+import { transform, transformPaginated, transformPaginatedChildren, transformPaginatedParents } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
 
-import { ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
+import { BasePathParams, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
 import ErrorAPISpecs from "api-specifications/error";
@@ -22,6 +22,7 @@ import { pathToRegexp } from "path-to-regexp";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ISkillGroupService } from "./skillGroupService.type";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
+import { parsePath } from "common/parsePath/parsePath";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -29,10 +30,17 @@ export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => {
   const skillGroupController = new SkillGroupController();
+
   if (event?.httpMethod === HTTP_VERBS.GET) {
     const pathToMatch = event.path || "";
-    const individualMatch = pathToRegexp(Routes.SKILL_GROUP_ROUTE).regexp.exec(pathToMatch);
-    return individualMatch ? skillGroupController.getSkillGroup(event) : skillGroupController.getSkillGroups(event);
+    if (pathToRegexp(Routes.SKILL_GROUP_ROUTE).regexp.exec(pathToMatch)) {
+      return skillGroupController.getSkillGroup(event);
+    } else if (pathToRegexp(Routes.SKILL_GROUP_PARENTS_ROUTE).regexp.exec(pathToMatch)) {
+      return skillGroupController.getSkillGroupParents(event);
+    } else if (pathToRegexp(Routes.SKILL_GROUP_CHILDREN_ROUTE).regexp.exec(pathToMatch)) {
+      return skillGroupController.getSkillGroupChildren(event);
+    }
+    return skillGroupController.getSkillGroups(event);
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };
@@ -133,16 +141,10 @@ export class SkillGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getSkillGroups(event: APIGatewayProxyEvent) {
+    console.log("we are here on s:", event.path);
+
     try {
-      // extract the modelId from the pathParameters
-      // NOTE: Since we're using a single '{proxy+}' resource in API Gateway path params
-      // like `{modelId}` are not populated under `pathParameters` instead, the full path is put in
-      // `pathParameters.proxy` and `event.path`. To support both setups (explicit param resource and proxy),
-      // we fallback to parse the `event.path` if `pathParameters.modelId` is absent.
-      const modelIdFromParams = event.pathParameters?.modelId;
-      const pathToMatch = event.path || "";
-      const execMatch = pathToRegexp(Routes.SKILL_GROUPS_ROUTE).regexp.exec(pathToMatch);
-      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : undefined);
+      const { modelId: resolvedModelId } = parsePath<BasePathParams>(Routes.SKILL_GROUPS_ROUTE, event.path);
       if (!resolvedModelId) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -244,12 +246,10 @@ export class SkillGroupController {
         StatusCodes.OK,
         transformPaginated(currentPageSkillGroups.items, getResourcesBaseUrl(), limit, nextCursor)
       );
-    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Failed to retrieve skill groups:", error);
-      errorLoggerInstance.logError(
-        "Failed to retrieve the skill groups from the DB",
-        error instanceof Error ? error.name : "Unknown error"
-      );
+      errorLoggerInstance.logError("Failed to retrieve the skill groups from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
@@ -309,18 +309,10 @@ export class SkillGroupController {
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getSkillGroup(event: APIGatewayProxyEvent) {
     try {
-      const idFromParams = event.pathParameters?.id;
-      const modelIdFromParams = event.pathParameters?.modelId;
-      const pathToMatch = event.path || "";
-      const execMatch = pathToRegexp(Routes.SKILL_GROUP_ROUTE).regexp.exec(pathToMatch);
-      const resolvedSkillGroupId = idFromParams ?? (execMatch ? execMatch[2] : "");
-      const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : "");
-
-      const requestPathParameter: SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload = {
-        modelId: resolvedModelId,
-        id: resolvedSkillGroupId,
-      };
-
+      const requestPathParameter = parsePath<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>(
+        Routes.SKILL_GROUP_ROUTE,
+        event.path
+      );
       const validatePathFunction = ajvInstance.getSchema(
         SkillGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
       ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
@@ -365,16 +357,232 @@ export class SkillGroupController {
         );
       }
       return responseJSON(StatusCodes.OK, transform(skillGroup, getResourcesBaseUrl()));
-    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Failed to get skill group by id:", error);
-      errorLoggerInstance.logError(
-        "Failed to retrieve the skill group from the DB",
-        error instanceof Error ? error.name : "Unknown error"
-      );
+      errorLoggerInstance.logError("Failed to retrieve the skill group from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         "Failed to retrieve the skill group from the DB",
+        ""
+      );
+    }
+  }
+
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/skillGroups/{id}/parents:
+   *  get:
+   *   operationId: GETSkillGroupParentsById
+   *   tags:
+   *    - skillGroups
+   *   summary: Get an skill group's parents by its identifier in a taxonomy model.
+   *   description: Retrieve a collection of parents for skill group by its unique identifier in a specific taxonomy model.
+   *   security:
+   *    - api_key: []
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/id'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the skill group parents.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/SkillGroupParentsResponseSchemaGET'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '404':
+   *       description: no Skill group parents found.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETSkillGroupParents404ErrorSchema'
+   *     '500':
+   *       description: |
+   *         The server encountered an unexpected condition.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/All500ResponseSchema'
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getSkillGroupParents(event: APIGatewayProxyEvent) {
+    try {
+      const requestPathParameter = parsePath<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>(
+        Routes.SKILL_GROUP_PARENTS_ROUTE,
+        event.path
+      );
+
+      const validatePathFunction = ajvInstance.getSchema(
+        SkillGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or skillGroup Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      const validationResult = await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId);
+      if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${requestPathParameter.modelId}`
+        );
+      }
+      if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const parentSkillGroups = await this.skillGroupService.findParents(requestPathParameter.id);
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedParents(parentSkillGroups, getResourcesBaseUrl(), null, null)
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Failed to get skill group parents:", error);
+      errorLoggerInstance.logError("Failed to retrieve the skill group parents from the DB", error.name);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        "Failed to retrieve the skill group parents from the DB",
+        ""
+      );
+    }
+  }
+
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/skillGroups/{id}/children:
+   *  get:
+   *   operationId: GETSkillGroupChildrenById
+   *   tags:
+   *    - skillGroups
+   *   summary: Get an skill group's children by its identifier in a taxonomy model.
+   *   description: Retrieve a collection of children for skill group by its unique identifier in a specific taxonomy model.
+   *   security:
+   *    - api_key: []
+   *    - jwt_auth: []
+   *   parameters:
+   *    - in: path
+   *      name: modelId
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/modelId'
+   *    - in: path
+   *      name: id
+   *      required: true
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/id'
+   *   responses:
+   *     '200':
+   *       description: Successfully retrieved the skill group children.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/SkillGroupChildrenResponseSchemaGET'
+   *     '401':
+   *       $ref: '#/components/responses/UnAuthorizedResponse'
+   *     '404':
+   *       description: no Skill group children found.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/GETSkillGroupChildren404ErrorSchema'
+   *     '500':
+   *       description: |
+   *         The server encountered an unexpected condition.
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/All500ResponseSchema'
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
+  async getSkillGroupChildren(event: APIGatewayProxyEvent) {
+    try {
+      const requestPathParameter = parsePath<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>(
+        Routes.SKILL_GROUP_CHILDREN_ROUTE,
+        event.path
+      );
+
+      const validatePathFunction = ajvInstance.getSchema(
+        SkillGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+      ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+
+      const isValidPathParameter = validatePathFunction(requestPathParameter);
+      if (!isValidPathParameter) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({
+            reason: "Invalid modelId or skillGroup Id",
+            path: event.path,
+            pathParameters: event.pathParameters,
+          })
+        );
+      }
+
+      // TODO: Prefer using `modelInfoService.ts`
+      const validationResult = await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId);
+      if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${requestPathParameter.modelId}`
+        );
+      }
+      if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponseGET(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+
+      const children = await this.skillGroupService.findChildren(requestPathParameter.id);
+      return responseJSON(StatusCodes.OK, transformPaginatedChildren(children, getResourcesBaseUrl(), null, null));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Failed to get skill group children:", error);
+      errorLoggerInstance.logError("Failed to retrieve the skill group children from the DB", error.name);
+      return errorResponseGET(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        "Failed to retrieve the skill group children from the DB",
         ""
       );
     }
