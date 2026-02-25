@@ -14,12 +14,12 @@ import SkillEnums from "../../enums";
 
 describe("Test Skill Related Response Schema Validity", () => {
   testValidSchema(
-    "SkillAPISpecs.Schemas.GET.Related.Response.Payload",
-    SkillAPISpecs.Schemas.GET.Related.Response.Payload
+    "SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload",
+    SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload
   );
 });
 
-describe("Test objects against the SkillAPISpecs.Schemas.GET.Related.Response.Payload schema", () => {
+describe("Test objects against the SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload schema", () => {
   const givenValidRelatedSkill = {
     id: getMockId(1),
     UUID: randomUUID(),
@@ -37,7 +37,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Related.Response.Pa
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
     modelId: getMockId(1),
-    parent: null,
+    parents: [],
     children: [],
     requiresSkills: [],
     requiredBySkills: [],
@@ -54,22 +54,22 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Related.Response.Pa
   };
 
   testSchemaWithValidObject(
-    "SkillAPISpecs.Schemas.GET.Related.Response.Payload",
-    SkillAPISpecs.Schemas.GET.Related.Response.Payload,
+    "SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload",
+    SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload,
     givenValidPaginatedResponse
   );
 
   testSchemaWithAdditionalProperties(
-    "SkillAPISpecs.Schemas.GET.Related.Response.Payload",
-    SkillAPISpecs.Schemas.GET.Related.Response.Payload,
+    "SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload",
+    SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload,
     {
       ...givenValidPaginatedResponse,
       extraProperty: "extra test property",
     }
   );
 
-  describe("Validate SkillAPISpecs.Schemas.GET.Related.Response.Payload fields", () => {
-    const givenSchema = SkillAPISpecs.Schemas.GET.Related.Response.Payload;
+  describe("Validate SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload fields", () => {
+    const givenSchema = SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload;
 
     describe("Test validation of 'limit'", () => {
       const testCases = getStdLimitTestCases("limit", SkillConstants.MAX_LIMIT, true);
@@ -91,7 +91,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Related.Response.Pa
 
     describe("Test validation of related skill item fields", () => {
       const itemSchema = {
-        ...SkillAPISpecs.Schemas.GET.Related.Response.Payload.properties.data.items,
+        ...SkillAPISpecs.Schemas.GET.RelatedSkills.Response.Payload.properties.data.items,
         $id: "SkillRelatedResponseItemTestSchema",
       };
 

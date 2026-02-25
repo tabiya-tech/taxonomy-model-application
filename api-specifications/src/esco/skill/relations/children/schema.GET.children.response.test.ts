@@ -40,7 +40,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Children.Response.P
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
     modelId: getMockId(1),
-    parent: null,
+    parents: [],
     children: [],
     requiresSkills: [],
     requiredBySkills: [],

@@ -2546,71 +2546,72 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                       "pattern": "\\S",
                       "type": "string",
                     },
-                    "parent": {
-                      "additionalProperties": false,
-                      "description": "The parent skill or skill group of this skill.",
-                      "if": {
-                        "properties": {
-                          "objectType": {
-                            "enum": [
-                              "skillgroup",
-                            ],
+                    "parents": {
+                      "description": "The parent skills or skill groups of this skill.",
+                      "items": {
+                        "additionalProperties": false,
+                        "if": {
+                          "properties": {
+                            "objectType": {
+                              "enum": [
+                                "skillgroup",
+                              ],
+                            },
                           },
                         },
-                      },
-                      "properties": {
-                        "UUID": {
-                          "description": "The UUID of the parent skill or skill group.",
-                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                          "type": "string",
-                        },
-                        "code": {
-                          "description": "The code of the parent skill group.",
-                          "maxLength": 256,
-                          "type": "string",
-                        },
-                        "id": {
-                          "description": "The id of the parent skill or skill group.",
-                          "pattern": "^[0-9a-f]{24}$",
-                          "type": "string",
-                        },
-                        "objectType": {
-                          "description": "The type of the parent, e.g., Skill or SkillGroup.",
-                          "enum": [
-                            "skillgroup",
-                            "skill",
-                          ],
-                          "type": "string",
-                        },
-                        "preferredLabel": {
-                          "description": "The preferred label of the parent skill or skill group.",
-                          "maxLength": 256,
-                          "pattern": "\\S",
-                          "type": "string",
-                        },
-                      },
-                      "required": [
-                        "id",
-                        "UUID",
-                        "preferredLabel",
-                        "objectType",
-                      ],
-                      "then": {
                         "properties": {
+                          "UUID": {
+                            "description": "The UUID of the parent skill or skill group.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
                           "code": {
+                            "description": "The code of the parent skill group.",
                             "maxLength": 256,
-                            "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The id of the parent skill or skill group.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "objectType": {
+                            "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                            "enum": [
+                              "skillgroup",
+                              "skill",
+                            ],
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the parent skill or skill group.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
                             "type": "string",
                           },
                         },
                         "required": [
-                          "code",
+                          "id",
+                          "UUID",
+                          "preferredLabel",
+                          "objectType",
                         ],
+                        "then": {
+                          "properties": {
+                            "code": {
+                              "maxLength": 256,
+                              "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "code",
+                          ],
+                        },
+                        "type": "object",
                       },
-                      "type": [
-                        "object",
-                        "null",
-                      ],
+                      "minItems": 0,
+                      "type": "array",
                     },
                     "path": {
                       "description": "Resource path using the skill's ID.",
@@ -2946,7 +2947,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                     "reuseLevel",
                     "isLocalized",
                     "modelId",
-                    "parent",
+                    "parents",
                     "children",
                     "requiresSkills",
                     "requiredBySkills",

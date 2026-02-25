@@ -155,54 +155,58 @@ export const _baseResponseSchema = {
       pattern: "^https://.*",
       maxLength: SkillConstants.TABIYA_PATH_URI_MAX_LENGTH,
     },
-    parent: {
-      description: "The parent skill or skill group of this skill.",
-      type: ["object", "null"],
-      additionalProperties: false,
-      properties: {
-        id: {
-          description: "The id of the parent skill or skill group.",
-          type: "string",
-          pattern: RegExp_Str_ID,
-        },
-        UUID: {
-          description: "The UUID of the parent skill or skill group.",
-          type: "string",
-          pattern: RegExp_Str_UUIDv4,
-        },
-        preferredLabel: {
-          description: "The preferred label of the parent skill or skill group.",
-          type: "string",
-          maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
-          pattern: RegExp_Str_NotEmptyString,
-        },
-        objectType: {
-          description: "The type of the parent, e.g., Skill or SkillGroup.",
-          type: "string",
-          enum: Object.values(SkillEnums.Relations.Parents.ObjectTypes),
-        },
-        code: {
-          description: "The code of the parent skill group.",
-          type: "string",
-          maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
-        },
-      },
-      if: {
+    parents: {
+      description: "The parent skills or skill groups of this skill.",
+      type: "array",
+      minItems: 0,
+      items: {
+        type: "object",
+        additionalProperties: false,
         properties: {
-          objectType: { enum: [SkillEnums.ObjectTypes.SkillGroup] },
-        },
-      },
-      then: {
-        properties: {
+          id: {
+            description: "The id of the parent skill or skill group.",
+            type: "string",
+            pattern: RegExp_Str_ID,
+          },
+          UUID: {
+            description: "The UUID of the parent skill or skill group.",
+            type: "string",
+            pattern: RegExp_Str_UUIDv4,
+          },
+          preferredLabel: {
+            description: "The preferred label of the parent skill or skill group.",
+            type: "string",
+            maxLength: SkillConstants.PREFERRED_LABEL_MAX_LENGTH,
+            pattern: RegExp_Str_NotEmptyString,
+          },
+          objectType: {
+            description: "The type of the parent, e.g., Skill or SkillGroup.",
+            type: "string",
+            enum: Object.values(SkillEnums.Relations.Parents.ObjectTypes),
+          },
           code: {
+            description: "The code of the parent skill group.",
             type: "string",
             maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
-            pattern: SkillGroupRegexes.Str.SKILL_GROUP_CODE,
           },
         },
-        required: ["code"],
+        if: {
+          properties: {
+            objectType: { enum: [SkillEnums.ObjectTypes.SkillGroup] },
+          },
+        },
+        then: {
+          properties: {
+            code: {
+              type: "string",
+              maxLength: SkillGroupConstants.CODE_MAX_LENGTH,
+              pattern: SkillGroupRegexes.Str.SKILL_GROUP_CODE,
+            },
+          },
+          required: ["code"],
+        },
+        required: ["id", "UUID", "preferredLabel", "objectType"],
       },
-      required: ["id", "UUID", "preferredLabel", "objectType"],
     },
     children: {
       description: "The children of this skill.",
@@ -397,7 +401,7 @@ export const _baseResponseSchema = {
     "reuseLevel",
     "isLocalized",
     "modelId",
-    "parent",
+    "parents",
     "children",
     "requiresSkills",
     "requiredBySkills",

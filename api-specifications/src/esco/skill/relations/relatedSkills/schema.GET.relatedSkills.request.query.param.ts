@@ -2,7 +2,7 @@ import { SchemaObject } from "ajv";
 import { RegExp_Str_NotEmptyString } from "../../../../regex";
 import SkillConstants from "../../constants";
 
-const SchemaGETRelatedRequestQuery: SchemaObject = {
+const SchemaGETRelatedSkillsRequestQuery: SchemaObject = {
   $id: "/components/schemas/SkillRelatedRequestQuerySchemaGET",
   type: "object",
   additionalProperties: false,
@@ -23,4 +23,4 @@ const SchemaGETRelatedRequestQuery: SchemaObject = {
   },
 };
 
-export default SchemaGETRelatedRequestQuery;
+export default SchemaGETRelatedSkillsRequestQuery;

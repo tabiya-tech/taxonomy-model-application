@@ -245,7 +245,7 @@ export class SkillController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.List.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
+        SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
         "Failed to retrieve the skills from the DB",
         ""
       );
@@ -335,7 +335,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.ById.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${requestPathParameter.id}`
         );
@@ -349,7 +349,7 @@ export class SkillController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.ById.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
+        SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
         "Failed to retrieve the skill from the DB",
         ""
       );
@@ -365,7 +365,7 @@ export class SkillController {
    *    tags:
    *      - skills
    *    summary: Get a list of skill parents.
-   *    description: Retrieve a list of parent skills or skill groups for a given skill.
+   *    description: Retrieve a paginated list of parent skills or skill groups for a given skill.
    *    security:
    *      - jwt_auth: []
    *    parameters:
@@ -373,21 +373,27 @@ export class SkillController {
    *        name: modelId
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/modelId'
    *      - in: path
    *        name: id
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/id'
+   *      - in: query
+   *        name: limit
+   *        schema:
+   *          $ref: '#/components/schemas/SkillParentsRequestQueryParamSchemaGET/properties/limit'
+   *      - in: query
+   *        name: cursor
+   *        schema:
+   *          $ref: '#/components/schemas/SkillParentsRequestQueryParamSchemaGET/properties/cursor'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the skill parents.
    *        content:
    *          application/json:
    *            schema:
-   *              $ref: '#/components/schemas/SkillParentResponseSchemaGET'
+   *              $ref: '#/components/schemas/SkillParentsResponseSchemaGET'
    *      '400':
    *        description: Failed to retrieve the skill parents. Additional information can be found in the response body.
    *        content:
@@ -445,7 +451,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -453,7 +459,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
+          SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -498,7 +504,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -518,7 +524,7 @@ export class SkillController {
       console.error("Failed to get parents:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
+        SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
         "Failed to retrieve the skill parents from the DB",
         ""
       );
@@ -542,24 +548,20 @@ export class SkillController {
    *        name: modelId
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/modelId'
    *      - in: path
    *        name: id
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/id'
    *      - in: query
    *        name: limit
-   *        required: false
    *        schema:
-   *          type: integer
+   *          $ref: '#/components/schemas/SkillChildrenRequestQueryParamSchemaGET/properties/limit'
    *      - in: query
    *        name: cursor
-   *        required: false
    *        schema:
-   *          type: string
+   *          $ref: '#/components/schemas/SkillChildrenRequestQueryParamSchemaGET/properties/cursor'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the skill children.
@@ -624,7 +626,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Children.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -632,7 +634,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
+          SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -677,7 +679,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Children.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -697,7 +699,7 @@ export class SkillController {
       console.error("Failed to get children:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
+        SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
         "Failed to retrieve the skill children from the DB",
         ""
       );
@@ -721,24 +723,20 @@ export class SkillController {
    *        name: modelId
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/modelId'
    *      - in: path
    *        name: id
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/id'
    *      - in: query
    *        name: limit
-   *        required: false
    *        schema:
-   *          type: integer
+   *          $ref: '#/components/schemas/SkillOccupationsRequestQueryParamSchemaGET/properties/limit'
    *      - in: query
    *        name: cursor
-   *        required: false
    *        schema:
-   *          type: string
+   *          $ref: '#/components/schemas/SkillOccupationsRequestQueryParamSchemaGET/properties/cursor'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the skill occupations.
@@ -803,7 +801,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -811,8 +809,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
-            .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
+          SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -857,7 +854,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -869,13 +866,15 @@ export class SkillController {
         nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
       }
 
-      return responseJSON(StatusCodes.OK, transformPaginatedOccupations(result.items, limit, nextCursor));
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedOccupations(result.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
     } catch (error: unknown) {
       console.error("Failed to get occupations:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
+        SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
         "Failed to retrieve the skill occupations from the DB",
         ""
       );
@@ -899,24 +898,20 @@ export class SkillController {
    *        name: modelId
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/modelId'
    *      - in: path
    *        name: id
    *        required: true
    *        schema:
-   *          type: string
-   *          format: uuid
+   *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/id'
    *      - in: query
    *        name: limit
-   *        required: false
    *        schema:
-   *          type: integer
+   *          $ref: '#/components/schemas/SkillRelatedRequestQueryParamSchemaGET/properties/limit'
    *      - in: query
    *        name: cursor
-   *        required: false
    *        schema:
-   *          type: string
+   *          $ref: '#/components/schemas/SkillRelatedRequestQueryParamSchemaGET/properties/cursor'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the related skills.
@@ -981,7 +976,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Related.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -989,21 +984,21 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
+          SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
           "Failed to fetch the model details from the DB",
           ""
         );
       }
 
       const rawQueryParams = event.queryStringParameters || {};
-      const queryParams: SkillAPISpecs.Types.GET.Related.Request.Query.Payload = {
+      const queryParams: SkillAPISpecs.Types.GET.RelatedSkills.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor ?? undefined,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Related.Request.Query.Payload>;
+        SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Types.GET.RelatedSkills.Request.Query.Payload>;
       if (!validateQueryFunction(queryParams)) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -1034,7 +1029,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.Relations.Related.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -1046,12 +1041,15 @@ export class SkillController {
         nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
       }
 
-      return responseJSON(StatusCodes.OK, transformPaginatedRelated(result.items, limit, nextCursor));
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedRelated(result.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
     } catch (error: unknown) {
       console.error("Failed to get related skills:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
+        SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
         "Failed to retrieve the related skills from the DB",
         ""
       );

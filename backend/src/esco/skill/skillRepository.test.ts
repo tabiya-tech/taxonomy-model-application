@@ -1655,6 +1655,15 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       );
     });
 
+    test("should return empty array when skill has no parents", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+
+      const actualParents = await repository.findParents(givenModelId, givenSubject.id, 10);
+
+      expect(actualParents).toEqual([]);
+    });
+
     test("should return paginated parents for a given limit and cursor", async () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
@@ -1674,7 +1683,6 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
           },
         ]);
       }
-      // Sort them by ID as the repository does
       givenParents.sort((a, b) => a.id.localeCompare(b.id));
 
       // WHEN finding first 2 parents
@@ -1701,8 +1709,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         throw givenError;
       });
 
-      // WHEN finding parents
-      // THEN expect it to throw
+      // WHEN finding parents - THEN expect it to throw
       await expect(repository.findParents(getMockStringId(1), getMockStringId(2), 10)).rejects.toThrowError(
         new Error("SkillRepository.findParents: findParents failed", { cause: givenError })
       );

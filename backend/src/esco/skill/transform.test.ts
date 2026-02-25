@@ -45,7 +45,7 @@ describe("test the transformation of the ISkill -> ISkillResponse", () => {
       modelId: givenObject.modelId,
       path: `${givenBasePath}/models/${givenObject.modelId}/skills/${givenObject.id}`,
       tabiyaPath: `${givenBasePath}/models/${givenObject.modelId}/skills/${givenObject.UUID}`,
-      parent: null,
+      parents: [],
       children: [],
       requiresSkills: [],
       requiredBySkills: [],
@@ -136,7 +136,7 @@ describe("test the transformation of the ISkill -> ISkillResponse", () => {
     const actual: SkillAPISpecs.Types.Response.ISkill = transform(givenObject, givenBasePath);
 
     // THEN expect the transformation function to return a ISkillResponse with all relations mapped correctly
-    expect(actual.parent).toEqual({
+    expect(actual.parents[0]).toEqual({
       id: givenObject.parents![0].id,
       UUID: givenObject.parents![0].UUID,
       preferredLabel: givenObject.parents![0].preferredLabel,
@@ -270,7 +270,7 @@ describe("Detailed mapping tests", () => {
         },
       ];
       const actual = transform(givenObject, basePath);
-      expect(actual.parent!.objectType).toBe(SkillAPISpecs.Enums.Relations.Parents.ObjectTypes.Skill);
+      expect(actual.parents[0].objectType).toBe(SkillAPISpecs.Enums.Relations.Parents.ObjectTypes.Skill);
     });
 
     test("should map SkillGroup parent correctly", () => {
@@ -286,15 +286,15 @@ describe("Detailed mapping tests", () => {
         },
       ];
       const actual = transform(givenObject, basePath);
-      expect(actual.parent!.objectType).toBe(SkillAPISpecs.Enums.Relations.Parents.ObjectTypes.SkillGroup);
-      expect(actual.parent?.code).toBe(givenCode);
+      expect(actual.parents[0].objectType).toBe(SkillAPISpecs.Enums.Relations.Parents.ObjectTypes.SkillGroup);
+      expect(actual.parents[0].code).toBe(givenCode);
     });
 
     test("should handle null parent", () => {
       const givenObject = getISkillMockData();
       givenObject.parents = [null as unknown as ISkillReference];
       const actual = transform(givenObject, basePath);
-      expect(actual.parent).toBeNull();
+      expect(actual.parents).toEqual([]);
     });
   });
 

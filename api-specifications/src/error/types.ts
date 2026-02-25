@@ -53,24 +53,21 @@ namespace ErrorTypes {
       | SkillsAPI.Enums.POST.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status404.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.GET.List.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.GET.List.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Children.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Children.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Children.GET.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Related.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Related.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Related.GET.Response.Status500.ErrorCodes;
+      | SkillsAPI.Enums.GET.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.Parents.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.Children.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.Occupations.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.RelatedSkills.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.Parents.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.Children.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.Occupations.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.Parents.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.Children.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.Occupations.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes;
     message: string; // The error message offers better developer experience. UI should not display this message.
     details: string; // This may be some cryptic message only a developer can understand
   }
@@ -131,24 +128,21 @@ namespace ErrorTypes {
       | OccupationAPI.Enums.GET.Response.Status500.Parent.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status500.Children.ErrorCodes
       | OccupationAPI.Enums.GET.Response.Status500.Skills.ErrorCodes
-      | SkillsAPI.Enums.GET.List.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.GET.List.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.GET.List.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.GET.ById.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Children.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Children.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Children.GET.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
-      | SkillsAPI.Enums.Relations.Related.GET.Response.Status400.ErrorCodes
-      | SkillsAPI.Enums.Relations.Related.GET.Response.Status404.ErrorCodes
-      | SkillsAPI.Enums.Relations.Related.GET.Response.Status500.ErrorCodes;
+      | SkillsAPI.Enums.GET.Response.Status400.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.Parents.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.Children.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.Occupations.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status400.RelatedSkills.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.Parents.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.Children.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.Occupations.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.Parents.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.Children.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.Occupations.ErrorCodes
+      | SkillsAPI.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes;
     message: string;
     details: string;
   }

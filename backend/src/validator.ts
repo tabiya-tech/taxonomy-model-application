@@ -151,8 +151,8 @@ ajvInstance.addSchema(
   SkillAPISpecs.Schemas.GET.Occupations.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
-  SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload,
-  SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload.$id
+  SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload,
+  SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload.$id
 );
 
 /**

@@ -3,7 +3,7 @@ import OccupationEnums from "../occupation/enums";
 import * as ParentEnums from "./relations/parents/enums";
 import * as ChildrenEnums from "./relations/children/enums";
 import * as OccupationsEnums from "./relations/occupations/enums";
-import * as RelatedEnums from "./relations/related/enums";
+import * as RelatedSkillsEnums from "./relations/relatedSkills/enums";
 
 namespace SkillEnums {
   export const ObjectType = CommonObjectTypes.Skill;
@@ -37,11 +37,11 @@ namespace SkillEnums {
       }
     }
 
-    export namespace Related {
-      export import ObjectTypes = RelatedEnums.ObjectTypes;
-      export import SkillToSkillRelationType = RelatedEnums.SkillToSkillRelationType;
+    export namespace RelatedSkills {
+      export import ObjectTypes = RelatedSkillsEnums.ObjectTypes;
+      export import SkillToSkillRelationType = RelatedSkillsEnums.SkillToSkillRelationType;
       export namespace GET {
-        export import Response = RelatedEnums.GET.Response;
+        export import Response = RelatedSkillsEnums.GET.Response;
       }
     }
   }
@@ -81,44 +81,60 @@ namespace SkillEnums {
   }
 
   export namespace GET {
-    export namespace List {
-      export namespace Response {
-        export namespace Status400 {
-          export enum ErrorCodes {
-            INVALID_LIMIT_PARAMETER = "INVALID_LIMIT_PARAMETER",
-            INVALID_NEXT_CURSOR_PARAMETER = "INVALID_NEXT_CURSOR_PARAMETER",
-          }
+    export namespace Response {
+      export namespace Status400 {
+        export enum ErrorCodes {
+          INVALID_LIMIT_PARAMETER = "INVALID_LIMIT_PARAMETER",
+          INVALID_NEXT_CURSOR_PARAMETER = "INVALID_NEXT_CURSOR_PARAMETER",
+          INVALID_SKILL_ID = "INVALID_SKILL_ID",
         }
-        export namespace Status404 {
-          export enum ErrorCodes {
-            MODEL_NOT_FOUND = "MODEL_NOT_FOUND_FOR_SKILL_LIST",
-          }
+        export namespace Parents {
+          export import ErrorCodes = ParentEnums.GET.Response.Status400.ErrorCodes;
         }
-        export namespace Status500 {
-          export enum ErrorCodes {
-            DB_FAILED_TO_RETRIEVE_SKILLS = "DB_FAILED_TO_RETRIEVE_SKILLS",
-          }
+        export namespace Children {
+          export import ErrorCodes = ChildrenEnums.GET.Response.Status400.ErrorCodes;
+        }
+        export namespace Occupations {
+          export import ErrorCodes = OccupationsEnums.GET.Response.Status400.ErrorCodes;
+        }
+        export namespace RelatedSkills {
+          export import ErrorCodes = RelatedSkillsEnums.GET.Response.Status400.ErrorCodes;
         }
       }
-    }
-
-    export namespace ById {
-      export namespace Response {
-        export namespace Status400 {
-          export enum ErrorCodes {
-            INVALID_SKILL_ID = "INVALID_SKILL_ID",
-          }
+      export namespace Status404 {
+        export enum ErrorCodes {
+          SKILL_NOT_FOUND = "SKILL_NOT_FOUND",
+          MODEL_NOT_FOUND = "MODEL_NOT_FOUND",
         }
-        export namespace Status404 {
-          export enum ErrorCodes {
-            SKILL_NOT_FOUND = "SKILL_NOT_FOUND",
-            MODEL_NOT_FOUND = "MODEL_NOT_FOUND_FOR_SKILL_GET",
-          }
+        export namespace Parents {
+          export import ErrorCodes = ParentEnums.GET.Response.Status404.ErrorCodes;
         }
-        export namespace Status500 {
-          export enum ErrorCodes {
-            DB_FAILED_TO_RETRIEVE_SKILL = "DB_FAILED_TO_RETRIEVE_SKILL",
-          }
+        export namespace Children {
+          export import ErrorCodes = ChildrenEnums.GET.Response.Status404.ErrorCodes;
+        }
+        export namespace Occupations {
+          export import ErrorCodes = OccupationsEnums.GET.Response.Status404.ErrorCodes;
+        }
+        export namespace RelatedSkills {
+          export import ErrorCodes = RelatedSkillsEnums.GET.Response.Status404.ErrorCodes;
+        }
+      }
+      export namespace Status500 {
+        export enum ErrorCodes {
+          DB_FAILED_TO_RETRIEVE_SKILLS = "DB_FAILED_TO_RETRIEVE_SKILLS",
+          DB_FAILED_TO_RETRIEVE_SKILL = "DB_FAILED_TO_RETRIEVE_SKILL",
+        }
+        export namespace Parents {
+          export import ErrorCodes = ParentEnums.GET.Response.Status500.ErrorCodes;
+        }
+        export namespace Children {
+          export import ErrorCodes = ChildrenEnums.GET.Response.Status500.ErrorCodes;
+        }
+        export namespace Occupations {
+          export import ErrorCodes = OccupationsEnums.GET.Response.Status500.ErrorCodes;
+        }
+        export namespace RelatedSkills {
+          export import ErrorCodes = RelatedSkillsEnums.GET.Response.Status500.ErrorCodes;
         }
       }
     }

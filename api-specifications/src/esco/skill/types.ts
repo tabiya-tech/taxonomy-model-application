@@ -1,8 +1,8 @@
 import SkillEnums from "./enums";
-import { ISkillParentResponse, ISkillParentsRequestQuery } from "./relations/parents/types";
+import { ISkillParentItem, ISkillParentsResponse, ISkillParentsRequestQuery } from "./relations/parents/types";
 import { ISkillChildrenResponse, ISkillChildrenRequestQuery } from "./relations/children/types";
 import { ISkillOccupationsResponse, ISkillOccupationsRequestQuery } from "./relations/occupations/types";
-import { ISkillRelatedResponse, ISkillRelatedRequestQuery } from "./relations/related/types";
+import { ISkillRelatedResponse, ISkillRelatedRequestQuery } from "./relations/relatedSkills/types";
 
 interface ISkillResponse {
   id: string;
@@ -21,13 +21,13 @@ interface ISkillResponse {
   reuseLevel: SkillEnums.ReuseLevel;
   isLocalized: boolean;
   modelId: string;
-  parent: {
+  parents: {
     id: string;
     UUID: string;
     preferredLabel: string;
     objectType: SkillEnums.Relations.Parents.ObjectTypes;
     code?: string;
-  } | null;
+  }[];
   children: {
     id: string;
     UUID: string;
@@ -147,7 +147,8 @@ namespace SkillTypes {
     // Relation types
     export namespace Parents {
       export namespace Response {
-        export type Payload = ISkillParentResponse;
+        export type ParentItem = ISkillParentItem;
+        export type Payload = ISkillParentsResponse;
       }
       export namespace Request {
         export namespace Query {
@@ -175,7 +176,7 @@ namespace SkillTypes {
         }
       }
     }
-    export namespace Related {
+    export namespace RelatedSkills {
       export namespace Response {
         export type Payload = ISkillRelatedResponse;
       }

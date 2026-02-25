@@ -82,7 +82,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.ById.Paylo
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     isLocalized: true,
     modelId: getMockId(1),
-    parent: givenParent,
+    parents: [givenParent],
     children: [givenChild],
     requiresSkills: [givenSkillRelation],
     requiredBySkills: [givenSkillRelation],
@@ -367,36 +367,40 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.ById.Paylo
       );
     });
 
-    describe("Test validation of 'parent'", () => {
+    describe("Test validation of 'parents'", () => {
       test.each([
         [
           CaseType.Failure,
           "undefined",
           undefined,
-          constructSchemaError("", "required", "must have required property 'parent'"),
+          constructSchemaError("", "required", "must have required property 'parents'"),
         ],
-        [CaseType.Success, "null", null, undefined],
+        [CaseType.Failure, "null", null, constructSchemaError("/parents", "type", "must be array")],
         [
           CaseType.Success,
-          "valid parent object",
-          {
-            id: getMockId(1),
-            UUID: randomUUID(),
-            preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-            objectType: SkillEnums.Relations.Parents.ObjectTypes.Skill,
-          },
+          "valid parents array",
+          [
+            {
+              id: getMockId(1),
+              UUID: randomUUID(),
+              preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+              objectType: SkillEnums.Relations.Parents.ObjectTypes.Skill,
+            },
+          ],
           undefined,
         ],
         [
           CaseType.Success,
-          "valid parent group object",
-          {
-            id: getMockId(1),
-            UUID: randomUUID(),
-            code: getTestSkillGroupCode(),
-            preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-            objectType: SkillEnums.Relations.Parents.ObjectTypes.SkillGroup,
-          },
+          "valid parents array with skill group",
+          [
+            {
+              id: getMockId(1),
+              UUID: randomUUID(),
+              code: getTestSkillGroupCode(),
+              preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+              objectType: SkillEnums.Relations.Parents.ObjectTypes.SkillGroup,
+            },
+          ],
           undefined,
         ],
         [
@@ -407,16 +411,23 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.ById.Paylo
             UUID: randomUUID(),
             objectType: SkillEnums.Relations.Parents.ObjectTypes.Skill,
           },
-          constructSchemaError("/parent", "required", "must have required property 'preferredLabel'"),
+          constructSchemaError("/parents/0", "required", "must have required property 'preferredLabel'"),
         ],
-      ])("(%s) Validate 'parent' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+      ])("(%s) Validate 'parents' when it is %s", (caseType, _description, givenValue, failureMessages) => {
         // GIVEN an object with the given value
+        const parentsValue =
+          givenValue !== null &&
+          givenValue !== undefined &&
+          typeof givenValue === "object" &&
+          !Array.isArray(givenValue)
+            ? [givenValue]
+            : givenValue;
         const givenObject = {
-          parent: givenValue,
+          parents: parentsValue,
         };
         // THEN expect the object to validate accordingly
         assertCaseForProperty(
-          "parent",
+          "parents",
           givenObject,
           SkillAPISpecs.Schemas.GET.Response.ById.Payload,
           caseType,

@@ -39,9 +39,7 @@ export interface ISkillService {
    *
    * @param {string} modelId - The modelId of the Skill.
    * @param {string} skillId - The ID of the Skill.
-   * @param {number} limit - The maximum number of items to return.
-   * @param {string} [cursor] - The cursor for pagination.
-   * @return {Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to the parent Skills or SkillGroups.
+   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the parents.
    */
   getParents(
     modelId: string,
