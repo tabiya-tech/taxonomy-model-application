@@ -12,14 +12,14 @@ import SchemaGETResponseById from "./schema.GET.response.ById";
 import SchemaPOSTRequestParam from "./schema.POST.request.param";
 
 // Relation schemas
-import SchemaGETParentResponse from "./relations/parents/schema.GET.parent.response";
+import SchemaGETParentsResponse from "./relations/parents/schema.GET.parents.response";
 import SchemaGETParentsRequestQuery from "./relations/parents/schema.GET.parents.request.query.param";
 import SchemaGETChildrenResponse from "./relations/children/schema.GET.children.response";
 import SchemaGETChildrenRequestQuery from "./relations/children/schema.GET.children.request.query.param";
 import SchemaGETOccupationsResponse from "./relations/occupations/schema.GET.occupations.response";
 import SchemaGETOccupationsRequestQuery from "./relations/occupations/schema.GET.occupations.request.query.param";
-import SchemaGETRelatedResponse from "./relations/related/schema.GET.related.response";
-import SchemaGETRelatedRequestQuery from "./relations/related/schema.GET.related.request.query.param";
+import SchemaGETRelatedSkillsResponse from "./relations/relatedSkills/schema.GET.relatedSkills.response";
+import SchemaGETRelatedSkillsRequestQuery from "./relations/relatedSkills/schema.GET.relatedSkills.request.query.param";
 
 namespace SkillSchemas {
   export namespace GET {
@@ -42,10 +42,9 @@ namespace SkillSchemas {
         }
       }
     }
-    // Relation schemas
     export namespace Parents {
       export namespace Response {
-        export const Payload = SchemaGETParentResponse;
+        export const Payload = SchemaGETParentsResponse;
       }
       export namespace Request {
         export namespace Query {
@@ -73,13 +72,13 @@ namespace SkillSchemas {
         }
       }
     }
-    export namespace Related {
+    export namespace RelatedSkills {
       export namespace Response {
-        export const Payload = SchemaGETRelatedResponse;
+        export const Payload = SchemaGETRelatedSkillsResponse;
       }
       export namespace Request {
         export namespace Query {
-          export const Payload = SchemaGETRelatedRequestQuery;
+          export const Payload = SchemaGETRelatedSkillsRequestQuery;
         }
       }
     }

@@ -9,6 +9,10 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { populateSkillChildrenOptions, populateSkillParentsOptions } from "./populateSkillHierarchyOptions";
 import {
+  populateSkillGroupChildrenOptions,
+  populateSkillGroupParentsOptions,
+} from "esco/skillGroup/populateSkillHierarchyOptions";
+import {
   populateSkillRequiredBySkillsOptions,
   populateSkillRequiresSkillsOptions,
 } from "./populateSkillToSkillRelationOptions";
@@ -62,15 +66,12 @@ export interface ISkillRepository {
   findAll(modelId: string): Readable;
 
   /**
-   * Returns paginated Skills. The Skills are transformed to objects (via .lean()), however
-   * in the current version they are not populated with parents, children, requiresSkills, requiredBySkills or requiredByOccupations.
+   * Returns paginated Skills with parents, children, requiresSkills, requiredBySkills and requiredByOccupations populated.
    *
    * @param {string} modelId - The modelId of the Skills.
-   * @param {Record<string, unknown>} filter - The filter to apply to the query.
-   * @param {{ _id: 1 | -1 }} sort - The sort order to apply to the query.
    * @param {number} limit - The maximum number of Skills to return.
-   * @param {1 | -1} sortOrder - The sort order to apply to the query.
-   * @param {{ id: string; createdAt: Date }} [cursor] - The cursor for pagination, containing the ID and createdAt timestamp of the last retrieved item.
+   * @param {1 | -1} sortOrder - Sort direction: 1 ascending (oldest first), -1 descending (newest first). Applied to createdAt and _id.
+   * @param {{ id: string; createdAt: Date }} [cursor] - The cursor for pagination, containing the ID and createdAt of the last retrieved item.
    * @return {Promise<ISkill[]>} - A Promise that resolves to an array of Skills.
    * Rejects with an error if the operation fails.
    */
@@ -82,13 +83,11 @@ export interface ISkillRepository {
   ): Promise<ISkill[]>;
 
   /**
-   * Finds the parent Skills or SkillGroups of a Skill.
+   * Finds the parent Skills or SkillGroups of a Skill or SkillGroup.
    *
    * @param {string} modelId - The modelId of the Skill.
-   * @param {string} skillId - The ID of the Skill.
-   * @param {number} limit - The maximum number of parents to return.
-   * @param {string} [cursor] - The ID of the cursor for pagination.
-   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to an array containing the parent Skills or SkillGroups.
+   * @param {string} skillId - The ID of the Skill or SkillGroup.
+   * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the parents.
    */
   findParents(modelId: string, skillId: string, limit: number, cursor?: string): Promise<(ISkill | ISkillGroup)[]>;
 
@@ -312,7 +311,7 @@ export class SkillRepository implements ISkillRepository {
       const matchStage: Record<string, unknown> = {
         modelId: modelIdObj,
         childId: skillIdObj,
-        childType: ObjectTypes.Skill,
+        childType: { $in: [ObjectTypes.Skill, ObjectTypes.SkillGroup] },
       };
 
       if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
@@ -359,20 +358,38 @@ export class SkillRepository implements ISkillRepository {
       const HierarchyModel = this.Model.db.model(MongooseModelName.SkillHierarchy);
       const results = await HierarchyModel.aggregate(pipeline).exec();
 
-      return results.map((r) => {
+      const hydrated = results.map((r) => {
         if (r.skillType !== undefined) {
-          // It's a skill
-          const doc = this.Model.hydrate(r);
-          populateEmptySkillHierarchy(doc);
-          populateEmptySkillToSkillRelation(doc);
-          populateEmptyRequiredByOccupations(doc);
-          return doc.toObject() as ISkill;
-        } else {
-          // It's a skill group
-          const doc = SkillGroupModel.hydrate(r);
-          return doc.toObject() as ISkillGroup;
+          return this.Model.hydrate(r);
         }
+        return SkillGroupModel.hydrate(r);
       });
+
+      const skills = hydrated.filter(
+        (doc): doc is mongoose.HydratedDocument<ISkillDoc> =>
+          (doc as mongoose.Document & { skillType?: string }).skillType !== undefined
+      );
+      const skillGroups = hydrated.filter(
+        (doc) => (doc as mongoose.Document & { skillType?: string }).skillType === undefined
+      );
+
+      if (skills.length > 0) {
+        await this.Model.populate(skills, [
+          populateSkillParentsOptions,
+          populateSkillChildrenOptions,
+          populateSkillRequiresSkillsOptions,
+          populateSkillRequiredBySkillsOptions,
+          populateSkillRequiredByOccupationOptions,
+        ]);
+      }
+      if (skillGroups.length > 0) {
+        await SkillGroupModel.populate(skillGroups, [
+          populateSkillGroupParentsOptions,
+          populateSkillGroupChildrenOptions,
+        ]);
+      }
+
+      return hydrated.map((doc) => doc.toObject() as ISkill | ISkillGroup);
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findParents: findParents failed", { cause: e });
       console.error(err);
@@ -393,7 +410,7 @@ export class SkillRepository implements ISkillRepository {
       const matchStage: Record<string, unknown> = {
         modelId: modelIdObj,
         parentId: skillIdObj,
-        parentType: ObjectTypes.Skill,
+        parentType: { $in: [ObjectTypes.Skill, ObjectTypes.SkillGroup] },
       };
 
       if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
@@ -440,18 +457,38 @@ export class SkillRepository implements ISkillRepository {
       const HierarchyModel = this.Model.db.model(MongooseModelName.SkillHierarchy);
       const results = await HierarchyModel.aggregate(pipeline).exec();
 
-      return results.map((r) => {
+      const hydrated = results.map((r) => {
         if (r.skillType !== undefined) {
-          const doc = this.Model.hydrate(r);
-          populateEmptySkillHierarchy(doc);
-          populateEmptySkillToSkillRelation(doc);
-          populateEmptyRequiredByOccupations(doc);
-          return doc.toObject() as ISkill;
-        } else {
-          const doc = SkillGroupModel.hydrate(r);
-          return doc.toObject() as ISkillGroup;
+          return this.Model.hydrate(r);
         }
+        return SkillGroupModel.hydrate(r);
       });
+
+      const skills = hydrated.filter(
+        (doc): doc is mongoose.HydratedDocument<ISkillDoc> =>
+          (doc as mongoose.Document & { skillType?: string }).skillType !== undefined
+      );
+      const skillGroups = hydrated.filter(
+        (doc) => (doc as mongoose.Document & { skillType?: string }).skillType === undefined
+      );
+
+      if (skills.length > 0) {
+        await this.Model.populate(skills, [
+          populateSkillParentsOptions,
+          populateSkillChildrenOptions,
+          populateSkillRequiresSkillsOptions,
+          populateSkillRequiredBySkillsOptions,
+          populateSkillRequiredByOccupationOptions,
+        ]);
+      }
+      if (skillGroups.length > 0) {
+        await SkillGroupModel.populate(skillGroups, [
+          populateSkillGroupParentsOptions,
+          populateSkillGroupChildrenOptions,
+        ]);
+      }
+
+      return hydrated.map((doc) => doc.toObject() as ISkill | ISkillGroup);
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findChildren: findChildren failed", { cause: e });
       console.error(err);
@@ -599,11 +636,15 @@ export class SkillRepository implements ISkillRepository {
 
       return results.map((r) => {
         const doc = this.Model.hydrate(r);
+        populateEmptySkillHierarchy(doc);
+        populateEmptySkillToSkillRelation(doc);
+        populateEmptyRequiredByOccupations(doc);
+        const relationId = typeof r.relationId === "string" ? r.relationId : r.relationId?.toString();
         return {
           ...doc.toObject(),
           relationType: r.relationType,
-          // We can return the relationId as part of the object if needed, but for now we'll match the interface
-        } as SkillToSkillReferenceWithRelationType<ISkill>;
+          relationId,
+        } as SkillToSkillReferenceWithRelationType<ISkill> & { relationId: string };
       });
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findRelatedSkills: findRelatedSkills failed", { cause: e });

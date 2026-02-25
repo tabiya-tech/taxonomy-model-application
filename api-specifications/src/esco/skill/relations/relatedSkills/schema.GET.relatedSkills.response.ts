@@ -2,7 +2,7 @@ import { SchemaObject } from "ajv";
 import { _baseResponseSchema as SkillBaseResponseSchema, _basePaginationResponseProperties } from "../../schemas.base";
 import SkillEnums from "../../enums";
 
-const SchemaGETRelatedResponse: SchemaObject = {
+const SchemaGETRelatedSkillsResponse: SchemaObject = {
   $id: "/components/schemas/SkillRelatedResponseSchemaGET",
   type: "object",
   additionalProperties: false,
@@ -30,4 +30,4 @@ const SchemaGETRelatedResponse: SchemaObject = {
   required: ["data", "limit"],
 };
 
-export default SchemaGETRelatedResponse;
+export default SchemaGETRelatedSkillsResponse;

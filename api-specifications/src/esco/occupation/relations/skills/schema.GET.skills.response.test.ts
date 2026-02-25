@@ -118,7 +118,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Skills.Respons
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     modelId: getMockId(1),
     isLocalized: true,
-    parent: givenParent,
+    parents: [givenParent],
     children: [givenChild],
     requiresSkills: givenRequiresSkills,
     requiredBySkills: givenRequiredBySkills,
@@ -443,64 +443,68 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Skills.Respons
         });
       });
 
-      // Test nested parent fields
-      describe("Test validation of 'parent' field", () => {
+      describe("Test validation of 'parents' field", () => {
         test.each([
           [
             CaseType.Failure,
             "undefined",
             undefined,
-            constructSchemaError("", "required", "must have required property 'parent'"),
+            constructSchemaError("", "required", "must have required property 'parents'"),
           ],
-          [CaseType.Success, "null", null, undefined],
-          [CaseType.Success, "valid parent", givenParent, undefined],
-        ])("%s Validate 'parent' when it is %s", (caseType, _description, givenValue, failureMessage) => {
+          [CaseType.Failure, "null", null, constructSchemaError("/parents", "type", "must be array")],
+          [CaseType.Success, "empty array", [], undefined],
+          [CaseType.Success, "valid parents", [givenParent], undefined],
+        ])("%s Validate 'parents' when it is %s", (caseType, _description, givenValue, failureMessage) => {
           const givenObject = {
             ...givenValidSkill,
-            parent: givenValue,
+            parents: givenValue,
           };
-          assertCaseForProperty("parent", givenObject, itemSchema, caseType, failureMessage);
+          assertCaseForProperty("parents", givenObject, itemSchema, caseType, failureMessage);
         });
       });
 
-      describe("Test validation of parent nested fields", () => {
-        describe("Test validation of 'parent/id'", () => {
-          const testCases = getStdObjectIdTestCases("/parent/id");
+      describe("Test validation of parents nested fields", () => {
+        describe("Test validation of 'parents/0/id'", () => {
+          const testCases = getStdObjectIdTestCases("/parents/0/id");
           test.each(testCases)(
             `(%s) Validate 'id' when it is %s`,
             (caseType, _description, givenValue, failureMessages) => {
               const givenObject = {
                 ...givenValidSkill,
-                parent: {
-                  ...givenParent,
-                  id: givenValue,
-                },
+                parents: [
+                  {
+                    ...givenParent,
+                    id: givenValue,
+                  },
+                ],
               };
-              assertCaseForProperty("/parent/id", givenObject, itemSchema, caseType, failureMessages);
+              assertCaseForProperty("/parents/0/id", givenObject, itemSchema, caseType, failureMessages);
             }
           );
         });
 
-        describe("Test validation of 'parent/UUID'", () => {
-          const testCases = getStdUUIDTestCases("/parent/UUID");
+        describe("Test validation of 'parents/0/UUID'", () => {
+          const testCases = getStdUUIDTestCases("/parents/0/UUID");
           test.each(testCases)(
             `(%s) Validate 'UUID' when it is %s`,
             (caseType, _description, givenValue, failureMessages) => {
               const givenObject = {
                 ...givenValidSkill,
-                parent: {
-                  ...givenParent,
-                  UUID: givenValue,
-                },
+                parents: [
+                  {
+                    ...givenParent,
+                    UUID: givenValue,
+                  },
+                ],
               };
-              assertCaseForProperty("/parent/UUID", givenObject, itemSchema, caseType, failureMessages);
+              assertCaseForProperty("/parents/0/UUID", givenObject, itemSchema, caseType, failureMessages);
             }
           );
         });
 
-        describe("Test validation of 'parent/preferredLabel'", () => {
+        describe("Test validation of 'parents/0/preferredLabel'", () => {
           const testCases = getStdNonEmptyStringTestCases(
-            "/parent/preferredLabel",
+            "/parents/0/preferredLabel",
             SkillConstants.PREFERRED_LABEL_MAX_LENGTH
           );
           test.each(testCases)(
@@ -508,12 +512,14 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Skills.Respons
             (caseType, _description, givenValue, failureMessage) => {
               const givenObject = {
                 ...givenValidSkill,
-                parent: {
-                  ...givenParent,
-                  preferredLabel: givenValue,
-                },
+                parents: [
+                  {
+                    ...givenParent,
+                    preferredLabel: givenValue,
+                  },
+                ],
               };
-              assertCaseForProperty("/parent/preferredLabel", givenObject, itemSchema, caseType, failureMessage);
+              assertCaseForProperty("/parents/0/preferredLabel", givenObject, itemSchema, caseType, failureMessage);
             }
           );
         });

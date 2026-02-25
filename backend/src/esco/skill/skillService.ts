@@ -113,10 +113,19 @@ export class SkillService implements ISkillService {
     items: SkillToSkillReferenceWithRelationType<ISkill>[];
     nextCursor: { _id: string; createdAt: Date } | null;
   }> {
-    return this.findPaginatedRelation(
-      () => this.skillRepository.findRelatedSkills(modelId, skillId, limit + 1, cursor),
-      limit
-    );
+    const items = await this.skillRepository.findRelatedSkills(modelId, skillId, limit + 1, cursor);
+    const hasMore = items.length > limit;
+    const pageItems = hasMore ? items.slice(0, limit) : items;
+
+    let nextCursor: { _id: string; createdAt: Date } | null = null;
+    if (hasMore && pageItems.length > 0) {
+      const lastItem = pageItems[pageItems.length - 1] as ISkill & { relationId?: string };
+      if (lastItem.relationId) {
+        nextCursor = { _id: lastItem.relationId, createdAt: lastItem.createdAt ?? new Date() };
+      }
+    }
+
+    return { items: pageItems, nextCursor };
   }
 
   private async findPaginatedRelation<T extends { id: string; createdAt?: Date }>(

@@ -11,34 +11,34 @@ import SkillAPISpecs from "../../index";
 
 describe("Test Skill Related Request Query Schema Validity", () => {
   testValidSchema(
-    "SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload",
-    SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload
+    "SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload",
+    SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload
   );
 });
 
-describe("Test objects against the SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload schema", () => {
+describe("Test objects against the SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload schema", () => {
   const givenValidQuery = {
     limit: SkillConstants.DEFAULT_LIMIT,
     cursor: getTestString(SkillConstants.MAX_CURSOR_LENGTH),
   };
 
   testSchemaWithValidObject(
-    "SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload",
-    SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload,
+    "SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload",
+    SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload,
     givenValidQuery
   );
 
   testSchemaWithAdditionalProperties(
-    "SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload",
-    SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload,
+    "SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload",
+    SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload,
     {
       ...givenValidQuery,
       extraProperty: "extra test property",
     }
   );
 
-  describe("Validate SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload fields", () => {
-    const givenSchema = SkillAPISpecs.Schemas.GET.Related.Request.Query.Payload;
+  describe("Validate SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload fields", () => {
+    const givenSchema = SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload;
 
     describe("Test validation of 'limit'", () => {
       const testCases = getStdLimitTestCases("limit", SkillConstants.MAX_LIMIT, false);

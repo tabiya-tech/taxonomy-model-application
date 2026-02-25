@@ -327,7 +327,7 @@ describe("Test for skill handler with a DB", () => {
         },
       ]);
 
-      // WHEN requesting parents
+      // WHEN requesting parent
       const event = {
         httpMethod: HTTP_VERBS.GET,
         path: `/models/${modelId}/skills/${givenSubject.id}/parents`,
@@ -342,13 +342,13 @@ describe("Test for skill handler with a DB", () => {
       // THEN expect OK
       expect(response.statusCode).toEqual(StatusCodes.OK);
       const body = JSON.parse(response.body);
+      expect(body).toHaveProperty("data");
+      expect(body).toHaveProperty("limit");
+      expect(body).toHaveProperty("nextCursor");
       expect(body.data).toHaveLength(2);
-      expect(body.data).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: givenParentSkill.id }),
-          expect.objectContaining({ id: givenParentGroup.id }),
-        ])
-      );
+      const parentIds = body.data.map((p: { id: string }) => p.id);
+      expect(parentIds).toContain(givenParentSkill.id);
+      expect(parentIds).toContain(givenParentGroup.id);
     });
 
     test("GET /models/{modelId}/skills/{id}/children should return children", async () => {

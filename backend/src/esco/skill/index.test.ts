@@ -15,6 +15,10 @@ import * as authenticatorModule from "auth/authorizer";
 import { ISkill, ModelForSkillValidationErrorCode } from "./skills.types";
 import { getISkillMockData } from "./testDataHelper";
 import { getISkillGroupMockData } from "esco/skillGroup/testDataHelper";
+import { getIOccupationMockData } from "esco/occupations/testDataHelper";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { SignallingValueLabel } from "esco/common/objectTypes";
+import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { ISkillRepository } from "./skillRepository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
@@ -403,7 +407,7 @@ describe("Test for skill handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillAPISpecs.Enums.GET.List.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
+        errorCode: SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
         message: "Failed to retrieve the skills from the DB",
         details: "",
       };
@@ -688,7 +692,7 @@ describe("Test for skill handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillAPISpecs.Enums.GET.ById.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+        errorCode: SkillAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
         message: "skill not found",
         details: `No skill found with id: ${givenSkillId}`,
       };
@@ -775,7 +779,7 @@ describe("Test for skill handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillAPISpecs.Enums.GET.ById.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
+        errorCode: SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
         message: "Failed to retrieve the skill from the DB",
         details: "",
       };
@@ -901,21 +905,20 @@ describe("Test for skill handler", () => {
 
     test("getParents should return 200 and parents", async () => {
       // GIVEN parents from service
-      const parents = [getISkillMockData(), getISkillGroupMockData()];
+      const parent = getISkillMockData();
       const givenSkillServiceMock = {
         validateModelForSkill: jest.fn().mockResolvedValue(null),
         findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
-        getParents: jest.fn().mockResolvedValue({ items: parents, nextCursor: null }),
+        getParents: jest.fn().mockResolvedValue({ items: [parent], nextCursor: null }),
       } as unknown as ISkillService;
       mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = { path: `/models/${givenModelId}/skills/${givenSkillId}/parents` };
 
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-      };
-
+      // WHEN getParents is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK and correct service/transform calls
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(givenSkillServiceMock.getParents).toHaveBeenCalledWith(
         givenModelId,
@@ -924,253 +927,135 @@ describe("Test for skill handler", () => {
         undefined
       );
       expect(transformPaginatedRelationSpy).toHaveBeenCalledWith(
-        parents,
+        [parent],
         givenResourcesBaseUrl,
         SkillAPISpecs.Constants.DEFAULT_LIMIT,
         null
       );
     });
 
-    test("getParents should return 400 if route did not match", async () => {
-      const event = {
-        path: "/invalid/path",
-      };
+    test("getParents should return 200 and empty array when no parents", async () => {
+      // GIVEN service returns empty parents
+      const givenSkillServiceMock = {
+        validateModelForSkill: jest.fn().mockResolvedValue(null),
+        findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
+        getParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = { path: `/models/${givenModelId}/skills/${givenSkillId}/parents` };
 
+      // WHEN getParents is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK with empty data
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(JSON.parse(actualResponse.body)).toEqual({
+        data: [],
+        limit: SkillAPISpecs.Constants.DEFAULT_LIMIT,
+        nextCursor: null,
+      });
+    });
+
+    test("getParents should return 400 if route did not match", async () => {
+      // GIVEN an event with invalid path
+      const event = { path: "/invalid/path" };
+
+      // WHEN getParents is called
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      // THEN expect BAD_REQUEST
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
     });
 
     test("getParents should return 400 if path is missing (branch coverage)", async () => {
-      const event = {
-        path: undefined,
-      };
+      // GIVEN an event with undefined path
+      const event = { path: undefined };
 
+      // WHEN getParents is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect BAD_REQUEST
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(JSON.parse(actualResponse.body).message).toEqual("Route did not match");
     });
 
     test("getParents should return 400 if path params are invalid", async () => {
+      // GIVEN service registry with no getParents mock (path validation runs first)
       mockGetServiceRegistry.mockReturnValue({
         skill: { validateModelForSkill: jest.fn().mockResolvedValue(null) },
       } as unknown as ServiceRegistry);
-      const event = {
-        path: `/models/invalid-uuid/skills/${givenSkillId}/parents`,
-      };
+      const event = { path: `/models/invalid-uuid/skills/${givenSkillId}/parents` };
 
+      // WHEN getParents is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect BAD_REQUEST with schema error
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA);
     });
 
     test("getParents should return 500 if service fails", async () => {
+      // GIVEN service rejects with error
       const givenSkillServiceMock = {
         validateModelForSkill: jest.fn().mockResolvedValue(null),
         findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
         getParents: jest.fn().mockRejectedValue(new Error("foo")),
       } as unknown as ISkillService;
       mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = { path: `/models/${givenModelId}/skills/${givenSkillId}/parents` };
 
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-      };
-
+      // WHEN getParents is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect INTERNAL_SERVER_ERROR
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
+        SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
       );
     });
 
     test("getParents should return 404 if model not found", async () => {
+      // GIVEN service returns MODEL_NOT_FOUND_BY_ID
       const givenSkillServiceMock = {
         validateModelForSkill: jest.fn().mockResolvedValue(ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
       } as unknown as ISkillService;
       mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = { path: `/models/${givenModelId}/skills/${givenSkillId}/parents` };
 
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-      };
-
+      // WHEN getParents is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect NOT_FOUND
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND
-      );
-    });
-
-    test("getParents should return 500 if validateModelForSkill fails to fetch from DB", async () => {
-      const givenSkillServiceMock = {
-        validateModelForSkill: jest.fn().mockResolvedValue(ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
-      } as unknown as ISkillService;
-      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
-
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-      };
-
-      const skillController = new SkillController();
-      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
-
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
-      );
-    });
-
-    test("getParents should return 400 if query params are invalid", async () => {
-      mockGetServiceRegistry.mockReturnValue({
-        skill: { validateModelForSkill: jest.fn().mockResolvedValue(null) },
-      } as unknown as ServiceRegistry);
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-        queryStringParameters: { limit: "invalid" },
-      };
-
-      const skillController = new SkillController();
-      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
-
-      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER
-      );
-    });
-
-    test("getParents should return 400 if cursor is malformed", async () => {
-      mockGetServiceRegistry.mockReturnValue({
-        skill: { validateModelForSkill: jest.fn().mockResolvedValue(null) },
-      } as unknown as ServiceRegistry);
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-        queryStringParameters: { cursor: "malformed" },
-      };
-
-      const skillController = new SkillController();
-      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
-
-      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER
+        SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
     test("getParents should return 404 if skill not found", async () => {
+      // GIVEN service findById returns null
       const givenSkillServiceMock = {
         validateModelForSkill: jest.fn().mockResolvedValue(null),
         findById: jest.fn().mockResolvedValue(null),
       } as unknown as ISkillService;
       mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = { path: `/models/${givenModelId}/skills/${givenSkillId}/parents` };
 
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-      };
-
+      // WHEN getParents is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect NOT_FOUND
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Parents.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND
-      );
-    });
-
-    test("getParents should return 200 and nextCursor when provided by service", async () => {
-      // GIVEN parents from service with nextCursor info
-      const parents = [getISkillMockData()];
-      const givenNextCursor = { _id: getMockStringId(3), createdAt: new Date() };
-      const encodedCursor = "encoded-cursor";
-      const givenSkillServiceMock = {
-        validateModelForSkill: jest.fn().mockResolvedValue(null),
-        findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
-        getParents: jest.fn().mockResolvedValue({ items: parents, nextCursor: givenNextCursor }),
-      } as unknown as ISkillService;
-      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
-
-      const skillController = new SkillController();
-      const encodeCursorSpy = jest
-        .spyOn(skillController as unknown as ITestingSkillController, "encodeCursor")
-        .mockReturnValue(encodedCursor);
-
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-        queryStringParameters: { limit: "5" },
-      };
-
-      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
-
-      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      expect(encodeCursorSpy).toHaveBeenCalledWith(givenNextCursor._id, givenNextCursor.createdAt);
-      expect(transformPaginatedRelationSpy).toHaveBeenCalledWith(parents, givenResourcesBaseUrl, 5, encodedCursor);
-    });
-
-    test("getParents should return 200 and parents when no limit is provided", async () => {
-      // GIVEN parents from service
-      const parents = [getISkillMockData()];
-      const givenSkillServiceMock = {
-        validateModelForSkill: jest.fn().mockResolvedValue(null),
-        findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
-        getParents: jest.fn().mockResolvedValue({ items: parents, nextCursor: null }),
-      } as unknown as ISkillService;
-      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
-
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-      };
-
-      const skillController = new SkillController();
-      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
-
-      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      expect(givenSkillServiceMock.getParents).toHaveBeenCalledWith(
-        givenModelId,
-        givenSkillId,
-        SkillAPISpecs.Constants.DEFAULT_LIMIT,
-        undefined
-      );
-    });
-
-    test("getParents should return 200 and parents when valid cursor is provided", async () => {
-      // GIVEN parents from service
-      const parents = [getISkillMockData()];
-      const givenCursor = "some-cursor";
-      const decodedCursor = { id: getMockStringId(10), createdAt: new Date() };
-      const givenSkillServiceMock = {
-        validateModelForSkill: jest.fn().mockResolvedValue(null),
-        findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
-        getParents: jest.fn().mockResolvedValue({ items: parents, nextCursor: null }),
-      } as unknown as ISkillService;
-      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
-
-      const skillController = new SkillController();
-      const decodeCursorSpy = jest
-        .spyOn(skillController as unknown as ITestingSkillController, "decodeCursor")
-        .mockReturnValue(decodedCursor);
-
-      const event = {
-        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
-        queryStringParameters: { cursor: givenCursor },
-      };
-
-      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
-
-      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      expect(decodeCursorSpy).toHaveBeenCalledWith(givenCursor);
-      expect(givenSkillServiceMock.getParents).toHaveBeenCalledWith(
-        givenModelId,
-        givenSkillId,
-        SkillAPISpecs.Constants.DEFAULT_LIMIT,
-        decodedCursor.id
+        SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 
@@ -1279,7 +1164,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
+        SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
       );
     });
 
@@ -1298,7 +1183,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND
+        SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
@@ -1317,7 +1202,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
+        SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
       );
     });
 
@@ -1373,7 +1258,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Children.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND
+        SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 
@@ -1412,21 +1297,29 @@ describe("Test for skill handler", () => {
 
     test("getOccupations should return 200 and occupations", async () => {
       // GIVEN occupations from service
-      const occupations = [{ id: getMockStringId(5) }];
+      const occupations = [
+        {
+          ...getIOccupationMockData(5),
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
+          signallingValue: 0.5,
+          signallingValueLabel: SignallingValueLabel.HIGH,
+        },
+      ];
       const givenSkillServiceMock = {
         validateModelForSkill: jest.fn().mockResolvedValue(null),
         findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
         getOccupations: jest.fn().mockResolvedValue({ items: occupations, nextCursor: null }),
       } as unknown as ISkillService;
       mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
-
       const event = {
         path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
       };
 
+      // WHEN getOccupations is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getOccupations(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK and correct service/transform calls
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(givenSkillServiceMock.getOccupations).toHaveBeenCalledWith(
         givenModelId,
@@ -1436,6 +1329,7 @@ describe("Test for skill handler", () => {
       );
       expect(transformPaginatedOccupationsSpy).toHaveBeenCalledWith(
         occupations,
+        givenResourcesBaseUrl,
         SkillAPISpecs.Constants.DEFAULT_LIMIT,
         null
       );
@@ -1482,8 +1376,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
+        SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
       );
     });
 
@@ -1517,7 +1410,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND
+        SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
@@ -1536,8 +1429,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
+        SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
       );
     });
 
@@ -1593,13 +1485,20 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Occupations.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND
+        SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 
     test("getOccupations should return 200 and nextCursor when provided by service", async () => {
       // GIVEN occupations from service with nextCursor info
-      const occupations = [{ id: getMockStringId(5) }];
+      const occupations = [
+        {
+          ...getIOccupationMockData(5),
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
+          signallingValue: 0.5,
+          signallingValueLabel: SignallingValueLabel.HIGH,
+        },
+      ];
       const givenNextCursor = { _id: getMockStringId(3), createdAt: new Date() };
       const encodedCursor = "encoded-cursor";
       const givenSkillServiceMock = {
@@ -1613,22 +1512,35 @@ describe("Test for skill handler", () => {
       const encodeCursorSpy = jest
         .spyOn(skillController as unknown as ITestingSkillController, "encodeCursor")
         .mockReturnValue(encodedCursor);
-
       const event = {
         path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
         queryStringParameters: { limit: "8" },
       };
 
+      // WHEN getOccupations is called
       const actualResponse = await skillController.getOccupations(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK with encoded cursor
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(encodeCursorSpy).toHaveBeenCalledWith(givenNextCursor._id, givenNextCursor.createdAt);
-      expect(transformPaginatedOccupationsSpy).toHaveBeenCalledWith(occupations, 8, encodedCursor);
+      expect(transformPaginatedOccupationsSpy).toHaveBeenCalledWith(
+        occupations,
+        givenResourcesBaseUrl,
+        8,
+        encodedCursor
+      );
     });
 
     test("getOccupations should return 200 and occupations when valid cursor is provided", async () => {
       // GIVEN occupations from service
-      const occupations = [{ id: getMockStringId(5) }];
+      const occupations = [
+        {
+          ...getIOccupationMockData(5),
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
+          signallingValue: 0.5,
+          signallingValueLabel: SignallingValueLabel.HIGH,
+        },
+      ];
       const givenCursor = "some-cursor";
       const decodedCursor = { id: getMockStringId(10), createdAt: new Date() };
       const givenSkillServiceMock = {
@@ -1642,14 +1554,15 @@ describe("Test for skill handler", () => {
       const decodeCursorSpy = jest
         .spyOn(skillController as unknown as ITestingSkillController, "decodeCursor")
         .mockReturnValue(decodedCursor);
-
       const event = {
         path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
         queryStringParameters: { cursor: givenCursor },
       };
 
+      // WHEN getOccupations is called
       const actualResponse = await skillController.getOccupations(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK with decoded cursor passed to service
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(decodeCursorSpy).toHaveBeenCalledWith(givenCursor);
       expect(givenSkillServiceMock.getOccupations).toHaveBeenCalledWith(
@@ -1662,21 +1575,27 @@ describe("Test for skill handler", () => {
 
     test("getRelatedSkills should return 200 and related skills", async () => {
       // GIVEN related skills from service
-      const related = [{ id: getMockStringId(6) }];
+      const related = [
+        {
+          ...getISkillMockData(6, givenModelId),
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+        },
+      ];
       const givenSkillServiceMock = {
         validateModelForSkill: jest.fn().mockResolvedValue(null),
         findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
         getRelatedSkills: jest.fn().mockResolvedValue({ items: related, nextCursor: null }),
       } as unknown as ISkillService;
       mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
-
       const event = {
         path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
       };
 
+      // WHEN getRelatedSkills is called
       const skillController = new SkillController();
       const actualResponse = await skillController.getRelatedSkills(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK and correct service/transform calls
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(givenSkillServiceMock.getRelatedSkills).toHaveBeenCalledWith(
         givenModelId,
@@ -1684,7 +1603,12 @@ describe("Test for skill handler", () => {
         SkillAPISpecs.Constants.DEFAULT_LIMIT,
         undefined
       );
-      expect(transformPaginatedRelatedSpy).toHaveBeenCalledWith(related, SkillAPISpecs.Constants.DEFAULT_LIMIT, null);
+      expect(transformPaginatedRelatedSpy).toHaveBeenCalledWith(
+        related,
+        givenResourcesBaseUrl,
+        SkillAPISpecs.Constants.DEFAULT_LIMIT,
+        null
+      );
     });
 
     test("getRelatedSkills should return 400 if route did not match", async () => {
@@ -1728,7 +1652,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
+        SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
       );
     });
 
@@ -1762,7 +1686,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND
+        SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
@@ -1781,7 +1705,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
+        SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
       );
     });
 
@@ -1837,13 +1761,18 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.Relations.Related.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND
+        SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 
     test("getRelatedSkills should return 200 and nextCursor when provided by service", async () => {
       // GIVEN related skills from service with nextCursor info
-      const related = [{ id: getMockStringId(6) }];
+      const related = [
+        {
+          ...getISkillMockData(6, givenModelId),
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+        },
+      ];
       const givenNextCursor = { _id: getMockStringId(3), createdAt: new Date() };
       const encodedCursor = "encoded-cursor";
       const givenSkillServiceMock = {
@@ -1857,22 +1786,28 @@ describe("Test for skill handler", () => {
       const encodeCursorSpy = jest
         .spyOn(skillController as unknown as ITestingSkillController, "encodeCursor")
         .mockReturnValue(encodedCursor);
-
       const event = {
         path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
         queryStringParameters: { limit: "9" },
       };
 
+      // WHEN getRelatedSkills is called
       const actualResponse = await skillController.getRelatedSkills(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK with encoded cursor
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(encodeCursorSpy).toHaveBeenCalledWith(givenNextCursor._id, givenNextCursor.createdAt);
-      expect(transformPaginatedRelatedSpy).toHaveBeenCalledWith(related, 9, encodedCursor);
+      expect(transformPaginatedRelatedSpy).toHaveBeenCalledWith(related, givenResourcesBaseUrl, 9, encodedCursor);
     });
 
     test("getRelatedSkills should return 200 and related skills when valid cursor is provided", async () => {
       // GIVEN related skills from service
-      const related = [{ id: getMockStringId(6) }];
+      const related = [
+        {
+          ...getISkillMockData(6, givenModelId),
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+        },
+      ];
       const givenCursor = "some-cursor";
       const decodedCursor = { id: getMockStringId(10), createdAt: new Date() };
       const givenSkillServiceMock = {
@@ -1886,14 +1821,15 @@ describe("Test for skill handler", () => {
       const decodeCursorSpy = jest
         .spyOn(skillController as unknown as ITestingSkillController, "decodeCursor")
         .mockReturnValue(decodedCursor);
-
       const event = {
         path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
         queryStringParameters: { cursor: givenCursor },
       };
 
+      // WHEN getRelatedSkills is called
       const actualResponse = await skillController.getRelatedSkills(event as unknown as APIGatewayProxyEvent);
 
+      // THEN expect OK with decoded cursor passed to service
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(decodeCursorSpy).toHaveBeenCalledWith(givenCursor);
       expect(givenSkillServiceMock.getRelatedSkills).toHaveBeenCalledWith(

@@ -25,42 +25,91 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
   },
   "Enums": {
     "GET": {
-      "ById": {
-        "Response": {
-          "Status400": {
+      "Response": {
+        "Status400": {
+          "Children": {
             "ErrorCodes": {
+              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
               "INVALID_SKILL_ID": "INVALID_SKILL_ID",
             },
           },
-          "Status404": {
+          "ErrorCodes": {
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+            "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+          },
+          "Occupations": {
             "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND_FOR_SKILL_GET",
-              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
+              "INVALID_SKILL_ID": "INVALID_SKILL_ID",
             },
           },
-          "Status500": {
+          "Parents": {
             "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_SKILL": "DB_FAILED_TO_RETRIEVE_SKILL",
+              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
+              "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+            },
+          },
+          "RelatedSkills": {
+            "ErrorCodes": {
+              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
+              "INVALID_SKILL_ID": "INVALID_SKILL_ID",
             },
           },
         },
-      },
-      "List": {
-        "Response": {
-          "Status400": {
+        "Status404": {
+          "Children": {
             "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
             },
           },
-          "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+            "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+          },
+          "Occupations": {
             "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND_FOR_SKILL_LIST",
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
             },
           },
-          "Status500": {
+          "Parents": {
             "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_SKILLS": "DB_FAILED_TO_RETRIEVE_SKILLS",
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+            },
+          },
+          "RelatedSkills": {
+            "ErrorCodes": {
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+            },
+          },
+        },
+        "Status500": {
+          "Children": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN": "DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN",
+            },
+          },
+          "ErrorCodes": {
+            "DB_FAILED_TO_RETRIEVE_SKILL": "DB_FAILED_TO_RETRIEVE_SKILL",
+            "DB_FAILED_TO_RETRIEVE_SKILLS": "DB_FAILED_TO_RETRIEVE_SKILLS",
+          },
+          "Occupations": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS",
+            },
+          },
+          "Parents": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_SKILL_PARENTS": "DB_FAILED_TO_RETRIEVE_SKILL_PARENTS",
+            },
+          },
+          "RelatedSkills": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_RELATED_SKILLS": "DB_FAILED_TO_RETRIEVE_RELATED_SKILLS",
             },
           },
         },
@@ -182,7 +231,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
           "SkillGroup": "skillgroup",
         },
       },
-      "Related": {
+      "RelatedSkills": {
         "GET": {
           "Response": {
             "Status400": {
@@ -413,71 +462,72 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "pattern": "\\S",
                           "type": "string",
                         },
-                        "parent": {
-                          "additionalProperties": false,
-                          "description": "The parent skill or skill group of this skill.",
-                          "if": {
-                            "properties": {
-                              "objectType": {
-                                "enum": [
-                                  "skillgroup",
-                                ],
+                        "parents": {
+                          "description": "The parent skills or skill groups of this skill.",
+                          "items": {
+                            "additionalProperties": false,
+                            "if": {
+                              "properties": {
+                                "objectType": {
+                                  "enum": [
+                                    "skillgroup",
+                                  ],
+                                },
                               },
                             },
-                          },
-                          "properties": {
-                            "UUID": {
-                              "description": "The UUID of the parent skill or skill group.",
-                              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                              "type": "string",
-                            },
-                            "code": {
-                              "description": "The code of the parent skill group.",
-                              "maxLength": 256,
-                              "type": "string",
-                            },
-                            "id": {
-                              "description": "The id of the parent skill or skill group.",
-                              "pattern": "^[0-9a-f]{24}$",
-                              "type": "string",
-                            },
-                            "objectType": {
-                              "description": "The type of the parent, e.g., Skill or SkillGroup.",
-                              "enum": [
-                                "skillgroup",
-                                "skill",
-                              ],
-                              "type": "string",
-                            },
-                            "preferredLabel": {
-                              "description": "The preferred label of the parent skill or skill group.",
-                              "maxLength": 256,
-                              "pattern": "\\S",
-                              "type": "string",
-                            },
-                          },
-                          "required": [
-                            "id",
-                            "UUID",
-                            "preferredLabel",
-                            "objectType",
-                          ],
-                          "then": {
                             "properties": {
+                              "UUID": {
+                                "description": "The UUID of the parent skill or skill group.",
+                                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                                "type": "string",
+                              },
                               "code": {
+                                "description": "The code of the parent skill group.",
                                 "maxLength": 256,
-                                "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                                "type": "string",
+                              },
+                              "id": {
+                                "description": "The id of the parent skill or skill group.",
+                                "pattern": "^[0-9a-f]{24}$",
+                                "type": "string",
+                              },
+                              "objectType": {
+                                "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                                "enum": [
+                                  "skillgroup",
+                                  "skill",
+                                ],
+                                "type": "string",
+                              },
+                              "preferredLabel": {
+                                "description": "The preferred label of the parent skill or skill group.",
+                                "maxLength": 256,
+                                "pattern": "\\S",
                                 "type": "string",
                               },
                             },
                             "required": [
-                              "code",
+                              "id",
+                              "UUID",
+                              "preferredLabel",
+                              "objectType",
                             ],
+                            "then": {
+                              "properties": {
+                                "code": {
+                                  "maxLength": 256,
+                                  "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "code",
+                              ],
+                            },
+                            "type": "object",
                           },
-                          "type": [
-                            "object",
-                            "null",
-                          ],
+                          "minItems": 0,
+                          "type": "array",
                         },
                         "path": {
                           "description": "Resource path using the skill's ID.",
@@ -782,7 +832,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "reuseLevel",
                         "isLocalized",
                         "modelId",
-                        "parent",
+                        "parents",
                         "children",
                         "requiresSkills",
                         "requiredBySkills",
@@ -1655,37 +1705,35 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
         "Request": {
           "Query": {
             "Payload": {
-              "$id": "/components/schemas/SkillParentsRequestQueryParamSchemaGET",
+              "$id": "/components/schemas/SkillParentsRequestQuerySchemaGET",
               "additionalProperties": false,
               "properties": {
                 "cursor": {
-                  "description": "The cursor for the next page of parents.",
+                  "description": "Pagination cursor for fetching the next page",
                   "maxLength": 1720,
                   "pattern": "\\S",
                   "type": "string",
                 },
                 "limit": {
                   "default": 10,
-                  "description": "The maximum number of parents to return per page.",
+                  "description": "Maximum number of items to return",
                   "maximum": 100,
                   "minimum": 1,
                   "type": "integer",
                 },
               },
-              "required": [],
               "type": "object",
             },
           },
         },
         "Response": {
           "Payload": {
-            "$id": "/components/schemas/SkillParentResponseSchemaGET",
+            "$id": "/components/schemas/SkillParentsResponseSchemaGET",
             "additionalProperties": false,
             "properties": {
               "data": {
-                "description": "Array of skill parents data for the current page",
+                "description": "Array of parent skills for the current page.",
                 "items": {
-                  "$id": "/components/schemas/SkillParentItem",
                   "anyOf": [
                     {
                       "additionalProperties": false,
@@ -1826,71 +1874,72 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "pattern": "\\S",
                           "type": "string",
                         },
-                        "parent": {
-                          "additionalProperties": false,
-                          "description": "The parent skill or skill group of this skill.",
-                          "if": {
-                            "properties": {
-                              "objectType": {
-                                "enum": [
-                                  "skillgroup",
-                                ],
+                        "parents": {
+                          "description": "The parent skills or skill groups of this skill.",
+                          "items": {
+                            "additionalProperties": false,
+                            "if": {
+                              "properties": {
+                                "objectType": {
+                                  "enum": [
+                                    "skillgroup",
+                                  ],
+                                },
                               },
                             },
-                          },
-                          "properties": {
-                            "UUID": {
-                              "description": "The UUID of the parent skill or skill group.",
-                              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                              "type": "string",
-                            },
-                            "code": {
-                              "description": "The code of the parent skill group.",
-                              "maxLength": 256,
-                              "type": "string",
-                            },
-                            "id": {
-                              "description": "The id of the parent skill or skill group.",
-                              "pattern": "^[0-9a-f]{24}$",
-                              "type": "string",
-                            },
-                            "objectType": {
-                              "description": "The type of the parent, e.g., Skill or SkillGroup.",
-                              "enum": [
-                                "skillgroup",
-                                "skill",
-                              ],
-                              "type": "string",
-                            },
-                            "preferredLabel": {
-                              "description": "The preferred label of the parent skill or skill group.",
-                              "maxLength": 256,
-                              "pattern": "\\S",
-                              "type": "string",
-                            },
-                          },
-                          "required": [
-                            "id",
-                            "UUID",
-                            "preferredLabel",
-                            "objectType",
-                          ],
-                          "then": {
                             "properties": {
+                              "UUID": {
+                                "description": "The UUID of the parent skill or skill group.",
+                                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                                "type": "string",
+                              },
                               "code": {
+                                "description": "The code of the parent skill group.",
                                 "maxLength": 256,
-                                "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                                "type": "string",
+                              },
+                              "id": {
+                                "description": "The id of the parent skill or skill group.",
+                                "pattern": "^[0-9a-f]{24}$",
+                                "type": "string",
+                              },
+                              "objectType": {
+                                "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                                "enum": [
+                                  "skillgroup",
+                                  "skill",
+                                ],
+                                "type": "string",
+                              },
+                              "preferredLabel": {
+                                "description": "The preferred label of the parent skill or skill group.",
+                                "maxLength": 256,
+                                "pattern": "\\S",
                                 "type": "string",
                               },
                             },
                             "required": [
-                              "code",
+                              "id",
+                              "UUID",
+                              "preferredLabel",
+                              "objectType",
                             ],
+                            "then": {
+                              "properties": {
+                                "code": {
+                                  "maxLength": 256,
+                                  "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "code",
+                              ],
+                            },
+                            "type": "object",
                           },
-                          "type": [
-                            "object",
-                            "null",
-                          ],
+                          "minItems": 0,
+                          "type": "array",
                         },
                         "path": {
                           "description": "Resource path using the skill's ID.",
@@ -2195,7 +2244,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                         "reuseLevel",
                         "isLocalized",
                         "modelId",
-                        "parent",
+                        "parents",
                         "children",
                         "requiresSkills",
                         "requiredBySkills",
@@ -2480,11 +2529,12 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     },
                   ],
                 },
+                "minItems": 0,
                 "type": "array",
               },
               "limit": {
                 "default": 10,
-                "description": "Number of data returned in this page.",
+                "description": "The maximum number of items to return.",
                 "maximum": 100,
                 "minimum": 1,
                 "type": "integer",
@@ -2507,7 +2557,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
           },
         },
       },
-      "Related": {
+      "RelatedSkills": {
         "Request": {
           "Query": {
             "Payload": {
@@ -2678,71 +2728,72 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                       "pattern": "\\S",
                       "type": "string",
                     },
-                    "parent": {
-                      "additionalProperties": false,
-                      "description": "The parent skill or skill group of this skill.",
-                      "if": {
-                        "properties": {
-                          "objectType": {
-                            "enum": [
-                              "skillgroup",
-                            ],
+                    "parents": {
+                      "description": "The parent skills or skill groups of this skill.",
+                      "items": {
+                        "additionalProperties": false,
+                        "if": {
+                          "properties": {
+                            "objectType": {
+                              "enum": [
+                                "skillgroup",
+                              ],
+                            },
                           },
                         },
-                      },
-                      "properties": {
-                        "UUID": {
-                          "description": "The UUID of the parent skill or skill group.",
-                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                          "type": "string",
-                        },
-                        "code": {
-                          "description": "The code of the parent skill group.",
-                          "maxLength": 256,
-                          "type": "string",
-                        },
-                        "id": {
-                          "description": "The id of the parent skill or skill group.",
-                          "pattern": "^[0-9a-f]{24}$",
-                          "type": "string",
-                        },
-                        "objectType": {
-                          "description": "The type of the parent, e.g., Skill or SkillGroup.",
-                          "enum": [
-                            "skillgroup",
-                            "skill",
-                          ],
-                          "type": "string",
-                        },
-                        "preferredLabel": {
-                          "description": "The preferred label of the parent skill or skill group.",
-                          "maxLength": 256,
-                          "pattern": "\\S",
-                          "type": "string",
-                        },
-                      },
-                      "required": [
-                        "id",
-                        "UUID",
-                        "preferredLabel",
-                        "objectType",
-                      ],
-                      "then": {
                         "properties": {
+                          "UUID": {
+                            "description": "The UUID of the parent skill or skill group.",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "type": "string",
+                          },
                           "code": {
+                            "description": "The code of the parent skill group.",
                             "maxLength": 256,
-                            "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                            "type": "string",
+                          },
+                          "id": {
+                            "description": "The id of the parent skill or skill group.",
+                            "pattern": "^[0-9a-f]{24}$",
+                            "type": "string",
+                          },
+                          "objectType": {
+                            "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                            "enum": [
+                              "skillgroup",
+                              "skill",
+                            ],
+                            "type": "string",
+                          },
+                          "preferredLabel": {
+                            "description": "The preferred label of the parent skill or skill group.",
+                            "maxLength": 256,
+                            "pattern": "\\S",
                             "type": "string",
                           },
                         },
                         "required": [
-                          "code",
+                          "id",
+                          "UUID",
+                          "preferredLabel",
+                          "objectType",
                         ],
+                        "then": {
+                          "properties": {
+                            "code": {
+                              "maxLength": 256,
+                              "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "code",
+                          ],
+                        },
+                        "type": "object",
                       },
-                      "type": [
-                        "object",
-                        "null",
-                      ],
+                      "minItems": 0,
+                      "type": "array",
                     },
                     "path": {
                       "description": "Resource path using the skill's ID.",
@@ -3055,7 +3106,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "reuseLevel",
                     "isLocalized",
                     "modelId",
-                    "parent",
+                    "parents",
                     "children",
                     "requiresSkills",
                     "requiredBySkills",
@@ -3302,71 +3353,72 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "pattern": "\\S",
                 "type": "string",
               },
-              "parent": {
-                "additionalProperties": false,
-                "description": "The parent skill or skill group of this skill.",
-                "if": {
-                  "properties": {
-                    "objectType": {
-                      "enum": [
-                        "skillgroup",
-                      ],
+              "parents": {
+                "description": "The parent skills or skill groups of this skill.",
+                "items": {
+                  "additionalProperties": false,
+                  "if": {
+                    "properties": {
+                      "objectType": {
+                        "enum": [
+                          "skillgroup",
+                        ],
+                      },
                     },
                   },
-                },
-                "properties": {
-                  "UUID": {
-                    "description": "The UUID of the parent skill or skill group.",
-                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                    "type": "string",
-                  },
-                  "code": {
-                    "description": "The code of the parent skill group.",
-                    "maxLength": 256,
-                    "type": "string",
-                  },
-                  "id": {
-                    "description": "The id of the parent skill or skill group.",
-                    "pattern": "^[0-9a-f]{24}$",
-                    "type": "string",
-                  },
-                  "objectType": {
-                    "description": "The type of the parent, e.g., Skill or SkillGroup.",
-                    "enum": [
-                      "skillgroup",
-                      "skill",
-                    ],
-                    "type": "string",
-                  },
-                  "preferredLabel": {
-                    "description": "The preferred label of the parent skill or skill group.",
-                    "maxLength": 256,
-                    "pattern": "\\S",
-                    "type": "string",
-                  },
-                },
-                "required": [
-                  "id",
-                  "UUID",
-                  "preferredLabel",
-                  "objectType",
-                ],
-                "then": {
                   "properties": {
+                    "UUID": {
+                      "description": "The UUID of the parent skill or skill group.",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
                     "code": {
+                      "description": "The code of the parent skill group.",
                       "maxLength": 256,
-                      "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                      "type": "string",
+                    },
+                    "id": {
+                      "description": "The id of the parent skill or skill group.",
+                      "pattern": "^[0-9a-f]{24}$",
+                      "type": "string",
+                    },
+                    "objectType": {
+                      "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                      "enum": [
+                        "skillgroup",
+                        "skill",
+                      ],
+                      "type": "string",
+                    },
+                    "preferredLabel": {
+                      "description": "The preferred label of the parent skill or skill group.",
+                      "maxLength": 256,
+                      "pattern": "\\S",
                       "type": "string",
                     },
                   },
                   "required": [
-                    "code",
+                    "id",
+                    "UUID",
+                    "preferredLabel",
+                    "objectType",
                   ],
+                  "then": {
+                    "properties": {
+                      "code": {
+                        "maxLength": 256,
+                        "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "code",
+                    ],
+                  },
+                  "type": "object",
                 },
-                "type": [
-                  "object",
-                  "null",
-                ],
+                "minItems": 0,
+                "type": "array",
               },
               "path": {
                 "description": "Resource path using the skill's ID.",
@@ -3671,7 +3723,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "reuseLevel",
               "isLocalized",
               "modelId",
-              "parent",
+              "parents",
               "children",
               "requiresSkills",
               "requiredBySkills",
@@ -3828,71 +3880,72 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                     "pattern": "\\S",
                     "type": "string",
                   },
-                  "parent": {
-                    "additionalProperties": false,
-                    "description": "The parent skill or skill group of this skill.",
-                    "if": {
-                      "properties": {
-                        "objectType": {
-                          "enum": [
-                            "skillgroup",
-                          ],
+                  "parents": {
+                    "description": "The parent skills or skill groups of this skill.",
+                    "items": {
+                      "additionalProperties": false,
+                      "if": {
+                        "properties": {
+                          "objectType": {
+                            "enum": [
+                              "skillgroup",
+                            ],
+                          },
                         },
                       },
-                    },
-                    "properties": {
-                      "UUID": {
-                        "description": "The UUID of the parent skill or skill group.",
-                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                        "type": "string",
-                      },
-                      "code": {
-                        "description": "The code of the parent skill group.",
-                        "maxLength": 256,
-                        "type": "string",
-                      },
-                      "id": {
-                        "description": "The id of the parent skill or skill group.",
-                        "pattern": "^[0-9a-f]{24}$",
-                        "type": "string",
-                      },
-                      "objectType": {
-                        "description": "The type of the parent, e.g., Skill or SkillGroup.",
-                        "enum": [
-                          "skillgroup",
-                          "skill",
-                        ],
-                        "type": "string",
-                      },
-                      "preferredLabel": {
-                        "description": "The preferred label of the parent skill or skill group.",
-                        "maxLength": 256,
-                        "pattern": "\\S",
-                        "type": "string",
-                      },
-                    },
-                    "required": [
-                      "id",
-                      "UUID",
-                      "preferredLabel",
-                      "objectType",
-                    ],
-                    "then": {
                       "properties": {
+                        "UUID": {
+                          "description": "The UUID of the parent skill or skill group.",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                          "type": "string",
+                        },
                         "code": {
+                          "description": "The code of the parent skill group.",
                           "maxLength": 256,
-                          "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                          "type": "string",
+                        },
+                        "id": {
+                          "description": "The id of the parent skill or skill group.",
+                          "pattern": "^[0-9a-f]{24}$",
+                          "type": "string",
+                        },
+                        "objectType": {
+                          "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                          "enum": [
+                            "skillgroup",
+                            "skill",
+                          ],
+                          "type": "string",
+                        },
+                        "preferredLabel": {
+                          "description": "The preferred label of the parent skill or skill group.",
+                          "maxLength": 256,
+                          "pattern": "\\S",
                           "type": "string",
                         },
                       },
                       "required": [
-                        "code",
+                        "id",
+                        "UUID",
+                        "preferredLabel",
+                        "objectType",
                       ],
+                      "then": {
+                        "properties": {
+                          "code": {
+                            "maxLength": 256,
+                            "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "code",
+                        ],
+                      },
+                      "type": "object",
                     },
-                    "type": [
-                      "object",
-                      "null",
-                    ],
+                    "minItems": 0,
+                    "type": "array",
                   },
                   "path": {
                     "description": "Resource path using the skill's ID.",
@@ -4197,7 +4250,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                   "reuseLevel",
                   "isLocalized",
                   "modelId",
-                  "parent",
+                  "parents",
                   "children",
                   "requiresSkills",
                   "requiredBySkills",
@@ -4495,71 +4548,72 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "pattern": "\\S",
               "type": "string",
             },
-            "parent": {
-              "additionalProperties": false,
-              "description": "The parent skill or skill group of this skill.",
-              "if": {
-                "properties": {
-                  "objectType": {
-                    "enum": [
-                      "skillgroup",
-                    ],
+            "parents": {
+              "description": "The parent skills or skill groups of this skill.",
+              "items": {
+                "additionalProperties": false,
+                "if": {
+                  "properties": {
+                    "objectType": {
+                      "enum": [
+                        "skillgroup",
+                      ],
+                    },
                   },
                 },
-              },
-              "properties": {
-                "UUID": {
-                  "description": "The UUID of the parent skill or skill group.",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                  "type": "string",
-                },
-                "code": {
-                  "description": "The code of the parent skill group.",
-                  "maxLength": 256,
-                  "type": "string",
-                },
-                "id": {
-                  "description": "The id of the parent skill or skill group.",
-                  "pattern": "^[0-9a-f]{24}$",
-                  "type": "string",
-                },
-                "objectType": {
-                  "description": "The type of the parent, e.g., Skill or SkillGroup.",
-                  "enum": [
-                    "skillgroup",
-                    "skill",
-                  ],
-                  "type": "string",
-                },
-                "preferredLabel": {
-                  "description": "The preferred label of the parent skill or skill group.",
-                  "maxLength": 256,
-                  "pattern": "\\S",
-                  "type": "string",
-                },
-              },
-              "required": [
-                "id",
-                "UUID",
-                "preferredLabel",
-                "objectType",
-              ],
-              "then": {
                 "properties": {
+                  "UUID": {
+                    "description": "The UUID of the parent skill or skill group.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
                   "code": {
+                    "description": "The code of the parent skill group.",
                     "maxLength": 256,
-                    "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The id of the parent skill or skill group.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "objectType": {
+                    "description": "The type of the parent, e.g., Skill or SkillGroup.",
+                    "enum": [
+                      "skillgroup",
+                      "skill",
+                    ],
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the parent skill or skill group.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
                     "type": "string",
                   },
                 },
                 "required": [
-                  "code",
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "objectType",
                 ],
+                "then": {
+                  "properties": {
+                    "code": {
+                      "maxLength": 256,
+                      "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "code",
+                  ],
+                },
+                "type": "object",
               },
-              "type": [
-                "object",
-                "null",
-              ],
+              "minItems": 0,
+              "type": "array",
             },
             "path": {
               "description": "Resource path using the skill's ID.",
@@ -4864,7 +4918,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
             "reuseLevel",
             "isLocalized",
             "modelId",
-            "parent",
+            "parents",
             "children",
             "requiresSkills",
             "requiredBySkills",

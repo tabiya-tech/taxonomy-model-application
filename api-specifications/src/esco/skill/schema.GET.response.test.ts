@@ -105,7 +105,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     modelId: getMockId(1),
     isLocalized: true,
-    parent: givenParent,
+    parents: [givenParent],
     children: [givenChild],
     requiresSkills: givenRequiresSkills,
     requiredBySkills: givenRequiredBySkills,
@@ -486,23 +486,23 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
         });
       });
 
-      describe("Test validation of 'parent'", () => {
+      describe("Test validation of 'parents'", () => {
         test.each([
           [
             CaseType.Failure,
             "undefined",
             undefined,
-            constructSchemaError("", "required", "must have required property 'parent'"),
+            constructSchemaError("", "required", "must have required property 'parents'"),
           ],
-          [CaseType.Success, "null", null, undefined],
-          [CaseType.Failure, "a string", "foo", constructSchemaError("/parent", "type", "must be object,null")],
+          [CaseType.Failure, "null", null, constructSchemaError("/parents", "type", "must be array")],
+          [CaseType.Failure, "a string", "foo", constructSchemaError("/parents", "type", "must be array")],
           [
             CaseType.Failure,
-            "an array",
+            "array with invalid items",
             ["foo", "bar"],
-            constructSchemaError("/parent", "type", "must be object,null"),
+            constructSchemaError("/parents/0", "type", "must be object"),
           ],
-          [CaseType.Success, "a valid parent object", givenValidSkillGETResponse.parent, undefined],
+          [CaseType.Success, "a valid parents array", [givenParent], undefined],
           [
             CaseType.Failure,
             "parent object missing code",
@@ -512,7 +512,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
               objectType: SkillEnums.ObjectTypes.SkillGroup,
             },
-            constructSchemaError("/parent", "required", "must have required property 'code'"),
+            constructSchemaError("/parents/0", "required", "must have required property 'code'"),
           ],
           [
             CaseType.Failure,
@@ -523,7 +523,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               objectType: SkillEnums.ObjectTypes.SkillGroup,
               code: getTestSkillGroupCode(SkillGroupConstants.CODE_MAX_LENGTH),
             },
-            constructSchemaError("/parent", "required", "must have required property 'id'"),
+            constructSchemaError("/parents/0", "required", "must have required property 'id'"),
           ],
           [
             CaseType.Failure,
@@ -534,7 +534,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               objectType: SkillEnums.ObjectTypes.SkillGroup,
               code: getTestSkillGroupCode(SkillGroupConstants.CODE_MAX_LENGTH),
             },
-            constructSchemaError("/parent", "required", "must have required property 'UUID'"),
+            constructSchemaError("/parents/0", "required", "must have required property 'UUID'"),
           ],
           [
             CaseType.Failure,
@@ -545,7 +545,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               objectType: SkillEnums.ObjectTypes.SkillGroup,
               code: getTestSkillGroupCode(SkillGroupConstants.CODE_MAX_LENGTH),
             },
-            constructSchemaError("/parent", "required", "must have required property 'preferredLabel'"),
+            constructSchemaError("/parents/0", "required", "must have required property 'preferredLabel'"),
           ],
           [
             CaseType.Failure,
@@ -556,53 +556,64 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
               code: getTestSkillGroupCode(SkillGroupConstants.CODE_MAX_LENGTH),
             },
-            constructSchemaError("/parent", "required", "must have required property 'objectType'"),
+            constructSchemaError("/parents/0", "required", "must have required property 'objectType'"),
           ],
-        ])("(%s) Validate 'parent' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        ])("(%s) Validate 'parents' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+          const parentsValue =
+            givenValue !== null &&
+            givenValue !== undefined &&
+            typeof givenValue === "object" &&
+            !Array.isArray(givenValue)
+              ? [givenValue]
+              : givenValue;
           const givenObject = {
             ...givenValidSkillGETResponse,
-            parent: givenValue,
+            parents: parentsValue,
           };
-          assertCaseForProperty("parent", givenObject, itemSchema, caseType, failureMessages);
+          assertCaseForProperty("parents", givenObject, itemSchema, caseType, failureMessages);
         });
       });
 
-      describe("Test validation of parent fields", () => {
-        describe("Test validation of 'parent/id'", () => {
-          const testCases = getStdObjectIdTestCases("/parent/id");
+      describe("Test validation of parents fields", () => {
+        describe("Test validation of 'parents/id'", () => {
+          const testCases = getStdObjectIdTestCases("/parents/0/id");
           test.each(testCases)(
             `(%s) Validate 'id' when it is %s`,
             (caseType, _description, givenValue, failureMessages) => {
               const givenObject = {
                 ...givenValidSkillGETResponse,
-                parent: {
-                  ...givenParent,
-                  id: givenValue,
-                },
+                parents: [
+                  {
+                    ...givenParent,
+                    id: givenValue,
+                  },
+                ],
               };
-              assertCaseForProperty("/parent/id", givenObject, itemSchema, caseType, failureMessages);
+              assertCaseForProperty("/parents/0/id", givenObject, itemSchema, caseType, failureMessages);
             }
           );
         });
-        describe("Test validation of 'parent/UUID'", () => {
-          const testCases = getStdUUIDTestCases("/parent/UUID");
+        describe("Test validation of 'parents/UUID'", () => {
+          const testCases = getStdUUIDTestCases("/parents/0/UUID");
           test.each(testCases)(
             `(%s) Validate 'UUID' when it is %s`,
             (caseType, _description, givenValue, failureMessages) => {
               const givenObject = {
                 ...givenValidSkillGETResponse,
-                parent: {
-                  ...givenParent,
-                  UUID: givenValue,
-                },
+                parents: [
+                  {
+                    ...givenParent,
+                    UUID: givenValue,
+                  },
+                ],
               };
-              assertCaseForProperty("/parent/UUID", givenObject, itemSchema, caseType, failureMessages);
+              assertCaseForProperty("/parents/0/UUID", givenObject, itemSchema, caseType, failureMessages);
             }
           );
         });
-        describe("Test validation of 'parent/preferredLabel'", () => {
+        describe("Test validation of 'parents/preferredLabel'", () => {
           const testCases = getStdNonEmptyStringTestCases(
-            "/parent/preferredLabel",
+            "/parents/0/preferredLabel",
             SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH
           );
           test.each(testCases)(
@@ -610,63 +621,67 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
             (caseType, _description, givenValue, failureMessage) => {
               const givenObject = {
                 ...givenValidSkillGETResponse,
-                parent: {
-                  ...givenParent,
-                  preferredLabel: givenValue,
-                },
+                parents: [
+                  {
+                    ...givenParent,
+                    preferredLabel: givenValue,
+                  },
+                ],
               };
-              assertCaseForProperty("/parent/preferredLabel", givenObject, itemSchema, caseType, failureMessage);
+              assertCaseForProperty("/parents/0/preferredLabel", givenObject, itemSchema, caseType, failureMessage);
             }
           );
         });
-        describe("Test validation of 'parent/objectType'", () => {
+        describe("Test validation of 'parents/objectType'", () => {
           test.each([
             [
               CaseType.Failure,
               "undefined",
               undefined,
-              constructSchemaError("/parent", "required", "must have required property 'objectType'"),
+              constructSchemaError("/parents/0", "required", "must have required property 'objectType'"),
             ],
-            [CaseType.Failure, "null", null, constructSchemaError("/parent/objectType", "type", "must be string")],
+            [CaseType.Failure, "null", null, constructSchemaError("/parents/0/objectType", "type", "must be string")],
             [
               CaseType.Failure,
               "empty string",
               "",
-              constructSchemaError("/parent/objectType", "enum", "must be equal to one of the allowed values"),
+              constructSchemaError("/parents/0/objectType", "enum", "must be equal to one of the allowed values"),
             ],
             [
               CaseType.Failure,
               "an invalid objectType",
               "invalidObjectType",
-              constructSchemaError("/parent/objectType", "enum", "must be equal to one of the allowed values"),
+              constructSchemaError("/parents/0/objectType", "enum", "must be equal to one of the allowed values"),
             ],
             [CaseType.Success, "a valid objectType", SkillEnums.ObjectTypes.SkillGroup, undefined],
           ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
             const givenObject = {
               ...givenValidSkillGETResponse,
-              parent: {
-                ...givenParent,
-                objectType: givenValue,
-              },
+              parents: [
+                {
+                  ...givenParent,
+                  objectType: givenValue,
+                },
+              ],
             };
-            assertCaseForProperty("/parent/objectType", givenObject, itemSchema, caseType, failureMessage);
+            assertCaseForProperty("/parents/0/objectType", givenObject, itemSchema, caseType, failureMessage);
           });
         });
-        describe("Test validation of 'parent/code'", () => {
+        describe("Test validation of 'parents/code'", () => {
           test.each([
             [
               CaseType.Failure,
               "undefined",
               undefined,
-              constructSchemaError("/parent", "required", "must have required property 'code'"),
+              constructSchemaError("/parents/0", "required", "must have required property 'code'"),
             ],
-            [CaseType.Failure, "null", null, constructSchemaError("/parent/code", "type", "must be string")],
+            [CaseType.Failure, "null", null, constructSchemaError("/parents/0/code", "type", "must be string")],
             [
               CaseType.Failure,
               "empty string",
               "",
               constructSchemaError(
-                "/parent/code",
+                "/parents/0/code",
                 "pattern",
                 `must match pattern "${SkillGroupRegexes.Str.SKILL_GROUP_CODE}"`
               ),
@@ -676,7 +691,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               "too long",
               getTestString(SkillGroupConstants.CODE_MAX_LENGTH + 1),
               constructSchemaError(
-                "/parent/code",
+                "/parents/0/code",
                 "maxLength",
                 `must NOT have more than ${SkillGroupConstants.CODE_MAX_LENGTH} characters`
               ),
@@ -686,7 +701,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               "invalid pattern - starts with number",
               "1abc",
               constructSchemaError(
-                "/parent/code",
+                "/parents/0/code",
                 "pattern",
                 `must match pattern "${SkillGroupRegexes.Str.SKILL_GROUP_CODE}"`
               ),
@@ -696,7 +711,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
               "invalid pattern - special characters",
               "a@bc",
               constructSchemaError(
-                "/parent/code",
+                "/parents/0/code",
                 "pattern",
                 `must match pattern "${SkillGroupRegexes.Str.SKILL_GROUP_CODE}"`
               ),
@@ -707,12 +722,14 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Response.Payload sc
           ])("%s Validate 'code' when it is %s", (caseType, __description, givenValue, failureMessage) => {
             const givenObject = {
               ...givenValidSkillGETResponse,
-              parent: {
-                ...givenParent,
-                code: givenValue,
-              },
+              parents: [
+                {
+                  ...givenParent,
+                  code: givenValue,
+                },
+              ],
             };
-            assertCaseForProperty("/parent/code", givenObject, itemSchema, caseType, failureMessage);
+            assertCaseForProperty("/parents/0/code", givenObject, itemSchema, caseType, failureMessage);
           });
         });
       });

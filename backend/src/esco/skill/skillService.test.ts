@@ -330,30 +330,36 @@ describe("Test the SkillService", () => {
       // WHEN calling service.getParents
       const actual = await service.getParents(givenModelId, givenSkillId, 100);
 
-      // THEN expect repository.findParents to have been called with correct parameters
       expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
-      // AND expect returned parents
       expect(actual).toEqual({ items: expectedParents, nextCursor: null });
+    });
+
+    test("should return empty array when no parents", async () => {
+      mockRepository.findParents.mockResolvedValue([]);
+
+      const actual = await service.getParents(getMockStringId(1), getMockStringId(2), 100);
+
+      expect(actual).toEqual({ items: [], nextCursor: null });
     });
 
     test("should return nextCursor when there are more parents", async () => {
       // GIVEN modelId and skillId
       const givenModelId = getMockStringId(1);
       const givenSkillId = getMockStringId(2);
-      const givenLimit = 1;
       // AND repository returns more items than limit
       const expectedParents = [
-        { ...getISkillMockData(), id: getMockStringId(3), createdAt: new Date("2023-01-01T00:00:00.000Z") },
-        { ...getISkillMockData(), id: getMockStringId(4), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        { ...getISkillMockData(), id: getMockStringId(1), createdAt: new Date() },
+        { ...getISkillMockData(), id: getMockStringId(2), createdAt: new Date() },
+        { ...getISkillMockData(), id: getMockStringId(3), createdAt: new Date() },
       ];
       mockRepository.findParents.mockResolvedValue(expectedParents);
 
       // WHEN calling service.getParents
-      const actual = await service.getParents(givenModelId, givenSkillId, givenLimit);
+      const actual = await service.getParents(givenModelId, givenSkillId, 2);
 
-      // THEN expect returned parents with nextCursor
-      expect(actual.items).toHaveLength(1);
-      expect(actual.nextCursor).toEqual({ _id: getMockStringId(3), createdAt: expectedParents[0].createdAt });
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 3, undefined);
+      expect(actual.items).toHaveLength(2);
+      expect(actual.nextCursor).toEqual({ _id: getMockStringId(2), createdAt: expectedParents[1].createdAt });
     });
   });
 
@@ -466,8 +472,15 @@ describe("Test the SkillService", () => {
       const givenLimit = 1;
       // AND repository returns more items than limit
       const expectedRelatedSkills = [
-        { id: getMockStringId(3), createdAt: new Date("2023-01-01T00:00:00.000Z") },
-        { id: getMockStringId(4), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        {
+          id: getMockStringId(3),
+          createdAt: new Date("2023-01-01T00:00:00.000Z"),
+          relationId: getMockStringId(3),
+        },
+        {
+          id: getMockStringId(4),
+          createdAt: new Date("2023-01-01T00:00:00.000Z"),
+        },
       ];
       mockRepository.findRelatedSkills.mockResolvedValue(
         expectedRelatedSkills as unknown as SkillToSkillReferenceWithRelationType<ISkill>[]
@@ -476,7 +489,6 @@ describe("Test the SkillService", () => {
       // WHEN calling service.getRelatedSkills
       const actual = await service.getRelatedSkills(givenModelId, givenSkillId, givenLimit);
 
-      // THEN expect returned related skills with nextCursor
       expect(actual.items).toHaveLength(1);
       expect(actual.nextCursor).toEqual({ _id: getMockStringId(3), createdAt: expectedRelatedSkills[0].createdAt });
     });

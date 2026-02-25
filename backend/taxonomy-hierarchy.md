@@ -74,5 +74,5 @@ The valid entity relationships in the Skill Hierarchy are:
 - Skill Group -> Skill
 - Skill -> Skill
 
-When constructing an occupation hierarchy, the following rules have to be followed:
-> Skill hierarchies are built such that entities can only have one parent but can have multiple children.
+When constructing a skill hierarchy, the following rules have to be followed:
+> Skill hierarchies allow entities to have multiple parents and multiple children.

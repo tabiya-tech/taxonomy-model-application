@@ -8,6 +8,7 @@ import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { transform as transformSkillGroup } from "esco/skillGroup/transform";
+import { transform as transformOccupation } from "esco/occupations/transform";
 
 function mapSkillType(skillType: string): SkillAPISpecs.Enums.SkillType {
   switch (skillType) {
@@ -39,8 +40,8 @@ function mapReuseLevel(reuseLevel: string): SkillAPISpecs.Enums.ReuseLevel {
   }
 }
 
-function mapParent(parent: ISkillReference | ISkillGroupReference): SkillAPISpecs.Types.Response.ISkill["parent"] {
-  if (!parent) return null;
+function mapParent(parent: ISkillReference | ISkillGroupReference): SkillAPISpecs.Types.Response.ISkill["parents"][0] {
+  if (!parent) return null as unknown as SkillAPISpecs.Types.Response.ISkill["parents"][0]; // defensive
 
   const objectType =
     parent.objectType === ObjectTypes.SkillGroup
@@ -181,11 +182,11 @@ export function transform(data: ISkill, baseURL: string): SkillAPISpecs.Types.Re
     modelId: data.modelId,
     path: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/skills/${data.id}`,
     tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/skills/${data.UUID}`,
-    parent: data.parents.length > 0 ? mapParent(data.parents[0]) : null,
-    children: data.children.map(mapChild),
-    requiresSkills: data.requiresSkills.map(mapRequiresSkill),
-    requiredBySkills: data.requiredBySkills.map(mapRequiredBySkill),
-    requiredByOccupations: data.requiredByOccupations.map(mapRequiredByOccupation),
+    parents: data.parents.map((element) => mapParent(element)).filter((p): p is NonNullable<typeof p> => p !== null),
+    children: data.children.map((element) => mapChild(element)),
+    requiresSkills: data.requiresSkills.map((element) => mapRequiresSkill(element)),
+    requiredBySkills: data.requiredBySkills.map((element) => mapRequiredBySkill(element)),
+    requiredByOccupations: data.requiredByOccupations.map((element) => mapRequiredByOccupation(element)),
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
   };
@@ -213,9 +214,9 @@ export function transformDynamicEntity(
   baseURL: string
 ): SkillAPISpecs.Types.Response.ISkill | SkillGroupAPISpecs.Types.Response.ISkillGroup {
   if ("skillType" in data) {
-    return transform(data as ISkill, baseURL);
+    return transform(data, baseURL);
   } else {
-    return transformSkillGroup(data as ISkillGroup, baseURL);
+    return transformSkillGroup(data, baseURL);
   }
 }
 
@@ -240,53 +241,59 @@ export function transformPaginatedRelation(
 }
 
 export function transformSkillOccupation(
-  occupationData: OccupationToSkillReferenceWithRelationType<IOccupationReference>
+  occupationData: OccupationToSkillReferenceWithRelationType<IOccupationReference>,
+  baseURL: string
 ): SkillAPISpecs.Types.GET.Occupations.Response.Payload["data"][0] {
+  const data = occupationData as Record<string, unknown>;
+  const normalized = {
+    ...occupationData,
+    parent: data.parent ?? null,
+    children: data.children ?? [],
+    requiresSkills: data.requiresSkills ?? [],
+    createdAt: data.createdAt ?? new Date(),
+    updatedAt: data.updatedAt ?? new Date(),
+  };
+  const transformed = transformOccupation(normalized as unknown as Parameters<typeof transformOccupation>[0], baseURL);
   return {
-    id: occupationData.id,
-    UUID: occupationData.UUID,
-    code: occupationData.code,
-    preferredLabel: occupationData.preferredLabel,
-    occupationType: mapOccupationObjectType(occupationData.occupationType),
+    ...transformed,
     relationType: mapOccupationToSkillRelationType(occupationData.relationType),
     signallingValue: occupationData.signallingValue,
-    signallingValueLabel: mapSignallingValueLabel(occupationData.signallingValueLabel),
+    signallingValueLabel: mapSignallingValueLabel(occupationData.signallingValueLabel ?? ""),
   };
 }
 
 export function transformPaginatedOccupations(
   data: OccupationToSkillReferenceWithRelationType<IOccupationReference>[],
+  baseURL: string,
   limit: number,
   cursor: string | null
 ): SkillAPISpecs.Types.GET.Occupations.Response.Payload {
   return {
-    data: data.map((item) => transformSkillOccupation(item)),
+    data: data.map((item) => transformSkillOccupation(item, baseURL)),
     limit,
     nextCursor: cursor,
   };
 }
 
 export function transformSkillRelated(
-  skillData: SkillToSkillReferenceWithRelationType<ISkill>
-): SkillAPISpecs.Types.GET.Related.Response.Payload["data"][0] {
+  skillData: SkillToSkillReferenceWithRelationType<ISkill>,
+  baseURL: string
+): SkillAPISpecs.Types.GET.RelatedSkills.Response.Payload["data"][0] {
+  const transformed = transform(skillData, baseURL);
   return {
-    id: skillData.id,
-    UUID: skillData.UUID,
-    preferredLabel: skillData.preferredLabel,
-    skillType: mapSkillType(skillData.skillType),
-    reuseLevel: mapReuseLevel(skillData.reuseLevel),
-    isLocalized: skillData.isLocalized,
+    ...transformed,
     relationType: mapSkillToSkillRelationType(skillData.relationType) as SkillAPISpecs.Enums.SkillToSkillRelationType,
   };
 }
 
 export function transformPaginatedRelated(
   data: SkillToSkillReferenceWithRelationType<ISkill>[],
+  baseURL: string,
   limit: number,
   cursor: string | null
-): SkillAPISpecs.Types.GET.Related.Response.Payload {
+): SkillAPISpecs.Types.GET.RelatedSkills.Response.Payload {
   return {
-    data: data.map((item) => transformSkillRelated(item)),
+    data: data.map((item) => transformSkillRelated(item, baseURL)),
     limit,
     nextCursor: cursor,
   };

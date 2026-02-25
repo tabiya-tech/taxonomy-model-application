@@ -1,19 +1,13 @@
-export interface ISkillParentItem {
-  id: string;
-  UUID: string;
-  preferredLabel: string;
-  objectType: "SkillGroup" | "Skill";
-  code?: string; // Only for SkillGroup parents
-  isLocalized?: boolean; // Only for Skill parents
-}
+import type SkillGroupTypes from "../../../skillGroup/types";
+import type SkillTypes from "../../types";
+
+export type ISkillParentItem = SkillTypes.Response.ISkill | SkillGroupTypes.Response.ISkillGroup;
 
 export interface ISkillParentsResponse {
   data: ISkillParentItem[];
   limit: number;
   nextCursor: string | null;
 }
-
-export type ISkillParentResponse = ISkillParentsResponse;
 
 export interface ISkillParentsRequestQuery {
   limit?: number;
