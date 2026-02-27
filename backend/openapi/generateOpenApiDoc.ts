@@ -63,6 +63,8 @@ delete SkillGroup.Schemas.POST.Request.Payload.$id;
 delete SkillGroup.Schemas.POST.Response.Payload.$id;
 delete SkillGroup.Schemas.GET.Response.Payload.$id;
 delete SkillGroup.Schemas.GET.Response.ById.Payload.$id;
+delete SkillGroup.Schemas.GET.Response.Parents.Payload.$id;
+delete SkillGroup.Schemas.GET.Response.Children.Payload.$id;
 delete SkillGroup.Schemas.GET.Request.Param.Payload.$id;
 delete SkillGroup.Schemas.GET.Request.Query.Payload.$id;
 delete SkillGroup.Schemas.GET.Request.ById.Param.Payload.$id;
@@ -287,6 +289,14 @@ function getOpenAPISpecification(
           GETSkillGroups404ErrorSchema: APIError.Schemas.getPayload("GET", "SkillGroups", 404, [
             SkillGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           ]),
+          GETSkillGroupParents404ErrorSchema: APIError.Schemas.getPayload("GET", "SkillGroupParent", 404, [
+            SkillGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+            SkillGroup.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+          ]),
+          GETSkillGroupChildren404ErrorSchema: APIError.Schemas.getPayload("GET", "SkillGroupChildren", 404, [
+            SkillGroup.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+            SkillGroup.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+          ]),
           // Skill-specific error schemas
           POSTSkill400ErrorSchema: APIError.Schemas.getPayload(
             "POST",
@@ -389,6 +399,8 @@ function getOpenAPISpecification(
           SkillGroupRequestSchemaPOST: SkillGroup.Schemas.POST.Request.Payload,
           SkillGroupResponseSchemaPOST: SkillGroup.Schemas.POST.Response.Payload,
           SkillGroupResponseSchemaGETById: SkillGroup.Schemas.GET.Response.ById.Payload,
+          SkillGroupParentsResponseSchemaGET: SkillGroup.Schemas.GET.Response.Parents.Payload,
+          SkillGroupChildrenResponseSchemaGET: SkillGroup.Schemas.GET.Response.Children.Payload,
           SkillGroupRequestParamSchemaGET: SkillGroup.Schemas.GET.Request.Param.Payload,
           SkillGroupRequestQueryParamSchemaGET: SkillGroup.Schemas.GET.Request.Query.Payload,
           SkillGroupResponseSchemaGET: SkillGroup.Schemas.GET.Response.Payload,

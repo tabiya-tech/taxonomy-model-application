@@ -35,9 +35,41 @@ interface ISkillGroupResponse {
   updatedAt: string;
 }
 
+interface ISkillGroupChildResponse {
+  id: string;
+  parentId: string;
+  UUID: string;
+  originUUID: string;
+  path: string;
+  tabiyaPath: string;
+  UUIDHistory: string[];
+  originUri: string;
+  code?: string;
+  description: string;
+  preferredLabel: string;
+  altLabels: string[];
+  objectType: SkillGroupEnums.Relations.Children.ObjectTypes;
+  isLocalized?: boolean;
+  modelId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PaginatedSkillGroupChildrenResponse {
+  data: ISkillGroupChildResponse[];
+  limit: number | null;
+  nextCursor: string | null;
+}
+
 interface PaginatedSkillGroupResponse {
   data: ISkillGroupResponse[];
   limit: number;
+  nextCursor: string | null;
+}
+
+interface PaginatedSkillGroupParentsResponse {
+  data: ISkillGroupResponse[];
+  limit: number | null;
   nextCursor: string | null;
 }
 
@@ -88,6 +120,18 @@ namespace SkillGroupTypes {
     export namespace Response {
       export type SkillGroupItem = ISkillGroupResponse;
       export type Payload = PaginatedSkillGroupResponse;
+      export namespace Parent {
+        export type Payload = ISkillGroupResponse;
+      }
+      export namespace Parents {
+        export type Payload = PaginatedSkillGroupParentsResponse;
+      }
+      export namespace Child {
+        export type Payload = ISkillGroupChildResponse;
+      }
+      export namespace Children {
+        export type Payload = PaginatedSkillGroupChildrenResponse;
+      }
       export namespace ById {
         export type Payload = ISkillGroupResponse;
       }

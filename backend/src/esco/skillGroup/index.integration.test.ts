@@ -114,6 +114,7 @@ describe("Test for skillGroup handler with a DB", () => {
         "Content-Type": "application/json",
       },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
       queryStringParameters: {
         limit: limit.toString(),
         cursor: cursor,
@@ -174,6 +175,7 @@ describe("Test for skillGroup handler with a DB", () => {
         "Content-Type": "application/json",
       },
       pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
       queryStringParameters: {
         limit: limit,
         cursor: cursor,
@@ -215,6 +217,7 @@ describe("Test for skillGroup handler with a DB", () => {
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: { limit: "3" },
+      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
     };
     // @ts-ignore
     const baselineResponse = await skillGroupHandler(baselineEvent);
@@ -229,6 +232,7 @@ describe("Test for skillGroup handler with a DB", () => {
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: { limit: "1" },
+      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
     };
     // @ts-ignore
     const page1Response = await skillGroupHandler(page1Event);
@@ -244,6 +248,7 @@ describe("Test for skillGroup handler with a DB", () => {
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: { limit: "1", cursor: page1Body.nextCursor },
+      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
     };
     // @ts-ignore
     const page2Response = await skillGroupHandler(page2Event);
@@ -259,6 +264,7 @@ describe("Test for skillGroup handler with a DB", () => {
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: { limit: "1", cursor: page2Body.nextCursor },
+      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
     };
     // @ts-ignore
     const page3Response = await skillGroupHandler(page3Event);
@@ -282,6 +288,7 @@ describe("Test for skillGroup handler with a DB", () => {
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: givenModelInfo.id.toString() },
       queryStringParameters: { limit: "20" },
+      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
     };
     // @ts-ignore
     const baselineResponse = await skillGroupHandler(baselineEvent);
@@ -309,6 +316,7 @@ describe("Test for skillGroup handler with a DB", () => {
         headers: { "Content-Type": "application/json" },
         pathParameters: { modelId: givenModelInfo.id.toString() },
         queryStringParameters: { limit: size.toString(), ...(cursor ? { cursor } : {}) },
+        path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
       };
       // @ts-ignore
       const resp = await skillGroupHandler(event);
