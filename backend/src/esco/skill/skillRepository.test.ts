@@ -2033,5 +2033,70 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         new Error("SkillRepository.findRelatedSkills: findRelatedSkills failed", { cause: givenError })
       );
     });
+
+    test("should correctly handle relationId when it is a string or an ObjectId", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenRelated = await repository.create(getSimpleNewSkillSpec(givenModelId, "related"));
+
+      // AND a relation exists
+      const relation = (
+        await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
+          {
+            requiringSkillId: givenSubject.id,
+            requiredSkillId: givenRelated.id,
+            relationType: SkillToSkillRelationType.ESSENTIAL,
+          },
+        ])
+      )[0];
+
+      // WHEN finding related skills
+      const actualRelated = (await repository.findRelatedSkills(
+        givenModelId,
+        givenSubject.id,
+        10
+      )) as (SkillToSkillReferenceWithRelationType<ISkill> & {
+        relationId: string;
+      })[];
+
+      // THEN expect the relationId to be correctly mapped to a string
+      expect(actualRelated).toHaveLength(1);
+      expect(actualRelated[0].relationId).toEqual(relation.id);
+      expect(typeof actualRelated[0].relationId).toBe("string");
+    });
+
+    test("should correctly handle relationId when aggregate returns it as a plain string", async () => {
+      // GIVEN a modelId and a skill
+      const givenModelId = getMockStringId(1);
+      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenRelated = await repository.create(getSimpleNewSkillSpec(givenModelId, "related"));
+      const givenStringRelationId = getMockStringId(99);
+
+      // AND the aggregate is mocked to return relationId as a plain string (defensive branch)
+      const RelationModel = dbConnection.model(MongooseModelName.SkillToSkillRelation);
+      const rawAggregateResult = [
+        {
+          ...givenRelated,
+          _id: givenRelated.id,
+          relationType: SkillToSkillRelationType.OPTIONAL,
+          relationId: givenStringRelationId, // already a string — hits the true branch at line 642
+        },
+      ];
+      jest.spyOn(RelationModel, "aggregate").mockReturnValueOnce({
+        exec: () => Promise.resolve(rawAggregateResult),
+      } as ReturnType<typeof RelationModel.aggregate>);
+
+      // WHEN finding related skills
+      const actualRelated = (await repository.findRelatedSkills(
+        givenModelId,
+        givenSubject.id,
+        10
+      )) as (SkillToSkillReferenceWithRelationType<ISkill> & { relationId: string })[];
+
+      // THEN expect the string relationId to be passed through unchanged
+      expect(actualRelated[0].relationId).toEqual(givenStringRelationId);
+      expect(typeof actualRelated[0].relationId).toBe("string");
+    });
   });
 });
