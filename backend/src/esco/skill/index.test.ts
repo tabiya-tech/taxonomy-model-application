@@ -1059,6 +1059,123 @@ describe("Test for skill handler", () => {
       );
     });
 
+    test("getParents should return 500 if model validation fails to fetch from DB", async () => {
+      // GIVEN service returns FAILED_TO_FETCH_FROM_DB
+      const givenSkillServiceMock = {
+        validateModelForSkill: jest.fn().mockResolvedValue(ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = { path: `/models/${givenModelId}/skills/${givenSkillId}/parents` };
+
+      // WHEN getParents is called
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      // THEN expect INTERNAL_SERVER_ERROR
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
+      );
+    });
+
+    test("getParents should return 400 if query parameters are invalid", async () => {
+      // GIVEN invalid query parameters
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
+        queryStringParameters: { limit: "invalid" },
+      };
+      // AND model validation and findById would succeed
+      const givenSkillServiceMock = {
+        validateModelForSkill: jest.fn().mockResolvedValue(null),
+        findById: jest.fn().mockResolvedValue({}),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      // WHEN getParents is called
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      // THEN expect BAD_REQUEST
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
+    test("getParents should return 400 if cursor decoding fails", async () => {
+      // GIVEN invalid cursor
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
+        queryStringParameters: { cursor: "invalid-base64" },
+      };
+      // AND model validation and findById would succeed
+      const givenSkillServiceMock = {
+        validateModelForSkill: jest.fn().mockResolvedValue(null),
+        findById: jest.fn().mockResolvedValue({}),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+      // WHEN getParents is called
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      // THEN expect BAD_REQUEST
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
+    test("getParents should return 200 and include nextCursor when provided by service", async () => {
+      // GIVEN service returns items and a nextCursor
+      const nextId = getMockStringId(3);
+      const nextCreatedAt = new Date();
+      const givenSkillServiceMock = {
+        validateModelForSkill: jest.fn().mockResolvedValue(null),
+        findById: jest.fn().mockResolvedValue({}),
+        getParents: jest.fn().mockResolvedValue({
+          items: [],
+          nextCursor: { _id: nextId, createdAt: nextCreatedAt },
+        }),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = { path: `/models/${givenModelId}/skills/${givenSkillId}/parents` };
+
+      // WHEN getParents is called
+      const skillController = new SkillController();
+      const actualResponse = await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      // THEN expect OK
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.nextCursor).toBeDefined();
+      // AND verify encoded cursor content
+      const decoded = JSON.parse(Buffer.from(body.nextCursor, "base64").toString("utf-8"));
+      expect(decoded.id).toEqual(nextId);
+      expect(decoded.createdAt).toEqual(nextCreatedAt.toISOString());
+    });
+
+    test("getParents should use the custom limit when provided in query parameters", async () => {
+      // GIVEN a custom limit passed in query params
+      const givenCustomLimit = 5;
+      const givenSkillServiceMock = {
+        validateModelForSkill: jest.fn().mockResolvedValue(null),
+        findById: jest.fn().mockResolvedValue({ id: givenSkillId }),
+        getParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      } as unknown as ISkillService;
+      mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+      const event = {
+        path: `/models/${givenModelId}/skills/${givenSkillId}/parents`,
+        queryStringParameters: { limit: String(givenCustomLimit) },
+      };
+
+      // WHEN getParents is called
+      const skillController = new SkillController();
+      await skillController.getParents(event as unknown as APIGatewayProxyEvent);
+
+      // THEN expect the service to have been called with the custom limit
+      expect(givenSkillServiceMock.getParents).toHaveBeenCalledWith(
+        givenModelId,
+        givenSkillId,
+        givenCustomLimit,
+        undefined
+      );
+    });
+
     test("getChildren should return 200 and children", async () => {
       // GIVEN children from service
       const children = [getISkillMockData(), getISkillGroupMockData()];

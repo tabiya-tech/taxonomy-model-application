@@ -493,6 +493,64 @@ describe("Test the SkillService", () => {
       expect(actual.nextCursor).toEqual({ _id: getMockStringId(3), createdAt: expectedRelatedSkills[0].createdAt });
     });
 
+    test("should use current date as cursor createdAt when last item has relationId but no createdAt", async () => {
+      // GIVEN more items than the limit, last item has relationId but no createdAt
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenLimit = 1;
+      const expectedRelatedSkills = [
+        {
+          id: getMockStringId(3),
+          relationId: getMockStringId(9),
+          // no createdAt
+        },
+        {
+          id: getMockStringId(4),
+        },
+      ];
+      mockRepository.findRelatedSkills.mockResolvedValue(
+        expectedRelatedSkills as unknown as SkillToSkillReferenceWithRelationType<ISkill>[]
+      );
+
+      // WHEN calling service.getRelatedSkills
+      const givenBefore = new Date();
+      const actual = await service.getRelatedSkills(givenModelId, givenSkillId, givenLimit);
+
+      // THEN expect nextCursor to use the relationId and fallback to current date for createdAt
+      expect(actual.items).toHaveLength(1);
+      expect(actual.nextCursor).not.toBeNull();
+      expect(actual.nextCursor!._id).toBe(getMockStringId(9));
+      expect(actual.nextCursor!.createdAt).toBeInstanceOf(Date);
+      expect(actual.nextCursor!.createdAt.getTime()).toBeGreaterThanOrEqual(givenBefore.getTime());
+    });
+
+    test("should return null nextCursor when there are more items but last item has no relationId", async () => {
+      // GIVEN more items than the limit, but without a relationId on the last item
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenLimit = 1;
+      const expectedRelatedSkills = [
+        {
+          id: getMockStringId(3),
+          createdAt: new Date("2023-01-01T00:00:00.000Z"),
+          // no relationId
+        },
+        {
+          id: getMockStringId(4),
+        },
+      ];
+      mockRepository.findRelatedSkills.mockResolvedValue(
+        expectedRelatedSkills as unknown as SkillToSkillReferenceWithRelationType<ISkill>[]
+      );
+
+      // WHEN calling service.getRelatedSkills
+      const actual = await service.getRelatedSkills(givenModelId, givenSkillId, givenLimit);
+
+      // THEN expect items to be sliced but nextCursor to be null (no relationId to use as cursor)
+      expect(actual.items).toHaveLength(1);
+      expect(actual.nextCursor).toBeNull();
+    });
+
     test("should use current date when item handles no createdAt", async () => {
       // GIVEN an item without createdAt
       const givenItems = [{ id: "foo" }, { id: "bar" }];
