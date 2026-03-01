@@ -2,7 +2,7 @@ import { ISkill, ISkillReference, ReuseLevel, SkillType } from "./skills.types";
 import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
 import { getISkillMockData } from "./testDataHelper";
 import SkillAPISpecs from "api-specifications/esco/skill";
-import { transform, transformPaginated } from "./transform";
+import { transform, transformPaginated, transformSkillOccupation, transformSkillRelated } from "./transform";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -12,6 +12,7 @@ import {
   OccupationToSkillReferenceWithRelationType,
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { IOccupationReference } from "esco/occupations/occupationReference.types";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import { getRandomString } from "_test_utilities/getMockRandomData";
@@ -392,6 +393,46 @@ describe("Detailed mapping tests", () => {
       expect(actual.requiredByOccupations[0].relationType).toBe(null);
       expect(actual.requiredByOccupations[0].signallingValue).toBeUndefined();
       expect(actual.requiredByOccupations[0].signallingValueLabel).toBe(null);
+    });
+  });
+
+  describe("transformSkillOccupation", () => {
+    test("should apply default createdAt and updatedAt timestamps if they are missing", () => {
+      const givenOccupation = {
+        id: getMockStringId(14),
+        UUID: randomUUID(),
+        preferredLabel: "Requiring Occupation",
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        UUIDHistory: [randomUUID()],
+      } as unknown as OccupationToSkillReferenceWithRelationType<IOccupationReference>;
+
+      const actual = transformSkillOccupation(
+        givenOccupation,
+        basePath
+      ) as unknown as SkillAPISpecs.Types.Response.ISkill["requiredByOccupations"][0] & {
+        createdAt: string;
+        updatedAt: string;
+      };
+
+      expect(actual.createdAt).toBeDefined();
+      expect(actual.updatedAt).toBeDefined();
+      expect(actual.relationType).toBe(SkillAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL);
+    });
+  });
+
+  describe("transformSkillRelated", () => {
+    test("should correctly transform a related skill and map its relationType", () => {
+      const givenRelatedSkill = {
+        ...getISkillMockData(),
+        relationType: "essential",
+      } as unknown as SkillToSkillReferenceWithRelationType<ISkill>;
+
+      const actual = transformSkillRelated(givenRelatedSkill, basePath);
+
+      expect(actual.id).toBe(givenRelatedSkill.id);
+      expect(actual.relationType).toBe(SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL);
     });
   });
 
