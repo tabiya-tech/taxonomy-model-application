@@ -274,11 +274,15 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroup[];
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const relations = await this.hierarchyModel
-        .find({ modelId: modelIdObj, childId: { $eq: new mongoose.Types.ObjectId(id) } })
+        .find({
+          modelId: modelIdObj,
+          childId: { $eq: new mongoose.Types.ObjectId(id) },
+          parentType: ObjectTypes.SkillGroup,
+        })
         .exec();
       if (!relations.length) return [] as ISkillGroup[];
       const parentIds = relations.map((relation) => relation.parentId);
-      const parents = await this.Model.find({ _id: mongoose.trusted({ $in: parentIds }) })
+      const parents = await this.Model.find({ _id: { $in: parentIds } })
         .populate(populateSkillGroupParentsOptions)
         .populate(populateSkillGroupChildrenOptions)
         .exec();
