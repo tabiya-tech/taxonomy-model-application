@@ -822,6 +822,12 @@ describe("Test for skillGroup handler", () => {
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
       jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
 
+      // AND a skill group exists (for existence check)
+      const givenSkillGroup = {
+        ...getISkillGroupMockData(2, givenModelId),
+        id: givenSkillGroupId,
+        modelId: givenModelId,
+      };
       // AND a repository that will successfully get the parents of the skill group
       const givenSkillGroupParent: ISkillGroup = {
         ...getISkillGroupMockData(3, givenModelId),
@@ -831,7 +837,7 @@ describe("Test for skillGroup handler", () => {
         importId: randomUUID(),
       };
       const givenSkillGroupServiceMock = {
-        findById: jest.fn().mockResolvedValue(null),
+        findById: jest.fn().mockResolvedValue(givenSkillGroup),
         findParents: jest.fn().mockResolvedValue([givenSkillGroupParent]),
         findChildren: jest.fn().mockResolvedValue([]),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
@@ -887,6 +893,78 @@ describe("Test for skillGroup handler", () => {
         errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should respond with NOT_FOUND if skill group exists but belongs to different model", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const differentModelId = getMockStringId(99);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const skillGroupFromDifferentModel = { ...getISkillGroupMockData(2, differentModelId), modelId: differentModelId };
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn().mockResolvedValue(skillGroupFromDifferentModel),
+        findParents: jest.fn().mockResolvedValue([]),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+        message: "Skill group not found",
+        details: `No skill group found with id: ${givenSkillGroupId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should respond with NOT_FOUND if skill group does not exist", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn().mockResolvedValue(null),
+        findParents: jest.fn().mockResolvedValue([]),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+        message: "Skill group not found",
+        details: `No skill group found with id: ${givenSkillGroupId}`,
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
@@ -1077,12 +1155,18 @@ describe("Test for skillGroup handler", () => {
       const givenResourcesBaseUrl = "https://some/path/to/api/resources";
       jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
 
+      // AND a skill group exists (for existence check)
+      const givenSkillGroup = {
+        ...getISkillGroupMockData(2, givenModelId),
+        id: givenSkillGroupId,
+        modelId: givenModelId,
+      };
       // AND a repository that will successfully get the children of the skill group
       const givenSkillGroupChild: ISkillGroupChild = {
         ...getISkillGroupSkillTypedChildData(3, givenModelId),
       };
       const givenSkillGroupServiceMock = {
-        findById: jest.fn().mockResolvedValue(null),
+        findById: jest.fn().mockResolvedValue(givenSkillGroup),
         findParents: jest.fn().mockResolvedValue([]),
         findChildren: jest.fn().mockResolvedValue([givenSkillGroupChild]),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
@@ -1136,6 +1220,41 @@ describe("Test for skillGroup handler", () => {
         errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
+      };
+      expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/children should respond with NOT_FOUND if skill group does not exist", async () => {
+      // GIVEN a valid request with modelId and skillGroup ID
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: {},
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/children`,
+      } as never;
+
+      // AND User has the required role
+      checkRole.mockResolvedValue(true);
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn().mockResolvedValue(null),
+        findParents: jest.fn().mockResolvedValue([]),
+        findChildren: jest.fn().mockResolvedValue([]),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      } as ISkillGroupService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+      // WHEN the skillGroup handler is invoked with the given event
+      const actualResponse = await skillGroupHandler(givenEvent);
+      // THEN respond with the NOT_FOUND status
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+        message: "Skill group not found",
+        details: `No skill group found with id: ${givenSkillGroupId}`,
       };
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });

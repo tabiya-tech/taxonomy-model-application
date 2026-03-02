@@ -406,7 +406,7 @@ export class SkillGroupController {
    *     '401':
    *       $ref: '#/components/responses/UnAuthorizedResponse'
    *     '404':
-   *       description: no Skill group parents found.
+   *       description: Skill group not found or model not found. When the skill group exists but has no parents, returns 200 with empty data array.
    *       content:
    *         application/json:
    *           schema:
@@ -460,6 +460,19 @@ export class SkillGroupController {
           SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
           "Failed to fetch the model details from the DB",
           ""
+        );
+      }
+
+      const skillGroup = await this.skillGroupService.findById(requestPathParameter.id);
+      if (
+        !skillGroup ||
+        skillGroup.modelId !== requestPathParameter.modelId
+      ) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+          "Skill group not found",
+          `No skill group found with id: ${requestPathParameter.id}`
         );
       }
 
@@ -521,7 +534,7 @@ export class SkillGroupController {
    *     '401':
    *       $ref: '#/components/responses/UnAuthorizedResponse'
    *     '404':
-   *       description: no Skill group children found.
+   *       description: Skill group not found or model not found. When the skill group exists but has no children, returns 200 with empty data array.
    *       content:
    *         application/json:
    *           schema:
@@ -576,6 +589,19 @@ export class SkillGroupController {
           SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
           "Failed to fetch the model details from the DB",
           ""
+        );
+      }
+
+      const skillGroup = await this.skillGroupService.findById(requestPathParameter.id);
+      if (
+        !skillGroup ||
+        skillGroup.modelId !== requestPathParameter.modelId
+      ) {
+        return errorResponseGET(
+          StatusCodes.NOT_FOUND,
+          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+          "Skill group not found",
+          `No skill group found with id: ${requestPathParameter.id}`
         );
       }
 
