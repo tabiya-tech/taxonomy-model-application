@@ -8,6 +8,7 @@ import {
   getISkillGroupSkillGroupTypedChildData,
   getISkillGroupSkillTypedChildData,
 } from "./testDataHelper";
+import { ObjectTypes } from "esco/common/objectTypes";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import {
   transform,
@@ -590,8 +591,8 @@ describe("test the transformChild of the ISkillGroupChild -> ISkillGroupChildRes
         preferredLabel: givenChild.preferredLabel,
         altLabels: givenChild.altLabels,
         description: givenChild.description,
-        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/skillGroups/${givenChild.id}`,
-        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/skillGroups/${givenChild.UUID}`,
+        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/skills/${givenChild.id}`,
+        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/skills/${givenChild.UUID}`,
         originUUID: givenChild.UUIDHistory && givenChild.UUIDHistory.length > 0 ? givenChild.UUIDHistory.at(-1)! : "",
         code: "code" in givenChild && givenChild.code ? givenChild.code : undefined,
         createdAt: givenChild.createdAt.toISOString(),
@@ -632,6 +633,8 @@ describe("test the transformation of ISkillGroupChild[] -> ISkillGroupChildrenRe
     );
 
     // THEN expect the transformation function to return the ISkillGroupChildrenResponse with limit and next cursor
+    const basePathFor = (obj: ISkillGroupChild) =>
+      obj.objectType === ObjectTypes.Skill ? "skills" : "skillGroups";
     expect(actual).toEqual({
       data: givenObjectsPaginated.map((obj) =>
         expect.objectContaining({
@@ -645,8 +648,8 @@ describe("test the transformation of ISkillGroupChild[] -> ISkillGroupChildrenRe
           preferredLabel: obj.preferredLabel,
           altLabels: obj.altLabels,
           description: obj.description,
-          path: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/skillGroups/${obj.id}`,
-          tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/skillGroups/${obj.UUID}`,
+          path: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/${basePathFor(obj)}/${obj.id}`,
+          tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${obj.modelId}/${basePathFor(obj)}/${obj.UUID}`,
           originUUID: obj.UUIDHistory && obj.UUIDHistory.length > 0 ? obj.UUIDHistory.at(-1)! : "",
           code: "code" in obj && obj.code ? obj.code : undefined,
           createdAt: obj.createdAt.toISOString(),

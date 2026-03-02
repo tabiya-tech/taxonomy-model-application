@@ -136,13 +136,15 @@ export function transformChild(
   data: ISkillGroupChild,
   baseURL: string
 ): SkillGroupAPISpecs.Types.GET.Response.Child.Payload {
+  const basePath =
+    data.objectType === ObjectTypes.Skill ? "skills" : "skillGroups";
   return {
     id: data.id,
     parentId: data.parentId,
     UUID: data.UUID,
     originUUID: data.UUIDHistory && data.UUIDHistory.length > 0 ? data.UUIDHistory.at(-1)! : "",
-    path: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/skillGroups/${data.id}`,
-    tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/skillGroups/${data.UUID}`,
+    path: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/${basePath}/${data.id}`,
+    tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/${basePath}/${data.UUID}`,
     UUIDHistory: data.UUIDHistory,
     originUri: data.originUri,
     code: "code" in data && data.code ? data.code : undefined,
