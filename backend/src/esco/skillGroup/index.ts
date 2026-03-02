@@ -141,8 +141,6 @@ export class SkillGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getSkillGroups(event: APIGatewayProxyEvent) {
-    console.log("we are here on s:", event.path);
-
     try {
       const { modelId: resolvedModelId } = parsePath<BasePathParams>(Routes.SKILL_GROUPS_ROUTE, event.path);
       if (!resolvedModelId) {
