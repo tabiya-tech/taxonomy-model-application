@@ -79,20 +79,22 @@ export interface ISkillGroupRepository {
   /**
    * Finds a SkillGroup parents entry by its child SkillGroup ID.
    *
+   * @param {string} modelId - The model ID to filter hierarchy relations.
    * @param {string} id - The unique ID of the child SkillGroup entry to find the parents for.
    * @return {Promise<ISkillGroup[]>} - A Promise that resolves to an array of parent SkillGroup entries of the child SkillGroup. If the child SkillGroup has no parents, resolves to an empty array.
    * Rejects with an error if the operation fails.
    */
-  findParents(id: string | mongoose.Types.ObjectId): Promise<ISkillGroup[]>;
+  findParents(modelId: string | mongoose.Types.ObjectId, id: string | mongoose.Types.ObjectId): Promise<ISkillGroup[]>;
 
   /**
    * Finds a SkillGroup children entry by its parent SkillGroup ID.
    *
+   * @param {string} modelId - The model ID to filter hierarchy relations.
    * @param {string} id - The unique ID of the parent SkillGroup entry to find the children for.
    * @return {Promise<ISkillGroupChild[]>} - A Promise that resolves to an array of child SkillGroup entries of the parent SkillGroup. If the parent SkillGroup has no children, resolves to an empty array.
    * Rejects with an error if the operation fails.
    */
-  findChildren(id: string | mongoose.Types.ObjectId): Promise<ISkillGroupChild[]>;
+  findChildren(modelId: string | mongoose.Types.ObjectId, id: string | mongoose.Types.ObjectId): Promise<ISkillGroupChild[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -264,10 +266,16 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async findParents(id: string | mongoose.Types.ObjectId): Promise<ISkillGroup[]> {
+  async findParents(
+    modelId: string | mongoose.Types.ObjectId,
+    id: string | mongoose.Types.ObjectId
+  ): Promise<ISkillGroup[]> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroup[];
-      const relations = await this.hierarchyModel.find({ childId: { $eq: new mongoose.Types.ObjectId(id) } }).exec();
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const relations = await this.hierarchyModel
+        .find({ modelId: modelIdObj, childId: { $eq: new mongoose.Types.ObjectId(id) } })
+        .exec();
       if (!relations.length) return [] as ISkillGroup[];
       const parentIds = relations.map((relation) => relation.parentId);
       const parents = await this.Model.find({ _id: mongoose.trusted({ $in: parentIds }) })
@@ -281,12 +289,16 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       throw err;
     }
   }
-  async findChildren(id: string | mongoose.Types.ObjectId): Promise<ISkillGroupChild[]> {
+  async findChildren(
+    modelId: string | mongoose.Types.ObjectId,
+    id: string | mongoose.Types.ObjectId
+  ): Promise<ISkillGroupChild[]> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroupChild[];
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const result = await this.hierarchyModel.aggregate([
         {
-          $match: { parentId: new mongoose.Types.ObjectId(id) },
+          $match: { modelId: modelIdObj, parentId: new mongoose.Types.ObjectId(id) },
         },
         {
           $lookup: {

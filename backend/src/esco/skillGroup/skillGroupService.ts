@@ -54,11 +54,11 @@ export class SkillGroupService implements ISkillGroupService {
     }
   }
 
-  async findParents(id: string): Promise<ISkillGroup[]> {
-    return await this.skillGroupRepository.findParents(id);
+  async findParents(modelId: string, id: string): Promise<ISkillGroup[]> {
+    return await this.skillGroupRepository.findParents(modelId, id);
   }
 
-  async findChildren(id: string): Promise<ISkillGroupChild[]> {
-    return await this.skillGroupRepository.findChildren(id);
+  async findChildren(modelId: string, id: string): Promise<ISkillGroupChild[]> {
+    return await this.skillGroupRepository.findChildren(modelId, id);
   }
 }
