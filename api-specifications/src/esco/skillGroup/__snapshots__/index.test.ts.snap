@@ -90,6 +90,58 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
   },
   "Schemas": {
     "GET": {
+      "Children": {
+        "Request": {
+          "Query": {
+            "Payload": {
+              "$id": "/components/schemas/SkillGroupChildrenRequestQuerySchemaGET",
+              "additionalProperties": false,
+              "properties": {
+                "cursor": {
+                  "description": "Pagination cursor for fetching the next page",
+                  "maxLength": 1720,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "limit": {
+                  "default": 20,
+                  "description": "Maximum number of items to return",
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer",
+                },
+              },
+              "type": "object",
+            },
+          },
+        },
+      },
+      "Parents": {
+        "Request": {
+          "Query": {
+            "Payload": {
+              "$id": "/components/schemas/SkillGroupParentsRequestQuerySchemaGET",
+              "additionalProperties": false,
+              "properties": {
+                "cursor": {
+                  "description": "Pagination cursor for fetching the next page",
+                  "maxLength": 1720,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "limit": {
+                  "default": 20,
+                  "description": "Maximum number of items to return",
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer",
+                },
+              },
+              "type": "object",
+            },
+          },
+        },
+      },
       "Request": {
         "ById": {
           "Param": {

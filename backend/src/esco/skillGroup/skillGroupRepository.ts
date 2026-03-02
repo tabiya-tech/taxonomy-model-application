@@ -77,24 +77,38 @@ export interface ISkillGroupRepository {
   ): Promise<ISkillGroup[]>;
 
   /**
-   * Finds a SkillGroup parents entry by its child SkillGroup ID.
+   * Finds a SkillGroup parents entry by its child SkillGroup ID with pagination.
    *
    * @param {string} modelId - The model ID to filter hierarchy relations.
    * @param {string} id - The unique ID of the child SkillGroup entry to find the parents for.
-   * @return {Promise<ISkillGroup[]>} - A Promise that resolves to an array of parent SkillGroup entries of the child SkillGroup. If the child SkillGroup has no parents, resolves to an empty array.
+   * @param {number} limit - The maximum number of parents to return (fetch limit+1 to check hasMore).
+   * @param {string} [cursor] - Optional cursor (parentId) for pagination.
+   * @return {Promise<ISkillGroup[]>} - A Promise that resolves to an array of parent SkillGroup entries.
    * Rejects with an error if the operation fails.
    */
-  findParents(modelId: string | mongoose.Types.ObjectId, id: string | mongoose.Types.ObjectId): Promise<ISkillGroup[]>;
+  findParents(
+    modelId: string | mongoose.Types.ObjectId,
+    id: string | mongoose.Types.ObjectId,
+    limit: number,
+    cursor?: string
+  ): Promise<ISkillGroup[]>;
 
   /**
-   * Finds a SkillGroup children entry by its parent SkillGroup ID.
+   * Finds a SkillGroup children entry by its parent SkillGroup ID with pagination.
    *
    * @param {string} modelId - The model ID to filter hierarchy relations.
    * @param {string} id - The unique ID of the parent SkillGroup entry to find the children for.
-   * @return {Promise<ISkillGroupChild[]>} - A Promise that resolves to an array of child SkillGroup entries of the parent SkillGroup. If the parent SkillGroup has no children, resolves to an empty array.
+   * @param {number} limit - The maximum number of children to return (fetch limit+1 to check hasMore).
+   * @param {string} [cursor] - Optional cursor (childId) for pagination.
+   * @return {Promise<ISkillGroupChild[]>} - A Promise that resolves to an array of child entries.
    * Rejects with an error if the operation fails.
    */
-  findChildren(modelId: string | mongoose.Types.ObjectId, id: string | mongoose.Types.ObjectId): Promise<ISkillGroupChild[]>;
+  findChildren(
+    modelId: string | mongoose.Types.ObjectId,
+    id: string | mongoose.Types.ObjectId,
+    limit: number,
+    cursor?: string
+  ): Promise<ISkillGroupChild[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -268,25 +282,44 @@ export class SkillGroupRepository implements ISkillGroupRepository {
 
   async findParents(
     modelId: string | mongoose.Types.ObjectId,
-    id: string | mongoose.Types.ObjectId
+    id: string | mongoose.Types.ObjectId,
+    limit: number,
+    cursor?: string
   ): Promise<ISkillGroup[]> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroup[];
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
-      const relations = await this.hierarchyModel
-        .find({
-          modelId: modelIdObj,
-          childId: { $eq: new mongoose.Types.ObjectId(id) },
-          parentType: ObjectTypes.SkillGroup,
-        })
-        .exec();
-      if (!relations.length) return [] as ISkillGroup[];
-      const parentIds = relations.map((relation) => relation.parentId);
-      const parents = await this.Model.find({ _id: { $in: parentIds } })
-        .populate(populateSkillGroupParentsOptions)
-        .populate(populateSkillGroupChildrenOptions)
-        .exec();
-      return parents.map((parent) => parent.toObject());
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        childId: { $eq: new mongoose.Types.ObjectId(id) },
+        parentType: ObjectTypes.SkillGroup,
+      };
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        matchStage.parentId = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
+      const pipeline: mongoose.PipelineStage[] = [
+        { $match: matchStage as mongoose.PipelineStage.Match["$match"] },
+        { $sort: { parentId: 1 } },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: this.Model.collection.name,
+            localField: "parentId",
+            foreignField: "_id",
+            as: "parent",
+          },
+        },
+        { $match: { "parent.0": { $exists: true } } },
+        { $replaceRoot: { newRoot: { $arrayElemAt: ["$parent", 0] } } },
+      ];
+      const results = await this.hierarchyModel.aggregate(pipeline).exec();
+      if (!results.length) return [] as ISkillGroup[];
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateSkillGroupParentsOptions,
+        populateSkillGroupChildrenOptions,
+      ]);
+      return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findParents: findParents failed", { cause: e });
       console.error(err);
@@ -295,15 +328,26 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   }
   async findChildren(
     modelId: string | mongoose.Types.ObjectId,
-    id: string | mongoose.Types.ObjectId
+    id: string | mongoose.Types.ObjectId,
+    limit: number,
+    cursor?: string
   ): Promise<ISkillGroupChild[]> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroupChild[];
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const matchStage: Record<string, unknown> = {
+        modelId: modelIdObj,
+        parentId: new mongoose.Types.ObjectId(id),
+      };
+      if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+        matchStage.childId = { $gt: new mongoose.Types.ObjectId(cursor) };
+      }
       const result = await this.hierarchyModel.aggregate([
         {
-          $match: { modelId: modelIdObj, parentId: new mongoose.Types.ObjectId(id) },
+          $match: matchStage as mongoose.PipelineStage.Match["$match"],
         },
+        { $sort: { childId: 1 } },
+        { $limit: limit },
         {
           $lookup: {
             from: "skillgroupmodels",

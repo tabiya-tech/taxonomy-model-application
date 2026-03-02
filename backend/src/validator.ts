@@ -117,6 +117,14 @@ ajvInstance.addSchema(
   SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload.$id
 );
 ajvInstance.addSchema(
+  SkillGroupAPISpecs.Schemas.GET.Parents.Request.Query.Payload,
+  SkillGroupAPISpecs.Schemas.GET.Parents.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillGroupAPISpecs.Schemas.GET.Children.Request.Query.Payload,
+  SkillGroupAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
   SkillAPISpecs.Schemas.GET.Request.Param.Payload,
   SkillAPISpecs.Schemas.GET.Request.Param.Payload.$id
 );

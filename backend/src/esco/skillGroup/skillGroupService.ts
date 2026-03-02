@@ -54,11 +54,47 @@ export class SkillGroupService implements ISkillGroupService {
     }
   }
 
-  async findParents(modelId: string, id: string): Promise<ISkillGroup[]> {
-    return await this.skillGroupRepository.findParents(modelId, id);
+  async findParents(
+    modelId: string,
+    id: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    return this.findPaginatedRelation(
+      () => this.skillGroupRepository.findParents(modelId, id, limit + 1, cursor),
+      limit
+    );
   }
 
-  async findChildren(modelId: string, id: string): Promise<ISkillGroupChild[]> {
-    return await this.skillGroupRepository.findChildren(modelId, id);
+  async findChildren(
+    modelId: string,
+    id: string,
+    limit: number,
+    cursor?: string
+  ): Promise<{ items: ISkillGroupChild[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    return this.findPaginatedRelation(
+      () => this.skillGroupRepository.findChildren(modelId, id, limit + 1, cursor),
+      limit
+    );
+  }
+
+  private async findPaginatedRelation<T extends { id: string; createdAt?: Date }>(
+    fetchFn: () => Promise<T[]>,
+    limit: number
+  ): Promise<{ items: T[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+    const items = await fetchFn();
+    const hasMore = items.length > limit;
+    const pageItems = hasMore ? items.slice(0, limit) : items;
+
+    let nextCursor: { _id: string; createdAt: Date } | null = null;
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
+      nextCursor = {
+        _id: lastItemOnPage.id,
+        createdAt: lastItemOnPage.createdAt ?? new Date(),
+      };
+    }
+
+    return { items: pageItems, nextCursor };
   }
 }

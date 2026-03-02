@@ -94,8 +94,8 @@ describe("Test for skillGroup handler", () => {
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: firstPageSkillGroups, nextCursor: null }),
         validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       } as ISkillGroupService;
@@ -175,8 +175,8 @@ describe("Test for skillGroup handler", () => {
       // AND a service that will successfully get the skill groups (returns 2 items for limit 1)
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({
           items: [givenSkillGroups[0]],
           nextCursor: { _id: givenSkillGroups[1].id, createdAt: givenSkillGroups[0].createdAt },
@@ -325,8 +325,8 @@ describe("Test for skillGroup handler", () => {
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn(),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest
           .fn()
           .mockResolvedValue(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
@@ -356,8 +356,8 @@ describe("Test for skillGroup handler", () => {
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn(),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest
           .fn()
           .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
@@ -388,8 +388,8 @@ describe("Test for skillGroup handler", () => {
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         decodeCursor: jest.fn().mockImplementation(() => {
           throw new Error("Failed to decode cursor");
         }),
@@ -433,8 +433,8 @@ describe("Test for skillGroup handler", () => {
         findById: jest.fn().mockResolvedValue(null),
         findAll: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
       const limit = 2;
@@ -492,8 +492,8 @@ describe("Test for skillGroup handler", () => {
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(givenSkillGroup),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn(),
       } as ISkillGroupService;
@@ -531,8 +531,8 @@ describe("Test for skillGroup handler", () => {
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn(),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest
           .fn()
@@ -571,8 +571,8 @@ describe("Test for skillGroup handler", () => {
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn(),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest
           .fn()
@@ -696,8 +696,8 @@ describe("Test for skillGroup handler", () => {
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn(),
       } as ISkillGroupService;
@@ -773,15 +773,15 @@ describe("Test for skillGroup handler", () => {
         findById: jest.fn().mockRejectedValue(new Error("Database connection failed")),
         findAll: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
 
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockRejectedValue(new Error("foo")),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn(),
       } as ISkillGroupService;
@@ -838,8 +838,8 @@ describe("Test for skillGroup handler", () => {
       };
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(givenSkillGroup),
-        findParents: jest.fn().mockResolvedValue([givenSkillGroupParent]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [givenSkillGroupParent], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn(),
       } as ISkillGroupService;
@@ -855,7 +855,56 @@ describe("Test for skillGroup handler", () => {
         "Content-Type": "application/json",
       });
       // AND the transformation function is called correctly
-      expect(transformParentsSpy).toHaveBeenCalledWith([givenSkillGroupParent], givenResourcesBaseUrl, null, null);
+      expect(transformParentsSpy).toHaveBeenCalledWith([givenSkillGroupParent], givenResourcesBaseUrl, 20, null);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/parents should support pagination with limit and cursor", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenParent1 = {
+        ...getISkillGroupMockData(3, givenModelId),
+        id: getMockStringId(3),
+        createdAt: new Date("2024-01-01"),
+      };
+      const givenParent2 = {
+        ...getISkillGroupMockData(4, givenModelId),
+        id: getMockStringId(4),
+        createdAt: new Date("2024-01-02"),
+      };
+      const cursorForSecondPage = Buffer.from(
+        JSON.stringify({ id: givenParent1.id, createdAt: givenParent1.createdAt.toISOString() })
+      ).toString("base64");
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: { limit: "1", cursor: cursorForSecondPage },
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/parents`,
+      } as never;
+
+      checkRole.mockResolvedValue(true);
+      const givenSkillGroup = {
+        ...getISkillGroupMockData(2, givenModelId),
+        id: givenSkillGroupId,
+        modelId: givenModelId,
+      };
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn().mockResolvedValue(givenSkillGroup),
+        findParents: jest.fn().mockResolvedValue({ items: [givenParent2], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      } as ISkillGroupService;
+      mockGetServiceRegistry().skillGroup = givenSkillGroupServiceMock;
+
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenSkillGroupServiceMock.findParents).toHaveBeenCalledWith(
+        givenModelId,
+        givenSkillGroupId,
+        1,
+        givenParent1.id
+      );
     });
     test("GET /models/{modelId}/skillGroups/{id}/parents should respond with NOT_FOUND if skill group is not found", async () => {
       // GIVEN a valid request with modelId and skillGroup ID
@@ -911,11 +960,14 @@ describe("Test for skillGroup handler", () => {
 
       // AND User has the required role
       checkRole.mockResolvedValue(true);
-      const skillGroupFromDifferentModel = { ...getISkillGroupMockData(2, differentModelId), modelId: differentModelId };
+      const skillGroupFromDifferentModel = {
+        ...getISkillGroupMockData(2, differentModelId),
+        modelId: differentModelId,
+      };
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(skillGroupFromDifferentModel),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       } as ISkillGroupService;
@@ -949,8 +1001,8 @@ describe("Test for skillGroup handler", () => {
       checkRole.mockResolvedValue(true);
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       } as ISkillGroupService;
@@ -1081,7 +1133,6 @@ describe("Test for skillGroup handler", () => {
       expect(typeof parsedMissing.details).toBe("string");
     });
     test("GET /models/{modelId}/skillGroups/{id}/parents should respond with INTERNAL_SERVER_ERROR if repository throws an error", async () => {
-      // GIVEN a valid request with modelId and skillGroup ID
       const givenModel: IModelInfo = {
         ...getIModelInfoMockData(1),
         UUID: "foo",
@@ -1089,6 +1140,11 @@ describe("Test for skillGroup handler", () => {
         released: false,
       };
       const givenSkillGroupId = getMockStringId(2);
+      const givenSkillGroup = {
+        ...getISkillGroupMockData(2, givenModel.id),
+        id: givenSkillGroupId,
+        modelId: givenModel.id,
+      };
       const givenEvent = {
         httpMethod: HTTP_VERBS.GET,
         headers: {},
@@ -1096,37 +1152,20 @@ describe("Test for skillGroup handler", () => {
         queryStringParameters: {},
         path: `/models/${givenModel.id}/skillGroups/${givenSkillGroupId}/parents`,
       } as never;
-      // AND User has the required role
       checkRole.mockResolvedValue(true);
-      // AND a repository that will throw an error
-      const givenSkillGroupRepositoryMock = {
-        Model: undefined as never,
-        hierarchyModel: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockRejectedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        findParents: jest.fn().mockResolvedValue(new Error("Database connection failed")),
-        findChildren: jest.fn().mockResolvedValue(null),
-      };
-      jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
       const givenSkillGroupServiceMock = {
-        findById: jest.fn(),
-        findParents: jest.fn().mockResolvedValue(new Error("foo")),
-        findChildren: jest.fn(),
+        findById: jest.fn().mockResolvedValue(givenSkillGroup),
+        findParents: jest.fn().mockRejectedValue(new Error("Database connection failed")),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        validateModelForSkillGroup: jest.fn(),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
 
-      // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler(givenEvent);
 
-      // THEN respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-      // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to retrieve the skill group parents from the DB",
@@ -1167,8 +1206,8 @@ describe("Test for skillGroup handler", () => {
       };
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(givenSkillGroup),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([givenSkillGroupChild]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [givenSkillGroupChild], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn(),
       } as ISkillGroupService;
@@ -1183,7 +1222,56 @@ describe("Test for skillGroup handler", () => {
         "Content-Type": "application/json",
       });
       // AND the transformation function is called correctly
-      expect(transformChildrenSpy).toHaveBeenCalledWith([givenSkillGroupChild], givenResourcesBaseUrl, null, null);
+      expect(transformChildrenSpy).toHaveBeenCalledWith([givenSkillGroupChild], givenResourcesBaseUrl, 20, null);
+    });
+    test("GET /models/{modelId}/skillGroups/{id}/children should support pagination with limit and cursor", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupId = getMockStringId(2);
+      const givenChild1 = {
+        ...getISkillGroupSkillTypedChildData(3, givenModelId),
+        id: getMockStringId(3),
+        createdAt: new Date("2024-01-01"),
+      };
+      const givenChild2 = {
+        ...getISkillGroupSkillTypedChildData(4, givenModelId),
+        id: getMockStringId(4),
+        createdAt: new Date("2024-01-02"),
+      };
+      const cursorForSecondPage = Buffer.from(
+        JSON.stringify({ id: givenChild1.id, createdAt: givenChild1.createdAt.toISOString() })
+      ).toString("base64");
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {},
+        pathParameters: { modelId: givenModelId.toString(), id: givenSkillGroupId.toString() },
+        queryStringParameters: { limit: "1", cursor: cursorForSecondPage },
+        path: `/models/${givenModelId}/skillGroups/${givenSkillGroupId}/children`,
+      } as never;
+
+      checkRole.mockResolvedValue(true);
+      const givenSkillGroup = {
+        ...getISkillGroupMockData(2, givenModelId),
+        id: givenSkillGroupId,
+        modelId: givenModelId,
+      };
+      const givenSkillGroupServiceMock = {
+        findById: jest.fn().mockResolvedValue(givenSkillGroup),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [givenChild2], nextCursor: null }),
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      } as ISkillGroupService;
+      mockGetServiceRegistry().skillGroup = givenSkillGroupServiceMock;
+
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenSkillGroupServiceMock.findChildren).toHaveBeenCalledWith(
+        givenModelId,
+        givenSkillGroupId,
+        1,
+        givenChild1.id
+      );
     });
     test("GET /models/{modelId}/skillGroups/{id}/children should respond with NOT_FOUND if model not exist", async () => {
       // GIVEN a valid request with modelId and skillGroup ID
@@ -1239,8 +1327,8 @@ describe("Test for skillGroup handler", () => {
       checkRole.mockResolvedValue(true);
       const givenSkillGroupServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
-        findParents: jest.fn().mockResolvedValue([]),
-        findChildren: jest.fn().mockResolvedValue([]),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       } as ISkillGroupService;
@@ -1345,7 +1433,6 @@ describe("Test for skillGroup handler", () => {
       expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
     });
     test("GET /models/{modelId}/skillGroups/{id}/children should respond with INTERNAL_SERVER_ERROR if repository throws an error", async () => {
-      // GIVEN a valid request with modelId and skillGroup ID
       const givenModel: IModelInfo = {
         ...getIModelInfoMockData(1),
         UUID: "foo",
@@ -1353,6 +1440,11 @@ describe("Test for skillGroup handler", () => {
         released: false,
       };
       const givenSkillGroupId = getMockStringId(2);
+      const givenSkillGroup = {
+        ...getISkillGroupMockData(2, givenModel.id),
+        id: givenSkillGroupId,
+        modelId: givenModel.id,
+      };
       const givenEvent = {
         httpMethod: HTTP_VERBS.GET,
         headers: {},
@@ -1360,35 +1452,19 @@ describe("Test for skillGroup handler", () => {
         queryStringParameters: {},
         path: `/models/${givenModel.id}/skillGroups/${givenSkillGroupId}/children`,
       } as never;
-      // AND User has the required role
       checkRole.mockResolvedValue(true);
-      // AND a repository that will throw an error
-      const givenSkillGroupRepositoryMock = {
-        Model: undefined as never,
-        hierarchyModel: undefined as never,
-        create: jest.fn().mockResolvedValue(null),
-        createMany: jest.fn().mockResolvedValue([]),
-        findById: jest.fn().mockRejectedValue(null),
-        findAll: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        findParents: jest.fn().mockResolvedValue(null),
-        findChildren: jest.fn().mockResolvedValue(new Error("Database connection failed")),
-      };
-      jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
       const givenSkillGroupServiceMock = {
-        findById: jest.fn(),
-        findParents: jest.fn(),
-        findChildren: jest.fn().mockResolvedValue(new Error("foo")),
+        findById: jest.fn().mockResolvedValue(givenSkillGroup),
+        findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findChildren: jest.fn().mockRejectedValue(new Error("Database connection failed")),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        validateModelForSkillGroup: jest.fn(),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       } as ISkillGroupService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
 
-      // WHEN the skillGroup handler is invoked with the given event
       const actualResponse = await skillGroupHandler(givenEvent);
 
-      // THEN respond with the INTERNAL_SERVER_ERROR status
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
