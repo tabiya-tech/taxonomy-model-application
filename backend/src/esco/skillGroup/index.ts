@@ -244,10 +244,12 @@ export class SkillGroupController {
         StatusCodes.OK,
         transformPaginated(currentPageSkillGroups.items, getResourcesBaseUrl(), limit, nextCursor)
       );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to retrieve skill groups:", error);
-      errorLoggerInstance.logError("Failed to retrieve the skill groups from the DB", error.name);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the skill groups from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
@@ -355,10 +357,12 @@ export class SkillGroupController {
         );
       }
       return responseJSON(StatusCodes.OK, transform(skillGroup, getResourcesBaseUrl()));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to get skill group by id:", error);
-      errorLoggerInstance.logError("Failed to retrieve the skill group from the DB", error.name);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the skill group from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
@@ -465,10 +469,12 @@ export class SkillGroupController {
         transformPaginatedParents(parentSkillGroups, getResourcesBaseUrl(), null, null)
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to get skill group parents:", error);
-      errorLoggerInstance.logError("Failed to retrieve the skill group parents from the DB", error.name);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the skill group parents from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
@@ -573,10 +579,12 @@ export class SkillGroupController {
       const children = await this.skillGroupService.findChildren(requestPathParameter.id);
       return responseJSON(StatusCodes.OK, transformPaginatedChildren(children, getResourcesBaseUrl(), null, null));
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to get skill group children:", error);
-      errorLoggerInstance.logError("Failed to retrieve the skill group children from the DB", error.name);
+      errorLoggerInstance.logError(
+        "Failed to retrieve the skill group children from the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
