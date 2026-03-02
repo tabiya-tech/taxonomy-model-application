@@ -98,6 +98,16 @@ interface ISkillGroupQueryParams {
   cursor?: string;
 }
 
+interface ISkillGroupParentsRequestQuery {
+  limit?: number;
+  cursor?: string;
+}
+
+interface ISkillGroupChildrenRequestQuery {
+  limit?: number;
+  cursor?: string;
+}
+
 namespace SkillGroupTypes {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _ = 0;
@@ -147,6 +157,20 @@ namespace SkillGroupTypes {
       export namespace Detail {
         export namespace Param {
           export type Payload = ISkillGroupDetailParam;
+        }
+      }
+    }
+    export namespace Parents {
+      export namespace Request {
+        export namespace Query {
+          export type Payload = ISkillGroupParentsRequestQuery;
+        }
+      }
+    }
+    export namespace Children {
+      export namespace Request {
+        export namespace Query {
+          export type Payload = ISkillGroupChildrenRequestQuery;
         }
       }
     }

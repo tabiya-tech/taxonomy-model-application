@@ -633,8 +633,7 @@ describe("test the transformation of ISkillGroupChild[] -> ISkillGroupChildrenRe
     );
 
     // THEN expect the transformation function to return the ISkillGroupChildrenResponse with limit and next cursor
-    const basePathFor = (obj: ISkillGroupChild) =>
-      obj.objectType === ObjectTypes.Skill ? "skills" : "skillGroups";
+    const basePathFor = (obj: ISkillGroupChild) => (obj.objectType === ObjectTypes.Skill ? "skills" : "skillGroups");
     expect(actual).toEqual({
       data: givenObjectsPaginated.map((obj) =>
         expect.objectContaining({

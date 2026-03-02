@@ -396,6 +396,15 @@ export class SkillGroupController {
    *      required: true
    *      schema:
    *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/id'
+   *    - in: query
+   *      name: limit
+   *      required: false
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupParentsRequestQueryParamSchemaGET/properties/limit'
+   *    - in: query
+   *      name: cursor
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupParentsRequestQueryParamSchemaGET/properties/cursor'
    *   responses:
    *     '200':
    *       description: Successfully retrieved the skill group parents.
@@ -464,10 +473,7 @@ export class SkillGroupController {
       }
 
       const skillGroup = await this.skillGroupService.findById(requestPathParameter.id);
-      if (
-        !skillGroup ||
-        skillGroup.modelId !== requestPathParameter.modelId
-      ) {
+      if (!skillGroup || skillGroup.modelId !== requestPathParameter.modelId) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
           SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
@@ -476,15 +482,58 @@ export class SkillGroupController {
         );
       }
 
-      const parentSkillGroups = await this.skillGroupService.findParents(
+      const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
+      const queryParams: SkillGroupAPISpecs.Types.GET.Parents.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
+
+      const validateQueryFunction = ajvInstance.getSchema(
+        SkillGroupAPISpecs.Schemas.GET.Parents.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Parents.Request.Query.Payload>;
+      const isQueryValid = validateQueryFunction(queryParams);
+      if (!isQueryValid) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = SkillGroupAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) limit = queryParams.limit;
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          console.error("Failed to decode cursor:", e);
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const result = await this.skillGroupService.findParents(
         requestPathParameter.modelId,
-        requestPathParameter.id
-      );
-      return responseJSON(
-        StatusCodes.OK,
-        transformPaginatedParents(parentSkillGroups, getResourcesBaseUrl(), null, null)
+        requestPathParameter.id,
+        limit,
+        decodedCursor?.id
       );
 
+      let nextCursor: string | null = null;
+      if (result.nextCursor) {
+        nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
+      }
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedParents(result.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
     } catch (error: unknown) {
       console.error("Failed to get skill group parents:", error);
       errorLoggerInstance.logError(
@@ -524,6 +573,15 @@ export class SkillGroupController {
    *      required: true
    *      schema:
    *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/id'
+   *    - in: query
+   *      name: limit
+   *      required: false
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupChildrenRequestQueryParamSchemaGET/properties/limit'
+   *    - in: query
+   *      name: cursor
+   *      schema:
+   *        $ref: '#/components/schemas/SkillGroupChildrenRequestQueryParamSchemaGET/properties/cursor'
    *   responses:
    *     '200':
    *       description: Successfully retrieved the skill group children.
@@ -593,10 +651,7 @@ export class SkillGroupController {
       }
 
       const skillGroup = await this.skillGroupService.findById(requestPathParameter.id);
-      if (
-        !skillGroup ||
-        skillGroup.modelId !== requestPathParameter.modelId
-      ) {
+      if (!skillGroup || skillGroup.modelId !== requestPathParameter.modelId) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
           SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
@@ -605,12 +660,58 @@ export class SkillGroupController {
         );
       }
 
-      const children = await this.skillGroupService.findChildren(
-        requestPathParameter.modelId,
-        requestPathParameter.id
-      );
-      return responseJSON(StatusCodes.OK, transformPaginatedChildren(children, getResourcesBaseUrl(), null, null));
+      const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
+      const queryParams: SkillGroupAPISpecs.Types.GET.Children.Request.Query.Payload = {
+        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
+        cursor: rawQueryParams.cursor ?? undefined,
+      };
 
+      const validateQueryFunction = ajvInstance.getSchema(
+        SkillGroupAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Children.Request.Query.Payload>;
+      const isQueryValid = validateQueryFunction(queryParams);
+      if (!isQueryValid) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
+        );
+      }
+
+      let limit = SkillGroupAPISpecs.Constants.DEFAULT_LIMIT;
+      if (queryParams.limit) limit = queryParams.limit;
+
+      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
+      if (queryParams.cursor) {
+        try {
+          decodedCursor = this.decodeCursor(queryParams.cursor);
+        } catch (e: unknown) {
+          console.error("Failed to decode cursor:", e);
+          return errorResponseGET(
+            StatusCodes.BAD_REQUEST,
+            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+            "Invalid cursor parameter",
+            ""
+          );
+        }
+      }
+
+      const result = await this.skillGroupService.findChildren(
+        requestPathParameter.modelId,
+        requestPathParameter.id,
+        limit,
+        decodedCursor?.id
+      );
+
+      let nextCursor: string | null = null;
+      if (result.nextCursor) {
+        nextCursor = this.encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
+      }
+      return responseJSON(
+        StatusCodes.OK,
+        transformPaginatedChildren(result.items, getResourcesBaseUrl(), limit, nextCursor)
+      );
     } catch (error: unknown) {
       console.error("Failed to get skill group children:", error);
       errorLoggerInstance.logError(

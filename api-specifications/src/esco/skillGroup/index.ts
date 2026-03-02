@@ -15,6 +15,8 @@ import SchemaGETParentResponse from "./schema.GET.parent.response";
 import SchemaGETParentsResponse from "./schema.GET.parents.response";
 import SchemaGETChildResponse from "./schema.GET.child.response";
 import SchemaGETChildrenResponse from "./schema.GET.children.response";
+import SchemaGETParentsRequestQuery from "./schema.GET.parents.request.query.param";
+import SchemaGETChildrenRequestQuery from "./schema.GET.children.request.query.param";
 
 namespace SkillGroupSchemas {
   export namespace GET {
@@ -46,6 +48,20 @@ namespace SkillGroupSchemas {
       export namespace ById {
         export namespace Param {
           export const Payload = SchemaGETByIdRequestParam;
+        }
+      }
+    }
+    export namespace Parents {
+      export namespace Request {
+        export namespace Query {
+          export const Payload = SchemaGETParentsRequestQuery;
+        }
+      }
+    }
+    export namespace Children {
+      export namespace Request {
+        export namespace Query {
+          export const Payload = SchemaGETChildrenRequestQuery;
         }
       }
     }

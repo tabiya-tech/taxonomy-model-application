@@ -136,8 +136,7 @@ export function transformChild(
   data: ISkillGroupChild,
   baseURL: string
 ): SkillGroupAPISpecs.Types.GET.Response.Child.Payload {
-  const basePath =
-    data.objectType === ObjectTypes.Skill ? "skills" : "skillGroups";
+  const basePath = data.objectType === ObjectTypes.Skill ? "skills" : "skillGroups";
   return {
     id: data.id,
     parentId: data.parentId,

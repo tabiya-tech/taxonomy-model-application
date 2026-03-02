@@ -68,6 +68,8 @@ delete SkillGroup.Schemas.GET.Response.Children.Payload.$id;
 delete SkillGroup.Schemas.GET.Request.Param.Payload.$id;
 delete SkillGroup.Schemas.GET.Request.Query.Payload.$id;
 delete SkillGroup.Schemas.GET.Request.ById.Param.Payload.$id;
+delete SkillGroup.Schemas.GET.Parents.Request.Query.Payload.$id;
+delete SkillGroup.Schemas.GET.Children.Request.Query.Payload.$id;
 delete Skill.Schemas.POST.Request.Payload.$id;
 delete Skill.Schemas.POST.Request.Param.Payload.$id;
 delete Skill.Schemas.POST.Response.Payload.$id;
@@ -400,7 +402,9 @@ function getOpenAPISpecification(
           SkillGroupResponseSchemaPOST: SkillGroup.Schemas.POST.Response.Payload,
           SkillGroupResponseSchemaGETById: SkillGroup.Schemas.GET.Response.ById.Payload,
           SkillGroupParentsResponseSchemaGET: SkillGroup.Schemas.GET.Response.Parents.Payload,
+          SkillGroupParentsRequestQueryParamSchemaGET: SkillGroup.Schemas.GET.Parents.Request.Query.Payload,
           SkillGroupChildrenResponseSchemaGET: SkillGroup.Schemas.GET.Response.Children.Payload,
+          SkillGroupChildrenRequestQueryParamSchemaGET: SkillGroup.Schemas.GET.Children.Request.Query.Payload,
           SkillGroupRequestParamSchemaGET: SkillGroup.Schemas.GET.Request.Param.Payload,
           SkillGroupRequestQueryParamSchemaGET: SkillGroup.Schemas.GET.Request.Query.Payload,
           SkillGroupResponseSchemaGET: SkillGroup.Schemas.GET.Response.Payload,
