@@ -1141,7 +1141,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualHierarchy).toHaveLength(3);
 
       // WHEN searching for the parents of the subject SkillGroup by its id
-      const actualFoundParents = await repository.findParents(givenSubject.id);
+      const actualFoundParents = await repository.findParents(givenModelId, givenSubject.id);
 
       const expectedParents: ISkillGroup[] = [
         { ...givenParent, children: [expectedSkillGroupReference(givenSubject), expectedSkillReference(givenChild_2)] },
@@ -1157,21 +1157,24 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
 
       // WHEN searching for it's parents by ti's id
-      const actualFoundParents = await repository.findParents(givenSkillGroup.id);
+      const actualFoundParents = await repository.findParents(givenModelId, givenSkillGroup.id);
       // THEN expect an empty array to be returned
       expect(actualFoundParents).toEqual([]);
     });
     test("should return [] if the children given id is not valid object id", async () => {
       // GIVEN No SkillGroup exists in the database
       // WHEN searching for the SkillGroup parents by it's id
-      const actualFoundSkillGroupParents = await repository.findParents("non_existing_child_id");
+      const actualFoundSkillGroupParents = await repository.findParents(
+        getMockStringId(1),
+        "non_existing_child_id"
+      );
 
       // THEN expect no SkillGroup parents to be found
       expect(actualFoundSkillGroupParents).toEqual([]);
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.skillGroup.findParents(getMockStringId(1));
+      return repositoryRegistry.skillGroup.findParents(getMockStringId(1), getMockStringId(2));
     });
   });
 
@@ -1214,7 +1217,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         },
       ]);
       expect(actualHierarchy).toHaveLength(3);
-      const actualFoundChildren = await repository.findChildren(givenParent.id);
+      const actualFoundChildren = await repository.findChildren(givenModelId, givenParent.id);
 
       const expectedChildren = [
         {
@@ -1258,7 +1261,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "group");
       const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
-      const actualFoundChildren = await repository.findChildren(givenSkillGroup.id);
+      const actualFoundChildren = await repository.findChildren(givenModelId, givenSkillGroup.id);
       // THEN expect no children to be found
       expect(actualFoundChildren).toHaveLength(0);
       expect(actualFoundChildren).toEqual([]);
@@ -1266,14 +1269,17 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should return [] if the parent given id is not a valid object id", async () => {
       // GIVEN No SkillGroup exists in the database
       // WHEN searching for the SkillGroup children by a non-valid id
-      const actualFoundChildren = await repository.findChildren("non_existing_parent_id");
+      const actualFoundChildren = await repository.findChildren(
+        getMockStringId(1),
+        "non_existing_parent_id"
+      );
 
       // THEN expect no children to be found
       expect(actualFoundChildren).toHaveLength(0);
       expect(actualFoundChildren).toEqual([]);
     });
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.skillGroup.findChildren(getMockStringId(1));
+      return repositoryRegistry.skillGroup.findChildren(getMockStringId(1), getMockStringId(2));
     });
   });
 });

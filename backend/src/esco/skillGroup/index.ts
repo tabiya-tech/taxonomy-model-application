@@ -463,7 +463,10 @@ export class SkillGroupController {
         );
       }
 
-      const parentSkillGroups = await this.skillGroupService.findParents(requestPathParameter.id);
+      const parentSkillGroups = await this.skillGroupService.findParents(
+        requestPathParameter.modelId,
+        requestPathParameter.id
+      );
       return responseJSON(
         StatusCodes.OK,
         transformPaginatedParents(parentSkillGroups, getResourcesBaseUrl(), null, null)
@@ -576,7 +579,10 @@ export class SkillGroupController {
         );
       }
 
-      const children = await this.skillGroupService.findChildren(requestPathParameter.id);
+      const children = await this.skillGroupService.findChildren(
+        requestPathParameter.modelId,
+        requestPathParameter.id
+      );
       return responseJSON(StatusCodes.OK, transformPaginatedChildren(children, getResourcesBaseUrl(), null, null));
 
     } catch (error: unknown) {

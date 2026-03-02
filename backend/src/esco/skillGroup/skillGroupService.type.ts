@@ -37,18 +37,20 @@ export interface ISkillGroupService {
   /**
    * Finds an SkillGroup parents entry by its ID.
    *
+   * @param {string} modelId - The model ID to filter hierarchy relations.
    * @param {string} id - The unique ID of the SkillGroup entry.
    * @return {Promise<ISkillGroup[]>} - A Promise that resolves to the found SkillGroup parents entry or [] if not found.
    * Rejects with an error if the operation fails.
    */
-  findParents(id: string): Promise<ISkillGroup[]>;
+  findParents(modelId: string, id: string): Promise<ISkillGroup[]>;
 
   /**
    * Finds an SkillGroup children entry by its ID.
    *
+   * @param {string} modelId - The model ID to filter hierarchy relations.
    * @param {string} id - The unique ID of the SkillGroup entry.
    * @return {Promise<ISkillGroupChild[]>} - A Promise that resolves to the found SkillGroup children entry or [] if not found.
    * Rejects with an error if the operation fails.
    */
-  findChildren(id: string): Promise<ISkillGroupChild[]>;
+  findChildren(modelId: string, id: string): Promise<ISkillGroupChild[]>;
 }

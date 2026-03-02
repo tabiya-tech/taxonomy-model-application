@@ -412,8 +412,9 @@ describe("Test the SkillGroupService", () => {
   });
 
   describe("findParents", () => {
-    test("should call repository.findParents with the given id and return the result", async () => {
-      // GIVEN an id
+    test("should call repository.findParents with the given modelId and id and return the result", async () => {
+      // GIVEN a modelId and an id
+      const givenModelId = getMockStringId(0);
       const givenParentId = getMockStringId(1);
       // AND the repository returns some parents
       const expectedParents: ISkillGroup[] = [
@@ -438,31 +439,33 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findParents.mockResolvedValue(expectedParents);
 
       // WHEN calling service.findParents
-      const actual = await service.findParents(givenParentId);
+      const actual = await service.findParents(givenModelId, givenParentId);
 
-      // THEN expect repository.findParents to have been called with the given id
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenParentId);
+      // THEN expect repository.findParents to have been called with the given modelId and id
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenParentId);
       // AND the returned parents to be the expected ones
       expect(actual).toEqual(expectedParents);
     });
     test("should return empty array if repository.findParents return an empty array for the given skillGroup", async () => {
-      // GIVEN an id
+      // GIVEN a modelId and an id
+      const givenModelId = getMockStringId(0);
       const givenId = getMockStringId(1);
       //AND the repository returns empty array
       mockRepository.findParents.mockResolvedValue([]);
 
       // WHEN calling service.findParents
-      const actual = await service.findParents(givenId);
+      const actual = await service.findParents(givenModelId, givenId);
 
-      // THEN expect repository.findParents to have been called with the given id
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenId);
+      // THEN expect repository.findParents to have been called with the given modelId and id
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenId);
       // AND the returned parents to be an empty array
       expect(actual).toEqual([]);
     });
   });
   describe("findChildren", () => {
-    test("should call repository.findChildren with the given id and return the result", async () => {
-      // GIVEN an id
+    test("should call repository.findChildren with the given modelId and id and return the result", async () => {
+      // GIVEN a modelId and an id
+      const givenModelId = getMockStringId(0);
       const givenParentId = getMockStringId(1);
 
       // AND the repository returns skill group children
@@ -486,23 +489,24 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findChildren.mockResolvedValue([expectedChildren]);
 
       // WHEN calling service.findChildren
-      const actual = await service.findChildren(givenParentId);
+      const actual = await service.findChildren(givenModelId, givenParentId);
 
-      // THEN expect repository.findChildren to have been called with the given id
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenParentId);
+      // THEN expect repository.findChildren to have been called with the given modelId and id
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenParentId);
       // AND the returned children to be the expected ones
       expect(actual).toEqual([expectedChildren]);
     });
 
     test("should return empty array if repository.findChildren return an empty array for the given skillGroup", async () => {
-      // GIVEN an id
+      // GIVEN a modelId and an id
+      const givenModelId = getMockStringId(0);
       const givenId = getMockStringId(1);
       // AND the repository returns empty array
       mockRepository.findChildren.mockResolvedValue([]);
       // WHEN calling service.findChildren
-      const actual = await service.findChildren(givenId);
-      // THEN expect repository.findChildren to have been called with the given id
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenId);
+      const actual = await service.findChildren(givenModelId, givenId);
+      // THEN expect repository.findChildren to have been called with the given modelId and id
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenId);
       // AND the returned children to be an empty array
       expect(actual).toEqual([]);
     });
