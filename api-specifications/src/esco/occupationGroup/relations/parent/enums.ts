@@ -1,26 +1,12 @@
 import { ObjectTypes as CommonGroupTypes } from "../../../common/objectTypes";
+import OccupationGroupEnums from "../../enums";
 
 namespace OccupationGroupParentEnums {
   export enum ObjectTypes {
     ISCOGroup = CommonGroupTypes.ISCOGroup,
     LocalGroup = CommonGroupTypes.LocalGroup,
   }
-  export namespace Relations {
-    export namespace Parent {
-      export enum ObjectTypes {
-        ISCOGroup = CommonGroupTypes.ISCOGroup,
-        LocalGroup = CommonGroupTypes.LocalGroup,
-      }
-    }
-    export namespace Children {
-      export enum ObjectTypes {
-        ISCOGroup = CommonGroupTypes.ISCOGroup,
-        LocalGroup = CommonGroupTypes.LocalGroup,
-        ESCOOccupation = CommonGroupTypes.ESCOOccupation,
-        LocalOccupation = CommonGroupTypes.LocalOccupation,
-      }
-    }
-  }
+  export import Relations = OccupationGroupEnums.Relations;
   export namespace GET {
     export namespace Response {
       export namespace Status400 {

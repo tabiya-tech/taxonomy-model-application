@@ -1,7 +1,7 @@
 import OccupationGroupConstants from "./constants";
 import OccupationGroupEnums from "./enums";
-import OccupationGroupParentEnums from "./relations/parent/enum";
-import OccupationGroupChildrenEnums from "./relations/children/enum";
+import OccupationGroupParentEnums from "./relations/parent/enums";
+import OccupationGroupChildrenEnums from "./relations/children/enums";
 import OccupationGroupTypes from "./types";
 import OccupationGroupRegexes from "./regex";
 
