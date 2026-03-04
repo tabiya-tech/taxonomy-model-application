@@ -2,6 +2,32 @@
 
 exports[`Test the occupationGroup module The export module matches the snapshot 1`] = `
 {
+  "ChildrenEnums": {
+    "GET": {
+      "Response": {
+        "Status400": {
+          "ErrorCodes": {
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {},
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN",
+          },
+        },
+      },
+    },
+    "ObjectTypes": {
+      "ESCOOccupation": "escooccupation",
+      "ISCOGroup": "iscogroup",
+      "LocalGroup": "localgroup",
+      "LocalOccupation": "localoccupation",
+    },
+  },
   "Constants": {
     "ALT_LABELS_MAX_ITEMS": 100,
     "ALT_LABEL_MAX_LENGTH": 256,
@@ -65,6 +91,48 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
           },
         },
       },
+    },
+    "Relations": {
+      "Children": {
+        "ObjectTypes": {
+          "ESCOOccupation": "escooccupation",
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+          "LocalOccupation": "localoccupation",
+        },
+      },
+      "Parent": {
+        "ObjectTypes": {
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+        },
+      },
+    },
+  },
+  "ParentEnums": {
+    "GET": {
+      "Response": {
+        "Status400": {
+          "ErrorCodes": {
+            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
+            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
+          },
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "OCCUPATION_GROUP_PARENT_NOT_FOUND": "OCCUPATION_GROUP_PARENT_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT",
+          },
+        },
+      },
+    },
+    "ObjectTypes": {
+      "ISCOGroup": "iscogroup",
+      "LocalGroup": "localgroup",
     },
     "Relations": {
       "Children": {

@@ -11,19 +11,19 @@ import {
   testUUIDField,
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
-import OccupationGroupAPISpecs from "./index";
+import OccupationGroupAPISpecs from "../../index";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
-import OccupationGroupEnums from "./enums";
-import OccupationGroupRegexes from "./regex";
+import OccupationGroupEnums from "../../enums";
+import OccupationGroupRegexes from "../../regex";
 import {
   getTestESCOOccupationCode,
   getTestISCOGroupCode,
   getTestLocalGroupCode,
   getTestLocalOccupationCode,
-} from "../_test_utilities/testUtils";
+} from "../../../_test_utilities/testUtils";
 
 describe("Test OccupationGroup child Validity", () => {
   // WHEN the OccupationGroupAPISpecs.Schemas.GET.Response.Child.Payload schema
