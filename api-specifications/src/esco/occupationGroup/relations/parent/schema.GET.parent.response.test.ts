@@ -12,9 +12,9 @@ import {
   testUUIDField,
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
-import OccupationGroupAPISpecs from ".";
+import OccupationGroupAPISpecs from "../../index";
 import { getMockId } from "_test_utilities/mockMongoId";
-import OccupationGroupEnums from "./enums";
+import OccupationGroupEnums from "../../enums";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import {
@@ -22,14 +22,14 @@ import {
   getStdObjectIdTestCases,
   getStdUUIDTestCases,
 } from "_test_utilities/stdSchemaTestCases";
-import OccupationGroupRegexes from "./regex";
+import OccupationGroupRegexes from "../../regex";
 import {
   getTestESCOLocalOccupationCode,
   getTestESCOOccupationCode,
   getTestISCOGroupCode,
   getTestLocalGroupCode,
   getTestLocalOccupationCode,
-} from "../_test_utilities/testUtils";
+} from "../../../_test_utilities/testUtils";
 
 describe("Test OccupationGroupAPISpecs schema validity", () => {
   // WHEN the OccupationGroupAPISpecs.GET.Parent.Response.Schema.Payload schema

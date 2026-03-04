@@ -1,5 +1,7 @@
 import OccupationGroupConstants from "./constants";
 import OccupationGroupEnums from "./enums";
+import OccupationGroupParentEnums from "./relations/parent/enum";
+import OccupationGroupChildrenEnums from "./relations/children/enum";
 import OccupationGroupTypes from "./types";
 import OccupationGroupRegexes from "./regex";
 
@@ -9,9 +11,9 @@ import SchemaPOSTResponse from "./schema.POST.response";
 import SchemaGETRequestParam from "./schema.GET.request.param";
 import SchemaGETByIdRequestParam from "./schema.GET.request.ById.param";
 import SchemaGETRequestQueryParam from "./schema.GET.request.query.param";
-import SchemaGETParentResponse from "./schema.GET.parent.response";
+import SchemaGETParentResponse from "./relations/parent/schema.GET.parent.response";
 import SchemaGETChildrenResponse from "./schema.GET.children.response";
-import SchemaGETChildResponse from "./schema.GET.child.response";
+import SchemaGETChildResponse from "./relations/children/schema.GET.child.response";
 
 namespace OccupationGroupSchemas {
   export namespace GET {
@@ -57,6 +59,8 @@ namespace OccupationGroupAPISpecs {
   export import Constants = OccupationGroupConstants;
   export import Schemas = OccupationGroupSchemas;
   export import Patterns = OccupationGroupRegexes;
+  export import ParentEnums = OccupationGroupParentEnums;
+  export import ChildrenEnums = OccupationGroupChildrenEnums;
 }
 
 export default OccupationGroupAPISpecs;
